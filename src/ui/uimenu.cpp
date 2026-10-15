@@ -1,6 +1,12 @@
 #include "common.h"
 
 //100%
+struct cUIThing;
+unsigned short cUIThing_getKeyframerEvent(cUIThing* self, int x);
+extern "C" void cUIScreen_playFrame(void* self, unsigned short frame, int flag);
+void cUIScreen_jumpToFrame(void* self, unsigned short frame);
+
+//100%
 INCLUDE_ASM("ui/uimenu", cUIMenu_setSelected);
 #ifdef SKIP_ASM
 struct cUIThing;
@@ -112,7 +118,14 @@ extern "C" void func_0039B760(void* self, char a1)
 }
 #endif
 
+//100%
 INCLUDE_ASM("ui/uimenu", func_0039B7A8);
+#ifdef SKIP_ASM
+extern "C" void func_0039B7A8(void* self, int value)
+{
+    *(int*)((char*)self + 0x9C) = value;
+}
+#endif
 
 //100%
 INCLUDE_ASM("ui/uimenu", func_0039B7B0);
