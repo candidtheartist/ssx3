@@ -1,6 +1,12 @@
 #include "common.h"
 
 //100%
+// PORT: PS2-only inline asm; needs a C fallback off-PS2.
+int cBELibrary_getProfileIndex(int);
+int cBELibrary_getCharacterID(int);
+int cBENewPlayerInterface_isMissionMan(int index);
+
+//100%
 INCLUDE_ASM("be/beintstat", cBEStatInterface_getCollisionAttrib);
 #ifdef SKIP_ASM
 // PORT: PS2-only inline asm; needs a C fallback off-PS2.
@@ -467,4 +473,10 @@ extern "C" void func_00149A88(void* self, signed char idx)
 
 INCLUDE_ASM("be/beintstat", func_00149BB8);
 
+//100%
 INCLUDE_ASM("be/beintstat", func_0014A078);
+#ifdef SKIP_ASM
+extern "C" void func_0014A078()
+{
+}
+#endif
