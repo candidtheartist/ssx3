@@ -1089,11 +1089,38 @@ extern "C" void* func_00287968(void* self, int a1, int a2)
 }
 #endif
 
+//100%
 INCLUDE_ASM("sound/ssxAudio", func_002879A0);
+#ifdef SKIP_ASM
+// The audio system's 16-byte entries
+struct sAudioEntries {
+    char pad_0x0000[0x62BC];
+    float entry[1][4];  // 0x62BC
+};
 
+extern "C" void* func_002879A0(char* self, int i)
+{
+    return ((sAudioEntries*)self)->entry[i];
+}
+#endif
+
+//100%
 INCLUDE_ASM("sound/ssxAudio", func_002879B0);
+#ifdef SKIP_ASM
+extern "C" void func_002879B0(char* self, int i)
+{
+    func_00287700_if(self, i, ((sAudioEntries*)self)->entry[i][0] + 0.09090909f);
+}
+#endif
 
+//100%
 INCLUDE_ASM("sound/ssxAudio", func_002879E0);
+#ifdef SKIP_ASM
+extern "C" void func_002879E0(char* self, int i)
+{
+    func_00287700_if(self, i, ((sAudioEntries*)self)->entry[i][0] - 0.09090909f);
+}
+#endif
 
 //100%
 INCLUDE_ASM("sound/ssxAudio", func_00287A10);
@@ -1873,11 +1900,34 @@ INCLUDE_ASM("sound/ssxAudio", func_00288F60);
 
 INCLUDE_ASM("sound/ssxAudio", func_00289398);
 
+//100%
 INCLUDE_ASM("sound/ssxAudio", func_002893C8);
+#ifdef SKIP_ASM
+extern "C" void func_00288F60(void* self, int i);
+
+// Next of six entries, wrapping
+extern "C" void func_002893C8(char* self)
+{
+    if (++*(int*)(self + 0x6470) == 6)
+        *(int*)(self + 0x6470) = 0;
+    func_00288F60(self, *(int*)(self + 0x6470));
+}
+#endif
 
 INCLUDE_ASM("sound/ssxAudio", func_00289400);
 
+//100%
 INCLUDE_ASM("sound/ssxAudio", func_00289448);
+#ifdef SKIP_ASM
+extern void* D_004A52D4;
+extern "C" void func_002B6950(void* p, int a, int b);
+
+extern "C" int func_00289448()
+{
+    func_002B6950(D_004A52D4, 1, 0);
+    return 1;
+}
+#endif
 
 //100%
 INCLUDE_ASM("sound/ssxAudio", func_00289470);
@@ -2088,7 +2138,18 @@ extern "C" void func_00289830(void* self, float v)
 }
 #endif
 
+//100%
 INCLUDE_ASM("sound/ssxAudio", func_00289880);
+#ifdef SKIP_ASM
+extern "C" void func_00289880(char* self)
+{
+    float one = 1.0f;
+    *(int*)(self + 0x6C58) = 0;
+    *(float*)(self + 0x6C6C) = one;
+    *(int*)(self + 0x6C60) = 0;
+    *(float*)(self + 0x6C64) = one - *(float*)(self + 0x6C68);
+}
+#endif
 
 //100%
 INCLUDE_ASM("sound/ssxAudio", func_002898A8);
