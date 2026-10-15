@@ -1,6 +1,15 @@
 #include "common.h"
 
 //100%
+// PORT: operator_new__FUi really takes (size, tag, flags, d), like cMemMan_alloc.
+void* operator_new_tag(unsigned int size, const char* tag, int flags, int d) __asm__("operator_new__FUi");
+extern "C" void* cMemMan_alloc(int size, const char* tag, unsigned int flags, int d);
+extern "C" void* func_00272788(void* obj, void* buf, int size, int a3, void* out);
+extern char D_00481F48[];
+extern char D_00481F58[];
+extern char D_004A34F0[];
+
+//100%
 INCLUDE_ASM("scripter/bxscriptengine", cBXScriptEngine_SetupBXEngine);
 #ifdef SKIP_ASM
 // PORT: operator_new__FUi really takes (size, tag, flags, d), like cMemMan_alloc.
@@ -67,7 +76,35 @@ extern "C" void func_00282020(void* self)
 }
 #endif
 
+//100%
 INCLUDE_ASM("scripter/bxscriptengine", func_002820B0);
+#ifdef SKIP_ASM
+extern "C" void func_002728F8(void*);
+extern "C" void func_00282908(void* self, void* script);
+
+extern "C" void func_002820B0(char* self)
+{
+    int i;
+    func_002728F8(*(void**)(self + 0x2B8));
+    for (i = 0; i < 16; i++) {
+        char* e = self + 0x2C0 + i * 0x24;
+        switch (*(int*)(e + 0x20)) {
+        case 0:
+            break;
+        case 1:
+            switch (*(int*)(e + 0x4)) {
+            case 0: continue;
+            case 1: func_00282908(self, e); break;
+            case 2: break;
+            case 3: continue;
+            case 4: break;
+            case 5: continue;
+            }
+            break;
+        }
+    }
+}
+#endif
 
 //100%
 INCLUDE_ASM("scripter/bxscriptengine", func_00282150);
@@ -283,15 +320,43 @@ extern "C" int func_00282450(void* self, int a1)
 
 INCLUDE_ASM("scripter/bxscriptengine", func_00282498);
 
+//100%
 INCLUDE_ASM("scripter/bxscriptengine", func_00282500);
+#ifdef SKIP_ASM
+extern "C" int func_00282500(void* self, void* p, int v)
+{
+    char* q = *(char**)((char*)p + 0xC);
+    int old = *(int*)(q + 0xC);
+    *(int*)(q + 0xC) = v;
+    return old;
+}
+#endif
 
 INCLUDE_ASM("scripter/bxscriptengine", func_00282510);
 
 INCLUDE_ASM("scripter/bxscriptengine", func_00282540);
 
+//100%
 INCLUDE_ASM("scripter/bxscriptengine", func_00282698);
+#ifdef SKIP_ASM
+extern "C" void func_00272BF8(void* p);
 
+extern "C" void func_00282698(void* self)
+{
+    func_00272BF8(*(void**)((char*)self + 0x2B8));
+}
+#endif
+
+//100%
 INCLUDE_ASM("scripter/bxscriptengine", func_002826B8);
+#ifdef SKIP_ASM
+extern "C" void func_00272C70(void* p);
+
+extern "C" void func_002826B8(void* self)
+{
+    func_00272C70(*(void**)((char*)self + 0x2B8));
+}
+#endif
 
 //100%
 INCLUDE_ASM("scripter/bxscriptengine", func_002826D8);
@@ -331,7 +396,16 @@ extern "C" void func_00282720(void* self, int a1)
 }
 #endif
 
+//100%
 INCLUDE_ASM("scripter/bxscriptengine", func_00282790);
+#ifdef SKIP_ASM
+extern int D_004A34E8;
+
+extern "C" int func_00282790()
+{
+    return D_004A34E8;
+}
+#endif
 
 //100%
 INCLUDE_ASM("scripter/bxscriptengine", func_00282798);
