@@ -19,7 +19,14 @@ cStreamPause* cStreamPause_construct()
 }
 #endif
 
+//100%
 INCLUDE_ASM("main/streampause", func_00242D50);
+#ifdef SKIP_ASM
+extern "C" void* func_00242D50(void* p, ...)
+{
+    return p;
+}
+#endif
 
 INCLUDE_ASM("main/streampause", func_00242D90);
 
@@ -64,6 +71,18 @@ extern "C" void func_00243838(void* self, int flags)
 
 INCLUDE_ASM("main/streampause", func_002438B0);
 
+//100%
 INCLUDE_ASM("main/streampause", func_002438E0);
+#ifdef SKIP_ASM
+extern "C" void func_002438E0()
+{
+}
+#endif
 
+//100%
 INCLUDE_ASM("main/streampause", func_002438E8);
+#ifdef SKIP_ASM
+extern "C" void func_002438E8()
+{
+}
+#endif
