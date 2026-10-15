@@ -659,9 +659,38 @@ extern "C" int func_0010D8F8(void* self)
 }
 #endif
 
+//100%
 INCLUDE_ASM("ai/computer", func_0010D938);
+#ifdef SKIP_ASM
+extern "C" int func_0010DEB0(void* self);
+float func_00113128(void* self);
 
+extern "C" int func_0010D938(void* self)
+{
+    int p = func_0010DEB0(self);
+    if (p == 0)
+        return 0;
+    float d = func_00113128((void*)p) - *(float*)(*(char**)((char*)self + 0x18) + 0x4D0);
+    if (d < *(float*)(*(char**)((char*)self + 0x18) + 0xDC))
+        return 1;
+    return 0;
+}
+#endif
+
+//100%
 INCLUDE_ASM("ai/computer", func_0010D990);
+#ifdef SKIP_ASM
+extern "C" int func_0010D990(void* self)
+{
+    int p = func_0010DEB0(self);
+    if (p == 0)
+        return 0;
+    float d = func_00113128((void*)p) - *(float*)(*(char**)((char*)self + 0x18) + 0x4D0);
+    if (*(float*)(*(char**)((char*)self + 0x18) + 0xE0) < d)
+        return 1;
+    return 0;
+}
+#endif
 
 //100%
 INCLUDE_ASM("ai/computer", func_0010D9E8);
@@ -1485,7 +1514,21 @@ extern "C" void func_0010F878(sComputer_0010F878* self)
 
 INCLUDE_ASM("ai/computer", func_0010F998);
 
+//100%
 INCLUDE_ASM("ai/computer", func_0010FBF0);
+#ifdef SKIP_ASM
+// Number of riders whose value at +0xAB8 is v
+extern "C" int func_0010FBF0(void* self, int v)
+{
+    int n = 0;
+    int i;
+    for (i = 0; i < *(int*)((char*)self + 0x78); i++) {
+        if (*(int*)(((char**)((char*)self + 0x28))[i] + 0xAB8) == v)
+            n++;
+    }
+    return n;
+}
+#endif
 
 //100%
 INCLUDE_ASM("ai/computer", func_0010FC30);
@@ -1537,13 +1580,143 @@ extern "C" void func_001112B8(void* self, int v)
 }
 #endif
 
+//100%
 INCLUDE_ASM("ai/computer", func_001112F8);
+#ifdef SKIP_ASM
+extern "C" void func_0013F410(void*, int);
+// These take (self) in their own units; here the caller's second argument is passed through
+void func_00139A18_pass(void*, int) __asm__("func_00139A18__FPv");
+void func_00136F28_pass(void*, int) __asm__("func_00136F28__FPv");
+extern "C" void func_0013C5A0(void*, int);
+extern "C" void func_00139178(void*, int);
 
+extern "C" void func_001112F8(char* self, int a1)
+{
+    switch (*(int*)(self + 0xDE0)) {
+    case 0:
+        func_0013F410(self, a1);
+        break;
+    case 1:
+        func_00139A18_pass(self + 0x20, a1);
+        break;
+    case 2:
+        func_00136F28_pass(self + 0x30, a1);
+        break;
+    case 3:
+        break;
+    case 4:
+        func_0013C5A0(self + 0xB0, a1);
+        break;
+    case 5:
+        func_00139178(self + 0x110, a1);
+        break;
+    }
+}
+#endif
+
+//100%
 INCLUDE_ASM("ai/computer", func_00111380);
+#ifdef SKIP_ASM
+void func_0013C7A8_d(void*, int) __asm__("func_0013C7A8");
+void func_001399E0_d(void*, int) __asm__("func_001399E0");
+void cWipeoutMotion_gainFocus_d(void*, int) __asm__("cWipeoutMotion_gainFocus");
+void func_0013AD20_d(void*, int) __asm__("func_0013AD20");
+void cHandplantMotion_gainFocus_d(void*, int) __asm__("cHandplantMotion_gainFocus");
 
+extern "C" void func_00111380(void* self_, int a1)
+{
+    char* self = (char*)self_;
+    switch (*(int*)(self + 0xDE0)) {
+    case 0:
+        func_0013C7A8_d(self, a1);
+        break;
+    case 1:
+        func_001399E0_d(self + 0x20, a1);
+        break;
+    case 2:
+        cWipeoutMotion_gainFocus_d(self + 0x30, a1);
+        break;
+    case 4:
+        func_0013AD20_d(self + 0xB0, a1);
+        break;
+    case 5:
+        cHandplantMotion_gainFocus_d(self + 0x110, a1);
+        break;
+    case 3:
+        break;
+    }
+}
+#endif
+
+//100%
 INCLUDE_ASM("ai/computer", func_00111408);
+#ifdef SKIP_ASM
+void func_0013D818_d(void*) __asm__("func_0013D818");
+void func_00139A20_d(void*) __asm__("func_00139A20");
+void func_00136E98_d(void*) __asm__("func_00136E98");
+void func_00136958_d(void*) __asm__("func_00136958");
+void func_0013AF28_d(void*) __asm__("func_0013AF28");
+void func_001391A8_d(void*) __asm__("func_001391A8");
 
+extern "C" void func_00111408(char* self)
+{
+    switch (*(int*)(self + 0xDE0)) {
+    case 0:
+        func_0013D818_d(self);
+        break;
+    case 1:
+        func_00139A20_d(self + 0x20);
+        break;
+    case 2:
+        func_00136E98_d(self + 0x30);
+        break;
+    case 3:
+        func_00136958_d(self + 0xA0);
+        break;
+    case 4:
+        func_0013AF28_d(self + 0xB0);
+        break;
+    case 5:
+        func_001391A8_d(self + 0x110);
+        break;
+    }
+}
+#endif
+
+//100%
 INCLUDE_ASM("ai/computer", func_001114A0);
+#ifdef SKIP_ASM
+void func_0013F178_d(void*) __asm__("func_0013F178");
+void func_00139C88_d(void*) __asm__("func_00139C88");
+void func_00136EE0_d(void*) __asm__("func_00136EE0");
+void func_00136978_d(void*) __asm__("func_00136978__FPv");
+void func_0013BFA8_d(void*) __asm__("func_0013BFA8");
+void func_00139528_d(void*) __asm__("func_00139528__FPv");
+
+extern "C" void func_001114A0(char* self)
+{
+    switch (*(int*)(self + 0xDE0)) {
+    case 0:
+        func_0013F178_d(self);
+        break;
+    case 1:
+        func_00139C88_d(self + 0x20);
+        break;
+    case 2:
+        func_00136EE0_d(self + 0x30);
+        break;
+    case 3:
+        func_00136978_d(self + 0xA0);
+        break;
+    case 4:
+        func_0013BFA8_d(self + 0xB0);
+        break;
+    case 5:
+        func_00139528_d(self + 0x110);
+        break;
+    }
+}
+#endif
 
 //100%
 INCLUDE_ASM("ai/computer", func_00111538);
@@ -1560,15 +1733,206 @@ extern "C" void func_00111538(void* self, int v)
 }
 #endif
 
+//100%
 INCLUDE_ASM("ai/computer", func_00111578);
+#ifdef SKIP_ASM
+void func_00131C30_d(void*, int) __asm__("func_00131C30");
+void func_0012FE98_d(void*, int) __asm__("func_0012FE98");
+void func_0012E9B0_d(void*, int) __asm__("func_0012E9B0__FPv");
+void func_0012FB68_d(void*, int) __asm__("func_0012FB68");
+void func_00134CB0_d(void*, int) __asm__("func_00134CB0");
+void func_00132048_d(void*, int) __asm__("func_00132048");
+void func_0012E690_d(void*, int) __asm__("func_0012E690");
+void func_00132F98_d(void*, int) __asm__("func_00132F98");
 
+extern "C" void func_00111578(char* self, int a1)
+{
+    switch (*(int*)(self + 0xDE4)) {
+    case 0:
+        func_00131C30_d(self + 0x1C0, a1);
+        break;
+    case 1:
+        func_0012FE98_d(self + 0x1D0, a1);
+        break;
+    case 2:
+        func_0012E9B0_d(self + 0x1F0, a1);
+        break;
+    case 4:
+        func_0012FB68_d(self + 0x210, a1);
+        break;
+    case 5:
+        func_00134CB0_d(self + 0x230, a1);
+        break;
+    case 7:
+        func_00132048_d(self + 0x2B0, a1);
+        break;
+    case 8:
+        func_0012E690_d(self + 0x2C0, a1);
+        break;
+    case 11:
+        func_00132F98_d(self + 0x370, a1);
+        break;
+    case 3: case 6: case 9: case 10: case 12: case 13:
+        break;
+    }
+}
+#endif
+
+//100%
 INCLUDE_ASM("ai/computer", func_00111630);
+#ifdef SKIP_ASM
+void func_00131608_d(void*, int) __asm__("func_00131608__FPv");
+void func_0012FC60_d(void*, int) __asm__("func_0012FC60__FPv");
+void func_0012E980_d(void*, int) __asm__("func_0012E980");
+void func_0012F620_d(void*, int) __asm__("func_0012F620");
+void func_00133128_d(void*, int) __asm__("func_00133128");
+void func_0012BE20_d(void*, int) __asm__("func_0012BE20");
+void func_00131D08_d(void*, int) __asm__("func_00131D08");
+void func_0012CA30_d(void*, int) __asm__("func_0012CA30");
+void func_0012F230_d(void*, int) __asm__("func_0012F230");
+void func_0012C5C8_d(void*, int) __asm__("func_0012C5C8");
+void func_001328B0_d(void*, int) __asm__("func_001328B0");
+void func_00136268_d(void*, int) __asm__("func_00136268");
 
+extern "C" void func_00111630(void* self_, int a1)
+{
+    char* self = (char*)self_;
+    switch (*(int*)(self + 0xDE4)) {
+    case 0:
+        func_00131608_d(self + 0x1C0, a1);
+        break;
+    case 1:
+        func_0012FC60_d(self + 0x1D0, a1);
+        break;
+    case 2:
+        func_0012E980_d(self + 0x1F0, a1);
+        break;
+    case 4:
+        func_0012F620_d(self + 0x210, a1);
+        break;
+    case 5:
+        func_00133128_d(self + 0x230, a1);
+        break;
+    case 6:
+        func_0012BE20_d(self + 0x290, a1);
+        break;
+    case 7:
+        func_00131D08_d(self + 0x2B0, a1);
+        break;
+    case 8:
+        func_0012CA30_d(self + 0x2C0, a1);
+        break;
+    case 9:
+        func_0012F230_d(self + 0x350, a1);
+        break;
+    case 10:
+        func_0012C5C8_d(self + 0x360, a1);
+        break;
+    case 11:
+        func_001328B0_d(self + 0x370, a1);
+        break;
+    case 12:
+        func_00136268_d(self + 0x390, a1);
+        break;
+    case 3: case 13:
+        break;
+    }
+}
+#endif
+
+//100%
 INCLUDE_ASM("ai/computer", func_00111728);
+#ifdef SKIP_ASM
+void func_00131620_d(void*, int) __asm__("func_00131620");
+void func_0012FC80_d(void*, int) __asm__("func_0012FC80");
+void func_0012E9B8_d(void*, int) __asm__("func_0012E9B8");
+void func_0012E778_d(void*, int) __asm__("func_0012E778");
+void func_0012F730_d(void*, int) __asm__("func_0012F730");
+void func_00133308_d(void*, int) __asm__("func_00133308");
+void func_0012BF68_d(void*, int) __asm__("func_0012BF68");
+void func_00131D30_d(void*, int) __asm__("func_00131D30");
+void func_0012CB68_d(void*, int) __asm__("func_0012CB68");
+void func_0012F398_d(void*, int) __asm__("func_0012F398");
+void func_0012C678_d(void*, int) __asm__("func_0012C678");
+void func_00132A30_d(void*, int) __asm__("func_00132A30");
+void func_00136508_d(void*, int) __asm__("func_00136508");
 
+extern "C" void func_00111728(char* self, int a1)
+{
+    switch (*(int*)(self + 0xDE4)) {
+    case 0:
+        func_00131620_d(self + 0x1C0, a1);
+        break;
+    case 1:
+        func_0012FC80_d(self + 0x1D0, a1);
+        break;
+    case 2:
+        func_0012E9B8_d(self + 0x1F0, a1);
+        break;
+    case 3:
+        func_0012E778_d(self + 0x200, a1);
+        break;
+    case 4:
+        func_0012F730_d(self + 0x210, a1);
+        break;
+    case 5:
+        func_00133308_d(self + 0x230, a1);
+        break;
+    case 6:
+        func_0012BF68_d(self + 0x290, a1);
+        break;
+    case 7:
+        func_00131D30_d(self + 0x2B0, a1);
+        break;
+    case 8:
+        func_0012CB68_d(self + 0x2C0, a1);
+        break;
+    case 9:
+        func_0012F398_d(self + 0x350, a1);
+        break;
+    case 10:
+        func_0012C678_d(self + 0x360, a1);
+        break;
+    case 11:
+        func_00132A30_d(self + 0x370, a1);
+        break;
+    case 12:
+        func_00136508_d(self + 0x390, a1);
+        break;
+    case 13:
+        break;
+    }
+}
+#endif
+
+//100%
 INCLUDE_ASM("ai/computer", func_00111830);
+#ifdef SKIP_ASM
+extern char* D_00459D70[];
+extern char D_00456C48[];
 
+extern "C" char* func_00111830(void* self)
+{
+    unsigned int i = *(unsigned int*)((char*)self + 0xDE0);
+    if (i >= 7)
+        return D_00456C48;
+    return D_00459D70[i];
+}
+#endif
+
+//100%
 INCLUDE_ASM("ai/computer", func_00111860);
+#ifdef SKIP_ASM
+extern char* D_00459DC8[];
+
+extern "C" char* func_00111860(void* self)
+{
+    unsigned int i = *(unsigned int*)((char*)self + 0xDE4);
+    if (i >= 15)
+        return D_00456C48;
+    return D_00459DC8[i];
+}
+#endif
 
 //100%
 INCLUDE_ASM("ai/computer", func_00111890);
