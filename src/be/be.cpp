@@ -1,6 +1,22 @@
 #include "common.h"
 
 //100%
+struct sBEInterface;
+extern sBEInterface* D_005308A8[];
+extern int D_004A11F4;
+extern void* D_004A11F8;
+extern int* D_004A11EC;
+extern int D_004A11F0;
+extern int* D_004A1250;
+extern char D_004A1200[];
+extern char D_0045A638[];
+extern "C" void* cMemMan_alloc(int size, const char* tag, unsigned int flags, int d);
+extern "C" void* func_00149860(void* mem);
+void* cBEPreRaceState_getState(void* self);
+void* cBERaceState_getState(void* self);
+void* cBEPostRaceState_getState(void* self);
+
+//100%
 INCLUDE_ASM("be/be", cBE_getBE);
 #ifdef SKIP_ASM
 struct sBEInterface;
@@ -61,7 +77,14 @@ struct sBEInterface {
 extern sBEInterface* D_005308A8[];
 extern int D_004A11F4;
 
+//100%
 INCLUDE_ASM("be/be", func_0014DD48);
+#ifdef SKIP_ASM
+extern "C" int func_0014DD48()
+{
+    return D_004A11F0 != 0;
+}
+#endif
 
 //100%
 INCLUDE_ASM("be/be", cBE_getInterface__Fv);
