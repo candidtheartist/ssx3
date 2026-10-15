@@ -3,6 +3,7 @@
 //100%
 INCLUDE_ASM("visualfx/renderstateman", cRenderStateMan_SnowFlakeColourR);
 #ifdef SKIP_ASM
+//100%
 struct sRSMVEntry {
     short delta;
     short index;
@@ -1115,7 +1116,16 @@ extern "C" void func_002EF950(sTrail_EF950* self)
 }
 #endif
 
+//100%
 INCLUDE_ASM("visualfx/renderstateman", func_002EFF90);
+#ifdef SKIP_ASM
+extern void* D_004A3B78;
+
+extern "C" void* func_002EFF90()
+{
+    return D_004A3B78;
+}
+#endif
 
 //100%
 INCLUDE_ASM("visualfx/renderstateman", func_002EFF98);
@@ -1316,7 +1326,16 @@ extern "C" void func_002F00A0(void* self, int i)
 }
 #endif
 
+//100%
 INCLUDE_ASM("visualfx/renderstateman", func_002F0360);
+#ifdef SKIP_ASM
+extern void* D_004A3B80;
+
+extern "C" void* func_002F0360()
+{
+    return D_004A3B80;
+}
+#endif
 
 //100%
 INCLUDE_ASM("visualfx/renderstateman", func_002F0368);
@@ -1333,7 +1352,13 @@ extern "C" void* func_002F0368(void* self)
 }
 #endif
 
+//100%
 INCLUDE_ASM("visualfx/renderstateman", func_002F0388);
+#ifdef SKIP_ASM
+extern "C" void func_002F0388()
+{
+}
+#endif
 
 //100%
 INCLUDE_ASM("visualfx/renderstateman", func_002F0390);
