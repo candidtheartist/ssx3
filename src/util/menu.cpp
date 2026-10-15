@@ -120,7 +120,18 @@ extern "C" int func_002CA3B0(void* self)
 }
 #endif
 
+//100%
 INCLUDE_ASM("util/menu", func_002CA3C0);
+#ifdef SKIP_ASM
+extern "C" void func_002CA3C0(void* self, int enable)
+{
+    if (enable) {
+        *(int*)((char*)self + 0x4) |= 8;
+    } else {
+        *(int*)((char*)self + 0x4) &= ~8;
+    }
+}
+#endif
 
 //100%
 INCLUDE_ASM("util/menu", func_002CA3E8);
@@ -1170,9 +1181,33 @@ extern "C" void cMenu_addItem(cMenuList* menu, void** item, int index)
 
 INCLUDE_ASM("util/menu", func_002CBD50);
 
+//100%
 INCLUDE_ASM("util/menu", func_002CBE10);
+#ifdef SKIP_ASM
+extern "C" void func_002CBE10(int* self)
+{
+    self[1] = 0;
+    self[0] = 0;
+}
+#endif
 
+//100%
 INCLUDE_ASM("util/menu", func_002CBE20);
+#ifdef SKIP_ASM
+extern int (*D_004A54BC)(int, int);
+extern "C" void func_002D4008(int* a, int* b);
+extern "C" void func_00418EF8_2CBE20(void* base, int n, int size, void (*cmp)(int*, int*)) __asm__("func_00418EF8");
+extern "C" void func_002CAAB0(void* self);
+
+// Sorts the menu's items with the given compare function.
+extern "C" void func_002CBE20(cMenuList* menu, int (*cmp)(int, int))
+{
+    D_004A54BC = cmp;
+    func_00418EF8_2CBE20(menu->items, menu->count, 4, func_002D4008);
+    D_004A54BC = 0;
+    func_002CAAB0(menu);
+}
+#endif
 
 //100% - objdiff report; single-function view differs only in a relocation name
 INCLUDE_ASM("util/menu", func_002CBE68);
@@ -1563,7 +1598,30 @@ extern "C" void func_002CC460(void* p)
 }
 #endif
 
+//100%
 INCLUDE_ASM("util/menu", func_002CC500);
+#ifdef SKIP_ASM
+struct sMenuItem_2CC500 {
+    char pad_0x00[0x10];
+    void* vtable;   // 0x10
+    int field_0x14;
+    int field_0x18;
+    int field_0x1C;
+    int field_0x20;
+};
+extern void* D_00486E80[];
+
+extern "C" sMenuItem_2CC500* func_002CC500(sMenuItem_2CC500* self, void* text, int a2, int a3, int a4, int a5)
+{
+    cMenuItem_cMenuItem((cMenuItem*)self, text);
+    self->field_0x14 = a3;
+    self->field_0x18 = a4;
+    self->field_0x1C = a5;
+    self->field_0x20 = a2;
+    self->vtable = D_00486E80;
+    return self;
+}
+#endif
 
 //100%
 INCLUDE_ASM("util/menu", func_002CC578);
@@ -1638,13 +1696,65 @@ extern "C" void func_002CC758(void* self, int a1)
 }
 #endif
 
+//100%
 INCLUDE_ASM("util/menu", func_002CC7B0);
+#ifdef SKIP_ASM
+struct sMenuItem_2CC7B0 {
+    char pad_0x00[0x10];
+    void* vtable;   // 0x10
+    int field_0x14;
+    int field_0x18;
+    int field_0x1C;
+    int field_0x20;
+};
+extern void* D_00486E30[];
+// PORT: these callers pass a string id (-1) in place of the text pointer.
+cMenuItem* cMenuItem_cMenuItem_id(cMenuItem* self, int id) __asm__("cMenuItem_cMenuItem__FP9cMenuItemPv");
 
+extern "C" sMenuItem_2CC7B0* func_002CC7B0(sMenuItem_2CC7B0* self)
+{
+    cMenuItem_cMenuItem_id((cMenuItem*)self, -1);
+    self->field_0x14 = 0;
+    self->vtable = D_00486E30;
+    self->field_0x20 = 0;
+    self->field_0x18 = 0;
+    return self;
+}
+#endif
+
+//100%
 INCLUDE_ASM("util/menu", func_002CC7F8);
+#ifdef SKIP_ASM
+extern "C" sMenuItem_2CC7B0* func_002CC7F8(sMenuItem_2CC7B0* self, void* text)
+{
+    cMenuItem_cMenuItem((cMenuItem*)self, text);
+    self->field_0x14 = 0;
+    self->vtable = D_00486E30;
+    self->field_0x20 = 0;
+    self->field_0x18 = 0;
+    return self;
+}
+#endif
 
 INCLUDE_ASM("util/menu", func_002CC838);
 
+//100%
 INCLUDE_ASM("util/menu", func_002CC8B0);
+#ifdef SKIP_ASM
+struct sListEntry_2CC8B0 {
+    void* name;
+    int value;
+};
+
+// Points the item at a null-terminated entry list and counts its entries.
+extern "C" void func_002CC8B0(void* self, sListEntry_2CC8B0* list)
+{
+    *(sListEntry_2CC8B0**)((char*)self + 0x1C) = list;
+    *(int*)((char*)self + 0x18) = 0;
+    while (list[*(int*)((char*)self + 0x18)].name != 0)
+        (*(int*)((char*)self + 0x18))++;
+}
+#endif
 
 //100%
 INCLUDE_ASM("util/menu", func_002CC8F0);
@@ -1940,7 +2050,20 @@ extern "C" s2CCF08Item* func_002CCF08(s2CCF08Item* self)
 }
 #endif
 
+//100%
 INCLUDE_ASM("util/menu", func_002CCF50);
+#ifdef SKIP_ASM
+extern "C" sMenuItem_2CC7B0* func_002CCF50(sMenuItem_2CC7B0* self, void* text)
+{
+    cMenuItem_cMenuItem((cMenuItem*)self, text);
+    self->field_0x14 = 0;
+    self->vtable = D_00486D40;
+    self->field_0x1C = 0;
+    self->field_0x20 = 0;
+    self->field_0x18 = 0;
+    return self;
+}
+#endif
 
 //100%
 INCLUDE_ASM("util/menu", func_002CCF98);
@@ -1968,7 +2091,16 @@ extern "C" func_002CCF98_sItem* func_002CCF98(func_002CCF98_sItem* self, void* t
 }
 #endif
 
+//100%
 INCLUDE_ASM("util/menu", func_002CCFF8);
+#ifdef SKIP_ASM
+extern "C" void func_002CCFF8(void* self, int a, int b)
+{
+    *(int*)((char*)self + 0x14) = a;
+    *(int*)((char*)self + 0x1C) = b;
+    *(int*)((char*)self + 0x18) = 0;
+}
+#endif
 
 //100%
 INCLUDE_ASM("util/menu", func_002CD008);
@@ -2029,11 +2161,43 @@ extern "C" void func_002CD0E8(void* self, int a1)
 }
 #endif
 
+//100%
 INCLUDE_ASM("util/menu", func_002CD128);
+#ifdef SKIP_ASM
+extern void* D_00486CF0[];
 
+extern "C" sMenuItem_2CC7B0* func_002CD128(sMenuItem_2CC7B0* self)
+{
+    cMenuItem_cMenuItem_id((cMenuItem*)self, -1);
+    self->field_0x14 = 0;
+    self->vtable = D_00486CF0;
+    self->field_0x18 = 0;
+    return self;
+}
+#endif
+
+//100%
 INCLUDE_ASM("util/menu", func_002CD168);
+#ifdef SKIP_ASM
+extern "C" sMenuItem_2CC7B0* func_002CD168(sMenuItem_2CC7B0* self, void* text, int a2, int a3)
+{
+    cMenuItem_cMenuItem((cMenuItem*)self, text);
+    self->field_0x14 = a2;
+    self->field_0x18 = a3;
+    self->vtable = D_00486CF0;
+    return self;
+}
+#endif
 
+//100%
 INCLUDE_ASM("util/menu", func_002CD1C0);
+#ifdef SKIP_ASM
+extern "C" void func_002CD1C0(void* self, int a, int b)
+{
+    *(int*)((char*)self + 0x14) = a;
+    *(int*)((char*)self + 0x18) = b;
+}
+#endif
 
 //100%
 INCLUDE_ASM("util/menu", func_002CD1D0);
@@ -2195,13 +2359,91 @@ void func_002CD3F0(void* self)
 }
 #endif
 
+//100%
 INCLUDE_ASM("util/menu", func_002CD3F8);
+#ifdef SKIP_ASM
+struct sCharMenuItem_2CD3F8 {
+    char pad_0x00[0x10];
+    void* vtable;   // 0x10
+    int field_0x14;
+    signed char* value; // 0x18
+    signed char min; // 0x1C
+    signed char max; // 0x1D
+    char pad_0x1E[2];
+    int field_0x20;
+    int field_0x24;
+    int field_0x28;
+};
+extern void* D_00486C00[];
 
+extern "C" sCharMenuItem_2CD3F8* func_002CD3F8(sCharMenuItem_2CD3F8* self)
+{
+    cMenuItem_cMenuItem_id((cMenuItem*)self, -1);
+    self->field_0x14 = 0;
+    self->vtable = D_00486C00;
+    self->value = 0;
+    self->min = 0;
+    self->max = 0;
+    self->field_0x24 = 0;
+    self->field_0x20 = 0;
+    self->field_0x28 = 0;
+    return self;
+}
+#endif
+
+//100%
 INCLUDE_ASM("util/menu", func_002CD450);
+#ifdef SKIP_ASM
+extern "C" sCharMenuItem_2CD3F8* func_002CD450(sCharMenuItem_2CD3F8* self, void* text)
+{
+    cMenuItem_cMenuItem((cMenuItem*)self, text);
+    self->field_0x14 = 0;
+    self->vtable = D_00486C00;
+    self->value = 0;
+    self->min = 0;
+    self->max = 0;
+    self->field_0x24 = 0;
+    self->field_0x20 = 0;
+    self->field_0x28 = 0;
+    return self;
+}
+#endif
 
+//100%
 INCLUDE_ASM("util/menu", func_002CD4A0);
+#ifdef SKIP_ASM
+extern "C" sCharMenuItem_2CD3F8* func_002CD4A0(sCharMenuItem_2CD3F8* self, void* text, signed char* value, signed char min, signed char max, int a5)
+{
+    cMenuItem_cMenuItem((cMenuItem*)self, text);
+    self->field_0x14 = a5;
+    self->value = value;
+    self->min = min;
+    self->max = max;
+    self->vtable = D_00486C00;
+    self->field_0x24 = 0;
+    self->field_0x20 = 0;
+    self->field_0x28 = 0;
+    return self;
+}
+#endif
 
+//100%
 INCLUDE_ASM("util/menu", func_002CD528);
+#ifdef SKIP_ASM
+// Sets the min/max range and clamps the bound value to it.
+extern "C" void func_002CD528(sCharMenuItem_2CD3F8* self, int min, int max)
+{
+    self->max = max;
+    self->min = min;
+    signed char* value = self->value;
+    if (value != 0) {
+        if (*value < (signed char)min)
+            *value = min;
+        if (self->max < *self->value)
+            *self->value = self->max;
+    }
+}
+#endif
 
 //100%
 INCLUDE_ASM("util/menu", func_002CD578);
@@ -2332,9 +2574,43 @@ extern "C" void func_002CD7F0(void* self, int a1)
 }
 #endif
 
+//100%
 INCLUDE_ASM("util/menu", func_002CD850);
+#ifdef SKIP_ASM
+extern void* D_00486BB0[];
 
+extern "C" sMenuItem_2CC7B0* func_002CD850(sMenuItem_2CC7B0* self)
+{
+    cMenuItem_cMenuItem_id((cMenuItem*)self, -1);
+    self->field_0x14 = 0;
+    self->vtable = D_00486BB0;
+    self->field_0x18 = 0;
+    self->field_0x1C = 0;
+    self->field_0x20 = 0;
+    *(int*)((char*)self + 0x28) = 0;
+    *(int*)((char*)self + 0x24) = 0;
+    *(int*)((char*)self + 0x2C) = 0;
+    return self;
+}
+#endif
+
+//100%
 INCLUDE_ASM("util/menu", func_002CD8A8);
+#ifdef SKIP_ASM
+extern "C" sMenuItem_2CC7B0* func_002CD8A8(sMenuItem_2CC7B0* self, void* text)
+{
+    cMenuItem_cMenuItem((cMenuItem*)self, text);
+    self->field_0x14 = 0;
+    self->vtable = D_00486BB0;
+    self->field_0x18 = 0;
+    self->field_0x1C = 0;
+    self->field_0x20 = 0;
+    *(int*)((char*)self + 0x28) = 0;
+    *(int*)((char*)self + 0x24) = 0;
+    *(int*)((char*)self + 0x2C) = 0;
+    return self;
+}
+#endif
 
 //100%
 INCLUDE_ASM("util/menu", cIntMenuItem_cIntMenuItem);
@@ -2368,7 +2644,25 @@ extern "C" cIntMenuItem_sItem* cIntMenuItem_cIntMenuItem(cIntMenuItem_sItem* sel
 }
 #endif
 
+//100%
 INCLUDE_ASM("util/menu", func_002CD978);
+#ifdef SKIP_ASM
+// Sets the min/max range and clamps the bound value to it.
+extern "C" void func_002CD978(void* self, int min, int max)
+{
+    *(int*)((char*)self + 0x20) = max;
+    *(int*)((char*)self + 0x1C) = min;
+    int* value = *(int**)((char*)self + 0x18);
+    if (value != 0) {
+        if (*value < min)
+            *value = min;
+        value = *(int**)((char*)self + 0x18);
+        max = *(int*)((char*)self + 0x20);
+        if (max < *value)
+            *value = max;
+    }
+}
+#endif
 
 //100%
 INCLUDE_ASM("util/menu", func_002CD9B8);
@@ -2501,7 +2795,38 @@ extern "C" void func_002CDC28(void* self, int a1)
 }
 #endif
 
+//100%
 INCLUDE_ASM("util/menu", func_002CDC88);
+#ifdef SKIP_ASM
+struct sFloatMenuItem_2CDC88 {
+    char pad_0x00[0x10];
+    void* vtable;    // 0x10
+    int field_0x14;
+    int field_0x18;
+    float field_0x1C;
+    float field_0x20;
+    float field_0x24;
+    int field_0x28;
+    int field_0x2C;
+    int field_0x30;
+};
+extern void* D_00486B60[];
+
+extern "C" sFloatMenuItem_2CDC88* func_002CDC88(sFloatMenuItem_2CDC88* self)
+{
+    cMenuItem_cMenuItem_id((cMenuItem*)self, -1);
+    self->vtable = D_00486B60;
+    self->field_0x24 = 1.0f;
+    self->field_0x14 = 0;
+    self->field_0x18 = 0;
+    self->field_0x1C = 0;
+    self->field_0x20 = 0;
+    self->field_0x30 = 0;
+    self->field_0x2C = 0;
+    self->field_0x28 = 0;
+    return self;
+}
+#endif
 
 //100%
 INCLUDE_ASM("util/menu", cFloatMenuItem_cFloatMenuItem);
@@ -2642,7 +2967,24 @@ extern "C" void func_002CE100(void* self, int a1)
 }
 #endif
 
+//100%
 INCLUDE_ASM("util/menu", func_002CE170);
+#ifdef SKIP_ASM
+extern void* D_00486B10[];
+
+extern "C" sFloatMenuItem_2CDC88* func_002CE170(sFloatMenuItem_2CDC88* self, void* text, int a2, int a3, float f1, float f2)
+{
+    cMenuItem_cMenuItem((cMenuItem*)self, text);
+    self->field_0x14 = a3;
+    self->field_0x18 = a2;
+    self->field_0x1C = f1;
+    self->field_0x20 = f2;
+    self->vtable = D_00486B10;
+    self->field_0x28 = 0;
+    self->field_0x24 = 0;
+    return self;
+}
+#endif
 
 //100%
 INCLUDE_ASM("util/menu", func_002CE1F0);
@@ -3477,11 +3819,51 @@ void cExpandMenuItem_addItem(void* self, void* item)
 }
 #endif
 
+//100%
 INCLUDE_ASM("util/menu", func_002CF928);
+#ifdef SKIP_ASM
+extern "C" void func_002CBD50(void* menu, int index);
 
+// Removes sub item index from the expand item's menu.
+extern "C" void func_002CF928(void* self, int index)
+{
+    func_002CBD50((char*)self + 0x18, index);
+}
+#endif
+
+//100%
 INCLUDE_ASM("util/menu", func_002CF948);
+#ifdef SKIP_ASM
+extern "C" void func_002CBE10(int* self);
+// PORT: called with a third argument (-1) here; bound to the same symbol.
+void cExpandMenuItem_addItem3(void* self, void* item, int index) __asm__("cExpandMenuItem_addItem__FPvT0");
 
+extern "C" void func_002CF948(void* self)
+{
+    func_002CBE10((int*)((char*)self + 0x18));
+    void* item = *(void**)((char*)self + 0x14);
+    if (item != 0)
+        cExpandMenuItem_addItem3(self, item, -1);
+}
+#endif
+
+//100%
 INCLUDE_ASM("util/menu", func_002CF988);
+#ifdef SKIP_ASM
+// Replaces the expand item's current sub item.
+extern "C" void func_002CF988(void* self, void* item)
+{
+    int i;
+    for (i = 0; i < ((cMenuList*)((char*)self + 0x18))->count; i++) {
+        if (((cMenuList*)((char*)self + 0x18))->items[i] == *(void**)((char*)self + 0x14)) {
+            func_002CBD50((char*)self + 0x18, i);
+            break;
+        }
+    }
+    *(void**)((char*)self + 0x14) = item;
+    cExpandMenuItem_addItem3(self, item, 0);
+}
+#endif
 
 //100% - objdiff report; single-function view differs only in a relocation name
 INCLUDE_ASM("util/menu", func_002CFA08);
@@ -3967,7 +4349,20 @@ void* func_002D03D0(void* self)
 }
 #endif
 
+//100%
 INCLUDE_ASM("util/menu", func_002D03F0);
+#ifdef SKIP_ASM
+extern void* D_004868B8[];
+
+extern "C" sMenuItem_2CC7B0* func_002D03F0(sMenuItem_2CC7B0* self, int a1, int a2)
+{
+    cMenuItem_cMenuItem_id((cMenuItem*)self, -1);
+    self->field_0x14 = a2;
+    self->field_0x18 = a1;
+    self->vtable = D_004868B8;
+    return self;
+}
+#endif
 
 //100%
 INCLUDE_ASM("util/menu", func_002D0448__FPv);
@@ -4276,9 +4671,41 @@ extern "C" sMenuRect_2D0D48* func_002D0D48(sMenuRect_2D0D48* ret, char* item)
 
 INCLUDE_ASM("util/menu", func_002D0EF8);
 
+//100%
 INCLUDE_ASM("util/menu", func_002D1740);
+#ifdef SKIP_ASM
+extern void* D_004867B0[];
 
+extern "C" cMenuList* func_002D1740(cMenuList* self)
+{
+    func_002CAA58(self);
+    *(void***)((char*)self + 0x12C) = D_004867B0;
+    cNullMenuItem_cNullMenuItem((cNullMenuItem*)((char*)self + 0x130), 0);
+    cSpaceMenuItem_cSpaceMenuItem((cSpaceMenuItem*)((char*)self + 0x14C), (void*)10);
+    func_002CCDF0((s2CCDF0Item*)((char*)self + 0x164), 0);
+    cMenu_addItem(self, (void**)((char*)self + 0x130), -1);
+    cMenu_addItem(self, (void**)((char*)self + 0x14C), -1);
+    cMenu_addItem(self, (void**)((char*)self + 0x164), -1);
+    return self;
+}
+#endif
+
+//100%
 INCLUDE_ASM("util/menu", func_002D17F0);
+#ifdef SKIP_ASM
+extern "C" cMenuList* func_002D17F0(cMenuList* self, void* text, void* text2)
+{
+    func_002CAA58(self);
+    *(void***)((char*)self + 0x12C) = D_004867B0;
+    cNullMenuItem_cNullMenuItem((cNullMenuItem*)((char*)self + 0x130), text);
+    cSpaceMenuItem_cSpaceMenuItem((cSpaceMenuItem*)((char*)self + 0x14C), (void*)0x1E);
+    func_002CCDF0((s2CCDF0Item*)((char*)self + 0x164), text2);
+    cMenu_addItem(self, (void**)((char*)self + 0x130), -1);
+    cMenu_addItem(self, (void**)((char*)self + 0x14C), -1);
+    cMenu_addItem(self, (void**)((char*)self + 0x164), -1);
+    return self;
+}
+#endif
 
 //100%
 INCLUDE_ASM("util/menu", func_002D18B0);
@@ -4364,9 +4791,29 @@ extern "C" int func_002D1A30(int id)
 }
 #endif
 
+//100%
 INCLUDE_ASM("util/menu", func_002D1A78);
+#ifdef SKIP_ASM
+extern "C" int func_0030A610(void* mgr, int a);
+extern void* D_004A3DD8;
 
+extern "C" int func_002D1A78(int a)
+{
+    return func_0030A610(D_004A3DD8, a);
+}
+#endif
+
+//100%
 INCLUDE_ASM("util/menu", func_002D1AA0);
+#ifdef SKIP_ASM
+extern "C" int func_00309D20(void* mgr, int a, int b);
+extern void* D_004A3DD8;
+
+extern "C" int func_002D1AA0(int a, int b)
+{
+    return func_00309D20(D_004A3DD8, a, b);
+}
+#endif
 
 //100%
 INCLUDE_ASM("util/menu", func_002D1AC8);
@@ -4404,7 +4851,25 @@ extern "C" void* func_002D1B08(int i)
 }
 #endif
 
+//100%
 INCLUDE_ASM("util/menu", func_002D1B30);
+#ifdef SKIP_ASM
+class cObj2D1B30 {
+public:
+    virtual void v01();
+    virtual void v02();
+    virtual void v03();
+    virtual void v04();
+    virtual void v05();
+    virtual void v06();
+    virtual int v07();
+};
+
+extern "C" int func_002D1B30(cObj2D1B30* self)
+{
+    return self->v07();
+}
+#endif
 
 //100%
 INCLUDE_ASM("util/menu", func_002D1B58);
@@ -4488,7 +4953,14 @@ extern "C" void* func_002D1C20(int i)
 }
 #endif
 
+//100%
 INCLUDE_ASM("util/menu", func_002D1C40);
+#ifdef SKIP_ASM
+extern "C" int func_002D1C40()
+{
+    return *(int*)(*(char**)(*(char**)(D_004A28A8 + 0x84) + 0x84) + 0x10);
+}
+#endif
 
 //100%
 INCLUDE_ASM("util/menu", func_002D1C58);
@@ -4512,7 +4984,14 @@ extern "C" float func_002D1C70()
 }
 #endif
 
+//100%
 INCLUDE_ASM("util/menu", func_002D1C80);
+#ifdef SKIP_ASM
+extern "C" float func_002D1C80()
+{
+    return (float)*(int*)(D_004A28A8 + 0x10);
+}
+#endif
 
 //100%
 INCLUDE_ASM("util/menu", func_002D1C98);
