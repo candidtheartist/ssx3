@@ -1,6 +1,15 @@
 #include "common.h"
 
 //100%
+// PORT: cMemMan_alloc is probably the game's overloaded operator new(size, tag, flags, align). Calling it as
+// operator new gives gcc's malloc-like (REG_NOALIAS) aliasing that the target shows. On PC use a real operator new.
+void* operator new(unsigned int size, const char* tag, unsigned int flags, int d) __asm__("cMemMan_alloc");
+extern "C" void func_002C6E98(void* file, const char* name, signed char lang);
+extern char D_004603F0[];
+extern const char* D_00441138[];
+extern signed char D_00441188[];
+
+//100%
 INCLUDE_ASM("util/locale", cFELocale_addFile);
 #ifdef SKIP_ASM
 // PORT: cMemMan_alloc is probably the game's overloaded operator new(size, tag, flags, align). Calling it as
@@ -60,7 +69,13 @@ extern "C" void func_00195A50(void* self, signed char i)
 }
 #endif
 
+//100%
 INCLUDE_ASM("util/locale", func_00195A98);
+#ifdef SKIP_ASM
+extern "C" void func_00195A98()
+{
+}
+#endif
 
 //100%
 INCLUDE_ASM("util/locale", func_00195AA0);
