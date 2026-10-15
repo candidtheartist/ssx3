@@ -4,6 +4,27 @@
 // single lq/sq pair instead of word-by-word.
 typedef int cQuad128 __attribute__((mode(TI)));
 
+// 4-byte colour (byte aligned: copied with lwl/lwr).
+struct sFontRGBA {
+    unsigned char r, g, b, a;
+};
+
+// The 0x14-byte render-state block at the top of the stack at + 0xE84.
+struct sFontRS {
+    int w0;
+    int w4;
+    int w8;
+    int wC;
+    int w10;
+};
+
+//100%
+// PORT: operator_new__FUi really takes (size, tag, flags, d); bound by asm label
+void* operator_new_tag(unsigned int size, const char* tag, int flags, int d) __asm__("operator_new__FUi");
+struct sFontTexHdr;
+extern "C" void cFont_downloadTexture(char* self, sFontTexHdr* img);
+extern char D_004A46F8[];
+
 //100%
 INCLUDE_ASM("render/font", cFont_linkFont);
 #ifdef SKIP_ASM
@@ -88,7 +109,40 @@ extern "C" void cFont_linkFont(void* vself, void* vdata, int flags)
 }
 #endif
 
+//100%
 INCLUDE_ASM("render/font", func_003919E8);
+#ifdef SKIP_ASM
+void cMemMan_free(void*);
+
+struct sFontVEntry19E8 {
+    short delta;
+    short index;
+    void (*fn)(void*, int);
+};
+
+struct sFontCtx19E8 {
+    char pad[0x10D8];
+    sFontVEntry19E8* vtable;    // 0x10D8
+};
+
+extern sFontCtx19E8* D_004A5B80_19E8 __asm__("D_004A5B80");
+
+// Frees the glyph table and releases the downloaded texture (+ 0x60).
+extern "C" void func_003919E8(void* self)
+{
+    if (*(void**)((char*)self + 0x4) != 0) {
+        cMemMan_free(*(void**)((char*)self + 0x4));
+    }
+    *(void**)((char*)self + 0x4) = 0;
+    // volatile: keeps this store out of the following branch's delay slot, as in the original.
+    *(volatile int*)((char*)self + 0x0) = 0;
+    if (*(int*)((char*)self + 0x60) < 0) {
+        return;
+    }
+    sFontCtx19E8* g = D_004A5B80_19E8;
+    g->vtable[50].fn((char*)g + g->vtable[50].delta, *(int*)((char*)self + 0x60));
+}
+#endif
 
 //100%
 INCLUDE_ASM("render/font", cFont_downloadTexture);
@@ -636,7 +690,16 @@ extern "C" void func_00392908(void* self, const char* str, float x, float y)
 }
 #endif
 
+//100%
 INCLUDE_ASM("render/font", func_00392980);
+#ifdef SKIP_ASM
+// Draws a string centred on x.
+extern "C" void func_00392980(void* self, const unsigned short* s, float x, float y)
+{
+    float w = func_003921F0(self, s, 0, 0, *(float*)((char*)self + 0x38), *(float*)((char*)self + 0x3C));
+    func_00391E30(self, x - w * 0.5f, y, (void*)s);
+}
+#endif
 
 //100%
 INCLUDE_ASM("render/font", func_003929F8);
@@ -671,7 +734,16 @@ extern "C" void func_00392A60(void* self, const char* str, float x, float y)
 }
 #endif
 
+//100%
 INCLUDE_ASM("render/font", func_00392AD0);
+#ifdef SKIP_ASM
+// Draws a string right-aligned at x: measures it with the font's scale (+ 0x38, + 0x3C) first.
+extern "C" void func_00392AD0(void* self, const unsigned short* s, float x, float y)
+{
+    float w = func_003921F0(self, s, 0, 0, *(float*)((char*)self + 0x38), *(float*)((char*)self + 0x3C));
+    func_00391E30(self, x - w, y, (void*)s);
+}
+#endif
 
 //100%
 INCLUDE_ASM("render/font", func_00392B40);
@@ -787,7 +859,16 @@ extern "C" void func_00392D18(sFontState* self)
 }
 #endif
 
+//100%
 INCLUDE_ASM("render/font", func_00392D58);
+#ifdef SKIP_ASM
+extern "C" void func_00392D58(sFontVec3* a, sFontVec3* b)
+{
+    a->x += b->x;
+    a->y += b->y;
+    a->z += b->z;
+}
+#endif
 
 //100%
 INCLUDE_ASM("render/font", func_00392D90);
@@ -800,7 +881,14 @@ extern "C" void func_00392D90(sFontState* self, sFontQuad* q, sFontVec3* v)
 }
 #endif
 
+//100%
 INCLUDE_ASM("render/font", func_00392DE0);
+#ifdef SKIP_ASM
+extern "C" void func_00392DE0(void* self, int value)
+{
+    *(int*)((char*)self + 0xA0) = value;
+}
+#endif
 
 //100%
 INCLUDE_ASM("render/font", func_00392DE8__FPvi);
@@ -826,11 +914,47 @@ extern "C" void* func_00392DF0(void* self)
 }
 #endif
 
+//100%
 INCLUDE_ASM("render/font", func_00392E60);
+#ifdef SKIP_ASM
+struct sFont2E60 {
+    int cur;        // 0x0
+    int f4;
+    int start;      // 0x8
+    int fC;
+    int f10;
+    int f14;
+    int b;          // 0x18
+    int a;          // 0x1C
+    int c;          // 0x20
+    int d;          // 0x24
+    int hasD;       // 0x28
+    int one;        // 0x2C
+};
+
+extern "C" void func_00392E60(sFont2E60* self, int a, int b, int c, int d)
+{
+    self->start = self->cur;
+    self->cur += 0x10;
+    self->b = b;
+    self->a = a;
+    self->c = c;
+    self->d = d;
+    self->hasD = d != 0;
+    self->one = 1;
+}
+#endif
 
 INCLUDE_ASM("render/font", func_00392E98);
 
+//100%
 INCLUDE_ASM("render/font", func_00393008);
+#ifdef SKIP_ASM
+extern "C" void* func_00393008(void* self, ...)
+{
+    return self;
+}
+#endif
 
 INCLUDE_ASM("render/font", func_00393048);
 
@@ -905,89 +1029,558 @@ int func_00394018(void* self)
 }
 #endif
 
+//100%
 INCLUDE_ASM("render/font", func_00394020);
+#ifdef SKIP_ASM
+extern "C" void func_00394020(void* self, int value)
+{
+    *(int*)((char*)self + 0x270) = value;
+}
+#endif
 
+//100%
 INCLUDE_ASM("render/font", func_00394028);
+#ifdef SKIP_ASM
+extern "C" int func_00394028(void* self)
+{
+    return *(int*)((char*)self + 0x270);
+}
+#endif
 
+//100%
 INCLUDE_ASM("render/font", func_00394030);
+#ifdef SKIP_ASM
+extern "C" void func_00394030(void* self, int value)
+{
+    *(int*)((char*)self + 0x274) = value;
+}
+#endif
 
+//100%
 INCLUDE_ASM("render/font", func_00394038);
+#ifdef SKIP_ASM
+extern "C" int func_00394038(void* self)
+{
+    return *(int*)((char*)self + 0x274);
+}
+#endif
 
+//100%
 INCLUDE_ASM("render/font", func_00394040);
+#ifdef SKIP_ASM
+// Five 8-entry int tables at + 0xC .. + 0xAC, set by index.
+struct sFontSlotTables {
+    char pad[0xC];
+    int table0[8];  // 0xC
+    int table1[8];  // 0x2C
+    int table2[8];  // 0x4C
+    int table3[8];  // 0x6C
+    int table4[8];  // 0x8C
+};
 
+extern "C" void func_00394040(void* self, int value, int i)
+{
+    ((sFontSlotTables*)self)->table0[i] = value;
+}
+#endif
+
+//100%
 INCLUDE_ASM("render/font", func_00394050);
+#ifdef SKIP_ASM
+struct sfunc_00394050 {
+    char pad[0xC];
+    int values[1];
+};
 
+extern "C" int func_00394050(sfunc_00394050* self, int i)
+{
+    return self->values[i];
+}
+#endif
+
+//100%
 INCLUDE_ASM("render/font", func_00394060);
+#ifdef SKIP_ASM
+extern "C" void func_00394060(void* self, int value, int i)
+{
+    ((sFontSlotTables*)self)->table1[i] = value;
+}
+#endif
 
+//100%
 INCLUDE_ASM("render/font", func_00394070);
+#ifdef SKIP_ASM
+struct sfunc_00394070 {
+    char pad[0x2C];
+    int values[1];
+};
 
+extern "C" int func_00394070(sfunc_00394070* self, int i)
+{
+    return self->values[i];
+}
+#endif
+
+//100%
 INCLUDE_ASM("render/font", func_00394080);
+#ifdef SKIP_ASM
+extern "C" void func_00394080(void* self, int value, int i)
+{
+    ((sFontSlotTables*)self)->table2[i] = value;
+}
+#endif
 
+//100%
 INCLUDE_ASM("render/font", func_00394090);
+#ifdef SKIP_ASM
+struct sfunc_00394090 {
+    char pad[0x4C];
+    int values[1];
+};
 
+extern "C" int func_00394090(sfunc_00394090* self, int i)
+{
+    return self->values[i];
+}
+#endif
+
+//100%
 INCLUDE_ASM("render/font", func_003940A0);
+#ifdef SKIP_ASM
+extern "C" void func_003940A0(void* self, int value, int i)
+{
+    ((sFontSlotTables*)self)->table3[i] = value;
+}
+#endif
 
+//100%
 INCLUDE_ASM("render/font", func_003940B0);
+#ifdef SKIP_ASM
+struct sfunc_003940B0 {
+    char pad[0x6C];
+    int values[1];
+};
 
+extern "C" int func_003940B0(sfunc_003940B0* self, int i)
+{
+    return self->values[i];
+}
+#endif
+
+//100%
 INCLUDE_ASM("render/font", func_003940C0);
+#ifdef SKIP_ASM
+extern "C" void func_003940C0(void* self, int value, int i)
+{
+    ((sFontSlotTables*)self)->table4[i] = value;
+}
+#endif
 
+//100%
 INCLUDE_ASM("render/font", func_003940D0);
+#ifdef SKIP_ASM
+struct sfunc_003940D0 {
+    char pad[0x8C];
+    int values[1];
+};
 
+extern "C" int func_003940D0(sfunc_003940D0* self, int i)
+{
+    return self->values[i];
+}
+#endif
+
+//100%
 INCLUDE_ASM("render/font", func_003940E0);
+#ifdef SKIP_ASM
+struct sfunc_003940E0 {
+    char pad[0xAC];
+    float values[1];
+};
 
+extern "C" void func_003940E0(sfunc_003940E0* self, int i, float value)
+{
+    self->values[i] = value;
+}
+#endif
+
+//100%
 INCLUDE_ASM("render/font", func_003940F0);
+#ifdef SKIP_ASM
+struct sfunc_003940F0 {
+    char pad[0xAC];
+    float values[1];
+};
 
+extern "C" float func_003940F0(sfunc_003940F0* self, int i)
+{
+    return self->values[i];
+}
+#endif
+
+//100%
 INCLUDE_ASM("render/font", func_00394100);
+#ifdef SKIP_ASM
+struct sfunc_00394100 {
+    char pad[0xCC];
+    float values[1];
+};
 
+extern "C" void func_00394100(sfunc_00394100* self, int i, float value)
+{
+    self->values[i] = value;
+}
+#endif
+
+//100%
 INCLUDE_ASM("render/font", func_00394110);
+#ifdef SKIP_ASM
+struct sfunc_00394110 {
+    char pad[0xCC];
+    float values[1];
+};
 
+extern "C" float func_00394110(sfunc_00394110* self, int i)
+{
+    return self->values[i];
+}
+#endif
+
+//100%
 INCLUDE_ASM("render/font", func_00394120);
+#ifdef SKIP_ASM
+struct sfunc_00394120 {
+    char pad[0xEC];
+    float values[1];
+};
 
+extern "C" void func_00394120(sfunc_00394120* self, int i, float value)
+{
+    self->values[i] = value;
+}
+#endif
+
+//100%
 INCLUDE_ASM("render/font", func_00394130);
+#ifdef SKIP_ASM
+struct sfunc_00394130 {
+    char pad[0xEC];
+    float values[1];
+};
 
+extern "C" float func_00394130(sfunc_00394130* self, int i)
+{
+    return self->values[i];
+}
+#endif
+
+//100%
 INCLUDE_ASM("render/font", func_00394140);
+#ifdef SKIP_ASM
+struct sfunc_00394140 {
+    char pad[0x10C];
+    float values[1];
+};
 
+extern "C" void func_00394140(sfunc_00394140* self, int i, float value)
+{
+    self->values[i] = value;
+}
+#endif
+
+//100%
 INCLUDE_ASM("render/font", func_00394150);
+#ifdef SKIP_ASM
+struct sfunc_00394150 {
+    char pad[0x10C];
+    float values[1];
+};
 
+extern "C" float func_00394150(sfunc_00394150* self, int i)
+{
+    return self->values[i];
+}
+#endif
+
+//100%
 INCLUDE_ASM("render/font", func_00394160);
+#ifdef SKIP_ASM
+struct sfunc_00394160 {
+    char pad[0x12C];
+    float values[1];
+};
 
+extern "C" void func_00394160(sfunc_00394160* self, int i, float value)
+{
+    self->values[i] = value;
+}
+#endif
+
+//100%
 INCLUDE_ASM("render/font", func_00394170);
+#ifdef SKIP_ASM
+struct sfunc_00394170 {
+    char pad[0x12C];
+    float values[1];
+};
 
+extern "C" float func_00394170(sfunc_00394170* self, int i)
+{
+    return self->values[i];
+}
+#endif
+
+//100%
 INCLUDE_ASM("render/font", func_00394180);
+#ifdef SKIP_ASM
+struct sfunc_00394180 {
+    char pad[0x14C];
+    float values[1];
+};
 
+extern "C" void func_00394180(sfunc_00394180* self, int i, float value)
+{
+    self->values[i] = value;
+}
+#endif
+
+//100%
 INCLUDE_ASM("render/font", func_00394190);
+#ifdef SKIP_ASM
+struct sfunc_00394190 {
+    char pad[0x14C];
+    float values[1];
+};
 
+extern "C" float func_00394190(sfunc_00394190* self, int i)
+{
+    return self->values[i];
+}
+#endif
+
+//100%
 INCLUDE_ASM("render/font", func_003941A0);
+#ifdef SKIP_ASM
+struct sfunc_003941A0 {
+    char pad[0x16C];
+    float values[1];
+};
 
+extern "C" void func_003941A0(sfunc_003941A0* self, int i, float value)
+{
+    self->values[i] = value;
+}
+#endif
+
+//100%
 INCLUDE_ASM("render/font", func_003941B0);
+#ifdef SKIP_ASM
+struct sfunc_003941B0 {
+    char pad[0x16C];
+    float values[1];
+};
 
+extern "C" float func_003941B0(sfunc_003941B0* self, int i)
+{
+    return self->values[i];
+}
+#endif
+
+//100%
 INCLUDE_ASM("render/font", func_003941C0);
+#ifdef SKIP_ASM
+struct sfunc_003941C0 {
+    char pad[0x18C];
+    float values[1];
+};
 
+extern "C" void func_003941C0(sfunc_003941C0* self, int i, float value)
+{
+    self->values[i] = value;
+}
+#endif
+
+//100%
 INCLUDE_ASM("render/font", func_003941D0);
+#ifdef SKIP_ASM
+struct sfunc_003941D0 {
+    char pad[0x18C];
+    float values[1];
+};
 
+extern "C" float func_003941D0(sfunc_003941D0* self, int i)
+{
+    return self->values[i];
+}
+#endif
+
+//100%
 INCLUDE_ASM("render/font", func_003941E0);
+#ifdef SKIP_ASM
+struct sfunc_003941E0 {
+    char pad[0x1AC];
+    float values[1];
+};
 
+extern "C" void func_003941E0(sfunc_003941E0* self, int i, float value)
+{
+    self->values[i] = value;
+}
+#endif
+
+//100%
 INCLUDE_ASM("render/font", func_003941F0);
+#ifdef SKIP_ASM
+struct sfunc_003941F0 {
+    char pad[0x1AC];
+    float values[1];
+};
 
+extern "C" float func_003941F0(sfunc_003941F0* self, int i)
+{
+    return self->values[i];
+}
+#endif
+
+//100%
 INCLUDE_ASM("render/font", func_00394200);
+#ifdef SKIP_ASM
+struct sfunc_00394200 {
+    char pad[0x1CC];
+    float values[1];
+};
 
+extern "C" void func_00394200(sfunc_00394200* self, int i, float value)
+{
+    self->values[i] = value;
+}
+#endif
+
+//100%
 INCLUDE_ASM("render/font", func_00394210);
+#ifdef SKIP_ASM
+struct sfunc_00394210 {
+    char pad[0x1CC];
+    float values[1];
+};
 
+extern "C" float func_00394210(sfunc_00394210* self, int i)
+{
+    return self->values[i];
+}
+#endif
+
+//100%
 INCLUDE_ASM("render/font", func_00394220);
+#ifdef SKIP_ASM
+struct sfunc_00394220 {
+    char pad[0x1EC];
+    float values[1];
+};
 
+extern "C" void func_00394220(sfunc_00394220* self, int i, float value)
+{
+    self->values[i] = value;
+}
+#endif
+
+//100%
 INCLUDE_ASM("render/font", func_00394230);
+#ifdef SKIP_ASM
+struct sfunc_00394230 {
+    char pad[0x1EC];
+    float values[1];
+};
 
+extern "C" float func_00394230(sfunc_00394230* self, int i)
+{
+    return self->values[i];
+}
+#endif
+
+//100%
 INCLUDE_ASM("render/font", func_00394240);
+#ifdef SKIP_ASM
+struct sfunc_00394240 {
+    char pad[0x20C];
+    float values[1];
+};
 
+extern "C" void func_00394240(sfunc_00394240* self, int i, float value)
+{
+    self->values[i] = value;
+}
+#endif
+
+//100%
 INCLUDE_ASM("render/font", func_00394250);
+#ifdef SKIP_ASM
+struct sfunc_00394250 {
+    char pad[0x20C];
+    float values[1];
+};
 
+extern "C" float func_00394250(sfunc_00394250* self, int i)
+{
+    return self->values[i];
+}
+#endif
+
+//100%
 INCLUDE_ASM("render/font", func_00394260);
+#ifdef SKIP_ASM
+struct sfunc_00394260 {
+    char pad[0x22C];
+    float values[1];
+};
 
+extern "C" void func_00394260(sfunc_00394260* self, int i, float value)
+{
+    self->values[i] = value;
+}
+#endif
+
+//100%
 INCLUDE_ASM("render/font", func_00394270);
+#ifdef SKIP_ASM
+struct sfunc_00394270 {
+    char pad[0x22C];
+    float values[1];
+};
 
+extern "C" float func_00394270(sfunc_00394270* self, int i)
+{
+    return self->values[i];
+}
+#endif
+
+//100%
 INCLUDE_ASM("render/font", func_00394280);
+#ifdef SKIP_ASM
+struct sfunc_00394280 {
+    char pad[0x24C];
+    float values[1];
+};
 
+extern "C" void func_00394280(sfunc_00394280* self, int i, float value)
+{
+    self->values[i] = value;
+}
+#endif
+
+//100%
 INCLUDE_ASM("render/font", func_00394290);
+#ifdef SKIP_ASM
+struct sfunc_00394290 {
+    char pad[0x24C];
+    float values[1];
+};
+
+extern "C" float func_00394290(sfunc_00394290* self, int i)
+{
+    return self->values[i];
+}
+#endif
 
 //100%
 INCLUDE_ASM("render/font", func_003942A0);
@@ -1043,37 +1636,170 @@ void func_003942E0(void* self)
 }
 #endif
 
+//100%
 INCLUDE_ASM("render/font", func_003942E8);
+#ifdef SKIP_ASM
+extern sFontRS D_00501420;
 
+// Resets the current render-state block to the defaults.
+extern "C" void func_003942E8(void* self)
+{
+    **(sFontRS**)((char*)self + 0xE84) = D_00501420;
+}
+#endif
+
+//100%
 INCLUDE_ASM("render/font", func_00394328);
+#ifdef SKIP_ASM
+extern "C" void func_00394328(void* self, sFontRS* in)
+{
+    **(sFontRS**)((char*)self + 0xE84) = *in;
+}
+#endif
 
+//100%
 INCLUDE_ASM("render/font", func_00394358);
+#ifdef SKIP_ASM
+extern "C" int func_00394358(void* self)
+{
+    return *(int*)((char*)self + 0xE84);
+}
+#endif
 
+//100%
 INCLUDE_ASM("render/font", func_00394360);
+#ifdef SKIP_ASM
+extern "C" int func_00394360(void* self)
+{
+    return *(int*)((char*)self + 0xE84);
+}
+#endif
 
+//100%
 INCLUDE_ASM("render/font", func_00394368);
+#ifdef SKIP_ASM
+extern "C" void func_00394368(void* self, int value)
+{
+    sFontRS* rs = *(sFontRS**)((char*)self + 0xE84);
+    int bits = (value << 22) & 0x400000;
+    rs->w4 = (rs->w4 & ~0x400000) | bits;
+}
+#endif
 
+//100%
 INCLUDE_ASM("render/font", func_00394398);
+#ifdef SKIP_ASM
+extern "C" void func_00394398(void* self, int value)
+{
+    sFontRS* rs = *(sFontRS**)((char*)self + 0xE84);
+    rs->w8 = (rs->w8 & ~0x3E0) | ((value << 5) & 0x3E0);
+}
+#endif
 
+//100%
 INCLUDE_ASM("render/font", func_003943C0);
+#ifdef SKIP_ASM
+struct sFontQ16 {
+    int v[4];
+};
 
+extern "C" void func_003943C0(void* self, sFontQ16 q, int i)
+{
+    ((sFontQ16*)((char*)self + 0xF04))[i] = q;
+}
+#endif
+
+//100%
 INCLUDE_ASM("render/font", func_00394418);
+#ifdef SKIP_ASM
+extern "C" sFontQ16 func_00394418(void* self, sFontQ16 q, int i)
+{
+    return ((sFontQ16*)((char*)self + 0xF04))[i];
+}
+#endif
 
+//100%
 INCLUDE_ASM("render/font", func_00394470);
+#ifdef SKIP_ASM
+extern "C" void func_00394470(void* self, int value, int i)
+{
+    sFontRS* rs = *(sFontRS**)((char*)self + 0xE84);
+    int shift = i * 5 + 2;
+    int mask = 0x1F << shift;
+    rs->w4 = (rs->w4 & ~mask) | ((value << shift) & mask);
+}
+#endif
 
+//100%
 INCLUDE_ASM("render/font", func_003944A8);
+#ifdef SKIP_ASM
+extern "C" void func_003944A8(void* self, int a, int b)
+{
+    (*(sFontRS**)((char*)self + 0xE84))->w4 = ((*(sFontRS**)((char*)self + 0xE84))->w4 & ~3) | (a & 3);
+    (*(sFontRS**)((char*)self + 0xE84))->w8 =
+        ((*(sFontRS**)((char*)self + 0xE84))->w8 & 0xE00003FF) | ((b << 10) & 0x1FFFFC00);
+}
+#endif
 
+//100%
 INCLUDE_ASM("render/font", func_003944F8);
+#ifdef SKIP_ASM
+extern "C" void func_003944F8(void* self, int value, int i)
+{
+    sFontRS* rs = *(sFontRS**)((char*)self + 0xE84);
+    int shift = i * 2 + 2;
+    int mask = 3 << shift;
+    rs->w0 = (rs->w0 & ~mask) | ((value << shift) & mask);
+}
+#endif
 
+//100%
 INCLUDE_ASM("render/font", func_00394530);
+#ifdef SKIP_ASM
+extern "C" void func_00394530(void* self, int value)
+{
+    sFontRS* rs = *(sFontRS**)((char*)self + 0xE84);
+    int bits = value & 0x3FFFFFFF;
+    rs->wC = (rs->wC & 0xC0000000) | bits;
+}
+#endif
 
+//100%
 INCLUDE_ASM("render/font", func_00394558);
+#ifdef SKIP_ASM
+// Render-state accessors: + 0xE84 points at the current render-state block.
+extern "C" unsigned int func_00394558(void* self)
+{
+    return (*(unsigned int*)(*(char**)((char*)self + 0xE84) + 0x8) & 0x3E0) >> 5;
+}
+#endif
 
+//100%
 INCLUDE_ASM("render/font", func_00394570);
+#ifdef SKIP_ASM
+extern "C" unsigned int func_00394570(void* self)
+{
+    return (*(unsigned int*)(*(char**)((char*)self + 0xE84) + 0x4) & 0x7C) >> 2;
+}
+#endif
 
+//100%
 INCLUDE_ASM("render/font", func_00394588);
+#ifdef SKIP_ASM
+extern "C" unsigned int func_00394588(void* self)
+{
+    return *(unsigned int*)(*(char**)((char*)self + 0xE84) + 0x4) & 0x3;
+}
+#endif
 
+//100%
 INCLUDE_ASM("render/font", func_00394598);
+#ifdef SKIP_ASM
+extern "C" unsigned int func_00394598(void* self)
+{
+    return (*(unsigned int*)(*(char**)((char*)self + 0xE84) + 0x8) & 0x1FFFFC00) >> 10;
+}
+#endif
 
 //100%
 INCLUDE_ASM("render/font", func_003945B8__FPv);
@@ -1131,9 +1857,27 @@ void func_003945E8(void* self)
 }
 #endif
 
+//100%
 INCLUDE_ASM("render/font", func_003945F0);
+#ifdef SKIP_ASM
+extern "C" int func_003945F0(void* self)
+{
+    return *(int*)((char*)self + 0xE80);
+}
+#endif
 
+//100%
 INCLUDE_ASM("render/font", func_003945F8);
+#ifdef SKIP_ASM
+struct sFontEntry12 {
+    int a, b, c;
+};
+
+extern "C" sFontEntry12* func_003945F8(void* self, int i)
+{
+    return &((sFontEntry12*)((char*)self + 0x280))[i];
+}
+#endif
 
 //100%
 INCLUDE_ASM("render/font", func_00394610__FPv);
@@ -1264,21 +2008,87 @@ void func_00394688(void* self)
 }
 #endif
 
+//100%
 INCLUDE_ASM("render/font", func_00394690);
+#ifdef SKIP_ASM
+extern "C" void* func_00394690(void)
+{
+    return D_004A5B80;
+}
+#endif
 
+//100%
 INCLUDE_ASM("render/font", func_00394698);
+#ifdef SKIP_ASM
+extern "C" void func_00394698(void* self, int value)
+{
+    *(int*)((char*)self + 0x10A8) = value;
+}
+#endif
 
+//100%
 INCLUDE_ASM("render/font", func_003946A0);
+#ifdef SKIP_ASM
+extern "C" int func_003946A0(void* self)
+{
+    return *(int*)((char*)self + 0x10A8);
+}
+#endif
 
+//100%
 INCLUDE_ASM("render/font", func_003946A8);
+#ifdef SKIP_ASM
+struct sfunc_003946A8 {
+    char pad[0x10B0];
+    int values[1];
+};
 
+extern "C" void func_003946A8(sfunc_003946A8* self, int i, int value)
+{
+    self->values[i] = value;
+}
+#endif
+
+//100%
 INCLUDE_ASM("render/font", func_003946B8);
+#ifdef SKIP_ASM
+struct sfunc_003946B8 {
+    char pad[0x10B0];
+    int values[1];
+};
 
+extern "C" int func_003946B8(sfunc_003946B8* self, int i)
+{
+    return self->values[i];
+}
+#endif
+
+//100%
 INCLUDE_ASM("render/font", func_003946C8);
+#ifdef SKIP_ASM
+extern "C" void func_003946C8(void* self, int value)
+{
+    *(int*)((char*)self + 0x10AC) = value;
+}
+#endif
 
+//100%
 INCLUDE_ASM("render/font", func_003946D0);
+#ifdef SKIP_ASM
+extern "C" int func_003946D0(void* self)
+{
+    return *(int*)((char*)self + 0x10AC);
+}
+#endif
 
+//100%
 INCLUDE_ASM("render/font", func_003946D8);
+#ifdef SKIP_ASM
+extern "C" void func_003946D8(void* self)
+{
+    *(int*)((char*)self + 0xF44) = 0x1;
+}
+#endif
 
 //100%
 INCLUDE_ASM("render/font", func_003946E8__FPv);
@@ -1288,27 +2098,160 @@ void func_003946E8(void* self)
 }
 #endif
 
+//100%
 INCLUDE_ASM("render/font", func_003946F0);
+#ifdef SKIP_ASM
+extern "C" void func_003946F0(void* self, int a, int b, int c)
+{
+    int bitsA = (a << 23) & 0x1800000;
+    (*(sFontRS**)((char*)self + 0xE84))->w4 = ((*(sFontRS**)((char*)self + 0xE84))->w4 & 0xFE7FFFFF) | bitsA;
+    int bitsB = (b << 20) & 0x300000;
+    (*(sFontRS**)((char*)self + 0xE84))->w4 = ((*(sFontRS**)((char*)self + 0xE84))->w4 & 0xFFCFFFFF) | bitsB;
+    int bitsC = (c << 12) & 0xFF000;
+    (*(sFontRS**)((char*)self + 0xE84))->w4 = ((*(sFontRS**)((char*)self + 0xE84))->w4 & 0xFFF00FFF) | bitsC;
+}
+#endif
 
+//100%
 INCLUDE_ASM("render/font", func_00394770);
+#ifdef SKIP_ASM
+struct sFontRSBlock {
+    char pad[0x10];
+    short s10[2];   // 0x10
+};
 
+extern "C" void func_00394770(void* self, short value, int i)
+{
+    ((sFontRSBlock*)*(char**)((char*)self + 0xE84))->s10[i] = value;
+}
+#endif
+
+//100%
 INCLUDE_ASM("render/font", func_00394788);
+#ifdef SKIP_ASM
+// Pushes a copy of the current render-state block.
+extern "C" void func_00394788(void* self)
+{
+    sFontRS* rs = *(sFontRS**)((char*)self + 0xE84);
+    rs[1] = rs[0];
+    *(char**)((char*)self + 0xE84) += 0x14;
+}
+#endif
 
+//100%
 INCLUDE_ASM("render/font", func_003947C8);
+#ifdef SKIP_ASM
+// Pops one 0x14-byte render-state block.
+extern "C" void func_003947C8(void* self)
+{
+    *(char**)((char*)self + 0xE84) -= 0x14;
+}
+#endif
 
 INCLUDE_ASM("render/font", func_003947D8);
 
+//100%
 INCLUDE_ASM("render/font", func_003948B0);
+#ifdef SKIP_ASM
+struct sfunc_003948B0 {
+    char pad[0xF50];
+    int values[1];
+};
 
+extern "C" void func_003948B0(sfunc_003948B0* self, int i, int value)
+{
+    self->values[i] = value;
+}
+#endif
+
+//100%
 INCLUDE_ASM("render/font", func_003948C0);
+#ifdef SKIP_ASM
+struct sfunc_003948C0 {
+    char pad[0xF50];
+    int values[1];
+};
 
+extern "C" int func_003948C0(sfunc_003948C0* self, int i)
+{
+    return self->values[i];
+}
+#endif
+
+//100%
 INCLUDE_ASM("render/font", func_003948D0);
+#ifdef SKIP_ASM
+// Distance attenuation: 1 inside 100 units, then (100/d)^power for power 1..3.
+extern "C" float func_003948D0(int power, float d)
+{
+    switch (power) {
+    case 1:
+        if (d < 100.0f) {
+            return 1.0f;
+        }
+        return 100.0f / d;
+    case 2:
+        if (d < 100.0f) {
+            return 1.0f;
+        }
+        return 10000.0f / (d * d);
+    case 3:
+        if (d < 100.0f) {
+            return 1.0f;
+        }
+        return 1000000.0f / (d * d * d);
+    }
+    return 1.0f;
+}
+#endif
 
 INCLUDE_ASM("render/font", func_003949A0);
 
+//100%
 INCLUDE_ASM("render/font", func_00394A20);
+#ifdef SKIP_ASM
+extern "C" float func_00394A20(int n, float x)
+{
+    float r;
+    switch (n) {
+    case 0: return 1.0f;
+    case 1: return x;
+    case 2: return x * x;
+    case 3: return x * x * x;
+    case 4: return x * x * x * x;
+    }
+    r = 0.0f;
+    if (x == r)
+        return r;
+    if (n < 0) {
+        n = -n;
+        x = 1.0f / x;
+    }
+    r = 1.0f;
+    while (n != 0) {
+        if (n & 1)
+            r *= x;
+        n >>= 1;
+        x *= x;
+    }
+    return r;
+}
+#endif
 
+//100%
 INCLUDE_ASM("render/font", func_00394AD8);
+#ifdef SKIP_ASM
+extern "C" float func_00394AD8(float a, float b)
+{
+    if (a < 5000.0f) {
+        return 1.0f;
+    }
+    if (b <= 3750.0f) {
+        return 1.0f;
+    }
+    return 1.0f - (b - 3750.0f) * 0.0008f;
+}
+#endif
 
 //100%
 INCLUDE_ASM("render/font", func_00394B38);
@@ -1334,7 +2277,16 @@ void func_00394B68(void* self)
 }
 #endif
 
+//100%
 INCLUDE_ASM("render/font", func_00394B70);
+#ifdef SKIP_ASM
+extern int D_004A4248;
+
+extern "C" int func_00394B70()
+{
+    return D_004A4248;
+}
+#endif
 
 //100%
 INCLUDE_ASM("render/font", func_00394B78__FPv);
@@ -1507,13 +2459,48 @@ int func_00394C10(void* self)
 }
 #endif
 
+//100%
 INCLUDE_ASM("render/font", func_00394C18);
+#ifdef SKIP_ASM
+struct sFont44C {
+    char pad[0x44C];
+    int base[1];    // 0x44C
+};
 
+extern "C" int func_00394C18(void* self, int a, int i)
+{
+    return ((sFont44C*)self)->base[i] + a * 256;
+}
+#endif
+
+//100%
 INCLUDE_ASM("render/font", func_00394C30);
+#ifdef SKIP_ASM
+extern "C" int func_00394C30(void* self)
+{
+    return *(int*)((char*)self + 0x1A0);
+}
+#endif
 
+//100%
 INCLUDE_ASM("render/font", func_00394C38);
+#ifdef SKIP_ASM
+extern "C" int func_00394C38(void* self)
+{
+    return *(int*)((char*)self + 0x320);
+}
+#endif
 
+//100%
 INCLUDE_ASM("render/font", func_00394C40);
+#ifdef SKIP_ASM
+extern int D_004A5B8C;
+
+extern "C" int func_00394C40()
+{
+    return D_004A5B8C;
+}
+#endif
 
 //100%
 INCLUDE_ASM("render/font", func_00394C48__FPv);
@@ -1966,7 +2953,14 @@ extern "C" void* func_003953B8(void* out, void* self)
 }
 #endif
 
+//100%
 INCLUDE_ASM("render/font", func_00395418);
+#ifdef SKIP_ASM
+extern "C" void* func_00395418(void* self)
+{
+    return (char*)self + 0x5800;
+}
+#endif
 
 //100%
 INCLUDE_ASM("render/font", func_00395420__FPv);
@@ -1977,15 +2971,59 @@ void func_00395420(void* self)
 }
 #endif
 
+//100%
 INCLUDE_ASM("render/font", func_00395428);
+#ifdef SKIP_ASM
+extern "C" int func_00395428(void* self)
+{
+    return *(int*)((char*)self + 0x13EC);
+}
+#endif
 
+//100%
 INCLUDE_ASM("render/font", func_00395430);
+#ifdef SKIP_ASM
+struct sFontEntryA0 {
+    char data[0xA0];
+};
 
+extern "C" sFontEntryA0* func_00395430(void* self, int i)
+{
+    return &((sFontEntryA0*)((char*)self + 0x13F0))[i];
+}
+#endif
+
+//100%
 INCLUDE_ASM("render/font", func_00395448);
+#ifdef SKIP_ASM
+extern "C" void func_00395448(void* self, int value)
+{
+    sFontRS* rs = *(sFontRS**)((char*)self + 0xE84);
+    rs->w0 = (rs->w0 & ~0x3C0) | ((value << 6) & 0x3C0);
+}
+#endif
 
+//100%
 INCLUDE_ASM("render/font", func_00395470);
+#ifdef SKIP_ASM
+extern "C" void func_00395470(void* self, int value)
+{
+    sFontRS* rs = *(sFontRS**)((char*)self + 0xE84);
+    rs->w0 = (rs->w0 & ~0xC00) | ((value << 10) & 0xC00);
+}
+#endif
 
+//100%
 INCLUDE_ASM("render/font", func_00395498);
+#ifdef SKIP_ASM
+extern "C" void func_00395498(void* self, unsigned char value, int i)
+{
+    sFontRS* rs = *(sFontRS**)((char*)self + 0xE84);
+    int shift = i * 8 + 12;
+    int mask = 0xFF << shift;
+    rs->w0 = (rs->w0 & ~mask) | ((value << shift) & mask);
+}
+#endif
 
 //100%
 INCLUDE_ASM("render/font", func_003954D0);
@@ -2026,41 +3064,167 @@ int func_00395510(void* self)
 }
 #endif
 
+//100%
 INCLUDE_ASM("render/font", func_00395518);
+#ifdef SKIP_ASM
+extern "C" int func_00395518(void* self)
+{
+    return *(int*)((char*)self + 0x5A84);
+}
+#endif
 
+//100%
 INCLUDE_ASM("render/font", func_00395520);
+#ifdef SKIP_ASM
+extern "C" int func_00395520(void* self)
+{
+    return *(int*)((char*)self + 0x5A80);
+}
+#endif
 
+//100%
 INCLUDE_ASM("render/font", func_00395528);
+#ifdef SKIP_ASM
+extern "C" int func_00395528(void* self)
+{
+    return *(int*)((char*)self + 0x5A3C);
+}
+#endif
 
+//100%
 INCLUDE_ASM("render/font", func_00395530);
+#ifdef SKIP_ASM
+extern "C" int func_00395530(void* self)
+{
+    return *(int*)((char*)self + 0x5A40);
+}
+#endif
 
+//100%
 INCLUDE_ASM("render/font", func_00395538);
+#ifdef SKIP_ASM
+extern "C" int func_00395538(void* self)
+{
+    return *(int*)((char*)self + 0x18F4);
+}
+#endif
 
+//100%
 INCLUDE_ASM("render/font", func_00395540);
+#ifdef SKIP_ASM
+extern "C" void func_00395540(void* self, int value)
+{
+    *(int*)((char*)self + 0x5AB8) = value;
+}
+#endif
 
+//100%
 INCLUDE_ASM("render/font", func_00395548);
+#ifdef SKIP_ASM
+extern "C" int func_00395548(void* self)
+{
+    return *(int*)((char*)self + 0x5A88);
+}
+#endif
 
+//100%
 INCLUDE_ASM("render/font", func_00395550);
+#ifdef SKIP_ASM
+extern "C" int func_00395550(void* self)
+{
+    return *(int*)((char*)self + 0x5A5C);
+}
+#endif
 
+//100%
 INCLUDE_ASM("render/font", func_00395558);
+#ifdef SKIP_ASM
+extern "C" int func_00395558(void* self)
+{
+    return *(int*)((char*)self + 0x5A50);
+}
+#endif
 
+//100%
 INCLUDE_ASM("render/font", func_00395560);
+#ifdef SKIP_ASM
+extern "C" int func_00395560(void* self)
+{
+    return *(int*)((char*)self + 0x5A3C);
+}
+#endif
 
+//100%
 INCLUDE_ASM("render/font", func_00395568);
+#ifdef SKIP_ASM
+extern "C" void func_00395568(void* self)
+{
+    *(int*)((char*)self + 0x59E8) = 0x1;
+}
+#endif
 
+//100%
 INCLUDE_ASM("render/font", func_00395578);
+#ifdef SKIP_ASM
+extern "C" void func_00395578(void* self)
+{
+    *(int*)((char*)self + 0x59E8) = 0;
+}
+#endif
 
+//100%
 INCLUDE_ASM("render/font", func_00395580);
+#ifdef SKIP_ASM
+// Stores a value clamped to [0, 2].
+extern "C" void func_00395580(void* self, float v)
+{
+    float lim = 2.0f;
+    float r = 0.0f;
+    if (r <= v) {
+        r = v <? lim;   // GNU C++ minimum operator (min.s)
+    }
+    *(float*)((char*)self + 0x59FC) = r;
+}
+#endif
 
+//100%
 INCLUDE_ASM("render/font", func_003955A8);
+#ifdef SKIP_ASM
+extern "C" float func_003955A8(void* self)
+{
+    return *(float*)((char*)self + 0x59FC);
+}
+#endif
 
 INCLUDE_ASM("render/font", func_003955B0);
 
+//100%
 INCLUDE_ASM("render/font", func_00395658);
+#ifdef SKIP_ASM
+extern "C" int func_00395658(void* self)
+{
+    return *(int*)((char*)self + 0x18F0);
+}
+#endif
 
+//100%
 INCLUDE_ASM("render/font", func_00395660);
+#ifdef SKIP_ASM
+// GS CSR (0x12001000) fields.
+extern "C" int func_00395660(void)
+{
+    return (*(volatile unsigned long*)0x12001000 >> 16) & 0xFF;
+}
+#endif
 
+//100%
 INCLUDE_ASM("render/font", func_00395688);
+#ifdef SKIP_ASM
+extern "C" int func_00395688(void)
+{
+    return (*(volatile unsigned long*)0x12001000 >> 24) & 0xFF;
+}
+#endif
 
 //100%
 INCLUDE_ASM("render/font", func_003956B0);
@@ -2075,7 +3239,14 @@ extern "C" void func_003956B0(void* self)
 }
 #endif
 
+//100%
 INCLUDE_ASM("render/font", func_003956D8);
+#ifdef SKIP_ASM
+extern "C" int func_003956D8(void* self)
+{
+    return *(int*)((char*)self + 0x59C0);
+}
+#endif
 
 //100%
 INCLUDE_ASM("render/font", func_003956E0__FPvi);
@@ -2377,13 +3548,69 @@ void func_00395FA0(void* self)
 }
 #endif
 
+//100%
 INCLUDE_ASM("render/font", func_00395FA8);
+#ifdef SKIP_ASM
+// Cohen-Sutherland style outcode of a point against the clip box at + 0x6B70 (min) / + 0x6B80 (max).
+// A point behind the eye (w < 0) gets its bits flipped.
+extern "C" int func_00395FA8(void* self, float* p)
+{
+    char* c = (char*)self;
+    int code = p[0] < *(float*)(c + 0x6B70) ? 2 : 0;
+    if (*(float*)(c + 0x6B80) < p[0]) {
+        code |= 1;
+    }
+    if (p[1] < *(float*)(c + 0x6B74)) {
+        code |= 8;
+    }
+    if (*(float*)(c + 0x6B84) < p[1]) {
+        code |= 4;
+    }
+    if (p[3] < 0.0f) {
+        return code ^ 0x2F;
+    }
+    if (*(float*)(c + 0x6B78) < p[2]) {
+        code |= 0x20;
+    }
+    if (p[2] < *(float*)(c + 0x6B88)) {
+        code |= 0x10;
+    }
+    return code;
+}
+#endif
 
+//100%
 INCLUDE_ASM("render/font", func_00396058);
+#ifdef SKIP_ASM
+extern "C" int func_00396058(void)
+{
+    return (*(volatile unsigned long*)0x12001000 >> 13) & 0x1;
+}
+#endif
 
+//100%
 INCLUDE_ASM("render/font", func_00396080);
+#ifdef SKIP_ASM
+// Requests a GS FINISH-style event (CSR bit 3), waits for it, then returns CSR bit 13.
+extern "C" int func_00396080(void)
+{
+    *(volatile unsigned long*)0x12001000 = 8;
+    while (!(*(volatile unsigned long*)0x12001000 & 8)) {
+    }
+    return (*(volatile unsigned long*)0x12001000 >> 13) & 0x1;
+}
+#endif
 
+//100%
 INCLUDE_ASM("render/font", func_003960E8);
+#ifdef SKIP_ASM
+extern "C" void func_00382AF0(void* a, void* b, int c);
+
+extern "C" void func_003960E8(void* a, void* b)
+{
+    func_00382AF0(a, b, 1);
+}
+#endif
 
 //100%
 INCLUDE_ASM("render/font", func_00396108__FPv);
@@ -2417,13 +3644,43 @@ extern "C" void func_00396128(void* self)
 }
 #endif
 
+//100%
 INCLUDE_ASM("render/font", func_00396160);
+#ifdef SKIP_ASM
+extern char D_00488680[];
 
+extern "C" void func_00396160(int* self, int flags)
+{
+    *(void**)self = D_00488680;
+    if (flags & 1) {
+        operator_delete(self);
+    }
+}
+#endif
+
+//100%
 INCLUDE_ASM("render/font", func_00396190);
+#ifdef SKIP_ASM
+extern "C" void func_00396190()
+{
+}
+#endif
 
+//100%
 INCLUDE_ASM("render/font", func_00396198);
+#ifdef SKIP_ASM
+extern "C" void func_00396198()
+{
+}
+#endif
 
+//100%
 INCLUDE_ASM("render/font", func_003961A0);
+#ifdef SKIP_ASM
+extern "C" void func_003961A0()
+{
+}
+#endif
 
 //100%
 INCLUDE_ASM("render/font", func_003961A8);
@@ -2441,99 +3698,522 @@ extern "C" void func_003961A8(int* self, int flags)
 }
 #endif
 
+//100%
 INCLUDE_ASM("render/font", func_003961D8);
+#ifdef SKIP_ASM
+extern int D_004A44C0;
 
+extern "C" int* func_003961D8()
+{
+    return &D_004A44C0;
+}
+#endif
+
+//100%
 INCLUDE_ASM("render/font", func_003961E8);
+#ifdef SKIP_ASM
+extern int D_004A44C4;
 
+extern "C" int* func_003961E8()
+{
+    return &D_004A44C4;
+}
+#endif
+
+//100%
 INCLUDE_ASM("render/font", func_003961F8);
+#ifdef SKIP_ASM
+extern int D_004A44C8;
 
+extern "C" int* func_003961F8()
+{
+    return &D_004A44C8;
+}
+#endif
+
+//100%
 INCLUDE_ASM("render/font", func_00396208);
+#ifdef SKIP_ASM
+extern int D_004A44CC;
 
+extern "C" int* func_00396208()
+{
+    return &D_004A44CC;
+}
+#endif
+
+//100%
 INCLUDE_ASM("render/font", func_00396218);
+#ifdef SKIP_ASM
+extern int D_004A44D0;
 
+extern "C" int* func_00396218()
+{
+    return &D_004A44D0;
+}
+#endif
+
+//100%
 INCLUDE_ASM("render/font", func_00396228);
+#ifdef SKIP_ASM
+extern int D_004A44D4;
 
+extern "C" int* func_00396228()
+{
+    return &D_004A44D4;
+}
+#endif
+
+//100%
 INCLUDE_ASM("render/font", func_00396238);
+#ifdef SKIP_ASM
+extern int D_004A44D8;
 
+extern "C" int* func_00396238()
+{
+    return &D_004A44D8;
+}
+#endif
+
+//100%
 INCLUDE_ASM("render/font", func_00396248);
+#ifdef SKIP_ASM
+extern int D_004A44DC;
 
+extern "C" int* func_00396248()
+{
+    return &D_004A44DC;
+}
+#endif
+
+//100%
 INCLUDE_ASM("render/font", func_00396258);
+#ifdef SKIP_ASM
+extern int D_004A44E0;
 
+extern "C" int* func_00396258()
+{
+    return &D_004A44E0;
+}
+#endif
+
+//100%
 INCLUDE_ASM("render/font", func_00396268);
+#ifdef SKIP_ASM
+extern int D_004A44E4;
 
+extern "C" int* func_00396268()
+{
+    return &D_004A44E4;
+}
+#endif
+
+//100%
 INCLUDE_ASM("render/font", func_00396278);
+#ifdef SKIP_ASM
+extern int D_004A44E8;
 
+extern "C" int* func_00396278()
+{
+    return &D_004A44E8;
+}
+#endif
+
+//100%
 INCLUDE_ASM("render/font", func_00396288);
+#ifdef SKIP_ASM
+extern int D_004A44EC;
 
+extern "C" int* func_00396288()
+{
+    return &D_004A44EC;
+}
+#endif
+
+//100%
 INCLUDE_ASM("render/font", func_00396298);
+#ifdef SKIP_ASM
+extern int D_004A44F0;
 
+extern "C" int* func_00396298()
+{
+    return &D_004A44F0;
+}
+#endif
+
+//100%
 INCLUDE_ASM("render/font", func_003962A8);
+#ifdef SKIP_ASM
+extern int D_004A44F4;
 
+extern "C" int* func_003962A8()
+{
+    return &D_004A44F4;
+}
+#endif
+
+//100%
 INCLUDE_ASM("render/font", func_003962B8);
+#ifdef SKIP_ASM
+extern int D_004A44F8;
 
+extern "C" int* func_003962B8()
+{
+    return &D_004A44F8;
+}
+#endif
+
+//100%
 INCLUDE_ASM("render/font", func_003962C8);
+#ifdef SKIP_ASM
+extern int D_004A44FC;
 
+extern "C" int* func_003962C8()
+{
+    return &D_004A44FC;
+}
+#endif
+
+//100%
 INCLUDE_ASM("render/font", func_003962D8);
+#ifdef SKIP_ASM
+extern int D_004A4500;
 
+extern "C" int* func_003962D8()
+{
+    return &D_004A4500;
+}
+#endif
+
+//100%
 INCLUDE_ASM("render/font", func_003962E8);
+#ifdef SKIP_ASM
+extern int D_004A4504;
 
+extern "C" int* func_003962E8()
+{
+    return &D_004A4504;
+}
+#endif
+
+//100%
 INCLUDE_ASM("render/font", func_003962F8);
+#ifdef SKIP_ASM
+extern int D_004A4508;
 
+extern "C" int* func_003962F8()
+{
+    return &D_004A4508;
+}
+#endif
+
+//100%
 INCLUDE_ASM("render/font", func_00396308);
+#ifdef SKIP_ASM
+extern int D_004A450C;
 
+extern "C" int* func_00396308()
+{
+    return &D_004A450C;
+}
+#endif
+
+//100%
 INCLUDE_ASM("render/font", func_00396318);
+#ifdef SKIP_ASM
+extern int D_004A4510;
 
+extern "C" int* func_00396318()
+{
+    return &D_004A4510;
+}
+#endif
+
+//100%
 INCLUDE_ASM("render/font", func_00396328);
+#ifdef SKIP_ASM
+extern int D_004A4514;
 
+extern "C" int* func_00396328()
+{
+    return &D_004A4514;
+}
+#endif
+
+//100%
 INCLUDE_ASM("render/font", func_00396338);
+#ifdef SKIP_ASM
+extern int D_004A4518;
 
+extern "C" int* func_00396338()
+{
+    return &D_004A4518;
+}
+#endif
+
+//100%
 INCLUDE_ASM("render/font", func_00396348);
+#ifdef SKIP_ASM
+extern int D_004A451C;
 
+extern "C" int* func_00396348()
+{
+    return &D_004A451C;
+}
+#endif
+
+//100%
 INCLUDE_ASM("render/font", func_00396358);
+#ifdef SKIP_ASM
+extern int D_004A4520;
 
+extern "C" int* func_00396358()
+{
+    return &D_004A4520;
+}
+#endif
+
+//100%
 INCLUDE_ASM("render/font", func_00396368);
+#ifdef SKIP_ASM
+extern int D_004A4524;
 
+extern "C" int* func_00396368()
+{
+    return &D_004A4524;
+}
+#endif
+
+//100%
 INCLUDE_ASM("render/font", func_00396378);
+#ifdef SKIP_ASM
+extern int D_004A4528;
 
+extern "C" int* func_00396378()
+{
+    return &D_004A4528;
+}
+#endif
+
+//100%
 INCLUDE_ASM("render/font", func_00396388);
+#ifdef SKIP_ASM
+extern int D_004A452C;
 
+extern "C" int* func_00396388()
+{
+    return &D_004A452C;
+}
+#endif
+
+//100%
 INCLUDE_ASM("render/font", func_00396398);
+#ifdef SKIP_ASM
+extern int D_004A4530;
 
+extern "C" int* func_00396398()
+{
+    return &D_004A4530;
+}
+#endif
+
+//100%
 INCLUDE_ASM("render/font", func_003963A8);
+#ifdef SKIP_ASM
+extern int D_004A4534;
 
+extern "C" int* func_003963A8()
+{
+    return &D_004A4534;
+}
+#endif
+
+//100%
 INCLUDE_ASM("render/font", func_003963B8);
+#ifdef SKIP_ASM
+extern int D_004A4538;
 
+extern "C" int* func_003963B8()
+{
+    return &D_004A4538;
+}
+#endif
+
+//100%
 INCLUDE_ASM("render/font", func_003963C8);
+#ifdef SKIP_ASM
+extern int D_004A453C;
 
+extern "C" int* func_003963C8()
+{
+    return &D_004A453C;
+}
+#endif
+
+//100%
 INCLUDE_ASM("render/font", func_003963D8);
+#ifdef SKIP_ASM
+extern int D_004A4540;
 
+extern "C" int* func_003963D8()
+{
+    return &D_004A4540;
+}
+#endif
+
+//100%
 INCLUDE_ASM("render/font", func_003963E8);
+#ifdef SKIP_ASM
+extern int D_004A4544;
 
+extern "C" int* func_003963E8()
+{
+    return &D_004A4544;
+}
+#endif
+
+//100%
 INCLUDE_ASM("render/font", func_003963F8);
+#ifdef SKIP_ASM
+extern int D_004A4548;
 
+extern "C" int* func_003963F8()
+{
+    return &D_004A4548;
+}
+#endif
+
+//100%
 INCLUDE_ASM("render/font", func_00396408);
+#ifdef SKIP_ASM
+extern int D_004A454C;
 
+extern "C" int* func_00396408()
+{
+    return &D_004A454C;
+}
+#endif
+
+//100%
 INCLUDE_ASM("render/font", func_00396418);
+#ifdef SKIP_ASM
+extern int D_004A4550;
 
+extern "C" int* func_00396418()
+{
+    return &D_004A4550;
+}
+#endif
+
+//100%
 INCLUDE_ASM("render/font", func_00396428);
+#ifdef SKIP_ASM
+extern int D_004A4554;
 
+extern "C" int* func_00396428()
+{
+    return &D_004A4554;
+}
+#endif
+
+//100%
 INCLUDE_ASM("render/font", func_00396438);
+#ifdef SKIP_ASM
+extern int D_004A4558;
 
+extern "C" int* func_00396438()
+{
+    return &D_004A4558;
+}
+#endif
+
+//100%
 INCLUDE_ASM("render/font", func_00396448);
+#ifdef SKIP_ASM
+extern int D_004A455C;
 
+extern "C" int* func_00396448()
+{
+    return &D_004A455C;
+}
+#endif
+
+//100%
 INCLUDE_ASM("render/font", func_00396458);
+#ifdef SKIP_ASM
+extern int D_004A4560;
 
+extern "C" int* func_00396458()
+{
+    return &D_004A4560;
+}
+#endif
+
+//100%
 INCLUDE_ASM("render/font", func_00396468);
+#ifdef SKIP_ASM
+extern int D_004A4564;
 
+extern "C" int* func_00396468()
+{
+    return &D_004A4564;
+}
+#endif
+
+//100%
 INCLUDE_ASM("render/font", func_00396478);
+#ifdef SKIP_ASM
+extern int D_004A4568;
 
+extern "C" int* func_00396478()
+{
+    return &D_004A4568;
+}
+#endif
+
+//100%
 INCLUDE_ASM("render/font", func_00396488);
+#ifdef SKIP_ASM
+extern int D_004A456C;
 
+extern "C" int* func_00396488()
+{
+    return &D_004A456C;
+}
+#endif
+
+//100%
 INCLUDE_ASM("render/font", func_00396498);
+#ifdef SKIP_ASM
+extern int D_004A4570;
 
+extern "C" int* func_00396498()
+{
+    return &D_004A4570;
+}
+#endif
+
+//100%
 INCLUDE_ASM("render/font", func_003964A8);
+#ifdef SKIP_ASM
+extern int D_004A4574;
 
+extern "C" int* func_003964A8()
+{
+    return &D_004A4574;
+}
+#endif
+
+//100%
 INCLUDE_ASM("render/font", func_003964B8);
+#ifdef SKIP_ASM
+extern int D_004A4578;
+
+extern "C" int* func_003964B8()
+{
+    return &D_004A4578;
+}
+#endif
 
 //100%
 INCLUDE_ASM("render/font", func_003964C8);
@@ -2551,67 +4231,335 @@ extern "C" void func_003964C8(int* self, int flags)
 }
 #endif
 
+//100%
 INCLUDE_ASM("render/font", func_003964F8);
+#ifdef SKIP_ASM
+extern int D_004A4444;
 
+extern "C" int* func_003964F8()
+{
+    return &D_004A4444;
+}
+#endif
+
+//100%
 INCLUDE_ASM("render/font", func_00396508);
+#ifdef SKIP_ASM
+extern int D_004A4448;
 
+extern "C" int* func_00396508()
+{
+    return &D_004A4448;
+}
+#endif
+
+//100%
 INCLUDE_ASM("render/font", func_00396518);
+#ifdef SKIP_ASM
+extern int D_004A444C;
 
+extern "C" int* func_00396518()
+{
+    return &D_004A444C;
+}
+#endif
+
+//100%
 INCLUDE_ASM("render/font", func_00396528);
+#ifdef SKIP_ASM
+extern int D_004A4450;
 
+extern "C" int* func_00396528()
+{
+    return &D_004A4450;
+}
+#endif
+
+//100%
 INCLUDE_ASM("render/font", func_00396538);
+#ifdef SKIP_ASM
+extern int D_004A4454;
 
+extern "C" int* func_00396538()
+{
+    return &D_004A4454;
+}
+#endif
+
+//100%
 INCLUDE_ASM("render/font", func_00396548);
+#ifdef SKIP_ASM
+extern int D_004A4458;
 
+extern "C" int* func_00396548()
+{
+    return &D_004A4458;
+}
+#endif
+
+//100%
 INCLUDE_ASM("render/font", func_00396558);
+#ifdef SKIP_ASM
+extern int D_004A445C;
 
+extern "C" int* func_00396558()
+{
+    return &D_004A445C;
+}
+#endif
+
+//100%
 INCLUDE_ASM("render/font", func_00396568);
+#ifdef SKIP_ASM
+extern int D_004A4460;
 
+extern "C" int* func_00396568()
+{
+    return &D_004A4460;
+}
+#endif
+
+//100%
 INCLUDE_ASM("render/font", func_00396578);
+#ifdef SKIP_ASM
+extern int D_004A4464;
 
+extern "C" int* func_00396578()
+{
+    return &D_004A4464;
+}
+#endif
+
+//100%
 INCLUDE_ASM("render/font", func_00396588);
+#ifdef SKIP_ASM
+extern int D_004A4468;
 
+extern "C" int* func_00396588()
+{
+    return &D_004A4468;
+}
+#endif
+
+//100%
 INCLUDE_ASM("render/font", func_00396598);
+#ifdef SKIP_ASM
+extern int D_004A446C;
 
+extern "C" int* func_00396598()
+{
+    return &D_004A446C;
+}
+#endif
+
+//100%
 INCLUDE_ASM("render/font", func_003965A8);
+#ifdef SKIP_ASM
+extern int D_004A4470;
 
+extern "C" int* func_003965A8()
+{
+    return &D_004A4470;
+}
+#endif
+
+//100%
 INCLUDE_ASM("render/font", func_003965B8);
+#ifdef SKIP_ASM
+extern "C" int func_003965B8(int a0)
+{
+    return a0;
+}
+#endif
 
+//100%
 INCLUDE_ASM("render/font", func_003965C0);
+#ifdef SKIP_ASM
+extern "C" void* func_003965C0(void* self)
+{
+    return (char*)self + 0x160;
+}
+#endif
 
+//100%
 INCLUDE_ASM("render/font", func_003965C8);
+#ifdef SKIP_ASM
+extern "C" void* func_003965C8(void* self)
+{
+    return (char*)self + 0xC0;
+}
+#endif
 
+//100%
 INCLUDE_ASM("render/font", func_003965D0);
+#ifdef SKIP_ASM
+extern "C" void func_003965D0(void* self, cQuad128* in)
+{
+    *(cQuad128*)((char*)self + 0xC0) = *in;
+}
+#endif
 
+//100%
 INCLUDE_ASM("render/font", func_003965E0);
+#ifdef SKIP_ASM
+extern "C" void* func_003965E0(void* self)
+{
+    return (char*)self + 0x20;
+}
+#endif
 
+//100%
 INCLUDE_ASM("render/font", func_003965E8);
+#ifdef SKIP_ASM
+extern "C" void func_003965E8(void* self, float value)
+{
+    *(float*)((char*)self + 0x58) = value;
+}
+#endif
 
+//100%
 INCLUDE_ASM("render/font", func_003965F0);
+#ifdef SKIP_ASM
+extern "C" int func_003965F0(void* self)
+{
+    return *(int*)((char*)self + 0x178);
+}
+#endif
 
+//100%
 INCLUDE_ASM("render/font", func_003965F8);
+#ifdef SKIP_ASM
+extern "C" int func_003965F8(void* self)
+{
+    return *(int*)((char*)self + 0x17C);
+}
+#endif
 
+//100%
 INCLUDE_ASM("render/font", func_00396600);
+#ifdef SKIP_ASM
+extern "C" int func_00396600(void* self)
+{
+    return *(int*)((char*)self + 0x174);
+}
+#endif
 
+//100%
 INCLUDE_ASM("render/font", func_00396608);
+#ifdef SKIP_ASM
+extern "C" void func_00396608(void* self, int value)
+{
+    *(int*)((char*)self + 0x174) = value;
+}
+#endif
 
+//100%
 INCLUDE_ASM("render/font", func_00396610);
+#ifdef SKIP_ASM
+extern "C" int func_00396610(void* self)
+{
+    return *(int*)((char*)self + 0x1E0);
+}
+#endif
 
+//100%
 INCLUDE_ASM("render/font", func_00396618);
+#ifdef SKIP_ASM
+// Ring buffers of quadwords at + 0x1A0 / + 0x1A4 (size at + 0x178, head at + 0x17C).
+extern "C" cQuad128* func_00396618(cQuad128* out, void* self, int i)
+{
+    int head = *(int*)((char*)self + 0x17C) + 1;
+    int idx = (i + head) % *(int*)((char*)self + 0x178);
+    *out = (*(cQuad128**)((char*)self + 0x1A0))[idx];
+    return out;
+}
+#endif
 
+//100%
 INCLUDE_ASM("render/font", func_00396658);
+#ifdef SKIP_ASM
+extern "C" cQuad128* func_00396658(cQuad128* out, void* self, int i)
+{
+    int head = *(int*)((char*)self + 0x17C) + 1;
+    int idx = (i + head) % *(int*)((char*)self + 0x178);
+    *out = (*(cQuad128**)((char*)self + 0x1A4))[idx];
+    return out;
+}
+#endif
 
+//100%
 INCLUDE_ASM("render/font", func_00396698);
+#ifdef SKIP_ASM
+extern "C" void func_00396698(void* self, int i, cQuad128** a, cQuad128** b)
+{
+    int head = *(int*)((char*)self + 0x17C) + 1;
+    int idx = (i + head) % *(int*)((char*)self + 0x178);
+    *a = *(cQuad128**)((char*)self + 0x1A0) + idx;
+    *b = *(cQuad128**)((char*)self + 0x1A4) + idx;
+}
+#endif
 
+//100%
 INCLUDE_ASM("render/font", func_003966D8);
+#ifdef SKIP_ASM
+extern "C" void func_003966D8(void* self, int i, cQuad128* a, cQuad128* b)
+{
+    int head = *(int*)((char*)self + 0x17C) + 1;
+    int idx = (i + head) % *(int*)((char*)self + 0x178);
+    *a = (*(cQuad128**)((char*)self + 0x1A0))[idx];
+    *b = (*(cQuad128**)((char*)self + 0x1A4))[idx];
+}
+#endif
 
+//100%
 INCLUDE_ASM("render/font", func_00396720);
+#ifdef SKIP_ASM
+extern "C" void func_00396720(void* self, int i, cQuad128** a, cQuad128** b, int** c)
+{
+    int head = *(int*)((char*)self + 0x17C) + 1;
+    int idx = (i + head) % *(int*)((char*)self + 0x178);
+    *a = *(cQuad128**)((char*)self + 0x1A0) + idx;
+    *b = *(cQuad128**)((char*)self + 0x1A4) + idx;
+    *c = *(int**)((char*)self + 0x204) + idx;
+}
+#endif
 
+//100%
 INCLUDE_ASM("render/font", func_00396770);
+#ifdef SKIP_ASM
+extern "C" void func_00396770(void* self, int i, cQuad128* a, cQuad128* b, sFontRGBA* c)
+{
+    int head = *(int*)((char*)self + 0x17C) + 1;
+    int idx = (i + head) % *(int*)((char*)self + 0x178);
+    *a = (*(cQuad128**)((char*)self + 0x1A0))[idx];
+    *b = (*(cQuad128**)((char*)self + 0x1A4))[idx];
+    *c = (*(sFontRGBA**)((char*)self + 0x204))[idx];
+}
+#endif
 
+//100%
 INCLUDE_ASM("render/font", func_003967D8);
+#ifdef SKIP_ASM
+extern "C" sFontRGBA* func_003967D8(sFontRGBA* out, void* self, int i)
+{
+    int head = *(int*)((char*)self + 0x17C) + 1;
+    int idx = (i + head) % *(int*)((char*)self + 0x178);
+    *out = (*(sFontRGBA**)((char*)self + 0x204))[idx];
+    return out;
+}
+#endif
 
+//100%
 INCLUDE_ASM("render/font", func_00396820);
+#ifdef SKIP_ASM
+extern void* D_004930A0[];
+
+extern "C" void* func_00396820(void* self)
+{
+    *(void***)self = D_004930A0;
+    return self;
+}
+#endif
 
 //100%
 INCLUDE_ASM("render/font", func_00396838);
@@ -2629,17 +4577,71 @@ extern "C" void func_00396838(int* self, int flags)
 }
 #endif
 
+//100%
 INCLUDE_ASM("render/font", func_00396868);
+#ifdef SKIP_ASM
+extern int D_004A41D4;
 
+extern "C" int* func_00396868()
+{
+    return &D_004A41D4;
+}
+#endif
+
+//100%
 INCLUDE_ASM("render/font", func_00396878);
+#ifdef SKIP_ASM
+extern int D_004A41D8;
 
+extern "C" int* func_00396878()
+{
+    return &D_004A41D8;
+}
+#endif
+
+//100%
 INCLUDE_ASM("render/font", func_00396888);
+#ifdef SKIP_ASM
+extern int D_004A41DC;
 
+extern "C" int* func_00396888()
+{
+    return &D_004A41DC;
+}
+#endif
+
+//100%
 INCLUDE_ASM("render/font", func_00396898);
+#ifdef SKIP_ASM
+extern int D_004A41E0;
 
+extern "C" int* func_00396898()
+{
+    return &D_004A41E0;
+}
+#endif
+
+//100%
 INCLUDE_ASM("render/font", func_003968A8);
+#ifdef SKIP_ASM
+extern int D_004A41E4;
 
+extern "C" int* func_003968A8()
+{
+    return &D_004A41E4;
+}
+#endif
+
+//100%
 INCLUDE_ASM("render/font", func_003968B8);
+#ifdef SKIP_ASM
+extern int D_004A41E8;
+
+extern "C" int* func_003968B8()
+{
+    return &D_004A41E8;
+}
+#endif
 
 //100%
 INCLUDE_ASM("render/font", func_003968C8__FPv);
@@ -2715,25 +4717,115 @@ void func_00396958(void* self)
 }
 #endif
 
+//100%
 INCLUDE_ASM("render/font", func_00396960);
+#ifdef SKIP_ASM
+extern int D_004A4340;
 
+extern "C" int* func_00396960()
+{
+    return &D_004A4340;
+}
+#endif
+
+//100%
 INCLUDE_ASM("render/font", func_00396970);
+#ifdef SKIP_ASM
+extern int D_004A4344;
 
+extern "C" int* func_00396970()
+{
+    return &D_004A4344;
+}
+#endif
+
+//100%
 INCLUDE_ASM("render/font", func_00396980);
+#ifdef SKIP_ASM
+extern int D_004A4348;
 
+extern "C" int* func_00396980()
+{
+    return &D_004A4348;
+}
+#endif
+
+//100%
 INCLUDE_ASM("render/font", func_00396990);
+#ifdef SKIP_ASM
+extern int D_004A434C;
 
+extern "C" int* func_00396990()
+{
+    return &D_004A434C;
+}
+#endif
+
+//100%
 INCLUDE_ASM("render/font", func_003969A0);
+#ifdef SKIP_ASM
+extern int D_004A4350;
 
+extern "C" int* func_003969A0()
+{
+    return &D_004A4350;
+}
+#endif
+
+//100%
 INCLUDE_ASM("render/font", func_003969B0);
+#ifdef SKIP_ASM
+extern int D_004A4354;
 
+extern "C" int* func_003969B0()
+{
+    return &D_004A4354;
+}
+#endif
+
+//100%
 INCLUDE_ASM("render/font", func_003969C0);
+#ifdef SKIP_ASM
+extern int D_004A4358;
 
+extern "C" int* func_003969C0()
+{
+    return &D_004A4358;
+}
+#endif
+
+//100%
 INCLUDE_ASM("render/font", func_003969D0);
+#ifdef SKIP_ASM
+extern int D_004A435C;
 
+extern "C" int* func_003969D0()
+{
+    return &D_004A435C;
+}
+#endif
+
+//100%
 INCLUDE_ASM("render/font", func_003969E0);
+#ifdef SKIP_ASM
+extern int D_004A4360;
 
+extern "C" int* func_003969E0()
+{
+    return &D_004A4360;
+}
+#endif
+
+//100%
 INCLUDE_ASM("render/font", func_003969F0);
+#ifdef SKIP_ASM
+extern int D_004A4364;
+
+extern "C" int* func_003969F0()
+{
+    return &D_004A4364;
+}
+#endif
 
 //100%
 INCLUDE_ASM("render/font", func_00396A00);
@@ -2751,39 +4843,192 @@ extern "C" void func_00396A00(int* self, int flags)
 }
 #endif
 
+//100%
 INCLUDE_ASM("render/font", func_00396A30);
+#ifdef SKIP_ASM
+extern int D_004A4478;
 
+extern "C" int* func_00396A30()
+{
+    return &D_004A4478;
+}
+#endif
+
+//100%
 INCLUDE_ASM("render/font", func_00396A40);
+#ifdef SKIP_ASM
+extern int D_004A447C;
 
+extern "C" int* func_00396A40()
+{
+    return &D_004A447C;
+}
+#endif
+
+//100%
 INCLUDE_ASM("render/font", func_00396A50);
+#ifdef SKIP_ASM
+extern int D_004A4480;
 
+extern "C" int* func_00396A50()
+{
+    return &D_004A4480;
+}
+#endif
+
+//100%
 INCLUDE_ASM("render/font", func_00396A60);
+#ifdef SKIP_ASM
+extern int D_004A4484;
 
+extern "C" int* func_00396A60()
+{
+    return &D_004A4484;
+}
+#endif
+
+//100%
 INCLUDE_ASM("render/font", func_00396A70);
+#ifdef SKIP_ASM
+extern int D_004A4488;
 
+extern "C" int* func_00396A70()
+{
+    return &D_004A4488;
+}
+#endif
+
+//100%
 INCLUDE_ASM("render/font", func_00396A80);
+#ifdef SKIP_ASM
+extern int D_004A448C;
 
+extern "C" int* func_00396A80()
+{
+    return &D_004A448C;
+}
+#endif
+
+//100%
 INCLUDE_ASM("render/font", func_00396A90);
+#ifdef SKIP_ASM
+extern int D_004A4490;
 
+extern "C" int* func_00396A90()
+{
+    return &D_004A4490;
+}
+#endif
+
+//100%
 INCLUDE_ASM("render/font", func_00396AA0);
+#ifdef SKIP_ASM
+extern int D_004A4494;
 
+extern "C" int* func_00396AA0()
+{
+    return &D_004A4494;
+}
+#endif
+
+//100%
 INCLUDE_ASM("render/font", func_00396AB0);
+#ifdef SKIP_ASM
+extern int D_004A4498;
 
+extern "C" int* func_00396AB0()
+{
+    return &D_004A4498;
+}
+#endif
+
+//100%
 INCLUDE_ASM("render/font", func_00396AC0);
+#ifdef SKIP_ASM
+extern int D_004A449C;
 
+extern "C" int* func_00396AC0()
+{
+    return &D_004A449C;
+}
+#endif
+
+//100%
 INCLUDE_ASM("render/font", func_00396AD0);
+#ifdef SKIP_ASM
+extern int D_004A44A0;
 
+extern "C" int* func_00396AD0()
+{
+    return &D_004A44A0;
+}
+#endif
+
+//100%
 INCLUDE_ASM("render/font", func_00396AE0);
+#ifdef SKIP_ASM
+extern int D_004A44A4;
 
+extern "C" int* func_00396AE0()
+{
+    return &D_004A44A4;
+}
+#endif
+
+//100%
 INCLUDE_ASM("render/font", func_00396AF0);
+#ifdef SKIP_ASM
+extern int D_004A44A8;
 
+extern "C" int* func_00396AF0()
+{
+    return &D_004A44A8;
+}
+#endif
+
+//100%
 INCLUDE_ASM("render/font", func_00396B00);
+#ifdef SKIP_ASM
+extern int D_004A44AC;
 
+extern "C" int* func_00396B00()
+{
+    return &D_004A44AC;
+}
+#endif
+
+//100%
 INCLUDE_ASM("render/font", func_00396B10);
+#ifdef SKIP_ASM
+extern int D_004A44B0;
 
+extern "C" int* func_00396B10()
+{
+    return &D_004A44B0;
+}
+#endif
+
+//100%
 INCLUDE_ASM("render/font", func_00396B20);
+#ifdef SKIP_ASM
+extern int D_004A44B4;
 
+extern "C" int* func_00396B20()
+{
+    return &D_004A44B4;
+}
+#endif
+
+//100%
 INCLUDE_ASM("render/font", func_00396B30);
+#ifdef SKIP_ASM
+extern int D_004A44B8;
+
+extern "C" int* func_00396B30()
+{
+    return &D_004A44B8;
+}
+#endif
 
 INCLUDE_ASM("render/font", func_00396B40);
 
@@ -2807,111 +5052,598 @@ extern "C" void func_00396D30(int* self, int flags)
 
 extern "C" void* func_00393048(int, int);
 
+//100%
 INCLUDE_ASM("render/font", func_00396D60);
+#ifdef SKIP_ASM
+extern int D_004A45D8;
 
+extern "C" int* func_00396D60()
+{
+    return &D_004A45D8;
+}
+#endif
+
+//100%
 INCLUDE_ASM("render/font", func_00396D70);
+#ifdef SKIP_ASM
+extern int D_004A45DC;
 
+extern "C" int* func_00396D70()
+{
+    return &D_004A45DC;
+}
+#endif
+
+//100%
 INCLUDE_ASM("render/font", func_00396D80);
+#ifdef SKIP_ASM
+extern int D_004A45E0;
 
+extern "C" int* func_00396D80()
+{
+    return &D_004A45E0;
+}
+#endif
+
+//100%
 INCLUDE_ASM("render/font", func_00396D90);
+#ifdef SKIP_ASM
+extern int D_004A45E4;
 
+extern "C" int* func_00396D90()
+{
+    return &D_004A45E4;
+}
+#endif
+
+//100%
 INCLUDE_ASM("render/font", func_00396DA0);
+#ifdef SKIP_ASM
+extern int D_004A45E8;
 
+extern "C" int* func_00396DA0()
+{
+    return &D_004A45E8;
+}
+#endif
+
+//100%
 INCLUDE_ASM("render/font", func_00396DB0);
+#ifdef SKIP_ASM
+extern int D_004A45EC;
 
+extern "C" int* func_00396DB0()
+{
+    return &D_004A45EC;
+}
+#endif
+
+//100%
 INCLUDE_ASM("render/font", func_00396DC0);
+#ifdef SKIP_ASM
+extern int D_004A45F0;
 
+extern "C" int* func_00396DC0()
+{
+    return &D_004A45F0;
+}
+#endif
+
+//100%
 INCLUDE_ASM("render/font", func_00396DD0);
+#ifdef SKIP_ASM
+extern int D_004A45F4;
 
+extern "C" int* func_00396DD0()
+{
+    return &D_004A45F4;
+}
+#endif
+
+//100%
 INCLUDE_ASM("render/font", func_00396DE0);
+#ifdef SKIP_ASM
+extern int D_004A45F8;
 
+extern "C" int* func_00396DE0()
+{
+    return &D_004A45F8;
+}
+#endif
+
+//100%
 INCLUDE_ASM("render/font", func_00396DF0);
+#ifdef SKIP_ASM
+extern int D_004A45FC;
 
+extern "C" int* func_00396DF0()
+{
+    return &D_004A45FC;
+}
+#endif
+
+//100%
 INCLUDE_ASM("render/font", func_00396E00);
+#ifdef SKIP_ASM
+extern int D_004A4600;
 
+extern "C" int* func_00396E00()
+{
+    return &D_004A4600;
+}
+#endif
+
+//100%
 INCLUDE_ASM("render/font", func_00396E10);
+#ifdef SKIP_ASM
+extern int D_004A4604;
 
+extern "C" int* func_00396E10()
+{
+    return &D_004A4604;
+}
+#endif
+
+//100%
 INCLUDE_ASM("render/font", func_00396E20);
+#ifdef SKIP_ASM
+extern int D_004A4608;
 
+extern "C" int* func_00396E20()
+{
+    return &D_004A4608;
+}
+#endif
+
+//100%
 INCLUDE_ASM("render/font", func_00396E30);
+#ifdef SKIP_ASM
+extern int D_004A460C;
 
+extern "C" int* func_00396E30()
+{
+    return &D_004A460C;
+}
+#endif
+
+//100%
 INCLUDE_ASM("render/font", func_00396E40);
+#ifdef SKIP_ASM
+extern int D_004A4610;
 
+extern "C" int* func_00396E40()
+{
+    return &D_004A4610;
+}
+#endif
+
+//100%
 INCLUDE_ASM("render/font", func_00396E50);
+#ifdef SKIP_ASM
+extern int D_004A4614;
 
+extern "C" int* func_00396E50()
+{
+    return &D_004A4614;
+}
+#endif
+
+//100%
 INCLUDE_ASM("render/font", func_00396E60);
+#ifdef SKIP_ASM
+extern int D_004A4618;
 
+extern "C" int* func_00396E60()
+{
+    return &D_004A4618;
+}
+#endif
+
+//100%
 INCLUDE_ASM("render/font", func_00396E70);
+#ifdef SKIP_ASM
+extern int D_004A461C;
 
+extern "C" int* func_00396E70()
+{
+    return &D_004A461C;
+}
+#endif
+
+//100%
 INCLUDE_ASM("render/font", func_00396E80);
+#ifdef SKIP_ASM
+extern int D_004A4620;
 
+extern "C" int* func_00396E80()
+{
+    return &D_004A4620;
+}
+#endif
+
+//100%
 INCLUDE_ASM("render/font", func_00396E90);
+#ifdef SKIP_ASM
+extern int D_004A4624;
 
+extern "C" int* func_00396E90()
+{
+    return &D_004A4624;
+}
+#endif
+
+//100%
 INCLUDE_ASM("render/font", func_00396EA0);
+#ifdef SKIP_ASM
+extern int D_004A4628;
 
+extern "C" int* func_00396EA0()
+{
+    return &D_004A4628;
+}
+#endif
+
+//100%
 INCLUDE_ASM("render/font", func_00396EB0);
+#ifdef SKIP_ASM
+extern int D_004A462C;
 
+extern "C" int* func_00396EB0()
+{
+    return &D_004A462C;
+}
+#endif
+
+//100%
 INCLUDE_ASM("render/font", func_00396EC0);
+#ifdef SKIP_ASM
+extern int D_004A4630;
 
+extern "C" int* func_00396EC0()
+{
+    return &D_004A4630;
+}
+#endif
+
+//100%
 INCLUDE_ASM("render/font", func_00396ED0);
+#ifdef SKIP_ASM
+extern int D_004A4634;
 
+extern "C" int* func_00396ED0()
+{
+    return &D_004A4634;
+}
+#endif
+
+//100%
 INCLUDE_ASM("render/font", func_00396EE0);
+#ifdef SKIP_ASM
+extern int D_004A4638;
 
+extern "C" int* func_00396EE0()
+{
+    return &D_004A4638;
+}
+#endif
+
+//100%
 INCLUDE_ASM("render/font", func_00396EF0);
+#ifdef SKIP_ASM
+extern int D_004A463C;
 
+extern "C" int* func_00396EF0()
+{
+    return &D_004A463C;
+}
+#endif
+
+//100%
 INCLUDE_ASM("render/font", func_00396F00);
+#ifdef SKIP_ASM
+extern int D_004A4640;
 
+extern "C" int* func_00396F00()
+{
+    return &D_004A4640;
+}
+#endif
+
+//100%
 INCLUDE_ASM("render/font", func_00396F10);
+#ifdef SKIP_ASM
+extern int D_004A4644;
 
+extern "C" int* func_00396F10()
+{
+    return &D_004A4644;
+}
+#endif
+
+//100%
 INCLUDE_ASM("render/font", func_00396F20);
+#ifdef SKIP_ASM
+extern int D_004A4648;
 
+extern "C" int* func_00396F20()
+{
+    return &D_004A4648;
+}
+#endif
+
+//100%
 INCLUDE_ASM("render/font", func_00396F30);
+#ifdef SKIP_ASM
+extern int D_004A464C;
 
+extern "C" int* func_00396F30()
+{
+    return &D_004A464C;
+}
+#endif
+
+//100%
 INCLUDE_ASM("render/font", func_00396F40);
+#ifdef SKIP_ASM
+extern int D_004A4650;
 
+extern "C" int* func_00396F40()
+{
+    return &D_004A4650;
+}
+#endif
+
+//100%
 INCLUDE_ASM("render/font", func_00396F50);
+#ifdef SKIP_ASM
+extern int D_004A4654;
 
+extern "C" int* func_00396F50()
+{
+    return &D_004A4654;
+}
+#endif
+
+//100%
 INCLUDE_ASM("render/font", func_00396F60);
+#ifdef SKIP_ASM
+extern int D_004A4658;
 
+extern "C" int* func_00396F60()
+{
+    return &D_004A4658;
+}
+#endif
+
+//100%
 INCLUDE_ASM("render/font", func_00396F70);
+#ifdef SKIP_ASM
+extern int D_004A465C;
 
+extern "C" int* func_00396F70()
+{
+    return &D_004A465C;
+}
+#endif
+
+//100%
 INCLUDE_ASM("render/font", func_00396F80);
+#ifdef SKIP_ASM
+extern int D_004A4660;
 
+extern "C" int* func_00396F80()
+{
+    return &D_004A4660;
+}
+#endif
+
+//100%
 INCLUDE_ASM("render/font", func_00396F90);
+#ifdef SKIP_ASM
+extern int D_004A4664;
 
+extern "C" int* func_00396F90()
+{
+    return &D_004A4664;
+}
+#endif
+
+//100%
 INCLUDE_ASM("render/font", func_00396FA0);
+#ifdef SKIP_ASM
+extern int D_004A4668;
 
+extern "C" int* func_00396FA0()
+{
+    return &D_004A4668;
+}
+#endif
+
+//100%
 INCLUDE_ASM("render/font", func_00396FB0);
+#ifdef SKIP_ASM
+extern int D_004A466C;
 
+extern "C" int* func_00396FB0()
+{
+    return &D_004A466C;
+}
+#endif
+
+//100%
 INCLUDE_ASM("render/font", func_00396FC0);
+#ifdef SKIP_ASM
+extern int D_004A4670;
 
+extern "C" int* func_00396FC0()
+{
+    return &D_004A4670;
+}
+#endif
+
+//100%
 INCLUDE_ASM("render/font", func_00396FD0);
+#ifdef SKIP_ASM
+extern int D_004A4674;
 
+extern "C" int* func_00396FD0()
+{
+    return &D_004A4674;
+}
+#endif
+
+//100%
 INCLUDE_ASM("render/font", func_00396FE0);
+#ifdef SKIP_ASM
+// Packs the global colour (floats in [0, 1]) into an opaque 0xAARRGGBB word.
+extern float D_004A45E4_f __asm__("D_004A45E4");
+extern float D_004A45E8_f __asm__("D_004A45E8");
+extern float D_004A45EC_f __asm__("D_004A45EC");
 
+extern "C" unsigned int func_00396FE0(void)
+{
+    int r = (int)(D_004A45E4_f * 255.0f);
+    int g = (int)(D_004A45E8_f * 255.0f);
+    int b = (int)(D_004A45EC_f * 255.0f);
+    return 0xFF000000 | (r << 16) | (g << 8) | b;
+}
+#endif
+
+//100%
 INCLUDE_ASM("render/font", func_00397038);
+#ifdef SKIP_ASM
+extern float D_004A469C;
+extern float D_004A46A0;
+extern float D_004A46A4;
+extern float D_004A46A8;
 
+extern "C" float func_00397038(void)
+{
+    return D_004A469C * D_004A46A0;
+}
+#endif
+
+//100%
 INCLUDE_ASM("render/font", func_00397048);
+#ifdef SKIP_ASM
+extern "C" float func_00397048(void)
+{
+    return D_004A469C * D_004A46A4;
+}
+#endif
 
+//100%
 INCLUDE_ASM("render/font", func_00397058);
+#ifdef SKIP_ASM
+extern "C" float func_00397058(void)
+{
+    return D_004A469C * D_004A46A8;
+}
+#endif
 
+//100%
 INCLUDE_ASM("render/font", func_00397068);
+#ifdef SKIP_ASM
+// The same three words are declared as ints above; these are their float views.
+extern float D_004A45F0_f __asm__("D_004A45F0");
+extern float D_004A45F4_f __asm__("D_004A45F4");
+extern float D_004A45F8_f __asm__("D_004A45F8");
 
+extern "C" void func_00397068(float v)
+{
+    D_004A45F8_f = v;
+    D_004A45F4_f = v;
+    D_004A45F0_f = v;
+}
+#endif
+
+//100%
 INCLUDE_ASM("render/font", func_00397078);
+#ifdef SKIP_ASM
+extern int D_004A4678;
 
+extern "C" int* func_00397078()
+{
+    return &D_004A4678;
+}
+#endif
+
+//100%
 INCLUDE_ASM("render/font", func_00397088);
+#ifdef SKIP_ASM
+extern int D_004A467C;
 
+extern "C" int* func_00397088()
+{
+    return &D_004A467C;
+}
+#endif
+
+//100%
 INCLUDE_ASM("render/font", func_00397098);
+#ifdef SKIP_ASM
+extern int D_004A4680;
 
+extern "C" int* func_00397098()
+{
+    return &D_004A4680;
+}
+#endif
+
+//100%
 INCLUDE_ASM("render/font", func_003970A8);
+#ifdef SKIP_ASM
+extern int D_004A4684;
 
+extern "C" int* func_003970A8()
+{
+    return &D_004A4684;
+}
+#endif
+
+//100%
 INCLUDE_ASM("render/font", func_003970B8);
+#ifdef SKIP_ASM
+extern int D_004A4688;
 
+extern "C" int* func_003970B8()
+{
+    return &D_004A4688;
+}
+#endif
+
+//100%
 INCLUDE_ASM("render/font", func_003970C8);
+#ifdef SKIP_ASM
+extern int D_004A468C;
 
+extern "C" int* func_003970C8()
+{
+    return &D_004A468C;
+}
+#endif
+
+//100%
 INCLUDE_ASM("render/font", func_003970D8);
+#ifdef SKIP_ASM
+extern int D_004A4690;
 
+extern "C" int* func_003970D8()
+{
+    return &D_004A4690;
+}
+#endif
+
+//100%
 INCLUDE_ASM("render/font", func_003970E8);
+#ifdef SKIP_ASM
+extern int D_004A4694;
+
+extern "C" int* func_003970E8()
+{
+    return &D_004A4694;
+}
+#endif
 
 //99.38%
 INCLUDE_ASM("render/font", func_003970F8__FPv);
