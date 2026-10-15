@@ -1,6 +1,17 @@
 #include "common.h"
 
 //100%
+extern "C" int sprintf(char* buf, const char* fmt, ...);
+// PORT: debugmenu defines MEM_initblock with a short flags parameter; this caller passes the int unconverted.
+extern "C" void* MEM_initblock(void* self, const char* name, int size, int hdr, int flags, void* prev, void* next);
+extern "C" void* func_003E6448(void* dst, int value, int size);
+extern "C" char* strcpy(char* dst, const char* src);
+extern "C" int func_003E5698(void* sema);
+extern char D_004A2E38[];
+extern char D_004A2E40[];
+extern void* D_004D2438[];
+
+//100%
 INCLUDE_ASM("mem/memstd", MEMCLASS_create);
 #ifdef SKIP_ASM
 extern "C" int sprintf(char* buf, const char* fmt, ...);
@@ -105,11 +116,46 @@ extern "C" int MEMCLASS_create(int id, char* name, char* mem, int size, int f28,
 }
 #endif
 
+//100%
 INCLUDE_ASM("mem/memstd", func_00251998);
+#ifdef SKIP_ASM
+extern "C" void func_003E56E0(void* sema);
+
+// Destroy memory class (id & 0x3F): release its semaphore, clear it and free the slot.
+extern "C" int func_00251998(int id)
+{
+    void** slot = &D_004D2438[id & 0x3F];
+    sMemClass_251718* cls = (sMemClass_251718*)*slot;
+    int r = 0;
+    if (cls != 0) {
+        if (cls->locked) {
+            func_003E56E0(cls->sema);
+        }
+        func_003E6448(cls, 0, 0x50);
+        *slot = 0;
+        r = 1;
+    }
+    return r;
+}
+#endif
 
 INCLUDE_ASM("mem/memstd", func_00251A08);
 
+//100%
 INCLUDE_ASM("mem/memstd", func_00251A80);
+#ifdef SKIP_ASM
+// First free memory class id (slots 0 and 1 are reserved), or 0x40 if full.
+extern "C" int func_00251A80()
+{
+    int i;
+    for (i = 2; i < 0x40; i++) {
+        if (D_004D2438[i] == 0) {
+            break;
+        }
+    }
+    return i;
+}
+#endif
 
 INCLUDE_ASM("mem/memstd", func_00251AC0);
 
@@ -119,13 +165,43 @@ INCLUDE_ASM("mem/memstd", func_00251BB0);
 
 INCLUDE_ASM("mem/memstd", func_00251C38);
 
+//100%
 INCLUDE_ASM("mem/memstd", func_00251CF0);
+#ifdef SKIP_ASM
+extern "C" int func_00251CF0()
+{
+    return 0;
+}
+#endif
 
+//100%
 INCLUDE_ASM("mem/memstd", func_00251CF8);
+#ifdef SKIP_ASM
+extern "C" int func_00251CF8()
+{
+    return 0;
+}
+#endif
 
+//100%
 INCLUDE_ASM("mem/memstd", func_00251D00);
+#ifdef SKIP_ASM
+extern "C" void func_00251D00()
+{
+}
+#endif
 
+//100%
 INCLUDE_ASM("mem/memstd", func_00251D08);
+#ifdef SKIP_ASM
+extern char D_004A2E48[];
+
+// Create memory class 0 over [mem, mem+size).
+extern "C" int func_00251D08(char* mem, int size)
+{
+    return MEMCLASS_create(0, D_004A2E48, mem, size, 0x40, 0x80, 0, 0, 0, 1);
+}
+#endif
 
 //100%
 INCLUDE_ASM("mem/memstd", MEMCLASS_link);
@@ -398,7 +474,14 @@ extern "C" int func_002522B0(sMemBlock002522B0* blk)
 }
 #endif
 
+//100%
 INCLUDE_ASM("mem/memstd", func_002523A0);
+#ifdef SKIP_ASM
+extern "C" int func_002523A0()
+{
+    return 0x1;
+}
+#endif
 
 //100%
 INCLUDE_ASM("mem/memstd", func_002523A8);
@@ -416,11 +499,40 @@ extern "C" void* func_002523A8(void* self)
 
 INCLUDE_ASM("mem/memstd", func_002523D0);
 
+//100%
 INCLUDE_ASM("mem/memstd", func_002525F8);
+#ifdef SKIP_ASM
+extern "C" void MUTEX_lock(void* mutex);
+extern "C" void MUTEX_unlock(void* mutex);
+extern void* D_00538B00[16];
+extern "C" int func_00319B98(void* p);
 
+extern "C" int func_002525F8(void* p)
+{
+    MUTEX_lock(D_00538B00);
+    int r = func_00319B98(p);
+    MUTEX_unlock(D_00538B00);
+    return r;
+}
+#endif
+
+//100%
 INCLUDE_ASM("mem/memstd", func_00252648);
+#ifdef SKIP_ASM
+extern "C" int func_00252648(void* self)
+{
+    return *(int*)((char*)self + -0xC);
+}
+#endif
 
+//100%
 INCLUDE_ASM("mem/memstd", func_00252650);
+#ifdef SKIP_ASM
+extern "C" unsigned short func_00252650(void* self)
+{
+    return *(unsigned short*)((char*)self + -0xE);
+}
+#endif
 
 //100%
 INCLUDE_ASM("mem/memstd", func_00252658__FPv);
@@ -450,7 +562,19 @@ extern "C" int func_00252660(void* p)
 }
 #endif
 
+//100%
 INCLUDE_ASM("mem/memstd", func_00252688);
+#ifdef SKIP_ASM
+extern "C" int func_00252688(void* p, int value)
+{
+    int r = 0;
+    if (*(unsigned short*)((int)p - 0xE) & 0x800) {
+        r = 1;
+        ((sMemUnalignedInt*)((char*)p + *(int*)((int)p - 0xC) + 4))->value = value;
+    }
+    return r;
+}
+#endif
 
 //100%
 INCLUDE_ASM("mem/memstd", func_002526B8);
@@ -472,7 +596,15 @@ extern "C" void* func_002526B8(void* block, int size)
 
 INCLUDE_ASM("mem/memstd", func_00252718);
 
+//100%
 INCLUDE_ASM("mem/memstd", func_00252960);
+#ifdef SKIP_ASM
+// Word at 0x30 of memory class (id & 0x3F).
+extern "C" int func_00252960(void* self, int id)
+{
+    return *(int*)((char*)D_004D2438[id & 0x3F] + 0x30);
+}
+#endif
 
 //100%
 INCLUDE_ASM("mem/memstd", func_00252980);
@@ -510,7 +642,16 @@ void* func_00252F60_impl(void* a0, int a1, int a2, int a3, int a4)
 }
 #endif
 
+//100%
 INCLUDE_ASM("mem/memstd", func_00252F80);
+#ifdef SKIP_ASM
+void* func_00252A10_6(void*, int, int, int, int, int) __asm__("func_00252A10");
+
+extern "C" void* func_00252F80(void* a0, int a1, int a2, int a3, int a4)
+{
+    return func_00252A10_6(a0, a1, a2, a3, a4, 1);
+}
+#endif
 
 //100% - objdiff report; single-function view differs only in a relocation name
 INCLUDE_ASM("mem/memstd", func_00252FA0);
@@ -524,19 +665,68 @@ extern "C" void* func_00252FA0(void* a0, int a1, int a2)
 }
 #endif
 
+//100%
 INCLUDE_ASM("mem/memstd", func_00252FC8);
+#ifdef SKIP_ASM
+extern "C" void* func_00252FC8(void* a0, int a1, int a2)
+{
+    return func_00252A10_6(a0, a1, 0x80, 0, a2, 1);
+}
+#endif
 
+//100%
 INCLUDE_ASM("mem/memstd", func_00252FF0);
+#ifdef SKIP_ASM
+extern "C" void* func_00252FF0(void* a0, int a1, int a2)
+{
+    return func_00252980_6(a0, a1, 0, 0, a2, 0);
+}
+#endif
 
+//100%
 INCLUDE_ASM("mem/memstd", func_00253018);
+#ifdef SKIP_ASM
+extern "C" void* func_00253018(void* a0, int a1, int a2)
+{
+    return func_00252A10_6(a0, a1, 0, 0, a2, 0);
+}
+#endif
 
+//100%
 INCLUDE_ASM("mem/memstd", func_00253040);
+#ifdef SKIP_ASM
+extern "C" void* func_00253040(int size)
+{
+    return func_00252980_6(0, size, 0, 0, 0, 1);
+}
+#endif
 
+//100%
 INCLUDE_ASM("mem/memstd", func_00253070);
+#ifdef SKIP_ASM
+extern "C" void* func_00253070(int size)
+{
+    return func_00252A10_6(0, size, 0, 0, 0, 1);
+}
+#endif
 
+//100%
 INCLUDE_ASM("mem/memstd", func_002530A0);
+#ifdef SKIP_ASM
+extern "C" void* func_002530A0(int size)
+{
+    return func_00252980_6(0, size, 0, 0, 0, 0);
+}
+#endif
 
+//100%
 INCLUDE_ASM("mem/memstd", func_002530D0);
+#ifdef SKIP_ASM
+extern "C" void* func_002530D0(int size)
+{
+    return func_00252A10_6(0, size, 0, 0, 0, 0);
+}
+#endif
 
 INCLUDE_ASM("mem/memstd", func_00253100);
 
@@ -546,7 +736,20 @@ INCLUDE_ASM("mem/memstd", func_00253230);
 
 INCLUDE_ASM("mem/memstd", func_002532B0);
 
+//100%
 INCLUDE_ASM("mem/memstd", func_00253368);
+#ifdef SKIP_ASM
+// Unlink a node and mark it free ('BO').
+extern "C" void func_00253368(sMemNode_251718* n)
+{
+    sMemNode_251718* prev = n->prev;
+    sMemNode_251718* next = n->next;
+    prev->next = next;
+    next->prev = prev;
+    n->tag = 0x424F;
+    n->flags &= ~0x4000;
+}
+#endif
 
 //100%
 INCLUDE_ASM("mem/memstd", func_00253390);
@@ -599,7 +802,25 @@ extern "C" void func_00253418(void* self, int flags)
 }
 #endif
 
+//100%
 INCLUDE_ASM("mem/memstd", func_00253460);
+#ifdef SKIP_ASM
+struct sParams00253460 {
+    int w[8];
+    float f20;
+};
+
+extern "C" void func_002534A8(void* self, sParams00253460* params);
+
+extern "C" void func_00253460(void* self, int a1)
+{
+    sParams00253460 params;
+    func_002535F8(self);
+    func_00253390(&params);
+    params.w[0] = a1;
+    func_002534A8(self, &params);
+}
+#endif
 
 INCLUDE_ASM("mem/memstd", func_002534A8);
 
@@ -878,7 +1099,14 @@ void* func_00253AF8(void* self)
 }
 #endif
 
+//100%
 INCLUDE_ASM("mem/memstd", func_00253B18);
+#ifdef SKIP_ASM
+extern "C" void* func_00253B18(void* self, ...)
+{
+    return self;
+}
+#endif
 
 INCLUDE_ASM("mem/memstd", func_00253B58);
 
@@ -1324,7 +1552,14 @@ extern "C" void func_00254DC0(void* self)
 }
 #endif
 
+//100%
 INCLUDE_ASM("mem/memstd", func_00254E20);
+#ifdef SKIP_ASM
+extern "C" void* func_00254E20(void* self, ...)
+{
+    return self;
+}
+#endif
 
 INCLUDE_ASM("mem/memstd", func_00254E60);
 
@@ -1353,25 +1588,93 @@ void func_00255668(void* self)
 
 extern "C" void* func_00254E60(int, int);
 
+//100%
 INCLUDE_ASM("mem/memstd", func_00255670);
+#ifdef SKIP_ASM
+extern "C" void* func_00255670(int size)
+{
+    return ((tMemAlloc5_00254368)D_00509430.alloc)(D_004A2EA0, size, 0, 0, D_00509430.field_0x8);
+}
+#endif
 
+//100%
 INCLUDE_ASM("mem/memstd", func_002556B0);
+#ifdef SKIP_ASM
+extern "C" void* func_002556B0(int size)
+{
+    return ((tMemAlloc5_00254368)D_00509430.alloc)(D_004A2EA0, size, 0, 0, D_00509430.field_0x8);
+}
+#endif
 
+//100%
 INCLUDE_ASM("mem/memstd", func_002556F0);
+#ifdef SKIP_ASM
+extern "C" void* func_002556F0(int size, void* tag, int align, int d, int flags)
+{
+    return ((tMemAlloc5_00254368)D_00509430.alloc)(tag, size, align, d, flags);
+}
+#endif
 
+//100%
 INCLUDE_ASM("mem/memstd", func_00255720);
+#ifdef SKIP_ASM
+extern "C" void* func_00255720(int size, void* tag, int align, int d, int flags)
+{
+    return ((tMemAlloc5_00254368)D_00509430.alloc)(tag, size, align, d, flags);
+}
+#endif
 
+//100%
 INCLUDE_ASM("mem/memstd", func_00255750);
+#ifdef SKIP_ASM
+extern "C" void func_00255750(void* p)
+{
+    D_00509430.free(p);
+}
+#endif
 
+//100%
 INCLUDE_ASM("mem/memstd", func_00255778);
+#ifdef SKIP_ASM
+extern "C" void func_00255778(void* p)
+{
+    D_00509430.free(p);
+}
+#endif
 
+//100%
 INCLUDE_ASM("mem/memstd", func_002557A0);
+#ifdef SKIP_ASM
+extern "C" int func_002557A0(int a0, int a1)
+{
+    return a1;
+}
+#endif
 
+//100%
 INCLUDE_ASM("mem/memstd", func_002557A8);
+#ifdef SKIP_ASM
+extern "C" void func_002557A8()
+{
+}
+#endif
 
+//100%
 INCLUDE_ASM("mem/memstd", func_002557B0);
+#ifdef SKIP_ASM
+extern "C" int func_002557B0(int a0, int a1)
+{
+    return a1;
+}
+#endif
 
+//100%
 INCLUDE_ASM("mem/memstd", func_002557B8);
+#ifdef SKIP_ASM
+extern "C" void func_002557B8()
+{
+}
+#endif
 
 //99.38%
 INCLUDE_ASM("mem/memstd", func_002557C0__FPv);
