@@ -1,6 +1,11 @@
 #include "common.h"
 
 //100%
+void func_0031D790(void* self);
+void* operator_new_tag(unsigned int size, const char* tag, int flags, int d) __asm__("operator_new__FUi");
+extern char D_0048DB38[];
+
+//100%
 INCLUDE_ASM("bx/cubicspline", cCubicSplineInterpolant_initCommon);
 #ifdef SKIP_ASM
 void func_0031D790(void* self);
@@ -577,11 +582,37 @@ INCLUDE_ASM("bx/cubicspline", func_0031F4E8);
 
 INCLUDE_ASM("bx/cubicspline", func_0031F718);
 
+//100%
 INCLUDE_ASM("bx/cubicspline", func_0031F7F0);
+#ifdef SKIP_ASM
+extern "C" int func_0031ED60(void* self);
 
+extern "C" int func_0031F7F0(void* self)
+{
+    return func_0031ED60(self);
+}
+#endif
+
+//100%
 INCLUDE_ASM("bx/cubicspline", func_0031F810);
+#ifdef SKIP_ASM
+extern "C" void func_0031F858(void* a, void* b, void* c, int d, int e);
 
+extern "C" void func_0031F810(void* a, void* b, int c, int e)
+{
+    int v = c;
+    func_0031F858(a, b, &v, 3, e);
+}
+#endif
+
+//100%
 INCLUDE_ASM("bx/cubicspline", func_0031F838);
+#ifdef SKIP_ASM
+extern "C" void func_0031F838(void* a, void* b, void* c, int e)
+{
+    func_0031F858(a, b, c, 0, e);
+}
+#endif
 
 INCLUDE_ASM("bx/cubicspline", func_0031F858);
 
@@ -714,7 +745,13 @@ extern "C" sMallinfo_31FC20 func_0031FC20(void* ms)
 }
 #endif
 
+//100%
 INCLUDE_ASM("bx/cubicspline", func_0031FE28);
+#ifdef SKIP_ASM
+extern "C" void func_0031FE28()
+{
+}
+#endif
 
 INCLUDE_ASM("bx/cubicspline", func_0031FE30);
 
@@ -783,7 +820,14 @@ extern "C" unsigned int func_0031FFD8(void* self, long incr) // PORT: 64-bit lon
 
 extern "C" int func_0031F2C8(void* self);
 
+//100%
 INCLUDE_ASM("bx/cubicspline", func_00320038);
+#ifdef SKIP_ASM
+extern "C" void* func_00320038(void* ms, unsigned int bytes)
+{
+    return func_0031E818(ms, bytes);
+}
+#endif
 
 //99.29%
 INCLUDE_ASM("bx/cubicspline", func_00320058__FPv);
@@ -818,7 +862,13 @@ int func_003200C0(void* self)
 }
 #endif
 
+//100%
 INCLUDE_ASM("bx/cubicspline", func_003200E0);
+#ifdef SKIP_ASM
+extern "C" void func_003200E0()
+{
+}
+#endif
 
 //100%
 INCLUDE_ASM("bx/cubicspline", func_003200E8__FPv);
