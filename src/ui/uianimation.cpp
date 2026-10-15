@@ -1,6 +1,11 @@
 #include "common.h"
 
 //100%
+extern "C" void* cMemMan_alloc(int size, const char* tag, unsigned int flags, int d);
+extern "C" void* cUIAnimation_cUIAnimation(void* self, void* data);
+extern const char D_004A4768[];
+
+//100%
 INCLUDE_ASM("ui/uianimation", cUIAnimationBank_getAnimationByHashName);
 #ifdef SKIP_ASM
 extern "C" void* cMemMan_alloc(int size, const char* tag, unsigned int flags, int d);
@@ -152,9 +157,23 @@ extern "C" void func_003973A8(void* self, int flags)
 }
 #endif
 
+//100%
 INCLUDE_ASM("ui/uianimation", func_00397440);
+#ifdef SKIP_ASM
+extern "C" int func_00397440(void* self)
+{
+    return *(short*)((char*)self + 0xA) >= *(unsigned short*)(*(char**)self + 0x2);
+}
+#endif
 
+//100%
 INCLUDE_ASM("ui/uianimation", func_00397458);
+#ifdef SKIP_ASM
+extern "C" short func_00397458(void* self)
+{
+    return *(short*)(*(char**)self + 0x2);
+}
+#endif
 
 //100%
 INCLUDE_ASM("ui/uianimation", func_00397468);
