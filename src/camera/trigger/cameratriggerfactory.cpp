@@ -1,6 +1,15 @@
 #include "common.h"
 
 //100%
+extern "C" int get_uint(void* reader, void* dst);
+extern "C" int get_cCTActionSwitchCam(void* reader, void* dst);
+extern "C" int get_cCTActionBoundedCam(void* reader, char* obj);
+extern "C" int get_cCTActionSpline(void* reader, void* dst);
+void* get_cCTActionNone(void* unused, int* outType);
+// PORT: the game's tagged allocator, bound as a placement operator new.
+void* operator new(unsigned int size, const char* tag, unsigned int flags, int d) __asm__("cMemMan_alloc");
+
+//100%
 INCLUDE_ASM("camera/trigger/cameratriggerfactory", get_camaction);
 #ifdef SKIP_ASM
 extern "C" int get_uint(void* reader, void* dst);
@@ -1141,33 +1150,120 @@ extern "C" void* func_001747A0(void* self)
 }
 #endif
 
+//100%
 INCLUDE_ASM("camera/trigger/cameratriggerfactory", func_00174808);
+#ifdef SKIP_ASM
+extern "C" void* func_00174808(void* p, ...)
+{
+    return p;
+}
+#endif
 
 INCLUDE_ASM("camera/trigger/cameratriggerfactory", func_00174848);
 
 INCLUDE_ASM("camera/trigger/cameratriggerfactory", func_00175A20);
 
+//100%
 INCLUDE_ASM("camera/trigger/cameratriggerfactory", func_00176270);
+#ifdef SKIP_ASM
+// deleting destructor: reset the vtable, free when bit 0 of flags is set
+extern "C" void func_00176270(void* self, int flags)
+{
+    *(void***)((char*)self + 0x10) = D_0045BDE0;
+    if (flags & 1) {
+        operator_delete((int*)self);
+    }
+}
+#endif
 
+//100%
 INCLUDE_ASM("camera/trigger/cameratriggerfactory", func_001762A0);
+#ifdef SKIP_ASM
+extern "C" void func_001762A0()
+{
+}
+#endif
 
+//100%
 INCLUDE_ASM("camera/trigger/cameratriggerfactory", func_001762A8);
+#ifdef SKIP_ASM
+extern "C" void func_001762A8()
+{
+}
+#endif
 
+//100%
 INCLUDE_ASM("camera/trigger/cameratriggerfactory", func_001762B0);
+#ifdef SKIP_ASM
+extern "C" void func_001762B0()
+{
+}
+#endif
 
+//100%
 INCLUDE_ASM("camera/trigger/cameratriggerfactory", func_001762B8);
+#ifdef SKIP_ASM
+extern "C" float func_001762B8()
+{
+    return 0.7853982f;
+}
+#endif
 
+//100%
 INCLUDE_ASM("camera/trigger/cameratriggerfactory", func_001762C8);
+#ifdef SKIP_ASM
+struct sCtfVec4 { float v[4]; } __attribute__((aligned(16)));
+extern sCtfVec4 D_004FF120;
 
+extern "C" sCtfVec4 func_001762C8()
+{
+    return D_004FF120;
+}
+#endif
+
+//100%
 INCLUDE_ASM("camera/trigger/cameratriggerfactory", func_001762E0);
+#ifdef SKIP_ASM
+extern "C" void func_001762E0()
+{
+}
+#endif
 
+//100%
 INCLUDE_ASM("camera/trigger/cameratriggerfactory", func_001762E8);
+#ifdef SKIP_ASM
+extern "C" void func_001762E8()
+{
+}
+#endif
 
+//100%
 INCLUDE_ASM("camera/trigger/cameratriggerfactory", func_001762F0);
+#ifdef SKIP_ASM
+// Calls a virtual function through the vtable at +0x10 (entry at +0x28)
+extern "C" void func_001762F0(char* self)
+{
+    char* vt = *(char**)(self + 0x10);
+    (*(void (**)(char*))(vt + 0x2C))(self + *(short*)(vt + 0x28));
+}
+#endif
 
+//100%
 INCLUDE_ASM("camera/trigger/cameratriggerfactory", func_00176318);
+#ifdef SKIP_ASM
+extern "C" void func_00176318()
+{
+}
+#endif
 
+//100%
 INCLUDE_ASM("camera/trigger/cameratriggerfactory", func_00176320);
+#ifdef SKIP_ASM
+extern "C" int func_00176320()
+{
+    return 0;
+}
+#endif
 
 //100%
 INCLUDE_ASM("camera/trigger/cameratriggerfactory", func_00176328);
@@ -1261,11 +1357,32 @@ extern "C" void func_001763F8(void* self, int flags)
 }
 #endif
 
+//100%
 INCLUDE_ASM("camera/trigger/cameratriggerfactory", func_00176428);
+#ifdef SKIP_ASM
+extern "C" void func_00176428(void* self, int value)
+{
+    *(int*)((char*)self + 0x80) = value;
+}
+#endif
 
+//100%
 INCLUDE_ASM("camera/trigger/cameratriggerfactory", func_00176430);
+#ifdef SKIP_ASM
+extern "C" int func_00176430(void* self)
+{
+    return *(int*)((char*)self + 0x80);
+}
+#endif
 
+//100%
 INCLUDE_ASM("camera/trigger/cameratriggerfactory", func_00176438);
+#ifdef SKIP_ASM
+extern "C" int func_00176438(void* self)
+{
+    return *(int*)((char*)self + 0x18);
+}
+#endif
 
 //100%
 INCLUDE_ASM("camera/trigger/cameratriggerfactory", func_00176440__FPv);
@@ -1332,9 +1449,23 @@ INCLUDE_ASM("camera/trigger/cameratriggerfactory", func_00176688);
 
 INCLUDE_ASM("camera/trigger/cameratriggerfactory", func_00176710);
 
+//100%
 INCLUDE_ASM("camera/trigger/cameratriggerfactory", func_001767F8);
+#ifdef SKIP_ASM
+extern "C" void* func_001767F8(void* self)
+{
+    return (char*)self + 0x2C;
+}
+#endif
 
+//100%
 INCLUDE_ASM("camera/trigger/cameratriggerfactory", func_00176800);
+#ifdef SKIP_ASM
+extern "C" void* func_00176800(void* self)
+{
+    return (char*)self + 0x38;
+}
+#endif
 
 //100%
 INCLUDE_ASM("camera/trigger/cameratriggerfactory", func_00176808);
@@ -1946,13 +2077,26 @@ extern "C" void func_00177588(cCamCtrlK8940* self, int id)
 }
 #endif
 
+//100%
 INCLUDE_ASM("camera/trigger/cameratriggerfactory", func_00177610);
+#ifdef SKIP_ASM
+extern "C" void* func_00177610(void* p, ...)
+{
+    return p;
+}
+#endif
 
 INCLUDE_ASM("camera/trigger/cameratriggerfactory", func_00177650);
 
 extern "C" void* func_00177650(int, int);
 
+//100%
 INCLUDE_ASM("camera/trigger/cameratriggerfactory", func_00177E28);
+#ifdef SKIP_ASM
+extern "C" void func_00177E28()
+{
+}
+#endif
 
 //99.38%
 INCLUDE_ASM("camera/trigger/cameratriggerfactory", func_00177E30__FPv);
@@ -2702,13 +2846,26 @@ extern "C" void func_00178E90(void* self, int id)
 }
 #endif
 
+//100%
 INCLUDE_ASM("camera/trigger/cameratriggerfactory", func_00178F18);
+#ifdef SKIP_ASM
+extern "C" void* func_00178F18(void* p, ...)
+{
+    return p;
+}
+#endif
 
 INCLUDE_ASM("camera/trigger/cameratriggerfactory", func_00178F58);
 
 extern "C" void* func_00178F58(int, int);
 
+//100%
 INCLUDE_ASM("camera/trigger/cameratriggerfactory", func_00179730);
+#ifdef SKIP_ASM
+extern "C" void func_00179730()
+{
+}
+#endif
 
 //99.38%
 INCLUDE_ASM("camera/trigger/cameratriggerfactory", func_00179738__FPv);
@@ -2719,7 +2876,14 @@ void* func_00179738(void* self)
 }
 #endif
 
+//100%
 INCLUDE_ASM("camera/trigger/cameratriggerfactory", func_00179758);
+#ifdef SKIP_ASM
+extern "C" void* func_00179758(void* p, ...)
+{
+    return p;
+}
+#endif
 
 INCLUDE_ASM("camera/trigger/cameratriggerfactory", func_00179798);
 
