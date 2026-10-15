@@ -23,7 +23,14 @@ INCLUDE_ASM("worldpainter/worldpaintermanquery", func_002C0AA0);
 
 INCLUDE_ASM("worldpainter/worldpaintermanquery", func_002C0AF0);
 
+//100%
 INCLUDE_ASM("worldpainter/worldpaintermanquery", func_002C0B30);
+#ifdef SKIP_ASM
+extern "C" void* func_002C0B30(void* p, ...)
+{
+    return p;
+}
+#endif
 
 INCLUDE_ASM("worldpainter/worldpaintermanquery", func_002C0B70);
 
@@ -629,7 +636,15 @@ void* func_002C1688(void* self)
 }
 #endif
 
+//100%
 INCLUDE_ASM("worldpainter/worldpaintermanquery", func_002C16A8);
+#ifdef SKIP_ASM
+extern "C" void func_002C16A8(int* p, int a, int b)
+{
+    p[1] = a;
+    p[0] = b;
+}
+#endif
 
 //100%
 INCLUDE_ASM("worldpainter/worldpaintermanquery", func_002C16B8);
@@ -643,7 +658,15 @@ extern "C" void func_002C16B8(unsigned short* p, unsigned short a, unsigned shor
 }
 #endif
 
+//100%
 INCLUDE_ASM("worldpainter/worldpaintermanquery", func_002C1718);
+#ifdef SKIP_ASM
+extern "C" void func_002C1718(int* p)
+{
+    p[0] = 0;
+    p[1] = 0;
+}
+#endif
 
 INCLUDE_ASM("worldpainter/worldpaintermanquery", func_002C1728);
 
