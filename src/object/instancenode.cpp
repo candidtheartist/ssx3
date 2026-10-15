@@ -3,6 +3,7 @@
 //100%
 INCLUDE_ASM("object/instancenode", cInstanceNode_cInstanceNode);
 #ifdef SKIP_ASM
+//100%
 struct sInstNodeCtorVEntry {
     short delta;
     short index;
@@ -68,7 +69,16 @@ extern "C" void func_0034FC80(void* self, void* a1)
 
 extern "C" void* func_002D19E8(int);
 
+//100%
 INCLUDE_ASM("object/instancenode", func_0034FCA0);
+#ifdef SKIP_ASM
+extern "C" void func_002D1A78(void* p);
+
+extern "C" void func_0034FCA0(void* self)
+{
+    func_002D1A78(*(void**)((char*)self + 0x18));
+}
+#endif
 
 //100%
 INCLUDE_ASM("object/instancenode", func_0034FCC0__FPv);
