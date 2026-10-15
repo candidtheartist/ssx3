@@ -1,6 +1,14 @@
 #include "common.h"
 
 //100%
+extern "C" void* cMemMan_alloc(int size, const char* tag, unsigned int flags, int d);
+extern "C" void* func_002533C8(void* mem);
+extern "C" void func_00253390(void* self);
+extern "C" int func_002534A8(void* p, void* q);
+extern "C" void func_00253418(void* p, int a1);
+extern const char D_00481FC8[];
+
+//100%
 INCLUDE_ASM("scripter/videngine", cVidEngine_ReadyVideo);
 #ifdef SKIP_ASM
 extern "C" void* cMemMan_alloc(int size, const char* tag, unsigned int flags, int d);
@@ -166,7 +174,14 @@ extern "C" int func_00283BB8(void* self)
 }
 #endif
 
+//100%
 INCLUDE_ASM("scripter/videngine", func_00283BE0);
+#ifdef SKIP_ASM
+extern "C" void* func_00283BE0(void* p, ...)
+{
+    return p;
+}
+#endif
 
 //100%
 INCLUDE_ASM("scripter/videngine", func_00283C20__FPv);
