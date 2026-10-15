@@ -995,7 +995,14 @@ void* func_0024D6B0(void* self)
 }
 #endif
 
+//100%
 INCLUDE_ASM("main/debugmenu", func_0024D6D0);
+#ifdef SKIP_ASM
+extern "C" void* func_0024D6D0(void* p, ...)
+{
+    return p;
+}
+#endif
 
 //100%
 INCLUDE_ASM("main/debugmenu", func_0024D710);
@@ -2039,7 +2046,14 @@ void* func_00250A80(void* self)
 }
 #endif
 
+//100%
 INCLUDE_ASM("main/debugmenu", func_00250AA0);
+#ifdef SKIP_ASM
+extern "C" void* func_00250AA0(void* p, ...)
+{
+    return p;
+}
+#endif
 
 //100%
 INCLUDE_ASM("main/debugmenu", func_00250AE0);
