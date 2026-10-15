@@ -3,6 +3,7 @@
 //100%
 INCLUDE_ASM("ai/airpredictor", cAirPredictor_reset);
 #ifdef SKIP_ASM
+//100%
 struct sQuadR {
     int x[4];
 } __attribute__((aligned(16)));
@@ -268,7 +269,13 @@ extern "C" float func_001139A0(void* self, sVec4_1139A0* pos, sVec4_1139A0* vel,
 }
 #endif
 
+//100%
 INCLUDE_ASM("ai/airpredictor", func_00113A98);
+#ifdef SKIP_ASM
+extern "C" void func_00113A98()
+{
+}
+#endif
 
 //100%
 INCLUDE_ASM("ai/airpredictor", func_00113AA0);
