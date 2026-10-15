@@ -38,7 +38,25 @@ extern "C" void func_0017D008(void* self, int idx)
 
 INCLUDE_ASM("fe/debugfe", func_0017D0A8);
 
+//100%
 INCLUDE_ASM("fe/debugfe", func_0017D1B8);
+#ifdef SKIP_ASM
+extern "C" int func_0017D1B8(void* self, int a1, unsigned int a2)
+{
+    int r = 5;
+    if (a1 == 2)
+        r = 4;
+    switch (a2) {
+    case 0: case 4: case 5: case 6:
+        r = 0;
+        break;
+    case 1: case 2: case 3:
+        r = 1;
+        break;
+    }
+    return r;
+}
+#endif
 
 //100%
 INCLUDE_ASM("fe/debugfe", func_0017D200);
@@ -1060,7 +1078,27 @@ extern "C" int func_0017FBF0(char* self)
 }
 #endif
 
+//100%
 INCLUDE_ASM("fe/debugfe", func_0017FDF0);
+#ifdef SKIP_ASM
+void* func_00320C48_jt(void*, int) __asm__("func_00320C48__FPvi");
+
+extern "C" void func_0017FDF0(void* self, signed char key)
+{
+    int v = 0;
+    switch (key) {
+    case 0: v = 0x72; break;
+    case 1: v = 0x73; break;
+    case 2: v = 0x74; break;
+    case 3: v = 0x75; break;
+    case 4: v = 0x76; break;
+    case 5: v = 0x77; break;
+    case 6: v = 0x78; break;
+    case 7: v = 0x79; break;
+    }
+    func_00320C48_jt(*(void**)((char*)self + 0x18), v);
+}
+#endif
 
 // PORT: the real function is C++ void* func_00320C48(void* self, int) (bx/execman); these thunks pass an int handle.
 void* func_00320C48(int, int) __asm__("func_00320C48__FPvi");
