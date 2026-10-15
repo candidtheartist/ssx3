@@ -1,6 +1,14 @@
 #include "common.h"
 
 //100%
+// PORT: operator_new__FUi really takes (size, tag, flags, d); bound by asm label
+void* operator_new_tag(unsigned int size, const char* tag, int flags, int d) __asm__("operator_new__FUi");
+extern "C" void func_0026BA68(void* dst, void* src);
+extern "C" int func_0026A180(void* path, char* data);
+extern char D_00481438[];
+extern void* D_00481448[];
+
+//100%
 INCLUDE_ASM("path/pathsys", cPathSys_resolvePaths);
 #ifdef SKIP_ASM
 // PORT: operator_new__FUi really takes (size, tag, flags, d); bound by asm label
@@ -383,15 +391,36 @@ extern "C" void func_0026BA88(void* dst, void* src)
 }
 #endif
 
+//100%
 INCLUDE_ASM("path/pathsys", func_0026BAA8);
+#ifdef SKIP_ASM
+extern "C" void* func_0026BAA8(void* p, ...)
+{
+    return p;
+}
+#endif
 
 INCLUDE_ASM("path/pathsys", func_0026BAE8);
 
 INCLUDE_ASM("path/pathsys", func_0026C3D0);
 
+//100%
 INCLUDE_ASM("path/pathsys", func_0026C400);
+#ifdef SKIP_ASM
+extern "C" int func_0026C400(void* self)
+{
+    return *(int*)((char*)self + 0x4);
+}
+#endif
 
+//100%
 INCLUDE_ASM("path/pathsys", func_0026C408);
+#ifdef SKIP_ASM
+extern "C" int func_0026C408(void* self)
+{
+    return *(int*)((char*)self + 0x0);
+}
+#endif
 
 //100%
 INCLUDE_ASM("path/pathsys", func_0026C410__FPv);
@@ -411,11 +440,32 @@ void func_0026C418(void* self)
 
 extern "C" void* func_0026BAE8(int, int);
 
+//100%
 INCLUDE_ASM("path/pathsys", func_0026C420);
+#ifdef SKIP_ASM
+extern "C" int func_0026C420(void* self)
+{
+    return *(int*)((char*)self + 0x38);
+}
+#endif
 
+//100%
 INCLUDE_ASM("path/pathsys", func_0026C428);
+#ifdef SKIP_ASM
+extern "C" int func_0026C428(void* self)
+{
+    return *(int*)((char*)self + 0x3C);
+}
+#endif
 
+//100%
 INCLUDE_ASM("path/pathsys", func_0026C430);
+#ifdef SKIP_ASM
+extern "C" float func_0026C430(void* self)
+{
+    return *(float*)((char*)self + 0x38);
+}
+#endif
 
 //99.38%
 INCLUDE_ASM("path/pathsys", func_0026C438__FPv);
