@@ -24,7 +24,13 @@ extern "C" void cCameraTriggerMan_cleanupOnExit(void* self)
 }
 #endif
 
+//100%
 INCLUDE_ASM("camera/trigger/cameratriggerman", func_0016CA08);
+#ifdef SKIP_ASM
+extern "C" void func_0016CA08()
+{
+}
+#endif
 
 //100%
 INCLUDE_ASM("camera/trigger/cameratriggerman", func_0016CA10__FPv);
@@ -275,7 +281,14 @@ struct cCameraTriggerStack {
     int field_0x4;
 };
 
+//100%
 INCLUDE_ASM("camera/trigger/cameratriggerman", func_0016D1F8);
+#ifdef SKIP_ASM
+extern "C" int func_0016D1F8(int a0)
+{
+    return a0;
+}
+#endif
 
 //100%
 INCLUDE_ASM("camera/trigger/cameratriggerman", cCameraTriggerStack_init__FP19cCameraTriggerStack);
