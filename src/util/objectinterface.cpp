@@ -78,23 +78,93 @@ extern "C" int func_002D2058(sQ128* v)
 }
 #endif
 
+//100%
 INCLUDE_ASM("util/objectinterface", func_002D20F8);
+#ifdef SKIP_ASM
+extern void* D_004A3A00;
 
+// The object interface singleton
+extern "C" void* func_002D20F8()
+{
+    return D_004A3A00;
+}
+#endif
+
+//100%
 INCLUDE_ASM("util/objectinterface", func_002D2100);
+#ifdef SKIP_ASM
+extern "C" void* cMemMan_alloc(int size, const char* tag, unsigned int flags, int d);
+extern "C" void* func_002D21C0(void* p);
+extern char D_00486758[];
 
+extern "C" void* func_002D2100()
+{
+    return func_002D21C0(cMemMan_alloc(1, D_00486758, 0, 0));
+}
+#endif
+
+//100%
 INCLUDE_ASM("util/objectinterface", func_002D2138);
+#ifdef SKIP_ASM
+extern "C" void func_002D2138()
+{
+}
+#endif
 
+//100%
 INCLUDE_ASM("util/objectinterface", func_002D2140);
+#ifdef SKIP_ASM
+extern "C" void func_002D2140()
+{
+}
+#endif
 
+//100%
 INCLUDE_ASM("util/objectinterface", func_002D2148);
+#ifdef SKIP_ASM
+extern sQ128 D_004FF120;
 
+extern "C" sQ128 func_002D2148()
+{
+    return D_004FF120;
+}
+#endif
+
+//100%
 INCLUDE_ASM("util/objectinterface", func_002D2160);
+#ifdef SKIP_ASM
+extern "C" sQ128 func_002D2160()
+{
+    return D_004FF120;
+}
+#endif
 
+//100%
 INCLUDE_ASM("util/objectinterface", func_002D2178);
+#ifdef SKIP_ASM
+extern "C" sQ128 func_002D2178()
+{
+    return D_004FF120;
+}
+#endif
 
+//100%
 INCLUDE_ASM("util/objectinterface", func_002D2190);
+#ifdef SKIP_ASM
+extern "C" float func_002D2190()
+{
+    return 0.0f;
+}
+#endif
 
+//100%
 INCLUDE_ASM("util/objectinterface", func_002D21A0);
+#ifdef SKIP_ASM
+extern "C" float func_002D21A0()
+{
+    return 0.0f;
+}
+#endif
 
 //100%
 INCLUDE_ASM("util/objectinterface", func_002D21B0__FPv);
@@ -124,19 +194,99 @@ extern "C" void* func_002D21C0(void* p)
 }
 #endif
 
+//100%
 INCLUDE_ASM("util/objectinterface", func_002D21D0);
+#ifdef SKIP_ASM
+// Writes a float to the stream at *cursor, little-endian; returns its size
+extern "C" int func_002D21D0(char** cursor, float value)
+{
+    union { float f; unsigned int i; } u;
+    char* p = *cursor;
+    u.f = value;
+    p[0] = u.i;
+    p[1] = u.i >> 8;
+    p[2] = u.i >> 16;
+    p[3] = u.i >> 24;
+    *cursor += 4;
+    return 4;
+}
+#endif
 
+//100%
 INCLUDE_ASM("util/objectinterface", func_002D2210);
+#ifdef SKIP_ASM
+extern "C" int func_002D2210(char** cursor, unsigned int value)
+{
+    char* p = *cursor;
+    p[0] = value;
+    p[1] = value >> 8;
+    p[2] = value >> 16;
+    p[3] = value >> 24;
+    *cursor += 4;
+    return 4;
+}
+#endif
 
+//100%
 INCLUDE_ASM("util/objectinterface", func_002D2248);
+#ifdef SKIP_ASM
+extern "C" int func_002D2248(char** cursor, float* v)
+{
+    int i;
+    for (i = 2; i >= 0; i--)
+        func_002D21D0(cursor, *v++);
+    return 12;
+}
+#endif
 
+//100%
 INCLUDE_ASM("util/objectinterface", func_002D22A8);
+#ifdef SKIP_ASM
+extern "C" int func_002D22A8(char** cursor, float* v)
+{
+    int i;
+    for (i = 3; i >= 0; i--)
+        func_002D21D0(cursor, *v++);
+    return 16;
+}
+#endif
 
+//100%
 INCLUDE_ASM("util/objectinterface", func_002D2308);
+#ifdef SKIP_ASM
+extern "C" int func_002D2308(char** cursor, float* v)
+{
+    int i;
+    for (i = 15; i >= 0; i--)
+        func_002D21D0(cursor, *v++);
+    return 64;
+}
+#endif
 
+//100%
 INCLUDE_ASM("util/objectinterface", func_002D2368);
+#ifdef SKIP_ASM
+// Writes a quaternion, w first
+extern "C" int func_002D2368(char** cursor, float* q)
+{
+    func_002D21D0(cursor, q[3]);
+    func_002D21D0(cursor, q[0]);
+    func_002D21D0(cursor, q[1]);
+    func_002D21D0(cursor, q[2]);
+    return 16;
+}
+#endif
 
+//100%
 INCLUDE_ASM("util/objectinterface", func_002D23C8);
+#ifdef SKIP_ASM
+extern "C" int func_002D23C8(char** cursor, char value)
+{
+    **cursor = value;
+    (*cursor)++;
+    return 1;
+}
+#endif
 
 INCLUDE_ASM("util/objectinterface", func_002D23E8);
 
