@@ -439,7 +439,34 @@ extern "C" void func_002563A8(void *arg0) {
 }
 #endif
 
+//100%
 INCLUDE_ASM("seg/seg_156860", func_002563F8);
+#ifdef SKIP_ASM
+extern "C" void func_00256460(char* self);
+extern "C" void func_00256510(char* self);
+extern "C" void func_002565E0(char* self);
+
+extern "C" void func_002563F8(char* self)
+{
+    switch (*(int*)self) {
+    case 0:
+        break;
+    case 1:
+        func_00256460(self);
+        break;
+    case 2:
+        func_00256510(self);
+        break;
+    case 3:
+        break;
+    case 4:
+        func_002565E0(self);
+        break;
+    case 5:
+        break;
+    }
+}
+#endif
 
 //100%
 INCLUDE_ASM("seg/seg_156860", func_00256460);
@@ -695,7 +722,29 @@ extern "C" void func_00256998(void *arg0) {
 }
 #endif
 
+//100%
 INCLUDE_ASM("seg/seg_156860", func_00256A00);
+#ifdef SKIP_ASM
+extern "C" void func_00256A58(void* arg0);
+extern "C" void func_00256AA8(char* s);
+
+extern "C" void func_00256A00(char* self)
+{
+    switch (*(int*)(self + 0xC)) {
+    case 0:
+        break;
+    case 1:
+        func_00256A58(self);
+        break;
+    case 2:
+        func_00256AA8(self);
+        break;
+    case 3:
+    case 4:
+        break;
+    }
+}
+#endif
 
 //100%
 INCLUDE_ASM("seg/seg_156860", func_00256A58);
@@ -860,7 +909,34 @@ extern "C" void func_00256EE0(int self, int flags)
 }
 #endif
 
+//100%
 INCLUDE_ASM("seg/seg_156860", func_00257038);
+#ifdef SKIP_ASM
+extern "C" void func_00258330(void* self);
+extern "C" void func_00258870(void*, int, int);
+extern "C" void func_0031AD18();
+
+extern "C" void func_00257038(char* self, int v)
+{
+    switch (v) {
+    case 14:
+        func_00258330(self);
+        func_00258870(self, 0xE10, 0);
+        func_0031AD18();
+        break;
+    case 15:
+        *(int*)(self + 0x84) = 0;
+        *(int*)(self + 0x78) = 0;
+        break;
+    case 1: case 3: case 5: case 7: case 9: case 11: case 13:
+        func_00258870(self, 0x708, 0);
+        break;
+    case 2: case 4: case 6: case 8: case 10: case 12:
+        break;
+    }
+    *(int*)(self + 0x70) = v;
+}
+#endif
 
 INCLUDE_ASM("seg/seg_156860", func_002570D8);
 
