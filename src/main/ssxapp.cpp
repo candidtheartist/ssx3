@@ -1,6 +1,12 @@
 #include "common.h"
 
 //100%
+extern "C" void* cAppMan_cAppMan(void* self);
+extern "C" void func_003E6448(void* dst, int c, int n);
+extern int D_004A3E90;
+extern void* D_0047D9C8[];
+
+//100%
 INCLUDE_ASM("main/ssxapp", cSSXApp_cSSXApp);
 #ifdef SKIP_ASM
 extern "C" void* cAppMan_cAppMan(void* self);
@@ -342,7 +348,16 @@ extern "C" void* func_00227F80()
 }
 #endif
 
+//100%
 INCLUDE_ASM("main/ssxapp", func_00227FA0);
+#ifdef SKIP_ASM
+extern "C" void func_0023C850();
+
+extern "C" void func_00227FA0()
+{
+    func_0023C850();
+}
+#endif
 
 //100%
 INCLUDE_ASM("main/ssxapp", cSSXApp_purge);
