@@ -1,6 +1,13 @@
 #include "common.h"
 
 //100%
+extern void* D_0048E5F0[];
+extern char D_0048E550[];
+extern "C" void* func_0032C508(void* p);
+extern "C" float func_0032C590(void* self);
+extern "C" void* cMemMan_alloc(int size, const char* tag, unsigned int flags, int d);
+
+//100%
 INCLUDE_ASM("intersect/worldsphtree", cWorldSphTree_cWorldSphTree);
 #ifdef SKIP_ASM
 extern void* D_0048E5F0[];
@@ -1566,7 +1573,14 @@ extern "C" float func_003378C0(void* self, char* q, sHit_003378C0* out, int a3)
 
 INCLUDE_ASM("intersect/worldsphtree", func_00337A48);
 
+//100%
 INCLUDE_ASM("intersect/worldsphtree", func_003388E0);
+#ifdef SKIP_ASM
+extern "C" void* func_003388E0(void* p, ...)
+{
+    return p;
+}
+#endif
 
 INCLUDE_ASM("intersect/worldsphtree", func_00338920);
 
