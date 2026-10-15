@@ -5,6 +5,11 @@
 typedef int cQuad128 __attribute__((mode(TI)));
 
 //100%
+// PORT: operator_new__FUi really takes (size, tag, flags, d); bound by asm label
+void* operator_new_tag(unsigned int size, const char* tag, int flags, int d) __asm__("operator_new__FUi");
+extern char D_00492638[];
+
+//100%
 INCLUDE_ASM("render/graphicsman", cGraphicsMan_AddBlendedMatrix);
 #ifdef SKIP_ASM
 // PORT: operator_new__FUi really takes (size, tag, flags, d); bound by asm label
@@ -316,7 +321,18 @@ extern "C" void func_0036A2C0(void* self, sGmMtx_A2C0* m)
 
 INCLUDE_ASM("render/graphicsman", func_0036A3B0);
 
+//100%
 INCLUDE_ASM("render/graphicsman", func_0036A3E0);
+#ifdef SKIP_ASM
+// Spreads the low 8 bits to the even bit positions (Morton code)
+extern "C" unsigned int func_0036A3B0(unsigned int x);
+
+// Interleaves the bits of x and y (Morton code)
+extern "C" unsigned int func_0036A3E0(unsigned short x, unsigned short y)
+{
+    return func_0036A3B0(x) | (func_0036A3B0(y) << 1);
+}
+#endif
 
 INCLUDE_ASM("render/graphicsman", func_0036A428);
 
@@ -679,9 +695,26 @@ extern "C" void func_0036CE28(void* self, float a, float b)
 }
 #endif
 
+//100%
 INCLUDE_ASM("render/graphicsman", func_0036CE48);
+#ifdef SKIP_ASM
+extern "C" void func_0036CE48(char* self)
+{
+    *(int*)(self + 0x14) = 0;
+    *(float*)(self + 0x1C) = 1e20f;
+}
+#endif
 
+//100%
 INCLUDE_ASM("render/graphicsman", func_0036CE58);
+#ifdef SKIP_ASM
+extern "C" void func_0036CE58(char* self, cQuad128* v)
+{
+    *(cQuad128*)(self + 0xB0) = *v;
+    *(cQuad128*)(self + 0xC0) = D_004FF120;
+    *(cQuad128*)(self + 0xD0) = D_004FF120;
+}
+#endif
 
 INCLUDE_ASM("render/graphicsman", func_0036CE80);
 
