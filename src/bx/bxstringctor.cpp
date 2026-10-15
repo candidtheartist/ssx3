@@ -62,9 +62,23 @@ struct sShortPad16 { short v; int pad[3]; };
 extern sShortPad16 D_004A2FB0;
 extern "C" void func_0025D6C0(int);
 
+//100%
 INCLUDE_ASM("bx/bxstringctor", func_00268A80);
+#ifdef SKIP_ASM
+extern "C" int func_00268A80(void* self)
+{
+    return *(int*)((char*)self + 0x0);
+}
+#endif
 
+//100%
 INCLUDE_ASM("bx/bxstringctor", func_00268A88);
+#ifdef SKIP_ASM
+extern "C" int func_00268A88(void* self)
+{
+    return *(int*)((char*)self + 0x0);
+}
+#endif
 
 //100%
 INCLUDE_ASM("bx/bxstringctor", func_00268A90);
@@ -2088,7 +2102,14 @@ void func_0026ADA0(void* self)
 
 INCLUDE_ASM("bx/bxstringctor", func_0026ADA8);
 
+//100%
 INCLUDE_ASM("bx/bxstringctor", func_0026ADE8);
+#ifdef SKIP_ASM
+extern "C" int func_0026ADE8(void* self)
+{
+    return *(int*)((char*)self + 0x4C);
+}
+#endif
 
 //100%
 INCLUDE_ASM("bx/bxstringctor", func_0026ADF0);
