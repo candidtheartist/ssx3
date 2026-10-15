@@ -825,7 +825,14 @@ extern "C" void* func_00372AA0(sPtObj_2AA0* self)
 }
 #endif
 
+//100%
 INCLUDE_ASM("render/particle", func_00372B20);
+#ifdef SKIP_ASM
+extern "C" int func_00372B20(int* a, int* b)
+{
+    return *a - *b;
+}
+#endif
 
 //100%
 INCLUDE_ASM("render/particle", func_00372B30);
@@ -2463,7 +2470,24 @@ INCLUDE_ASM("render/particle", func_0037BB10);
 
 INCLUDE_ASM("render/particle", func_0037BC40);
 
+//100%
 INCLUDE_ASM("render/particle", func_0037BD38);
+#ifdef SKIP_ASM
+extern "C" int func_0037BD38(void* self, unsigned int kind, int c)
+{
+    switch (kind) {
+    case 0: case 1: case 10: case 48: case 49: case 58:
+        if ((unsigned int)(c - '0') < 2 || c == ':')
+            return 1;
+        break;
+    case 2: case 50:
+        if (c == '2')
+            return 1;
+        break;
+    }
+    return 0;
+}
+#endif
 
 INCLUDE_ASM("render/particle", func_0037BD98);
 
@@ -2574,9 +2598,24 @@ extern "C" void func_0037C570(void* self, sPartColour_C570* c)
 
 INCLUDE_ASM("render/particle", func_0037C638);
 
+//100%
 INCLUDE_ASM("render/particle", func_0037C720);
+#ifdef SKIP_ASM
+extern "C" void func_0037C720(char* self, float f)
+{
+    float one = 1.0f;
+    *(int*)(self + 0x59F8) = func_004139F8((one - clamp_C570(f, one)) * 128.0f);
+}
+#endif
 
+//100%
 INCLUDE_ASM("render/particle", func_0037C770);
+#ifdef SKIP_ASM
+extern "C" float func_0037C770(char* self)
+{
+    return 1.0f - (float)*(unsigned int*)(self + 0x59F8) * 0.0078125f;
+}
+#endif
 
 //100%
 INCLUDE_ASM("render/particle", func_0037C7C0);
@@ -4536,9 +4575,34 @@ INCLUDE_ASM("render/particle", func_00385EB0);
 
 INCLUDE_ASM("render/particle", func_00386128);
 
+//100%
 INCLUDE_ASM("render/particle", func_003865D8);
+#ifdef SKIP_ASM
+// Pushes node onto the list at *head (next pointer at +0x8)
+extern "C" void func_003865D8(char* node, char** head)
+{
+    *(char**)(node + 0x8) = *head;
+    *head = node;
+}
+#endif
 
+//100%
 INCLUDE_ASM("render/particle", func_003865E8);
+#ifdef SKIP_ASM
+// Walks the list (next at +0x8), calling each node's virtual function with 3
+extern "C" void func_003865E8(char* node)
+{
+    char* next;
+    while (node) {
+        next = *(char**)(node + 0x8);
+        if (node) {
+            char* vt = *(char**)(node + 0x4);
+            (*(void (**)(char*, int))(vt + 0xC))(node + *(short*)(vt + 0x8), 3);
+        }
+        node = next;
+    }
+}
+#endif
 
 //100%
 INCLUDE_ASM("render/particle", func_00386640);
@@ -4834,9 +4898,39 @@ extern "C" void func_00389590(sPartVec4* a, sPartVec4* b, sPartVec4* c, float s)
 }
 #endif
 
+//100%
 INCLUDE_ASM("render/particle", func_00389620);
+#ifdef SKIP_ASM
+// dst[i].w += src[i].w * s for 10 vectors
+extern "C" void func_00389620(float* dst, float* src, float s)
+{
+    int i;
+    src += 3;
+    dst += 3;
+    for (i = 9; i >= 0; i--) {
+        *dst += *src * s;
+        src += 4;
+        dst += 4;
+    }
+}
+#endif
 
+//100%
 INCLUDE_ASM("render/particle", func_00389660);
+#ifdef SKIP_ASM
+// Multiplies each of 10 vectors by another's components rotated by one
+extern "C" void func_00389660(float* dst, float* src)
+{
+    int i;
+    for (i = 9; i >= 0; i--) {
+        dst[0] *= src[1];
+        dst[1] *= src[2];
+        dst[2] *= src[3];
+        dst[3] *= src[0];
+        dst += 4;
+    }
+}
+#endif
 
 INCLUDE_ASM("render/particle", func_003896C0);
 
