@@ -1728,7 +1728,13 @@ extern "C" int func_0019BEE8(void* self)
 }
 #endif
 
+//100%
 INCLUDE_ASM("fe/festatecharequipdetail", func_0019BFE0);
+#ifdef SKIP_ASM
+extern "C" void func_0019BFE0()
+{
+}
+#endif
 
 INCLUDE_ASM("fe/festatecharequipdetail", func_0019BFE8);
 
@@ -2788,7 +2794,14 @@ INCLUDE_ASM("fe/festatecharequipdetail", func_0019E070);
 
 INCLUDE_ASM("fe/festatecharequipdetail", func_0019E1C0);
 
+//100%
 INCLUDE_ASM("fe/festatecharequipdetail", func_0019E208);
+#ifdef SKIP_ASM
+extern "C" int func_0019E208(char* self, int a, int b)
+{
+    return *(int*)(self + (a * 0x12000 + b * 0x120)) == 2;
+}
+#endif
 
 //100%
 INCLUDE_ASM("fe/festatecharequipdetail", func_0019E238);
@@ -2830,9 +2843,23 @@ INCLUDE_ASM("fe/festatecharequipdetail", func_0019E2F0);
 
 INCLUDE_ASM("fe/festatecharequipdetail", func_0019E330);
 
+//100%
 INCLUDE_ASM("fe/festatecharequipdetail", func_0019E380);
+#ifdef SKIP_ASM
+extern "C" int func_0019E380(char* self, int a, int b)
+{
+    return *(int*)(self + (a * 0x12000 + b * 0x120) + 0x110);
+}
+#endif
 
+//100%
 INCLUDE_ASM("fe/festatecharequipdetail", func_0019E3A8);
+#ifdef SKIP_ASM
+extern "C" int func_0019E3A8(char* self, int a, int b)
+{
+    return *(int*)(self + (a * 0x12000 + b * 0x120) + 0x114);
+}
+#endif
 
 INCLUDE_ASM("fe/festatecharequipdetail", func_0019E3D0);
 
