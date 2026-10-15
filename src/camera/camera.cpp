@@ -2043,7 +2043,14 @@ extern "C" void func_00161A60(void* self, int* p)
 }
 #endif
 
+//100%
 INCLUDE_ASM("camera/camera", func_00161AA0);
+#ifdef SKIP_ASM
+extern "C" int func_00161AA0(void* self)
+{
+    return *(int*)(*(char**)((char*)self + 0x20) + 0x4);
+}
+#endif
 
 //100%
 INCLUDE_ASM("camera/camera", func_00161AB0);
@@ -2544,7 +2551,13 @@ extern "C" void func_001624E8(void* self, int a1)
 }
 #endif
 
+//100%
 INCLUDE_ASM("camera/camera", func_00162560);
+#ifdef SKIP_ASM
+extern "C" void func_00162560()
+{
+}
+#endif
 
 //100%
 INCLUDE_ASM("camera/camera", func_00162568);
@@ -3188,17 +3201,62 @@ extern "C" void func_00163450(char* self, char* trig, float a, float b, float c,
 }
 #endif
 
+//100%
 INCLUDE_ASM("camera/camera", func_001635C0);
+#ifdef SKIP_ASM
+extern "C" void func_001635C0()
+{
+}
+#endif
 
+//100%
 INCLUDE_ASM("camera/camera", func_001635C8);
+#ifdef SKIP_ASM
+extern "C" float func_001635C8()
+{
+    return 0.0f;
+}
+#endif
 
+//100%
 INCLUDE_ASM("camera/camera", func_001635D8);
+#ifdef SKIP_ASM
+extern "C" int func_001635D8()
+{
+    return 0;
+}
+#endif
 
+//100%
 INCLUDE_ASM("camera/camera", func_001635E0);
+#ifdef SKIP_ASM
+extern "C" int func_001635E0()
+{
+    return 0;
+}
+#endif
 
+//100%
 INCLUDE_ASM("camera/camera", func_001635E8);
+#ifdef SKIP_ASM
+extern int D_004A4DD8;
 
+extern "C" int func_001635E8()
+{
+    return D_004A4DD8;
+}
+#endif
+
+//100%
 INCLUDE_ASM("camera/camera", func_001635F0);
+#ifdef SKIP_ASM
+extern int D_004A4DDC;
+
+extern "C" int func_001635F0()
+{
+    return D_004A4DDC;
+}
+#endif
 
 INCLUDE_ASM("camera/camera", func_001635F8);
 
@@ -3344,9 +3402,25 @@ extern "C" void func_001643A8(void* self, void* info, float a, float b, float c)
 
 INCLUDE_ASM("camera/camera", func_001646A0);
 
+//100%
 INCLUDE_ASM("camera/camera", func_00164868);
+#ifdef SKIP_ASM
+extern "C" int func_00164868()
+{
+    return 0;
+}
+#endif
 
+//100%
 INCLUDE_ASM("camera/camera", func_00164870);
+#ifdef SKIP_ASM
+extern int D_004A4DE0;
+
+extern "C" int func_00164870()
+{
+    return D_004A4DE0;
+}
+#endif
 
 INCLUDE_ASM("camera/camera", func_00164878);
 
@@ -3957,7 +4031,14 @@ extern "C" void* func_001673A0(void* self, void* a1)
 }
 #endif
 
+//100%
 INCLUDE_ASM("camera/camera", func_001673B8);
+#ifdef SKIP_ASM
+extern "C" void* func_001673B8(void* p, ...)
+{
+    return p;
+}
+#endif
 
 INCLUDE_ASM("camera/camera", func_001673F8);
 
@@ -4141,17 +4222,61 @@ extern "C" void func_00167EA0(void* self, int flags)
 }
 #endif
 
+//100%
 INCLUDE_ASM("camera/camera", func_00167ED0);
+#ifdef SKIP_ASM
+struct sCamVec4 { float v[4]; } __attribute__((aligned(16)));
 
+extern "C" void func_00167ED0(char* self, sCamVec4* v)
+{
+    *(sCamVec4*)(self + 0x20) = *v;
+}
+#endif
+
+//100%
 INCLUDE_ASM("camera/camera", func_00167EE0);
+#ifdef SKIP_ASM
+extern "C" void func_00167EE0(void* self, float value)
+{
+    *(float*)((char*)self + 0x30) = value;
+}
+#endif
 
+//100%
 INCLUDE_ASM("camera/camera", func_00167EE8);
+#ifdef SKIP_ASM
+extern "C" void func_00167EE8(void* self, float value)
+{
+    *(float*)((char*)self + 0x34) = value;
+}
+#endif
 
+//100%
 INCLUDE_ASM("camera/camera", func_00167EF0);
+#ifdef SKIP_ASM
+extern "C" sCamVec4 func_00167EF0(char* self)
+{
+    return *(sCamVec4*)(self + 0x20);
+}
+#endif
 
+//100%
 INCLUDE_ASM("camera/camera", func_00167F00);
+#ifdef SKIP_ASM
+extern "C" float func_00167F00(void* self)
+{
+    return *(float*)((char*)self + 0x30);
+}
+#endif
 
+//100%
 INCLUDE_ASM("camera/camera", func_00167F08);
+#ifdef SKIP_ASM
+extern "C" float func_00167F08(void* self)
+{
+    return *(float*)((char*)self + 0x34);
+}
+#endif
 
 //100%
 INCLUDE_ASM("camera/camera", func_00167F10);
@@ -4228,33 +4353,127 @@ void func_00167FB8(void* self)
 }
 #endif
 
+//100%
 INCLUDE_ASM("camera/camera", func_00167FC0);
+#ifdef SKIP_ASM
+extern "C" void func_00167FC0(void* self, int value)
+{
+    *(int*)((char*)self + 0xC) = value;
+}
+#endif
 
+//100%
 INCLUDE_ASM("camera/camera", func_00167FC8);
+#ifdef SKIP_ASM
+extern "C" int func_00167FC8(void* self)
+{
+    return *(int*)((char*)self + 0xC);
+}
+#endif
 
+//100%
 INCLUDE_ASM("camera/camera", func_00167FD0);
+#ifdef SKIP_ASM
+extern "C" int func_00167FD0(void* self)
+{
+    return *(int*)((char*)self + 0x0);
+}
+#endif
 
+//100%
 INCLUDE_ASM("camera/camera", func_00167FD8);
+#ifdef SKIP_ASM
+extern "C" int func_00167FD8(void* self)
+{
+    return *(int*)((char*)self + 0x4);
+}
+#endif
 
+//100%
 INCLUDE_ASM("camera/camera", func_00167FE0);
+#ifdef SKIP_ASM
+extern "C" int func_00167FE0(void* self)
+{
+    return *(int*)((char*)self + 0x8);
+}
+#endif
 
+//100%
 INCLUDE_ASM("camera/camera", func_00167FE8);
+#ifdef SKIP_ASM
+extern "C" int func_00167FE8(void* self)
+{
+    return *(int*)((char*)self + 0x18);
+}
+#endif
 
+//100%
 INCLUDE_ASM("camera/camera", func_00167FF0);
+#ifdef SKIP_ASM
+extern "C" int func_00167FF0(void* self)
+{
+    return *(int*)((char*)self + 0x20);
+}
+#endif
 
+//100%
 INCLUDE_ASM("camera/camera", func_00167FF8);
+#ifdef SKIP_ASM
+extern "C" void func_00167FF8()
+{
+}
+#endif
 
+//100%
 INCLUDE_ASM("camera/camera", func_00168000);
+#ifdef SKIP_ASM
+extern "C" void func_00168000()
+{
+}
+#endif
 
+//100%
 INCLUDE_ASM("camera/camera", func_00168008);
+#ifdef SKIP_ASM
+extern "C" void func_00168008()
+{
+}
+#endif
 
+//100%
 INCLUDE_ASM("camera/camera", func_00168010);
+#ifdef SKIP_ASM
+extern "C" void func_00168010()
+{
+}
+#endif
 
+//100%
 INCLUDE_ASM("camera/camera", func_00168018);
+#ifdef SKIP_ASM
+extern "C" int func_00168018()
+{
+    return 0x3D;
+}
+#endif
 
+//100%
 INCLUDE_ASM("camera/camera", func_00168020);
+#ifdef SKIP_ASM
+extern "C" int func_00168020(void* self)
+{
+    return *(int*)((char*)self + 0x18);
+}
+#endif
 
+//100%
 INCLUDE_ASM("camera/camera", func_00168028);
+#ifdef SKIP_ASM
+extern "C" int func_00168028(void* self)
+{
+    return *(int*)((char*)self + 0x1C);
+}
+#endif
 
 //100%
 INCLUDE_ASM("camera/camera", func_00168030);
@@ -4283,49 +4502,204 @@ void* func_00168060(void* self)
 }
 #endif
 
+//100%
 INCLUDE_ASM("camera/camera", func_00168080);
+#ifdef SKIP_ASM
+extern "C" float func_00168080(void* self)
+{
+    return *(float*)((char*)self + 0x0);
+}
+#endif
 
+//100%
 INCLUDE_ASM("camera/camera", func_00168088);
+#ifdef SKIP_ASM
+extern "C" float func_00168088(void* self)
+{
+    return *(float*)((char*)self + 0x4);
+}
+#endif
 
+//100%
 INCLUDE_ASM("camera/camera", func_00168090);
+#ifdef SKIP_ASM
+extern "C" float func_00168090(void* self)
+{
+    return *(float*)((char*)self + 0x8);
+}
+#endif
 
+//100%
 INCLUDE_ASM("camera/camera", func_00168098);
+#ifdef SKIP_ASM
+extern "C" void* func_00168098(void* self)
+{
+    return (char*)self + 0x40;
+}
+#endif
 
+//100%
 INCLUDE_ASM("camera/camera", func_001680A0);
+#ifdef SKIP_ASM
+extern "C" void* func_001680A0(void* self)
+{
+    return (char*)self + 0x20;
+}
+#endif
 
+//100%
 INCLUDE_ASM("camera/camera", func_001680A8);
+#ifdef SKIP_ASM
+extern "C" void* func_001680A8(void* self)
+{
+    return (char*)self + 0x20;
+}
+#endif
 
+//100%
 INCLUDE_ASM("camera/camera", func_001680B0);
+#ifdef SKIP_ASM
+extern "C" void* func_001680B0(void* self)
+{
+    return (char*)self + 0x80;
+}
+#endif
 
+//100%
 INCLUDE_ASM("camera/camera", func_001680B8);
+#ifdef SKIP_ASM
+extern "C" void func_001680B8(char* self, sCamVec4* v)
+{
+    *(sCamVec4*)(self + 0x20) = *v;
+}
+#endif
 
+//100%
 INCLUDE_ASM("camera/camera", func_001680C8);
+#ifdef SKIP_ASM
+extern "C" void func_001680C8(char* self, sCamVec4* v)
+{
+    *(sCamVec4*)(self + 0x30) = *v;
+}
+#endif
 
+//100%
 INCLUDE_ASM("camera/camera", func_001680D8);
+#ifdef SKIP_ASM
+extern "C" void func_001680D8(char* self, sCamVec4* v)
+{
+    *(sCamVec4*)(self + 0x20) = v[0];
+    *(sCamVec4*)(self + 0x30) = v[1];
+}
+#endif
 
+//100%
 INCLUDE_ASM("camera/camera", func_001680F0);
+#ifdef SKIP_ASM
+extern "C" void func_001680F0(void* self, float value)
+{
+    *(float*)((char*)self + 0x0) = value;
+}
+#endif
 
+//100%
 INCLUDE_ASM("camera/camera", func_001680F8);
+#ifdef SKIP_ASM
+extern "C" void func_001680F8(void* self, float value)
+{
+    *(float*)((char*)self + 0x14) = value;
+}
+#endif
 
+//100%
 INCLUDE_ASM("camera/camera", func_00168100);
+#ifdef SKIP_ASM
+extern "C" void func_00168100(void* self, float value)
+{
+    *(float*)((char*)self + 0x10) = value;
+}
+#endif
 
+//100%
 INCLUDE_ASM("camera/camera", func_00168108);
+#ifdef SKIP_ASM
+extern "C" void func_00168108(void* self, float value)
+{
+    *(float*)((char*)self + 0xC) = value;
+}
+#endif
 
+//100%
 INCLUDE_ASM("camera/camera", func_00168110);
+#ifdef SKIP_ASM
+extern "C" int func_00168110(void* self)
+{
+    return *(int*)((char*)self + 0xA0);
+}
+#endif
 
+//100%
 INCLUDE_ASM("camera/camera", func_00168118);
+#ifdef SKIP_ASM
+extern "C" int func_00168118(void* self)
+{
+    return *(int*)((char*)self + 0xA4);
+}
+#endif
 
+//100%
 INCLUDE_ASM("camera/camera", func_00168120);
+#ifdef SKIP_ASM
+extern "C" int func_00168120(void* self)
+{
+    return *(int*)((char*)self + 0xA8);
+}
+#endif
 
+//100%
 INCLUDE_ASM("camera/camera", func_00168128);
+#ifdef SKIP_ASM
+extern "C" int func_00168128(void* self)
+{
+    return *(int*)((char*)self + 0xAC);
+}
+#endif
 
+//100%
 INCLUDE_ASM("camera/camera", func_00168130);
+#ifdef SKIP_ASM
+extern "C" int func_00168130(void* self)
+{
+    return *(int*)((char*)self + 0xB4);
+}
+#endif
 
+//100%
 INCLUDE_ASM("camera/camera", func_00168138);
+#ifdef SKIP_ASM
+extern "C" int func_00168138(void* self)
+{
+    return *(int*)((char*)self + 0xB0);
+}
+#endif
 
+//100%
 INCLUDE_ASM("camera/camera", func_00168140);
+#ifdef SKIP_ASM
+extern "C" void func_00168140(void* self, int value)
+{
+    *(int*)((char*)self + 0x4) = value;
+}
+#endif
 
+//100%
 INCLUDE_ASM("camera/camera", func_00168148);
+#ifdef SKIP_ASM
+extern "C" int func_00168148(void* self)
+{
+    return *(int*)((char*)self + 0x4);
+}
+#endif
 
 INCLUDE_ASM("camera/camera", func_00168150);
 
