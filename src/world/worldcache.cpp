@@ -1,6 +1,12 @@
 #include "common.h"
 
 //100%
+// PORT: PS2-only inline asm; needs a C fallback off-PS2.
+void* operator new[](unsigned int size, const char* tag, int flags, int d) __asm__("operator_new__FUi");
+extern char D_00494DC0[];
+extern char D_00494DD8[];
+
+//100%
 INCLUDE_ASM("world/worldcache", cWorldBlockAllocator_init);
 #ifdef SKIP_ASM
 // PORT: PS2-only inline asm; needs a C fallback off-PS2.
@@ -764,7 +770,14 @@ extern "C" void func_003A84F8(void* self, int a1, int a2)
 }
 #endif
 
+//100%
 INCLUDE_ASM("world/worldcache", func_003A8510);
+#ifdef SKIP_ASM
+extern "C" int func_003A8510(void* self, int i)
+{
+    return *(int*)((char*)self + i * 0x18 + 0x3F4);
+}
+#endif
 
 INCLUDE_ASM("world/worldcache", func_003A8528);
 
