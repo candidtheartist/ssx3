@@ -170,7 +170,16 @@ extern "C" void* func_00144BF0()
 
 INCLUDE_ASM("be/beintnewrace", func_00144C10);
 
+//100%
 INCLUDE_ASM("be/beintnewrace", func_00144C30);
+#ifdef SKIP_ASM
+extern sPad16 D_0043D994;
+
+extern "C" void* func_00144C30(void* self, int i)
+{
+    return (char*)&D_0043D994 + i * 0x64;
+}
+#endif
 
 //100%
 INCLUDE_ASM("be/beintnewrace", func_00144C48);
@@ -455,7 +464,14 @@ extern "C" void* func_00145340()
 }
 #endif
 
+//100%
 INCLUDE_ASM("be/beintnewrace", func_00145360);
+#ifdef SKIP_ASM
+extern "C" void* func_00145360(void* self, int i)
+{
+    return (char*)&D_0043E97C + i * 0x54;
+}
+#endif
 
 //100%
 INCLUDE_ASM("be/beintnewrace", func_00145378);
@@ -680,8 +696,69 @@ extern "C" int func_00145750(void* self)
 }
 #endif
 
+//100%
 INCLUDE_ASM("be/beintnewrace", func_00145818);
+#ifdef SKIP_ASM
+extern "C" int func_00145818(void* self, unsigned int i)
+{
+    switch (i) {
+    case 14: case 15: case 16:
+        return 4;
+    case 0: case 1: case 2: case 3: case 4:
+        return 0;
+    case 5: case 6: case 7:
+        return 1;
+    case 8: case 9: case 10:
+        return 2;
+    case 11: case 12: case 13:
+        return 3;
+    }
+    return 4;
+}
+#endif
 
+//100%
 INCLUDE_ASM("be/beintnewrace", func_00145870);
+#ifdef SKIP_ASM
+extern "C" int func_00145870(void* self, unsigned int i)
+{
+    switch (i) {
+    case 14: case 15: case 16:
+        return 12;
+    case 0: case 1: case 2: case 3: case 4:
+        return 0;
+    case 5: case 6: case 7:
+        return 1;
+    case 8: case 9: case 10:
+        return 3;
+    case 11: case 12: case 13:
+        return 2;
+    }
+    return 12;
+}
+#endif
 
+//100%
 INCLUDE_ASM("be/beintnewrace", func_001458C8);
+#ifdef SKIP_ASM
+extern "C" int func_001458C8(void* self, unsigned int i)
+{
+    switch (i) {
+    case 0:
+        return 0;
+    case 1:
+        return 1;
+    case 2:
+        return 3;
+    case 3:
+        return 2;
+    case 4:
+        return 5;
+    case 5:
+        return 6;
+    case 12: case 13:
+        return 4;
+    }
+    return 0;
+}
+#endif
