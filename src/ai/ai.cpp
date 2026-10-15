@@ -1,6 +1,20 @@
 #include "common.h"
 
 //100%
+// PORT: cMemMan_alloc is the game's tagged operator new(size, tag, flags, d); bound by asm label.
+void* operator new(unsigned int size, const char* tag, unsigned int flags, int d) __asm__("cMemMan_alloc");
+extern char D_004585A0[];
+extern char D_00458550[];
+extern char D_004585C8[];
+extern char D_00458578[];
+extern char D_00458488[];
+extern char D_00458528[];
+extern char D_00458500[];
+extern char D_004584D8[];
+extern char D_00457F00[];
+extern char D_00457F10[];
+
+//100%
 INCLUDE_ASM("ai/ai", cAI_cAI);
 #ifdef SKIP_ASM
 // PORT: cMemMan_alloc is the game's tagged operator new(size, tag, flags, d); bound by asm label.
@@ -783,7 +797,14 @@ extern "C" int func_0012A180(sAiObj128A48* self)
 
 INCLUDE_ASM("ai/ai", func_0012A1F0);
 
+//100%
 INCLUDE_ASM("ai/ai", func_0012A240);
+#ifdef SKIP_ASM
+extern "C" int func_0012A240(int* self)
+{
+    return *self == 5;
+}
+#endif
 
 //100%
 INCLUDE_ASM("ai/ai", func_0012A250);
@@ -893,11 +914,27 @@ extern "C" void func_0012A490(void)
 }
 #endif
 
+//100%
 INCLUDE_ASM("ai/ai", func_0012A4D0);
+#ifdef SKIP_ASM
+extern char D_004D33A0[];
+extern "C" void func_0026ADE8(void* p);
+
+extern "C" void func_0012A4D0()
+{
+    func_0026ADE8(D_004D33A0);
+}
+#endif
 
 INCLUDE_ASM("ai/ai", func_0012A4F0);
 
+//100%
 INCLUDE_ASM("ai/ai", func_0012A558);
+#ifdef SKIP_ASM
+extern "C" void func_0012A558()
+{
+}
+#endif
 
 INCLUDE_ASM("ai/ai", func_0012A560);
 
@@ -1029,7 +1066,21 @@ extern "C" int func_0012ACF8(sAiObj12ACF8* self)
 }
 #endif
 
+//100%
 INCLUDE_ASM("ai/ai", func_0012AD70);
+#ifdef SKIP_ASM
+extern "C" void func_0012AD70(void* self)
+{
+    int i;
+    for (i = 0; i < *(int*)((char*)self + 0x88); i++) {
+        char* r = *(char**)(((char**)((char*)self + 0x70))[i] + 0x18);
+        if (*(int*)(r + 0x884)) {
+            *(int*)(r + 0x884) = 0;
+            *(int*)(r + 0x888) = -1;
+        }
+    }
+}
+#endif
 
 INCLUDE_ASM("ai/ai", func_0012ADC0);
 
@@ -1148,7 +1199,18 @@ extern "C" void func_0012B030(void* self)
 }
 #endif
 
+//100%
 INCLUDE_ASM("ai/ai", func_0012B060);
+#ifdef SKIP_ASM
+extern "C" void func_0010F3B8(void* self);
+
+extern "C" void func_0012B060(void* self)
+{
+    cAI_purgeMissionRiders(self);
+    func_0010F3B8(self);
+    *(int*)((char*)self + 0x10) = 0;
+}
+#endif
 
 //100% - objdiff report; single-function view differs only in a relocation name
 INCLUDE_ASM("ai/ai", func_0012B090);
@@ -2885,9 +2947,58 @@ INCLUDE_ASM("ai/ai", func_0012DCB0);
 
 INCLUDE_ASM("ai/ai", func_0012DD98);
 
+//100%
 INCLUDE_ASM("ai/ai", func_0012DE80);
+#ifdef SKIP_ASM
+int func_00312AA0(void* self, int i);
+extern "C" void cRiderAnimBase_play(void* self, int anim, int flags, float blend);
 
+extern "C" void func_0012DE80(void* self_)
+{
+    char* self = (char*)self_;
+    int cur = func_00312AA0(*(void**)(*(char**)(self + 0x80) + 0x784), 2);
+    int next = cur;
+    switch (cur) {
+    case 0x175: next = 0x18F; break;
+    case 0x176: next = 0x190; break;
+    case 0x177: next = 0x191; break;
+    case 0x178: next = 0x192; break;
+    case 0x179: next = 0x193; break;
+    case 0x17A: next = 0x194; break;
+    case 0x17B: next = 0x195; break;
+    case 0x17C: next = 0x196; break;
+    case 0x17D: next = 0x197; break;
+    case 0x17E: next = 0x198; break;
+    }
+    if (next != cur)
+        cRiderAnimBase_play(*(void**)(*(char**)(self + 0x80) + 0x784), next, 0, -1.0f);
+}
+#endif
+
+//100%
 INCLUDE_ASM("ai/ai", func_0012DF48);
+#ifdef SKIP_ASM
+extern "C" void func_0012DF48(void* self_)
+{
+    char* self = (char*)self_;
+    int cur = func_00312AA0(*(void**)(*(char**)(self + 0x80) + 0x784), 2);
+    int next = cur;
+    switch (cur) {
+    case 0x16A: next = 0x185; break;
+    case 0x16B: next = 0x186; break;
+    case 0x16C: next = 0x187; break;
+    case 0x16D: next = 0x188; break;
+    case 0x16E: next = 0x189; break;
+    case 0x16F: next = 0x18A; break;
+    case 0x170: case 0x180: next = 0x18B; break;
+    case 0x171: case 0x181: next = 0x18C; break;
+    case 0x172: case 0x182: next = 0x18D; break;
+    case 0x173: case 0x183: next = 0x18E; break;
+    }
+    if (next != cur)
+        cRiderAnimBase_play(*(void**)(*(char**)(self + 0x80) + 0x784), next, 0, -1.0f);
+}
+#endif
 
 //100%
 INCLUDE_ASM("ai/ai", func_0012E010);
@@ -3055,7 +3166,31 @@ extern "C" void func_0012E010(void* self)
 }
 #endif
 
+//100%
 INCLUDE_ASM("ai/ai", func_0012E468);
+#ifdef SKIP_ASM
+extern "C" void func_0012E468(void* self_)
+{
+    char* self = (char*)self_;
+    switch (func_00312AA0(*(void**)(*(char**)(self + 0x80) + 0x784), 2)) {
+    case 0x17B:
+        cRiderAnimBase_play(*(void**)(*(char**)(self + 0x80) + 0x784), 0x180, 0, -1.0f);
+        break;
+    case 0x17C:
+        cRiderAnimBase_play(*(void**)(*(char**)(self + 0x80) + 0x784), 0x181, 0, -1.0f);
+        break;
+    case 0x17D:
+        cRiderAnimBase_play(*(void**)(*(char**)(self + 0x80) + 0x784), 0x182, 0, -1.0f);
+        break;
+    case 0x17E:
+        cRiderAnimBase_play(*(void**)(*(char**)(self + 0x80) + 0x784), 0x183, 0, -1.0f);
+        break;
+    case 0x17F:
+        cRiderAnimBase_play(*(void**)(*(char**)(self + 0x80) + 0x784), 0x184, 0, -1.0f);
+        break;
+    }
+}
+#endif
 
 //100%
 INCLUDE_ASM("ai/ai", func_0012E528);
