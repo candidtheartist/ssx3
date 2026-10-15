@@ -47,11 +47,27 @@ extern "C" void func_00311958(void* self, int flags)
 }
 #endif
 
+//100%
 INCLUDE_ASM("animation/rideranimbase", func_003119E8);
+#ifdef SKIP_ASM
+extern "C" void* func_003119E8(void* self, int i)
+{
+    return *(char**)((char*)self + 0x50) + (i << 3);
+}
+#endif
 
 INCLUDE_ASM("animation/rideranimbase", func_003119F8);
 
+//100%
 INCLUDE_ASM("animation/rideranimbase", func_00311A30);
+#ifdef SKIP_ASM
+extern "C" void func_00311860(void* p);
+
+extern "C" void func_00311A30(void* self, void* p)
+{
+    func_00311860(p);
+}
+#endif
 
 //100%
 INCLUDE_ASM("animation/rideranimbase", func_00311A50);
