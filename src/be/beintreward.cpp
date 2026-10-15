@@ -102,21 +102,77 @@ extern "C" char* func_00156B28(void* self, int a1, int a2)
 }
 #endif
 
+//100%
 INCLUDE_ASM("be/beintreward", func_00156B70);
+#ifdef SKIP_ASM
+extern "C" int func_00156B70(void* self)
+{
+    return *(int*)((char*)func_0015A478(self) + 0x8);
+}
+#endif
 
+//100%
 INCLUDE_ASM("be/beintreward", func_00156B90);
+#ifdef SKIP_ASM
+extern "C" int func_00156B90(void* self)
+{
+    return *(int*)((char*)func_0015A478(self) + 0xC);
+}
+#endif
 
+//100%
 INCLUDE_ASM("be/beintreward", func_00156BB0);
+#ifdef SKIP_ASM
+extern "C" int func_00156BB0(void* self)
+{
+    return *(int*)((char*)func_0015A478(self) + 0x10);
+}
+#endif
 
+//100%
 INCLUDE_ASM("be/beintreward", func_00156BD0);
+#ifdef SKIP_ASM
+extern "C" int func_00156BD0(void* self)
+{
+    return *(int*)((char*)func_0015A478(self) + 0x14);
+}
+#endif
 
+//100%
 INCLUDE_ASM("be/beintreward", func_00156BF0);
+#ifdef SKIP_ASM
+extern "C" int func_00156BF0(void* self)
+{
+    return *(int*)((char*)func_0015A478(self) + 0x18);
+}
+#endif
 
+//100%
 INCLUDE_ASM("be/beintreward", func_00156C10);
+#ifdef SKIP_ASM
+extern "C" int func_00156C10(void* self)
+{
+    return *(int*)((char*)func_0015A478(self) + 0x1C);
+}
+#endif
 
+//100%
 INCLUDE_ASM("be/beintreward", func_00156C30);
+#ifdef SKIP_ASM
+extern "C" int func_00156C30(void* self)
+{
+    return *(int*)((char*)func_0015A478(self) + 0x20);
+}
+#endif
 
+//100%
 INCLUDE_ASM("be/beintreward", func_00156C50);
+#ifdef SKIP_ASM
+extern "C" int func_00156C50(void* self)
+{
+    return *(int*)((char*)func_0015A478(self) + 0x24);
+}
+#endif
 
 //100%
 INCLUDE_ASM("be/beintreward", func_00156C70);
@@ -315,7 +371,36 @@ extern "C" int func_00156EE0(void* self, int a1, int a2)
 
 INCLUDE_ASM("be/beintreward", func_00157080);
 
+//100%
 INCLUDE_ASM("be/beintreward", func_00157210);
+#ifdef SKIP_ASM
+int func_001572B0(void* self);
+int func_001572D0(void* self);
+int func_001572F0(void* self);
+int func_00157310(void* self);
+int func_00157330(void* self);
+
+extern "C" int func_00157210(void* self, int kind)
+{
+    switch (kind) {
+    case 3:
+        return func_001572B0(self);
+    case 4:
+        return func_001572D0(self);
+    case 5:
+        return func_001572F0(self);
+    case 6:
+        return func_00157330(self);
+    case 7:
+        return func_00157310(self);
+    case 8:
+        return 0x14;
+    case 9:
+        break;
+    }
+    return 0;
+}
+#endif
 
 extern "C" void* func_0015A478(void* self);
 
@@ -425,9 +510,53 @@ extern "C" int func_00157430(void* self, int bit, char* bits)
 }
 #endif
 
+//100%
 INCLUDE_ASM("be/beintreward", func_00157468);
+#ifdef SKIP_ASM
+extern "C" int func_00157D60(void* self, int a1, int a2, int bit);
+int func_00157DA0_jt(void*, int, int, int) __asm__("func_00157DA0");
+int func_00157DE0_jt(void*, int, int, int) __asm__("func_00157DE0");
+int func_00157E20_jt(void*, int, int, int) __asm__("func_00157E20");
+int func_00157E60_jt(void*, int, int, int) __asm__("func_00157E60");
+extern "C" int func_00157EE0(void* self, int a1, int a2, int bit);
 
+extern "C" int func_00157468(void* self, int a1, int a2, int kind, int bit)
+{
+    switch (kind) {
+    case 3: return func_00157D60(self, a1, a2, bit);
+    case 4: return func_00157DA0_jt(self, a1, a2, bit);
+    case 5: return func_00157DE0_jt(self, a1, a2, bit);
+    case 6: return func_00157E60_jt(self, a1, a2, bit);
+    case 7: return func_00157E20_jt(self, a1, a2, bit);
+    case 8: return func_00157EE0(self, a1, a2, bit + 10);
+    }
+    return 0;
+}
+#endif
+
+//100%
 INCLUDE_ASM("be/beintreward", func_00157518);
+#ifdef SKIP_ASM
+extern "C" int func_001575C0(void* self, int a1, int a2);
+extern "C" int func_00157620(void* self, int a1, int a2);
+extern "C" int func_00157680(void* self, int a1, int a2);
+extern "C" int func_001576E0(void* self, int a1, int a2);
+extern "C" int func_00157740(void* self, int a1, int a2);
+extern "C" int func_001577A0(void* self, int a1, int a2);
+
+extern "C" int func_00157518(void* self, int a1, int a2, int kind)
+{
+    switch (kind) {
+    case 3: return func_001575C0(self, a1, a2);
+    case 4: return func_00157620(self, a1, a2);
+    case 5: return func_00157680(self, a1, a2);
+    case 6: return func_00157740(self, a1, a2);
+    case 7: return func_001576E0(self, a1, a2);
+    case 8: return func_001577A0(self, a1, a2);
+    }
+    return 0;
+}
+#endif
 
 //100% - objdiff report; single-function view differs only in a relocation name
 INCLUDE_ASM("be/beintreward", func_001575C0);
@@ -781,7 +910,15 @@ extern "C" int func_00157E60(void* self, int a1, int a2, int bit)
 }
 #endif
 
+//100%
 INCLUDE_ASM("be/beintreward", func_00157EA0);
+#ifdef SKIP_ASM
+extern "C" int func_00157EA0(void* self, int a1, int a2, int bit)
+{
+    char* p = (char*)D_004A6CA8 + a1 * 0x9b50 + a2 * 0xf88;
+    return (*(unsigned long*)(p + 0xf78) >> bit) & 1;
+}
+#endif
 
 //100% - objdiff report; single-function view differs only in a relocation name
 INCLUDE_ASM("be/beintreward", func_00157EE0);
@@ -796,7 +933,29 @@ extern "C" int func_00157EE0(void* self, int a1, int a2, int bit)
 }
 #endif
 
+//100%
 INCLUDE_ASM("be/beintreward", func_00157F20);
+#ifdef SKIP_ASM
+int func_00157FD0_jt(void*, int, int, int, int) __asm__("func_00157FD0");
+int func_001580F8_jt(void*, int, int, int, int) __asm__("func_001580F8");
+int func_00158220_jt(void*, int, int, int, int) __asm__("func_00158220");
+int func_00158348_jt(void*, int, int, int, int) __asm__("func_00158348");
+int func_00158470_jt(void*, int, int, int, int) __asm__("func_00158470");
+int func_00158618_jt(void*, int, int, int, int) __asm__("func_00158618");
+
+extern "C" int func_00157F20(void* self, int a1, int a2, int kind, int bit, int give)
+{
+    switch (kind) {
+    case 3: return func_00157FD0_jt(self, a1, a2, bit, give);
+    case 4: return func_001580F8_jt(self, a1, a2, bit, give);
+    case 5: return func_00158220_jt(self, a1, a2, bit, give);
+    case 6: return func_00158470_jt(self, a1, a2, bit, give);
+    case 7: return func_00158348_jt(self, a1, a2, bit, give);
+    case 8: return func_00158618_jt(self, a1, a2, bit + 10, give);
+    }
+    return 0;
+}
+#endif
 
 //100%
 INCLUDE_ASM("be/beintreward", func_00157FD0);
@@ -1091,7 +1250,15 @@ extern "C" long func_00158750(void* self, int a1, int a2)
 }
 #endif
 
+//100%
 INCLUDE_ASM("be/beintreward", func_00158778);
+#ifdef SKIP_ASM
+extern "C" int func_00158778(void* self, int a1, int a2)
+{
+    char* p = (char*)D_004A6CA8 + a1 * 0x9b50 + a2 * 0xf88;
+    return func_00157390(self, 0x40, (signed char*)(p + 0xF70));
+}
+#endif
 
 //100% - objdiff report; single-function view differs only in a relocation name
 INCLUDE_ASM("be/beintreward", func_001587B8);
@@ -1180,7 +1347,20 @@ int func_001588B0(void* self, int a1)
 void* cBECharProfileDB_getScoreStats(void* self, int a, int b);
 extern int D_004A6CA8[];
 
+//100%
 INCLUDE_ASM("be/beintreward", func_001588C8);
+#ifdef SKIP_ASM
+extern "C" int func_001588C8(void* self, int kind, int value)
+{
+    int* t = D_0045AFE8 + kind * 4;
+    for (int i = 0; i < 4; i++)
+    {
+        if (value >= t[i])
+            return i;
+    }
+    return -1;
+}
+#endif
 
 //100%
 INCLUDE_ASM("be/beintreward", cBERewardInterface_getTrackMedal__FPviiii);
@@ -1272,9 +1452,31 @@ extern "C" int cBERewardInterface_getEarningsMedal(void* self, int a, int b, int
 }
 #endif
 
+//100%
 INCLUDE_ASM("be/beintreward", func_00158B70);
+#ifdef SKIP_ASM
+extern "C" int func_00158B70(void* self, int kind, int value)
+{
+    int* t = D_0045B018 + kind * 4;
+    for (int i = 0; i < 4; i++)
+    {
+        if (value >= t[i])
+            return i;
+    }
+    return -1;
+}
+#endif
 
+//100%
 INCLUDE_ASM("be/beintreward", func_00158BB8);
+#ifdef SKIP_ASM
+extern "C" int func_00158BB8(void* self, int medal, unsigned int value)
+{
+    if (value >= *(unsigned int*)((char*)(void*)D_0045B048 + medal * 4))
+        return 1;
+    return -1;
+}
+#endif
 
 //100%
 INCLUDE_ASM("be/beintreward", func_00158BE0);
@@ -1385,7 +1587,14 @@ void* func_00158F30(void* self)
 }
 #endif
 
+//100%
 INCLUDE_ASM("be/beintreward", func_00158F50);
+#ifdef SKIP_ASM
+extern "C" void* func_00158F50()
+{
+    return D_004C3EF0[0];
+}
+#endif
 
 //100%
 INCLUDE_ASM("be/beintreward", func_00158F60);
@@ -1622,7 +1831,15 @@ extern "C" void func_00159B08(void* self, int rider, int k)
 }
 #endif
 
+//100%
 INCLUDE_ASM("be/beintreward", func_00159C68);
+#ifdef SKIP_ASM
+extern "C" void func_00159C68(void* self, int rider, int bit)
+{
+    int profile = cBELibrary_getProfileIndex(rider);
+    func_00159CD0(self, profile, cBELibrary_getCharacterID(rider), bit);
+}
+#endif
 
 INCLUDE_ASM("be/beintreward", func_00159CD0);
 
@@ -1757,7 +1974,27 @@ extern "C" void func_0015A510(void* self)
 }
 #endif
 
+//100%
 INCLUDE_ASM("be/beintreward", func_0015A548);
+#ifdef SKIP_ASM
+// Counts the set bits among the first `count` bits of `bits` (LSB first).
+extern "C" int func_0015A548(void* self, int count, unsigned char* bits)
+{
+    int i = 0;
+    int j = 0;
+    int total = 0;
+    while (i < count)
+    {
+        unsigned char b = bits[j++];
+        for (int k = 0; k < 8 && i < count; k++)
+        {
+            i++;
+            total += (b >> k) & 1;
+        }
+    }
+    return total;
+}
+#endif
 
 //100%
 INCLUDE_ASM("be/beintreward", func_0015A5B0);
