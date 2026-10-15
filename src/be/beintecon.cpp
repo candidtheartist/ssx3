@@ -98,7 +98,21 @@ extern "C" int func_001509F8(void* self, int rider)
 }
 #endif
 
+//100%
 INCLUDE_ASM("be/beintecon", func_00150A58);
+#ifdef SKIP_ASM
+extern "C" void func_00150A58(void* self, int a, int b, int value)
+{
+    if (a >= 2) {
+        return;
+    }
+    int bOff = b * 0xF88;
+    int aOff = a * 0x9B50;
+    int off = bOff + aOff;
+    char* p = (char*)D_004A6CA8 + off;
+    *(int*)(p + 0xAC4) = value;
+}
+#endif
 
 //100%
 INCLUDE_ASM("be/beintecon", func_00150A90);
@@ -538,7 +552,30 @@ extern "C" void func_00151A88(sEconItems_151A88* self, int k)
 
 INCLUDE_ASM("be/beintecon", func_00151BD0);
 
+//100%
 INCLUDE_ASM("be/beintecon", func_00151C20);
+#ifdef SKIP_ASM
+// A character's bolt-on store (0xF88 bytes, see be/belibrary)
+struct sEconBoltOn {
+    short id;
+    unsigned short flags;
+};
+
+struct sEconBoltCharacter {
+    char pad_0x000[0x288];
+    short* slots;               // 0x288
+    int count;                  // 0x28C
+    sEconBoltOn items[525];     // 0x290
+};
+
+// The id of item i, or -1
+extern "C" int func_00151C20(sEconBoltCharacter* c, int i)
+{
+    if (i >= c->count)
+        return -1;
+    return *(short*)(i * 4 + (char*)c + 0x290);
+}
+#endif
 
 //100%
 INCLUDE_ASM("be/beintecon", func_00151C48);
