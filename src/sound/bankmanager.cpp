@@ -1,6 +1,11 @@
 #include "common.h"
 
 //100%
+extern char* D_004A3614;
+extern char D_00482998[];
+extern "C" void* func_00252FA0(void* a0, int a1, int a2);
+
+//100%
 INCLUDE_ASM("sound/bankmanager", cBankInstance_AllocMem);
 #ifdef SKIP_ASM
 extern char* D_004A3614;
@@ -448,9 +453,25 @@ extern "C" void func_0028BDE0(void* self, int i)
 }
 #endif
 
+//100%
 INCLUDE_ASM("sound/bankmanager", func_0028BE08);
+#ifdef SKIP_ASM
+extern "C" void func_0028B6C8(void* a, void* b);
 
+extern "C" void func_0028BE08(char* self, int i, int j)
+{
+    func_0028B6C8(*(char**)(self + 0xACC) + i * 0x60, *(char**)(self + 0xACC) + j * 0x60);
+}
+#endif
+
+//100%
 INCLUDE_ASM("sound/bankmanager", func_0028BE38);
+#ifdef SKIP_ASM
+extern "C" void func_0028BE38(char* self, int i)
+{
+    func_0028B730((sBankNode*)(*(char**)(self + 0xACC) + i * 0x60));
+}
+#endif
 
 //100% - objdiff report; single-function view differs only in a relocation name
 INCLUDE_ASM("sound/bankmanager", func_0028BE60);
@@ -1238,7 +1259,16 @@ void func_0028DF08(void* self)
 
 INCLUDE_ASM("sound/bankmanager", func_0028DF18);
 
+//100%
 INCLUDE_ASM("sound/bankmanager", func_0028E068);
+#ifdef SKIP_ASM
+extern "C" int func_0028DF18(void* self, int a);
+
+extern "C" int func_0028E068(void* self)
+{
+    return func_0028DF18(self, 1) != 0;
+}
+#endif
 
 INCLUDE_ASM("sound/bankmanager", func_0028E088);
 
