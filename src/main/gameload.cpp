@@ -489,7 +489,13 @@ int func_002306A8(void* self, int i)
 
 INCLUDE_ASM("main/gameload", func_002306B8);
 
+//100%
 INCLUDE_ASM("main/gameload", func_00230E90);
+#ifdef SKIP_ASM
+extern "C" void func_00230E90()
+{
+}
+#endif
 
 //100%
 INCLUDE_ASM("main/gameload", func_00230E98);
