@@ -639,7 +639,16 @@ int func_0011FE98(void* self)
 
 extern "C" void* func_00111538(int);
 
+//100%
 INCLUDE_ASM("ai/rider", func_0011FEA8);
+#ifdef SKIP_ASM
+extern "C" void func_00111830(void* p);
+
+extern "C" void func_0011FEA8(void* self)
+{
+    func_00111830(*(void**)((char*)self + 0x77C));
+}
+#endif
 
 //100%
 INCLUDE_ASM("ai/rider", func_0011FEC8__FPv);
@@ -659,7 +668,16 @@ int func_0011FEE8(void* self)
 }
 #endif
 
+//100%
 INCLUDE_ASM("ai/rider", func_0011FEF8);
+#ifdef SKIP_ASM
+extern "C" void func_00111860(void* p);
+
+extern "C" void func_0011FEF8(void* self)
+{
+    func_00111860(*(void**)((char*)self + 0x77C));
+}
+#endif
 
 INCLUDE_ASM("ai/rider", func_0011FF18);
 
@@ -876,7 +894,16 @@ extern "C" void func_00120E88(void* self)
 }
 #endif
 
+//100%
 INCLUDE_ASM("ai/rider", func_00120EB8);
+#ifdef SKIP_ASM
+extern "C" void func_00111948(void* p);
+
+extern "C" void func_00120EB8(void* self)
+{
+    func_00111948(*(void**)((char*)self + 0x77C));
+}
+#endif
 
 //100%
 INCLUDE_ASM("ai/rider", func_00120ED8);
@@ -1573,7 +1600,16 @@ extern "C" void func_001225F0(void* self)
 
 extern "C" void* func_002F2088(int);
 
+//100%
 INCLUDE_ASM("ai/rider", func_00122618);
+#ifdef SKIP_ASM
+extern "C" void func_001119F8(void* p);
+
+extern "C" void func_00122618(void* self)
+{
+    func_001119F8(*(void**)((char*)self + 0x77C));
+}
+#endif
 
 //100%
 INCLUDE_ASM("ai/rider", func_00122638__FPv);
@@ -1822,7 +1858,14 @@ extern "C" float* func_00122C28(float* out, void* rider)
 }
 #endif
 
+//100%
 INCLUDE_ASM("ai/rider", func_00122C88);
+#ifdef SKIP_ASM
+extern "C" float func_00122C88()
+{
+    return 0.9250819683074951f;
+}
+#endif
 
 //100%
 INCLUDE_ASM("ai/rider", func_00122C98);
