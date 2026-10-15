@@ -9,6 +9,10 @@ struct sCharEntry {
 };
 extern sCharEntry D_00535B20[];
 
+extern "C" int func_00151A88(void* character, int id);
+extern "C" void func_00152368(void* character, int a, int b);
+extern "C" int func_0014DAC0(void* self, int a, int b, int* out);
+
 //100%
 INCLUDE_ASM("be/belibrary", cBELibrary_getCharacterID__Fi);
 #ifdef SKIP_ASM
@@ -75,7 +79,13 @@ int cBELibrary_getRiderIndex(int flag)
 }
 #endif
 
+//100%
 INCLUDE_ASM("be/belibrary", func_0014A180);
+#ifdef SKIP_ASM
+extern "C" void func_0014A180()
+{
+}
+#endif
 
 INCLUDE_ASM("be/belibrary", func_0014A188);
 
@@ -176,7 +186,15 @@ extern "C" int func_0014AC50(int a0)
 }
 #endif
 
+//100%
 INCLUDE_ASM("be/belibrary", func_0014AC70);
+#ifdef SKIP_ASM
+extern "C" int func_0014AC70(void* self, int slot, int* character)
+{
+    *character = cBELibrary_getCharacterID(slot);
+    return cBELibrary_getProfileIndex(slot);
+}
+#endif
 
 //100%
 INCLUDE_ASM("be/belibrary", func_0014ACB0);
@@ -191,7 +209,15 @@ extern "C" void func_0014ACB0(void* self, int a1, int a2, void* src)
 }
 #endif
 
+//100%
 INCLUDE_ASM("be/belibrary", func_0014ACF8);
+#ifdef SKIP_ASM
+extern "C" void* func_0014AD28(void* self, int profile, int character);
+extern "C" int func_0014ACF8(void* self, int profile, int character)
+{
+    return func_00151A88(func_0014AD28(self, profile, character), character);
+}
+#endif
 
 //100%
 INCLUDE_ASM("be/belibrary", func_0014AD28);
@@ -214,13 +240,57 @@ extern "C" void* func_0014AD50(void* self, int rider)
 }
 #endif
 
+//100%
 INCLUDE_ASM("be/belibrary", func_0014ADA8);
+#ifdef SKIP_ASM
+struct sBEBoltOn {
+    unsigned short id;
+    unsigned short flags;
+};
 
+// Bolt-ons of one character in one profile
+struct sBEBoltCharacter {
+    char pad_0x000[0x288];
+    short* slots;              // 0x288: item index per bolt-on slot, -1 for none
+    int count;                 // 0x28C
+    sBEBoltOn items[525];      // 0x290
+    char pad_0xAC4[0xF88 - 0xAC4];
+};
+
+// Per profile (player 1, player 2, none), per character
+extern sBEBoltCharacter gBoltCharacters[3][10] __asm__("D_004A6CA8");
+
+extern "C" sBEBoltOn* func_0014ADA8(void* self, int profile, int character, int index)
+{
+    char* table = (char*)gBoltCharacters;
+    return &((sBEBoltCharacter*)(table + (profile * sizeof(gBoltCharacters[0]) + character * sizeof(sBEBoltCharacter))))->items[index];
+}
+#endif
+
+//100%
 INCLUDE_ASM("be/belibrary", func_0014ADD8);
+#ifdef SKIP_ASM
+extern "C" sBEBoltOn* func_0014ADD8(void* self, int slot, int index)
+{
+    int character = 0;
+    int profile = func_0014AC70(self, slot, &character);
+    return func_0014ADA8(self, profile, character, index);
+}
+#endif
 
 INCLUDE_ASM("be/belibrary", func_0014AE28);
 
+//100%
 INCLUDE_ASM("be/belibrary", func_0014AE60);
+#ifdef SKIP_ASM
+extern "C" sBEBoltOn* func_0014AE28(void* self, int profile, int character, int* count);
+extern "C" sBEBoltOn* func_0014AE60(void* self, int slot, int* count)
+{
+    int character;
+    int profile = func_0014AC70(self, slot, &character);
+    return func_0014AE28(self, profile, character, count);
+}
+#endif
 
 //100%
 INCLUDE_ASM("be/belibrary", func_0014AEA8);
@@ -331,17 +401,72 @@ extern "C" int func_0014AFB0(void* self, int a, int b, int idx, int on)
 }
 #endif
 
+//100%
 INCLUDE_ASM("be/belibrary", func_0014B0F0);
+#ifdef SKIP_ASM
+extern "C" int func_0014AFB0(void* self, int a, int b, int idx, int on);
+extern "C" int func_0014B0F0(void* self, int profile, int character, int slot)
+{
+    sBEBoltCharacter* c = (sBEBoltCharacter*)((char*)D_004A6CA8 + profile * 0x9B50 + character * 0xF88);
+    int i = c->slots[slot];
+    sBEBoltOn* item = i >= 0 ? &c->items[i] : 0;
+    unsigned int on = item->flags & 0x10;
+    return func_0014AFB0(self, profile, character, slot, on == 0);
+}
+#endif
 
+//100%
 INCLUDE_ASM("be/belibrary", func_0014B170);
+#ifdef SKIP_ASM
+extern "C" void func_0014B170(void* self, int profile, int character, int a, int b)
+{
+    func_00152368((char*)D_004A6CA8 + profile * 0x9B50 + character * 0xF88, a, b);
+}
+#endif
 
+//100%
 INCLUDE_ASM("be/belibrary", func_0014B1B0);
+#ifdef SKIP_ASM
+extern "C" void func_0014B1B0(void* self, int slot, int a, int b)
+{
+    int character = 0;
+    int profile = func_0014AC70(self, slot, &character);
+    func_00152368((char*)D_004A6CA8 + profile * 0x9B50 + character * 0xF88, a, b);
+}
+#endif
 
 INCLUDE_ASM("be/belibrary", func_0014B218);
 
 INCLUDE_ASM("be/belibrary", func_0014B290);
 
+//100%
 INCLUDE_ASM("be/belibrary", func_0014B2F8);
+#ifdef SKIP_ASM
+struct sBELibTables;
+int func_0014D988(void* self, int i);
+extern "C" void* func_0014D998(sBELibTables* self, int i);
+extern void* D_004A6750[];
+
+// A group table entry: 0x38 bytes
+struct sBEGroupEntry {
+    signed char group;  // 0x0
+    signed char flag;   // 0x1
+    char pad_0x02[0x36];
+};
+
+// Number of entries in a group whose byte 1 is clear
+extern "C" int func_0014B2F8(void* self, int group)
+{
+    int count = func_0014D988(D_004A6750, group);
+    sBEGroupEntry* e = (sBEGroupEntry*)func_0014D998((sBELibTables*)D_004A6750, group);
+    int n = 0;
+    for (int i = 0; i < count; i++, e++) {
+        if (e->flag == 0)
+            n++;
+    }
+    return n;
+}
+#endif
 
 INCLUDE_ASM("be/belibrary", func_0014B378);
 
@@ -453,11 +578,50 @@ extern "C" void func_0014B560(void* self, int a1, int a2, int key, int flag)
 }
 #endif
 
+//100%
 INCLUDE_ASM("be/belibrary", func_0014B700);
+#ifdef SKIP_ASM
+extern char D_0045A418[];
+extern char D_0045A440[];
+extern char D_0045A468[];
+extern char D_0045A498[];
+extern char D_0045A4C0[];
+extern char D_0045A4E8[];
+extern char D_0045A518[];
+extern char D_0045A540[];
+extern char D_0045A568[];
+extern char D_0045A590[];
+
+extern "C" void* func_0014B700(void* self, unsigned int i)
+{
+    switch (i) {
+    case 0: return D_0045A418;
+    case 1: return D_0045A440;
+    case 2: return D_0045A468;
+    case 3: return D_0045A498;
+    case 4: return D_0045A4C0;
+    case 5: return D_0045A4E8;
+    case 6: return D_0045A518;
+    case 7: return D_0045A540;
+    case 8: return D_0045A568;
+    case 9: return D_0045A590;
+    }
+    return 0;
+}
+#endif
 
 INCLUDE_ASM("be/belibrary", func_0014B7A8);
 
+//100%
 INCLUDE_ASM("be/belibrary", func_0014B920);
+#ifdef SKIP_ASM
+extern "C" int func_0014B7A8(void* self, int profile, int character, int a);
+extern "C" int func_0014B920(void* self, int slot, int a)
+{
+    int profile = func_0014AC50(slot);
+    return func_0014B7A8(self, profile, func_0014AC30(slot), a);
+}
+#endif
 
 //100%
 INCLUDE_ASM("be/belibrary", func_0014B988);
@@ -514,7 +678,15 @@ extern "C" int func_0014B988(void* self, int a, int b, sBEEntry38_14B988* e0, ch
 extern void* D_004A6750[];
 extern "C" void* func_0014C6A0(void*);
 
+//100%
 INCLUDE_ASM("be/belibrary", func_0014BBA0);
+#ifdef SKIP_ASM
+extern "C" int func_0014BBA0(void* self, int slot, sBEEntry38_14B988* a, char* b)
+{
+    int profile = func_0014AC50(slot);
+    return func_0014B988(self, profile, func_0014AC30(slot), a, b);
+}
+#endif
 
 INCLUDE_ASM("be/belibrary", func_0014BC18);
 
@@ -547,11 +719,35 @@ void* func_0014BDB8(void* self)
 }
 #endif
 
+//100%
 INCLUDE_ASM("be/belibrary", func_0014BDC8);
+#ifdef SKIP_ASM
+extern "C" void func_0014C548(sBEGroupTable* table, int a, int b, int value);
+extern "C" void func_0014BDC8(int a, int b, int value)
+{
+    func_0014C548((sBEGroupTable*)D_004A6750, a, b, value);
+}
+#endif
 
+//100%
 INCLUDE_ASM("be/belibrary", func_0014BE00);
+#ifdef SKIP_ASM
+extern "C" void func_0014C590(sBEGroupTable* table, int a, int b, int value);
+extern "C" void func_0014BE00(int a, int b, int value)
+{
+    func_0014C590((sBEGroupTable*)D_004A6750, a, b, value);
+}
+#endif
 
+//100%
 INCLUDE_ASM("be/belibrary", func_0014BE38);
+#ifdef SKIP_ASM
+extern "C" void func_0014C5D8(sBEGroupTable* table, int a, int b, int value);
+extern "C" void func_0014BE38(int a, int b, int value)
+{
+    func_0014C5D8((sBEGroupTable*)D_004A6750, a, b, value);
+}
+#endif
 
 //100%
 INCLUDE_ASM("be/belibrary", func_0014BE70);
@@ -782,11 +978,35 @@ extern "C" void func_0014C488(sBEKeyTableG2* self)
 }
 #endif
 
+//100%
 INCLUDE_ASM("be/belibrary", func_0014C548);
+#ifdef SKIP_ASM
+extern "C" void func_0014C548(sBEGroupTable* table, int a, int b, int value)
+{
+    int i = func_0014D448(table, a, b);
+    ((char*)&table->entries[i])[0x10] = value;
+}
+#endif
 
+//100%
 INCLUDE_ASM("be/belibrary", func_0014C590);
+#ifdef SKIP_ASM
+extern "C" void func_0014C590(sBEGroupTable* table, int a, int b, int value)
+{
+    int i = func_0014D448(table, a, b);
+    table->entries[i].pad_0x01[0] = value;
+}
+#endif
 
+//100%
 INCLUDE_ASM("be/belibrary", func_0014C5D8);
+#ifdef SKIP_ASM
+extern "C" void func_0014C5D8(sBEGroupTable* table, int a, int b, int value)
+{
+    int i = func_0014D448(table, a, b);
+    *(short*)((char*)&table->entries[i] + 0xC) = value;
+}
+#endif
 
 //100%
 INCLUDE_ASM("be/belibrary", func_0014C620);
@@ -1199,13 +1419,40 @@ extern "C" void* func_0014D9D0(sBELibTables* self, int i)
 }
 #endif
 
+//100%
 INCLUDE_ASM("be/belibrary", func_0014DA08);
+#ifdef SKIP_ASM
+extern "C" int func_0014DA08(sBEGroupTable* self, int i)
+{
+    return self->groupFirst[i];
+}
+#endif
 
+//100%
 INCLUDE_ASM("be/belibrary", func_0014DA18);
+#ifdef SKIP_ASM
+struct sBEGroupTable20C {
+    char pad_0x000[0x20C];
+    int values[30]; // 0x20C
+};
+
+extern "C" int func_0014DA18(sBEGroupTable20C* self, int i)
+{
+    return self->values[i];
+}
+#endif
 
 INCLUDE_ASM("be/belibrary", func_0014DA28);
 
+//100%
 INCLUDE_ASM("be/belibrary", func_0014DAA0);
+#ifdef SKIP_ASM
+extern "C" int func_0014DAA0(void* self, int a, int b)
+{
+    int out;
+    return func_0014DAC0(self, a, b, &out);
+}
+#endif
 
 INCLUDE_ASM("be/belibrary", func_0014DAC0);
 
