@@ -9,6 +9,11 @@ struct cAsyncSys {
 };
 
 //100%
+extern const char D_00482988[];
+// PORT: operator_new really takes (size, tag, flags, d); unit declares 1 arg
+void* operator_new_tag(unsigned int size, const char* tag, int flags, int d) __asm__("operator_new__FUi");
+
+//100%
 INCLUDE_ASM("sound/asyncsys", cAsyncSys_ASYNCSYS_Init__FP9cAsyncSysUi);
 #ifdef SKIP_ASM
 extern const char D_00482988[];
@@ -357,7 +362,14 @@ extern "C" void* func_0028B210(int i)
 }
 #endif
 
+//100%
 INCLUDE_ASM("sound/asyncsys", func_0028B230);
+#ifdef SKIP_ASM
+extern "C" void* func_0028B230()
+{
+    return *(void**)(*(char**)(D_004A28A8 + 0x84) + 0x10);
+}
+#endif
 
 //100%
 INCLUDE_ASM("sound/asyncsys", func_0028B240__FPv);
