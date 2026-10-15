@@ -13,6 +13,7 @@ extern sGameEntry D_00442168[];
 //100%
 INCLUDE_ASM("main/game", cGame_renderModels);
 #ifdef SKIP_ASM
+//100%
 struct sRState_C078 {
     int f0;
     int f4;
@@ -423,11 +424,61 @@ extern "C" int func_0022D390(void* self)
 }
 #endif
 
+//100%
 INCLUDE_ASM("main/game", func_0022D3D8);
+#ifdef SKIP_ASM
+extern "C" void func_0022E298(void*);
+
+extern "C" void func_0022D3D8(void* self, int i)
+{
+    int changed;
+    if (D_00442168[i].field_0x4 < 0)
+        return;
+    changed = 0;
+    switch (D_00442168[i].field_0x8) {
+    case 5:
+        D_00442168[i].field_0x8 = 1;
+        changed = 1;
+        break;
+    case 0: case 7:
+        D_00442168[i].field_0x8 = 3;
+        changed = 1;
+        break;
+    case 1: case 2: case 3: case 4: case 6: case 8:
+        break;
+    }
+    if (changed)
+        func_0022E298(self);
+}
+#endif
 
 INCLUDE_ASM("main/game", func_0022D478);
 
+//100%
 INCLUDE_ASM("main/game", func_0022D598);
+#ifdef SKIP_ASM
+extern "C" void func_0022D598(void* self, int i)
+{
+    int changed;
+    if (D_00442168[i].field_0x4 < 0)
+        return;
+    changed = 0;
+    switch (D_00442168[i].field_0x8) {
+    case 3:
+        D_00442168[i].field_0x8 = 0;
+        changed = 1;
+        break;
+    case 1: case 2: case 6:
+        D_00442168[i].field_0x8 = 5;
+        changed = 1;
+        break;
+    case 0: case 4: case 5: case 7: case 8:
+        break;
+    }
+    if (changed)
+        func_0022E298(self);
+}
+#endif
 
 //100%
 INCLUDE_ASM("main/game", func_0022D640);
@@ -441,7 +492,30 @@ extern "C" void func_0022D640(void* self, int a1)
 }
 #endif
 
+//100%
 INCLUDE_ASM("main/game", func_0022D668);
+#ifdef SKIP_ASM
+extern "C" void func_0022D668(char* self, int arg)
+{
+    if (arg != 0) {
+        switch (*(int*)(self + 0x1B4)) {
+        case 0:
+            *(int*)(self + 0x1B8) = arg;
+            *(int*)(self + 0x1B4) = 3;
+            break;
+        case 1:
+            *(int*)(self + 0x1B4) = 3;
+            break;
+        case 2:
+            *(int*)(self + 0x1B4) = 4;
+            break;
+        case 3:
+        case 4:
+            break;
+        }
+    }
+}
+#endif
 
 INCLUDE_ASM("main/game", func_0022D6C8);
 
