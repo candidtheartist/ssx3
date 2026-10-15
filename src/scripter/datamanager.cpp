@@ -1,6 +1,13 @@
 #include "common.h"
 
 //100%
+// PORT: operator_new__FUi really takes (size, tag, flags, d); bound by asm label
+void* operator_new_tag(unsigned int size, const char* tag, int flags, int d) __asm__("operator_new__FUi");
+void func_00275CD0(void* self, void* node);
+extern char D_004825A0[];
+extern const char D_00481AB8[];
+
+//100%
 INCLUDE_ASM("scripter/datamanager", cDataManager_cDataManager);
 #ifdef SKIP_ASM
 // PORT: operator_new__FUi really takes (size, tag, flags, d); bound by asm label
@@ -176,9 +183,24 @@ extern "C" void func_00275B08(sDmTable275B08* self)
 }
 #endif
 
+//100%
 INCLUDE_ASM("scripter/datamanager", func_00275B78);
+#ifdef SKIP_ASM
+extern "C" int func_00275B78(void* self, void* p)
+{
+    return *(int*)((char*)p + 0x8);
+}
+#endif
 
+//100%
 INCLUDE_ASM("scripter/datamanager", func_00275B80);
+#ifdef SKIP_ASM
+extern "C" void func_00275B80(void* self, int* src, int* a, int* b)
+{
+    *a = src[0];
+    *b = src[1];
+}
+#endif
 
 //100%
 INCLUDE_ASM("scripter/datamanager", func_00275B98);
