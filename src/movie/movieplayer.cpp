@@ -18,7 +18,14 @@ void* cMCOverlayManager_getManager()
 }
 #endif
 
+//100%
 INCLUDE_ASM("movie/movieplayer", func_0023C850);
+#ifdef SKIP_ASM
+extern "C" int func_0023C850()
+{
+    return D_004A2C74 != 0;
+}
+#endif
 
 //100%
 INCLUDE_ASM("movie/movieplayer", func_0023C860);
@@ -45,11 +52,34 @@ extern "C" int func_0023C898(void* self)
 }
 #endif
 
+//100%
 INCLUDE_ASM("movie/movieplayer", func_0023C8A8);
+#ifdef SKIP_ASM
+extern "C" int func_0023C8A8(char* self)
+{
+    return *(int*)(self + 0x130) == 0x23;
+}
+#endif
 
+//100%
 INCLUDE_ASM("movie/movieplayer", func_0023C8B8);
+#ifdef SKIP_ASM
+extern "C" int func_0023C8B8(void* self)
+{
+    return *(int*)((char*)self + 0xDC);
+}
+#endif
 
+//100%
 INCLUDE_ASM("movie/movieplayer", func_0023C8C0);
+#ifdef SKIP_ASM
+extern int D_004A2C78;
+
+extern "C" int func_0023C8C0()
+{
+    return D_004A2C78 != 0;
+}
+#endif
 
 //100%
 INCLUDE_ASM("movie/movieplayer", func_0023C8D0);
@@ -3130,9 +3160,35 @@ extern "C" void func_00241540(char* self)
 }
 #endif
 
+//100%
 INCLUDE_ASM("movie/movieplayer", func_00241678);
+#ifdef SKIP_ASM
+extern "C" int func_002410D0(void* self);
 
+// Previous page, wrapping to the last one when +0x100 allows it
+extern "C" void func_00241678(char* self)
+{
+    int n = *(int*)(self + 0xF8);
+    if (n > 0)
+        *(int*)(self + 0xF8) = n - 1;
+    else if (*(int*)(self + 0x100))
+        *(int*)(self + 0xF8) = func_002410D0(self) - 1;
+}
+#endif
+
+//100%
 INCLUDE_ASM("movie/movieplayer", func_002416C0);
+#ifdef SKIP_ASM
+// Next page, wrapping to the first one when +0x100 allows it
+extern "C" void func_002416C0(char* self)
+{
+    int last = func_002410D0(self) - 1;
+    if (*(int*)(self + 0xF8) < last)
+        *(int*)(self + 0xF8) = *(int*)(self + 0xF8) + 1;
+    else if (*(int*)(self + 0x100))
+        *(int*)(self + 0xF8) = 0;
+}
+#endif
 
 //100%
 INCLUDE_ASM("movie/movieplayer", cMCOverlayManager_GetDeviceDisplayString);
@@ -3501,7 +3557,14 @@ extern "C" void func_00241D40(void* self, int mode, void* buf)
 }
 #endif
 
+//100%
 INCLUDE_ASM("movie/movieplayer", func_00241DC0);
+#ifdef SKIP_ASM
+extern "C" int func_00241DC0()
+{
+    return 0x30;
+}
+#endif
 
 //100%
 INCLUDE_ASM("movie/movieplayer", func_00241DC8);
