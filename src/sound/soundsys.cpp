@@ -1,6 +1,12 @@
 #include "common.h"
 
 //100%
+extern "C" void* func_002ADE88(void* self, int heap);
+extern "C" void* cBankManager_cBankManager(void* self, int embedded, int count, int heap);
+// PORT: operator_new__FUi really takes (size, tag, flags, d); bound by asm label
+void* operator new[](unsigned int size, const char* tag, int flags, int d) __asm__("operator_new__FUi");
+
+//100%
 INCLUDE_ASM("sound/soundsys", cBankSys_cBankSys);
 #ifdef SKIP_ASM
 extern "C" void* func_002ADE88(void* self, int heap);
@@ -434,9 +440,33 @@ extern "C" void func_002910E0(void* vself)
 }
 #endif
 
+//100%
 INCLUDE_ASM("sound/soundsys", func_002913D8);
+#ifdef SKIP_ASM
+struct sSsVt13D8 {
+    short delta;
+    short index;
+    void (*fn)(void*, long);
+};
 
+extern "C" void func_002913D8(void* self)
+{
+    char* m = **(char***)((char*)self + 0x118);
+    sSsVt13D8* vt = *(sSsVt13D8**)(m + 0xAB0);
+    char* obj = m + 0x1D8;
+    vt[3].fn(obj + vt[3].delta, D_004A3680[0].v);
+    *(int*)((char*)self + 0x5830) = 0;
+    *(int*)((char*)self + 0x5834) = 0;
+}
+#endif
+
+//100%
 INCLUDE_ASM("sound/soundsys", func_00291430);
+#ifdef SKIP_ASM
+extern "C" void func_00291430()
+{
+}
+#endif
 
 //100% - objdiff report; single-function view differs only in a relocation name
 INCLUDE_ASM("sound/soundsys", func_00291438);
@@ -538,7 +568,39 @@ extern "C" void func_00291438(void* self)
 }
 #endif
 
+//100%
 INCLUDE_ASM("sound/soundsys", func_00291710);
+#ifdef SKIP_ASM
+extern "C" int func_00291710(void* self_, int rider_)
+{
+    char* self = (char*)self_;
+    char* rider = (char*)rider_;
+    int v;
+    if (func_0011FE98(rider) == 4)
+        v = *(int*)(self + 0x598C);
+    else
+        v = *(int*)(rider + 0x438);
+    switch (v) {
+    case 2: case 3: case 13:
+        return 1;
+    case 1:
+        return 2;
+    case 4:
+        return 3;
+    case 7: case 8: case 18:
+        return 7;
+    case 9:
+        return 5;
+    case 10:
+        return 4;
+    case 11:
+        return 8;
+    case -1: case 0: case 5: case 6: case 12: case 14: case 15: case 16: case 17: case 19:
+        break;
+    }
+    return 0;
+}
+#endif
 
 //100%
 INCLUDE_ASM("sound/soundsys", func_002917B8);
@@ -868,7 +930,27 @@ extern "C" void func_00292A50(void* self, int id)
 }
 #endif
 
+//100%
 INCLUDE_ASM("sound/soundsys", func_00292AE8);
+#ifdef SKIP_ASM
+extern sSndKey8_10E0 D_004A36A8[];
+void func_002ADDE0_k(void* bm, long key) __asm__("func_002ADDE0");
+
+struct sSsVt2AE8 {
+    short delta;
+    short index;
+    void (*fn)(void*, int);
+};
+
+extern "C" void func_00292AE8(void* self, int a1)
+{
+    char* m = **(char***)((char*)self + 0x118);
+    sSsVt2AE8* vt = *(sSsVt2AE8**)(m + 0xAB0);
+    char* obj = m + 0x1D8;
+    vt[4].fn(obj + vt[4].delta, a1);
+    func_002ADDE0_k(**(char***)((char*)self + 0x118) + 0x1D8, D_004A36A8[0].v);
+}
+#endif
 
 INCLUDE_ASM("sound/soundsys", func_00292B48);
 
@@ -888,7 +970,30 @@ INCLUDE_ASM("sound/soundsys", func_00293350);
 
 INCLUDE_ASM("sound/soundsys", func_00293410);
 
+//100%
 INCLUDE_ASM("sound/soundsys", func_002934D0);
+#ifdef SKIP_ASM
+extern "C" int func_002934D0(void* self, unsigned int kind, void* rider)
+{
+    int r;
+    switch (kind) {
+    case 3:
+        r = func_0011FE98(rider) == 4 ? 2 : 0;
+        break;
+    case 1: case 2:
+        r = 1;
+        break;
+    case 4: case 5: case 6: case 7: case 8:
+        r = 2;
+        break;
+    case 0:
+    default:
+        r = 0;
+        break;
+    }
+    return r;
+}
+#endif
 
 INCLUDE_ASM("sound/soundsys", func_00293538);
 
@@ -896,11 +1001,38 @@ INCLUDE_ASM("sound/soundsys", func_00293740);
 
 INCLUDE_ASM("sound/soundsys", func_00293948);
 
+//100%
 INCLUDE_ASM("sound/soundsys", func_00293B50);
+#ifdef SKIP_ASM
+extern "C" void func_00293538(void* self);
 
+extern "C" void func_00293B50(void* self)
+{
+    func_00293538(self);
+}
+#endif
+
+//100%
 INCLUDE_ASM("sound/soundsys", func_00293B70);
+#ifdef SKIP_ASM
+extern "C" void func_00293740(void* self);
 
+extern "C" void func_00293B70(void* self)
+{
+    func_00293740(self);
+}
+#endif
+
+//100%
 INCLUDE_ASM("sound/soundsys", func_00293B90);
+#ifdef SKIP_ASM
+extern "C" void func_00293948(void* self);
+
+extern "C" void func_00293B90(void* self)
+{
+    func_00293948(self);
+}
+#endif
 
 INCLUDE_ASM("sound/soundsys", func_00293BB0);
 
@@ -955,9 +1087,45 @@ extern "C" void func_00294678(void* self, char* rider)
 }
 #endif
 
+//100%
 INCLUDE_ASM("sound/soundsys", func_002947B0);
+#ifdef SKIP_ASM
+// Six rider slots at 0x59E8.
+struct sSnd4860 {
+    char pad[0x59E8];
+    int vals[6];
+};
 
+extern "C" void func_00294678(void* self, char* rider);
+
+// Refresh the six rider slots at 0x59E8, clearing those whose rider is gone.
+extern "C" void func_002947B0(void* self)
+{
+    sSnd4860* s = (sSnd4860*)self;
+    for (int i = 0; i < 6; i++) {
+        if (s->vals[i] != 0 && i < *(int*)((char*)func_0028B1D8() + 0x78)) {
+            char* rider = *(char**)((char*)func_0028B1D8() + (i << 2) + 0x28);
+            if (rider != 0) {
+                func_00294678(self, rider);
+                continue;
+            }
+        }
+        s->vals[i] = 0;
+    }
+}
+#endif
+
+//100%
 INCLUDE_ASM("sound/soundsys", func_00294860);
+#ifdef SKIP_ASM
+extern "C" int func_00294860(void* self, int i)
+{
+    if (i < 6) {
+        return ((sSnd4860*)self)->vals[i];
+    }
+    return 0;
+}
+#endif
 
 //100%
 INCLUDE_ASM("sound/soundsys", func_00294880);
@@ -1223,13 +1391,25 @@ extern "C" void func_002961F0(void* self, char* rider, float v)
 }
 #endif
 
+//100%
 INCLUDE_ASM("sound/soundsys", func_00296308);
+#ifdef SKIP_ASM
+extern "C" void func_00296308()
+{
+}
+#endif
 
 INCLUDE_ASM("sound/soundsys", func_00296310);
 
 INCLUDE_ASM("sound/soundsys", func_00296868);
 
+//100%
 INCLUDE_ASM("sound/soundsys", func_00296E18);
+#ifdef SKIP_ASM
+extern "C" void func_00296E18()
+{
+}
+#endif
 
 //100%
 INCLUDE_ASM("sound/soundsys", func_00296E20);
@@ -1248,7 +1428,13 @@ extern "C" void func_00296E20(void* self, void* obj)
 
 INCLUDE_ASM("sound/soundsys", func_00296E80);
 
+//100%
 INCLUDE_ASM("sound/soundsys", func_00297430);
+#ifdef SKIP_ASM
+extern "C" void func_00297430()
+{
+}
+#endif
 
 //100%
 INCLUDE_ASM("sound/soundsys", func_00297438);
@@ -1265,7 +1451,13 @@ extern "C" void func_00297438(void* self, void* obj)
 }
 #endif
 
+//100%
 INCLUDE_ASM("sound/soundsys", func_00297498);
+#ifdef SKIP_ASM
+extern "C" void func_00297498()
+{
+}
+#endif
 
 //100% - objdiff report; single-function view differs only in a relocation name
 INCLUDE_ASM("sound/soundsys", func_002974A0);
@@ -1745,7 +1937,14 @@ extern "C" void func_00298D00(void* self, void* obj)
 }
 #endif
 
+//100%
 INCLUDE_ASM("sound/soundsys", func_00298D88);
+#ifdef SKIP_ASM
+extern "C" int func_00298D88()
+{
+    return 0x1;
+}
+#endif
 
 INCLUDE_ASM("sound/soundsys", func_00298D90);
 
@@ -3970,9 +4169,21 @@ void func_0029E560(void* self)
 }
 #endif
 
+//100%
 INCLUDE_ASM("sound/soundsys", func_0029E568);
+#ifdef SKIP_ASM
+extern "C" void func_0029E568()
+{
+}
+#endif
 
+//100%
 INCLUDE_ASM("sound/soundsys", func_0029E570);
+#ifdef SKIP_ASM
+extern "C" void func_0029E570()
+{
+}
+#endif
 
 //100%
 INCLUDE_ASM("sound/soundsys", func_0029E578);
@@ -4445,14 +4656,35 @@ extern "C" int func_0029F198(void* self)
 }
 #endif
 
+//100%
 INCLUDE_ASM("sound/soundsys", func_0029F2B0);
+#ifdef SKIP_ASM
+extern "C" int func_0029F2B0(int kind, int busy)
+{
+    if (busy == 0) {
+        switch (kind) {
+        case 6: return 1;
+        case 3: return 2;
+        case 0: return 4;
+        case 8: return 8;
+        case 1: return 0x10;
+        case 4: return 0x20;
+        case 9: return 0x80;
+        case 7: return 0x40;
+        case 5: return 0x100;
+        case 2: return 0x200;
+        }
+    }
+    return 0;
+}
+#endif
 
 //100% - objdiff report; single-function view differs only in a relocation name
 INCLUDE_ASM("sound/soundsys", func_0029F330);
 #ifdef SKIP_ASM
 extern "C" int func_00123128(void*);
 extern "C" int func_00123168(void*);
-extern "C" void func_0029F2B0(int, int);
+extern "C" int func_0029F2B0(int, int);
 
 extern "C" void func_0029F330(void* self)
 {
@@ -5421,7 +5653,7 @@ INCLUDE_ASM("sound/soundsys", func_002A1D48);
 #ifdef SKIP_ASM
 extern "C" int func_00123128(void*);
 extern "C" int func_00123168(void*);
-extern "C" void func_002A1DA0(void* self, int a, int b);
+extern "C" int func_002A1DA0(void* self, int a, int b);
 
 extern "C" void func_002A1D48(void* self, void* obj)
 {
@@ -5430,13 +5662,64 @@ extern "C" void func_002A1D48(void* self, void* obj)
 }
 #endif
 
+//100%
 INCLUDE_ASM("sound/soundsys", func_002A1DA0);
+#ifdef SKIP_ASM
+extern "C" int func_002A1DA0(void* self, int kind, int busy)
+{
+    if (busy == 0) {
+        switch (kind) {
+        case 6: return 1;
+        case 3: return 2;
+        case 0: return 4;
+        case 8: return 8;
+        case 1: return 0x10;
+        case 4: return 0x20;
+        case 9: return 0x40;
+        case 7: return 0x80;
+        case 5: return 0x100;
+        case 2: return 0x200;
+        }
+    }
+    return 0x1000;
+}
+#endif
 
+//100%
 INCLUDE_ASM("sound/soundsys", func_002A1E20);
+#ifdef SKIP_ASM
+extern "C" int func_002A1E20(void* self, unsigned int kind)
+{
+    switch (kind) {
+    case 0: case 1: case 5: case 8: case 11: case 14: case 17: case 18:
+        return 1;
+    case 2: case 3: case 6: case 9: case 12: case 15: case 19: case 20:
+        return 2;
+    case 4: case 7: case 10: case 13: case 16: case 21:
+        return 4;
+    }
+    return 0;
+}
+#endif
 
 INCLUDE_ASM("sound/soundsys", func_002A1E68);
 
+//100%
 INCLUDE_ASM("sound/soundsys", func_002A1FA0);
+#ifdef SKIP_ASM
+extern "C" int func_002A1FA0(void* self, void* obj)
+{
+    if (func_00123168(obj) != 0)
+        return 0;
+    switch (func_00123128(obj)) {
+    case 1: case 2: case 4: case 6:
+        return 2;
+    case 0: case 3: case 5: case 7: case 8: case 9:
+        return 1;
+    }
+    return 0;
+}
+#endif
 
 //100%
 INCLUDE_ASM("sound/soundsys", func_002A2018);
@@ -6152,7 +6435,29 @@ extern "C" void func_002A39E0(void* self)
 }
 #endif
 
+//100%
 INCLUDE_ASM("sound/soundsys", func_002A3AA0);
+#ifdef SKIP_ASM
+int func_003B7C40_st(int h, int* out) __asm__("func_003B7C40");
+extern "C" void func_002A73A8(void* self, int a1, int i);
+
+extern "C" int func_002A3AA0(void* self, void* obj)
+{
+    int st[4];
+    int r;
+    func_003B58A0();
+    r = func_003B7C40_st(*(int*)((char*)obj + 0x1C), st);
+    func_003B58D8();
+    if (r < 0) {
+        return 0;
+    }
+    if (st[0] != 3) {
+        return 0;
+    }
+    func_002A73A8(self, 0, 0);
+    return 1;
+}
+#endif
 
 //100%
 INCLUDE_ASM("sound/soundsys", func_002A3B18);
@@ -6834,7 +7139,17 @@ extern "C" int func_002A4770(void* self)
 }
 #endif
 
+//100%
 INCLUDE_ASM("sound/soundsys", func_002A49E8);
+#ifdef SKIP_ASM
+extern sSndKey8 D_004A36F0[];
+
+extern "C" void func_002A49E8(void* self)
+{
+    *(int*)((char*)self + 0x5818) = 1;
+    func_002ADCA0(**(char***)((char*)self + 0x118) + 0x1D8, 30000, D_004A36F0[0].v, 0, 0, 0, 0, 0);
+}
+#endif
 
 //100%
 INCLUDE_ASM("sound/soundsys", func_002A4A38);
@@ -6850,7 +7165,15 @@ extern "C" int func_002A4A38(void* self)
 }
 #endif
 
+//100%
 INCLUDE_ASM("sound/soundsys", func_002A4A68);
+#ifdef SKIP_ASM
+extern "C" int func_002A4A68(void* self)
+{
+    *(int*)((char*)self + 0x5818) = 0;
+    return 1;
+}
+#endif
 
 INCLUDE_ASM("sound/soundsys", func_002A4A78);
 
@@ -8057,9 +8380,31 @@ extern "C" int func_002A7678(void* self, int a1)
 }
 #endif
 
+//100%
 INCLUDE_ASM("sound/soundsys", func_002A7718);
+#ifdef SKIP_ASM
+extern "C" void func_002A7718(void* self)
+{
+    for (int i = 0; i < *(int*)((char*)self + 0x14); i++) {
+        func_002A6430(*(char**)((char*)self + 0x18) + i * 0x190, 0.0f);
+    }
+    char* m = *(char**)self;
+    sSsVt13D8* vt = *(sSsVt13D8**)(m + 0xAB0);
+    char* obj = m + 0x1D8;
+    vt[3].fn(obj + vt[3].delta, ((sSndKey8_10E0*)D_004A3700_5D08)[0].v);
+}
+#endif
 
+//100%
 INCLUDE_ASM("sound/soundsys", func_002A77A8);
+#ifdef SKIP_ASM
+extern "C" void func_002A68B0(void* p);
+
+extern "C" void func_002A77A8(void* self, void* obj)
+{
+    func_002A68B0(*(void**)((char*)obj + 0x80));
+}
+#endif
 
 //100%
 INCLUDE_ASM("sound/soundsys", func_002A77C8);
