@@ -54,11 +54,13 @@ or any disc file.
   - the GS rasterizer running a triangle pixel's depth test before its colour and texture work, since a pixel that
     fails it is dropped anyway, and rounding filtered texels without a libm call. 8,000 GS packets recorded in a race
     replay to the same VRAM about 10% faster;
-  - GS drawing on its own thread. The runner queues draws, uploads and VRAM writes, and a worker runs them in order,
-    each in the rounding mode its caller had. Anything that reads VRAM back waits for the queue first, so what the game
-    sees is unchanged, and the window shows a frame once everything drawn before it is done, without waiting on the GS.
-    `PS2X_GS_THREAD=0` draws on the game thread as before. Switching it on and off every 30 seconds in a race gave 1.6
-    to 2.2 times the frames;
+  - GS drawing on worker threads. The runner queues draws, uploads and VRAM writes, and every worker runs them in
+    order, each in the rounding mode its caller had, drawing only its own bands of 16 rows. Uploads, VRAM writes, and
+    draws that read what another worker may still be drawing (render to texture, effects that read their own
+    framebuffer) wait for every worker at that point and run on one. Anything that reads VRAM back waits for the queue
+    first, so what the game sees is unchanged, and the window shows a frame once everything drawn before it is done,
+    without waiting on the GS. One worker gave 1.6 to 2.2 times the frames of drawing on the game thread, and on a
+    4-core machine two workers gave 1.57 times the frames of one;
   - debug switches.
 - `ssx3_overrides.cpp` holds the game-specific replacements: it skips the network and USB keyboard drivers,
   answers the module search, routes `isceSifSendCmd`, and keeps the runtime's scratch buffers in the
@@ -133,7 +135,8 @@ These debug switches print to stderr:
 | `PS2X_FRAME_LOG=1` | how many passes of the game's main loop run per second, every 2 s |
 | `PS2X_GS_SAMPLE=flagfile` | once `flagfile` exists, 3000 non-sprite primitives drawn to the main framebuffer |
 
-`PS2X_GS_THREAD=0` draws on the game thread instead of a GS worker thread.
+`PS2X_GS_THREADS=n` draws with `n` GS worker threads, and 0 draws on the game thread. By default it uses the cores
+the game and window threads leave free, up to 6.
 
 Keyboard: Enter is START, X is Cross, Z is Square; F1 shows the debug panel.
 
@@ -144,7 +147,6 @@ input through the front end to a race. In the race, the HUD, sky, mountains, sta
 shadows and the course draw with the right textures, and the race plays from the gate down the first slope.
 The camera sits much further behind the player's rider than it should. Sound has not been tested yet.
 
-It is far from full speed. On a 4-core 2.1 GHz Xeon, the first stretch of a race draws about 2 to 3 frames a second
-and later stretches about 4 to 6.
+It is far from full speed. On a 4-core 2.1 GHz Xeon, a race draws about 4 to 6.5 frames a second.
 
 When a guest address with no function is reached, the scheduler prints its last 64 dispatches (`[sched-trace]`).
