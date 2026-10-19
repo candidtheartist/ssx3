@@ -1,4 +1,5 @@
 #include "common.h"
+#include "ai/ridermetrix.h"
 
 //100%
 extern "C" void func_00116FA8(void* p);
@@ -116,9 +117,10 @@ extern "C" void cRiderMetrix_loadState(void* self, void* obj)
 //100%
 extern "C" void cRiderMetrix_setStartingScore(void* self, int a1)
 {
-    int delta = a1 - *(int*)((char*)self + 0x1c8);
-    *(int*)((char*)self + 0x1c8) = a1;
-    *(int*)((char*)self + 0x198) += delta;
+    cRiderMetrix* metrix = (cRiderMetrix*)self;
+    int delta = a1 - metrix->mStartingScore;
+    metrix->mStartingScore = a1;
+    metrix->mTotalScore += delta;
 }
 
 //100% - objdiff report; single-function view differs only in a relocation name
@@ -129,14 +131,15 @@ extern "C" void cRiderMetrix_resetCombo(void* self);
 
 extern "C" void cRiderMetrix_resetRun(char* self)
 {
+    cRiderMetrix* metrix = (cRiderMetrix*)self;
     cRiderMetrix_resetRunStats(self);
     cRiderMetrix_clearAllMsgs((sRiderMetrix_001173B8*)self);
     func_003E6448(self + 0xA8, 0, 0x50);
-    *(int*)(self + 0xF8) = 0;
+    metrix->mRepeatCursor = 0;
     cRiderMetrix_resetTrick(self);
     cRiderMetrix_resetCombo(self);
     *(int*)(self + 0x1A8) = 0;
-    *(float*)(self + 0xA4) = -1.0f;
+    metrix->mComboClock = -1.0f;
     func_003E6448(self + 0x1B8, 0, 8);
     *(int*)(self + 0x1C0) = 1;
 }
@@ -146,9 +149,10 @@ extern "C" void func_003E6448(void* dst, int value, int size);
 
 extern "C" void cRiderMetrix_resetRunStats(char* self)
 {
+    cRiderMetrix* metrix = (cRiderMetrix*)self;
     func_003E6448(self + 0xFC, 0, 0xAC);
-    *(int*)(self + 0x18C) = -1;
-    *(int*)(self + 0x198) = *(int*)(self + 0x1C8);
+    metrix->mBestTrick = -1;
+    metrix->mTotalScore = metrix->mStartingScore;
 }
 
 //100%
@@ -156,10 +160,11 @@ extern "C" void cRiderMetrix_clearMsgType(void* self, int type);
 
 extern "C" void cRiderMetrix_resetCombo(void* self)
 {
+    cRiderMetrix* metrix = (cRiderMetrix*)self;
     cRiderMetrix_clearMsgType(self, 3);
-    *(int*)((char*)self + 0x9C) = 0;
-    *(int*)((char*)self + 0xA0) = 0;
-    *(float*)((char*)self + 0xA4) = -1.0f;
+    metrix->mComboCount = 0;
+    metrix->mComboPoints = 0;
+    metrix->mComboClock = -1.0f;
 }
 
 //100%
@@ -205,14 +210,16 @@ extern "C" void cRiderMetrix_addComboTrick(void* self, int points)
 //100%
 extern "C" void cRiderMetrix_suspendComboClock(void* self)
 {
-    *(float*)((char*)self + 0xa4) = -1.0f;
+    cRiderMetrix* metrix = (cRiderMetrix*)self;
+    metrix->mComboClock = -1.0f;
 }
 
 //100%
 // PORT: g++ >? (max) operator, removed in GCC 4.3.
 extern "C" void func_00117708(void* self, float seconds)
 {
-    *(float*)((char*)self + 0xa4) = *(float*)((char*)self + 0xa4) >? seconds;
+    cRiderMetrix* metrix = (cRiderMetrix*)self;
+    metrix->mComboClock = metrix->mComboClock >? seconds;
 }
 
 //100%
@@ -234,25 +241,26 @@ extern sRaceSettings_117718 D_00535BC8_117718 __asm__("D_00535BC8");
 extern "C" void cRiderMetrix_payCombo(void* self_)
 {
     char* self = (char*)self_;
-    int n = *(int*)(self + 0x9C);
+    cRiderMetrix* metrix = (cRiderMetrix*)self;
+    int n = metrix->mComboCount;
     if (n >= 2) {
-        int pts = *(int*)(self + 0xA0);
+        int pts = metrix->mComboPoints;
         if (pts > 0) {
-            *(int*)(self + 0x198) += pts;
-            *(int*)(self + 0x134) += n;
-            if (*(int*)(self + 0x188) < pts)
-                *(int*)(self + 0x188) = pts;
-            if (*(int*)(self + 0x9C) > *(int*)(self + 0x184))
-                *(int*)(self + 0x184) = *(int*)(self + 0x9C);
+            metrix->mTotalScore += pts;
+            metrix->mRunComboTricks += n;
+            if (metrix->mBestCombo[1] < pts)
+                metrix->mBestCombo[1] = pts;
+            if (metrix->mComboCount > metrix->mBestCombo[0])
+                metrix->mBestCombo[0] = metrix->mComboCount;
             cBE_getInterface_Fv(cBE_getBE(), 0);
             int offline = 0;
             if (D_00535BC8_117718.mode == 4)
                 offline = D_00535BC8_117718.online == 0;
             if (!offline) {
-                cRiderMetrix_postPointsMsg_f(self, 0x26, *(int*)(self + 0xA0), 1.5f, *(int*)(self + 0x9C));
-                cRiderMetrix_postPointsMsg_f(self, 0x18, *(int*)(self + 0xA0), 0.7f, 0);
+                cRiderMetrix_postPointsMsg_f(self, 0x26, metrix->mComboPoints, 1.5f, metrix->mComboCount);
+                cRiderMetrix_postPointsMsg_f(self, 0x18, metrix->mComboPoints, 0.7f, 0);
             } else {
-                int v = *(int*)(self + 0xA0) / 500;
+                int v = metrix->mComboPoints / 500;
                 func_00119EF8(self, 2, v > 20 ? 20 : v);
             }
         }
@@ -266,69 +274,74 @@ extern "C" void func_003E6448(void* dst, int value, int size);
 extern "C" void cRiderMetrix_resetTrick(void* p)
 {
     char* self = (char*)p;
-    *(int*)(self + 0x14) = 0;
-    *(float*)(self + 0x18) = 1.0f;
-    *(int*)(self + 0x1C) = 0;
-    *(int*)(self + 0x0) = 0;
-    *(int*)(self + 0x4) = 0;
-    *(int*)(self + 0x8) = 0;
-    *(int*)(self + 0xC) = 0;
-    *(int*)(self + 0x10) = 0;
-    *(int*)(self + 0x20) = 0;
-    *(float*)(self + 0x24) = -1.0f;
-    *(int*)(self + 0x28) = 0;
-    *(float*)(self + 0x2C) = -1.0f;
-    *(float*)(self + 0x30) = -1.0f;
-    *(int*)(self + 0x34) = 0;
-    *(int*)(self + 0x38) = 0;
-    *(int*)(self + 0x3C) = 0;
-    *(float*)(self + 0x40) = -1.0f;
-    *(int*)(self + 0x44) = 0;
-    *(int*)(self + 0x48) = 0;
-    *(int*)(self + 0x4C) = 0;
-    *(int*)(self + 0x50) = 0;
-    *(int*)(self + 0x54) = 0;
-    *(int*)(self + 0x58) = 0;
-    *(int*)(self + 0x5C) = 0;
-    *(int*)(self + 0x70) = 0;
-    *(float*)(self + 0x6C) = -1.0f;
-    *(int*)(self + 0x74) = 0;
+    cRiderMetrix* metrix = (cRiderMetrix*)self;
+    *(int*)&metrix->mReward = 0;
+    metrix->mMultiplier = 1.0f;
+    *(int*)&metrix->mInvertedReward = 0;
+    metrix->mStance = 0;
+    metrix->mAltTable = 0;
+    metrix->mMultiTrick = 0;
+    metrix->mStyle = 0;
+    metrix->mPressStyle = 0;
+    metrix->mTrickStyle = 0;
+    metrix->mRailDistance = -1.0f;
+    metrix->mSpecial = 0;
+    metrix->mManualTime = -1.0f;
+    metrix->mAirTime = -1.0f;
+    *(int*)&metrix->mSpin = 0;
+    *(int*)&metrix->mFlip = 0;
+    *(int*)&metrix->mHoldRate = 0;
+    metrix->mHoldTime = -1.0f;
+    *(int*)&metrix->mTotalHoldTime = 0;
+    *(int*)&metrix->mLongestHold = 0;
+    metrix->mNormalCount = 0;
+    metrix->mTweakCount = 0;
+    metrix->mUberCount = 0;
+    metrix->mSuperUberCount = 0;
+    metrix->mActiveUber = 0;
+    metrix->mActive = 0;
+    metrix->mActiveTime = -1.0f;
+    metrix->mUberCount2 = 0;
     *(float*)(self + 0x78) = -1.0f;
-    *(int*)(self + 0x7C) = 0;
+    metrix->mIdentity = 0;
     *(int*)(self + 0x80) = 0;
-    *(int*)(self + 0x84) = 0;
-    *(int*)(self + 0x88) = 0;
-    *(int*)(self + 0x8C) = 0;
-    *(int*)(self + 0x90) = 0;
-    *(int*)(self + 0x94) = 0;
-    *(int*)(self + 0x98) = 0;
+    metrix->mBonusPoints = 0;
+    metrix->mBonusStep[0] = 0;
+    metrix->mBonusStep[1] = 0;
+    metrix->mBonusStep[2] = 0;
+    metrix->mBonusStep[3] = 0;
+    metrix->mBonusStep[4] = 0;
     func_003E6448(self + 0x60, 0, 0xC);
 }
 
 //100%
 float func_00117900(void* self)
 {
-    return *(float*)((char*)self + 0x14);
+    cRiderMetrix* metrix = (cRiderMetrix*)self;
+    return metrix->mReward;
 }
 
 //100%
 extern "C" int cRiderMetrix_getInvertedPoints(void* self)
 {
-    int v = (int)(*(float*)((char*)self + 0x1C) * 10000.0f + 5.0f);
+    cRiderMetrix* metrix = (cRiderMetrix*)self;
+    int v = (int)(metrix->mInvertedReward * 10000.0f + 5.0f);
     return v - v % 10;
 }
 
 //100%
 extern "C" int cRiderMetrix_getPendingPoints(void* self)
 {
-    int v = (int)(*(float*)((char*)self + 0x1C4) * *(float*)((char*)self + 0x14) * 10000.0f + 5.0f);
+    cRiderMetrix* metrix = (cRiderMetrix*)self;
+    int v = (int)(metrix->mScoreMult * metrix->mReward * 10000.0f + 5.0f);
     return v - v % 10;
 }
 
 //100%
 extern "C" int cRiderMetrix_getMultipliedPoints(void* self)
 {
-    int v = (int)(*(float*)((char*)self + 0x1C4) * *(float*)((char*)self + 0x18) * *(float*)((char*)self + 0x14) * 10000.0f + 5.0f);
+    cRiderMetrix* metrix = (cRiderMetrix*)self;
+    int v = (int)(metrix->mScoreMult * metrix->mMultiplier * metrix->mReward * 10000.0f + 5.0f);
     return v - v % 10;
 }
 
@@ -423,10 +436,11 @@ int cRiderMetrix_postTextMsg_impl(void* self, int a, const char* b, float c, int
 
 int cRiderMetrix_postTextMsg_impl(void* self, int a, const char* b, float c, int d)
 {
-    if (*(sMetrixSlotAE8**)((char*)self + 0x1B0) == 0)
+    cRiderMetrix* metrix = (cRiderMetrix*)self;
+    if (*(sMetrixSlotAE8**)&metrix->mMsgSlots == 0)
         return -1;
     int idx = cRiderMetrix_allocMsgSlot(self, a);
-    func_00117048(&(*(sMetrixSlotAE8**)((char*)self + 0x1B0))[idx], a, b, c, d);
+    func_00117048(&(*(sMetrixSlotAE8**)&metrix->mMsgSlots)[idx], a, b, c, d);
     return idx;
 }
 
@@ -443,10 +457,11 @@ int cRiderMetrix_postPointsMsg_impl(void* self, int type, int value, int arg, fl
 
 int cRiderMetrix_postPointsMsg_impl(void* self, int type, int value, int arg, float duration)
 {
-    if (*(sMetrixSlotB88**)((char*)self + 0x1B0) == 0)
+    cRiderMetrix* metrix = (cRiderMetrix*)self;
+    if (*(sMetrixSlotB88**)&metrix->mMsgSlots == 0)
         return -1;
     int idx = cRiderMetrix_allocMsgSlot(self, type);
-    func_001170A8(&(*(sMetrixSlotB88**)((char*)self + 0x1B0))[idx], type, value, duration, arg);
+    func_001170A8(&(*(sMetrixSlotB88**)&metrix->mMsgSlots)[idx], type, value, duration, arg);
     return idx;
 }
 
@@ -726,13 +741,14 @@ struct sGradeStep_119210
 
 extern "C" int cRiderMetrix_checkDurationBonus(void* self, int* idx, sGradeStep_119210* tbl, int type, float x)
 {
+    cRiderMetrix* metrix = (cRiderMetrix*)self;
     // PORT: pointer arithmetic through int.
     sGradeStep_119210* e = (sGradeStep_119210*)(*idx * 8 + (int)tbl);
     float t = e->threshold;
     if (t < 0.0f) return 0;
     if (t <= x)
     {
-        float m = *(float*)((char*)self + 0x1C4);
+        float m = metrix->mScoreMult;
         int v = (int)(e->mult * m + 0.5f);
         *idx = *idx + 1;
         cRiderMetrix_clearMsgType(self, 0x1C);
@@ -777,13 +793,14 @@ extern "C" int cRiderMetrix_dropPendingPoints(void* self);
 
 extern "C" float cRiderMetrix_onReset(void* self, int a1)
 {
-    *(int*)((char*)self + 0x1A4) += cRiderMetrix_dropPendingPoints(self);
+    cRiderMetrix* metrix = (cRiderMetrix*)self;
+    metrix->mLostPoints[1] += cRiderMetrix_dropPendingPoints(self);
     cRiderMetrix_resetTrick(self);
     cRiderMetrix_resetCombo(self);
-    *(int*)((char*)self + 0x120) += 1;
+    metrix->mRunResetCount += 1;
     if (!a1)
-        return *(float*)(*(char**)((char*)self + 0x1AC) + 0x2F8) * -0.10000000149011612f;
-    return *(float*)(*(char**)((char*)self + 0x1AC) + 0x2F8) * -0.699999988079071f;
+        return *(float*)(metrix->mRider + 0x2F8) * -0.10000000149011612f;
+    return *(float*)(metrix->mRider + 0x2F8) * -0.699999988079071f;
 }
 
 extern "C" void cRiderMetrix_payCombo(void*);
@@ -801,7 +818,8 @@ extern "C" void cRiderMetrix_postPointsMsg(void* self, int type, int value, int 
 
 extern "C" float cRiderMetrix_onKnockout(char* self)
 {
-    *(int*)(self + 0x128) += 1;
+    cRiderMetrix* metrix = (cRiderMetrix*)self;
+    metrix->mRunKnockouts += 1;
     cRiderMetrix_postPointsMsg(self, 0x2C, 0, 0, 1.5f);
     return 1.0f;
 }
@@ -811,14 +829,15 @@ extern "C" void func_001171A8(void* self, int type, int value, int arg, float f)
 
 extern "C" float cRiderMetrix_onMultiplierPickup(char* self, float value)
 {
-    *(int*)(self + 0x130) += 1;
-    char* p = *(char**)(self + 0x1B0);
+    cRiderMetrix* metrix = (cRiderMetrix*)self;
+    metrix->mRunMultiplierPickups += 1;
+    char* p = metrix->mMsgSlots;
     if (p != 0)
     {
-        if (*(float*)(self + 0x18) < value)
+        if (metrix->mMultiplier < value)
         {
             func_001171A8(p + 0x270, 4, (int)value, 0, 0.0f);
-            *(float*)(self + 0x18) = value;
+            metrix->mMultiplier = value;
         }
     }
     return 0.0f;
@@ -840,19 +859,20 @@ static inline bool rmRiderFlags_1194C0(char* r)
 
 extern "C" float func_001194C0(char* self, int a1)
 {
-    char* sub = *(char**)(self + 0x1AC) + 0x6C0;
+    cRiderMetrix* metrix = (cRiderMetrix*)self;
+    char* sub = metrix->mRider + 0x6C0;
     sVEntry001194C0* vt = *(sVEntry001194C0**)sub;
     if (vt[8].fn(sub + vt[8].delta) != 0)
     {
         void* mgr = *(void**)((char*)D_004A28A8 + 0xC0);
-        char* sub2 = *(char**)(self + 0x1AC) + 0x6C0;
+        char* sub2 = metrix->mRider + 0x6C0;
         sVEntry001194C0* vt2 = *(sVEntry001194C0**)sub2;
         if (func_00238510(mgr, vt2[7].fn(sub2 + vt2[7].delta), a1) != 0)
         {
             cRiderMetrix_postPointsMsg(self, 0x29, a1, 0, 2.5f);
-            if (rmRiderFlags_1194C0(*(char**)(self + 0x1AC)))
+            if (rmRiderFlags_1194C0(metrix->mRider))
             {
-                func_002A3CE8(func_0028B180(), *(void**)(self + 0x1AC), 1);
+                func_002A3CE8(func_0028B180(), *(void**)&metrix->mRider, 1);
             }
         }
     }
@@ -894,7 +914,8 @@ extern sGameSettings_119608 D_00535BC8_119608 __asm__("D_00535BC8");
 
 extern "C" float cRiderMetrix_onPointPickup(void* self, int pts)
 {
-    int v = (int)(pts * *(float*)((char*)self + 0x1C4) + 0.5f);
+    cRiderMetrix* metrix = (cRiderMetrix*)self;
+    int v = (int)(pts * metrix->mScoreMult + 0.5f);
     cBE_getInterface(cBE_getBE(), 0);
     int career = D_00535BC8_119608.eventKind == 4 && D_00535BC8_119608.gameType == 0;
     if (!career)
@@ -911,7 +932,7 @@ extern "C" float cRiderMetrix_onPointPickup(void* self, int pts)
         }
         func_00119EF8(self, 1, amount);
     }
-    *(int*)((char*)self + 0x198) += v;
+    metrix->mTotalScore += v;
     return 0.0f;
 }
 
@@ -924,19 +945,20 @@ int func_00150540(void* iface, int id);
 
 extern "C" float cRiderMetrix_beginGrab(char* self, int id)
 {
+    cRiderMetrix* metrix = (cRiderMetrix*)self;
     float zero = 0.0f;
     void* iface = cBE_getInterface_Fv(cBE_getBE(), 6);
     float a = func_00150528(iface, id) * 9.999999747378752e-05f;
     float b = func_00150540(iface, id) * 1.6666666624587378e-06f;
-    *(float*)(self + 0x14) += a;
-    *(float*)(self + 0x3C) = b;
-    if (*(float*)(self + 0x40) < zero)
+    metrix->mReward += a;
+    metrix->mHoldRate = b;
+    if (metrix->mHoldTime < zero)
     {
-        *(float*)(self + 0x40) = zero;
+        metrix->mHoldTime = zero;
     }
     if (id >= 0x23)
     {
-        *(int*)(self + 0x5C) = 1;
+        metrix->mActiveUber = 1;
     }
     cRiderMetrix_suspendComboClock(self);
     return zero;
@@ -949,26 +971,27 @@ extern "C" void cRiderMetrix_addGrab(void* self_, int value);
 extern "C" float cRiderMetrix_endGrab(void* p, int v)
 {
     char* self = (char*)p;
+    cRiderMetrix* metrix = (cRiderMetrix*)self;
     cRiderMetrix_addGrab(self, v);
     if (v >= 0x23)
     {
-        (*(int*)(self + 0x54))++;
-        if (*(int*)(*(char**)(self + 0x1AC) + 0x2F4) >= 6)
-            (*(int*)(self + 0x58))++;
+        (metrix->mUberCount)++;
+        if (*(int*)(metrix->mRider + 0x2F4) >= 6)
+            (metrix->mSuperUberCount)++;
     }
     else if (v >= 0x13)
     {
-        (*(int*)(self + 0x50))++;
+        (metrix->mTweakCount)++;
     }
     else
     {
-        (*(int*)(self + 0x4C))++;
+        (metrix->mNormalCount)++;
     }
-    float t = *(float*)(self + 0x40);
-    *(float*)(self + 0x48) = t >? *(float*)(self + 0x48);
-    *(int*)(self + 0x5C) = 0;
-    *(float*)(self + 0x40) = -1.0f;
-    *(float*)(self + 0x44) += t;
+    float t = metrix->mHoldTime;
+    metrix->mLongestHold = t >? metrix->mLongestHold;
+    metrix->mActiveUber = 0;
+    metrix->mHoldTime = -1.0f;
+    metrix->mTotalHoldTime += t;
     return 0.0f;
 }
 
@@ -987,10 +1010,11 @@ float cRiderMetrix_setSpinScore_impl(void* self, float x) __asm__("cRiderMetrix_
 
 float cRiderMetrix_setSpinScore_impl(void* self, float x)
 {
-    *(float*)((char*)self + 0x14) -= metrixAbs_00119898(*(float*)((char*)self + 0x34)) * 0.015915492549538612f;
-    *(float*)((char*)self + 0x34) = x;
-    *(float*)((char*)self + 0x14) += metrixAbs_00119898(x) * 0.015915492549538612f;
-    *(float*)((char*)self + 0x14) = *(float*)((char*)self + 0x14) >? 0.0f;
+    cRiderMetrix* metrix = (cRiderMetrix*)self;
+    metrix->mReward -= metrixAbs_00119898(metrix->mSpin) * 0.015915492549538612f;
+    metrix->mSpin = x;
+    metrix->mReward += metrixAbs_00119898(x) * 0.015915492549538612f;
+    metrix->mReward = metrix->mReward >? 0.0f;
     return 0.0f;
 }
 
@@ -1006,10 +1030,11 @@ static inline float metrixAbs_001198D8(float x)
 // PORT: g++ `>?` (max) operator.
 extern "C" float cRiderMetrix_setFlipScore(void* self, float x)
 {
-    *(float*)((char*)self + 0x14) -= metrixAbs_001198D8(*(float*)((char*)self + 0x38)) * 0.028647884726524353f;
-    *(float*)((char*)self + 0x38) = x;
-    *(float*)((char*)self + 0x14) += metrixAbs_001198D8(x) * 0.028647884726524353f;
-    *(float*)((char*)self + 0x14) = *(float*)((char*)self + 0x14) >? 0.0f;
+    cRiderMetrix* metrix = (cRiderMetrix*)self;
+    metrix->mReward -= metrixAbs_001198D8(metrix->mFlip) * 0.028647884726524353f;
+    metrix->mFlip = x;
+    metrix->mReward += metrixAbs_001198D8(x) * 0.028647884726524353f;
+    metrix->mReward = metrix->mReward >? 0.0f;
     return 0.0f;
 }
 
@@ -1018,19 +1043,21 @@ extern "C" void* cRiderMetrix_setSpinScore(void*);
 //99.29%
 void* func_00119918(void* self, int a1)
 {
-    *(int*)((char*)self + 0x20) = a1;
+    cRiderMetrix* metrix = (cRiderMetrix*)self;
+    metrix->mTrickStyle = a1;
     return cRiderMetrix_setSpinScore(self);
 }
 
 //100%
 float func_00119938(void* self, int a1, int a2)
 {
-    *(float*)((char*)self + 0x6c) = 0.0f;
-    *(int*)((char*)self + 0xc) = a2;
-    *(int*)((char*)self + 0x20) = a2;
-    *(int*)((char*)self + 0x70) = a1;
-    *(int*)((char*)self + 0x5c) = 1;
-    return *(float*)((char*)self + 0x6c);
+    cRiderMetrix* metrix = (cRiderMetrix*)self;
+    metrix->mActiveTime = 0.0f;
+    metrix->mStyle = a2;
+    metrix->mTrickStyle = a2;
+    metrix->mActive = a1;
+    metrix->mActiveUber = 1;
+    return metrix->mActiveTime;
 }
 
 //100%
@@ -1038,16 +1065,17 @@ extern "C" float cRiderMetrix_commitTrick(void* self, int stance, int alternate,
 
 extern "C" float func_00119958(void* self, int v)
 {
-    float s24 = *(float*)((char*)self + 0x24);
-    float s30 = *(float*)((char*)self + 0x30);
-    (*(int*)((char*)self + 0x54))++;
-    (*(int*)((char*)self + 0x74))++;
+    cRiderMetrix* metrix = (cRiderMetrix*)self;
+    float s24 = metrix->mRailDistance;
+    float s30 = metrix->mAirTime;
+    (metrix->mUberCount)++;
+    (metrix->mUberCount2)++;
     float r = cRiderMetrix_commitTrick(self, 0, 0, 0, 0, 0);
     cRiderMetrix_resetTrick(self);
-    *(int*)((char*)self + 0xC) = v;
-    *(int*)((char*)self + 0x20) = v;
-    *(float*)((char*)self + 0x24) = s24;
-    *(float*)((char*)self + 0x30) = s30;
+    metrix->mStyle = v;
+    metrix->mTrickStyle = v;
+    metrix->mRailDistance = s24;
+    metrix->mAirTime = s30;
     return r;
 }
 
@@ -1055,9 +1083,10 @@ extern "C" float func_00119958(void* self, int v)
 // PORT: g++ >?/<? (min/max) operator, removed in GCC 4.3.
 extern "C" float func_001199F8(char* self, int v)
 {
-    *(int*)(self + 0x10) = v;
-    *(int*)(self + 0x28) = v;
-    *(float*)(self + 0x2C) = *(float*)(self + 0x2C) >? 0.0f;
+    cRiderMetrix* metrix = (cRiderMetrix*)self;
+    metrix->mPressStyle = v;
+    metrix->mSpecial = v;
+    metrix->mManualTime = metrix->mManualTime >? 0.0f;
     cRiderMetrix_suspendComboClock(self);
     return 0.0f;
 }
@@ -1067,15 +1096,16 @@ extern "C" float cRiderMetrix_commitTrick(void* self, int stance, int alternate,
 
 extern "C" float func_00119A38(void* self)
 {
-    float s24 = *(float*)((char*)self + 0x24);
-    float s30 = *(float*)((char*)self + 0x30);
-    int v = *(int*)((char*)self + 0x20);
+    cRiderMetrix* metrix = (cRiderMetrix*)self;
+    float s24 = metrix->mRailDistance;
+    float s30 = metrix->mAirTime;
+    int v = metrix->mTrickStyle;
     float r = cRiderMetrix_commitTrick(self, 0, 0, v, 0, s30 >= 0.0f);
     cRiderMetrix_resetTrick(self);
-    *(int*)((char*)self + 0xC) = v;
-    *(int*)((char*)self + 0x20) = v;
-    *(float*)((char*)self + 0x24) = s24;
-    *(float*)((char*)self + 0x30) = s30;
+    metrix->mStyle = v;
+    metrix->mTrickStyle = v;
+    metrix->mRailDistance = s24;
+    metrix->mAirTime = s30;
     return r;
 }
 
@@ -1085,8 +1115,9 @@ float cRiderMetrix_setSpinScore_impl(void* self, float x) __asm__("cRiderMetrix_
 
 extern "C" float func_00119AD8(void* self, int a1)
 {
-    *(int*)((char*)self + 0x28) = a1;
-    return cRiderMetrix_setSpinScore_impl(self, *(float*)((char*)self + 0x34) + 3.1415927410125732f);
+    cRiderMetrix* metrix = (cRiderMetrix*)self;
+    metrix->mSpecial = a1;
+    return cRiderMetrix_setSpinScore_impl(self, metrix->mSpin + 3.1415927410125732f);
 }
 
 //100% - objdiff report; single-function view differs only in a relocation name
@@ -1095,6 +1126,7 @@ extern "C" int cRiderMetrix_getPendingPoints(void* self);
 
 extern "C" float cRiderMetrix_onBail(void* self, int flag)
 {
+    cRiderMetrix* metrix = (cRiderMetrix*)self;
     if (flag)
     {
         (*(int*)((char*)self + 0x12C))++;
@@ -1105,7 +1137,7 @@ extern "C" float cRiderMetrix_onBail(void* self, int flag)
         (*(int*)((char*)self + 0x124))++;
     }
     float r = 0.0f;
-    *(int*)((char*)self + 0x1A0) += cRiderMetrix_dropPendingPoints(self);
+    metrix->mLostPoints[0] += cRiderMetrix_dropPendingPoints(self);
     if (cRiderMetrix_getPendingPoints(self) > 0)
         r = -0.25f;
     cRiderMetrix_resetTrick(self);
@@ -1130,10 +1162,11 @@ extern "C" float cRiderMetrix_onQuickRecover(void* self, int a1)
 //100%
 extern "C" float func_00119BF0(void* self, int a1)
 {
-    *(int*)((char*)self + 0x7C) = a1;
-    *(float*)((char*)self + 0x30) = -1.0f;
+    cRiderMetrix* metrix = (cRiderMetrix*)self;
+    metrix->mIdentity = a1;
+    metrix->mAirTime = -1.0f;
     *(int*)((char*)self + 0x78) = 0;
-    *(float*)((char*)self + 0x14) += 0.04999999701976776f;
+    metrix->mReward += 0.04999999701976776f;
     cRiderMetrix_suspendComboClock(self);
     return 0.0f;
 }
@@ -1144,10 +1177,11 @@ extern "C" void cRiderMetrix_resetTrick(void* self);
 
 extern "C" float func_00119C38(void* self)
 {
+    cRiderMetrix* metrix = (cRiderMetrix*)self;
     *(int*)((char*)self + 0x80) += 1;
     float r = cRiderMetrix_commitTrick(self, 0, 0, 0, 0, 1);
     cRiderMetrix_resetTrick(self);
-    *(int*)((char*)self + 0x30) = 0;
+    *(int*)&metrix->mAirTime = 0;
     return r;
 }
 
@@ -1156,18 +1190,19 @@ extern "C" void func_0011A168(void* self, int a, int b, int c, int d);
 
 extern "C" float func_00119C98(void* self, int v)
 {
+    cRiderMetrix* metrix = (cRiderMetrix*)self;
     func_0011A168(self, 0, 0, 0, 0);
     float r = 0.0f;
-    if (*(float*)((char*)self + 0x14) > r)
+    if (metrix->mReward > r)
     {
-        *(int*)((char*)self + 0x0) = v;
-        *(float*)((char*)self + 0x34) = r;
-        *(float*)((char*)self + 0x38) = r;
-        *(int*)((char*)self + 0x4) = 0;
-        *(int*)((char*)self + 0xC) = 0;
-        *(int*)((char*)self + 0x10) = 0;
-        *(float*)((char*)self + 0x40) = -1.0f;
-        *(int*)((char*)self + 0x8) = 1;
+        metrix->mStance = v;
+        metrix->mSpin = r;
+        metrix->mFlip = r;
+        metrix->mAltTable = 0;
+        metrix->mStyle = 0;
+        metrix->mPressStyle = 0;
+        metrix->mHoldTime = -1.0f;
+        metrix->mMultiTrick = 1;
         func_003E6448((char*)self + 0x60, 0, 0xC);
     }
     cRiderMetrix_suspendComboClock(self);
@@ -1180,32 +1215,33 @@ extern "C" float cRiderMetrix_commitTrick(void* self, int stance, int alternate,
 
 extern "C" float cRiderMetrix_onLand(void* self, int stance, int alternate, int style, int flag)
 {
-    if (style != 0 && *(float*)((char*)self + 0x14) > 0.0f)
+    cRiderMetrix* metrix = (cRiderMetrix*)self;
+    if (style != 0 && metrix->mReward > 0.0f)
     {
-        *(float*)((char*)self + 0x14) += 0.12999999523162842f;
+        metrix->mReward += 0.12999999523162842f;
     }
-    int saved = *(int*)((char*)self + 0x70);
+    int saved = metrix->mActive;
     float r = cRiderMetrix_commitTrick(self, stance, alternate, style, flag, 0);
     cRiderMetrix_resetTrick(self);
-    *(int*)((char*)self + 0x0) = stance;
-    *(int*)((char*)self + 0x4) = alternate;
-    *(int*)((char*)self + 0xC) = style;
-    *(int*)((char*)self + 0x10) = flag;
+    metrix->mStance = stance;
+    metrix->mAltTable = alternate;
+    metrix->mStyle = style;
+    metrix->mPressStyle = flag;
     if (style != 0)
     {
-        *(int*)((char*)self + 0x20) = style;
-        *(int*)((char*)self + 0x24) = 0;
+        metrix->mTrickStyle = style;
+        *(int*)&metrix->mRailDistance = 0;
     }
     if (flag != 0)
     {
-        *(int*)((char*)self + 0x28) = flag;
-        *(int*)((char*)self + 0x2C) = 0;
+        metrix->mSpecial = flag;
+        *(int*)&metrix->mManualTime = 0;
     }
     if (saved != 0)
     {
-        *(int*)((char*)self + 0x70) = saved;
-        *(int*)((char*)self + 0x5C) = 1;
-        *(int*)((char*)self + 0x6C) = 0;
+        metrix->mActive = saved;
+        metrix->mActiveUber = 1;
+        *(int*)&metrix->mActiveTime = 0;
     }
     return r;
 }
@@ -1215,25 +1251,26 @@ extern "C" float cRiderMetrix_commitTrick(void* self, int stance, int alternate,
 
 extern "C" float cRiderMetrix_onTakeoff(void* self, int a, int b)
 {
+    cRiderMetrix* metrix = (cRiderMetrix*)self;
     float r = 0.0f;
-    int v20 = *(int*)((char*)self + 0x20);
-    int v28 = *(int*)((char*)self + 0x28);
-    if (*(int*)((char*)self + 0x70))
+    int v20 = metrix->mTrickStyle;
+    int v28 = metrix->mSpecial;
+    if (metrix->mActive)
     {
-        *(float*)((char*)self + 0x34) = r;
-        *(float*)((char*)self + 0x24) = -1.0f;
-        *(int*)((char*)self + 0x20) = 0;
+        metrix->mSpin = r;
+        metrix->mRailDistance = -1.0f;
+        metrix->mTrickStyle = 0;
     }
     else
     {
         r = cRiderMetrix_commitTrick(self, 0, 0, 0, 0, 1);
         cRiderMetrix_resetTrick(self);
     }
-    *(int*)((char*)self + 0xC) = v20;
-    *(int*)((char*)self + 0x10) = v28;
-    *(int*)((char*)self + 0x4) = b;
-    *(int*)((char*)self + 0x0) = a;
-    *(int*)((char*)self + 0x30) = 0;
+    metrix->mStyle = v20;
+    metrix->mPressStyle = v28;
+    metrix->mAltTable = b;
+    metrix->mStance = a;
+    *(int*)&metrix->mAirTime = 0;
     return r;
 }
 
@@ -1256,6 +1293,7 @@ extern "C" float func_00119EF8_def(char* self, int kind, int amount) __asm__("fu
 extern "C" int cRiderMetrix_postPointsMsg_9EF8(void* self, int type, int value, int arg, float duration) __asm__("cRiderMetrix_postPointsMsg");
 extern "C" float func_00119EF8_def(char* self, int kind, int amount)
 {
+    cRiderMetrix* metrix = (cRiderMetrix*)self;
     if (amount == 0) {
         return 0.0f;
     }
@@ -1269,8 +1307,8 @@ extern "C" float func_00119EF8_def(char* self, int kind, int amount)
         return 0.0f;
     }
     void* iface = cBE_getInterface(cBE_getBE(), 0xD);
-    func_001E3760(((cRiderPart_9EF8*)(*(char**)(self + 0x1AC) + 0x6C0))->v07(), amount);
-    func_001597B0(iface, ((cRiderPart_9EF8*)(*(char**)(self + 0x1AC) + 0x6C0))->v07(), amount);
+    func_001E3760(((cRiderPart_9EF8*)(metrix->mRider + 0x6C0))->v07(), amount);
+    func_001597B0(iface, ((cRiderPart_9EF8*)(metrix->mRider + 0x6C0))->v07(), amount);
     cRiderMetrix_postPointsMsg_9EF8(self, 0x18, amount, 0, 0.699999988079071f);
     switch (kind) {
     case 3:
@@ -1283,7 +1321,7 @@ extern "C" float func_00119EF8_def(char* self, int kind, int amount)
         cRiderMetrix_postPointsMsg(self, 0x2F, amount, 0, 2.5f);
         break;
     case 2:
-        cRiderMetrix_postPointsMsg(self, 0x30, amount, *(int*)(self + 0x9C), 2.5f);
+        cRiderMetrix_postPointsMsg(self, 0x30, amount, metrix->mComboCount, 2.5f);
         break;
     case 4:
         break;
@@ -1348,6 +1386,7 @@ struct sTrickIdA168 {
 
 extern "C" void func_0011A168(void* self, int stance, int alternate, int style, int flag)
 {
+    cRiderMetrix* metrix = (cRiderMetrix*)self;
     sTrickIdA168 idv;
     sTrickId* id = (sTrickId*)&idv;
     if (cRiderMetrix_buildTrickId(self, id, stance, alternate, style, flag) != 0)
@@ -1355,9 +1394,9 @@ extern "C" void func_0011A168(void* self, int stance, int alternate, int style, 
         int pts = func_0011B1A8(self, id);
         if (pts > 0)
         {
-            *(float*)((char*)self + 0x14) += pts * 9.999999747378752e-05f;
+            metrix->mReward += pts * 9.999999747378752e-05f;
             cRiderMetrix_postPointsMsg(self, 0x32, pts, 0, 1.5f);
-            func_0029B7E0(func_0028B180(), *(int*)((char*)self + 0x1AC));
+            func_0029B7E0(func_0028B180(), *(int*)&metrix->mRider);
         }
         cRiderMetrix_showTrickName(self, id, cRiderMetrix_updateRepeatHistory(self, id) > 0);
     }
@@ -1426,6 +1465,7 @@ static inline int func_roundDegrees(int deg)
 //100%
 extern "C" float cRiderMetrix_commitTrick(void* self, int stance, int alternate, int style, int flag, int takeoff)
 {
+    cRiderMetrix* metrix = (cRiderMetrix*)self;
     sTrickId id;
     float delta;
     int valid;
@@ -1460,9 +1500,9 @@ extern "C" float cRiderMetrix_commitTrick(void* self, int stance, int alternate,
         if (valid) {
             int bonus = func_0011B1A8(self, &id);
             if (bonus > 0) {
-                *(float*)((char*)self + 0x14) += (float)bonus * 0.0001f;
+                metrix->mReward += (float)bonus * 0.0001f;
                 cRiderMetrix_postPointsMsg(self, 0x32, bonus, 0, 1.5f);
-                func_0029B7E0(func_0028B180(), *(int*)((char*)self + 0x1ac));
+                func_0029B7E0(func_0028B180(), *(int*)&metrix->mRider);
             }
             repeats = cRiderMetrix_updateRepeatHistory(self, &id);
             cRiderMetrix_showTrickName(self, &id, repeats > 0);
@@ -1477,38 +1517,38 @@ extern "C" float cRiderMetrix_commitTrick(void* self, int stance, int alternate,
 
         points /= divisor;
         points -= points % 10;
-        *(int*)((char*)self + 0x198) += points + inverted;
+        metrix->mTotalScore += points + inverted;
         *(int*)((char*)self + 0x19c) += inverted;
-        *(int*)((char*)self + 0x110) += 1;
+        metrix->mRunTrickCount += 1;
         ((sScoreGrades*)self)->gradeCounts[grade]++;
 
-        if (*(int*)((char*)self + 0x18c) < pending) {
-            *(int*)((char*)self + 0x18c) = pending;
+        if (metrix->mBestTrick < pending) {
+            metrix->mBestTrick = pending;
             *(sTrickId*)((char*)self + 0x190) = id;
         }
 
-        spin = func_roundDegrees((int)(*(float*)((char*)self + 0x34) * 57.295776f));
-        flip = func_roundDegrees((int)(*(float*)((char*)self + 0x38) * 57.295776f));
+        spin = func_roundDegrees((int)(metrix->mSpin * 57.295776f));
+        flip = func_roundDegrees((int)(metrix->mFlip * 57.295776f));
         *(int*)((char*)self + 0xfc) += abs(spin);
         *(int*)((char*)self + 0x100) += abs(flip);
-        *(float*)((char*)self + 0x144) += *(float*)((char*)self + 0x44);
-        *(int*)((char*)self + 0x104) += *(int*)((char*)self + 0x4c);
+        *(float*)((char*)self + 0x144) += metrix->mTotalHoldTime;
+        *(int*)((char*)self + 0x104) += metrix->mNormalCount;
         *(int*)((char*)self + 0x108) += *(int*)((char*)self + 0x80);
 
-        if (*(int*)((char*)self + 0x54) > 0) {
-            func_0029B430(func_0028B180(), *(int*)((char*)self + 0x1ac), *(int*)((char*)self + 0x54),
-                          *(int*)((char*)self + 0x114));
+        if (metrix->mUberCount > 0) {
+            func_0029B430(func_0028B180(), *(int*)&metrix->mRider, metrix->mUberCount,
+                          metrix->mRunUberCount);
         }
 
-        *(int*)((char*)self + 0x114) += *(int*)((char*)self + 0x54);
-        *(int*)((char*)self + 0x118) += *(int*)((char*)self + 0x58);
-        *(int*)((char*)self + 0x11c) += *(int*)((char*)self + 0x74);
-        *(float*)((char*)self + 0x14c) = MAX(*(float*)((char*)self + 0x30), *(float*)((char*)self + 0x14c));
-        *(float*)((char*)self + 0x150) = MAX(*(float*)((char*)self + 0x48), *(float*)((char*)self + 0x150));
-        *(float*)((char*)self + 0x154) = MAX(*(float*)((char*)self + 0x24), *(float*)((char*)self + 0x154));
-        *(float*)((char*)self + 0x158) = MAX(*(float*)((char*)self + 0x78), *(float*)((char*)self + 0x158));
-        *(int*)((char*)self + 0x198) += *(int*)((char*)self + 0x84);
-        total = points + *(int*)((char*)self + 0x84) + inverted;
+        metrix->mRunUberCount += metrix->mUberCount;
+        metrix->mRunSuperUberCount += metrix->mSuperUberCount;
+        metrix->mRunUberGrindCount += metrix->mUberCount2;
+        metrix->mRunAirStat = MAX(metrix->mAirTime, metrix->mRunAirStat);
+        *(float*)((char*)self + 0x150) = MAX(metrix->mLongestHold, *(float*)((char*)self + 0x150));
+        metrix->mRunRailStat = MAX(metrix->mRailDistance, metrix->mRunRailStat);
+        metrix->mRunHandplantStat = MAX(*(float*)((char*)self + 0x78), metrix->mRunHandplantStat);
+        metrix->mTotalScore += metrix->mBonusPoints;
+        total = points + metrix->mBonusPoints + inverted;
 
         cBE_getInterface(cBE_getBE(), 0);
         // free ride in Conquer the Mountain pays the career instead of the HUD
@@ -1533,10 +1573,10 @@ extern "C" float cRiderMetrix_commitTrick(void* self, int stance, int alternate,
         if (style != 0 || flag != 0) {
             return delta;
         }
-    } else if (*(int*)((char*)self + 0x20) != 0 || *(int*)((char*)self + 0x28) != 0) {
+    } else if (metrix->mTrickStyle != 0 || metrix->mSpecial != 0) {
         return delta;
     }
-    if (*(float*)((char*)self + 0x14) > 0.0f || *(float*)((char*)self + 0xa4) < 0.0f) {
+    if (metrix->mReward > 0.0f || metrix->mComboClock < 0.0f) {
         func_00117708(self, 1.5f);
     }
     return delta;
@@ -1550,18 +1590,19 @@ extern "C" void cRiderMetrix_postPointsMsg(void* self, int type, int value, int 
 
 extern "C" int cRiderMetrix_dropPendingPoints(void* self)
 {
+    cRiderMetrix* metrix = (cRiderMetrix*)self;
     int n = cRiderMetrix_getPendingPoints(self);
     if (n > 0)
     {
         cRiderMetrix_clearMsgType(self, 1);
         cRiderMetrix_postPointsMsg(self, 0x25, n, 0, 1.5f);
     }
-    if (*(int*)((char*)self + 0xA0) > 0)
+    if (metrix->mComboPoints > 0)
     {
         cRiderMetrix_clearMsgType(self, 3);
-        cRiderMetrix_postPointsMsg(self, 0x27, *(int*)((char*)self + 0xA0), 0, 1.5f);
+        cRiderMetrix_postPointsMsg(self, 0x27, metrix->mComboPoints, 0, 1.5f);
     }
-    int total = *(int*)((char*)self + 0x84) + cRiderMetrix_getInvertedPoints(self);
+    int total = metrix->mBonusPoints + cRiderMetrix_getInvertedPoints(self);
     if (total > 0)
     {
         cRiderMetrix_clearMsgType(self, 2);
