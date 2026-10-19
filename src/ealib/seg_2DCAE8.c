@@ -670,7 +670,83 @@ void func_003DD148(struct H_D148 h) {
 
 INCLUDE_ASM("ealib/seg_2DCAE8", func_003DD1D8);
 
-INCLUDE_ASM("ealib/seg_2DCAE8", func_003DD310);
+//100%
+// PORT: PS2-only inline asm; needs a C fallback off-PS2.
+extern void func_003DE7B0_p(void *) __asm__("func_003DE7B0");
+extern void func_003DE8C0_p(void *) __asm__("func_003DE8C0");
+
+struct sHandle_D310 {
+    char b0;
+    char b1;
+    char b2;
+    unsigned char idx;
+};
+
+struct sSlot_D310 {
+    unsigned int flags;
+    int f4;
+    volatile int state;
+    int fC;
+    int f10;
+    int f14;
+    int f18;
+    int f1C;
+    int f20;
+    int *f24;
+};
+
+extern struct sSlot_D310 *D_00519AD8;
+
+int func_003DD310_a(struct sHandle_D310 h) __asm__("func_003DD310");
+int func_003DD310_a(struct sHandle_D310 h) {
+    int ret = 0;
+    struct sSlot_D310 *slot = (struct sSlot_D310 *)((char *)D_00519AD8 + h.idx * 0x30);
+    int sum;
+    int *t;
+
+    switch (slot->state) {
+    case 0:
+        break;
+    case 1:
+        switch ((slot->flags >> 20) & 0xF) {
+        case 2:
+        case 9:
+            ret = (int)slot->f24;
+            break;
+        case 3:
+        case 7:
+        case 10:
+            ret = slot->state;
+            break;
+        case 6:
+        case 8:
+            ret = slot->f18;
+            break;
+        case 4:
+            ret = slot->f1C;
+            break;
+        case 5:
+            t = slot->f24;
+            ret = slot->f1C;
+            sum = ret + slot->f18;
+            if (t[1] < sum) {
+                t[1] = sum;
+            }
+            break;
+        }
+        break;
+    case -2:
+    case -1: {
+        int type = (slot->flags >> 20) & 0xF;
+        if (type == 2 || type == 9) {
+            func_003DE8C0_p(slot->f24);
+        }
+        break;
+    }
+    }
+    func_003DE7B0_p(slot);
+    return ret;
+}
 
 //100%
 // PORT: PS2-only inline asm; needs a C fallback off-PS2.
