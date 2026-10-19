@@ -2764,7 +2764,7 @@ index 9c54919..4f4a8b9 100644
              }
              applyGsClearPacket(runtime, db.clear1);
 diff --git a/ps2xRuntime/src/lib/Kernel/Stubs/Helpers/Support.h b/ps2xRuntime/src/lib/Kernel/Stubs/Helpers/Support.h
-index b1bb6d8..50401b5 100644
+index b1bb6d8..afdb804 100644
 --- a/ps2xRuntime/src/lib/Kernel/Stubs/Helpers/Support.h
 +++ b/ps2xRuntime/src/lib/Kernel/Stubs/Helpers/Support.h
 @@ -781,7 +781,7 @@ namespace
@@ -2776,7 +2776,7 @@ index b1bb6d8..50401b5 100644
          {
              if (m_fixedArgs < 0)
              {
-@@ -792,38 +792,31 @@ namespace
+@@ -792,38 +792,33 @@ namespace
  
          uint32_t nextU32()
          {
@@ -2812,7 +2812,9 @@ index b1bb6d8..50401b5 100644
              {
 -                // EE calls use eight integer argument registers (a0-a3, t0-t3 / r4-r11).
 -                return getRegU32(m_ctx, 4 + static_cast<int>(slotIndex));
-+                return GPR_U64(m_ctx, 4 + static_cast<int>(slotIndex));
++                const __m128i reg = m_ctx->r[4 + slotIndex];
++                return static_cast<uint64_t>(static_cast<uint32_t>(_mm_extract_epi32(reg, 0))) |
++                       (static_cast<uint64_t>(static_cast<uint32_t>(_mm_extract_epi32(reg, 1))) << 32);
              }
  
 -            const uint32_t stackIndex = slotIndex - 8u;
@@ -2828,7 +2830,7 @@ index b1bb6d8..50401b5 100644
          }
  
          uint8_t *m_rdram;
-@@ -1878,6 +1871,7 @@ namespace
+@@ -1878,6 +1873,7 @@ namespace
      {
          if (!runtime || !runtime->syncCoreSubsystems())
              return;
@@ -2836,7 +2838,7 @@ index b1bb6d8..50401b5 100644
          auto &regs = runtime->memory().gs();
          regs.pmode = env.pmode;
          regs.smode2 = env.smode2;
-@@ -1892,6 +1886,7 @@ namespace
+@@ -1892,6 +1888,7 @@ namespace
      {
          if (!runtime || !pairs || !runtime->syncCoreSubsystems())
              return;
