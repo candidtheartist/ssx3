@@ -2331,6 +2331,71 @@ index 56a978e..4ee0d27 100644
          static uint32_t traceCount = 0;
          const uint32_t callerRa = getRegU32(ctx, 31);
          const bool shouldTrace = (traceCount < 128u) || ((traceCount % 512u) == 0u);
+diff --git a/ps2xRuntime/src/lib/Kernel/Stubs/Helpers/Support.h b/ps2xRuntime/src/lib/Kernel/Stubs/Helpers/Support.h
+index b1bb6d8..3a182ec 100644
+--- a/ps2xRuntime/src/lib/Kernel/Stubs/Helpers/Support.h
++++ b/ps2xRuntime/src/lib/Kernel/Stubs/Helpers/Support.h
+@@ -781,7 +781,7 @@ namespace
+               m_ctx(ctx),
+               m_runtime(runtime),
+               m_fixedArgs(fixedArgs),
+-              m_stackBase(getRegU32(ctx, 29) + 0x10)
++              m_stackBase(getRegU32(ctx, 29)) // EABI: stack arguments start at the caller's sp
+         {
+             if (m_fixedArgs < 0)
+             {
+@@ -792,38 +792,31 @@ namespace
+ 
+         uint32_t nextU32()
+         {
+-            const uint32_t value = readWordAtSlot(m_slotIndex);
+-            ++m_slotIndex;
+-            return value;
++            return static_cast<uint32_t>(nextSlot());
+         }
+ 
++        // The EE's EABI gives every argument, 32 or 64 bits, one 64-bit slot: one of the
++        // eight argument registers (a0-a3, t0-t3), then 8-byte stack slots. A double (soft
++        // float) or a long long is the whole register, not a pair of 32-bit slots.
+         uint64_t nextU64()
+         {
+-            // O32 ABI aligns 64-bit variadic values on even 32-bit slots.
+-            if ((m_slotIndex & 1u) != 0u)
+-            {
+-                ++m_slotIndex;
+-            }
+-            const uint64_t low = readWordAtSlot(m_slotIndex);
+-            const uint64_t high = readWordAtSlot(m_slotIndex + 1u);
+-            m_slotIndex += 2u;
+-            return low | (high << 32);
++            return nextSlot();
+         }
+ 
+     private:
+-        uint32_t readWordAtSlot(uint32_t slotIndex) const
++        uint64_t nextSlot()
+         {
++            const uint32_t slotIndex = m_slotIndex++;
+             if (slotIndex < 8u)
+             {
+-                // EE calls use eight integer argument registers (a0-a3, t0-t3 / r4-r11).
+-                return getRegU32(m_ctx, 4 + static_cast<int>(slotIndex));
++                return GPR_U64(m_ctx, 4 + static_cast<int>(slotIndex));
+             }
+ 
+-            const uint32_t stackIndex = slotIndex - 8u;
+-            const uint32_t stackAddr = m_stackBase + stackIndex * 4u;
+-            uint32_t value = 0;
+-            (void)tryReadWordFromGuest(m_rdram, m_runtime, stackAddr, value);
+-            return value;
++            const uint32_t stackAddr = m_stackBase + (slotIndex - 8u) * 8u;
++            uint32_t low = 0, high = 0;
++            (void)tryReadWordFromGuest(m_rdram, m_runtime, stackAddr, low);
++            (void)tryReadWordFromGuest(m_rdram, m_runtime, stackAddr + 4u, high);
++            return static_cast<uint64_t>(low) | (static_cast<uint64_t>(high) << 32);
+         }
+ 
+         uint8_t *m_rdram;
 diff --git a/ps2xRuntime/src/lib/Kernel/Stubs/MPEG.cpp b/ps2xRuntime/src/lib/Kernel/Stubs/MPEG.cpp
 index 44eaef4..696a854 100644
 --- a/ps2xRuntime/src/lib/Kernel/Stubs/MPEG.cpp
