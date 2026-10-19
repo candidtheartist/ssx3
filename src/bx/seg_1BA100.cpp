@@ -2609,7 +2609,29 @@ extern "C" void func_002BE1F8(sPairSet_002BE1F8* o)
     o->flags = 0;
 }
 
-INCLUDE_ASM("bx/seg_1BA100", func_002BE258);
+//100%
+extern "C" void func_002BE258(void *arg0) {
+    *(int *)((char *)arg0 + 0x8) = 0;
+    *(float *)((char *)arg0 + 0x10) = 6.0f;
+    *(int *)((char *)arg0 + 0x18) = 0;
+    *(int *)((char *)arg0 + 0x20) = 0;
+    *(int *)((char *)arg0 + 0x28) = 0;
+    *(float *)((char *)arg0 + 0x30) = 10.0f;
+    *(float *)((char *)arg0 + 0x38) = 1.0f;
+    *(float *)((char *)arg0 + 0x40) = 1.0f;
+    *(int *)((char *)arg0 + 0x48) = 0;
+    *(int *)((char *)arg0 + 0x50) = 0;
+    *(int *)((char *)arg0 + 0x58) = 0;
+    *(float *)((char *)arg0 + 0x60) = 1.0f;
+    *(float *)((char *)arg0 + 0x68) = 1.0f;
+    *(float *)((char *)arg0 + 0x70) = 1.0f;
+    *(float *)((char *)arg0 + 0x78) = 1.0f;
+    *(float *)((char *)arg0 + 0x80) = 0.06f;
+    *(float *)((char *)arg0 + 0x88) = 1.0f;
+    *(float *)((char *)arg0 + 0x90) = 1.0f;
+    *(float *)((char *)arg0 + 0x98) = 1.0f;
+    *(int *)((char *)arg0 + 0x0) = 0;
+}
 
 //100%
 extern "C" void func_002BE2C8(void *p) {
