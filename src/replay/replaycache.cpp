@@ -1372,7 +1372,20 @@ extern "C" void* func_00272550(void* self)
     return func_002724E8(self);
 }
 
-INCLUDE_ASM("replay/replaycache", func_00272570);
+//100%
+extern "C" float func_00272570(float* p, float t)
+{
+    float r;
+    if (t != 0.0f) {
+        r = p[0];
+        r = r * t + p[1];
+        r = r * t + p[2];
+        r = r * t + p[3];
+    } else {
+        r = p[3];
+    }
+    return r;
+}
 
 //100%
 extern void* D_00481A10[];
