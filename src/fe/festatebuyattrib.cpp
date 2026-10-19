@@ -91,7 +91,20 @@ extern "C" void func_001F49F8(void* self)
     vt[7].fn((char*)obj + vt[7].delta, 1);
 }
 
-INCLUDE_ASM("fe/festatebuyattrib", func_001F4A38);
+//100%
+// Key filter: keys 8 and 9 return 0x100, every other key 0x101.
+extern "C" int func_001F4A38(void* self, int a1, unsigned int key)
+{
+    int r = 0x101;
+    if (key < 10) {
+        if (key < 8) {
+            r = 0x101;
+        } else {
+            return 0x100;
+        }
+    }
+    return r;
+}
 
 //100%
 extern "C" void func_001F5300(void* self);
