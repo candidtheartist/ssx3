@@ -795,7 +795,34 @@ int func_003DD4E8(char *arg0, int arg1, int arg2, int arg3) {
     return *(int *)p;
 }
 
-INCLUDE_ASM("ealib/seg_2DCAE8", func_003DD5A0);
+//100%
+typedef struct { unsigned int pad0 : 20; unsigned int f : 4; unsigned int pad1 : 8; int a; int b; int c; int d; int e; int f1; int g; int h; } C_D5A0;
+extern C_D5A0 *func_003DE670_D5A0(void) __asm__("func_003DE670");
+extern void func_003DE668_D5A0(C_D5A0 *) __asm__("func_003DE668");
+extern void iFILESYS_ExecCommand_D5A0(C_D5A0 *) __asm__("iFILESYS_ExecCommand");
+extern int *D_00519AE4_D5A0[] __asm__("D_00519AE4");
+
+int func_003DD5A0_impl(int arg0, int arg1, int arg2) __asm__("func_003DD5A0");
+int func_003DD5A0_impl(int arg0, int arg1, int arg2) {
+    C_D5A0 *c;
+    int *n;
+
+    c = func_003DE670_D5A0();
+    n = D_00519AE4_D5A0[0];
+    c->f = 3;
+    *(int*)((char*)c + 0x10) = arg1;
+    *(int*)((char*)c + 0x14) = arg2;
+    *(int*)((char*)c + 0x24) = arg0;
+    for (; n != 0; n = (int *)n[5]) {
+        if (n[3] == arg0) {
+            *(int*)((char*)c + 0xC) = 3;
+            func_003DE668_D5A0(c);
+            break;
+        }
+    }
+    iFILESYS_ExecCommand_D5A0(c);
+    return *(int*)c;
+}
 
 //100%
 // PORT: PS2-only inline asm; needs a C fallback off-PS2.
