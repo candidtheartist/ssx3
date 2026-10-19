@@ -1902,7 +1902,7 @@ struct sCam162138;
 extern "C" void func_00161EF0(void* self, int v);
 extern "C" void func_001621A8(sCam162138* self);
 extern "C" void func_00162218(sCam162138* self);
-int func_0011FE98(void*);
+int cRider_getMotionMode(void*);
 
 struct sCamVec4_161AB0
 {
@@ -1945,7 +1945,7 @@ extern "C" void func_00161AB0(char* self)
         func_00161EF0(self, mode);
     *(int*)(self + 0x1C) = mode;
     float speed = vlength_161AB0((*(cCamRider_161AB0**)(self + 0x20))->getVelocity()) * 0.035999998450279236f;
-    int boarding = func_0011FE98(*(void**)(*(char**)(self + 0x20) + 4)) == 5;
+    int boarding = cRider_getMotionMode(*(void**)(*(char**)(self + 0x20) + 4)) == 5;
     if (*(int*)(self + 0x3C) == 0) {
         if (boarding) {
             *(int*)(self + 0x3C) = 1;
@@ -2237,13 +2237,13 @@ extern "C" void* func_00162170(sCam162138* self)
 }
 
 //100%
-int func_0011FE98(void*);
+int cRider_getMotionMode(void*);
 
 extern "C" void func_001621A8(sCam162138* self)
 {
     self->b2 = 1;
     if (!self->b0 && !self->b1) {
-        float t = func_0011FE98(*(void**)(*(char**)((char*)self + 0x20) + 4)) == 5 ? 1.2000000476837158f : 0.6000000238418579f;
+        float t = cRider_getMotionMode(*(void**)(*(char**)((char*)self + 0x20) + 4)) == 5 ? 1.2000000476837158f : 0.6000000238418579f;
         cChaseCameraController_createChaseAlgorithmBlend(self, 0x42, 0, t * 0.01666666753590107f);
     }
 }
@@ -2396,7 +2396,7 @@ extern "C" void func_00162560()
 }
 
 //100%
-int func_0011FE98(void*);
+int cRider_getMotionMode(void*);
 extern sVec_001607E0 D_004FF120_v162568 __asm__("D_004FF120");
 
 struct sVEi_162568 {
@@ -2508,7 +2508,7 @@ extern "C" void func_00162568_impl(char* self, char* out, float a, float b, floa
                                    float g, float h)
 {
     sVec_001607E0 v = cmGet_001607E0(self, 3);
-    int mode = func_0011FE98(*(void**)(*(char**)(self + 0x30) + 4));
+    int mode = cRider_getMotionMode(*(void**)(*(char**)(self + 0x30) + 4));
     if (cmLength_001607E0(v) < 27.77777862548828f) {
         v = *(sVec_001607E0*)(self + 0x1B0);
     }

@@ -459,8 +459,8 @@ extern "C" void func_00116FB8(void* slot);
 extern "C" void func_00117FE0(void* self);
 extern "C" void func_00290F58(void* audio, void* rider, float mult);
 extern "C" void* func_00416210(void* dst, int c, int n);
-int func_0011FE98(void* rider);
-int func_0011FEE8(void* rider);
+int cRider_getMotionMode(void* rider);
+int cRider_getControlState(void* rider);
 
 extern sGradeStep_119210 D_00459E00[];
 extern sGradeStep_119210 D_00459E20[];
@@ -551,7 +551,7 @@ extern "C" void func_00117C28(sMetrix17C28* self)
     float dt = self->rider->timeScale * 0.016666668f;
     float speed = len17C28(self->rider->vel);
     if (self->tA4 >= 0.0f) {
-        if (func_0011FE98(self->rider) == 0 && func_0011FEE8(self->rider) != 1) {
+        if (cRider_getMotionMode(self->rider) == 0 && cRider_getControlState(self->rider) != 1) {
             self->tA4 = self->tA4 - dt;
             if (self->tA4 <= 0.0f) {
                 func_00117718(self);

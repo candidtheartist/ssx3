@@ -1387,7 +1387,7 @@ extern unsigned int D_00536640[];
 extern int D_005366A8[];
 extern int D_00536730[];
 extern "C" int func_0012A250(void* race);
-extern "C" int func_00122D78(void* self);
+extern "C" int cRider_estimateFinishTicks(void* self);
 extern "C" void func_00238BF8(void* self, int n);
 
 struct sVEnt_23AE00 { short delta; short index; int (*fn)(void*); };
@@ -1448,7 +1448,7 @@ extern "C" void func_0023AE00(sSelf_23AE00* self, int idx)
     if (func_0012A250(rc)) {
         for (int i = 0; i < *(int*)(D_004A2C70 + 0x10) + 2; i++) {
             if (!finished_23AE00(rc->riders[i]) && i != idx) {
-                self->times[i] = func_00122D78(rc->riders[i]);
+                self->times[i] = cRider_estimateFinishTicks(rc->riders[i]);
             }
             D_00536640[i] = self->times[i];
         }
@@ -1844,7 +1844,7 @@ extern "C" void func_0023B6C0(void* self)
 // PORT: cBE_getInterface__Fv really takes (be, kind); bound by asm label
 void* cBE_getInterface_Fv(void* be, int kind) __asm__("cBE_getInterface__Fv");
 extern "C" void* cBE_getBE();
-extern "C" int func_00122D78(void* self);
+extern "C" int cRider_estimateFinishTicks(void* self);
 extern "C" int func_0012A250(void* race);
 extern "C" int func_00146E98(void* iface, int a1);
 extern "C" void func_00238BF8(void* self, int n);
@@ -1938,7 +1938,7 @@ extern "C" void func_0023B8C8(void* self, int idx)
             char* r = Rider_23B8C8(i);
             int done = *(float*)(r + 0x470) >= 0.0f;
             if (!done) {
-                D_00536640[i] = func_00122D78(r);
+                D_00536640[i] = cRider_estimateFinishTicks(r);
             }
         }
         void* player = cBE_getInterface_Fv(cBE_getBE(), 1);
@@ -2050,7 +2050,7 @@ extern "C" void func_0023BB98(void* self)
 // PORT: cBE_getInterface__Fv really takes (be, kind); bound by asm label
 void* cBE_getInterface_Fv(void* be, int kind) __asm__("cBE_getInterface__Fv");
 extern "C" void* cBE_getBE();
-extern "C" int func_00122E50(void* self);
+extern "C" int cRider_estimateFinalScore(void* self);
 extern "C" int func_0012A250(void* race);
 extern "C" int func_00146E98(void* iface, int a1);
 extern "C" void func_00238B70(void* self, int n);
@@ -2133,7 +2133,7 @@ extern "C" void func_0023BDB8(void* self, int idx)
             char* r = Rider_23BDB8(i);
             int done = *(float*)(r + 0x470) >= 0.0f;
             if (!done) {
-                D_00536640[i] = func_00122E50(r);
+                D_00536640[i] = cRider_estimateFinalScore(r);
             }
         }
         void* player = cBE_getInterface_Fv(cBE_getBE(), 1);

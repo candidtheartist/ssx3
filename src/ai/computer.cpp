@@ -389,8 +389,8 @@ extern "C" void func_0010D170(sComputer_0010D170* self)
 }
 
 //100%
-int func_0011FE98(void* self);
-int func_0011FEE8(void* self);
+int cRider_getMotionMode(void* self);
+int cRider_getControlState(void* self);
 extern "C" float func_0031C228(float x);
 
 struct sVec_0010D1A0 {
@@ -470,22 +470,22 @@ extern "C" int func_0010D1A0(sComputer_0010D1A0* self)
         self->wrongTime = 0;
     }
     int wrong = self->wrongTime >= 0x3D;
-    if (func_0011FE98(self->rider) == 2) {
+    if (cRider_getMotionMode(self->rider) == 2) {
         wrong = 0;
         self->stuckTime++;
-    } else if (func_0011FE98(self->rider) == 4 && self->wrongTime > 0) {
+    } else if (cRider_getMotionMode(self->rider) == 4 && self->wrongTime > 0) {
         return 1;
-    } else if (func_0011FE98(self->rider) == 1 || self->rider->speed < 1000.0f) {
+    } else if (cRider_getMotionMode(self->rider) == 1 || self->rider->speed < 1000.0f) {
         self->stuckTime = 0;
         wrong = 0;
-        if (func_0011FE98(self->rider) == 1 && *(float*)(self->rider->board + 0xA0) > 30.0f) {
+        if (cRider_getMotionMode(self->rider) == 1 && *(float*)(self->rider->board + 0xA0) > 30.0f) {
             return 1;
         }
     } else {
         self->stuckTime++;
     }
     int stuck = wrong || self->stuckTime >= 0xDF;
-    if (func_0011FEE8(self->rider) != 8) {
+    if (cRider_getControlState(self->rider) != 8) {
         stuck = stuck && self->dir < 0;
     }
     return stuck;
@@ -1068,7 +1068,7 @@ extern "C" void func_0010E558(void* self, int* arg)
 extern "C" void* cBE_getBE();
 void* cBE_getInterface_Fv(void* be, int kind) __asm__("cBE_getInterface__Fv");
 extern "C" int* func_00144BC0(void* iface);
-extern "C" void func_00125108(void* self);
+extern "C" void cRider_finish(void* self);
 extern "C" void func_00270AB0(void* a, int b, int c);
 extern void* D_004A28A8;
 extern signed char D_00535BC8[];
@@ -1094,7 +1094,7 @@ extern "C" void func_0010E5D8(void* self, int* arg, int a2, int a3)
     {
         int ok = *(float*)((char*)self + 0x470) >= 0.0f;
         if (!ok)
-            func_00125108(self);
+            cRider_finish(self);
     }
     if (*arg == 11)
     {
@@ -1130,7 +1130,7 @@ extern "C" void func_0010E7D0(void* self, float amount)
 }
 
 //100% - objdiff report; single-function view differs only in a relocation name
-int func_0011FE98(void* self);
+int cRider_getMotionMode(void* self);
 extern "C" float func_00119448(char* self, float value);
 extern "C" void func_0010E098(void*, int, float);
 extern "C" void* func_0028B180();
@@ -1138,7 +1138,7 @@ extern "C" void func_0029CED8(void*, int, void*, float);
 
 extern "C" void func_0010E830(void* self, float value)
 {
-    if (func_0011FE98(self) == 1 || func_0011FE98(self) == 4)
+    if (cRider_getMotionMode(self) == 1 || cRider_getMotionMode(self) == 4)
     {
         func_0010E098(self, 4, func_00119448(*(char**)((char*)self + 0x790), value));
         func_0029CED8(func_0028B180(), 2, self, value);
@@ -1325,7 +1325,7 @@ struct sVE_0010F3B8 { short delta; short index; int (*fn)(void*); };
 struct sEnt_0010F3B8 { int vis; int val; float dist; int c; int d; int e; int f; int g; int h; };
 struct sRider_0010F3B8 { sEnt_0010F3B8 ent[6]; char pad[0x10]; int fE8; char pad2[0x4D8 - 0xEC]; float f4D8; };
 struct sAI_0010F3B8 { char pad[0x28]; sRider_0010F3B8* riders[20]; int count; };
-extern "C" int func_0011D640(void*);
+extern "C" int cRider_isInitDone(void*);
 float func_00113128(void* self);
 
 // PORT: the unit declares this as returning void*; it returns nothing.
@@ -1341,7 +1341,7 @@ extern "C" void func_0010F3B8_impl(sAI_0010F3B8* self)
             sEnt_0010F3B8* e = &self->riders[i]->ent[j];
             int v = 0;
             if (i != j && j < self->count)
-                v = func_0011D640(self->riders[i]) != 0;
+                v = cRider_isInitDone(self->riders[i]) != 0;
             e->vis = v;
             if (j < self->count)
             {
@@ -2296,7 +2296,7 @@ struct sVec4_00112180
     float x, y, z, w;
 } __attribute__((aligned(16)));
 
-void func_0011D660_112180(void* self, sVec4_00112180* a, sVec4_00112180* b, int n, float t) __asm__("func_0011D660");
+void cRider_placeAt_112180(void* self, sVec4_00112180* a, sVec4_00112180* b, int n, float t) __asm__("cRider_placeAt");
 extern "C" float func_0026A638(void* path, void* a1, void* a2, void* a3, void* hint, int n);
 sVec4_00112180 func_0026AB20_112180(void* path, int* inRange, float t) __asm__("func_0026AB20");
 
@@ -2347,7 +2347,7 @@ extern "C" void func_00112180(char* self, int flag)
         pos.z = p[4];
         pos.w = 1.0f;
         vu0AddEq_112180(pos, vu0Scale_112180(dir, func_00115B08(self)));
-        func_0011D660_112180(self, &pos, &dir, 5, 0.0f);
+        cRider_placeAt_112180(self, &pos, &dir, 5, 0.0f);
     }
     *(int*)(*(char**)(self + 0xABC) + 0x14) = -1;
     *(int*)(*(char**)(self + 0xAC0) + 0x14) = -1;

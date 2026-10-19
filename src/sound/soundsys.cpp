@@ -276,7 +276,7 @@ extern "C" void func_00290F58(void* self, int id, float v)
 
 //100%
 // PORT: PS2-only inline asm; needs a C fallback off-PS2.
-int func_0011FE98(void*);
+int cRider_getMotionMode(void*);
 // func_00285D98 returns a rider pointer here (the unit declares it int).
 void* func_00285D98_p(void* self, int which) __asm__("func_00285D98");
 
@@ -284,7 +284,7 @@ extern "C" int func_00290FD0(void* self, int which)
 {
     int r = 3;
     char* rider = (char*)func_00285D98_p(self, which);
-    if (func_0011FE98(rider) != 1) {
+    if (cRider_getMotionMode(rider) != 1) {
         return 3;
     }
     float v = *(float*)((char*)self + (which << 2) + 0x6074);
@@ -533,7 +533,7 @@ extern "C" int func_00291710(void* self_, int rider_)
     char* self = (char*)self_;
     char* rider = (char*)rider_;
     int v;
-    if (func_0011FE98(rider) == 4)
+    if (cRider_getMotionMode(rider) == 4)
         v = *(int*)(self + 0x598C);
     else
         v = *(int*)(rider + 0x438);
@@ -851,7 +851,7 @@ extern "C" void func_002929D8(void* self)
 }
 
 //100% - objdiff report; single-function view differs only in a relocation name
-int func_0011FE98(void*);
+int cRider_getMotionMode(void*);
 extern "C" int func_00291710(void* self, int id);
 extern "C" void func_002917D0(void* self, int id);
 extern "C" void func_00291C88(void* self, int id, int n);
@@ -860,7 +860,7 @@ extern "C" void func_00292508(void* self, int id, int n);
 // PORT: id is a pointer passed as int (the unit declares func_00292A50(void*, int)).
 extern "C" void func_00292A50(void* self, int id)
 {
-    int a = func_0011FE98((void*)id);
+    int a = cRider_getMotionMode((void*)id);
     int n = func_00291710(self, id);
     *(int*)((char*)id + 0x760) = a;
     *(int*)((char*)id + 0x764) = a;
@@ -913,7 +913,7 @@ extern "C" int func_002934D0(void* self, unsigned int kind, void* rider)
     int r;
     switch (kind) {
     case 3:
-        r = func_0011FE98(rider) == 4 ? 2 : 0;
+        r = cRider_getMotionMode(rider) == 4 ? 2 : 0;
         break;
     case 1: case 2:
         r = 1;
@@ -4421,13 +4421,13 @@ extern "C" int func_0029F2B0(int kind, int busy)
 }
 
 //100% - objdiff report; single-function view differs only in a relocation name
-extern "C" int func_00123128(void*);
+extern "C" int cRider_getCharacterID(void*);
 extern "C" int func_00123168(void*);
 extern "C" int func_0029F2B0(int, int);
 
 extern "C" void func_0029F330(void* self)
 {
-    int a = func_00123128(self);
+    int a = cRider_getCharacterID(self);
     func_0029F2B0(a, func_00123168(self));
 }
 
@@ -4436,7 +4436,7 @@ extern "C" int func_0029F378(void* self, void* obj)
 {
     switch (func_00123168(obj)) {
     case 0:
-        return func_00123128(obj);
+        return cRider_getCharacterID(obj);
     case 14:
     case 16:
     case 21:
@@ -4546,7 +4546,7 @@ extern "C" int func_00288B40(void* self, int which, float f);
 extern "C" int func_002B0E28(void* self, int i);
 extern "C" int func_002B1458(void* self, int a, int b, int c, int d, int e, int refresh, float f);
 extern "C" void* func_003D8008(int a, int b, int c);
-extern "C" int func_00123128(void*);
+extern "C" int cRider_getCharacterID(void*);
 // PORT: the unit defines func_0029F330 as void; it returns its tail call's result.
 int func_0029F330_i(void* self) __asm__("func_0029F330");
 // func_00285D98 returns a rider pointer here (the unit declares it int).
@@ -4601,15 +4601,15 @@ extern "C" void func_0029FCC8(void* self, void* vrider)
     if (func_00288B40(self, rider->v05(), D_004A36D8) < 0) return;
     int sel = func_002A1E20(self, *func_00144BC0(cBE_getInterface_Fv(func_0028B1E8(), 0)));
     if (sel == 1) {
-        if (func_002B1458(snd, 0, 0x2084, (int)rider, func_00123128(rider), 0, 0, zero) != 0) {
+        if (func_002B1458(snd, 0, 0x2084, (int)rider, cRider_getCharacterID(rider), 0, 0, zero) != 0) {
             D_004A482C_4(func_003D8008(1, 0, 0x2084), 2, r, 3);
         }
     } else if (sel == 2) {
-        if (func_002B1458(snd, 0, 0x2083, (int)rider, func_00123128(rider), 0, 0, zero) != 0) {
+        if (func_002B1458(snd, 0, 0x2083, (int)rider, cRider_getCharacterID(rider), 0, 0, zero) != 0) {
             D_004A482C_4(func_003D8008(1, 0, 0x2083), 2, r, 3);
         }
     } else {
-        if (func_002B1458(snd, 0, 0x2091, (int)rider, func_00123128(rider), 0, 0, zero) != 0) {
+        if (func_002B1458(snd, 0, 0x2091, (int)rider, cRider_getCharacterID(rider), 0, 0, zero) != 0) {
             D_004A482C_4(func_003D8008(1, 0, 0x2091), 2, r, 3);
         }
     }
@@ -4624,7 +4624,7 @@ extern "C" void* func_0028B1E8();
 extern "C" int func_00288B40(void* self, int which, float f);
 extern "C" int func_002B1458(void* self, int a, int b, int c, int d, int e, int refresh, float f);
 extern "C" void* func_003D8008(int a, int b, int c);
-extern "C" int func_00123128(void*);
+extern "C" int cRider_getCharacterID(void*);
 // PORT: the unit defines func_0029F330 as void; it returns its tail call's result.
 int func_0029F330_i(void* self) __asm__("func_0029F330");
 // func_00285D98 returns a rider pointer here (the unit declares it int).
@@ -4668,30 +4668,30 @@ extern "C" void func_0029FF80(void* self, sSsFF80Rider* rider, int alt)
     if (alt != 0) {
         int sel = func_002A1E20(self, *func_00144BC0(cBE_getInterface_Fv(func_0028B1E8(), 0)));
         if (sel == 1) {
-            if (func_002B1458((char*)self + 0x5560, 0, 0x2090, (int)rider, func_00123128(rider), 0, 0, 0.0f) != 0) {
+            if (func_002B1458((char*)self + 0x5560, 0, 0x2090, (int)rider, cRider_getCharacterID(rider), 0, 0, 0.0f) != 0) {
                 D_004A482C(func_003D8008(1, 0, 0x2090), 1, r);
             }
         } else if (sel == 2) {
-            if (func_002B1458((char*)self + 0x5560, 0, 0x209B, (int)rider, func_00123128(rider), 0, 0, 0.0f) != 0) {
+            if (func_002B1458((char*)self + 0x5560, 0, 0x209B, (int)rider, cRider_getCharacterID(rider), 0, 0, 0.0f) != 0) {
                 D_004A482C(func_003D8008(1, 0, 0x209B), 1, r);
             }
         } else {
-            if (func_002B1458((char*)self + 0x5560, 0, 0x209D, (int)rider, func_00123128(rider), 0, 0, 0.0f) != 0) {
+            if (func_002B1458((char*)self + 0x5560, 0, 0x209D, (int)rider, cRider_getCharacterID(rider), 0, 0, 0.0f) != 0) {
                 D_004A482C(func_003D8008(1, 0, 0x209D), 1, r);
             }
         }
     } else {
         int sel = func_002A1E20(self, *func_00144BC0(cBE_getInterface_Fv(func_0028B1E8(), 0)));
         if (sel == 1) {
-            if (func_002B1458((char*)self + 0x5560, 0, 0x2082, (int)rider, func_00123128(rider), 0, 0, 0.0f) != 0) {
+            if (func_002B1458((char*)self + 0x5560, 0, 0x2082, (int)rider, cRider_getCharacterID(rider), 0, 0, 0.0f) != 0) {
                 D_004A482C(func_003D8008(1, 0, 0x2082), 1, r);
             }
         } else if (sel == 2) {
-            if (func_002B1458((char*)self + 0x5560, 0, 0x209A, (int)rider, func_00123128(rider), 0, 0, 0.0f) != 0) {
+            if (func_002B1458((char*)self + 0x5560, 0, 0x209A, (int)rider, cRider_getCharacterID(rider), 0, 0, 0.0f) != 0) {
                 D_004A482C(func_003D8008(1, 0, 0x209A), 1, r);
             }
         } else {
-            if (func_002B1458((char*)self + 0x5560, 0, 0x209C, (int)rider, func_00123128(rider), 0, 0, 0.0f) != 0) {
+            if (func_002B1458((char*)self + 0x5560, 0, 0x209C, (int)rider, cRider_getCharacterID(rider), 0, 0, 0.0f) != 0) {
                 D_004A482C(func_003D8008(1, 0, 0x209C), 1, r);
             }
         }
@@ -4708,7 +4708,7 @@ extern "C" int func_00288B40(void* self, int which, float f);
 extern "C" int func_002B0E28(void* self, int i);
 extern "C" int func_002B1458(void* self, int a, int b, int c, int d, int e, int refresh, float f);
 extern "C" void* func_003D8008(int a, int b, int c);
-extern "C" int func_00123128(void*);
+extern "C" int cRider_getCharacterID(void*);
 // PORT: the unit defines func_0029F330 as void; it returns its tail call's result.
 int func_0029F330_i(void* self) __asm__("func_0029F330");
 // func_00285D98 returns a rider pointer here (the unit declares it int).
@@ -4759,15 +4759,15 @@ extern "C" void func_002A02D8(void* self, sSs02D8Rider* rider)
     if (func_00288B40(self, rider->v05(), D_004A36D8) < 0) return;
     int sel = func_002A1E20(self, *func_00144BC0(cBE_getInterface_Fv(func_0028B1E8(), 0)));
     if (sel == 1) {
-        if (func_002B1458((char*)self + 0x5560, 0, 0x2088, (int)rider, func_00123128(rider), 0, 0, 0.0f) != 0) {
+        if (func_002B1458((char*)self + 0x5560, 0, 0x2088, (int)rider, cRider_getCharacterID(rider), 0, 0, 0.0f) != 0) {
             D_004A482C_4(func_003D8008(1, 0, 0x2088), 2, r, mode);
         }
     } else if (sel == 2) {
-        if (func_002B1458((char*)self + 0x5560, 0, 0x20A0, (int)rider, func_00123128(rider), 0, 0, 0.0f) != 0) {
+        if (func_002B1458((char*)self + 0x5560, 0, 0x20A0, (int)rider, cRider_getCharacterID(rider), 0, 0, 0.0f) != 0) {
             D_004A482C_4(func_003D8008(1, 0, 0x20A0), 2, r, mode);
         }
     } else {
-        if (func_002B1458((char*)self + 0x5560, 0, 0x20A1, (int)rider, func_00123128(rider), 0, 0, 0.0f) != 0) {
+        if (func_002B1458((char*)self + 0x5560, 0, 0x20A1, (int)rider, cRider_getCharacterID(rider), 0, 0, 0.0f) != 0) {
             D_004A482C_4(func_003D8008(1, 0, 0x20A1), 2, r, mode);
         }
     }
@@ -4781,7 +4781,7 @@ extern "C" int func_00288B40(void* self, int which, float f);
 extern "C" int func_002B0E28(void* self, int i);
 int func_002B1458_f(void* self, int a, int b, int c, int d, float f, int e, int refresh) __asm__("func_002B1458");
 extern "C" void* func_003D8008(int a, int b, int c);
-extern "C" int func_00123128(void*);
+extern "C" int cRider_getCharacterID(void*);
 extern "C" void* func_0028B1C8();
 // PORT: the unit defines func_0029F330/func_002A1D48 as void; they return their tail call's result.
 int func_0029F330_i(void* self) __asm__("func_0029F330");
@@ -4891,19 +4891,19 @@ void func_002A0560_0560(void* self, sSs0560Rider* a, sSs0560Rider* b)
     unsigned sel = func_002A1820_0560(self, a, b);
     if (sel == 2) {
         d = 0.0f;
-        if (func_002B1458_f(snd, 0, 0x2081, (int)a, func_00123128(a), d, 0, 0) != 0) {
+        if (func_002B1458_f(snd, 0, 0x2081, (int)a, cRider_getCharacterID(a), d, 0, 0) != 0) {
             D_004A482C_4(func_003D8008(1, 0, 0x2081), 2, rA, mode);
         }
-        if (func_002B1458_f(snd, 0, 0x207F, (int)b, func_00123128(b), d, 0, 0) != 0) {
+        if (func_002B1458_f(snd, 0, 0x207F, (int)b, cRider_getCharacterID(b), d, 0, 0) != 0) {
             D_004A482C_4(func_003D8008(1, 0, 0x207F), 2, rB, mode);
         }
     } else if (sel < 2) {
         d = 0.0f;
-        if (func_002B1458_f(snd, 0, 0x2080, (int)a, func_00123128(a), d, 0, 0) != 0) {
+        if (func_002B1458_f(snd, 0, 0x2080, (int)a, cRider_getCharacterID(a), d, 0, 0) != 0) {
             s |= 0x1000;
             D_004A482C_5(func_003D8008(1, 0, 0x2080), 3, rA, mode, s);
         }
-        if (func_002B1458_f(snd, 0, 0x207D, (int)b, func_00123128(b), d, 0, 0) != 0) {
+        if (func_002B1458_f(snd, 0, 0x207D, (int)b, cRider_getCharacterID(b), d, 0, 0) != 0) {
             D_004A482C_4(func_003D8008(1, 0, 0x207D), 2, rB, mode);
         }
     }
@@ -4918,7 +4918,7 @@ extern "C" int func_002B0E28(void* self, int i);
 // func_002B1458 with the float argument in its real position (same registers).
 int func_002B1458_f(void* self, int a, int b, int c, int d, float f, int e, int refresh) __asm__("func_002B1458");
 extern "C" void* func_003D8008(int a, int b, int c);
-extern "C" int func_00123128(void*);
+extern "C" int cRider_getCharacterID(void*);
 extern "C" void func_0029F660(void* self, void* rider, int a, int b);
 // PORT: the unit defines func_0029F330 as void; it returns its tail call's result.
 int func_0029F330_i(void* self) __asm__("func_0029F330");
@@ -4985,24 +4985,24 @@ extern "C" void func_002A0A30(void* self, sSs0A30Rider* a, sSs0A30Rider* b, int 
     if (p7 != 0) return;
     int sel = func_002A1820(self, (sSs1820Rider*)a, (sSs1820Rider*)b);
     if (sel == 2) {
-        if (func_002B1458_f(snd, 0, 0x208F, (int)b, func_00123128(b), 0.0f, 0, 0) != 0) {
+        if (func_002B1458_f(snd, 0, 0x208F, (int)b, cRider_getCharacterID(b), 0.0f, 0, 0) != 0) {
             D_004A482C_4(func_003D8008(1, 0, 0x208F), 2, rB, 3);
         }
-        if (func_002B1458_f(snd, 0, 0x208A, (int)a, func_00123128(a), 0.0f, 0, 0) != 0) {
+        if (func_002B1458_f(snd, 0, 0x208A, (int)a, cRider_getCharacterID(a), 0.0f, 0, 0) != 0) {
             D_004A482C_4(func_003D8008(1, 0, 0x208A), 2, rA, 3);
         }
     } else if (sel == 1) {
-        if (func_002B1458_f(snd, 0, 0x207E, (int)b, func_00123128(b), 0.0f, 0, 0) != 0) {
+        if (func_002B1458_f(snd, 0, 0x207E, (int)b, cRider_getCharacterID(b), 0.0f, 0, 0) != 0) {
             D_004A482C_4(func_003D8008(1, 0, 0x207E), 2, rB, 3);
         }
-        if (func_002B1458_f(snd, 0, 0x208A, (int)a, func_00123128(a), 0.0f, 0, 0) != 0) {
+        if (func_002B1458_f(snd, 0, 0x208A, (int)a, cRider_getCharacterID(a), 0.0f, 0, 0) != 0) {
             D_004A482C_4(func_003D8008(1, 0, 0x208A), 2, rA, 3);
         }
     } else if (sel == 0) {
-        if (func_002B1458_f(snd, 0, 0x2078, (int)b, func_00123128(b), 0.0f, 0, 0) != 0) {
+        if (func_002B1458_f(snd, 0, 0x2078, (int)b, cRider_getCharacterID(b), 0.0f, 0, 0) != 0) {
             D_004A482C_4(func_003D8008(1, 0, 0x2078), 2, rB, 3);
         }
-        if (func_002B1458_f(snd, 0, 0x208E, (int)a, func_00123128(a), 0.0f, 0, 0) != 0) {
+        if (func_002B1458_f(snd, 0, 0x208E, (int)a, cRider_getCharacterID(a), 0.0f, 0, 0) != 0) {
             D_004A482C_4(func_003D8008(1, 0, 0x208E), 2, rA, 3);
         }
     }
@@ -5013,7 +5013,7 @@ extern "C" int func_00288B40(void* self, int which, float f);
 extern "C" int func_002B0E28(void* self, int i);
 extern "C" int func_002B1458(void* self, int a, int b, int c, int d, int e, int refresh, float f);
 extern "C" void* func_003D8008(int a, int b, int c);
-extern "C" int func_00123128(void*);
+extern "C" int cRider_getCharacterID(void*);
 extern "C" void func_0029F660(void* self, void* rider, int a, int b);
 // PORT: the unit defines func_0029F330 as void; it returns its tail call's result.
 int func_0029F330_i(void* self) __asm__("func_0029F330");
@@ -5064,7 +5064,7 @@ extern "C" void func_002A0E70(void* self, sSs0E70Rider* rider, int play)
     int ok = rider->f874 != 0 && rider->f87C != 0;
     if (!ok) return;
     int r = func_0029F330_i(rider);
-    if (func_002B1458(snd, 0, 0x2077, (int)rider, func_00123128(rider), 0, 0, zero) == 0) return;
+    if (func_002B1458(snd, 0, 0x2077, (int)rider, cRider_getCharacterID(rider), 0, 0, zero) == 0) return;
     D_004A482C(func_003D8008(1, 0, 0x2077), 1, r);
 }
 
@@ -5135,7 +5135,7 @@ void func_002A1138_impl(void* self, char* rider, void* obj)
     char* o = rider + 0x6C0;
     sSsVt1138* e = &(*(sSsVt1138**)o)[5];
     if (func_00288B40(self, e->fn(o + e->delta), D_004A36D8) < 0) return;
-    if (func_002B1458((char*)self + 0x5560, 0, 0x20D3, (int)rider, func_00123128(rider), 0, 0, 0.0f) == 0) return;
+    if (func_002B1458((char*)self + 0x5560, 0, 0x20D3, (int)rider, cRider_getCharacterID(rider), 0, 0, 0.0f) == 0) return;
     int r = func_0029F330_i(rider);
     int s = func_002A1D48_i(self, obj);
     D_004A482C_5(func_003D8008(1, 0, 0x20D3), 3, r, s, 4);
@@ -5164,7 +5164,7 @@ void func_002A1280_impl(void* self, char* rider, void* obj)
     char* o = rider + 0x6C0;
     sSsVt1280* e = &(*(sSsVt1280**)o)[5];
     if (func_00288B40(self, e->fn(o + e->delta), D_004A36D8) < 0) return;
-    if (func_002B1458((char*)self + 0x5560, 0, 0x20D4, (int)rider, func_00123128(rider), 0, 0, 0.0f) == 0) return;
+    if (func_002B1458((char*)self + 0x5560, 0, 0x20D4, (int)rider, cRider_getCharacterID(rider), 0, 0, 0.0f) == 0) return;
     int r = func_0029F330_i(rider);
     int s = func_002A1D48_i(self, obj);
     D_004A482C_4(func_003D8008(1, 0, 0x20D4), 2, r, s);
@@ -5203,7 +5203,7 @@ void func_002A1400_impl(void* self, char* rider)
     char* o = rider + 0x6C0;
     sSsVt1280* e = &(*(sSsVt1280**)o)[5];
     if (func_00288B40(self, e->fn(o + e->delta), D_004A36D8) < 0) return;
-    if (func_002B1458((char*)self + 0x5560, 0, 0x20B9, (int)rider, func_00123128(rider), 0, 0, 0.0f) == 0) return;
+    if (func_002B1458((char*)self + 0x5560, 0, 0x20B9, (int)rider, cRider_getCharacterID(rider), 0, 0, 0.0f) == 0) return;
     int r = func_0029F330_i(rider);
     int k = func_002A1E68(self, rider);
     cBE_getInterface_Fv(cBE_getBE(), 0);
@@ -5240,7 +5240,7 @@ extern "C" void func_002A1560(void* self, char* rider)
     char* o2 = rider + 0x6C0;
     sSsVt1280* e = &(*(sSsVt1280**)o2)[5];
     if (func_00288B40(self, e->fn(o2 + e->delta), D_004A36D8) < 0) return;
-    if (func_002B1458(bm, 0, 0x20B8, (int)rider, func_00123128(rider), 0, 0, 0.0f) == 0) return;
+    if (func_002B1458(bm, 0, 0x20B8, (int)rider, cRider_getCharacterID(rider), 0, 0, 0.0f) == 0) return;
     int r = func_0029F330_i(rider);
     D_004A482C(func_003D8008(1, 0, 0x20B8), 1, r);
 }
@@ -5444,13 +5444,13 @@ extern "C" int func_002A1BD8(void* self, int a, int b)
 }
 
 //100%
-extern "C" int func_00123128(void*);
+extern "C" int cRider_getCharacterID(void*);
 extern "C" int func_00123168(void*);
 extern "C" int func_002A1DA0(void* self, int a, int b);
 
 extern "C" void func_002A1D48(void* self, void* obj)
 {
-    int a = func_00123128(obj);
+    int a = cRider_getCharacterID(obj);
     func_002A1DA0(self, a, func_00123168(obj));
 }
 
@@ -5495,7 +5495,7 @@ extern "C" int func_002A1FA0(void* self, void* obj)
 {
     if (func_00123168(obj) != 0)
         return 0;
-    switch (func_00123128(obj)) {
+    switch (cRider_getCharacterID(obj)) {
     case 1: case 2: case 4: case 6:
         return 2;
     case 0: case 3: case 5: case 7: case 8: case 9:

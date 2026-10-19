@@ -636,7 +636,7 @@ extern "C" void func_002EF6A0(void* self)
 }
 
 //100%
-int func_0011FE98(void*);
+int cRider_getMotionMode(void*);
 extern "C" int func_001298C8();
 
 struct sRsVec4_EF6D0 {
@@ -732,7 +732,7 @@ static inline int Approach_EF6D0(int n, int step)
 
 extern "C" void func_002EF6D0(sTrail_EF6D0* self)
 {
-    if (func_0011FE98(self->rider) == 1) {
+    if (cRider_getMotionMode(self->rider) == 1) {
         char* r = self->rider;
         sRsVec4_EF6D0 a = *(sRsVec4_EF6D0*)(*(char**)(*(char**)(r + 0x780) + 0x30) + (*(int*)(r + 0x89C) << 6) + 0x30);
         sRsVec4_EF6D0 b = *(sRsVec4_EF6D0*)(*(char**)(*(char**)(r + 0x780) + 0x30) + (*(int*)(r + 0x8A4) << 6) + 0x30);
