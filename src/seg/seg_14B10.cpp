@@ -163,13 +163,13 @@ extern "C" void func_00113D88(void) {
 
 //100%
 extern "C" void cAI_setAIState(void *, int);
-extern "C" int func_0012A250(void *);
+extern "C" int cAI_haveAllPlayersFinished(void *);
 extern "C" void func_00231250(int, int, int, int);
 extern void *D_004A28A8;
 
 extern "C" void func_00113DB0(void *arg0, void *arg1) {
     (*(int *)((char*)(arg1) + (0xC))) = (int) ((*(int *)((char*)(arg1) + (0xC))) + 1);
-    if (func_0012A250(arg1) == 1) {
+    if (cAI_haveAllPlayersFinished(arg1) == 1) {
         cAI_setAIState(arg1, 6);
         func_00231250((*(int *)((char*)(D_004A28A8) + (0x84))), 5, 0, 0);
     }
@@ -506,7 +506,7 @@ extern "C" float func_00115B08(void *arg0) {
 
 //100%
 extern "C" int func_00311AE8(void*, int);
-extern "C" int func_001298C8();
+extern "C" int getGameTick();
 extern "C" int cRiderAnimBase_play_5B58(void* self, int anim, int flags, float blend) __asm__("cRiderAnimBase_play");
 extern "C" void* func_0028B180_5B58() __asm__("func_0028B180");
 extern "C" void func_0029FF80(void* snd, void* self, int a);
@@ -526,7 +526,7 @@ extern "C" void func_00115B58(char* self)
     if (func_00311AE8(*(void**)(self + 0x784), 2) == 10) {
         return;
     }
-    int dt = func_001298C8() - *(int*)(self + 0x354);
+    int dt = getGameTick() - *(int*)(self + 0x354);
     if (dt < 0xB4) {
         if (dt < 0) {
             return;
@@ -905,7 +905,7 @@ extern "C" void func_001171A8(char *arg0, int arg1, int arg2, float fparg0, int 
 }
 
 //100%
-extern "C" void func_00117540(void *);
+extern "C" void cRiderMetrix_resetRun(void *);
 
 extern "C" void *func_00117248(void *arg0) {
     *(int *)((char*)arg0 + 0x1AC) = 0;
@@ -913,7 +913,7 @@ extern "C" void *func_00117248(void *arg0) {
     *(int *)((char*)arg0 + 0x1B4) = 0;
     *(int *)((char*)arg0 + 0x1C8) = 0;
     *(float *)((char*)arg0 + 0x1C4) = 1.0f;
-    func_00117540(arg0);
+    cRiderMetrix_resetRun(arg0);
     return arg0;
 }
 

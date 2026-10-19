@@ -2592,7 +2592,7 @@ struct R12_F850 { int a; int b; int c; };
 extern R12_F850 D_004C9098_F850 __asm__("D_004C9098");
 
 extern int D_00446530_F850[] __asm__("D_00446530");
-extern "C" void func_0010F1C0(int, int, float);
+extern "C" void cRider_applyPickupEffect(int, int, float);
 extern int* D_004A3DD8_F850 __asm__("D_004A3DD8");
 extern char* D_004A28A8_F850 __asm__("D_004A28A8");
 extern int D_004A563C_F850 __asm__("D_004A563C");
@@ -2623,7 +2623,7 @@ extern "C" R12_F850 func_002FF850(int n, Ent_F850* e) {
         vp[0] = *D_004A3DD8_F850;
     char* o = *(char**)(D_004A28A8_F850 + 0x84);
     char* base = *(char**)(o + 0xC);
-    func_0010F1C0(*(int*)(base + (vp[0] << 2) + 0x28), vp[1], *(float*)&vp[2]);
+    cRider_applyPickupEffect(*(int*)(base + (vp[0] << 2) + 0x28), vp[1], *(float*)&vp[2]);
     return D_004C9098_F850;
 }
 

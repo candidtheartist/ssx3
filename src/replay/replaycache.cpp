@@ -326,14 +326,14 @@ extern "C" void func_00270658(void* self)
 
 //100%
 extern "C" void func_0026F980(void* self);
-extern "C" void func_001173B8(void* p);
+extern "C" void cRiderMetrix_clearAllMsgs(void* p);
 extern char* D_004A28A8;
 
 extern "C" void func_00270670(void* self)
 {
     if (*(int*)((char*)self + 0x620) != 0) {
         func_0026F980(self);
-        func_001173B8(*(void**)(*(char**)(*(char**)(*(char**)(*(char**)(D_004A28A8 + 0x84) + 0xC) + 0x40) + 0x18) + 0x790));
+        cRiderMetrix_clearAllMsgs(*(void**)(*(char**)(*(char**)(*(char**)(*(char**)(D_004A28A8 + 0x84) + 0xC) + 0x40) + 0x18) + 0x790));
     }
 }
 

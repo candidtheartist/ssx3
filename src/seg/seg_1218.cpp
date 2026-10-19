@@ -555,7 +555,7 @@ extern "C" void func_0010C0A8_0F88(void*, void*) __asm__("func_0010C0A8");
 extern "C" int func_0010B980_0F88(char* self, float* speed, int* below, int* o3, int* o4, int* o5, int* o6) __asm__("func_0010B980");
 extern "C" int func_0010BD10_0F88(char* self, int* out) __asm__("func_0010BD10");
 extern "C" float func_0031C228(float);
-extern "C" void func_00112A50(void*, int);
+extern "C" void cRider_selectRoute(void*, int);
 
 // PORT: PS2-only VU0 inline asm (4-component vector length).
 static inline float Len_0F88(const sV4_0F88& v)
@@ -640,7 +640,7 @@ extern "C" void func_00100F88(char* self, sPad_0F88* pad)
             func_0010C0A8_0F88(self, pad);
         } else if (tgt->Ready()) {
             if (*(int*)((char*)tgt + 0xAB8) == *(int*)(*(char**)(self + 0x18) + 0xAB8))
-                func_00112A50(*(char**)(self + 0x18), 0);
+                cRider_selectRoute(*(char**)(self + 0x18), 0);
             func_00100610_0F88(&v, self);
             steer = func_00100348_0F88(self, &v);
             func_0010C0A8_0F88(self, pad);
@@ -1999,7 +1999,7 @@ int cRider_getMotionMode(void*);
 int AIrand();
 extern "C" int cRider_isGrounded(void*);
 extern "C" void cAirPredictor_startLaunchIntoAir(void*, sV4_7E70*, sV4_7E70*, float);
-extern "C" void func_0010EB30_7E70(char*, int, int, int, sInfo_7E70*) __asm__("func_0010EB30");
+extern "C" void cRider_enterCrash_7E70(char*, int, int, int, sInfo_7E70*) __asm__("cRider_enterCrash");
 extern "C" void func_00108388_7E70(char*, sInfo_7E70*, int) __asm__("func_00108388");
 extern "C" void func_0010E468(void*, void*);
 extern "C" void func_0010E2E8(void*, void*);
@@ -2213,7 +2213,7 @@ extern "C" void func_00107E70(char* self, char* other, sV4_7E70* n, int flag, fl
         } else {
             anim = 0x148;
         }
-        func_0010EB30_7E70(self, anim, flag, 0, &info);
+        cRider_enterCrash_7E70(self, anim, flag, 0, &info);
         if (flag)
             func_0010E468(self, other);
         else
@@ -2657,7 +2657,7 @@ struct sQuat_8E88 {
 } __attribute__((aligned(16)));
 extern sQuat_8E88 D_004FF130;
 extern "C" void func_0010CAB8(void* self);
-extern "C" void func_0010D170(void* self);
+extern "C" void cComputer_resetGrabUsage(void* self);
 extern "C" void func_003E6448_8E88(void* dst, int value, int size) __asm__("func_003E6448");
 
 // PORT: the unit declares this as void(void) (its caller passes $a0 through); defined under an asm label with its real type
@@ -2694,7 +2694,7 @@ extern "C" void func_00108E88_impl(char* self)
     func_003E6448_8E88(self + 0xE7C, 0, 0x3C);
     func_003E6448_8E88(self + 0xEB8, 0, 0x3C);
     func_003E6448_8E88(self + 0xEF4, 0, 0x3C);
-    func_0010D170(self);
+    cComputer_resetGrabUsage(self);
 }
 
 //100%
@@ -2708,7 +2708,7 @@ INCLUDE_ASM("seg/seg_1218", func_00108FA8);
 
 //100%
 extern "C" void func_003E6448_A768(void* dst, int value, int size) __asm__("func_003E6448");
-extern "C" float func_0010DEF0_A768(void* self) __asm__("func_0010DEF0");
+extern "C" float cComputer_getPacingScale_A768(void* self) __asm__("cComputer_getPacingScale");
 extern "C" void cRider_approachTimeScale_A768(void* p, float f) __asm__("cRider_approachTimeScale");
 int cRider_getControlState_A768(void*) __asm__("cRider_getControlState__FPv");
 extern "C" void func_0010A960_A768(void*, void*) __asm__("func_0010A960");
@@ -2723,7 +2723,7 @@ extern "C" void func_0010AD78_A768(void*, void*) __asm__("func_0010AD78");
 extern "C" void func_0010A768(char* self, void* pad)
 {
     func_003E6448_A768(pad, 0, 8);
-    cRider_approachTimeScale_A768(*(void**)(self + 0x18), func_0010DEF0_A768(self));
+    cRider_approachTimeScale_A768(*(void**)(self + 0x18), cComputer_getPacingScale_A768(self));
     int s = cRider_getControlState_A768(*(void**)(self + 0x18));
     switch (s) {
     case 0:
@@ -2759,14 +2759,14 @@ extern "C" void func_0010A768(char* self, void* pad)
 
 //100%
 // PORT: PS2-only inline asm; needs a C fallback off-PS2.
-extern "C" void func_00111AC0_A898(char*, void*) __asm__("func_00111AC0");
+extern "C" void cMotionOwner_saveState_A898(char*, void*) __asm__("cMotionOwner_saveState");
 
 struct C_A898 {
     virtual void m0(char*, int);
 };
 
 extern "C" void func_0010A898(char *arg0, C_A898 *arg1) {
-    func_00111AC0_A898(arg0, arg1);
+    cMotionOwner_saveState_A898(arg0, arg1);
     arg1->m0(arg0 + 0xDF0, 0x150);
 }
 
@@ -2774,7 +2774,7 @@ class cObj_A8E8;
 typedef void (cObj_A8E8::*Fn_A8E8)();
 extern "C" Fn_A8E8 D_0043CF20_A8E8[4] __asm__("D_0043CF20");
 struct sVt_A8E8 { short delta; short index; void (*fn)(void*, void*, int); };
-extern "C" void func_00111D98(char* self, void* obj);
+extern "C" void cMotionOwner_loadState(char* self, void* obj);
 static inline void setState_A8E8(char* self, short s)
 {
     *(Fn_A8E8*)(self + 0xF44) = D_0043CF20_A8E8[s];
@@ -2782,7 +2782,7 @@ static inline void setState_A8E8(char* self, short s)
 }
 extern "C" void func_0010A8E8(char* self, char* obj)
 {
-    func_00111D98(self, obj);
+    cMotionOwner_loadState(self, obj);
     sVt_A8E8* vt = *(sVt_A8E8**)obj;
     vt[2].fn(obj + vt[2].delta, self + 0xDF0, 0x150);
     setState_A8E8(self, *(short*)(self + 0xF38));
@@ -3211,11 +3211,11 @@ public:
 };
 
 int AIrand();
-extern "C" int func_001298C8();
+extern "C" int getGameTick();
 
 extern "C" void func_0010B790(char* self, sPad_B790* pad)
 {
-    float t = 180.0f - (float)func_001298C8();
+    float t = 180.0f - (float)getGameTick();
     float th = 33.0f;
     th -= (float)((((cLvl_B790*)(*(char**)(self + 0x18) + 0x6C0))->Level() - 1) * 10);
     if (t < th && ((cLvl_B790*)(*(char**)(self + 0x18) + 0x6C0))->Level() < 4) {
@@ -3226,7 +3226,7 @@ extern "C" void func_0010B790(char* self, sPad_B790* pad)
         pad->b12 = -0x1F;
         return;
     }
-    if (func_001298C8() % 20 == 0) {
+    if (getGameTick() % 20 == 0) {
         unsigned int r = AIrand();
         float* p = (float*)(self + 0xDF0);
         *p = (float)r * 0.009999999776482582f;

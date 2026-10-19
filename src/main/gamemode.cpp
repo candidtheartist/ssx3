@@ -1386,7 +1386,7 @@ extern char* D_004A2C70;
 extern unsigned int D_00536640[];
 extern int D_005366A8[];
 extern int D_00536730[];
-extern "C" int func_0012A250(void* race);
+extern "C" int cAI_haveAllPlayersFinished(void* race);
 extern "C" int cRider_estimateFinishTicks(void* self);
 extern "C" void func_00238BF8(void* self, int n);
 
@@ -1434,7 +1434,7 @@ static inline int finished_23AE00(sRider_23AE00* r)
 extern "C" void func_0023AE00(sSelf_23AE00* self, int idx)
 {
     sRace_23AE00* rc = race_23AE00();
-    if (func_0012A250(rc) == 0 || subActive_23AE00((char*)rc->riders[idx] + 0x6C0) == 0) {
+    if (cAI_haveAllPlayersFinished(rc) == 0 || subActive_23AE00((char*)rc->riders[idx] + 0x6C0) == 0) {
         if (race_23AE00()->riders[idx]->f480) {
             D_00536640[idx] = self->times[idx] = 360000;
             D_005366A8[idx] = 1;
@@ -1445,7 +1445,7 @@ extern "C" void func_0023AE00(sSelf_23AE00* self, int idx)
             D_005366A8[idx] = 0;
         }
     }
-    if (func_0012A250(rc)) {
+    if (cAI_haveAllPlayersFinished(rc)) {
         for (int i = 0; i < *(int*)(D_004A2C70 + 0x10) + 2; i++) {
             if (!finished_23AE00(rc->riders[i]) && i != idx) {
                 self->times[i] = cRider_estimateFinishTicks(rc->riders[i]);
@@ -1845,7 +1845,7 @@ extern "C" void func_0023B6C0(void* self)
 void* cBE_getInterface_Fv(void* be, int kind) __asm__("cBE_getInterface__Fv");
 extern "C" void* cBE_getBE();
 extern "C" int cRider_estimateFinishTicks(void* self);
-extern "C" int func_0012A250(void* race);
+extern "C" int cAI_haveAllPlayersFinished(void* race);
 extern "C" int func_00146E98(void* iface, int a1);
 extern "C" void func_00238BF8(void* self, int n);
 extern char* D_004A2C70;
@@ -1905,7 +1905,7 @@ static inline char* Rider_23B8C8(int i)
 
 extern "C" void func_0023B8C8(void* self, int idx)
 {
-    if (func_0012A250(*(void**)(*(char**)((char*)D_004A28A8 + 0x84) + 0xC)) == 0 ||
+    if (cAI_haveAllPlayersFinished(*(void**)(*(char**)((char*)D_004A28A8 + 0x84) + 0xC)) == 0 ||
         ((cRiderState_23B8C8*)(Rider_23B8C8(idx) + 0x6C0))->isFinished() == 0) {
         char* r = Rider_23B8C8(idx);
         if (*(int*)(r + 0x480) != 0) {
@@ -1916,7 +1916,7 @@ extern "C" void func_0023B8C8(void* self, int idx)
             D_005366A8[idx] = 0;
         }
     }
-    if (func_0012A250(*(void**)(*(char**)((char*)D_004A28A8 + 0x84) + 0xC)) == 0) {
+    if (cAI_haveAllPlayersFinished(*(void**)(*(char**)((char*)D_004A28A8 + 0x84) + 0xC)) == 0) {
         return;
     }
     if (((cRiderState_23B8C8*)(Rider_23B8C8(idx) + 0x6C0))->isActive() == 0) {
@@ -2051,7 +2051,7 @@ extern "C" void func_0023BB98(void* self)
 void* cBE_getInterface_Fv(void* be, int kind) __asm__("cBE_getInterface__Fv");
 extern "C" void* cBE_getBE();
 extern "C" int cRider_estimateFinalScore(void* self);
-extern "C" int func_0012A250(void* race);
+extern "C" int cAI_haveAllPlayersFinished(void* race);
 extern "C" int func_00146E98(void* iface, int a1);
 extern "C" void func_00238B70(void* self, int n);
 extern char* D_004A2C70;
@@ -2113,7 +2113,7 @@ extern "C" void func_0023BDB8(void* self, int idx)
         D_005366A8[idx] = 0;
         D_00536640[idx] = st.time;
     }
-    if (func_0012A250(*(void**)(*(char**)((char*)D_004A28A8 + 0x84) + 0xC)) == 0) {
+    if (cAI_haveAllPlayersFinished(*(void**)(*(char**)((char*)D_004A28A8 + 0x84) + 0xC)) == 0) {
         return;
     }
     cBE_getInterface_Fv(cBE_getBE(), 0);
