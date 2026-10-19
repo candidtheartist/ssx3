@@ -929,7 +929,36 @@ extern "C" void* cInputMapParser_parseBinaryFunc(void* self, int op)
 
 INCLUDE_ASM("input/inputparse", cInputMapParser_parseUnaryFunc);
 
-INCLUDE_ASM("input/inputparse", cInputMapParser_compileStatement);
+//100%
+struct sEntry_324590 {
+    char pad[0x40];
+    void* code;     // 0x40
+};
+extern "C" sEntry_324590* func_00321A40_K(void* self, const char* name) __asm__("func_00321A40");
+extern "C" int func_00324678(void* self, void* node, int* src, void* code, int cap, int a5);
+extern char D_0048E208[];
+extern char D_0048E228[];
+
+// Compiles one named statement into out (space-terminated); returns the new length or -1.
+extern "C" int cInputMapParser_compileStatement(void* self, const char* name, int* out, int max, int a5)
+{
+    sEntry_324590* e = func_00321A40_K(self, name);
+    if (e == 0) {
+        func_00321500(self, D_0048E208, name);
+        return -1;
+    }
+    int sep = ' ';
+    int state = 0;
+    int n = func_00324678(self, e->code, &state, out, max, a5);
+    max -= n;
+    out += n;
+    if (max <= 0) {
+        func_00321500(self, D_0048E228);
+        return -1;
+    }
+    *out = sep;
+    return n + 1;
+}
 
 //100%
 extern "C" void func_00321500(void* self, const char* fmt, ...);
