@@ -2101,7 +2101,167 @@ extern "C" void func_001A71B0(void* self, unsigned int index, const char* name, 
     func_001A6618(self, index, name, a3);
 }
 
-INCLUDE_ASM("fe/feasyncfile", func_001A7390);
+//100%
+int GetHashValue32(char* str);
+struct cUIText;
+extern "C" cUIText* cUIScreen_getObjectByHashName(void* screen, int hash);
+void cUIText_setAsciiString(cUIText* self, const char* str);
+void cUIText_setUnicodeStringByID(cUIText* self, int id);
+int UIAsciiToUnicode_i(unsigned short* dst, const char* src) __asm__("UIAsciiToUnicode__FPUsPCc");
+extern "C" const char* cDirtysock_tag_TagFieldFind(const char* record, const char* name);
+extern "C" int cDirtysock_tag_TagFieldGetNumber(const char* tag, int defval);
+extern "C" int cDirtysock_tag_TagFieldGetString4(const char* tag, char* buf, int size, const char* defval) __asm__("cDirtysock_tag_TagFieldGetString");
+extern "C" void func_001B25E0(const char* src, void* out);
+extern "C" void func_002C2508(void* str, int a1);
+extern "C" void func_002C2688(void* str, unsigned short* s);
+// PORT: func_002C26D0 is a varargs formatter (dst, fmt, ...); the unit declares a 3-arg view
+extern "C" void func_002C26D0_1A7390(void* str, int fmt, ...) __asm__("func_002C26D0");
+extern "C" unsigned short* func_00392680(void* f, const unsigned short* str, unsigned short* dst, int max, float sx, float width);
+extern "C" char* func_003A04F0(void* text);
+extern "C" void func_003A0E90(cUIText* text, char* str);
+extern "C" void func_003EFA48(unsigned short* dst, int n, const char* src);
+extern "C" char* func_004162D0(char*, const char*);
+extern "C" char* strcpy(char* dst, const char* src);
+extern void* D_004A28A8;
+extern char D_004A1390[];
+extern char D_004A1408[];
+extern char D_004A1A28[];
+extern char D_004A1A30[];
+extern char D_004A1A38[];
+extern char D_004A1A40[];
+extern char D_004A1A48[];
+extern char D_00461558[];
+extern char D_004617A8[];
+extern char D_004617E0[];
+extern char D_00461868[];
+extern char D_00461880[];
+extern char D_00461898[];
+extern char D_004618B0[];
+extern char D_004618C8[];
+extern char D_004618E0[];
+extern char D_004618F8[];
+extern char D_00461910[];
+extern char D_00461930[];
+extern char D_00461950[];
+
+struct sVEntry_001A7390 {
+    short delta;
+    short index;
+    int (*fn)(void*, int);
+};
+
+struct sVEntryP_001A7390 {
+    short delta;
+    short index;
+    int (*fn)(void*, float*);
+};
+
+struct sVec3_001A7390 {
+    float x, y, z;
+};
+
+struct sChar2_001A7390 {
+    char c[2];
+};
+
+static inline int Loc1A7390(char* name)
+{
+    char* obj = *(char**)((char*)D_004A28A8 + 0x8C);
+    sVEntry_001A7390* vt = *(sVEntry_001A7390**)(obj + 4);
+    return vt[4].fn(obj + vt[4].delta, GetHashValue32(name));
+}
+
+extern "C" void func_001A7390(void* self, const char* name, int mode)
+{
+    unsigned short out[0x50];
+    char s1[0x20];
+    char s2[0x20];
+    char s3[0x20];
+    void* screen = *(void**)((char*)self + 0x40);
+    if (screen == 0 || name == 0) {
+        return;
+    }
+    cUIText* t1 = cUIScreen_getObjectByHashName(*(void**)((char*)self + 0x40), GetHashValue32(D_004617A8));
+    cUIText* t2 = cUIScreen_getObjectByHashName(*(void**)((char*)self + 0x40), GetHashValue32(D_00461558));
+    if (t2 == 0) {
+        return;
+    }
+    const char* tags = name + 0x54;
+    unsigned int state = cDirtysock_tag_TagFieldGetNumber(cDirtysock_tag_TagFieldFind(tags, D_004A1A28), -1);
+    cDirtysock_tag_TagFieldGetNumber(cDirtysock_tag_TagFieldFind(tags, D_004A1A30), -1);
+    cDirtysock_tag_TagFieldGetString4(cDirtysock_tag_TagFieldFind(tags, D_004A1A38), s1, 0x20, D_004A1408);
+    cDirtysock_tag_TagFieldGetString4(cDirtysock_tag_TagFieldFind(tags, D_004A1A40), s2, 0x20, D_004A1408);
+    cDirtysock_tag_TagFieldGetString4(cDirtysock_tag_TagFieldFind(tags, D_004A1A48), s3, 0x20, D_004A1408);
+    if (mode == 0) {
+        char buf[0x60];
+        unsigned short wide[0x60];
+        unsigned short wrapped[0x60];
+        float size[4];
+        strcpy(buf, name);
+        func_004162D0(buf, D_004A1390);
+        func_004162D0(buf, tags);
+        func_003EFA48(wide, 0x60, buf);
+        sVEntryP_001A7390* vt = *(sVEntryP_001A7390**)((char*)t1 + 8);
+        vt[20].fn((char*)t1 + vt[20].delta, size);
+        sVec3_001A7390 scale = *(sVec3_001A7390*)((char*)t1 + 0x50);
+        unsigned short* rest = func_00392680(func_003A04F0(t1), wide, wrapped, 0x30, scale.x, size[0]);
+        func_003A0E90(t1, (char*)wrapped);
+        if (rest != 0) {
+            func_003A0E90(t2, (char*)rest);
+        } else {
+            cUIText_setAsciiString(t2, D_004A1390);
+        }
+        return;
+    }
+    switch (state) {
+    case 1:
+        cUIText_setUnicodeStringByID(t2, GetHashValue32(D_004617E0));
+        break;
+    case 0:
+        cUIText_setUnicodeStringByID(t2, GetHashValue32(D_00461868));
+        break;
+    case 2:
+        cUIText_setUnicodeStringByID(t2, GetHashValue32(D_00461880));
+        break;
+    case 4:
+        cUIText_setUnicodeStringByID(t2, GetHashValue32(D_00461898));
+        break;
+    case 5:
+        cUIText_setUnicodeStringByID(t2, GetHashValue32(D_004618B0));
+        break;
+    case 10:
+        cUIText_setUnicodeStringByID(t2, GetHashValue32(D_004618C8));
+        break;
+    case 6:
+        cUIText_setUnicodeStringByID(t2, GetHashValue32(D_004618E0));
+        break;
+    case 3: {
+        unsigned short w1[0x40];
+        int str = Loc1A7390(D_004618F8);
+        sChar2_001A7390 sp = *(sChar2_001A7390*)D_004A1390;
+        unsigned short wsp[8];
+        UIAsciiToUnicode_i(wsp, sp.c);
+        func_001B25E0(s1, w1);
+        func_002C2508(out, str);
+        func_002C2688(out, wsp);
+        func_002C2688(out, w1);
+        func_003A0E90(t2, (char*)out);
+        break;
+    }
+    case 8:
+        func_002C26D0_1A7390(out, Loc1A7390(D_00461910), s1);
+        func_003A0E90(t2, (char*)out);
+        break;
+    case 7:
+        func_002C26D0_1A7390(out, Loc1A7390(D_00461930), s1);
+        func_003A0E90(t2, (char*)out);
+        break;
+    case 9:
+        func_002C26D0_1A7390(out, Loc1A7390(D_00461950), s1);
+        func_003A0E90(t2, (char*)out);
+        break;
+    }
+}
 
 //100%
 // PORT: func_001A8500 takes (self, a1, a2); the unit declares it with one arg
