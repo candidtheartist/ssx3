@@ -175,6 +175,17 @@ or any disc file.
     it reads, wrapped as CLAMP sets up, and their filter weights. The full-screen passes are sprites, so the 8,000
     recorded race packets replay to the same VRAM, also with round-toward-zero and on several workers, with 5%
     fewer instructions;
+  - VU1 blocks run as C++ written for each block at build time, with the same results. The block executor steps
+    through a list of decoded pairs; for each block in `vu1_blocks.txt`, the build instead writes one function in
+    which every pair's decoded fields are constants, so the compiler specialises each pair's code. A block is found
+    by its start address, the pipeline timing it is entered with and a hash of its own instructions, so it does not
+    matter which upload or code image it came from. The list holds only numbers: the build reads the VU1 code from
+    the VIF packets in the ELF's `.vutext` section, and the generated files stay in the build tree. Blocks not in
+    the list run on the executor as before. The 4,000 recorded VU1 runs still give bit-identical output and replay
+    1.45 times as fast as on the executor in the 32-bit build. A test generates blocks for 100 random microprograms
+    and runs them against the interpreter. In a race every block the game ran had generated code, and VU1 programs
+    took 29% less time per block (330 against 460 ns, not counting GS packet hand-off); the GS workers still set the
+    frame rate. `PS2X_VU1_GENERATED=0` turns them off;
   - debug switches.
 - `ssx3_overrides.cpp` holds the game-specific replacements: it skips the network and USB keyboard drivers,
   answers the module search, routes `isceSifSendCmd`, and keeps the runtime's scratch buffers in the
@@ -248,6 +259,9 @@ These debug switches print to stderr:
 | `PS2X_VU1_LOG=1` | how often each VU1 microprogram runs, and VIF1 codes the interpreter skips |
 | `PS2X_FRAME_LOG=1` | how many passes of the game's main loop run per second, every 2 s |
 | `PS2X_GS_SAMPLE=flagfile` | once `flagfile` exists, 3000 non-sprite primitives drawn to the main framebuffer |
+
+`PS2X_VU1_BLOCK_LIST=file` appends each VU1 block the game compiles to `file`, as lines for `vu1_blocks.txt`. Add
+the new lines there and the next build generates code for those blocks too; repeated lines are fine.
 
 `PS2X_GS_THREADS=n` draws with `n` GS worker threads, and 0 draws on the game thread. By default it uses the cores
 the game and window threads leave free, up to 6. `PS2X_VU1_THREAD=0` or `1` turns VIF1, VU1 and the GIF's own
