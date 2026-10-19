@@ -150,7 +150,33 @@ INCLUDE_ASM("ealib/seg_2B4578", func_003B3E40);
 
 INCLUDE_ASM("ealib/seg_2B4578", func_003B4010);
 
-INCLUDE_ASM("ealib/seg_2B4578", func_003B4218);
+//100%
+extern int func_003B42B0(int, int, int);
+extern int func_003B4338(int, int, int);
+extern int func_003B43C0(int, int, int);
+extern int func_003B4448(int, int, int);
+
+int func_003B4218(int a0, int a1, int a2, int a3, int kind) {
+    int result = 0;
+    switch (kind) {
+    case 4:
+        result = func_003B42B0(a0, a1, a2);
+        break;
+    case 8:
+        result = func_003B4338(a0, a1, a2);
+        break;
+    case 15:
+        result = func_003B43C0(a0, a1, a2);
+        break;
+    case 16:
+        result = func_003B43C0(a0, a1, a2);
+        break;
+    case 32:
+        result = func_003B4448(a0, a1, a2);
+        break;
+    }
+    return result;
+}
 
 //100%
 int func_003B42B0(int x, int y, int w) {
