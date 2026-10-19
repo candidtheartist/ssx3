@@ -71,7 +71,7 @@ cDirtysock_tag_TagFieldSetUnk = 0x00259288;
 
 cMemMan_free__FPv = 0x00317E98; //type:func
 cRiderMetrix_evAutoResetSurface__FPv = 0x0011A088; //type:func
-cAirPredictor_initLaunch__FPcP5sQuadT1 = 0x00113618; //type:func
+cAirPredictor_initLaunch__FP13cAirPredictorP5sQuadT1 = 0x00113618; //type:func
 cBE_getInterface__Fv = 0x0014DD58; //type:func
 cRiderSphereTree_cRiderSphereTree__FP16cRiderSphereTree = 0x00329910; //type:func
 cBELibrary_getCharacterID__Fi = 0x0014A080; //type:func

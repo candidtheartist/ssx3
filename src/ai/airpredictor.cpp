@@ -1,4 +1,5 @@
 #include "common.h"
+#include "ai/airpredictor.h"
 
 //100%
 struct sQuadR {
@@ -13,31 +14,31 @@ extern sQuadR D_004FF160;
 extern sQuadR D_004FF120;
 extern sPair8 D_004A5960[];
 
-extern "C" void cAirPredictor_reset(char* self)
+extern "C" void cAirPredictor_reset(cAirPredictor* ap)
 {
-    *(int*)(self + 0xAC) = 0;
-    *(int*)(self + 0xA0) = 0;
-    *(int*)(self + 0x98) = 0;
-    *(int*)(self + 0x9C) = 0;
-    *(int*)(self + 0xA4) = 0;
-    *(sQuadR*)(self + 0x20) = D_004FF160;
-    *(sQuadR*)(self + 0x10) = D_004FF120;
-    *(int*)(self + 0x90) = -1;
-    *(unsigned int*)(self + 0x30) = 0xFFFFFFFF;
-    *(sPair8*)(self + 0x34) = D_004A5960[0];
+    ap->mStatus = AIRPRED_EXTENDING;
+    *(int*)&ap->mElapsed = 0;
+    *(int*)&ap->mPredTime = 0;
+    *(int*)&ap->mApexTime = 0;
+    *(int*)&ap->mStepTime = 0;
+    *(sQuadR*)&ap->mHitNormal = D_004FF160;
+    *(sQuadR*)&ap->mHitHeading = D_004FF120;
+    ap->mHitType = -1;
+    *(unsigned int*)&ap->mHitSurface = 0xFFFFFFFF;
+    *(sPair8*)&ap->mHitParam = D_004A5960[0];
 }
 
 INCLUDE_ASM("ai/airpredictor", cAirPredictor_extendPrediction);
 
 //100%
 struct sQuad;
-void cAirPredictor_initLaunch(char* self, sQuad* a, sQuad* b);
+void cAirPredictor_initLaunch(cAirPredictor* ap, sQuad* a, sQuad* b);
 
-extern "C" void cAirPredictor_startLaunchIntoAir(char* self, sQuad* a, sQuad* b, float t)
+extern "C" void cAirPredictor_startLaunchIntoAir(cAirPredictor* ap, sQuad* a, sQuad* b, float t)
 {
-    cAirPredictor_reset(self);
-    *(float*)(self + 0xA8) = t;
-    cAirPredictor_initLaunch(self, a, b);
+    cAirPredictor_reset(ap);
+    ap->mSpeedCap = t;
+    cAirPredictor_initLaunch(ap, a, b);
 }
 
 // 16-byte aligned: the original copies these with lq/sq, which require it
@@ -47,21 +48,21 @@ struct sQuad {
 } __attribute__((aligned(16)));
 
 //100%
-void cAirPredictor_initLaunch(char* self, sQuad* a, sQuad* b)
+void cAirPredictor_initLaunch(cAirPredictor* ap, sQuad* a, sQuad* b)
 {
-    *(int*)(self + 0xAC) = 0;
-    *(sQuad*)(self + 0x70) = *a;
-    *(sQuad*)(self + 0x80) = *b;
-    *(sQuad*)(self + 0x50) = *a;
-    *(sQuad*)(self + 0x60) = *b;
-    *(float*)(self + 0x98) = *(float*)(self + 0xA0);
+    ap->mStatus = AIRPRED_EXTENDING;
+    *(sQuad*)&ap->mCurPos = *a;
+    *(sQuad*)&ap->mCurVel = *b;
+    *(sQuad*)&ap->mPredPos = *a;
+    *(sQuad*)&ap->mPredVel = *b;
+    ap->mPredTime = ap->mElapsed;
 }
 
 //100% - objdiff report; single-function view differs only in a relocation name
 extern sQuadR D_004FF130;
 extern sQuadR D_004FF140;
 extern sQuadR D_004FF160;
-extern "C" void cAirPredictor_extendPrediction(char* self);
+extern "C" void cAirPredictor_extendPrediction(cAirPredictor* ap);
 
 struct sVec4_3648
 {
@@ -70,7 +71,7 @@ struct sVec4_3648
 } __attribute__((aligned(16)));
 
 // cAirPredictor_integrateStep is defined later in the unit (with its own vector type).
-float cAirPredictor_integrateStep_3648(char* self, sVec4_3648* pos, sVec4_3648* vel, sVec4_3648* outPos, sVec4_3648* outVel) __asm__("cAirPredictor_integrateStep");
+float cAirPredictor_integrateStep_3648(cAirPredictor* ap, sVec4_3648* pos, sVec4_3648* vel, sVec4_3648* outPos, sVec4_3648* outVel) __asm__("cAirPredictor_integrateStep");
 
 // PORT: PS2-only VU0 inline asm (vector times scalar).
 static inline sVec4_3648 vu0Scale_3648(const sVec4_3648& v, float s)
@@ -103,61 +104,61 @@ static inline sVec4_3648 vu0Add_3648(const sVec4_3648& a, const sVec4_3648& b)
     return r;
 }
 
-extern "C" void cAirPredictor_update(char* self, sQuad* a, sQuad* b, float dt)
+extern "C" void cAirPredictor_update(cAirPredictor* ap, sQuad* a, sQuad* b, float dt)
 {
-    if (*(float*)(self + 0x98) > 60.0f) {
-        if (*(int*)(self + 0xAC) == 2) {
-            *(int*)(self + 0xAC) = 3;
-            *(sQuadR*)(self + 0x0) = D_004FF130;
-            *(sQuadR*)(self + 0x10) = D_004FF140;
-            *(sQuadR*)(self + 0x20) = D_004FF160;
-            *(int*)(self + 0x90) = 0xD;
+    if (ap->mPredTime > 60.0f) {
+        if (ap->mStatus == AIRPRED_RESTARTED) {
+            ap->mStatus = AIRPRED_GAVE_UP;
+            *(sQuadR*)&ap->mHitPos = D_004FF130;
+            *(sQuadR*)&ap->mHitHeading = D_004FF140;
+            *(sQuadR*)&ap->mHitNormal = D_004FF160;
+            ap->mHitType = 0xD;
         } else {
-            cAirPredictor_initLaunch(self, a, b);
-            *(int*)(self + 0xAC) = 2;
+            cAirPredictor_initLaunch(ap, a, b);
+            ap->mStatus = AIRPRED_RESTARTED;
         }
     } else {
-        if (*(int*)(self + 0xAC) == 1 && *(float*)(self + 0x98) - *(float*)(self + 0xA0) < -0.2f) {
-            cAirPredictor_initLaunch(self, a, b);
+        if (ap->mStatus == AIRPRED_LANDED && ap->mPredTime - ap->mElapsed < -0.2f) {
+            cAirPredictor_initLaunch(ap, a, b);
         }
-        int st = *(int*)(self + 0xAC);
-        if (st == 0) {
-            cAirPredictor_extendPrediction(self);
-            while (*(int*)(self + 0xAC) == 0 && *(float*)(self + 0x98) < *(float*)(self + 0xA0) + dt) {
-                cAirPredictor_extendPrediction(self);
+        int st = ap->mStatus;
+        if (st == AIRPRED_EXTENDING) {
+            cAirPredictor_extendPrediction(ap);
+            while (ap->mStatus == AIRPRED_EXTENDING && ap->mPredTime < ap->mElapsed + dt) {
+                cAirPredictor_extendPrediction(ap);
             }
-        } else if (st == 2) {
-            cAirPredictor_extendPrediction(self);
-            while (*(int*)(self + 0xAC) == 2 && *(float*)(self + 0x98) < *(float*)(self + 0xA0) + dt) {
-                cAirPredictor_extendPrediction(self);
+        } else if (st == AIRPRED_RESTARTED) {
+            cAirPredictor_extendPrediction(ap);
+            while (ap->mStatus == AIRPRED_RESTARTED && ap->mPredTime < ap->mElapsed + dt) {
+                cAirPredictor_extendPrediction(ap);
             }
         }
     }
-    float t = *(float*)(self + 0xA0) - *(float*)(self + 0xA4) + dt;
+    float t = ap->mElapsed - ap->mStepTime + dt;
     while (t >= 0.01666666753590107f) {
         t -= 0.01666666753590107f;
-        cAirPredictor_integrateStep_3648(self, (sVec4_3648*)(self + 0x70), (sVec4_3648*)(self + 0x80), (sVec4_3648*)(self + 0x70), (sVec4_3648*)(self + 0x80));
-        *(float*)(self + 0xA4) += 0.01666666753590107f;
+        cAirPredictor_integrateStep_3648(ap, (sVec4_3648*)&ap->mCurPos, (sVec4_3648*)&ap->mCurVel, (sVec4_3648*)&ap->mCurPos, (sVec4_3648*)&ap->mCurVel);
+        ap->mStepTime += 0.01666666753590107f;
     }
     if (t > 0.009999999776482582f) {
         sVec4_3648 p;
         sVec4_3648 v;
-        cAirPredictor_integrateStep_3648(self, (sVec4_3648*)(self + 0x70), (sVec4_3648*)(self + 0x80), &p, &v);
+        cAirPredictor_integrateStep_3648(ap, (sVec4_3648*)&ap->mCurPos, (sVec4_3648*)&ap->mCurVel, &p, &v);
         float k = t * 59.999996185302734f;
-        *(sVec4_3648*)a = vu0Add_3648(vu0Scale_3648(p, k), vu0Scale_3648(*(sVec4_3648*)(self + 0x70), 1.0f - k));
-        *(sVec4_3648*)b = vu0Add_3648(vu0Scale_3648(v, k), vu0Scale_3648(*(sVec4_3648*)(self + 0x80), 1.0f - k));
+        *(sVec4_3648*)a = vu0Add_3648(vu0Scale_3648(p, k), vu0Scale_3648(*(sVec4_3648*)&ap->mCurPos, 1.0f - k));
+        *(sVec4_3648*)b = vu0Add_3648(vu0Scale_3648(v, k), vu0Scale_3648(*(sVec4_3648*)&ap->mCurVel, 1.0f - k));
         ((float*)a)[3] = 1.0f;
     } else {
-        *(sQuad*)a = *(sQuad*)(self + 0x70);
-        *(sQuad*)b = *(sQuad*)(self + 0x80);
+        *(sQuad*)a = *(sQuad*)&ap->mCurPos;
+        *(sQuad*)b = *(sQuad*)&ap->mCurVel;
     }
-    *(float*)(self + 0xA0) += dt;
+    ap->mElapsed += dt;
 }
 
 //100%
 void func_00113998(void* self)
 {
-    *(int*)((char*)self + 0x98) = 0;
+    *(int*)&((cAirPredictor*)self)->mPredTime = 0;
 }
 
 //100%
@@ -233,7 +234,7 @@ static inline float vu0Length_1139A0(const sVec4_1139A0& v)
     return r;
 }
 
-extern "C" float cAirPredictor_integrateStep(void* self, sVec4_1139A0* pos, sVec4_1139A0* vel, sVec4_1139A0* outPos, sVec4_1139A0* outVel)
+extern "C" float cAirPredictor_integrateStep(cAirPredictor* ap, sVec4_1139A0* pos, sVec4_1139A0* vel, sVec4_1139A0* outPos, sVec4_1139A0* outVel)
 {
     *outPos = vu0Add_1139A0(*pos, vu0Scale_1139A0(*vel, 0.01666666753590107f));
     float dx = vel->x * -0.0033333336468786f;
@@ -242,10 +243,10 @@ extern "C" float cAirPredictor_integrateStep(void* self, sVec4_1139A0* pos, sVec
     if (vel->z > 0.0f) g = -14.166666984558105f;
     *outVel = vu0Add_1139A0(*vel, sVec4_1139A0(dx, dy, g, 0.0f));
     float len = vu0Length_1139A0(*outVel);
-    if (*(float*)((char*)self + 0xA8) < len)
+    if (ap->mSpeedCap < len)
     {
-        vu0ScaleEq_1139A0(*outVel, *(float*)((char*)self + 0xA8) / len);
-        len = *(float*)((char*)self + 0xA8);
+        vu0ScaleEq_1139A0(*outVel, ap->mSpeedCap / len);
+        len = ap->mSpeedCap;
     }
     return len;
 }
@@ -261,10 +262,10 @@ struct sVEntry00113AA0 {
     void (*fn)(void*, void*, int);
 };
 
-extern "C" void cAirPredictor_saveState(void* self, void* obj)
+extern "C" void cAirPredictor_saveState(cAirPredictor* ap, void* obj)
 {
     sVEntry00113AA0* vt = *(sVEntry00113AA0**)obj;
-    vt[1].fn((char*)obj + vt[1].delta, self, 0xB0);
+    vt[1].fn((char*)obj + vt[1].delta, ap, 0xB0);
 }
 
 //100%
@@ -274,9 +275,9 @@ struct sVEntry00113AD8 {
     void (*fn)(void*, void*, int);
 };
 
-extern "C" void cAirPredictor_loadState(void* self, void* obj)
+extern "C" void cAirPredictor_loadState(cAirPredictor* ap, void* obj)
 {
     sVEntry00113AD8* vt = *(sVEntry00113AD8**)obj;
-    vt[2].fn((char*)obj + vt[2].delta, self, 0xB0);
+    vt[2].fn((char*)obj + vt[2].delta, ap, 0xB0);
 }
 

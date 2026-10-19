@@ -29,7 +29,7 @@ Source files are from the decomp's current split.
   `0x001211F8`, air physical alignment `0x00121AA0`, `0x00125970` and the human input provider `0x00127998`.
 - `src/ai/ridermetrix.cpp`: the dynamic speed limit `0x0011B3F8`.
 - `src/ai/airpredictor.cpp`: the trajectory predictor. `0x00113198` (`cAirPredictor_reset`), `0x001135B8`
-  (`cAirPredictor_startLaunchIntoAir`), `0x00113618` (`cAirPredictor_initLaunch__FPcP5sQuadT1`), `0x00113200`,
+  (`cAirPredictor_startLaunchIntoAir`), `0x00113618` (`cAirPredictor_initLaunch__FP13cAirPredictorP5sQuadT1`), `0x00113200`,
   `0x00113648` and `0x001139A0`.
 - `asm/14B10.s` (not yet split): the turn and crouch/brake target setters `0x00113E80`/`0x00113F88`, jump
   takeoff `0x00114298`, reverse stance `0x00114CC0`/`0x00115168`, stance restoration `0x00115640`, air input

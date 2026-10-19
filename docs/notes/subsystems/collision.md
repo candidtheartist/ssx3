@@ -405,7 +405,7 @@ nothing.
 
 In crash motion 2 with owner+0x30 == 1 (air), the block `0x00105EA0`..`0x00105EEC` calls
 `0x001135B8(rider+0x788, position, velocity, rider+0x2E4)`, i.e. `0x00113198`
-(`cAirPredictor_reset`) followed by `0x00113618` (`cAirPredictor_initLaunch__FPcP5sQuadT1`): a full restart
+(`cAirPredictor_reset`) followed by `0x00113618` (`cAirPredictor_initLaunch__FP13cAirPredictorP5sQuadT1`): a full restart
 that clears the times, the hit, the heading and the normal. rider+0x2E4 is the speed limit; it also sets the
 predictor's speed cap and chord limit. **(PS2)** Air motion 1 contacts restart the predictor the same way.
 
