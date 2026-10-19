@@ -3905,7 +3905,95 @@ int func_003C27E0(int id, int k) {
     return 0;
 }
 
-INCLUDE_ASM("ealib/seg_2B4578", func_003C2A50);
+//100%
+// PORT: PS2-only inline asm; needs a C fallback off-PS2.
+struct Ch_2A50 {
+    int pad0;
+    short ids[15];
+    char pad22;
+    unsigned char n;
+    unsigned short flags;
+    char pad26[0x48 - 0x26];
+    float vol;
+    char pad4C[0x5F - 0x4C];
+    signed char b5F;
+    char pad60[0x8C - 0x60];
+};
+struct G_2A50 {
+    char pad0[0x2F];
+    unsigned char base2;
+    unsigned char base;
+    char pad31[0x47 - 0x31];
+    unsigned char b47;
+    unsigned char b48;
+    unsigned char mode;
+    char pad4A[0x1F0 - 0x4A];
+    struct Ch_2A50 *chans;
+};
+struct W8_2A50 { char pad[6]; signed char l; signed char r; };
+struct W16_2A50 { char pad[6]; signed char c[10]; };
+struct T_2A50 {
+    char pad0[0x20];
+    struct W8_2A50 a[48];
+    struct W16_2A50 b[1];
+};
+struct Spk_2A50 { float p[5]; char pad14[0x20 - 0x14]; };
+struct A_2A50 {
+    char pad0[0xCB0];
+    struct T_2A50 *tbl;
+    char padCB4[0xE98 - 0xCB4];
+    struct Spk_2A50 spk[1];
+};
+extern struct G_2A50 D_0050A8E8_2A50 __asm__("D_0050A8E8");
+extern struct A_2A50 D_0050AD00_2A50 __asm__("D_0050AD00");
+extern struct Spk_2A50 D_0050BB98_2A50[] __asm__("D_0050BB98");
+extern void f8560_2A50(int, int, float) __asm__("func_003C8560");
+
+void func_003C2A50(int id) {
+    struct Ch_2A50 *ch;
+    float sc;
+    int i;
+    int j;
+    int m;
+
+    ch = (struct Ch_2A50 *)((char *)D_0050A8E8_2A50.chans + id * 0x8C);
+    if (ch->flags & 8) {
+        for (i = 0; i < ch->n; i++) {
+            if (D_0050A8E8_2A50.mode != 2) {
+                D_0050AD00_2A50.tbl->a[ch->ids[i]].l = D_0050AD00_2A50.spk[ch->ids[i]].p[1] * ch->vol * 127.0f;
+                D_0050AD00_2A50.tbl->a[ch->ids[i]].r = D_0050AD00_2A50.spk[ch->ids[i]].p[0] * ch->vol * 127.0f;
+            } else {
+                if (D_0050A8E8_2A50.b47 == 4) {
+                    D_0050AD00_2A50.tbl->a[ch->ids[i]].l = D_0050AD00_2A50.spk[ch->ids[i]].p[3] * ch->vol * 127.0f;
+                    D_0050AD00_2A50.tbl->a[ch->ids[i]].r = D_0050AD00_2A50.spk[ch->ids[i]].p[0] * ch->vol * 127.0f;
+                    D_0050AD00_2A50.tbl->a[ch->ids[i] + 0x18].l = D_0050AD00_2A50.spk[ch->ids[i]].p[2] * ch->vol * 127.0f;
+                    D_0050AD00_2A50.tbl->a[ch->ids[i] + 0x18].r = D_0050AD00_2A50.spk[ch->ids[i]].p[1] * ch->vol * 127.0f;
+                } else {
+                    D_0050AD00_2A50.tbl->a[ch->ids[i]].l = D_0050AD00_2A50.spk[ch->ids[i]].p[4] * ch->vol * 127.0f;
+                    D_0050AD00_2A50.tbl->a[ch->ids[i]].r = D_0050AD00_2A50.spk[ch->ids[i]].p[1] * ch->vol * 127.0f;
+                    D_0050AD00_2A50.tbl->a[ch->ids[i] + 0x18].l = D_0050AD00_2A50.spk[ch->ids[i]].p[3] * ch->vol * 127.0f;
+                    D_0050AD00_2A50.tbl->a[ch->ids[i] + 0x18].r = D_0050AD00_2A50.spk[ch->ids[i]].p[2] * ch->vol * 127.0f;
+                }
+            }
+        }
+    } else if (ch->flags & 0x100) {
+        m = D_0050A8E8_2A50.b47 + D_0050A8E8_2A50.b48;
+        sc = ch->vol * (float)ch->b5F * 0.0078740157186985016f;
+        for (i = 0; i < ch->n; i++) {
+            for (j = 0; j < m; j++) {
+                D_0050AD00_2A50.tbl->b[ch->ids[i] - D_0050A8E8_2A50.base].c[j] = sc * D_0050AD00_2A50.spk[ch->ids[i]].p[j] * 127.0f;
+            }
+        }
+    } else {
+        m = D_0050A8E8_2A50.b47 + D_0050A8E8_2A50.b48;
+        sc = ch->vol * (float)ch->b5F * 0.0078740157186985016f;
+        for (i = 0; i < ch->n; i++) {
+            for (j = 0; j < m; j++) {
+                f8560_2A50(ch->ids[i] - (D_0050A8E8_2A50.base + D_0050A8E8_2A50.base2), j, sc * D_0050BB98_2A50[ch->ids[i]].p[j]);
+            }
+        }
+    }
+}
 
 //100%
 struct E_2EC8 { char pad[4]; short ch[15]; char pad22; unsigned char n; unsigned short flags; char pad3[0x5F - 0x26]; signed char on; char pad4[0x8C - 0x60]; };
