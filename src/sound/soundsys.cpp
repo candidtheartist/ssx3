@@ -111,7 +111,106 @@ extern "C" void func_0028FEA0(char* self, int flags)
     if (flags & 1) operator_delete((int*)self);
 }
 
-INCLUDE_ASM("sound/soundsys", func_00290018);
+//100%
+// PORT: PS2-only inline asm; needs a C fallback off-PS2.
+extern "C" void* func_00416210(void* dst, int c, int n);
+extern "C" int func_002906B8(void* self);
+
+struct sSnd0018Ch {
+    signed char vol;
+    char pad1[0x17];
+};
+struct sSnd0018E16 {
+    int f0;
+    int f4;
+    int f8;
+    int fC;
+};
+struct sSnd0018Sub {
+    char pad0[4];
+    sSnd0018Ch def;          // 0x04
+    volatile int cur;        // 0x1C
+    sSnd0018Ch* ch;          // 0x20
+    void* tgt[4];            // 0x24
+    int* p34;                // 0x34
+    int* vals;               // 0x38
+    int* p3C;                // 0x3C
+    char e40[4][8];          // 0x40
+    int* p60;                // 0x60
+    int* p64;                // 0x64
+    int* p68;                // 0x68
+    int* p6C;                // 0x6C
+    sSnd0018E16* p70;        // 0x70
+    int* p74;                // 0x74
+    int* p78;                // 0x78
+    int* p7C;                // 0x7C
+    int* p80;                // 0x80
+    int* p84;                // 0x84
+};
+struct sSnd0018Mgr {
+    char pad0[0x1D8];
+    sSnd0018Sub sub;         // 0x1D8
+};
+struct sSnd0018Sys {
+    sSnd0018Mgr* mgr;
+    int* a4;                 // 0x4
+    int* a8;                 // 0x8
+};
+struct sSnd0018Req {
+    char pad0[0x18];
+    int f18;                 // 0x18
+    int f1C;                 // 0x1C
+    int f20;                 // 0x20
+    int vol;                 // 0x24
+};
+
+extern sSnd0018Sys* D_004A3664_0018 __asm__("D_004A3664");
+
+#define SND_0018_MIN(a, b) ((a) < (b) ? (a) : (b))
+#define SND_0018_MAX(a, b) ((a) > (b) ? (a) : (b))
+
+static inline void snd0018AddVoice(void* vself, int a, int b)
+{
+    sSnd0018Sys* self = (sSnd0018Sys*)vself;
+    sSnd0018Mgr* m = self->mgr;
+    sSnd0018Sub* s = &m->sub;
+    m->sub.cur++;
+    s->ch[m->sub.cur] = m->sub.def;
+    m->sub.tgt[m->sub.cur] = 0;
+    s->p34[m->sub.cur] = 0;
+    s->vals[m->sub.cur] = s->ch[m->sub.cur].vol;
+    s->p3C[m->sub.cur] = 0;
+    func_00416210((char*)s + m->sub.cur * 8 + 0x40, 0, 8);
+    s->p60[m->sub.cur] = 0;
+    s->p64[m->sub.cur] = 0;
+    s->p68[m->sub.cur] = 0;
+    s->p6C[m->sub.cur] = 0;
+    s->p70[m->sub.cur].f4 = 0;
+    s->p70[m->sub.cur].f0 = 100;
+    s->p70[m->sub.cur].f8 = 90;
+    s->p70[m->sub.cur].fC = 50;
+    s->p74[m->sub.cur] = 0;
+    s->p80[m->sub.cur] = 0;
+    s->p84[m->sub.cur] = 0;
+    s->p78[m->sub.cur] = 0x7F;
+    s->p7C[m->sub.cur] = 1;
+    self->a4[self->mgr->sub.cur] = a;
+    self->a8[self->mgr->sub.cur] = b;
+}
+
+// Adds a voice on the global sound system for the request, sets its target and volume (clamped to 0..127), then commits.
+extern "C" int func_00290018(void* self, sSnd0018Req* req)
+{
+    snd0018AddVoice(D_004A3664_0018, req->f1C, req->f20);
+    sSnd0018Mgr* m1 = D_004A3664_0018->mgr;
+    m1->sub.p3C[m1->sub.cur] = req->f18;
+    sSnd0018Mgr* m2 = D_004A3664_0018->mgr;
+    sSnd0018Sub* s2 = &m2->sub;
+    s2->vals[m2->sub.cur] = req->vol;
+    s2->ch[m2->sub.cur].vol = SND_0018_MAX(0, SND_0018_MIN(s2->vals[s2->cur], 0x7F));
+    func_002906B8(D_004A3664_0018);
+    return 1;
+}
 
 INCLUDE_ASM("sound/soundsys", func_00290358);
 
