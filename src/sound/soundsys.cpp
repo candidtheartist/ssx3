@@ -6754,7 +6754,135 @@ extern "C" int func_0029F620(void* self, void* obj)
     return 0xF;
 }
 
-INCLUDE_ASM("sound/soundsys", func_0029F660);
+//100%
+
+struct cRiderMetrix;
+struct cAirPredictor;
+struct cRiderAnim;
+
+struct t4Matrix;
+
+
+struct t4Vector;
+
+
+
+
+struct cRiderHandler;
+
+
+
+
+extern "C" int func_002A10C0(void* self, int id);
+extern "C" int func_002A1028(void* self, int id);
+extern "C" unsigned int func_002ADF60(void* mon);
+extern "C" void func_00295628(void* self, void* evt, int h, int t, int a, int idx);
+extern "C" int func_00295028(void* self, int a, int b);
+extern "C" int func_002906B8(void* self);
+extern "C" int func_00288A20(void* self, void* obj);
+
+struct sSsVtF660 { short delta; short index; void* (*fn)(void*); };
+
+extern "C" void func_0029F660(void* vself, void* vrider, int a, int b)
+{
+    sSnd17D0Sys* self = (sSnd17D0Sys*)vself;
+    cRider* rider = (cRider*)vrider;
+    if (func_0029F0A0(self) == 0) return;
+    if (func_00288AE0(self) != 0) return;
+    int ok = rider->mIsHuman != 0 && rider->mIsLocal != 0;
+    if (!ok && b == 0) {
+        if (func_002A10C0(self, cRider_getCharacterID(rider)) != 0) return;
+    }
+    int past = rider->mFinishTime >= 0.0f;
+    if (past) return;
+    if (func_00295028(self, 3, 0) != 0) return;
+    func_002A1028(self, func_00123128(rider));
+    int kind = func_0029F620(self, rider);
+    int prio;
+    if (kind == 0xE) {
+        if (a == 1) {
+            prio = (func_002ADF60(*(void**)((char*)*self->p118 + 0x1D8)) & 0x7FFF) * 3 / 0x7FFF;
+        } else if (a == 0) {
+            prio = (func_002ADF60(*(void**)((char*)*self->p118 + 0x1D8)) & 0x7FFF) * 3 / 0x7FFF + 3;
+        } else {
+            prio = *(int*)((char*)self + 0x5734);
+            *(int*)((char*)self + 0x5734) = prio + 1;
+            if (prio + 1 >= 6) {
+                *(int*)((char*)self + 0x5734) = 0;
+            }
+        }
+    } else if (a == 1) {
+        prio = func_0029F378(self, rider) * 2 + 1;
+    } else {
+        prio = func_0029F378(self, rider) * 2;
+    }
+    int flag = 0;
+    int ok2 = rider->mIsHuman != 0 && rider->mIsLocal != 0;
+    if (ok2) {
+        cBE_getInterface_Fv(cBE_getBE(), 0);
+        if (D_00535C11[0] == 2) {
+            flag = func_00288AE0(self) == 0;
+        }
+    }
+    int vol = func_00290C40(self, rider);
+    sSnd17D0Mgr* m = self->mgr;
+    sSnd17D0Sub* s = &m->sub;
+    m->sub.cur++;
+    s->ch[m->sub.cur] = m->sub.def;
+    m->sub.tgt[m->sub.cur] = 0;
+    s->p34[m->sub.cur] = 0;
+    s->vals[m->sub.cur] = s->ch[m->sub.cur].vol;
+    s->p3C[m->sub.cur] = 0;
+    func_00416210((char*)s + m->sub.cur * 8 + 0x40, 0, 8);
+    s->p60[m->sub.cur] = 0;
+    s->p64[m->sub.cur] = 0;
+    s->p68[m->sub.cur] = 0;
+    s->p6C[m->sub.cur] = 0;
+    s->p70[m->sub.cur].f4 = 0;
+    s->p70[m->sub.cur].f0 = 100;
+    s->p70[m->sub.cur].f8 = 90;
+    s->p70[m->sub.cur].fC = 50;
+    s->p74[m->sub.cur] = 0;
+    s->p80[m->sub.cur] = 0;
+    s->p84[m->sub.cur] = 0;
+    s->p78[m->sub.cur] = 0x7F;
+    s->p7C[m->sub.cur] = 1;
+    self->a4[self->mgr->sub.cur] = kind;
+    self->a8[self->mgr->sub.cur] = prio;
+    sSnd17D0Mgr* m3 = *self->p118;
+    sSnd17D0Sub* s3 = &m3->sub;
+    s3->vals[m3->sub.cur] = vol;
+    s3->ch[m3->sub.cur].vol = (s3->vals[s3->cur] < 0x7F && s3->vals[s3->cur] < 0) ? 0 : (s3->vals[s3->cur] < 0x7F ? (unsigned char)s3->vals[s3->cur] : 0x7F);
+    {
+        sSnd17D0Mgr** pq = self->p118;
+        int q = func_00288A20(self, rider);
+        (*pq)->sub.p64[(*pq)->sub.cur] = q;
+    }
+    {
+        sSnd17D0Mgr** pp = self->p118;
+        int r = (int)func_00287968(self, 4, func_00123128(rider));
+        (*pp)->sub.p3C[(*pp)->sub.cur] = r;
+    }
+    int ok3 = rider->mIsHuman != 0 && rider->mIsLocal != 0;
+    if (ok3) {
+        func_002A9988(&(*self->p118)->sub, 29.997713088989258f, -1.0f);
+    } else {
+        func_002A9988(&(*self->p118)->sub, 100.0f, -1.0f);
+    }
+    {
+        sSnd17D0Mgr** pt = self->p118;
+        char* obj = (char*)&rider->mVtbl;
+        sSsVtF660* vt = *(sSsVtF660**)obj;
+        void* pos = vt[kRiderVt_getPosition].fn(obj + vt[kRiderVt_getPosition].delta);
+        (*pt)->sub.tgt[(*pt)->sub.cur] = pos;
+    }
+    if (flag) {
+        (*self->p118)->sub.p80[(*self->p118)->sub.cur] = 1;
+        (*self->p118)->sub.p84[(*self->p118)->sub.cur] = rider->mViewIndex;
+    }
+    int h = func_002906B8(self);
+    func_00295628(self, (void*)3, h, *(int*)(**(char***)((char*)self + 0x118) + 0x260) + 50, 0, 0);
+}
 
 //100%
 extern "C" int func_002A3FE8(void* self);
