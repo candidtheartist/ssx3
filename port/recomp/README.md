@@ -142,6 +142,15 @@ or any disc file.
     texture page cache has not loaded another page since. The 8,000 recorded race packets replay to the same VRAM
     with 12% fewer instructions. In a race with the old and new code swapped every 30 s, the new code drew about 4%
     more frames, which is within this machine's run-to-run noise;
+  - VIF1, VU1 and the GIF running on a thread of their own, so the game thread runs only the EE. VIF1 and GIF DMA,
+    VIF1 FIFO writes and stores to the GS privileged registers other than CSR become jobs that run there in order.
+    The DMA still reports done at once, and the job reads a copy of the memory it was started on. The EE waits for
+    the thread before it reads or changes anything a job uses (VU1 memory, the VIF1 registers, those GS registers),
+    and stays at most 3 vertical blanks ahead of the drawing. VU1 programs that stop on a D or T bit for the EE
+    to see still run on the game thread. In a race on a 4-core machine with the thread switched on and off every
+    30 s, the game thread was busy 24% of the time instead of 53%. The frame rate stayed within this machine's
+    run-to-run noise (13.5 against 12.6 a second), since the GS workers still set it; with drawing skipped, the
+    race ran 31% faster;
   - debug switches.
 - `ssx3_overrides.cpp` holds the game-specific replacements: it skips the network and USB keyboard drivers,
   answers the module search, routes `isceSifSendCmd`, and keeps the runtime's scratch buffers in the
@@ -217,7 +226,8 @@ These debug switches print to stderr:
 | `PS2X_GS_SAMPLE=flagfile` | once `flagfile` exists, 3000 non-sprite primitives drawn to the main framebuffer |
 
 `PS2X_GS_THREADS=n` draws with `n` GS worker threads, and 0 draws on the game thread. By default it uses the cores
-the game and window threads leave free, up to 6.
+the game and window threads leave free, up to 6. `PS2X_VU1_THREAD=0` or `1` turns VIF1, VU1 and the GIF's own
+thread off or on; by default it is on with 6 or more cores.
 
 Keyboard: Enter is START, X is Cross, Z is Square; F1 shows the debug panel.
 
