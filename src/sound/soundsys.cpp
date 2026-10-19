@@ -1453,7 +1453,7 @@ extern "C" void func_00292CB8(void* self, void* obj) {
     if (cRider_getMotionMode(rider) == 0) {
         func_00293168(self, rider, &a, &b);
     }
-    if (func_0011FE98(rider) == 2) {
+    if (cRider_getMotionMode(rider) == 2) {
         a = 0;
     }
     int pos = rider->mFinishTime >= 0.0f;
@@ -1502,7 +1502,7 @@ extern "C" void func_00292DA0(void* self, void* obj) {
     int a;
     int b;
     cRider* rider = *(cRider**)((char*)obj + 0x80);
-    int st = func_0011FE98(rider);
+    int st = cRider_getMotionMode(rider);
     if (st != rider->unk_760) {
         rider->unk_760 = st;
     }
@@ -1522,7 +1522,7 @@ extern "C" void func_00292DA0(void* self, void* obj) {
             func_00293290(self, func_00291710(self, (int)rider), rider, &a, &b);
         }
     }
-    if (func_0011FE98(rider) == 2) {
+    if (cRider_getMotionMode(rider) == 2) {
         a = 0;
     }
     int c = 0;
@@ -1566,7 +1566,7 @@ extern "C" void func_00292EF8(void* self, void* obj) {
     int a;
     int b;
     cRider* rider = *(cRider**)((char*)obj + 0x80);
-    int st = func_0011FE98(rider);
+    int st = cRider_getMotionMode(rider);
     if (st != rider->unk_760) {
         rider->unk_760 = st;
     }
@@ -1625,7 +1625,7 @@ extern "C" void func_00293018(void* self, void* obj) {
     cRider* rider = *(cRider**)((char*)obj + 0x80);
     b = 0x40;
     a = 0;
-    int st = func_0011FE98(rider);
+    int st = cRider_getMotionMode(rider);
     if (st == 1 || st == 5) {
         if (func_002934D0_p3(self, rider->unk_76C, rider) == 2) {
             rider->unk_76C = 9;
@@ -1640,7 +1640,7 @@ extern "C" void func_00293018(void* self, void* obj) {
             func_00293410(self, func_00291710(self, (int)rider), rider, &a, &b);
         }
     }
-    if (func_0011FE98(rider) == 2) {
+    if (cRider_getMotionMode(rider) == 2) {
         a = 0;
     }
     int c = 0;
@@ -6796,7 +6796,7 @@ extern "C" void func_0029F660(void* vself, void* vrider, int a, int b)
     int past = rider->mFinishTime >= 0.0f;
     if (past) return;
     if (func_00295028(self, 3, 0) != 0) return;
-    func_002A1028(self, func_00123128(rider));
+    func_002A1028(self, cRider_getCharacterID(rider));
     int kind = func_0029F620(self, rider);
     int prio;
     if (kind == 0xE) {
@@ -6860,7 +6860,7 @@ extern "C" void func_0029F660(void* vself, void* vrider, int a, int b)
     }
     {
         sSnd17D0Mgr** pp = self->p118;
-        int r = (int)func_00287968(self, 4, func_00123128(rider));
+        int r = (int)func_00287968(self, 4, cRider_getCharacterID(rider));
         (*pp)->sub.p3C[(*pp)->sub.cur] = r;
     }
     int ok3 = rider->mIsHuman != 0 && rider->mIsLocal != 0;
