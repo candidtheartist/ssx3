@@ -2,7 +2,26 @@
 
 INCLUDE_ASM("ealib/seg_2B4578", SHAPE_unpack);
 
-INCLUDE_ASM("ealib/seg_2B4578", func_003B38B8);
+//100%
+int func_003B38B8(int arg0) {
+    int var_5;
+
+    var_5 = 0;
+    switch (arg0) {
+    case 15:
+    case 16:
+        var_5 = 0x20;
+        break;
+    case 18:
+    case 24:
+        var_5 = 0;
+        break;
+    case 32:
+        var_5 = 0x21;
+        break;
+    }
+    return var_5;
+}
 
 //100%
 // PORT: PS2-only inline asm; needs a C fallback off-PS2.
