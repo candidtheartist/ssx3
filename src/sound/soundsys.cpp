@@ -9975,7 +9975,37 @@ extern "C" void func_002A6848(void* self)
     }
 }
 
-INCLUDE_ASM("sound/soundsys", func_002A68B0);
+//100%
+extern "C" void func_002ABB38(void*);
+extern "C" void func_003BC6B8(int, int);
+
+extern "C" void func_002A68B0_p3(char* self, char* obj, float dt) __asm__("func_002A68B0");
+extern "C" void func_002A68B0_p3(char* self, char* obj, float dt) {
+    if (*(int*)(obj + 4) < 0) {
+        func_002ABB38(obj);
+        return;
+    }
+    float t = *(float*)(self + 0x188);
+    if (!(t <= 0.0f)) {
+        int idx = *(int*)(self + 0x184);
+        char* base = (char*)D_004A36F8;
+        float rem = t - dt;
+        *(float*)(self + 0x188) = rem;
+        char* e = base + (idx * 0x54 + 0x1C);
+        float f = *(float*)(e + 0x4C);
+        int vol = 0x40;
+        if (f < rem) {
+            float r = *(float*)(e + 0x50) * (*(float*)(e + 0x48) - (rem - f)) / *(float*)(e + 0x48);
+            vol = (int)r + 0x40;
+        } else if (rem > 0.0f) {
+            float r = *(float*)(e + 0x50) * rem / f;
+            vol = (int)r + 0x40;
+        }
+        func_003B58A0();
+        func_003BC6B8(*(int*)(obj + 4), vol);
+        func_003B58D8();
+    }
+}
 
 //100%
 extern "C" void* func_002ADE88(void* self, int heap);
