@@ -171,6 +171,10 @@ or any disc file.
     race with the old and new code swapped every 30 s, the GS workers stopped to wait for each other 4.4 times less
     often and got through 5% more commands a second; the frame rate changed by less than this machine's run-to-run
     noise;
+  - a sprite's texel reads worked out once per column and once per row instead of for every pixel: which texels
+    it reads, wrapped as CLAMP sets up, and their filter weights. The full-screen passes are sprites, so the 8,000
+    recorded race packets replay to the same VRAM, also with round-toward-zero and on several workers, with 5%
+    fewer instructions;
   - debug switches.
 - `ssx3_overrides.cpp` holds the game-specific replacements: it skips the network and USB keyboard drivers,
   answers the module search, routes `isceSifSendCmd`, and keeps the runtime's scratch buffers in the
