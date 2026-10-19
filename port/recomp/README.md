@@ -183,6 +183,9 @@ or any disc file.
 - `ssx3_overrides.cpp` holds the game-specific replacements: it skips the network and USB keyboard drivers,
   answers the module search, routes `isceSifSendCmd`, and keeps the runtime's scratch buffers in the
   0x80000-0x100000 gap below the ELF, since the game's own allocator owns everything above it.
+- `ssx3_native.cpp` and `native/` swap in game functions compiled from the decompiled C instead of
+  their recompiled copies. Only functions that are certain to behave the same qualify; see
+  [native/README.md](native/README.md).
 - `ssx3.toml.in` is the translator config (the analyzer's stub and entry lists). `gen_funcs.py` and
   `function_splits.txt` produce its function map. A stub runs the runtime's own version of a function instead of
   the game's, so a name goes on the list only when the runtime's version takes the same arguments: SSX 3's `log`

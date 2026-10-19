@@ -30,6 +30,9 @@ option(SSX3PC_FFMPEG "Build the runtime with FFmpeg, which plays the game's movi
 # The function tracker logs and flushes every guest function entry and exit to ps2_log.txt,
 # which makes races run at 1-2 frames a second. Off unless debugging the runtime.
 option(SSX3PC_TRACE_LOGS "Build the runtime with its per-function trace and IOP RPC trace logs" OFF)
+# Decompiled functions listed in native/native_functions.txt, compiled for the host
+# and run in place of their recompiled copies (PS2X_NATIVE=0 turns them off at run time).
+option(SSX3PC_NATIVE "Run the decompiled functions picked in native/ as native code" ON)
 set(SSX3PC_PKG_CONFIG_PATH "/usr/lib/i386-linux-gnu/pkgconfig" CACHE STRING
     "pkg-config path for the 32-bit FFmpeg libraries")
 
@@ -109,7 +112,41 @@ add_custom_command(
     VERBATIM)
 add_custom_target(ssx3_recompiled DEPENDS "${GEN_DIR}/register_functions.cpp")
 
-# 5. The 32-bit runtime with the generated code and our overrides.
+# 5. Decompiled functions as native code, linked into one object (native/gen_native.py).
+set(RUNNER_EXTRA_SOURCES
+    "${CMAKE_CURRENT_SOURCE_DIR}/ssx3_overrides.cpp"
+    "${CMAKE_CURRENT_SOURCE_DIR}/ssx3_native.cpp")
+set(NATIVE_DEPENDS "")
+if(SSX3PC_NATIVE)
+    find_package(Python3 REQUIRED COMPONENTS Interpreter)
+    set(NATIVE_DIR "${CMAKE_CURRENT_SOURCE_DIR}/native")
+    set(DECOMP_ROOT "${CMAKE_CURRENT_SOURCE_DIR}/../..")
+    set(NATIVE_OBJ "${CMAKE_CURRENT_BINARY_DIR}/native/ssx3_native_code.o")
+    # Rebuild when a listed unit or anything it includes from the decomp changes.
+    file(STRINGS "${NATIVE_DIR}/native_functions.txt" NATIVE_LINES REGEX "^src/")
+    set(NATIVE_UNITS "")
+    foreach(line IN LISTS NATIVE_LINES)
+        string(REGEX REPLACE " .*" "" unit "${line}")
+        list(APPEND NATIVE_UNITS "${DECOMP_ROOT}/${unit}")
+    endforeach()
+    list(REMOVE_DUPLICATES NATIVE_UNITS)
+    file(GLOB_RECURSE DECOMP_HEADERS CONFIGURE_DEPENDS "${DECOMP_ROOT}/include/*.h" "${DECOMP_ROOT}/src/*.h")
+    add_custom_command(
+        OUTPUT "${NATIVE_OBJ}"
+        COMMAND "${Python3_EXECUTABLE}" "${NATIVE_DIR}/gen_native.py" "${DECOMP_ROOT}"
+                "${CMAKE_CURRENT_BINARY_DIR}/native" "${NATIVE_OBJ}"
+        DEPENDS "${NATIVE_DIR}/gen_native.py" "${NATIVE_DIR}/native_flags.py" "${NATIVE_DIR}/native_abi.h"
+                "${NATIVE_DIR}/native_functions.txt" "${NATIVE_DIR}/native_symbols.txt"
+                ${NATIVE_UNITS} ${DECOMP_HEADERS}
+        COMMENT "Compiling decompiled functions as native code"
+        VERBATIM)
+    add_custom_target(ssx3_native DEPENDS "${NATIVE_OBJ}")
+    list(APPEND RUNNER_EXTRA_SOURCES "${NATIVE_OBJ}")
+    set(NATIVE_DEPENDS ssx3_native)
+endif()
+string(REPLACE ";" "|" RUNNER_EXTRA_SOURCES "${RUNNER_EXTRA_SOURCES}")
+
+# 6. The 32-bit runtime with the generated code, our overrides and the native code.
 if(SSX3PC_FFMPEG)
     set(RUNTIME_FFMPEG ON)
     set(RUNTIME_ENV ${CMAKE_COMMAND} -E env "PKG_CONFIG_PATH=${SSX3PC_PKG_CONFIG_PATH}")
@@ -122,7 +159,8 @@ if(SSX3PC_RUNTIME_JOBS)
     list(APPEND RUNTIME_BUILD_ARGS -j ${SSX3PC_RUNTIME_JOBS})
 endif()
 ExternalProject_Add(ssx3pc_runtime
-    DEPENDS ps2recomp_src ssx3_recompiled
+    DEPENDS ps2recomp_src ssx3_recompiled ${NATIVE_DEPENDS}
+    LIST_SEPARATOR "|"
     DOWNLOAD_COMMAND ""
     SOURCE_DIR "${SRC_DIR}"
     BINARY_DIR "${CMAKE_CURRENT_BINARY_DIR}/runtime"
@@ -142,7 +180,7 @@ ExternalProject_Add(ssx3pc_runtime
         -DPS2X_ENABLE_AGRESSIVE_LOGS=${SSX3PC_TRACE_LOGS}
         -DPS2X_ENABLE_IOP_RPC_TRACE=${SSX3PC_TRACE_LOGS}
         -DPS2X_RUNNER_SOURCE_DIR=${GEN_DIR}
-        -DPS2X_RUNNER_EXTRA_SOURCES=${CMAKE_CURRENT_SOURCE_DIR}/ssx3_overrides.cpp
+        "-DPS2X_RUNNER_EXTRA_SOURCES=${RUNNER_EXTRA_SOURCES}"
     BUILD_COMMAND ${RUNTIME_ENV} ${CMAKE_COMMAND} --build . ${RUNTIME_BUILD_ARGS}
     BUILD_ALWAYS ON
     INSTALL_COMMAND ""
