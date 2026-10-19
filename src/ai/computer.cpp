@@ -1,44 +1,46 @@
 #include "common.h"
+#include "ai/motionowner.h"
 
 //100%
 // Sets one AI rider's speed/skill tuning for a difficulty level (1..5) and race mode.
 extern "C" void cComputer_setIndividualRiderDifficulty(char* self, int level, int mode)
 {
+    cMotionOwner* owner = (cMotionOwner*)self;
     switch (level) {
     case 1:
         *(float*)(self + 0xDF8) = 100.0f;
         *(float*)(self + 0xDFC) = 86.9153976f;
-        *(float*)(*(char**)(self + 0x18) + 0xDC) = -49670.1406f;
-        *(float*)(*(char**)(self + 0x18) + 0xE0) = 47500.0f;
-        *(int*)(*(char**)(self + 0x18) + 0xE4) = 0;
+        *(float*)(owner->mRider + 0xDC) = -49670.1406f;
+        *(float*)(owner->mRider + 0xE0) = 47500.0f;
+        *(int*)(owner->mRider + 0xE4) = 0;
         break;
     case 2:
         *(float*)(self + 0xDF8) = 80.3891449f;
         *(float*)(self + 0xDFC) = 79.5998383f;
-        *(float*)(*(char**)(self + 0x18) + 0xDC) = -70000.0f;
-        *(float*)(*(char**)(self + 0x18) + 0xE0) = 45000.0f;
-        *(int*)(*(char**)(self + 0x18) + 0xE4) = 1;
+        *(float*)(owner->mRider + 0xDC) = -70000.0f;
+        *(float*)(owner->mRider + 0xE0) = 45000.0f;
+        *(int*)(owner->mRider + 0xE4) = 1;
         break;
     case 3:
         *(float*)(self + 0xDF8) = 51.007576f;
         *(float*)(self + 0xDFC) = 68.9012375f;
-        *(float*)(*(char**)(self + 0x18) + 0xDC) = -81571.1797f;
-        *(float*)(*(char**)(self + 0x18) + 0xE0) = 40000.0f;
-        *(int*)(*(char**)(self + 0x18) + 0xE4) = 1;
+        *(float*)(owner->mRider + 0xDC) = -81571.1797f;
+        *(float*)(owner->mRider + 0xE0) = 40000.0f;
+        *(int*)(owner->mRider + 0xE4) = 1;
         break;
     case 4:
         *(float*)(self + 0xDF8) = 46.6018982f;
         *(float*)(self + 0xDFC) = 56.8430748f;
-        *(float*)(*(char**)(self + 0x18) + 0xDC) = -80321.1797f;
-        *(float*)(*(char**)(self + 0x18) + 0xE0) = 37500.0f;
-        *(int*)(*(char**)(self + 0x18) + 0xE4) = 1;
+        *(float*)(owner->mRider + 0xDC) = -80321.1797f;
+        *(float*)(owner->mRider + 0xE0) = 37500.0f;
+        *(int*)(owner->mRider + 0xE4) = 1;
         break;
     case 5:
         *(float*)(self + 0xDF8) = 14.000701f;
         *(float*)(self + 0xDFC) = 42.4410439f;
-        *(float*)(*(char**)(self + 0x18) + 0xDC) = -92500.0f;
-        *(float*)(*(char**)(self + 0x18) + 0xE0) = 32500.0f;
-        *(int*)(*(char**)(self + 0x18) + 0xE4) = 1;
+        *(float*)(owner->mRider + 0xDC) = -92500.0f;
+        *(float*)(owner->mRider + 0xE0) = 32500.0f;
+        *(int*)(owner->mRider + 0xE4) = 1;
         break;
     }
     if (mode == 0) {
@@ -46,27 +48,27 @@ extern "C" void cComputer_setIndividualRiderDifficulty(char* self, int level, in
         case 1:
             *(float*)(self + 0xDF8) = 100.0f;
             *(float*)(self + 0xDFC) = 83.8930817f;
-            *(float*)(*(char**)(self + 0x18) + 0xE0) = 45000.0f;
+            *(float*)(owner->mRider + 0xE0) = 45000.0f;
             break;
         case 2:
             *(float*)(self + 0xDF8) = 55.8049736f;
             *(float*)(self + 0xDFC) = 64.6436768f;
-            *(float*)(*(char**)(self + 0x18) + 0xE0) = 42500.0f;
+            *(float*)(owner->mRider + 0xE0) = 42500.0f;
             break;
         case 3:
             *(float*)(self + 0xDF8) = 40.2501869f;
             *(float*)(self + 0xDFC) = 60.0044975f;
-            *(float*)(*(char**)(self + 0x18) + 0xE0) = 37500.0f;
+            *(float*)(owner->mRider + 0xE0) = 37500.0f;
             break;
         case 4:
             *(float*)(self + 0xDF8) = 15.5423021f;
             *(float*)(self + 0xDFC) = 52.0049553f;
-            *(float*)(*(char**)(self + 0x18) + 0xE0) = 32500.0f;
+            *(float*)(owner->mRider + 0xE0) = 32500.0f;
             break;
         case 5:
             *(float*)(self + 0xDF8) = 7.95483208f;
             *(float*)(self + 0xDFC) = 35.0202637f;
-            *(float*)(*(char**)(self + 0x18) + 0xE0) = 30000.0f;
+            *(float*)(owner->mRider + 0xE0) = 30000.0f;
             break;
         }
     } else if (mode == 2) {
@@ -74,27 +76,27 @@ extern "C" void cComputer_setIndividualRiderDifficulty(char* self, int level, in
         case 1:
             *(float*)(self + 0xDF8) = 100.0f;
             *(float*)(self + 0xDFC) = 100.0f;
-            *(float*)(*(char**)(self + 0x18) + 0xE0) = 50000.0f;
+            *(float*)(owner->mRider + 0xE0) = 50000.0f;
             break;
         case 2:
             *(float*)(self + 0xDF8) = 84.9981003f;
             *(float*)(self + 0xDFC) = 82.6824875f;
-            *(float*)(*(char**)(self + 0x18) + 0xE0) = 47500.0f;
+            *(float*)(owner->mRider + 0xE0) = 47500.0f;
             break;
         case 3:
             *(float*)(self + 0xDF8) = 74.9987259f;
             *(float*)(self + 0xDFC) = 70.8223801f;
-            *(float*)(*(char**)(self + 0x18) + 0xE0) = 40000.0f;
+            *(float*)(owner->mRider + 0xE0) = 40000.0f;
             break;
         case 4:
             *(float*)(self + 0xDF8) = 54.9958344f;
             *(float*)(self + 0xDFC) = 59.9440651f;
-            *(float*)(*(char**)(self + 0x18) + 0xE0) = 37500.0f;
+            *(float*)(owner->mRider + 0xE0) = 37500.0f;
             break;
         case 5:
             *(float*)(self + 0xDF8) = 29.9814339f;
             *(float*)(self + 0xDFC) = 46.9987717f;
-            *(float*)(*(char**)(self + 0x18) + 0xE0) = 32500.0f;
+            *(float*)(owner->mRider + 0xE0) = 32500.0f;
             break;
         }
     }
@@ -121,19 +123,20 @@ static inline int riderV7_10C9A8(char* rider)
 
 extern "C" void cComputer_setStatsForPeak(void* self)
 {
+    cMotionOwner* owner = (cMotionOwner*)self;
     void* s = cBE_getInterface_Fv(cBE_getBE(), 3);
     void* g = cBE_getInterface_Fv(cBE_getBE(), 0);
     if (func_00144C98(g) == 2)
     {
-        func_00148AA8(s, riderV7_10C9A8(*(char**)((char*)self + 0x18)), 7);
+        func_00148AA8(s, riderV7_10C9A8(owner->mRider), 7);
     }
     else if (func_00144C98(g) == 1)
     {
-        func_00148AA8(s, riderV7_10C9A8(*(char**)((char*)self + 0x18)), 4);
+        func_00148AA8(s, riderV7_10C9A8(owner->mRider), 4);
     }
     else
     {
-        func_00148AA8(s, riderV7_10C9A8(*(char**)((char*)self + 0x18)), 1);
+        func_00148AA8(s, riderV7_10C9A8(owner->mRider), 1);
     }
 }
 
@@ -587,6 +590,7 @@ struct sAi_10D410 {
 
 extern "C" float cComputer_scoreRoute(char* self, char* tgt)
 {
+    cMotionOwner* owner = (cMotionOwner*)self;
     float sc[7];
     char* ai = *(char**)(*(char**)((char*)D_004A28A8 + 0x84) + 0xC);
     int flags = *(int*)(tgt + 0x38);
@@ -606,7 +610,7 @@ extern "C" float cComputer_scoreRoute(char* self, char* tgt)
     if (*(int*)(self + 0xE04) == 0 && solo != 0) {
         return 0.0f;
     }
-    float speed = vu0Length_10D410(*(sVec4_10D410*)(*(char**)(self + 0x18) + 0x1E0)) * 0.035999998450279236f;
+    float speed = vu0Length_10D410(*(sVec4_10D410*)(owner->mRider + 0x1E0)) * 0.035999998450279236f;
     if (lvl == 0) {
         if ((float)speedLimit_10D410(kind) < speed) {
             return 0.0f;
@@ -616,11 +620,11 @@ extern "C" float cComputer_scoreRoute(char* self, char* tgt)
             return 0.0f;
         }
     }
-    char* r = *(char**)(self + 0x18);
+    char* r = owner->mRider;
     float len = vu0Length_10D410(*(sVec4_10D410*)(r + 0x1E0));
     float total = 22.0f;
     float s = cRider_getRouteLookahead(r, 1) / len;
-    sVec4_10D410 pos = vu0Add_10D410(*(sVec4_10D410*)(*(char**)(self + 0x18) + 0x110), vu0Scale_10D410(*(sVec4_10D410*)(*(char**)(self + 0x18) + 0x1E0), s));
+    sVec4_10D410 pos = vu0Add_10D410(*(sVec4_10D410*)(owner->mRider + 0x110), vu0Scale_10D410(*(sVec4_10D410*)(owner->mRider + 0x1E0), s));
     sVec4_10D410 out;
     float t;
     func_0026A428(tgt, &pos, &out, &t, 1);
@@ -633,7 +637,7 @@ extern "C" float cComputer_scoreRoute(char* self, char* tgt)
         return -1.0f;
     }
     sc[0] = v * 0.22727273404598236f;
-    char* r2 = *(char**)(self + 0x18);
+    char* r2 = owner->mRider;
     if (*(int*)(r2 + 0xF0) != 0 && *(char**)(((sAi_10D410*)ai)->riders[*(int*)(r2 + 0xF8)] + 0xAB8) == tgt) {
         return 100.0f;
     }
@@ -643,7 +647,7 @@ extern "C" float cComputer_scoreRoute(char* self, char* tgt)
     sc[2] = (float)lvl * (w * 0.3333333432674408f);
     // PORT: the path pointer is passed as cAI_countComputersOnRoute's int team
     int n = cAI_countComputersOnRoute((sAi0010FC30*)ai, (int)tgt);
-    n -= tgt == *(char**)(*(char**)(self + 0x18) + 0xAB8);
+    n -= tgt == *(char**)(owner->mRider + 0xAB8);
     float c;
     if (n <= 0) {
         c = 100.0f;
@@ -716,7 +720,8 @@ struct sComputer_0010D8F8
 
 extern "C" int cComputer_findHumanPairIndex(void* self)
 {
-    sComputer_0010D8F8* p = *(sComputer_0010D8F8**)((char*)self + 0x18);
+    cMotionOwner* owner = (cMotionOwner*)self;
+    sComputer_0010D8F8* p = *(sComputer_0010D8F8**)&owner->mRider;
     for (int i = 0; i < 6; i++, p++)
     {
         if (p->a != 0 && p->b != 0)
@@ -730,22 +735,24 @@ float cRider_getRemainingDistance(void* self);
 
 extern "C" int cComputer_isFarBehindHuman(void* self)
 {
+    cMotionOwner* owner = (cMotionOwner*)self;
     int p = cComputer_getHumanPeer(self);
     if (p == 0)
         return 0;
-    float d = cRider_getRemainingDistance((void*)p) - *(float*)(*(char**)((char*)self + 0x18) + 0x4D0);
-    if (d < *(float*)(*(char**)((char*)self + 0x18) + 0xDC))
+    float d = cRider_getRemainingDistance((void*)p) - *(float*)(owner->mRider + 0x4D0);
+    if (d < *(float*)(owner->mRider + 0xDC))
         return 1;
     return 0;
 }
 
 extern "C" int cComputer_isFarAheadOfHuman(void* self)
 {
+    cMotionOwner* owner = (cMotionOwner*)self;
     int p = cComputer_getHumanPeer(self);
     if (p == 0)
         return 0;
-    float d = cRider_getRemainingDistance((void*)p) - *(float*)(*(char**)((char*)self + 0x18) + 0x4D0);
-    if (*(float*)(*(char**)((char*)self + 0x18) + 0xE0) < d)
+    float d = cRider_getRemainingDistance((void*)p) - *(float*)(owner->mRider + 0x4D0);
+    if (*(float*)(owner->mRider + 0xE0) < d)
         return 1;
     return 0;
 }
@@ -753,7 +760,8 @@ extern "C" int cComputer_isFarAheadOfHuman(void* self)
 //100%
 extern "C" int cComputer_isDesignatedPeer(void* self, int a1)
 {
-    void* p = *(void**)((char*)self + 0x18);
+    cMotionOwner* owner = (cMotionOwner*)self;
+    void* p = *(void**)&owner->mRider;
     int r = 0;
     if (*(int*)((char*)p + 0xf0) != 0) {
         r = *(int*)((char*)p + 0xf8) == a1;
@@ -773,6 +781,7 @@ unsigned int AIrand();
 
 extern "C" int cComputer_decideBlock(char* self)
 {
+    cMotionOwner* owner = (cMotionOwner*)self;
     float t = *(float*)(self + 0xF30);
     if (t < 0.0f)
     {
@@ -790,7 +799,7 @@ extern "C" int cComputer_decideBlock(char* self)
     int i;
     for (i = 0; i < ai->count; i++)
     {
-        char* o = *(char**)(self + 0x18) + 0x6C0;
+        char* o = owner->mRider + 0x6C0;
         sVE_0010DA10* ve = &(*(sVE_0010DA10**)o)[7];
         if (i == ve->fn(o + ve->delta))
             continue;
@@ -798,7 +807,7 @@ extern "C" int cComputer_decideBlock(char* self)
         sVE_0010DA10* ve2 = &(*(sVE_0010DA10**)o2)[8];
         if (ve2->fn(o2 + ve2->delta) == 0)
             continue;
-        if (!((*(sRider_0010DA10**)(self + 0x18))->ent[i].dist < 200.0f))
+        if (!((*(sRider_0010DA10**)&owner->mRider)->ent[i].dist < 200.0f))
             continue;
         if (func_00311AE8(*(void**)(ai->riders[i] + 0x784), 1) != 13)
             continue;
@@ -833,17 +842,18 @@ extern signed char D_00535C11[];
 
 extern "C" float cComputer_getPacingScale(void* self)
 {
+    cMotionOwner* owner = (cMotionOwner*)self;
     cBE_getInterface_Fv(cBE_getBE(), 0);
     // PORT: cComputer_getHumanPeer returns a pointer as int (unit declaration).
     int p = cComputer_getHumanPeer(self);
     if (p == 0) return 1.0f;
-    char* r = *(char**)((char*)self + 0x18);
+    char* r = owner->mRider;
     if (*(int*)(r + 0xE4) == 0) return 1.0f;
     if (D_00535C11[0] == 2) return 1.0f;
     if (*(float*)(r + 0x4D0) < 50000.0f) return 1.0f;
     float m;
-    float d = cRider_getRemainingDistance((void*)p) - *(float*)(*(char**)((char*)self + 0x18) + 0x4D0);
-    char* r2 = *(char**)((char*)self + 0x18);
+    float d = cRider_getRemainingDistance((void*)p) - *(float*)(owner->mRider + 0x4D0);
+    char* r2 = owner->mRider;
     float k = *(float*)(r2 + 0xDC);
     if (d < k && (*(int*)(r2 + 0xE4) == 2 || *(int*)(r2 + 0xE4) == 3))
     {
@@ -851,7 +861,7 @@ extern "C" float cComputer_getPacingScale(void* self)
     }
     else
     {
-        char* r3 = *(char**)((char*)self + 0x18);
+        char* r3 = owner->mRider;
         float k2 = *(float*)(r3 + 0xE0);
         if (k2 < d && (*(int*)(r3 + 0xE4) == 1 || *(int*)(r3 + 0xE4) == 3))
         {
@@ -1593,9 +1603,10 @@ extern "C" void cMotionOwner_gainMotionFocus(void*, int);
 
 extern "C" void cMotionOwner_setMotionMode(void* self, int v)
 {
+    cMotionOwner* owner = (cMotionOwner*)self;
     cMotionOwner_loseMotionFocus();
-    int old = *(int*)((char*)self + 0xDE0);
-    *(int*)((char*)self + 0xDE0) = v;
+    int old = owner->mMotionMode;
+    owner->mMotionMode = v;
     cMotionOwner_gainMotionFocus(self, old);
 }
 
@@ -1609,23 +1620,24 @@ extern "C" void cHandplantMotion_loseFocus(void*, int);
 
 extern "C" void cMotionOwner_loseMotionFocus(char* self, int a1)
 {
-    switch (*(int*)(self + 0xDE0)) {
-    case 0:
+    cMotionOwner* owner = (cMotionOwner*)self;
+    switch (owner->mMotionMode) {
+    case MOTION_GROUND:
         cGroundMotion_loseFocus(self, a1);
         break;
-    case 1:
-        cAirMotion_loseFocus_pass(self + 0x20, a1);
+    case MOTION_AIR:
+        cAirMotion_loseFocus_pass(&owner->mAirMotion, a1);
         break;
-    case 2:
-        cWipeoutMotion_loseFocus_pass(self + 0x30, a1);
+    case MOTION_WIPEOUT:
+        cWipeoutMotion_loseFocus_pass(&owner->mWipeoutMotion, a1);
         break;
-    case 3:
+    case MOTION_STATIC:
         break;
-    case 4:
-        cRailSlideMotion_loseFocus(self + 0xB0, a1);
+    case MOTION_RAILSLIDE:
+        cRailSlideMotion_loseFocus(&owner->mRailSlideMotion, a1);
         break;
-    case 5:
-        cHandplantMotion_loseFocus(self + 0x110, a1);
+    case MOTION_HANDPLANT:
+        cHandplantMotion_loseFocus(&owner->mHandplantMotion, a1);
         break;
     }
 }
@@ -1640,23 +1652,24 @@ void cHandplantMotion_gainFocus_d(void*, int) __asm__("cHandplantMotion_gainFocu
 extern "C" void cMotionOwner_gainMotionFocus(void* self_, int a1)
 {
     char* self = (char*)self_;
-    switch (*(int*)(self + 0xDE0)) {
-    case 0:
+    cMotionOwner* owner = (cMotionOwner*)self;
+    switch (owner->mMotionMode) {
+    case MOTION_GROUND:
         cGroundMotion_gainFocus_d(self, a1);
         break;
-    case 1:
-        cAirMotion_gainFocus_d(self + 0x20, a1);
+    case MOTION_AIR:
+        cAirMotion_gainFocus_d(&owner->mAirMotion, a1);
         break;
-    case 2:
-        cWipeoutMotion_gainFocus_d(self + 0x30, a1);
+    case MOTION_WIPEOUT:
+        cWipeoutMotion_gainFocus_d(&owner->mWipeoutMotion, a1);
         break;
-    case 4:
-        cRailSlideMotion_gainFocus_d(self + 0xB0, a1);
+    case MOTION_RAILSLIDE:
+        cRailSlideMotion_gainFocus_d(&owner->mRailSlideMotion, a1);
         break;
-    case 5:
-        cHandplantMotion_gainFocus_d(self + 0x110, a1);
+    case MOTION_HANDPLANT:
+        cHandplantMotion_gainFocus_d(&owner->mHandplantMotion, a1);
         break;
-    case 3:
+    case MOTION_STATIC:
         break;
     }
 }
@@ -1671,24 +1684,25 @@ void cHandplantMotion_update_d(void*) __asm__("cHandplantMotion_update");
 
 extern "C" void cMotionOwner_updateMotion(char* self)
 {
-    switch (*(int*)(self + 0xDE0)) {
-    case 0:
+    cMotionOwner* owner = (cMotionOwner*)self;
+    switch (owner->mMotionMode) {
+    case MOTION_GROUND:
         cGroundMotion_update_d(self);
         break;
-    case 1:
-        cAirMotion_update_d(self + 0x20);
+    case MOTION_AIR:
+        cAirMotion_update_d(&owner->mAirMotion);
         break;
-    case 2:
-        cWipeoutMotion_update_d(self + 0x30);
+    case MOTION_WIPEOUT:
+        cWipeoutMotion_update_d(&owner->mWipeoutMotion);
         break;
-    case 3:
-        cStaticMotion_update_d(self + 0xA0);
+    case MOTION_STATIC:
+        cStaticMotion_update_d(&owner->mStaticMotion);
         break;
-    case 4:
-        cRailSlideMotion_update_d(self + 0xB0);
+    case MOTION_RAILSLIDE:
+        cRailSlideMotion_update_d(&owner->mRailSlideMotion);
         break;
-    case 5:
-        cHandplantMotion_update_d(self + 0x110);
+    case MOTION_HANDPLANT:
+        cHandplantMotion_update_d(&owner->mHandplantMotion);
         break;
     }
 }
@@ -1703,24 +1717,25 @@ void cHandplantMotion_postUpdate_d(void*) __asm__("cHandplantMotion_postUpdate__
 
 extern "C" void cMotionOwner_postUpdateMotion(char* self)
 {
-    switch (*(int*)(self + 0xDE0)) {
-    case 0:
+    cMotionOwner* owner = (cMotionOwner*)self;
+    switch (owner->mMotionMode) {
+    case MOTION_GROUND:
         cGroundMotion_postUpdate_d(self);
         break;
-    case 1:
-        cAirMotion_postUpdate_d(self + 0x20);
+    case MOTION_AIR:
+        cAirMotion_postUpdate_d(&owner->mAirMotion);
         break;
-    case 2:
-        cWipeoutMotion_postUpdate_d(self + 0x30);
+    case MOTION_WIPEOUT:
+        cWipeoutMotion_postUpdate_d(&owner->mWipeoutMotion);
         break;
-    case 3:
-        func_00136978_d(self + 0xA0);
+    case MOTION_STATIC:
+        func_00136978_d(&owner->mStaticMotion);
         break;
-    case 4:
-        cRailSlideMotion_postUpdate_d(self + 0xB0);
+    case MOTION_RAILSLIDE:
+        cRailSlideMotion_postUpdate_d(&owner->mRailSlideMotion);
         break;
-    case 5:
-        cHandplantMotion_postUpdate_d(self + 0x110);
+    case MOTION_HANDPLANT:
+        cHandplantMotion_postUpdate_d(&owner->mHandplantMotion);
         break;
     }
 }
@@ -1731,9 +1746,10 @@ extern "C" void cMotionOwner_gainControlFocus(void*, int);
 
 extern "C" void cMotionOwner_setControlState(void* self, int v)
 {
+    cMotionOwner* owner = (cMotionOwner*)self;
     cMotionOwner_loseControlFocus();
-    int old = *(int*)((char*)self + 0xDE4);
-    *(int*)((char*)self + 0xDE4) = v;
+    int old = owner->mControlState;
+    owner->mControlState = v;
     cMotionOwner_gainControlFocus(self, old);
 }
 
@@ -1749,32 +1765,33 @@ void cHandplantControl_loseFocus_d(void*, int) __asm__("cHandplantControl_loseFo
 
 extern "C" void cMotionOwner_loseControlFocus(char* self, int a1)
 {
-    switch (*(int*)(self + 0xDE4)) {
-    case 0:
-        cCruiseControl_loseFocus_d(self + 0x1C0, a1);
+    cMotionOwner* owner = (cMotionOwner*)self;
+    switch (owner->mControlState) {
+    case CONTROL_CRUISE:
+        cCruiseControl_loseFocus_d(&owner->mCruiseControl, a1);
         break;
-    case 1:
-        cBoardPressControl_loseFocus_d(self + 0x1D0, a1);
+    case CONTROL_BOARDPRESS:
+        cBoardPressControl_loseFocus_d(&owner->mBoardPressControl, a1);
         break;
-    case 2:
-        cPrewindControl_loseFocus_d(self + 0x1F0, a1);
+    case CONTROL_PREWIND:
+        cPrewindControl_loseFocus_d(&owner->mPrewindControl, a1);
         break;
-    case 4:
-        cNaturalAirControl_loseFocus_d(self + 0x210, a1);
+    case CONTROL_NATURALAIR:
+        cNaturalAirControl_loseFocus_d(&owner->mNaturalAirControl, a1);
         break;
-    case 5:
-        cSpinControl_loseFocus_d(self + 0x230, a1);
+    case CONTROL_SPIN:
+        cSpinControl_loseFocus_d(&owner->mSpinControl, a1);
         break;
-    case 7:
-        cRailSlideControl_loseFocus_d(self + 0x2B0, a1);
+    case CONTROL_RAILSLIDE:
+        cRailSlideControl_loseFocus_d(&owner->mRailSlideControl, a1);
         break;
-    case 8:
-        cWipeoutControl_loseFocus_d(self + 0x2C0, a1);
+    case CONTROL_WIPEOUT:
+        cWipeoutControl_loseFocus_d(&owner->mWipeoutControl, a1);
         break;
-    case 11:
-        cHandplantControl_loseFocus_d(self + 0x370, a1);
+    case CONTROL_HANDPLANT:
+        cHandplantControl_loseFocus_d(&owner->mHandplantControl, a1);
         break;
-    case 3: case 6: case 9: case 10: case 12: case 13:
+    case CONTROL_BUMP: case CONTROL_GATE: case CONTROL_RESET: case CONTROL_FINISHLINE: case CONTROL_UBERGRIND: case CONTROL_VOID:
         break;
     }
 }
@@ -1796,44 +1813,45 @@ void cUberGrindControl_gainFocus_d(void*, int) __asm__("cUberGrindControl_gainFo
 extern "C" void cMotionOwner_gainControlFocus(void* self_, int a1)
 {
     char* self = (char*)self_;
-    switch (*(int*)(self + 0xDE4)) {
-    case 0:
-        cCruiseControl_gainFocus_d(self + 0x1C0, a1);
+    cMotionOwner* owner = (cMotionOwner*)self;
+    switch (owner->mControlState) {
+    case CONTROL_CRUISE:
+        cCruiseControl_gainFocus_d(&owner->mCruiseControl, a1);
         break;
-    case 1:
-        cBoardPressControl_gainFocus_d(self + 0x1D0, a1);
+    case CONTROL_BOARDPRESS:
+        cBoardPressControl_gainFocus_d(&owner->mBoardPressControl, a1);
         break;
-    case 2:
-        cPrewindControl_gainFocus_d(self + 0x1F0, a1);
+    case CONTROL_PREWIND:
+        cPrewindControl_gainFocus_d(&owner->mPrewindControl, a1);
         break;
-    case 4:
-        cNaturalAirControl_gainFocus_d(self + 0x210, a1);
+    case CONTROL_NATURALAIR:
+        cNaturalAirControl_gainFocus_d(&owner->mNaturalAirControl, a1);
         break;
-    case 5:
-        cSpinControl_gainFocus_d(self + 0x230, a1);
+    case CONTROL_SPIN:
+        cSpinControl_gainFocus_d(&owner->mSpinControl, a1);
         break;
-    case 6:
-        cGateControl_gainFocus_d(self + 0x290, a1);
+    case CONTROL_GATE:
+        cGateControl_gainFocus_d(&owner->mGateControl, a1);
         break;
-    case 7:
-        cRailSlideControl_gainFocus_d(self + 0x2B0, a1);
+    case CONTROL_RAILSLIDE:
+        cRailSlideControl_gainFocus_d(&owner->mRailSlideControl, a1);
         break;
-    case 8:
-        cWipeoutControl_gainFocus_d(self + 0x2C0, a1);
+    case CONTROL_WIPEOUT:
+        cWipeoutControl_gainFocus_d(&owner->mWipeoutControl, a1);
         break;
-    case 9:
-        cResetControl_gainFocus_d(self + 0x350, a1);
+    case CONTROL_RESET:
+        cResetControl_gainFocus_d(&owner->mResetControl, a1);
         break;
-    case 10:
-        cFinishLineControl_gainFocus_d(self + 0x360, a1);
+    case CONTROL_FINISHLINE:
+        cFinishLineControl_gainFocus_d(&owner->mFinishLineControl, a1);
         break;
-    case 11:
-        cHandplantControl_gainFocus_d(self + 0x370, a1);
+    case CONTROL_HANDPLANT:
+        cHandplantControl_gainFocus_d(&owner->mHandplantControl, a1);
         break;
-    case 12:
-        cUberGrindControl_gainFocus_d(self + 0x390, a1);
+    case CONTROL_UBERGRIND:
+        cUberGrindControl_gainFocus_d(&owner->mUberGrindControl, a1);
         break;
-    case 3: case 13:
+    case CONTROL_BUMP: case CONTROL_VOID:
         break;
     }
 }
@@ -1855,47 +1873,48 @@ void cUberGrindControl_update_d(void*, int) __asm__("cUberGrindControl_update");
 
 extern "C" void cMotionOwner_updateControl(char* self, int a1)
 {
-    switch (*(int*)(self + 0xDE4)) {
-    case 0:
-        cCruiseControl_update_d(self + 0x1C0, a1);
+    cMotionOwner* owner = (cMotionOwner*)self;
+    switch (owner->mControlState) {
+    case CONTROL_CRUISE:
+        cCruiseControl_update_d(&owner->mCruiseControl, a1);
         break;
-    case 1:
-        cBoardPressControl_update_d(self + 0x1D0, a1);
+    case CONTROL_BOARDPRESS:
+        cBoardPressControl_update_d(&owner->mBoardPressControl, a1);
         break;
-    case 2:
-        cPrewindControl_update_d(self + 0x1F0, a1);
+    case CONTROL_PREWIND:
+        cPrewindControl_update_d(&owner->mPrewindControl, a1);
         break;
-    case 3:
-        cBumpControl_update_d(self + 0x200, a1);
+    case CONTROL_BUMP:
+        cBumpControl_update_d(&owner->mBumpControl, a1);
         break;
-    case 4:
-        cNaturalAirControl_update_d(self + 0x210, a1);
+    case CONTROL_NATURALAIR:
+        cNaturalAirControl_update_d(&owner->mNaturalAirControl, a1);
         break;
-    case 5:
-        cSpinControl_update_d(self + 0x230, a1);
+    case CONTROL_SPIN:
+        cSpinControl_update_d(&owner->mSpinControl, a1);
         break;
-    case 6:
-        cGateControl_update_d(self + 0x290, a1);
+    case CONTROL_GATE:
+        cGateControl_update_d(&owner->mGateControl, a1);
         break;
-    case 7:
-        cRailSlideControl_update_d(self + 0x2B0, a1);
+    case CONTROL_RAILSLIDE:
+        cRailSlideControl_update_d(&owner->mRailSlideControl, a1);
         break;
-    case 8:
-        cWipeoutControl_update_d(self + 0x2C0, a1);
+    case CONTROL_WIPEOUT:
+        cWipeoutControl_update_d(&owner->mWipeoutControl, a1);
         break;
-    case 9:
-        cResetControl_update_d(self + 0x350, a1);
+    case CONTROL_RESET:
+        cResetControl_update_d(&owner->mResetControl, a1);
         break;
-    case 10:
-        cFinishLineControl_update_d(self + 0x360, a1);
+    case CONTROL_FINISHLINE:
+        cFinishLineControl_update_d(&owner->mFinishLineControl, a1);
         break;
-    case 11:
-        cHandplantControl_update_d(self + 0x370, a1);
+    case CONTROL_HANDPLANT:
+        cHandplantControl_update_d(&owner->mHandplantControl, a1);
         break;
-    case 12:
-        cUberGrindControl_update_d(self + 0x390, a1);
+    case CONTROL_UBERGRIND:
+        cUberGrindControl_update_d(&owner->mUberGrindControl, a1);
         break;
-    case 13:
+    case CONTROL_VOID:
         break;
     }
 }
@@ -1905,7 +1924,8 @@ extern char D_00456C48[];
 
 extern "C" char* cMotionOwner_getMotionModeName(void* self)
 {
-    unsigned int i = *(unsigned int*)((char*)self + 0xDE0);
+    cMotionOwner* owner = (cMotionOwner*)self;
+    unsigned int i = *(unsigned int*)&owner->mMotionMode;
     if (i >= 7)
         return D_00456C48;
     return D_00459D70[i];
@@ -1915,7 +1935,8 @@ extern char* D_00459DC8[];
 
 extern "C" char* cMotionOwner_getControlStateName(void* self)
 {
-    unsigned int i = *(unsigned int*)((char*)self + 0xDE4);
+    cMotionOwner* owner = (cMotionOwner*)self;
+    unsigned int i = *(unsigned int*)&owner->mControlState;
     if (i >= 15)
         return D_00456C48;
     return D_00459DC8[i];
@@ -1988,24 +2009,25 @@ extern "C" void func_002F6518(void* p);
 
 extern "C" void cMotionOwner_updateFX(char* self)
 {
+    cMotionOwner* owner = (cMotionOwner*)self;
     if (D_004A4534 != 0)
     {
-        char* o = *(char**)(self + 0x18) + 0x6C0;
+        char* o = owner->mRider + 0x6C0;
         sVE_0010DA10* ve = &(*(sVE_0010DA10**)o)[9];
         if (ve->fn(o + ve->delta))
             return;
     }
-    func_00392D18(self + 0xD30);
-    func_002DD0B8(self + 0x3B0);
-    func_002DABC8(self + 0x470);
-    func_002E8938(self + 0x520);
-    func_002E66B8(self + 0x610);
-    func_002EADD0(self + 0x9C0);
-    func_002EF6D0(self + 0xAD0);
-    func_002D4C08(self + 0xAF0);
-    func_002E39D8(self + 0xB00);
-    func_002DF920(self + 0xB40);
-    func_002F1150(self + 0xC70);
+    func_00392D18(&owner->mLights);
+    func_002DD0B8(&owner->mWakeFx);
+    func_002DABC8(&owner->mBoardSparksFx);
+    func_002E8938(&owner->mBoardTrackFx);
+    func_002E66B8(&owner->mBoostFx);
+    func_002EADD0(&owner->mAuraFx);
+    func_002EF6D0(&owner->mStreamersFx);
+    func_002D4C08(&owner->mRivalIcon);
+    func_002E39D8(&owner->mRivalBeam);
+    func_002DF920(&owner->mSnowFx);
+    func_002F1150(&owner->mFistSparkleFx);
     func_002F6518(self + 0xD20);
 }
 
@@ -2025,23 +2047,24 @@ void func_002F6908(void* p);
 
 extern "C" void cMotionOwner_drawFX(char* self)
 {
+    cMotionOwner* owner = (cMotionOwner*)self;
     if (D_004A4534 != 0)
     {
-        char* o = *(char**)(self + 0x18) + 0x6C0;
+        char* o = owner->mRider + 0x6C0;
         sVE_0010DA10* ve = &(*(sVE_0010DA10**)o)[9];
         if (ve->fn(o + ve->delta))
             return;
     }
-    func_002DDAB8(self + 0x3B0);
-    func_002DB478(self + 0x470);
-    func_002EA480(self + 0x520);
-    func_002E7A10(self + 0x610);
-    func_002EB198(self + 0x9C0);
-    func_002EF950(self + 0xAD0);
-    func_002D5048(self + 0xAF0);
-    func_002E3AF8(self + 0xB00);
-    func_002E24D0(self + 0xB40);
-    func_002F1510(self + 0xC70);
+    func_002DDAB8(&owner->mWakeFx);
+    func_002DB478(&owner->mBoardSparksFx);
+    func_002EA480(&owner->mBoardTrackFx);
+    func_002E7A10(&owner->mBoostFx);
+    func_002EB198(&owner->mAuraFx);
+    func_002EF950(&owner->mStreamersFx);
+    func_002D5048(&owner->mRivalIcon);
+    func_002E3AF8(&owner->mRivalBeam);
+    func_002E24D0(&owner->mSnowFx);
+    func_002F1510(&owner->mFistSparkleFx);
     func_002F6908(self + 0xD20);
 }
 
@@ -2056,7 +2079,8 @@ void cMotionOwner_triggerSnowImpact_impl(void* self, void* a, void* b, int c, fl
 
 void cMotionOwner_triggerSnowImpact_impl(void* self, void* a, void* b, int c, float x)
 {
-    func_002E23E0_impl((char*)self + 0xB40, a, b, c, 0, x);
+    cMotionOwner* owner = (cMotionOwner*)self;
+    func_002E23E0_impl((char*)&owner->mSnowFx, a, b, c, 0, x);
 }
 
 //100%
@@ -2091,49 +2115,50 @@ extern "C" int func_0026B550(void* tree, void* path);
 
 extern "C" void cMotionOwner_saveState(char* self, char* s)
 {
+    cMotionOwner* owner = (cMotionOwner*)self;
     cStream_00111AC0* st = (cStream_00111AC0*)s;
-    st->Write(*(void**)(self + 0x18), 0x6C0);
-    func_00104D68(*(void**)(*(char**)(self + 0x18) + 0x784), s);
-    func_00310EA8(*(void**)(*(char**)(self + 0x18) + 0x780), s);
-    cAirPredictor_saveState(*(void**)(*(char**)(self + 0x18) + 0x788), s);
-    cRiderMetrix_saveState(*(void**)(*(char**)(self + 0x18) + 0x790), s);
+    st->Write(*(void**)&owner->mRider, 0x6C0);
+    func_00104D68(*(void**)(owner->mRider + 0x784), s);
+    func_00310EA8(*(void**)(owner->mRider + 0x780), s);
+    cAirPredictor_saveState(*(void**)(owner->mRider + 0x788), s);
+    cRiderMetrix_saveState(*(void**)(owner->mRider + 0x790), s);
     unsigned int id0 = 0xFFFFFFFF;
-    char* p0 = **(char***)(*(char**)(self + 0x18) + 0x864);
+    char* p0 = **(char***)(owner->mRider + 0x864);
     if (p0 != 0) {
         id0 = *(unsigned int*)(p0 + 0x150);
     }
     st->Write(&id0, 4);
-    st->Write(*(void**)(*(char**)(self + 0x18) + 0x864), 0x10);
+    st->Write(*(void**)(owner->mRider + 0x864), 0x10);
     unsigned int id1 = 0xFFFFFFFF;
-    char* p1 = **(char***)(*(char**)(self + 0x18) + 0x868);
+    char* p1 = **(char***)(owner->mRider + 0x868);
     if (p1 != 0) {
         id1 = *(unsigned int*)(p1 + 0x150);
     }
     st->Write(&id1, 4);
-    st->Write(*(void**)(*(char**)(self + 0x18) + 0x868), 0x10);
+    st->Write(*(void**)(owner->mRider + 0x868), 0x10);
     st->Write(self + 0xDE0, 4);
     st->Write(self + 0xDE4, 4);
     cGroundMotion_writeToReplayFrame(self, s);
-    cAirMotion_writeToReplayFrame(self + 0x20, s);
-    cWipeoutMotion_writeToReplayFrame(self + 0x30, s);
-    cRailSlideMotion_writeToReplayFrame(self + 0xB0, s);
-    cHandplantMotion_writeToReplayFrame(self + 0x110, s);
-    cBoardPressControl_writeToReplayFrame(self + 0x1D0, s);
-    cNaturalAirControl_writeToReplayFrame(self + 0x210, s);
-    cSpinControl_writeToReplayFrame(self + 0x230, s);
-    cGateControl_writeToReplayFrame(self + 0x290, s);
-    cRailSlideControl_writeToReplayFrame(self + 0x2B0, s);
-    cWipeoutControl_writeToReplayFrame(self + 0x2C0, s);
-    cResetControl_writeToReplayFrame(self + 0x350, s);
-    cFinishLineControl_writeToReplayFrame(self + 0x360, s);
-    cHandplantControl_writeToReplayFrame(self + 0x370, s);
-    cUberGrindControl_writeToReplayFrame(self + 0x390, s);
+    cAirMotion_writeToReplayFrame(&owner->mAirMotion, s);
+    cWipeoutMotion_writeToReplayFrame(&owner->mWipeoutMotion, s);
+    cRailSlideMotion_writeToReplayFrame(&owner->mRailSlideMotion, s);
+    cHandplantMotion_writeToReplayFrame(&owner->mHandplantMotion, s);
+    cBoardPressControl_writeToReplayFrame(&owner->mBoardPressControl, s);
+    cNaturalAirControl_writeToReplayFrame(&owner->mNaturalAirControl, s);
+    cSpinControl_writeToReplayFrame(&owner->mSpinControl, s);
+    cGateControl_writeToReplayFrame(&owner->mGateControl, s);
+    cRailSlideControl_writeToReplayFrame(&owner->mRailSlideControl, s);
+    cWipeoutControl_writeToReplayFrame(&owner->mWipeoutControl, s);
+    cResetControl_writeToReplayFrame(&owner->mResetControl, s);
+    cFinishLineControl_writeToReplayFrame(&owner->mFinishLineControl, s);
+    cHandplantControl_writeToReplayFrame(&owner->mHandplantControl, s);
+    cUberGrindControl_writeToReplayFrame(&owner->mUberGrindControl, s);
     func_002F6A58(self + 0xD20, s);
-    st->Write(*(void**)(*(char**)(self + 0x18) + 0xABC), 0x20);
-    st->Write(*(void**)(*(char**)(self + 0x18) + 0xAC0), 0x20);
+    st->Write(*(void**)(owner->mRider + 0xABC), 0x20);
+    st->Write(*(void**)(owner->mRider + 0xAC0), 0x20);
     int ids[2];
-    ids[0] = func_0026B508(D_004D33A0, *(void**)(*(char**)(self + 0x18) + 0xAB4));
-    ids[1] = func_0026B550(D_004D33A0, *(void**)(*(char**)(self + 0x18) + 0xAB8));
+    ids[0] = func_0026B508(D_004D33A0, *(void**)(owner->mRider + 0xAB4));
+    ids[1] = func_0026B550(D_004D33A0, *(void**)(owner->mRider + 0xAB8));
     st->Write(ids, 8);
 }
 
@@ -2226,64 +2251,65 @@ struct sQuad_00111D98 {
 
 extern "C" void cMotionOwner_loadState(char* self, char* s)
 {
+    cMotionOwner* owner = (cMotionOwner*)self;
     cStream_00111D98* st = (cStream_00111D98*)s;
-    st->Read(*(void**)(self + 0x18), 0x6C0);
-    func_00104DE0(*(void**)(*(char**)(self + 0x18) + 0x784), s);
-    func_00310EE0(*(void**)(*(char**)(self + 0x18) + 0x780), s);
-    cAirPredictor_loadState(*(void**)(*(char**)(self + 0x18) + 0x788), s);
-    cRiderMetrix_loadState(*(void**)(*(char**)(self + 0x18) + 0x790), s);
+    st->Read(*(void**)&owner->mRider, 0x6C0);
+    func_00104DE0(*(void**)(owner->mRider + 0x784), s);
+    func_00310EE0(*(void**)(owner->mRider + 0x780), s);
+    cAirPredictor_loadState(*(void**)(owner->mRider + 0x788), s);
+    cRiderMetrix_loadState(*(void**)(owner->mRider + 0x790), s);
     int ids[2];
     sRef_00111D98 r0;
     st->Read(&r0, 4);
-    st->Read(*(void**)(*(char**)(self + 0x18) + 0x864), 0x10);
+    st->Read(*(void**)(owner->mRider + 0x864), 0x10);
     if (~r0.id != 0) {
-        **(void***)(*(char**)(self + 0x18) + 0x864) = r0.get();
+        **(void***)(owner->mRider + 0x864) = r0.get();
     }
     sRef_00111D98 r1;
     st->Read(&r1, 4);
-    st->Read(*(void**)(*(char**)(self + 0x18) + 0x868), 0x10);
+    st->Read(*(void**)(owner->mRider + 0x868), 0x10);
     if (~r1.id != 0) {
-        **(void***)(*(char**)(self + 0x18) + 0x868) = r1.get();
+        **(void***)(owner->mRider + 0x868) = r1.get();
     }
     st->Read(self + 0xDE0, 4);
     st->Read(self + 0xDE4, 4);
     cGroundMotion_readFromReplayFrame(self, s);
-    cAirMotion_readFromReplayFrame(self + 0x20, s);
-    cWipeoutMotion_readFromReplayFrame(self + 0x30, s);
-    cRailSlideMotion_readFromReplayFrame(self + 0xB0, s);
-    cHandplantMotion_readFromReplayFrame(self + 0x110, s);
-    cBoardPressControl_readFromReplayFrame(self + 0x1D0, s);
-    cNaturalAirControl_readFromReplayFrame(self + 0x210, s);
-    cSpinControl_readFromReplayFrame(self + 0x230, s);
-    cGateControl_readFromReplayFrame(self + 0x290, s);
-    cRailSlideControl_readFromReplayFrame(self + 0x2B0, s);
-    cWipeoutControl_readFromReplayFrame(self + 0x2C0, s);
-    cResetControl_readFromReplayFrame(self + 0x350, s);
-    cFinishLineControl_readFromReplayFrame(self + 0x360, s);
-    cHandplantControl_readFromReplayFrame(self + 0x370, s);
-    cUberGrindControl_readFromReplayFrame(self + 0x390, s);
-    func_002DCF28(self + 0x3B0);
-    func_002DAA78(self + 0x470);
-    func_002E8560(self + 0x520);
-    func_002E6640(self + 0x610);
-    func_002EADC0(self + 0x9C0);
-    func_002EF6A0(self + 0xAD0);
-    func_002D4BE0(self + 0xAF0);
-    func_002E3930(self + 0xB00);
-    func_002F1148(self + 0xC70);
+    cAirMotion_readFromReplayFrame(&owner->mAirMotion, s);
+    cWipeoutMotion_readFromReplayFrame(&owner->mWipeoutMotion, s);
+    cRailSlideMotion_readFromReplayFrame(&owner->mRailSlideMotion, s);
+    cHandplantMotion_readFromReplayFrame(&owner->mHandplantMotion, s);
+    cBoardPressControl_readFromReplayFrame(&owner->mBoardPressControl, s);
+    cNaturalAirControl_readFromReplayFrame(&owner->mNaturalAirControl, s);
+    cSpinControl_readFromReplayFrame(&owner->mSpinControl, s);
+    cGateControl_readFromReplayFrame(&owner->mGateControl, s);
+    cRailSlideControl_readFromReplayFrame(&owner->mRailSlideControl, s);
+    cWipeoutControl_readFromReplayFrame(&owner->mWipeoutControl, s);
+    cResetControl_readFromReplayFrame(&owner->mResetControl, s);
+    cFinishLineControl_readFromReplayFrame(&owner->mFinishLineControl, s);
+    cHandplantControl_readFromReplayFrame(&owner->mHandplantControl, s);
+    cUberGrindControl_readFromReplayFrame(&owner->mUberGrindControl, s);
+    func_002DCF28(&owner->mWakeFx);
+    func_002DAA78(&owner->mBoardSparksFx);
+    func_002E8560(&owner->mBoardTrackFx);
+    func_002E6640(&owner->mBoostFx);
+    func_002EADC0(&owner->mAuraFx);
+    func_002EF6A0(&owner->mStreamersFx);
+    func_002D4BE0(&owner->mRivalIcon);
+    func_002E3930(&owner->mRivalBeam);
+    func_002F1148(&owner->mFistSparkleFx);
     func_002F6A90(self + 0xD20, s);
-    st->Read(*(void**)(*(char**)(self + 0x18) + 0xABC), 0x20);
-    st->Read(*(void**)(*(char**)(self + 0x18) + 0xAC0), 0x20);
+    st->Read(*(void**)(owner->mRider + 0xABC), 0x20);
+    st->Read(*(void**)(owner->mRider + 0xAC0), 0x20);
     st->Read(ids, 8);
-    *(void**)(*(char**)(self + 0x18) + 0xAB4) = func_0026AF70(D_004D33A0, ids[0]);
-    *(void**)(*(char**)(self + 0x18) + 0xAB8) = func_0026AF88(D_004D33A0, ids[1]);
-    sQuad_00111D98* q = *(sQuad_00111D98**)(*(char**)(self + 0x18) + 0x78C);
+    *(void**)(owner->mRider + 0xAB4) = func_0026AF70(D_004D33A0, ids[0]);
+    *(void**)(owner->mRider + 0xAB8) = func_0026AF88(D_004D33A0, ids[1]);
+    sQuad_00111D98* q = *(sQuad_00111D98**)(owner->mRider + 0x78C);
     if (q != 0) {
-        *q = *(sQuad_00111D98*)(*(char**)(self + 0x18) + 0x110);
+        *q = *(sQuad_00111D98*)(owner->mRider + 0x110);
     }
-    func_00312598(*(void**)(*(char**)(self + 0x18) + 0x784), 0);
-    func_003103F0(*(void**)(*(char**)(self + 0x18) + 0x780));
-    func_00106828(*(void**)(self + 0x18));
+    func_00312598(*(void**)(owner->mRider + 0x784), 0);
+    func_003103F0(*(void**)(owner->mRider + 0x780));
+    func_00106828(*(void**)&owner->mRider);
 }
 
 //100%
