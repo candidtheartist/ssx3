@@ -121,8 +121,8 @@ extern "C" void func_002E8560(func_002E8560_sTrail* self)
 INCLUDE_ASM("visualfx/boardtrailfx", func_002E86F0);
 
 int cRider_getMotionMode(void* self);
-int func_00312AA0(void* self, int i);
-extern "C" char* func_00311B20(void* self, int i);
+int cRiderAnimBase_getChannelAnim(void* self, int i);
+extern "C" char* cRiderAnimBase_getChannelSequence(void* self, int i);
 extern "C" int func_001446A0(void* self, int i);
 extern float D_004A4590;
 extern float D_004A4594;
@@ -147,9 +147,9 @@ extern "C" int func_002E87E8(char* self)
         if (*(int*)(*(char**)self + 0xB00) == 0)
             return 0;
     }
-    if (func_00312AA0(*(void**)(*(char**)self + 0x784), 2) == 0x16) {
-        if (func_001446A0(func_00311B20(*(void**)(*(char**)self + 0x784), 2) + 0xB0, 0)) {
-            if (!func_001446A0(func_00311B20(*(void**)(*(char**)self + 0x784), 2) + 0xB0, 1))
+    if (cRiderAnimBase_getChannelAnim(*(void**)(*(char**)self + 0x784), 2) == 0x16) {
+        if (func_001446A0(cRiderAnimBase_getChannelSequence(*(void**)(*(char**)self + 0x784), 2) + 0xB0, 0)) {
+            if (!func_001446A0(cRiderAnimBase_getChannelSequence(*(void**)(*(char**)self + 0x784), 2) + 0xB0, 1))
                 return 0;
         }
     }

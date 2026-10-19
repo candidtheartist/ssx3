@@ -2899,12 +2899,12 @@ extern "C" void func_00144368(sTree_144368* self, sNode_144368* node, sKey_14436
     if (node->child[1]) func_00144368(self, node->child[1], &k);
 }
 
-extern "C" void* func_00311958(void* self);
+extern "C" void* cRiderAnimBase__cRiderAnimBase(void* self);
 
 //100%
 void* func_00144610(void* self)
 {
-    return func_00311958(self);
+    return cRiderAnimBase__cRiderAnimBase(self);
 }
 
 extern "C" void cRiderAnimBase_cRiderAnimBase(void* self);

@@ -64,7 +64,7 @@ extern "C" void func_00275498(void* self, int flags)
 // PORT: operator_new__FUi really takes (size, tag, flags, d); bound by asm label
 void* operator_new_tag(unsigned int size, const char* tag, int flags, int d) __asm__("operator_new__FUi");
 extern "C" void* cMemMan_alloc(int size, const char* tag, unsigned int flags, int d);
-extern "C" void* func_00311220(void* mem, void* data);
+extern "C" void* cAdfDataSource_cAdfDataSource(void* mem, void* data);
 extern const char D_00481A98[];
 extern const char D_00481AA8[];
 extern void** D_004A3DF8;
@@ -110,7 +110,7 @@ extern "C" int cScriptAnimBankManager_LinkBank(sScLinkList* self, int id, void* 
         e = (sScLinkEntry*)func_002757F0_v(self);
         e->id = id;
         e->data = data;
-        sScBank* bank = (sScBank*)func_00311220(cMemMan_alloc(0x18, D_00481A98, self->flags, 0), e->data);
+        sScBank* bank = (sScBank*)cAdfDataSource_cAdfDataSource(cMemMan_alloc(0x18, D_00481A98, self->flags, 0), e->data);
         int n = bank->hdr->count;
         e->used = 0;
         for (int i = 0; i < n; i++) {
@@ -211,7 +211,7 @@ extern "C" void* func_00275718(sAnimList* self, int id)
 
 //100%
 extern "C" void func_00311110(void** tbl);
-extern "C" void func_003112C8(void* self, int flags);
+extern "C" void cAdfDataSource__cAdfDataSource(void* self, int flags);
 void cMemMan_free(void*);
 extern void** D_004A3DF8;
 
@@ -223,7 +223,7 @@ extern "C" void func_00275760(void* self, sAnimEntry* e)
     *slot = 0;
     func_00311110(tbl);
     if (obj != 0) {
-        func_003112C8(obj, 3);
+        cAdfDataSource__cAdfDataSource(obj, 3);
     }
     if (e->unkC != 0 && e->unk10 != 0) {
         cMemMan_free((void*)e->unk10);

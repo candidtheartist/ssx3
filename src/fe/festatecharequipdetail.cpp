@@ -236,7 +236,7 @@ int GetHashValue32(char* str);
 extern "C" void* cUIEngine_addScreenByHashName(void* engine, void* owner, int hash, int a3);
 extern "C" void* cUIScreen_playFrame(void* self, unsigned short frame, int flag);
 extern "C" void* func_001A0548(void* self, int a1);
-extern "C" void func_00311A50(void* self);
+extern "C" void cRiderAnimBase_reset(void* self);
 extern "C" void cRiderAnimBase_play(void* self, int anim, int flags, float blend);
 extern "C" void func_0019BFE8(void* self);
 extern "C" void* func_0028B180();
@@ -258,7 +258,7 @@ extern "C" void cFEStateCharEquip_onCreateScreen(void* self)
     if (ok) {
         void* anim = *(void**)(r + 0xC);
         if (anim != 0) {
-            func_00311A50(anim);
+            cRiderAnimBase_reset(anim);
             cRiderAnimBase_play(anim, 0x1B2, 0, -1.0f);
         }
     }

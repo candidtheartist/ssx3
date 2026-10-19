@@ -3,8 +3,8 @@
 //100%
 // PORT: operator_new__FUi really takes (size, tag, flags, d), like cMemMan_alloc.
 void* operator_new_tag(unsigned int size, const char* tag, int flags, int d) __asm__("operator_new__FUi");
-void func_003142E8(void* self);
-extern "C" void func_00311A50(void* self);
+void cAnimSequencer_cAnimSequencer(void* self);
+extern "C" void cRiderAnimBase_reset(void* self);
 extern char D_0048D7D8[];
 extern const char D_0048A4E0[];
 
@@ -15,24 +15,24 @@ extern "C" void* cRiderAnimBase_cRiderAnimBase(void* self)
     *(void**)((char*)self + 0x50) = operator_new_tag(0x30, D_0048A4E0, 0, 0);
     for (int i = 0; i < 6; i++)
     {
-        func_003142E8(*(char**)((char*)self + 0x50) + (i << 3));
+        cAnimSequencer_cAnimSequencer(*(char**)((char*)self + 0x50) + (i << 3));
     }
-    func_00311A50(self);
+    cRiderAnimBase_reset(self);
     return self;
 }
 
 //100%
 void cMemMan_free(void* p);
 void operator_delete(int* p);
-extern "C" void func_00314668(void* self);
+extern "C" void cAnimSequencer_removeAll(void* self);
 extern char D_0048D7D8[];
 
-extern "C" void func_00311958(void* self, int flags)
+extern "C" void cRiderAnimBase__cRiderAnimBase(void* self, int flags)
 {
     *(void**)((char*)self + 0x58) = D_0048D7D8;
     for (int i = 0; i < 6; i++)
     {
-        func_00314668(*(char**)((char*)self + 0x50) + (i << 3));
+        cAnimSequencer_removeAll(*(char**)((char*)self + 0x50) + (i << 3));
     }
     void* p = *(void**)((char*)self + 0x50);
     if (p)
@@ -42,7 +42,7 @@ extern "C" void func_00311958(void* self, int flags)
 }
 
 //100%
-extern "C" void* func_003119E8(void* self, int i)
+extern "C" void* cRiderAnimBase_getSequencer(void* self, int i)
 {
     return *(char**)((char*)self + 0x50) + (i << 3);
 }
@@ -52,7 +52,7 @@ extern "C" void* func_003119E8(void* self, int i)
 extern "C" int* cAIAnimEventMap_getBlendInTime(int anim);
 extern int D_0044AF80[];
 
-extern "C" int func_003119F8(void* self, int anim)
+extern "C" int cRiderAnimBase_getAnimChannelName(void* self, int anim)
 {
     int slot = cAIAnimEventMap_getBlendInTime(anim)[3];
     return D_0044AF80[slot];
@@ -67,7 +67,7 @@ extern "C" void func_00311A30(void* self, void* p)
 }
 
 //100%
-extern "C" void func_00314668(void* self);
+extern "C" void cAnimSequencer_removeAll(void* self);
 
 struct sRabQuad32 {
     int w[8];
@@ -85,12 +85,12 @@ struct sRiderAnimBase {
     char* mSequencers;  // 0x50
 };
 
-extern "C" void func_00311A50(void* p)
+extern "C" void cRiderAnimBase_reset(void* p)
 {
     sRiderAnimBase* self = (sRiderAnimBase*)p;
     for (int i = 0; i < 6; i++)
     {
-        func_00314668(self->mSequencers + (i << 3));
+        cAnimSequencer_removeAll(self->mSequencers + (i << 3));
         self->mAnims[i] = 0x1B6;
     }
     //START
@@ -104,7 +104,7 @@ extern "C" void func_00311A50(void* p)
 //100%
 extern "C" int* cAIAnimEventMap_getBlendInTime(int anim);
 
-extern "C" int func_00311AE8(void* self, int i)
+extern "C" int cRiderAnimBase_getChannelAnimClass(void* self, int i)
 {
     int anim = *(int*)((char*)self + (i << 2));
     if (anim == 0x1B6) {
@@ -123,7 +123,7 @@ struct cAnimSequencer {
 
 cAnimSequenceNode* cAnimSequencer_getSequence(cAnimSequencer* self, int index);
 
-extern "C" cAnimSequenceNode* func_00311B20(void* self, int i)
+extern "C" cAnimSequenceNode* cRiderAnimBase_getChannelSequence(void* self, int i)
 {
     cAnimSequencer* seqs = *(cAnimSequencer**)((char*)self + 0x50);
     return cAnimSequencer_getSequence(&seqs[i], 0);
@@ -281,25 +281,25 @@ extern "C" void func_00311D88(void* self, int v)
 }
 
 //100%
-// Resets entry i of the 8-byte table at 0x50 with func_00314668 and sets slot i to 0x1B6.
-extern "C" void func_00311E38(int* self, int i)
+// Resets entry i of the 8-byte table at 0x50 with cAnimSequencer_removeAll and sets slot i to 0x1B6.
+extern "C" void cRiderAnimBase_stopChannel(int* self, int i)
 {
-    func_00314668(*(char**)((char*)self + 0x50) + i * 8);
+    cAnimSequencer_removeAll(*(char**)((char*)self + 0x50) + i * 8);
     *(int*)((char*)self + (i << 2)) = 0x1B6;
 }
 
 //100%
-extern "C" void func_00314718(void* self, int v);
-extern "C" void func_003146D0(void* self, float v);
+extern "C" void cAnimSequencer_removeEndTriggers(void* self, int v);
+extern "C" void cAnimSequencer_fadeOutAll(void* self, float v);
 
-extern "C" void func_00311E88(char* self, int i, float v)
+extern "C" void cRiderAnimBase_fadeOutChannel(char* self, int i, float v)
 {
-    func_00314718(*(char**)(self + 0x50) + (i << 3), 0x3F);
-    func_003146D0(*(char**)(self + 0x50) + (i << 3), v);
+    cAnimSequencer_removeEndTriggers(*(char**)(self + 0x50) + (i << 3), 0x3F);
+    cAnimSequencer_fadeOutAll(*(char**)(self + 0x50) + (i << 3), v);
     *(int*)(self + (i << 2)) = 0x1B6;
 }
 
-INCLUDE_ASM("animation/rideranimbase", func_00311F00);
+INCLUDE_ASM("animation/rideranimbase", cRiderAnimBase_startSequence);
 
 //100%
 struct sVEntry003123C0 {
@@ -308,9 +308,9 @@ struct sVEntry003123C0 {
     void (*fn)(void*, cAnimSequencer*, cAnimSequenceNode*, float);
 };
 
-extern "C" void func_00312598(void* self, int a1);
+extern "C" void cRiderAnimBase_samplePose(void* self, int a1);
 
-extern "C" void func_003123C0(char* self, int a1, float t)
+extern "C" void cRiderAnimBase_update(char* self, int a1, float t)
 {
     for (int i = 0; i < 6; i++)
     {
@@ -323,7 +323,7 @@ extern "C" void func_003123C0(char* self, int a1, float t)
             node = next;
         }
     }
-    func_00312598(self, a1);
+    cRiderAnimBase_samplePose(self, a1);
 }
 
 //100%
@@ -340,7 +340,7 @@ struct sSeqRef_00312490 {
     cAnimSequencer* seq;
 };
 
-extern "C" void func_00312490(char* self)
+extern "C" void cRiderAnimBase_dispatchCompletions(char* self)
 {
     sSeqRef_00312490 list[32];
     int n = 0;
@@ -372,13 +372,13 @@ struct sAnimState_00312598
     sAnimState_00312598() {}
 };
 
-extern "C" int func_00314418(void* seq, sAnimState_00312598* out, int max);
-extern "C" void func_0030F2B0(void* model, int count, sAnimState_00312598* states, int a3);
+extern "C" int cAnimSequencer_getSampleStates(void* seq, sAnimState_00312598* out, int max);
+extern "C" void cAnimModel_sampleLocalPose(void* model, int count, sAnimState_00312598* states, int a3);
 
-INCLUDE_ASM("animation/rideranimbase", func_00312598);
-extern "C" void func_00312598(void* p, int a1);
+INCLUDE_ASM("animation/rideranimbase", cRiderAnimBase_samplePose);
+extern "C" void cRiderAnimBase_samplePose(void* p, int a1);
 
-INCLUDE_ASM("animation/rideranimbase", func_00312660);
+INCLUDE_ASM("animation/rideranimbase", cRiderAnimBase_getSampleState);
 
 //100%
 struct sVEntry00312790 {
@@ -389,7 +389,7 @@ struct sVEntry00312790 {
 extern char* D_004A3E7C;
 extern char** D_004A3DF8;
 
-extern "C" float func_00312790(char* self, int a1)
+extern "C" float cRiderAnimBase_getAnimDuration(char* self, int a1)
 {
     sVEntry00312790* vt = *(sVEntry00312790**)(self + 0x58);
     int id = vt[4].fn(self + vt[4].delta, a1);
@@ -413,7 +413,7 @@ struct sAnimKey00312820 {
     unsigned short pad;
 };
 
-extern "C" float func_00312820(char* self, int a1, int frame)
+extern "C" float cRiderAnimBase_getAnimEventTime(char* self, int a1, int frame)
 {
     sVEntry00312820* vt = *(sVEntry00312820**)(self + 0x58);
     int id = vt[4].fn(self + vt[4].delta, a1);
@@ -437,7 +437,7 @@ extern "C" float func_00312820(char* self, int a1, int frame)
 
 //100% - objdiff report; single-function view differs only in a relocation name
 extern "C" int* cAIAnimEventMap_getBlendInTime(int anim);
-extern "C" int func_00311F00(void* self, void* seq, int anim, int a3, int a4, int a5, float blend);
+extern "C" int cRiderAnimBase_startSequence(void* self, void* seq, int anim, int a3, int a4, int a5, float blend);
 extern int D_0048D808[];
 extern char* D_004A3E7C;
 
@@ -463,32 +463,32 @@ int cRiderAnimBase_play_impl(char* self, int anim, int flags, float blend)
     }
     int h = *(int*)(id * 4 + D_004A3E7C + 0x1030);
     int slot = cAIAnimEventMap_getBlendInTime(anim)[3];
-    return *(int*)(self + (slot << 2)) = func_00311F00(self, *(char**)(self + 0x50) + (slot << 3), anim, h, flags, D_0048D808[slot], blend);
+    return *(int*)(self + (slot << 2)) = cRiderAnimBase_startSequence(self, *(char**)(self + 0x50) + (slot << 3), anim, h, flags, D_0048D808[slot], blend);
 }
 
 //100% - objdiff report; single-function view differs only in a relocation name
 extern "C" int* cAIAnimEventMap_getBlendInTime(int anim);
-extern "C" int func_00311F00(void* self, void* seq, int anim, int a3, int a4, int a5, float blend);
+extern "C" int cRiderAnimBase_startSequence(void* self, void* seq, int anim, int a3, int a4, int a5, float blend);
 extern int D_0048D808[];
 
-extern "C" void func_003129E0(char* self, int anim, int a2, float blend)
+extern "C" void cRiderAnimBase_playClip(char* self, int anim, int a2, float blend)
 {
     int slot = cAIAnimEventMap_getBlendInTime(anim)[3];
     if (blend < 0.0f)
     {
         blend = *(float*)&cAIAnimEventMap_getBlendInTime(anim)[4];
     }
-    *(int*)(self + (slot << 2)) = func_00311F00(self, *(char**)(self + 0x50) + (slot << 3), anim, a2, 1, D_0048D808[slot], blend);
+    *(int*)(self + (slot << 2)) = cRiderAnimBase_startSequence(self, *(char**)(self + 0x50) + (slot << 3), anim, a2, 1, D_0048D808[slot], blend);
 }
 
 //100%
-int func_00312AA0(void* self, int i)
+int cRiderAnimBase_getChannelAnim(void* self, int i)
 {
     return *(int*)((char*)self + (i << 2));
 }
 
 //100%
-extern "C" float func_00312AB0(void* self, int i)
+extern "C" float cRiderAnimBase_getChannelProgress(void* self, int i)
 {
     cAnimSequencer* seqs = *(cAnimSequencer**)((char*)self + 0x50);
     cAnimSequenceNode* node = cAnimSequencer_getSequence(&seqs[i], 0);
@@ -496,7 +496,7 @@ extern "C" float func_00312AB0(void* self, int i)
 }
 
 //100%
-extern "C" int func_00312AE8(void* self, int i)
+extern "C" int cRiderAnimBase_isChannelComplete(void* self, int i)
 {
     cAnimSequencer* seqs = *(cAnimSequencer**)((char*)self + 0x50);
     return *(int*)((char*)cAnimSequencer_getSequence(&seqs[i], 0) + 0xC0);
@@ -505,15 +505,15 @@ extern "C" int func_00312AE8(void* self, int i)
 //100% - objdiff report; single-function view differs only in a relocation name
 struct cAnimSequence;
 void cAnimSequence_fadeWeight(cAnimSequence* self, float weight, float target);
-extern "C" void func_003145F8(void* seq, void* node);
+extern "C" void cAnimSequencer_removeSequence(void* seq, void* node);
 extern "C" void cRiderAnimBase_play(void* self, int anim, int flags, float blend);
 
-extern "C" int func_00312B18(void* self, cAnimSequencer* seq, char* node, int anim)
+extern "C" int cRiderAnimBase_replaceSequence(void* self, cAnimSequencer* seq, char* node, int anim)
 {
     float w = *(float*)(node + 0x94);
     float target = *(float*)(node + 0x9C);
     float weight = *(float*)(node + 0x98);
-    func_003145F8(seq, node);
+    cAnimSequencer_removeSequence(seq, node);
     cRiderAnimBase_play(self, anim, 0, -1.0f);
     char* s = (char*)cAnimSequencer_getSequence(seq, 0);
     *(float*)(s + 0x98) = w;
@@ -869,15 +869,15 @@ inline sRiderAnim_00313508::sRiderAnim_00313508(int o)
     uC4 = 0;
 }
 
-INCLUDE_ASM("animation/rideranimbase", func_00313508);
-extern "C" sRiderAnim_00313508* func_00313508(sRiderAnim_00313508* self, int owner);
+INCLUDE_ASM("animation/rideranimbase", cAnimSequence_cAnimSequence);
+extern "C" sRiderAnim_00313508* cAnimSequence_cAnimSequence(sRiderAnim_00313508* self, int owner);
 
 //100%
 struct sAnimEvents_00313868;
 struct sAnimEvents_00313938;
-extern "C" void func_00313868(sAnimEvents_00313868* self, float from, float to);
-extern "C" void func_00313938(sAnimEvents_00313938* self, float time);
-extern "C" void func_003139A8(sAnimEvents_00313938* self);
+extern "C" void cAnimSequence_fireTriggersInRange(sAnimEvents_00313868* self, float from, float to);
+extern "C" void cAnimSequence_fireTriggersAtTime(sAnimEvents_00313938* self, float time);
+extern "C" void cAnimSequence_fireEndTriggers(sAnimEvents_00313938* self);
 
 struct sTrack_003135B0 {
     int field_0x0;
@@ -914,10 +914,10 @@ static inline float ffloor_003135B0(float x)
 
 static inline void fire_003135B0(sRab_003135B0* self, float from, float to)
 {
-    func_00313868((sAnimEvents_00313868*)self, from, to);
+    cAnimSequence_fireTriggersInRange((sAnimEvents_00313868*)self, from, to);
 }
 
-extern "C" int func_003135B0(sRab_003135B0* self, int i, float dt)
+extern "C" int cAnimSequence_advanceSlot(sRab_003135B0* self, int i, float dt)
 {
     float t0 = self->tracks[i].time;
     float len = self->tracks[i].length;
@@ -926,7 +926,7 @@ extern "C" int func_003135B0(sRab_003135B0* self, int i, float dt)
         self->triggered = 0;
         self->fC0 = 0;
         if (self->fC4 != 0) {
-            func_00313938((sAnimEvents_00313938*)self, t0);
+            cAnimSequence_fireTriggersAtTime((sAnimEvents_00313938*)self, t0);
             self->fC4 = 0;
         }
     }
@@ -934,12 +934,12 @@ extern "C" int func_003135B0(sRab_003135B0* self, int i, float dt)
         if (t <= 0.0f) {
             t = 0.0f;
             if (i == 0) {
-                func_003139A8((sAnimEvents_00313938*)self);
+                cAnimSequence_fireEndTriggers((sAnimEvents_00313938*)self);
             }
         } else if (len <= t) {
             t = len;
             if (i == 0) {
-                func_003139A8((sAnimEvents_00313938*)self);
+                cAnimSequence_fireEndTriggers((sAnimEvents_00313938*)self);
             }
         }
         if (i == 0) {
@@ -949,7 +949,7 @@ extern "C" int func_003135B0(sRab_003135B0* self, int i, float dt)
         int n = (int)ffloor_003135B0(t / len);
         t -= len * (float)n;
         if (i == 0) {
-            func_003139A8((sAnimEvents_00313938*)self);
+            cAnimSequence_fireEndTriggers((sAnimEvents_00313938*)self);
             if (n >= 2) {
                 fire_003135B0(self, 0.0f, len);
             } else if (n < -1) {
@@ -989,7 +989,7 @@ struct sBlend_00313800
 
 // Moves value toward target over the remaining time; returns 1 when the blend
 // finishes and notify is set.
-extern "C" int func_00313800(sBlend_00313800* self, float dt)
+extern "C" int cAnimSequence_updateFade(sBlend_00313800* self, float dt)
 {
     float t = self->remaining;
     if (t != 0.0f)
@@ -1033,7 +1033,7 @@ struct sAnimEvents_00313868
 // Fires every kind-0 event whose time lies in (from, to] (or [to, from) when
 // playing backwards).
 // PORT: ulong is 64-bit here
-extern "C" void func_00313868(sAnimEvents_00313868* self, float from, float to)
+extern "C" void cAnimSequence_fireTriggersInRange(sAnimEvents_00313868* self, float from, float to)
 {
     if (from == to)
     {
@@ -1082,7 +1082,7 @@ struct sAnimEvents_00313938
 };
 
 // PORT: ulong is 64-bit here
-extern "C" void func_00313938(sAnimEvents_00313938* self, float time)
+extern "C" void cAnimSequence_fireTriggersAtTime(sAnimEvents_00313938* self, float time)
 {
     for (sAnimEvent_00313938* e = self->head; e != 0; e = e->next)
     {
@@ -1098,7 +1098,7 @@ extern "C" void func_00313938(sAnimEvents_00313938* self, float time)
 
 //100%
 // PORT: ulong is 64-bit here
-extern "C" void func_003139A8(sAnimEvents_00313938* self)
+extern "C" void cAnimSequence_fireEndTriggers(sAnimEvents_00313938* self)
 {
     self->dirty = 1;
     for (sAnimEvent_00313938* e = self->head; e != 0; e = e->next)

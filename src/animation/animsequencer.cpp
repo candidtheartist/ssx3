@@ -16,7 +16,7 @@ void cAnimSequence_fadeWeight(cAnimSequence* self, float weight, float target)
 }
 
 //100%
-extern "C" void func_00313A20(void* self, float v)
+extern "C" void cAnimSequence_fadeOut(void* self, float v)
 {
     if (*(float*)((char*)self + 0x98) != 0.0f || *(float*)((char*)self + 0x9C) == 0.0f || v < *(float*)((char*)self + 0x9C))
     {
@@ -38,7 +38,7 @@ struct sSeqNode313A70
     sSeqNode313A70* next;
 };
 
-extern "C" void func_00313A70(void* self, int key, float weight)
+extern "C" void cAnimSequence_addTrigger(void* self, int key, float weight)
 {
     sSeqNode313A70* n = (sSeqNode313A70*)cMemMan_alloc(0x10, D_0048A5B0, 0x20000000, 0);
     sSeqNode313A70* old = *(sSeqNode313A70**)((char*)self + 0xAC);
@@ -61,7 +61,7 @@ struct sSeqNode313AD8
     sSeqNode313AD8* next;
 };
 
-extern "C" void func_00313AD8(void* self, int key)
+extern "C" void cAnimSequence_addEndTrigger(void* self, int key)
 {
     sSeqNode313AD8* n = (sSeqNode313AD8*)cMemMan_alloc(0x10, D_0048A5B0, 0x20000000, 0);
     sSeqNode313AD8* old = *(sSeqNode313AD8**)((char*)self + 0xAC);
@@ -84,7 +84,7 @@ struct sSeqNode313B38
 };
 
 // Removes the first inactive node matching key and weight.
-extern "C" void func_00313B38(void* self, int key, float weight)
+extern "C" void cAnimSequence_removeTrigger(void* self, int key, float weight)
 {
     sSeqNode313B38** link = (sSeqNode313B38**)((char*)self + 0xAC);
     for (; *link != 0; link = &(*link)->next)
@@ -109,7 +109,7 @@ struct sSeqNode313BA8
     sSeqNode313BA8* next;
 };
 
-extern "C" void func_00313BA8(void* self, int key)
+extern "C" void cAnimSequence_removeEndTrigger(void* self, int key)
 {
     sSeqNode313BA8** pp;
     for (pp = (sSeqNode313BA8**)((char*)self + 0xAC); *pp != 0; pp = &(*pp)->next)
@@ -130,7 +130,7 @@ extern "C" void func_00313BA8(void* self, int key)
 //100%
 void operator_delete(int* ptr);
 
-extern "C" void func_00313C08(char* self)
+extern "C" void cAnimSequence_deleteTriggers(char* self)
 {
     while (*(char**)(self + 0xAC) != 0)
     {
@@ -162,7 +162,7 @@ struct sSeq_00313C50
     int dirty;
 };
 
-extern "C" void func_00313C50(void* self, int i, int anim)
+extern "C" void cAnimSequence_setSlotClip(void* self, int i, int anim)
 {
     sSeq_00313C50* s = (sSeq_00313C50*)self;
     (s->e + i)->anim = anim;
@@ -181,33 +181,33 @@ extern "C" void func_00313C50(void* self, int i, int anim)
 }
 
 //100%
-extern "C" void func_00313CF0(void* self, int a1, float val)
+extern "C" void cAnimSequence_setSlotTime(void* self, int a1, float val)
 {
     char* p = (char*)self + a1 * 0x1c;
     *(float*)(p + 0x8) = val;
     *(int*)((char*)self + 0xc4) = 1;
 }
 
-extern "C" void func_00313D10(char* self, int i, float value)
+extern "C" void cAnimSequence_setSlotRate(char* self, int i, float value)
 {
     *(float*)(self + i * 0x1C + 0xC) = value;
 }
 
 //100%
-extern "C" void func_00313D28(void* self, int a1, float val)
+extern "C" void cAnimSequence_setSlotWeight(void* self, int a1, float val)
 {
     char* p = (char*)self + a1 * 0x1c;
     *(float*)(p + 0x14) = val;
 }
 
 //100%
-extern "C" void func_00313D40(void* self, int a1, int val)
+extern "C" void cAnimSequence_setSlotLoop(void* self, int a1, int val)
 {
     char* p = (char*)self + a1 * 0x1c;
     *(int*)(p + 0x1c) = val;
 }
 
-extern "C" void func_00313D58(char* self, int i)
+extern "C" void cAnimSequence_disableSlot(char* self, int i)
 {
     *(int*)(self + i * 0x1C + 0x18) = 0;
 }
@@ -234,7 +234,7 @@ struct sSeq_00313D70
 };
 
 // PORT: g++ <? (min) operator, removed in GCC 4.3.
-extern "C" float func_00313D70(sSeq_00313D70* self, int i)
+extern "C" float cAnimSequence_getSlotWeight(sSeq_00313D70* self, int i)
 {
     float time = self->tracks[i].time;
     float w = self->scale * self->tracks[i].weight;
@@ -266,7 +266,7 @@ static inline void Ser_313DD0(char* s, void* p, int n)
 
 class cAsStream;
 
-extern "C" void func_00313DD0(void* node, cAsStream* stream)
+extern "C" void cAnimSequence_save(void* node, cAsStream* stream)
 {
     char* self = (char*)node;
     char* s = (char*)stream;
@@ -318,7 +318,7 @@ static inline void Read_314050(char* s, void* p, int n)
     e->fn(s + e->delta, p, n);
 }
 
-extern "C" void func_00314050(void* node, void* stream)
+extern "C" void cAnimSequence_load(void* node, void* stream)
 {
     char* self = (char*)node;
     char* s = (char*)stream;
@@ -354,7 +354,7 @@ extern "C" void func_00314050(void* node, void* stream)
 }
 
 //100%
-void func_003142E8(void* self)
+void cAnimSequencer_cAnimSequencer(void* self)
 {
     *(int*)self = 0;
     *(void**)((char*)self + 0x4) = 0;
@@ -374,12 +374,12 @@ struct sSequencer_003142F8 {
     sSeqNode_003142F8* mFirstSequence; // 0x4
 };
 
-extern "C" void* func_00313508(void* mem, int arg);
+extern "C" void* cAnimSequence_cAnimSequence(void* mem, int arg);
 
-extern "C" void* func_003142F8(void* seq, int arg)
+extern "C" void* cAnimSequencer_newSequence(void* seq, int arg)
 {
     sSequencer_003142F8* self = (sSequencer_003142F8*)seq;
-    sSeqNode_003142F8* node = (sSeqNode_003142F8*)func_00313508(cMemMan_alloc(0xD0, D_0048A5C0, 0x20000000, 0), arg);
+    sSeqNode_003142F8* node = (sSeqNode_003142F8*)cAnimSequence_cAnimSequence(cMemMan_alloc(0xD0, D_0048A5C0, 0x20000000, 0), arg);
     node->next = self->mFirstSequence;
     self->mFirstSequence = node;
     self->mCount++;
@@ -398,7 +398,7 @@ struct sSequencer_00314368 {
     sSeqNode_00314368* mFirstSequence; // 0x4
 };
 
-extern "C" void func_00314368(sSequencer_00314368* self, sSeqNode_00314368* node)
+extern "C" void cAnimSequencer_appendSequence(sSequencer_00314368* self, sSeqNode_00314368* node)
 {
     if (self->mFirstSequence != 0)
     {
@@ -428,7 +428,7 @@ struct sSeqList_003143C8 {
     sSeqNode_003143C8* head; // 0x4
 };
 
-extern "C" void func_003143C8(sSeqList_003143C8* self, sSeqNode_003143C8* node)
+extern "C" void cAnimSequencer_unlinkSequence(sSeqList_003143C8* self, sSeqNode_003143C8* node)
 {
     if (self->head == node) {
         self->head = node->next;
@@ -447,7 +447,7 @@ extern "C" void func_003143C8(sSeqList_003143C8* self, sSeqNode_003143C8* node)
 
 //100%
 struct sSeq_00314418;
-extern "C" float func_00313D70_314418(sSeq_00314418* self, int i) __asm__("func_00313D70");
+extern "C" float cAnimSequence_getSlotWeight_314418(sSeq_00314418* self, int i) __asm__("cAnimSequence_getSlotWeight");
 
 struct sVec4_314418
 {
@@ -491,7 +491,7 @@ struct sSeqState_314418
 };
 
 // PORT: `long` field is 64-bit (ld/sd).
-extern "C" int func_00314418(void* self, sSeqState_314418* out)
+extern "C" int cAnimSequencer_getSampleStates(void* self, sSeqState_314418* out)
 {
     int count = 0;
     sSeq_00314418* n = *(sSeq_00314418**)((char*)self + 0x4);
@@ -508,7 +508,7 @@ extern "C" int func_00314418(void* self, sSeqState_314418* out)
                 o->b = n->b;
                 o->c = n->c;
                 o->d = n->d;
-                o->weight = func_00313D70_314418(n, j);
+                o->weight = cAnimSequence_getSlotWeight_314418(n, j);
                 o->e = n->e;
                 count++;
             }
@@ -519,28 +519,28 @@ extern "C" int func_00314418(void* self, sSeqState_314418* out)
 }
 
 //100% - objdiff report; single-function view differs only in a relocation name
-extern "C" void* func_003142F8(void* seq, int arg);
-extern "C" void func_00313C50(void* self, int i, int anim);
+extern "C" void* cAnimSequencer_newSequence(void* seq, int arg);
+extern "C" void cAnimSequence_setSlotClip(void* self, int i, int anim);
 
-extern "C" void* func_00314518(void* self, int arg, int anim, float val)
+extern "C" void* cAnimSequencer_addSequence(void* self, int arg, int anim, float val)
 {
-    void* node = func_003142F8(self, arg);
-    func_00313C50(node, 0, anim);
-    func_00313CF0(node, 0, val);
-    func_00313D40(node, 0, 0);
+    void* node = cAnimSequencer_newSequence(self, arg);
+    cAnimSequence_setSlotClip(node, 0, anim);
+    cAnimSequence_setSlotTime(node, 0, val);
+    cAnimSequence_setSlotLoop(node, 0, 0);
     return node;
 }
 
 //100% - objdiff report; single-function view differs only in a relocation name
-extern "C" void* func_003142F8(void* seq, int arg);
-extern "C" void func_00313C50(void* self, int i, int anim);
+extern "C" void* cAnimSequencer_newSequence(void* seq, int arg);
+extern "C" void cAnimSequence_setSlotClip(void* self, int i, int anim);
 
-extern "C" void* func_00314588(void* self, int arg, int anim, float val)
+extern "C" void* cAnimSequencer_addLoopingSequence(void* self, int arg, int anim, float val)
 {
-    void* node = func_003142F8(self, arg);
-    func_00313C50(node, 0, anim);
-    func_00313CF0(node, 0, val);
-    func_00313D40(node, 0, 1);
+    void* node = cAnimSequencer_newSequence(self, arg);
+    cAnimSequence_setSlotClip(node, 0, anim);
+    cAnimSequence_setSlotTime(node, 0, val);
+    cAnimSequence_setSlotLoop(node, 0, 1);
     return node;
 }
 
@@ -555,7 +555,7 @@ struct sSequencer_003145F8 {
     sSeqNode_003145F8* mFirstSequence; // 0x4
 };
 
-extern "C" void func_003145F8(sSequencer_003145F8* self, sSeqNode_003145F8* node)
+extern "C" void cAnimSequencer_removeSequence(sSequencer_003145F8* self, sSeqNode_003145F8* node)
 {
     sSeqNode_003145F8** pp;
     for (pp = &self->mFirstSequence; *pp != 0; pp = &(*pp)->next)
@@ -566,7 +566,7 @@ extern "C" void func_003145F8(sSequencer_003145F8* self, sSeqNode_003145F8* node
             *pp = n->next;
             if (n != 0)
             {
-                func_00313C08((char*)n);
+                cAnimSequence_deleteTriggers((char*)n);
                 operator_delete((int*)n);
             }
             self->mCount--;
@@ -586,7 +586,7 @@ struct sSequencer_00314668 {
     sSeqNode_00314668* mFirstSequence; // 0x4
 };
 
-extern "C" void func_00314668(sSequencer_00314668* self)
+extern "C" void cAnimSequencer_removeAll(sSequencer_00314668* self)
 {
     while (self->mFirstSequence != 0)
     {
@@ -594,7 +594,7 @@ extern "C" void func_00314668(sSequencer_00314668* self)
         self->mFirstSequence = n->next;
         if (n != 0)
         {
-            func_00313C08((char*)n);
+            cAnimSequence_deleteTriggers((char*)n);
             operator_delete((int*)n);
         }
         self->mCount--;
@@ -602,22 +602,22 @@ extern "C" void func_00314668(sSequencer_00314668* self)
 }
 
 //100%
-extern "C" void func_003146D0(void* self, float v)
+extern "C" void cAnimSequencer_fadeOutAll(void* self, float v)
 {
     for (char* node = *(char**)((char*)self + 0x4); node != 0; node = *(char**)(node + 0xC8))
     {
-        func_00313A20(node, v);
+        cAnimSequence_fadeOut(node, v);
     }
 }
 
 //100% - objdiff report; single-function view differs only in a relocation name
-extern "C" void func_00313BA8(void* self, int v);
+extern "C" void cAnimSequence_removeEndTrigger(void* self, int v);
 
-extern "C" void func_00314718(void* self, int v)
+extern "C" void cAnimSequencer_removeEndTriggers(void* self, int v)
 {
     for (char* node = *(char**)((char*)self + 0x4); node != 0; node = *(char**)(node + 0xC8))
     {
-        func_00313BA8(node, v);
+        cAnimSequence_removeEndTrigger(node, v);
     }
 }
 
@@ -642,7 +642,7 @@ cAnimSequenceNode* cAnimSequencer_getSequence(cAnimSequencer* self, int index)
 }
 
 // Whether a node with the given id is in the list
-extern "C" int func_00314788(char* self, int id)
+extern "C" int cAnimSequencer_hasAnim(char* self, int id)
 {
     char* p;
     for (p = *(char**)(self + 0x4); p; p = *(char**)(p + 0xC8)) {
@@ -653,7 +653,7 @@ extern "C" int func_00314788(char* self, int id)
 }
 
 // Index of the node with the given id, or -1
-extern "C" int func_003147B8(char* self, int id)
+extern "C" int cAnimSequencer_findAnim(char* self, int id)
 {
     char* p;
     int i = 0;
@@ -681,15 +681,15 @@ struct sSequencer_003147F0 {
     sSeqNode_003147F0* mFirstSequence; // 0x4
 };
 
-extern "C" void func_00313DD0(void* node, cAsStream* s);
+extern "C" void cAnimSequence_save(void* node, cAsStream* s);
 
-extern "C" void func_003147F0(sSequencer_003147F0* self, cAsStream* s)
+extern "C" void cAnimSequencer_save(sSequencer_003147F0* self, cAsStream* s)
 {
     s->serialize(self, 4);
     sSeqNode_003147F0* n = self->mFirstSequence;
     for (int i = 0; i < self->mCount; i++)
     {
-        func_00313DD0(n, s);
+        cAnimSequence_save(n, s);
         n = n->next;
     }
 }
@@ -698,7 +698,7 @@ extern "C" void func_003147F0(sSequencer_003147F0* self, cAsStream* s)
 // PORT: cMemMan_alloc is the game's tagged operator new(size, tag, flags, d); bound by asm label.
 void* operator new(unsigned int size, const char* tag, unsigned int flags, int d) __asm__("cMemMan_alloc");
 extern "C" void func_003E6448(void* dst, int value, int size);
-extern "C" void func_00314050(void* node, void* stream);
+extern "C" void cAnimSequence_load(void* node, void* stream);
 extern const char D_0048A5C0[];
 
 struct sStreamVE_314880 { short delta; short index; void (*fn)(void*, void*, int); };
@@ -716,11 +716,11 @@ struct sSeqNode_314880
     sSeqNode_314880() {}
 };
 
-INCLUDE_ASM("animation/animsequencer", func_00314880);
-extern "C" void func_00314880(void* self, void* stream);
+INCLUDE_ASM("animation/animsequencer", cAnimSequencer_load);
+extern "C" void cAnimSequencer_load(void* self, void* stream);
 
 //100%
-void* func_00314978(void* self)
+void* cMdfArchive_cMdfArchive(void* self)
 {
     *(int*)self = 0;
     return self;
@@ -728,11 +728,11 @@ void* func_00314978(void* self)
 
 //100%
 void operator_delete(int* ptr);
-extern "C" void func_003149D0(void** self);
+extern "C" void cMdfArchive_close(void** self);
 
-extern "C" void func_00314988(int* self, int flags)
+extern "C" void cMdfArchive__cMdfArchive(int* self, int flags)
 {
-    func_003149D0((void**)self);
+    cMdfArchive_close((void**)self);
     if (flags & 1)
     {
         operator_delete(self);
@@ -742,7 +742,7 @@ extern "C" void func_00314988(int* self, int flags)
 //100%
 void cMemMan_free(void* ptr);
 
-extern "C" void func_003149D0(void** self)
+extern "C" void cMdfArchive_close(void** self)
 {
     if (self[0] != 0)
     {
@@ -754,34 +754,34 @@ extern "C" void func_003149D0(void** self)
     self[3] = 0;
 }
 
-extern "C" void* func_00314AA0(void*);
+extern "C" void* cMdfArchive_bind(void*);
 
 //100%
-// PORT: asm label (same binding the unit uses for func_00314AA0's two-argument body).
-void func_00314AA0_impl(void* self, char* data) __asm__("func_00314AA0");
+// PORT: asm label (same binding the unit uses for cMdfArchive_bind's two-argument body).
+void cMdfArchive_bind_impl(void* self, char* data) __asm__("cMdfArchive_bind");
 
 void func_00314A18(void* self, int a1)
 {
     *(int*)self = a1;
-    func_00314AA0_impl(self, (char*)a1);
+    cMdfArchive_bind_impl(self, (char*)a1);
 }
 
 //100%
 void* func_00314A40(void* self)
 {
     *(int*)self = 0;
-    return func_00314AA0(self);
+    return cMdfArchive_bind(self);
 }
 
 //100%
 // Loads the archive named name with func_003E22F0, stores it and points self at its tables.
 extern "C" char* func_003E22F0(const char* name, int flags);
 
-extern "C" void func_00314A60(void* self, const char* name, int flags)
+extern "C" void cMdfArchive_load(void* self, const char* name, int flags)
 {
     char* data = func_003E22F0(name, flags);
     *(char**)self = data;
-    func_00314AA0_impl(self, data);
+    cMdfArchive_bind_impl(self, data);
 }
 
 //100%
@@ -790,15 +790,15 @@ extern "C" void func_00314A60(void* self, const char* name, int flags)
 // while the definition takes two. The asm label binds this two-argument body to
 // the symbol without changing the callers' prototype.
 // PORT: asm labels are GCC/Clang-only; the port should give callers the real signature.
-void func_00314AA0_impl(void* self, char* data) __asm__("func_00314AA0");
-void func_00314AA0_impl(void* self, char* data)
+void cMdfArchive_bind_impl(void* self, char* data) __asm__("cMdfArchive_bind");
+void cMdfArchive_bind_impl(void* self, char* data)
 {
     *(char**)((char*)self + 0x4) = data;
     *(char**)((char*)self + 0x8) = data + *(short*)(data + 0x6);
     *(char**)((char*)self + 0xC) = data + *(int*)(data + 0x8);
 }
 
-extern "C" int func_00314AC0(char* self)
+extern "C" int cMdfArchive_getNumModelParts(char* self)
 {
     char* p = *(char**)(self + 0x4);
     if (p)
@@ -825,7 +825,7 @@ struct sMdfArchive {
     sMdfPart60* parts;  // 0x8
 };
 
-extern "C" int func_00314AE0(sMdfArchive* self, const char* name)
+extern "C" int cMdfArchive_hasModelPart(sMdfArchive* self, const char* name)
 {
     for (int i = 0; i < self->header->count; i++)
     {
@@ -837,7 +837,7 @@ extern "C" int func_00314AE0(sMdfArchive* self, const char* name)
 
 //100%
 // Returns the part called name, or null.
-extern "C" sMdfPart60* func_00314B70(sMdfArchive* self, const char* name)
+extern "C" sMdfPart60* cMdfArchive_findModelPartHeader(sMdfArchive* self, const char* name)
 {
     for (int i = 0; i < self->header->count; i++)
     {
@@ -850,7 +850,7 @@ extern "C" sMdfPart60* func_00314B70(sMdfArchive* self, const char* name)
 //100%
 extern "C" void* cMdfArchive_getModelPartByIndex(void* self, int index);
 
-extern "C" void* func_00314C00(sMdfArchive* self, const char* name)
+extern "C" void* cMdfArchive_getModelPart(sMdfArchive* self, const char* name)
 {
     for (int i = 0; i < self->header->count; i++)
     {
@@ -861,7 +861,7 @@ extern "C" void* func_00314C00(sMdfArchive* self, const char* name)
 }
 
 
-extern "C" char* func_00314C98(char* self, int i)
+extern "C" char* cMdfArchive_getModelPartHeader(char* self, int i)
 {
     return *(char**)(self + 0x8) + i * 0x60;
 }

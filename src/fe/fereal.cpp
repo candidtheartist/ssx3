@@ -1150,8 +1150,8 @@ noh:
 //100%
 extern "C" void func_003DED50(char* name, int a1, int a2, void* out);
 extern "C" void func_003DEDC0(void* handle, int arg);
-extern "C" void* func_00311250(void* self, void* src);
-extern "C" void func_00314F30(void* self, int kind, void* list);
+extern "C" void* cAdfDataSource_cAdfDataSource1(void* self, void* src);
+extern "C" void cGameAnimMap_addBank(void* self, int kind, void* list);
 // PORT: cGameAnimMap_testResolve__Fv is called with the map in $a0; bind the 1-arg form to that symbol.
 void cGameAnimMap_testResolve_p(void* map) __asm__("cGameAnimMap_testResolve__Fv");
 extern char D_00461330[];
@@ -1169,9 +1169,9 @@ extern "C" void cRealFE_loadCharAnimations(void)
     int i;
     func_003DED50(D_00461330, 0, 0x64, &handle);
     for (i = 0; i < 1; i++) {
-        void* anim = func_00311250(cMemMan_alloc(0x18, D_00461348, 0, 0), D_004A19C0[i]);
+        void* anim = cAdfDataSource_cAdfDataSource1(cMemMan_alloc(0x18, D_00461348, 0, 0), D_004A19C0[i]);
         D_004A3DF8_K1A2B00->anims[(unsigned char)i] = anim;
-        func_00314F30(D_004A3E7C, i, anim);
+        cGameAnimMap_addBank(D_004A3E7C, i, anim);
     }
     cGameAnimMap_testResolve_p(D_004A3E7C);
     func_003DEDC0(handle, 0x64);
@@ -1180,9 +1180,9 @@ extern "C" void cRealFE_loadCharAnimations(void)
 //100%
 extern void** D_004A3DF8;
 extern void* D_004A3E7C;
-extern "C" void func_00314FE8(void* a, void* b);
+extern "C" void cGameAnimMap_removeBank(void* a, void* b);
 extern "C" void func_00311110(void* a);
-extern "C" void func_003112C8(void* a, int b);
+extern "C" void cAdfDataSource__cAdfDataSource(void* a, int b);
 
 extern "C" void func_001A2BC0(void* self)
 {
@@ -1191,11 +1191,11 @@ extern "C" void func_001A2BC0(void* self)
         unsigned char idx = i;
         void* p = *(void**)((char*)D_004A3DF8 + (idx << 2));
         if (p != 0) {
-            func_00314FE8(D_004A3E7C, p);
+            cGameAnimMap_removeBank(D_004A3E7C, p);
             void** tbl = D_004A3DF8;
             *(void**)((char*)tbl + (idx << 2)) = 0;
             func_00311110(tbl);
-            func_003112C8(p, 3);
+            cAdfDataSource__cAdfDataSource(p, 3);
         }
     }
 }

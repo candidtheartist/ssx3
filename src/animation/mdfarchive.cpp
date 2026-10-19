@@ -40,19 +40,19 @@ extern "C" void* cMdfArchive_getModelPartByIndex(sMdfArchive_00314CB0* self, int
 //100%
 extern unsigned int* D_004A3E78;
 
-extern "C" int func_00314D60(int* a, int* b)
+extern "C" int cGameAnimMap_compareHash(int* a, int* b)
 {
     return D_004A3E78[*a] < D_004A3E78[*b] ? -1 : 1;
 }
 
-INCLUDE_ASM("animation/mdfarchive", func_00314D98);
+INCLUDE_ASM("animation/mdfarchive", cGameAnimMap_cGameAnimMap);
 
 //100%
 // Destructor: clears the current-archive global at D_004A3E7C, then frees self when flags bit 0 is set.
 extern int D_004A3E7C;
 void operator_delete(int* p);
 
-extern "C" void func_00314DB0(int* self, int flags)
+extern "C" void cGameAnimMap__cGameAnimMap(int* self, int flags)
 {
     D_004A3E7C = 0;
     if (flags & 1)
@@ -63,7 +63,7 @@ extern "C" void func_00314DB0(int* self, int flags)
 int GetHashValue32(char* str);
 extern char* D_0048CFC0[];
 extern unsigned int* D_004A3E78;
-extern "C" int func_00314D60(int* a, int* b);
+extern "C" int cGameAnimMap_compareHash(int* a, int* b);
 extern "C" void func_00418EF8(void* base, int n, int size, int (*cmp)(int*, int*));
 extern "C" void* func_00416210(void* dst, int c, int n);
 
@@ -74,7 +74,7 @@ struct sMdfHashTable_00314DD8
     char map[0x818];
 };
 
-extern "C" void func_00314DD8(sMdfHashTable_00314DD8* self)
+extern "C" void cGameAnimMap_init(sMdfHashTable_00314DD8* self)
 {
     for (int i = 0; i < 0x206; i++)
     {
@@ -83,7 +83,7 @@ extern "C" void func_00314DD8(sMdfHashTable_00314DD8* self)
         self->hash[i] = h;
     }
     D_004A3E78 = self->hash;
-    func_00418EF8(self->order, 0x206, 4, func_00314D60);
+    func_00418EF8(self->order, 0x206, 4, cGameAnimMap_compareHash);
     D_004A3E78 = 0;
     func_00416210(self->map, -1, 0x818);
 }
@@ -96,7 +96,7 @@ struct sMdfIndex_00314E88
 };
 
 // Binary search for `hash`; returns its entry index, or -1.
-extern "C" int func_00314E88(sMdfIndex_00314E88* self, unsigned int hash)
+extern "C" int cGameAnimMap_findAnim(sMdfIndex_00314E88* self, unsigned int hash)
 {
     int lo = 0;
     int hi = 0x206;
@@ -122,9 +122,9 @@ extern "C" int func_00314E88(sMdfIndex_00314E88* self, unsigned int hash)
 }
 
 //100% - objdiff report; single-function view differs only in a relocation name
-extern "C" void func_00314EF0(sMdfIndex_00314E88* self, unsigned int hash, void* value)
+extern "C" void cGameAnimMap_setClip(sMdfIndex_00314E88* self, unsigned int hash, void* value)
 {
-    int i = func_00314E88(self, hash);
+    int i = cGameAnimMap_findAnim(self, hash);
     if (i >= 0)
     {
         ((void**)((char*)self + 0x1030))[i] = value;
@@ -141,28 +141,28 @@ struct sMdfHandle_00314F30
 static inline void SetKind_00314F30(sMdfHandle_00314F30* h, int v) { h->kind = v; }
 static inline void SetIndex_00314F30(sMdfHandle_00314F30* h, int v) { h->index = v; }
 
-// PORT: func_00314EF0's value slot receives the handle struct by value here.
-void func_00314EF0_handle(sMdfIndex_00314E88* self, unsigned int hash, sMdfHandle_00314F30 value) __asm__("func_00314EF0");
+// PORT: cGameAnimMap_setClip's value slot receives the handle struct by value here.
+void cGameAnimMap_setClip_handle(sMdfIndex_00314E88* self, unsigned int hash, sMdfHandle_00314F30 value) __asm__("cGameAnimMap_setClip");
 
-extern "C" void func_00314F30(sMdfIndex_00314E88* self, int kind, char* list)
+extern "C" void cGameAnimMap_addBank(sMdfIndex_00314E88* self, int kind, char* list)
 {
     sMdfHandle_00314F30 h;
     for (int i = 0; i < *(short*)(*(char**)(list + 4) + 2); i++)
     {
         SetKind_00314F30(&h, kind);
         SetIndex_00314F30(&h, i);
-        func_00314EF0_handle(self, *(unsigned int*)(i * 0x14 + *(int*)(list + 8)), h);
+        cGameAnimMap_setClip_handle(self, *(unsigned int*)(i * 0x14 + *(int*)(list + 8)), h);
     }
 }
 
 //100%
 extern void* D_004A5950;
 
-extern "C" void func_00314FE8(sMdfIndex_00314E88* self, char* list)
+extern "C" void cGameAnimMap_removeBank(sMdfIndex_00314E88* self, char* list)
 {
     for (int i = 0; i < *(short*)(*(char**)(list + 4) + 2); i++)
     {
-        func_00314EF0(self, *(unsigned int*)(i * 0x14 + *(int*)(list + 8)), D_004A5950);
+        cGameAnimMap_setClip(self, *(unsigned int*)(i * 0x14 + *(int*)(list + 8)), D_004A5950);
     }
 }
 
@@ -171,7 +171,7 @@ extern "C" void func_00314FE8(sMdfIndex_00314E88* self, char* list)
 // Finds key among the 0x206 hashes at 0x1030 and returns the matching name from D_0048CFC0, or D_0048A4C0.
 extern char D_0048A4C0[];
 
-extern "C" char* func_00315070(char* self, int key)
+extern "C" char* cGameAnimMap_getAnimName(char* self, int key)
 {
     int* hashes = (int*)(self + 0x1030);
     for (int i = 0; i < 0x206; i++)
