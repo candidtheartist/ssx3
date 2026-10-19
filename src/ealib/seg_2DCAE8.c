@@ -2336,7 +2336,22 @@ void func_003E0B98(int arg0, int arg1) {
     }
 }
 
-INCLUDE_ASM("ealib/seg_2DCAE8", func_003E0BF8);
+//100%
+extern int func_003DFBD0_0BF8(int, void *, void *) __asm__("func_003DFBD0");
+
+struct E_0BF8 { int w[4]; };
+
+struct E_0BF8 *func_003E0BF8(int arg0, int k) {
+    char *loc[2];
+
+    if (func_003DFBD0_0BF8(arg0, &loc[0], &loc[1]) != 0) {
+        return 0;
+    }
+    if (k <= 0 || *(int *)(loc[0] + 0x28) < k) {
+        return 0;
+    }
+    return &(*(struct E_0BF8 **)(loc[0] + 0x24))[k - 1];
+}
 
 //100% - objdiff report; single-function view differs only in a relocation name
 extern int func_003DFBD0(int, void *, void *);
