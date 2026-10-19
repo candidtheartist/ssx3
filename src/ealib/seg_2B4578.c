@@ -4857,7 +4857,28 @@ int func_003C5468(float *a0) {
     return 0;
 }
 
-INCLUDE_ASM("ealib/seg_2B4578", func_003C54C0);
+//100%
+// PORT: PS2-only inline asm; needs a C fallback off-PS2.
+int func_003B4DD8_i(void *) __asm__("func_003B4DD8");
+int func_003C54C0(unsigned int kind, int *out) {
+    unsigned char info[0xE0];
+    *out = 0;
+    func_003B4DD8_i(info);
+    switch (kind) {
+    case 1:
+        if (info[5] >= 2U) {
+            *out = 1;
+        }
+        break;
+    case 0:
+    case 4:
+    case 5:
+    case 8:
+        *out = 1;
+        break;
+    }
+    return 0;
+}
 
 INCLUDE_ASM("ealib/seg_2B4578", func_003C5538);
 
