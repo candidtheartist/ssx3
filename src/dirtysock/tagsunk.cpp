@@ -8082,7 +8082,25 @@ extern "C" void func_002668E8(sSlots_668E8* self)
     }
 }
 
-INCLUDE_ASM("dirtysock/tagsunk", func_00266B80);
+//100%
+struct sEnt8C {
+    int a;
+    int b;
+    char pad[0x84];
+};
+
+struct sEntTable {
+    sEnt8C ents[8];
+    int active;
+};
+
+extern "C" void func_00266B80(sEntTable* self, int idx)
+{
+    if (self->active != 0) {
+        self->ents[idx].b = 0;
+        self->ents[idx].a = 0;
+    }
+}
 
 //100%
 // Pops the next byte pair from slot idx's ring; a zero byte leaves its output at -1.
