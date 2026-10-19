@@ -460,7 +460,17 @@ extern "C" int func_002B9E20(void *arg0) {
     return (*(int *)((char*)(arg0) + (4)));
 }
 
-INCLUDE_ASM("bx/seg_1BA100", func_002B9E28);
+//100%
+struct Q_9E28 { int a; int *data; int tail; int head; };
+extern "C" int func_002B9E28(char *self) {
+    int r;
+    if (*(int *)(self + 4) != 0) {
+        Q_9E28 *q = (Q_9E28 *)(self + 0x18C);
+        if (*(int *)(self + 0x194) == *(int *)(self + 0x198)) r = -1;
+        else r = q->data[q->head];
+    } else r = -1;
+    return r;
+}
 
 //100%
 extern "C" void func_00289DF0(void*, int);
@@ -1072,7 +1082,65 @@ extern "C" int func_002BAF90(int *arg0) {
     return (*(int *)((char*)(func_002C1CD8(*arg0)) + (4)));
 }
 
-INCLUDE_ASM("bx/seg_1BA100", func_002BAFB0);
+//100%
+// Placement new for constructing the key table in place.
+inline void* operator new(unsigned int, void* p) { return p; }
+
+// 8-byte key: a byte id at offset 0, overlaid by the packed word id | (index << 8).
+struct sKey_AFB0 {
+    union {
+        unsigned char id;
+        int packed;
+    };
+    int pad;
+
+    sKey_AFB0(int n)
+    {
+        id = n;
+        packed = (packed & 0xFF) | (n << 8);
+    }
+};
+
+// Two zeroed words placed before the key table.
+extern int D_004A52E0;
+extern int D_004A52E4;
+extern sKey_AFB0 D_004A52E8;
+extern sKey_AFB0 D_004A52F0;
+extern sKey_AFB0 D_004A52F8;
+extern sKey_AFB0 D_004A5300;
+extern sKey_AFB0 D_004A5308;
+extern sKey_AFB0 D_004A5310;
+extern sKey_AFB0 D_004A5318;
+extern sKey_AFB0 D_004A5320;
+extern sKey_AFB0 D_004A5328;
+extern sKey_AFB0 D_004A5330;
+extern sKey_AFB0 D_004A5338;
+extern sKey_AFB0 D_004A5340;
+extern sKey_AFB0 D_004A5348;
+extern sKey_AFB0 D_004A5350;
+
+// Static initializer (initialize, priority) for the key table.
+extern "C" void func_002BAFB0(int initialize, int priority)
+{
+    if (priority == 0xFFFF && initialize != 0) {
+        D_004A52E4 = 0;
+        D_004A52E0 = 0;
+        new (&D_004A52E8) sKey_AFB0(0);
+        new (&D_004A52F0) sKey_AFB0(1);
+        new (&D_004A52F8) sKey_AFB0(2);
+        new (&D_004A5300) sKey_AFB0(3);
+        new (&D_004A5308) sKey_AFB0(4);
+        new (&D_004A5310) sKey_AFB0(5);
+        new (&D_004A5318) sKey_AFB0(6);
+        new (&D_004A5320) sKey_AFB0(7);
+        new (&D_004A5328) sKey_AFB0(8);
+        new (&D_004A5330) sKey_AFB0(9);
+        new (&D_004A5338) sKey_AFB0(10);
+        new (&D_004A5340) sKey_AFB0(11);
+        new (&D_004A5348) sKey_AFB0(12);
+        new (&D_004A5350) sKey_AFB0(13);
+    }
+}
 
 //100% - objdiff report; single-function view differs only in a relocation name
 extern "C" void func_002BAFB0(int, int);
@@ -1291,7 +1359,51 @@ extern "C" void func_002BB5A8(void *arg0) {
     (*(short *)((char*)(arg0) + (0))) = 0;
 }
 
-INCLUDE_ASM("bx/seg_1BA100", func_002BB5F0);
+//100%
+extern "C" void func_002BAF08_B5F0(int p) __asm__("func_002BAF08");
+
+struct sReloc_B5F0 {
+    int magic;          // 0x0 (0x10 once relocated)
+    int count;          // 0x4
+    int offs[1];        // 0x8
+};
+
+struct sRes_B5F0 {
+    short state;        // 0x0
+    short keep;         // 0x2
+    int pad4;
+    sReloc_B5F0* data;  // 0x8
+};
+
+// Relocates the loaded block's offset table (dropping it if it has the wrong magic) and marks it ready.
+extern "C" void func_002BB5F0(void* vself)
+{
+    sRes_B5F0* self = (sRes_B5F0*)vself;
+    if (self->data == 0) {
+        self->state = 3;
+        return;
+    }
+    {
+        if (self->data->magic != 0x10) {
+            if (self->keep == 0) {
+                cMemMan_free(self->data);
+            }
+            self->data = 0;
+        }
+        if (self->data != 0) {
+            int* p = self->data->offs;
+            for (int i = 0; i < self->data->count; i++, p++) {
+                if (*p == -1) {
+                    *p = 0;
+                } else {
+                    *p = (int)self->data + *p;
+                    func_002BAF08_B5F0(*p);
+                }
+            }
+        }
+    }
+    self->state = 3;
+}
 
 //100%
 extern "C" void func_002BB6E0(int, void *);
@@ -1937,7 +2049,16 @@ extern "C" void func_002BCE08(void *self, void *p, float f) {
     o->vt();
 }
 
-INCLUDE_ASM("bx/seg_1BA100", func_002BCEA8);
+//100%
+class cCEA8 { public: int f0; virtual void v0();virtual void v1();virtual void v2();virtual void v3();virtual void v4();virtual void v5();virtual void v6();virtual void v7();virtual void v8();virtual void v9();virtual void v10();virtual void v11();virtual void v12();virtual void v13();virtual void v14();virtual void v15();virtual void v16();virtual void v17();virtual void v18();virtual void v19();virtual void v20();virtual void v21();virtual void v22();virtual void v23();virtual void v24();virtual void v25();virtual void v26();virtual void v27();virtual void v28();virtual void v29();virtual void v30();virtual void v31();virtual void v32();virtual void v33();virtual void v34();virtual void v35();virtual void v36();virtual void v37();virtual void v38();virtual void v39();virtual void v40();virtual void v41();virtual void v42();virtual void v43();virtual void v44();virtual void v45();virtual void v46();virtual void v47();virtual void v48();virtual void v49();virtual void v50();virtual void v51();virtual void v52();virtual void v53();virtual void v54();virtual void v55();virtual void v56();virtual void v57();virtual void v58();virtual void v59();virtual void v60();virtual void v61();virtual void v62();virtual void v63();virtual void v64();virtual void v65(); virtual int vt(); };
+extern "C" void func_002BCEA8(void *self, void *p, float f) {
+    cCEA8 *o = (cCEA8*)self;
+    o->vt();
+    f = f * f;
+    *(float*)((char*)self + 8) = f * *(float*)((char*)p + 4) + (1.0f - f) * *(float*)((char*)self + 8);
+    *(float*)((char*)self + 0xC) = *(float*)((char*)p + 4);
+    o->vt();
+}
 
 //100%
 struct VEnt_CF38 { short delta; short idx; int (*fn)(void*); };
@@ -2488,7 +2609,29 @@ extern "C" void func_002BE1F8(sPairSet_002BE1F8* o)
     o->flags = 0;
 }
 
-INCLUDE_ASM("bx/seg_1BA100", func_002BE258);
+//100%
+extern "C" void func_002BE258(void *arg0) {
+    *(int *)((char *)arg0 + 0x8) = 0;
+    *(float *)((char *)arg0 + 0x10) = 6.0f;
+    *(int *)((char *)arg0 + 0x18) = 0;
+    *(int *)((char *)arg0 + 0x20) = 0;
+    *(int *)((char *)arg0 + 0x28) = 0;
+    *(float *)((char *)arg0 + 0x30) = 10.0f;
+    *(float *)((char *)arg0 + 0x38) = 1.0f;
+    *(float *)((char *)arg0 + 0x40) = 1.0f;
+    *(int *)((char *)arg0 + 0x48) = 0;
+    *(int *)((char *)arg0 + 0x50) = 0;
+    *(int *)((char *)arg0 + 0x58) = 0;
+    *(float *)((char *)arg0 + 0x60) = 1.0f;
+    *(float *)((char *)arg0 + 0x68) = 1.0f;
+    *(float *)((char *)arg0 + 0x70) = 1.0f;
+    *(float *)((char *)arg0 + 0x78) = 1.0f;
+    *(float *)((char *)arg0 + 0x80) = 0.06f;
+    *(float *)((char *)arg0 + 0x88) = 1.0f;
+    *(float *)((char *)arg0 + 0x90) = 1.0f;
+    *(float *)((char *)arg0 + 0x98) = 1.0f;
+    *(int *)((char *)arg0 + 0x0) = 0;
+}
 
 //100%
 extern "C" void func_002BE2C8(void *p) {

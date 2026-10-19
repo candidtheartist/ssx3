@@ -86,7 +86,85 @@ extern "C" int func_00259468(void* a, void* b, char* x, char* y)
     return sx[0] - sy[0];
 }
 
-INCLUDE_ASM("dirtysock/tagsunk", func_002594D0);
+//100%
+struct cBXString2;
+cBXString2* cBXString_cBXString(cBXString2* self);
+extern "C" void* cBXString_cBXString2(void* self, const char* s);
+extern "C" void* cMemMan_alloc(int size, const char* tag, unsigned int flags, int d);
+extern "C" void func_00260F10(void* self);
+// The shared empty-string pointer is read as const so one load serves several string inits.
+extern void* const D_004A3E90_94D0 __asm__("D_004A3E90");
+extern char D_004807D8[];
+extern char D_004804A8[];
+
+struct sBXStr_94D0 {
+    void* str;
+};
+
+struct sListNode_94D0 {
+    sListNode_94D0* next;
+    sListNode_94D0* prev;
+    void* data;
+};
+
+struct sList_94D0 {
+    int f0;
+    sListNode_94D0* head;           // 0x4
+    int f8;
+    int fC;
+    int f10;
+    int f14;
+};
+
+extern "C" void* func_002594D0(void* self_)
+{
+    char* self = (char*)self_;
+    // An unused 16-byte local is needed to reproduce the 0x40-byte frame.
+    int unused[4];
+    *(int*)(self + 0x0) = 0;
+    *(int*)(self + 0x4) = 0;
+    *(int*)(self + 0x8) = 0;
+    *(int*)(self + 0xC) = 0;
+    *(int*)(self + 0x10) = 0;
+    *(int*)(self + 0x14) = 0;
+    *(int*)(self + 0x18) = 0;
+    *(int*)(self + 0x44) = 0;
+    *(void**)(self + 0x48) = D_004A3E90_94D0;
+    *(void**)(self + 0x4C) = D_004A3E90_94D0;
+    *(int*)(self + 0x54) = 0;
+    *(int*)(self + 0x58) = 0;
+    *(int*)(self + 0x5C) = 0;
+    *(int*)(self + 0x60) = 0;
+    *(int*)(self + 0x64) = 0;
+    *(int*)(self + 0x6C) = 0;
+    sBXStr_94D0* p = (sBXStr_94D0*)(self + 0x70);
+    for (int i = 3; i != -1; i--, p++) {
+        p->str = D_004A3E90_94D0;
+    }
+    *(void**)(self + 0x80) = D_004A3E90_94D0;
+    *(void**)(self + 0x84) = D_004A3E90_94D0;
+    *(void**)(self + 0x88) = D_004A3E90_94D0;
+    *(void**)(self + 0x8C) = D_004A3E90_94D0;
+    *(void**)(self + 0x90) = D_004A3E90_94D0;
+    *(void**)(self + 0x94) = D_004A3E90_94D0;
+    *(void**)(self + 0x98) = D_004A3E90_94D0;
+    *(void**)(self + 0x9C) = D_004A3E90_94D0;
+    cBXString_cBXString2(self + 0xE8, D_004807D8);
+    sList_94D0* lst = (sList_94D0*)(self + 0xEC);
+    *(sListNode_94D0**)(self + 0xF0) = (sListNode_94D0*)cMemMan_alloc(0xC, D_004804A8, 0x20000000, 0);
+    lst->head->next = *(sListNode_94D0**)(self + 0xF0);
+    lst->head->prev = *(sListNode_94D0**)(self + 0xF0);
+    *(int*)(self + 0xF4) = 0;
+    *(int*)(self + 0xF8) = 0;
+    *(int*)(self + 0xFC) = 0;
+    *(int*)(self + 0x100) = 0;
+    cBXString_cBXString((cBXString2*)(self + 0x260));
+    cBXString_cBXString((cBXString2*)(self + 0x2B0));
+    for (int i = 0x1C; i >= 0; i--)
+        ((int*)(self + 0x1EC))[i] = 0;
+    func_00260F10(self);
+    return self;
+}
 
 //100%
 extern "C" void cBXString__cBXString(void* self, int flags);
@@ -1972,7 +2050,49 @@ extern "C" void func_0025D538(char* self, char* msg)
     }
 }
 
-INCLUDE_ASM("dirtysock/tagsunk", func_0025D6C0);
+//100%
+// PORT: cMemMan_alloc called as the game's operator new(size, tag, flags, align): gcc then treats the
+// result as malloc-like (no aliasing), as the target shows. On PC use a real operator new.
+void* operator new(unsigned int size, const char* tag, unsigned int flags, int d) __asm__("cMemMan_alloc");
+extern "C" void* cMemMan_alloc(int size, const char* tag, unsigned int flags, int d);
+extern char D_00480488[];
+extern char D_004804A8[];
+extern void* D_004812B0[];
+
+struct sMsgListNodeK6c0 {
+    sMsgListNodeK6c0* next;
+    sMsgListNodeK6c0* prev;
+    void* data;
+};
+
+struct sMsgListIterK6c0 {
+    sMsgListNodeK6c0* node;
+    sMsgListIterK6c0(sMsgListNodeK6c0* x) : node(x) {}
+    sMsgListIterK6c0(const sMsgListIterK6c0& x) : node(x.node) {}
+};
+
+static inline sMsgListIterK6c0 sMsgListK6c0_insert(sMsgListIterK6c0 pos, void* const& x)
+{
+    sMsgListNodeK6c0* tmp = (sMsgListNodeK6c0*)operator new(0xC, D_004804A8, 0x20000000, 0);
+    void** data = &tmp->data;
+    if (data != 0)
+        *data = x;
+    tmp->next = pos.node;
+    tmp->prev = pos.node->prev;
+    pos.node->prev->next = tmp;
+    pos.node->prev = tmp;
+    return tmp;
+}
+
+extern "C" void func_0025D6C0(char* self)
+{
+    int* m = (int*)cMemMan_alloc(8, D_00480488, 0x20000000, 0);
+    sMsgListNodeK6c0* list = *(sMsgListNodeK6c0**)(self + 0xF0);
+    m[0] = 0xDF;
+    *(void***)((char*)m + 0x4) = D_004812B0;
+    void* mp = m;
+    sMsgListK6c0_insert(list, mp);
+}
 
 //100%
 extern char D_004A2F40[];
@@ -3661,7 +3781,37 @@ extern "C" void func_00260F10(void* self)
     *(int*)((char*)self + 0x2A0) = 0;
 }
 
-INCLUDE_ASM("dirtysock/tagsunk", func_00260F80);
+//100%
+void* operator new(unsigned int size, const char* tag, unsigned int flags, int d) __asm__("cMemMan_alloc");
+extern char D_00480E48[];
+extern void* D_004A3E90;
+extern void* D_004A3328;
+
+// Creates the memory-card manager singleton (D_004A3328).
+extern "C" void func_00260F80(void)
+{
+    // An unused 32-byte local is needed to reproduce the 0x30-byte frame.
+    int unused[8];
+    char* m = (char*)operator new(0xF0, D_00480E48, 0x20000000, 0);
+    *(int*)(m + 0x40) = -1;
+    *(int*)(m + 0xA4) = 0x15180;
+    *(void**)(m + 0xEC) = D_004A3E90;
+    *(int*)(m + 0xAC) = 0;
+    *(int*)(m + 0xB0) = 0;
+    *(int*)(m + 0xB4) = 0;
+    *(int*)(m + 0xBC) = 0;
+    *(int*)(m + 0xC0) = 0;
+    *(int*)(m + 0xC4) = 0;
+    *(int*)(m + 0xC8) = 0;
+    *(int*)(m + 0xCC) = 0;
+    *(int*)(m + 0xD0) = 0;
+    *(int*)(m + 0xD8) = 0;
+    *(int*)(m + 0xDC) = 0;
+    *(int*)(m + 0xE0) = 0;
+    *(int*)(m + 0xE4) = 0;
+    *(int*)(m + 0xE8) = 0;
+    D_004A3328 = m;
+}
 
 //100%
 extern void* D_004A3328;
@@ -6626,7 +6776,42 @@ extern "C" void func_00265568(void* self, int a, int b)
     }
 }
 
-INCLUDE_ASM("dirtysock/tagsunk", func_00265688);
+//100%
+// PORT: really returns int (the unit declares it void); the int return keeps the target's store scheduling.
+extern "C" int func_00264BE8_5688(void* self, void* msg, int size) __asm__("func_00264BE8");
+struct sMsg_5688 {
+    int code;
+    int state;
+    unsigned int arg;
+    int pad[2];
+};
+
+// Advances the connection state (5..7 -> 9, 8 -> 10) and posts a status message.
+extern "C" void func_00265688(int* self)
+{
+    sMsg_5688 m;
+    int code = 0xB;
+    if (self[0x124 / 4] != 0) {
+        code = 0xA;
+        int st = self[0];
+        if (st >= 5) {
+            int nst;
+            if (st < 8)
+                nst = 9;
+            else if (st == 8)
+                nst = 10;
+            else
+                goto send;
+            self[0] = nst;
+            code = 0xA;
+        }
+    }
+send:
+    m.code = code;
+    m.state = self[0];
+    m.arg = 0xFFFFFFFF;
+    func_00264BE8_5688(self, &m, 0x14);
+}
 
 //100%
 struct sTagMsg265700 {
@@ -7897,7 +8082,25 @@ extern "C" void func_002668E8(sSlots_668E8* self)
     }
 }
 
-INCLUDE_ASM("dirtysock/tagsunk", func_00266B80);
+//100%
+struct sEnt8C {
+    int a;
+    int b;
+    char pad[0x84];
+};
+
+struct sEntTable {
+    sEnt8C ents[8];
+    int active;
+};
+
+extern "C" void func_00266B80(sEntTable* self, int idx)
+{
+    if (self->active != 0) {
+        self->ents[idx].b = 0;
+        self->ents[idx].a = 0;
+    }
+}
 
 //100%
 // Pops the next byte pair from slot idx's ring; a zero byte leaves its output at -1.
@@ -8599,7 +8802,36 @@ extern "C" void func_002682A8(void* self, int flags)
     }
 }
 
-INCLUDE_ASM("dirtysock/tagsunk", func_00268308);
+//100%
+void* operator new(unsigned int size, const char* tag, unsigned int flags, int d) __asm__("cMemMan_alloc");
+extern "C" void* cBXString_cBXString2(void* self, const char* s);
+extern char D_00480488[];
+extern char D_004811D0[];
+
+struct sLockMsg268308 {
+    int type;       // 0x00
+    char* name;     // 0x04
+    int tag;        // 0x08
+    char a[4];      // 0x0C
+    char b[4];      // 0x10
+};
+
+static inline void Init268308(sLockMsg268308* m, const char* a, const char* b)
+{
+    m->type = 0x102;
+    m->tag = 0x6C6F636B;
+    m->name = D_004811D0;
+    cBXString_cBXString2(m->a, a);
+    cBXString_cBXString2(m->b, b);
+}
+
+// Builds a "lock" message carrying the two name strings of this request.
+extern "C" void* func_00268308(char* self)
+{
+    sLockMsg268308* m = (sLockMsg268308*)operator new(0x14, D_00480488, 0x20000000, 0);
+    Init268308(m, *(const char**)(self + 0xC), *(const char**)(self + 0x10));
+    return m;
+}
 
 //100%
 extern void* D_004812B0[];

@@ -861,7 +861,63 @@ extern "C" void func_00392E60(sFont2E60* self, int a, int b, int c, int d)
     self->one = 1;
 }
 
-INCLUDE_ASM("render/font", func_00392E98);
+//100%
+// Closes the block opened by func_00392E60 and fills in the two header words.
+extern "C" void func_00392E98(sFont2E60* self, int n)
+{
+    int cnt;
+    if (n < 0) {
+        cnt = self->cur - self->start - 0x10;
+        switch (self->c) {
+        case 8:
+            cnt = cnt / 12;
+            break;
+        case 9:
+            cnt = cnt / 6;
+            break;
+        case 10:
+            cnt = cnt / 3;
+            break;
+        case 12:
+            cnt = cnt / 16;
+            break;
+        case 4:
+        case 13:
+            cnt = cnt / 8;
+            break;
+        case 0:
+        case 5:
+        case 14:
+            cnt = cnt / 4;
+            break;
+        case 1:
+        case 6:
+        case 15:
+            cnt = cnt / 2;
+            break;
+        }
+        int lo = self->a < self->b ? self->a : self->b;
+        int hi = self->b < self->a ? self->a : self->b;
+        cnt = cnt / lo * hi;
+    } else
+        cnt = n;
+    self->one = 0;
+    *(long*)self->start = (long)(self->b | (self->a << 8) | 0x1000000) << 32;
+    cnt = (unsigned char)cnt;
+    int x = cnt << 16;
+    long* p = (long*)(self->start + 8);
+    int c = (self->c | 0x60) << 24;
+    int d = self->d;
+    int v;
+    if (self->hasD) {
+        v = x | 0x8000;
+        d |= v;
+        v = d;
+    } else {
+        v = d | x;
+    }
+    *p = (long)(v | c) << 32;
+}
 
 extern "C" void* func_00393008(void* self, ...)
 {

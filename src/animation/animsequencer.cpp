@@ -417,7 +417,33 @@ extern "C" void func_00314368(sSequencer_00314368* self, sSeqNode_00314368* node
     self->mCount++;
 }
 
-INCLUDE_ASM("animation/animsequencer", func_003143C8);
+//100%
+struct sSeqNode_003143C8 {
+    char pad_0x00[0xC8];
+    sSeqNode_003143C8* next; // 0xC8
+};
+
+struct sSeqList_003143C8 {
+    int count;
+    sSeqNode_003143C8* head; // 0x4
+};
+
+extern "C" void func_003143C8(sSeqList_003143C8* self, sSeqNode_003143C8* node)
+{
+    if (self->head == node) {
+        self->head = node->next;
+    } else {
+        sSeqNode_003143C8* nxt = node->next;
+        sSeqNode_003143C8* cur;
+        for (cur = self->head; cur != 0; cur = cur->next) {
+            if (cur->next == node)
+                break;
+        }
+        cur->next = nxt;
+    }
+    node->next = 0;
+    self->count--;
+}
 
 //100%
 struct sSeq_00314418;
