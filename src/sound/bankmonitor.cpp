@@ -2600,7 +2600,29 @@ extern "C" int func_002B1520(sBMon_1520* self, int id, int key)
     return 0;
 }
 
-INCLUDE_ASM("sound/bankmonitor", func_002B16A0);
+//100%
+struct sSlot16A0 {
+    int active;     // 0x0
+    int pad4;
+    int idx;        // 0x8
+    int key;        // 0xC
+    char pad[0x10];
+};
+
+extern "C" void func_002B16A0(void* self, int idx, int key)
+{
+    sSlot16A0* slots = (sSlot16A0*)((char*)self + 0x18);
+    for (int i = 0; i < 10; i++) {
+        if (slots[i].active != 0 && slots[i].idx == idx && slots[i].key == key) {
+            *(int*)((char*)self + 0xC) = 0;
+            *(int*)((char*)self + 0x10) = -1;
+            *(int*)((char*)(*(int**)((char*)self + 4))[idx] + 0x8F4) = 0;
+            *(int*)((char*)(*(int**)((char*)self + 4))[idx] + 0x8CC) = 0;
+            *(int*)((char*)(*(int**)((char*)self + 4))[idx] + 0x8D0) = 0;
+            slots[i].active = 0;
+        }
+    }
+}
 
 //100%
 extern "C" void func_002B1720(sBankSlots* self)
