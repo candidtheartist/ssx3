@@ -1766,7 +1766,75 @@ extern "C" int func_002934D0(void* self, unsigned int kind, void* rider)
     return r;
 }
 
-INCLUDE_ASM("sound/soundsys", func_00293538);
+//100%
+enum {
+    kRiderVt_delete = 1,          
+    kRiderVt_getVelocity = 2,
+    kRiderVt_isIntersecting = 3,
+    kRiderVt_applyBoost = 4,      
+    kRiderVt_getPosition = 5,
+    kRiderVt_getTransform = 6,
+    kRiderVt_getAIIndex = 7,
+    kRiderVt_isHuman = 8,
+    kRiderVt_isComputer = 9,
+    kRiderVt_transport = 10,
+    kRiderVt_resetToPath = 11,
+    kRiderVt_vibrationReset = 16,
+    kRiderVt_vibrationBump = 17,
+    kRiderVt_vibrationRumble = 18,
+    kRiderVt_vibrationUpdate = 19
+};
+struct cRiderMetrix;
+struct cAirPredictor;
+struct cRiderAnim;
+
+struct t4Matrix;
+
+
+struct t4Vector;
+
+
+
+
+struct cRiderHandler;
+
+
+
+
+void func_00293538_impl(void* self, cRider* rider, int* volume, int* pitch) __asm__("func_00293538");
+// PORT: PS2-only inline asm; needs a C fallback off-PS2.
+struct sSsVt_3538 { short delta; short index; int (*fn)(void*); };
+extern const func_00290B58_sCurve D_00482B78;
+extern const func_00290B58_sCurve D_00482BA0;
+
+static inline float* getLevels_3538(void* self) { return (float*)((char*)self + 0x59B8); }
+
+void func_00293538_impl(void* self, cRider* rider, int* volume, int* pitch)
+{
+    float level = rider->mAudioPressure;
+    level *= 1.0f - (rider->mAudioEdging + rider->mAudioBraking);
+    float speed = rider->mAudioSpeed;
+    if (speed < 0.1f) {
+        level = level * speed * 10.0f;
+    }
+    char* obj = (char*)&rider->mVtbl;
+    sSsVt_3538* vt = *(sSsVt_3538**)obj;
+    int idx = vt[kRiderVt_getAIIndex].fn(obj + vt[kRiderVt_getAIIndex].delta);
+    float prev = *(float*)((char*)getLevels_3538(self) + (idx << 2));
+    float d = prev - level;
+    if (__builtin_fabsf(d) > 0.1f) {
+        if (level < prev) {
+            level = prev - d * 0.25f;
+        } else if (prev < level) {
+            level = prev + (level - prev) * 0.25f;
+        }
+    }
+    func_00290B58_sCurve c1 = D_00482B78;
+    *(float*)((char*)getLevels_3538(self) + (idx << 2)) = level;
+    func_00290B58_sCurve c2 = D_00482BA0;
+    *volume = (int)func_00290B58(&c1, level);
+    *pitch = (int)(func_00290B58(&c2, level) * 4096.0f);
+}
 
 INCLUDE_ASM("sound/soundsys", func_00293740);
 
