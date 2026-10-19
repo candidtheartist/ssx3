@@ -405,12 +405,12 @@ INCLUDE_ASM("mem/memstd", func_002523D0);
 extern "C" void MUTEX_lock(void* mutex);
 extern "C" void MUTEX_unlock(void* mutex);
 extern void* D_00538B00[16];
-extern "C" int func_00319B98(void* p);
+extern "C" int cMemMan_internalBlockSize(void* p);
 
 extern "C" int func_002525F8(void* p)
 {
     MUTEX_lock(D_00538B00);
-    int r = func_00319B98(p);
+    int r = cMemMan_internalBlockSize(p);
     MUTEX_unlock(D_00538B00);
     return r;
 }
