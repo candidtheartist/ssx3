@@ -675,7 +675,7 @@ extern "C" void func_00297438(void* self, int id);
 extern "C" void func_0029B3C0(void* self, int a1);
 extern "C" int func_0028D960(void* self);
 extern "C" int func_002A4078(void* self);
-extern "C" int func_0012A250(void* p);
+extern "C" int cAI_haveAllPlayersFinished(void* p);
 extern "C" char* func_0028B1D8();
 extern "C" void func_002A3708(void* self, void* rider);
 extern "C" void func_002A34D0(void* self, void* rider, int a2, int a3);
@@ -729,7 +729,7 @@ extern "C" void func_00286EA0(char* self, char* rider)
         if (func_002A4078(self))
             func_002A3708(self, rider);
         else if (sa_state6EA0() == 2) {
-            if (func_0012A250(func_0028B1D8()))
+            if (cAI_haveAllPlayersFinished(func_0028B1D8()))
                 func_002A3708(self, rider);
             else
                 func_002A34D0(self, rider, 0, -1);

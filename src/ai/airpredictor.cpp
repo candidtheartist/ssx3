@@ -27,7 +27,7 @@ extern "C" void cAirPredictor_reset(char* self)
     *(sPair8*)(self + 0x34) = D_004A5960[0];
 }
 
-INCLUDE_ASM("ai/airpredictor", func_00113200);
+INCLUDE_ASM("ai/airpredictor", cAirPredictor_extendPrediction);
 
 //100%
 struct sQuad;
@@ -61,7 +61,7 @@ void cAirPredictor_initLaunch(char* self, sQuad* a, sQuad* b)
 extern sQuadR D_004FF130;
 extern sQuadR D_004FF140;
 extern sQuadR D_004FF160;
-extern "C" void func_00113200(char* self);
+extern "C" void cAirPredictor_extendPrediction(char* self);
 
 struct sVec4_3648
 {
@@ -69,8 +69,8 @@ struct sVec4_3648
     sVec4_3648() {}
 } __attribute__((aligned(16)));
 
-// func_001139A0 is defined later in the unit (with its own vector type).
-float func_001139A0_3648(char* self, sVec4_3648* pos, sVec4_3648* vel, sVec4_3648* outPos, sVec4_3648* outVel) __asm__("func_001139A0");
+// cAirPredictor_integrateStep is defined later in the unit (with its own vector type).
+float cAirPredictor_integrateStep_3648(char* self, sVec4_3648* pos, sVec4_3648* vel, sVec4_3648* outPos, sVec4_3648* outVel) __asm__("cAirPredictor_integrateStep");
 
 // PORT: PS2-only VU0 inline asm (vector times scalar).
 static inline sVec4_3648 vu0Scale_3648(const sVec4_3648& v, float s)
@@ -103,7 +103,7 @@ static inline sVec4_3648 vu0Add_3648(const sVec4_3648& a, const sVec4_3648& b)
     return r;
 }
 
-extern "C" void func_00113648(char* self, sQuad* a, sQuad* b, float dt)
+extern "C" void cAirPredictor_update(char* self, sQuad* a, sQuad* b, float dt)
 {
     if (*(float*)(self + 0x98) > 60.0f) {
         if (*(int*)(self + 0xAC) == 2) {
@@ -122,27 +122,27 @@ extern "C" void func_00113648(char* self, sQuad* a, sQuad* b, float dt)
         }
         int st = *(int*)(self + 0xAC);
         if (st == 0) {
-            func_00113200(self);
+            cAirPredictor_extendPrediction(self);
             while (*(int*)(self + 0xAC) == 0 && *(float*)(self + 0x98) < *(float*)(self + 0xA0) + dt) {
-                func_00113200(self);
+                cAirPredictor_extendPrediction(self);
             }
         } else if (st == 2) {
-            func_00113200(self);
+            cAirPredictor_extendPrediction(self);
             while (*(int*)(self + 0xAC) == 2 && *(float*)(self + 0x98) < *(float*)(self + 0xA0) + dt) {
-                func_00113200(self);
+                cAirPredictor_extendPrediction(self);
             }
         }
     }
     float t = *(float*)(self + 0xA0) - *(float*)(self + 0xA4) + dt;
     while (t >= 0.01666666753590107f) {
         t -= 0.01666666753590107f;
-        func_001139A0_3648(self, (sVec4_3648*)(self + 0x70), (sVec4_3648*)(self + 0x80), (sVec4_3648*)(self + 0x70), (sVec4_3648*)(self + 0x80));
+        cAirPredictor_integrateStep_3648(self, (sVec4_3648*)(self + 0x70), (sVec4_3648*)(self + 0x80), (sVec4_3648*)(self + 0x70), (sVec4_3648*)(self + 0x80));
         *(float*)(self + 0xA4) += 0.01666666753590107f;
     }
     if (t > 0.009999999776482582f) {
         sVec4_3648 p;
         sVec4_3648 v;
-        func_001139A0_3648(self, (sVec4_3648*)(self + 0x70), (sVec4_3648*)(self + 0x80), &p, &v);
+        cAirPredictor_integrateStep_3648(self, (sVec4_3648*)(self + 0x70), (sVec4_3648*)(self + 0x80), &p, &v);
         float k = t * 59.999996185302734f;
         *(sVec4_3648*)a = vu0Add_3648(vu0Scale_3648(p, k), vu0Scale_3648(*(sVec4_3648*)(self + 0x70), 1.0f - k));
         *(sVec4_3648*)b = vu0Add_3648(vu0Scale_3648(v, k), vu0Scale_3648(*(sVec4_3648*)(self + 0x80), 1.0f - k));
@@ -233,7 +233,7 @@ static inline float vu0Length_1139A0(const sVec4_1139A0& v)
     return r;
 }
 
-extern "C" float func_001139A0(void* self, sVec4_1139A0* pos, sVec4_1139A0* vel, sVec4_1139A0* outPos, sVec4_1139A0* outVel)
+extern "C" float cAirPredictor_integrateStep(void* self, sVec4_1139A0* pos, sVec4_1139A0* vel, sVec4_1139A0* outPos, sVec4_1139A0* outVel)
 {
     *outPos = vu0Add_1139A0(*pos, vu0Scale_1139A0(*vel, 0.01666666753590107f));
     float dx = vel->x * -0.0033333336468786f;
@@ -261,7 +261,7 @@ struct sVEntry00113AA0 {
     void (*fn)(void*, void*, int);
 };
 
-extern "C" void func_00113AA0(void* self, void* obj)
+extern "C" void cAirPredictor_saveState(void* self, void* obj)
 {
     sVEntry00113AA0* vt = *(sVEntry00113AA0**)obj;
     vt[1].fn((char*)obj + vt[1].delta, self, 0xB0);
@@ -274,7 +274,7 @@ struct sVEntry00113AD8 {
     void (*fn)(void*, void*, int);
 };
 
-extern "C" void func_00113AD8(void* self, void* obj)
+extern "C" void cAirPredictor_loadState(void* self, void* obj)
 {
     sVEntry00113AD8* vt = *(sVEntry00113AD8**)obj;
     vt[2].fn((char*)obj + vt[2].delta, self, 0xB0);

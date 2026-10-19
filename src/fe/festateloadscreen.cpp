@@ -848,7 +848,7 @@ extern "C" void func_0012AC48(void* self);
 extern "C" void func_00128958(void* p);
 extern "C" void func_00128998(void* self, int n);
 extern "C" void func_00128A48(void* p, int a);
-extern "C" int func_0012A180(void* p);
+extern "C" int cAI_areRidersLoaded(void* p);
 extern "C" void func_001296F8(void* p);
 extern "C" int func_002791D8(void* self, int i);
 extern "C" int func_00278F68(void* self, int i, int a, int b);
@@ -919,7 +919,7 @@ extern "C" void func_002343B0(char* self)
         break;
     }
     case 2:
-        if (func_0012A180(Ai_2343B0()) == 0) {
+        if (cAI_areRidersLoaded(Ai_2343B0()) == 0) {
             func_001296F8(Ai_2343B0());
             return;
         }

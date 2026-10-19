@@ -2592,7 +2592,7 @@ extern "C" void func_00162998(void* self, void* obj)
 }
 
 //100%
-extern "C" int func_001298C8();
+extern "C" int getGameTick();
 
 struct sVec4_162A20
 {
@@ -2667,13 +2667,13 @@ extern "C" void func_00162A20(char* self, char* trig)
                 }
             }
             *(int*)(self + 0x2D4) = 1;
-            int late = func_001298C8() - *(int*)(self + 0x2CC) >= 31;
+            int late = getGameTick() - *(int*)(self + 0x2CC) >= 31;
             if (*(int*)(self + 0x2E0) == 0 && late)
                 *(int*)(self + 0x2C4) = 15;
         }
         else
         {
-            *(int*)(self + 0x2CC) = func_001298C8();
+            *(int*)(self + 0x2CC) = getGameTick();
             return;
         }
     }
@@ -2684,7 +2684,7 @@ extern "C" void func_00162A20(char* self, char* trig)
         *(int*)(self + 0x2D8) = 0;
     }
     if (*(int*)(trig + 0x60))
-        *(int*)(self + 0x2CC) = func_001298C8();
+        *(int*)(self + 0x2CC) = getGameTick();
 }
 
 //100%

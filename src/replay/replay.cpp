@@ -28,7 +28,7 @@ extern "C" void cReplay_restoreBucket(void* self, void* bucket, cStreamRB* strea
 extern "C" void cReplay_restoreDeadBucket(void* self, cStreamRDB* stream);
 extern "C" void func_00103578(void* self, void* stream);
 extern "C" void func_0026DE58(void* self, int a);
-extern "C" void func_0012B788(void* self);
+extern "C" void cAI_refreshRiderLights(void* self);
 extern "C" void cGameViewMan_updateAll(void* self);
 extern char D_004A5988;
 extern void* D_004A47B8_DBF0 __asm__("D_004A47B8");
@@ -75,7 +75,7 @@ extern "C" void cReplay_restoreFrame(void* self, cStreamRF* stream)
     cReplay_restoreDeadBucket(self, (cStreamRDB*)stream);
     func_00103578(*(void**)(*(char**)(*(char**)((char*)D_004A28A8 + 0x84) + 0xC) + 0xA4), stream);
     func_0026DE58(self, 1);
-    func_0012B788(*(void**)(*(char**)((char*)D_004A28A8 + 0x84) + 0xC));
+    cAI_refreshRiderLights(*(void**)(*(char**)((char*)D_004A28A8 + 0x84) + 0xC));
     cGameViewMan_updateAll(*(void**)(*(char**)((char*)D_004A28A8 + 0x84) + 0x84));
 }
 

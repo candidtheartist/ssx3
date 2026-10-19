@@ -295,7 +295,7 @@ extern "C" void func_0012B030(void* p);
 extern "C" void func_0012B000(void* p);
 extern "C" void func_00128958(void* p);
 extern "C" void func_00128998(void* self, int n);
-extern "C" int func_0012A180(void* p);
+extern "C" int cAI_areRidersLoaded(void* p);
 void func_001289F0(void* p);
 extern "C" void func_00128A10(void* p);
 extern "C" void func_001296F8(void* p);
@@ -426,7 +426,7 @@ extern "C" void func_00235080(sState_235080* self)
         break;
     }
     case 3: {
-        if (func_0012A180(Ai_235080()) != 0) {
+        if (cAI_areRidersLoaded(Ai_235080()) != 0) {
             cBE_getInterface_Fv(cBE_getBE(), 0);
             int mode = D_00535BC8_235080.mode48;
             if (mode == 0) {
@@ -825,7 +825,7 @@ extern "C" int func_0012ABD0(void* p);
 extern "C" void func_0012B030(void* p);
 extern "C" void func_0012B000(void* p);
 extern "C" void func_00128958(void* p);
-extern "C" int func_0012A180(void* p);
+extern "C" int cAI_areRidersLoaded(void* p);
 void func_001289F0(void* p);
 extern "C" void func_001296F8(void* p);
 extern "C" sVec4_235CC8 func_00122C28(void* rider);
@@ -860,7 +860,7 @@ extern "C" void func_00235CC8(void* self)
         }
         break;
     case 1:
-        if (func_0012A180(*(void**)(g84 + 0xC))) {
+        if (cAI_areRidersLoaded(*(void**)(g84 + 0xC))) {
             func_001289F0(*(void**)(*(char**)((char*)D_004A28A8 + 0x84) + 0xC));
             (*(sRaceMan_235CC8**)(D_004A2C68 + 0xC))->f14 = 1;
             ((sCacheTbl_235CC8*)*cache)->slot[idx].f0 = 1;

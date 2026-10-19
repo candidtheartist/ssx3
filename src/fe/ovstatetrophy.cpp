@@ -262,7 +262,7 @@ extern "C" void func_00210608(void)
 extern char* D_004A2750;
 extern char* D_004A2754;
 extern void* D_004A28A8;
-float func_00113128(void* rider);
+float cRider_getRemainingDistance(void* rider);
 extern "C" float func_00210820(int i);
 
 struct sTrophyEntry_210618 {
@@ -290,7 +290,7 @@ extern "C" void func_00210618(int i)
     char* race = *(char**)(*(char**)((char*)D_004A28A8 + 0x84) + 0xC);
     if (i >= *(int*)(race + 0x78))
         return;
-    float d = *(float*)(course + 0x10) - func_00113128(*(void**)(race + (i << 2) + 0x28));
+    float d = *(float*)(course + 0x10) - cRider_getRemainingDistance(*(void**)(race + (i << 2) + 0x28));
     if (D_004C8BC8_210618[i].active == 0)
     {
         float prev = D_004C8BC8_210618[i].dist;
