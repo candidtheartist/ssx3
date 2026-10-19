@@ -332,7 +332,20 @@ extern "C" int func_001D2EA0(void* self, sW_1D2EA0* w)
     return 0;
 }
 
-INCLUDE_ASM("fe/ovstatelodge", func_001D2F40);
+//100%
+// Key filter: keys 8 and 9 return 0x100, every other key 0x101.
+extern "C" int func_001D2F40(void* self, int a1, unsigned int key)
+{
+    int r = 0x101;
+    if (key < 10) {
+        if (key < 8) {
+            r = 0x101;
+        } else {
+            return 0x100;
+        }
+    }
+    return r;
+}
 
 //100%
 int GetHashValue32(char* str);
