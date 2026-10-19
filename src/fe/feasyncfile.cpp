@@ -10770,7 +10770,19 @@ int func_001B6078(void* self)
     return 0x101;
 }
 
-INCLUDE_ASM("fe/feasyncfile", func_001B6080);
+//100%
+extern "C" int func_001B6080(void* self, int a1, unsigned int key)
+{
+    int r = 0x101;
+    if (key < 2) {
+        if (*(int*)((char*)self + 0x6D4) > 1) {
+            r = 0x101;
+        } else {
+            return 0;
+        }
+    }
+    return r;
+}
 
 //100%
 int GetHashValue32(char* str);
