@@ -5021,7 +5021,28 @@ int func_003C5788(int arg0, int *arg1) {
     return 0;
 }
 
-INCLUDE_ASM("ealib/seg_2B4578", func_003C57F0);
+//100%
+extern int func_003B4DD8_57F0(void *) __asm__("func_003B4DD8");
+
+int func_003C57F0(int which, int *out) {
+    char sp[0xE0];
+    *out = 0;
+    func_003B4DD8_57F0(sp);
+    switch (which) {
+    case 0:
+        *out = *(unsigned char *)(sp + 6);
+        break;
+    case 1:
+        *out = *(unsigned char *)(sp + 7);
+        break;
+    case 2:
+        *out = *(unsigned char *)(sp + 8);
+        break;
+    default:
+        return -5;
+    }
+    return 0;
+}
 
 //100%
 // Stores v into config byte 0x2E/0x2F/0x30 (which 0..2) and writes the config back.
