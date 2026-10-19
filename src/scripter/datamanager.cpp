@@ -830,7 +830,32 @@ extern "C" int func_00276A08(char* self, int i)
     return 0x20;
 }
 
-INCLUDE_ASM("scripter/datamanager", func_00276A78);
+//100%
+// PORT: PS2-only inline asm; needs a C fallback off-PS2.
+extern "C" void* func_00283D70(void* list, int i);
+extern "C" int func_002827F8(void* self, int id);
+int func_00283D28_count(void* list) __asm__("func_00283D28");
+
+extern "C" int func_00276A78(void* self, int i)
+{
+    void* list = (char*)self + 0xC;
+    if (i >= func_00283D28_count(list)) {
+        return -1;
+    }
+    void* item = func_00283D70(list, i);
+    if (func_00277DD8(self, item) != 0) {
+        return -1;
+    }
+    int r = *(int*)((char*)item + 0x4);
+    if (r < 0) {
+        int id = *(int*)((char*)item + 0xC);
+        r = -1;
+        if (id >= 0) {
+            r = func_002827F8(*(void**)self, id);
+        }
+    }
+    return r;
+}
 
 extern "C" void* func_00282BF0(void* p, int a);
 
