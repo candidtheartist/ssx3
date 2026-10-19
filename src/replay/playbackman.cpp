@@ -661,7 +661,41 @@ extern "C" int func_0026D2B0(sPbStream_D2B0* self, sPbChunk_D2B0* chunk)
     return 1;
 }
 
-INCLUDE_ASM("replay/playbackman", func_0026D390);
+//100%
+struct sEntry_D390 {
+    unsigned int len : 12;
+    unsigned int rest : 20;
+    int data;
+};
+
+struct sOwner_D390 {
+    int count;                  // 0x0
+    char pad4[8];
+    sEntry_D390* entries;       // 0xC
+};
+
+extern "C" void func_0026D390(sOwner_D390* self, unsigned int pos)
+{
+    int n = self->count;
+    unsigned int sum = 0;
+    sEntry_D390* p = self->entries;
+    int i = 0;
+    if (n > 0) {
+        sum = p->len;
+        p++;
+        if (pos >= sum) {
+            do {
+                i++;
+                if (i >= n)
+                    break;
+                sum += p->len;
+                p++;
+            } while (pos >= sum);
+        }
+    }
+    self->entries[i].len = sum - pos + 1;
+    self->count = i + 1;
+}
 
 //100%
 struct sPbChunk_D420 {
