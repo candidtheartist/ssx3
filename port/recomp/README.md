@@ -161,6 +161,16 @@ or any disc file.
     to the same VRAM, also with round-toward-zero and on several workers, with 24% fewer instructions. In a race
     on a 4-core machine with the old and new code swapped every 30 s, the new code drew about 16% more frames
     (15.7 against 13.5 a second);
+  - the GS workers waiting on each other less, with the same results. With more than one worker, each worker reads
+    textures and CLUTs from its own copy of VRAM and applies the EE's uploads to it in command order, so an upload
+    into a texture slot that slower workers are still reading from no longer stops every worker, the most common
+    wait in a race. Pages the workers drew are copied into each worker's copy just before a later draw reads them
+    as a texture. Commands go through a ring that the workers take from with no sync at the end of each batch, and
+    uploads write a row of pixels at a time. The 8,000 recorded race packets replay to the same VRAM, also with
+    round-toward-zero and on several workers, with 4% fewer instructions and 63 syncs instead of 289. In a 20-minute
+    race with the old and new code swapped every 30 s, the GS workers stopped to wait for each other 4.4 times less
+    often and got through 5% more commands a second; the frame rate changed by less than this machine's run-to-run
+    noise;
   - debug switches.
 - `ssx3_overrides.cpp` holds the game-specific replacements: it skips the network and USB keyboard drivers,
   answers the module search, routes `isceSifSendCmd`, and keeps the runtime's scratch buffers in the
