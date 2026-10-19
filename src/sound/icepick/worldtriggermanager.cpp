@@ -239,12 +239,12 @@ int cWorldTriggerManager_LoadTriggerInfo_impl(void* self)
     return 1;
 }
 
-extern "C" void func_002523A8(void* p);
+extern "C" void MEM_free(void* p);
 
 extern "C" void func_002B5B40(char* self)
 {
     if (*(void**)(self + 0x338) != 0) {
-        func_002523A8(*(void**)(self + 0x338));
+        MEM_free(*(void**)(self + 0x338));
         *(void**)(self + 0x338) = 0;
         if (*(void**)(self + 0x33C) != 0) {
             cMemMan_free(*(void**)(self + 0x33C));

@@ -625,7 +625,7 @@ int func_002ADFB0(int self)
     return *(int*)((char*)(void*)D_004D3E98 + self * 4);
 }
 
-extern "C" void* func_002523A8(void* self);
+extern "C" void* MEM_free(void* self);
 
 extern void* (*D_004A378C)(void*, int, int);
 extern char D_00483288[];
@@ -643,7 +643,7 @@ extern "C" void* func_002ADFC8(int size)
 //100%
 void* func_002AE000(void* self)
 {
-    return func_002523A8(self);
+    return MEM_free(self);
 }
 
 //100%
@@ -662,7 +662,7 @@ extern "C" int func_002AE020()
 extern "C" void REAL_abortmessage();
 extern "C" void func_004175C8();
 extern "C" void* func_00252FA0(void* a0, int a1, int a2);
-extern "C" void* func_002526B8(void* block, int size);
+extern "C" void* MEM_resize(void* block, int size);
 extern "C" void SYNCTASK_add(int (*fn)(), int a, int b);
 extern int D_004A379C;
 extern void (*D_004A3780)();
@@ -702,7 +702,7 @@ extern "C" void func_002AE048(void (*cb)(), int id)
     D_004A3780 = REAL_abortmessage;
     D_004A3784 = func_004175C8;
     D_004A378C = func_00252FA0;
-    D_004A3790 = func_002526B8;
+    D_004A3790 = MEM_resize;
     D_004A3794 = func_002AE000;
 }
 
@@ -1646,7 +1646,7 @@ extern "C" void func_002AF900(int* self, int flags)
 {
     func_003D6CA0(*(void**)self);
     if (*(int*)((char*)self + 0x48) != 0) {
-        func_002523A8(*(void**)((char*)self + 0x44));
+        MEM_free(*(void**)((char*)self + 0x44));
     }
     if (flags & 1) {
         operator_delete(self);
@@ -1792,11 +1792,11 @@ extern "C" void func_002AFB38(void* selfp, int flags)
     for (i = 0; i < self->voiceCount; i++) {
         for (int j = 0; j < 2; j++) {
             if (self->pairs[i].p[j] != 0) {
-                func_002523A8(self->pairs[i].p[j]);
+                MEM_free(self->pairs[i].p[j]);
             }
         }
         if (self->voices[i].active != 0) {
-            func_002523A8(self->voices[i].handle);
+            MEM_free(self->voices[i].handle);
             self->voices[i].active = 0;
             self->voices[i].handle = 0;
         }
@@ -2213,7 +2213,7 @@ extern "C" void func_002B0DA0(void* self)
         (*(void***)((char*)self + 0x4))[i] = 0;
     }
     func_003D67F8();
-    func_002523A8(*(void**)((char*)self + 0x8));
+    MEM_free(*(void**)((char*)self + 0x8));
     *(void**)((char*)self + 0x8) = 0;
 }
 

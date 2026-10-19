@@ -68,7 +68,7 @@ extern "C" void* func_002A9DD8(void* self, int handle)
 void cMemMan_free(void*);
 void operator_delete(int* ptr);
 extern "C" int func_003B7838(int h);
-extern "C" void* func_002523A8(void* self);
+extern "C" void* MEM_free(void* self);
 
 extern "C" void func_002A9DF0(void* self, int flags)
 {
@@ -79,7 +79,7 @@ extern "C" void func_002A9DF0(void* self, int flags)
         }
     }
     if (*(void**)((char*)self + 0x74) != 0) {
-        func_002523A8(*(void**)((char*)self + 0x74));
+        MEM_free(*(void**)((char*)self + 0x74));
     }
     if (flags & 1) {
         operator_delete((int*)self);

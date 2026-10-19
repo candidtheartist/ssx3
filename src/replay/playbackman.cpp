@@ -95,7 +95,7 @@ extern "C" void func_0026C588(void* self, int flags)
 //100%
 extern "C" int func_003DF980(int handle);
 extern "C" int ASYNCFILE_release(int handle, void** data, int* size);
-extern "C" void func_002523A8(void* p);
+extern "C" void MEM_free(void* p);
 extern "C" void func_003E6574(void* dst, void* src, int size);
 extern const char D_00481560[];
 // PORT: operator_new really takes (size, tag, flags, d); bound by asm label
@@ -127,7 +127,7 @@ extern "C" void cPlaybackMan_update(cPlaybackMan_C5F8* self)
             e->buf = operator_new_tag(size, D_00481560, 0x20000000, 0);
             self->entries[self->cur].size = size;
             func_003E6574(self->entries[self->cur].buf, data, size);
-            func_002523A8(data);
+            MEM_free(data);
         }
         self->handle = -1;
     }

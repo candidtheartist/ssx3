@@ -127,7 +127,7 @@ extern "C" void func_003ACA70(int* self, int flags)
 }
 
 extern "C" void ASYNCFILE_release_CAD0(int, int *, int *) __asm__("ASYNCFILE_release");
-extern "C" void func_002523A8_CAD0(int) __asm__("func_002523A8");
+extern "C" void MEM_free_CAD0(int) __asm__("MEM_free");
 extern "C" void func_003B47F8_CAD0(int, int) __asm__("func_003B47F8");
 extern "C" int func_003B4818_CAD0(int) __asm__("func_003B4818");
 extern "C" int func_003DF980_CAD0(int) __asm__("func_003DF980");
@@ -153,7 +153,7 @@ extern "C" void func_003ACAD0(void *self_) {
                     *(int*)(self + 8) = r;
                     func_003E6574_CAD0(r, sp0, sp4);
                 }
-                func_002523A8_CAD0(sp0);
+                MEM_free_CAD0(sp0);
             }
         }
         *(short*)self = 2;

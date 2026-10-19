@@ -1,45 +1,23 @@
 #include "common.h"
+#include "mem/memstd.h"
 
 //100%
 extern "C" int sprintf(char* buf, const char* fmt, ...);
-// PORT: debugmenu defines MEM_initblock with a short flags parameter; this caller passes the int unconverted.
-extern "C" void* MEM_initblock(void* self, const char* name, int size, int hdr, int flags, void* prev, void* next);
 extern "C" void* func_003E6448(void* dst, int value, int size);
 extern "C" char* strcpy(char* dst, const char* src);
-extern "C" int func_003E5698(void* sema);
-extern char D_004A2E38[];
-extern char D_004A2E40[];
-extern void* D_004D2438[];
+extern "C" int func_003E5698(void* mutex);
+extern char D_004A2E38[]; // "%s LOW"
+extern char D_004A2E40[]; // "%s HIGH"
 
-struct sMemNode_251718 {
-    unsigned short tag;
-    unsigned short flags;
-    int size;
-    char* end;
-    void* fC;
-    sMemNode_251718* next;
-    sMemNode_251718* prev;
-};
-
-struct sMemClass_251718 {
-    char name[8];
-    sMemNode_251718* first;     // 0x8
-    sMemNode_251718* last;      // 0xC
-    sMemNode_251718 head;       // 0x10
-    int f28;                    // 0x28
-    int align;                  // 0x2C
-    int hdr;                    // 0x30
-    int flags;                  // 0x34
-    int locked;                 // 0x38
-    int sema[5];                // 0x3C
-};
-
-extern "C" int MEMCLASS_create(int id, char* name, char* mem, int size, int f28, int align, int hdr, int a7, int a8, int lock)
+// Set up class id over [mem, mem+size): the class record and its LOW sentinel
+// at the bottom, one free block, and the HIGH sentinel at the top. Returns the
+// free block's size.
+extern "C" int MEMCLASS_create(int id, char* name, char* mem, int size, int defaultalign, int align, int hdr, int guard, int a8, int lock)
 {
     char buf[0x100];
     int flags = id;
-    if (a7) {
-        flags |= 0x2000;
+    if (guard) {
+        flags |= MEM_FLAG_GUARD;
     }
     if (a8) {
         flags |= 0x1000;
@@ -51,70 +29,73 @@ extern "C" int MEMCLASS_create(int id, char* name, char* mem, int size, int f28,
     char* end = mem + size;
     end -= hdr + 0x30;
     sprintf(buf, D_004A2E38, name);
-    sMemNode_251718* blk = (sMemNode_251718*)(data - 0x10);
-    sMemClass_251718* cls = (sMemClass_251718*)(mem + 0x10);
-    MEM_initblock(mem, buf, 0x50, hdr, flags | 0x8000, 0, blk);
+    sMemBlock* blk = (sMemBlock*)(data - 0x10);
+    sMemClass* cls = (sMemClass*)(mem + 0x10);
+    MEM_initblock(mem, buf, 0x50, hdr, flags | MEM_FLAG_SYSTEM, 0, blk);
     MEM_initblock(blk, 0, end - (char*)blk - 0x10, hdr, flags, mem, end);
     sprintf(buf, D_004A2E40, name);
-    MEM_initblock(end, buf, 0, hdr, flags | 0x8100, blk, 0);
+    MEM_initblock(end, buf, 0, hdr, flags | MEM_FLAG_SYSTEM | MEM_FLAG_HIGH, blk, 0);
     D_004D2438[id & 0x3F] = cls;
-    func_003E6448(cls, 0, 0x50);
+    func_003E6448(cls, 0, sizeof(sMemClass));
     strcpy(cls->name, name);
-    *(char**)(mem + 0x1C) = end;
-    *(char**)(mem + 0x18) = mem;
-    cls->first->tag = 0x4253;
-    cls->last->tag = 0x4253;
-    *(unsigned short*)(mem + 0x20) = 0x4253;
-    *(int*)(mem + 0x24) = 0x7FFFFFFF;
-    *(int*)(mem + 0x38) = f28;
-    *(int*)(mem + 0x3C) = align;
-    *(int*)(mem + 0x40) = hdr;
-    *(int*)(mem + 0x44) = flags;
-    sMemNode_251718* h = (sMemNode_251718*)(mem + 0x20);
-    *(sMemNode_251718**)(mem + 0x30) = h;
-    *(sMemNode_251718**)(mem + 0x34) = h;
-    *(int*)(mem + 0x48) = 0;
-    sMemNode_251718* q = h;
-    sMemNode_251718* p = q;
-    int sz = *(char**)(data - 8) - (char*)blk;
+    // The fields are written through mem (mem + 0x10 + field offset): with
+    // cls-> stores gcc reuses mem for cls->first->tag instead of reloading it.
+    *(char**)(mem + 0x1C) = end;                        // cls->last
+    *(char**)(mem + 0x18) = mem;                        // cls->first
+    cls->first->tag = MEM_TAG_STOP;
+    cls->last->tag = MEM_TAG_STOP;
+    *(unsigned short*)(mem + 0x20) = MEM_TAG_STOP;      // cls->freehead.tag
+    *(int*)(mem + 0x24) = 0x7FFFFFFF;                   // cls->freehead.size
+    *(int*)(mem + 0x38) = defaultalign;                 // cls->defaultalign
+    *(int*)(mem + 0x3C) = align;                        // cls->align
+    *(int*)(mem + 0x40) = hdr;                          // cls->hdr
+    *(int*)(mem + 0x44) = flags;                        // cls->flags
+    sMemBlock* h = (sMemBlock*)(mem + 0x20);            // &cls->freehead
+    *(sMemBlock**)(mem + 0x30) = h;                     // cls->freehead.freenext
+    *(sMemBlock**)(mem + 0x34) = h;                     // cls->freehead.freeprev
+    *(int*)(mem + 0x48) = 0;                            // cls->locked
+    // Same as MEMCLASS_linkfree, inlined.
+    sMemBlock* q = h;
+    sMemBlock* p = q;
+    int sz = *(char**)(data - 8) - (char*)blk;         // blk->next - blk
     if (*(char**)(mem + 0x30) + (*(char**)(mem + 0x34) - *(char**)(mem + 0x30)) / 2 < (char*)blk) {
         do
-            p = p->prev;
+            p = p->freeprev;
         while (blk < p);
-        q = p->next;
+        q = p->freenext;
     } else {
         do
-            q = q->next;
+            q = q->freenext;
         while (q < blk);
-        p = q->prev;
+        p = q->freeprev;
     }
     blk->size = sz;
-    blk->next = q;
-    blk->prev = p;
-    p->next = blk;
-    q->prev = blk;
-    blk->tag = 0x4246;
-    blk->flags |= 0x4000;
+    blk->freenext = q;
+    blk->freeprev = p;
+    p->freenext = blk;
+    q->freeprev = blk;
+    blk->tag = MEM_TAG_FREE;
+    blk->flags |= MEM_FLAG_FREE;
     if (lock) {
-        func_003E5698(cls->sema);
+        func_003E5698(cls->mutex);
         cls->locked = 1;
     }
     return blk->size;
 }
 
-extern "C" void func_003E56E0(void* sema);
+extern "C" void func_003E56E0(void* mutex);
 
-// Destroy memory class (id & 0x3F): release its semaphore, clear it and free the slot.
-extern "C" int func_00251998(int id)
+// Destroy class id: release its mutex, clear it and free the slot.
+extern "C" int MEMCLASS_destroy(int id)
 {
     void** slot = &D_004D2438[id & 0x3F];
-    sMemClass_251718* cls = (sMemClass_251718*)*slot;
+    sMemClass* cls = (sMemClass*)*slot;
     int r = 0;
     if (cls != 0) {
         if (cls->locked) {
-            func_003E56E0(cls->sema);
+            func_003E56E0(cls->mutex);
         }
-        func_003E6448(cls, 0, 0x50);
+        func_003E6448(cls, 0, sizeof(sMemClass));
         *slot = 0;
         r = 1;
     }
@@ -122,39 +103,24 @@ extern "C" int func_00251998(int id)
 }
 
 //100%
-struct sMemBlk_251A08 {
-    unsigned short tag;
-    unsigned short flags;
-    int size;
-    sMemBlk_251A08* next;   // 0x8
-    void* fC;
-};
-
-struct sMemClass_251A08 {
-    char pad0[0x8];
-    sMemBlk_251A08* first;  // 0x8
-};
-
-extern "C" void* func_002523A8(void* self);
-
-// Runs func_002523A8 over each in-use block of class id; stops at the first failure.
-extern "C" void* func_00251A08(int id)
+// MEM_free every in-use block of class id; stops at the first failure.
+extern "C" void* MEMCLASS_freeall(int id)
 {
-    sMemClass_251A08* cls = (sMemClass_251A08*)D_004D2438[id & 0x3F];
+    sMemClass* cls = (sMemClass*)D_004D2438[id & 0x3F];
     void* ok = (void*)1;
-    for (sMemBlk_251A08* blk = cls->first; blk != 0 && ok != 0; blk = blk->next) {
-        if ((blk->flags & 0xC000) == 0) {
-            ok = func_002523A8((char*)blk + 0x10);
+    for (sMemBlock* blk = cls->first; blk != 0 && ok != 0; blk = blk->next) {
+        if ((blk->flags & (MEM_FLAG_SYSTEM | MEM_FLAG_FREE)) == 0) {
+            ok = MEM_free((char*)blk + 0x10);
         }
     }
     return ok;
 }
 
-// First free memory class id (slots 0 and 1 are reserved), or 0x40 if full.
-extern "C" int func_00251A80()
+// First unused class id (ids 0 and 1 are reserved), or MEM_MAX_CLASSES if full.
+extern "C" int MEMCLASS_findunused()
 {
     int i;
-    for (i = 2; i < 0x40; i++) {
+    for (i = 2; i < MEM_MAX_CLASSES; i++) {
         if (D_004D2438[i] == 0) {
             break;
         }
@@ -169,32 +135,18 @@ INCLUDE_ASM("mem/memstd", func_00251B50);
 INCLUDE_ASM("mem/memstd", func_00251BB0);
 
 //100%
-int func_00252658(void* self);
 extern "C" int func_0041AA88(const char* a, const char* b);
 
-struct sMemBlk_251C38 {
-    unsigned short tag;
-    unsigned short flags;
-    int size;
-    sMemBlk_251C38* next;   // 0x8
-    void* fC;
-};
-
-struct sMemClass_251C38 {
-    char pad0[0x8];
-    sMemBlk_251C38* first;  // 0x8
-};
-
-// Find the allocation named name in any memory class; returns its data pointer.
-extern "C" void* func_00251C38(const char* name)
+// Find the allocation named name in any class; returns its payload pointer.
+extern "C" void* MEM_findnamed(const char* name)
 {
-    for (int i = 0; i < 0x40; i++) {
-        sMemClass_251C38* cls = (sMemClass_251C38*)D_004D2438[i & 0x3F];
+    for (int i = 0; i < MEM_MAX_CLASSES; i++) {
+        sMemClass* cls = (sMemClass*)D_004D2438[i & 0x3F];
         if (cls != 0) {
-            sMemBlk_251C38* blk = cls->first;
+            sMemBlock* blk = cls->first;
             do {
                 char* data = (char*)blk + 0x10;
-                const char* n = (const char*)func_00252658(data);
+                const char* n = (const char*)MEM_getname(data);
                 if (n != 0 && func_0041AA88(n, name) == 0) {
                     return data;
                 }
@@ -219,46 +171,22 @@ extern "C" void func_00251D00()
 {
 }
 
-extern char D_004A2E48[];
+extern char D_004A2E48[]; // "RAM"
 
-// Create memory class 0 over [mem, mem+size).
-extern "C" int func_00251D08(char* mem, int size)
+// Create class 0 ("RAM") over [mem, mem+size).
+extern "C" int MEM_initram(char* mem, int size)
 {
     return MEMCLASS_create(0, D_004A2E48, mem, size, 0x40, 0x80, 0, 0, 0, 1);
 }
 
 //100%
-extern "C" int sprintf(char* buf, const char* fmt, ...);
-// PORT: debugmenu defines MEM_initblock with a short flags parameter; this caller passes the int unconverted.
-extern "C" void* MEM_initblock(void* self, const char* name, int size, int hdr, int flags, void* prev, void* next);
-extern char D_004A2E50[];
-extern char D_004A2E40[];
+extern char D_004A2E50[]; // "%s LINK"
 
-struct sMemNode_251D50 {
-    unsigned short tag;
-    unsigned short flags;
-    int size;
-    char* end;
-    void* fC;
-    sMemNode_251D50* next;
-    sMemNode_251D50* prev;
-};
-
-struct sMemClass_251D50 {
-    char pad0[0xC];
-    char* last;                 // 0xC
-    sMemNode_251D50 head;       // 0x10
-    int f28;
-    int align;                  // 0x2C
-    int hdr;                    // 0x30
-    int flags;                  // 0x34
-};
-
-extern void* D_004D2438[];
-
+// Add the arena [mem, mem+size) to class id: the old HIGH sentinel and a new
+// LINK block at mem bridge the gap, then one free block and a new HIGH sentinel.
 extern "C" int MEMCLASS_link(int id, char* mem, int size)
 {
-    sMemClass_251D50* cls = (sMemClass_251D50*)D_004D2438[id & 0x3F];
+    sMemClass* cls = (sMemClass*)D_004D2438[id & 0x3F];
     char buf[0x100];
     int hdr = cls->hdr;
     int align = cls->align;
@@ -269,65 +197,67 @@ extern "C" int MEMCLASS_link(int id, char* mem, int size)
     data = (char*)((int)data & -align);
     end -= hdr + 0x30;
     int flags = cls->flags;
-    sMemNode_251D50* blk = (sMemNode_251D50*)(data - 0x10);
-    char* last = cls->last;
+    sMemBlock* blk = (sMemBlock*)(data - 0x10);
+    sMemBlock* last = cls->last;
     sprintf(buf, D_004A2E50, cls);
-    MEM_initblock(last, buf, 0, hdr, flags | 0x8000, *(void**)(last + 0xC), mem);
-    MEM_initblock(mem, buf, 0, hdr, flags | 0x8000, last, blk);
+    MEM_initblock(last, buf, 0, hdr, flags | MEM_FLAG_SYSTEM, last->prev, mem);
+    MEM_initblock(mem, buf, 0, hdr, flags | MEM_FLAG_SYSTEM, last, blk);
     MEM_initblock(blk, 0, end - (char*)blk - 0x10, hdr, flags, mem, end);
     sprintf(buf, D_004A2E40, cls);
-    MEM_initblock(end, buf, 0, hdr, flags | 0x8100, blk, 0);
-    cls->last = end;
-    sMemNode_251D50* q = &cls->head;
-    sMemNode_251D50* p = q;
-    int sz = *(char**)(data - 8) - (char*)blk;
-    if ((char*)cls->head.next + ((char*)cls->head.prev - (char*)cls->head.next) / 2 < (char*)blk) {
+    MEM_initblock(end, buf, 0, hdr, flags | MEM_FLAG_SYSTEM | MEM_FLAG_HIGH, blk, 0);
+    cls->last = (sMemBlock*)end;
+    // Same as MEMCLASS_linkfree, inlined.
+    sMemBlock* q = &cls->freehead;
+    sMemBlock* p = q;
+    int sz = *(char**)(data - 8) - (char*)blk;         // blk->next - blk
+    if ((char*)cls->freehead.freenext + ((char*)cls->freehead.freeprev - (char*)cls->freehead.freenext) / 2 < (char*)blk) {
         do
-            p = p->prev;
+            p = p->freeprev;
         while (blk < p);
-        q = p->next;
+        q = p->freenext;
     } else {
         do
-            q = q->next;
+            q = q->freenext;
         while (q < blk);
-        p = q->prev;
+        p = q->freeprev;
     }
     blk->size = sz;
-    blk->next = q;
-    blk->prev = p;
-    p->next = blk;
-    q->prev = blk;
-    blk->tag = 0x4246;
-    blk->flags |= 0x4000;
+    blk->freenext = q;
+    blk->freeprev = p;
+    p->freenext = blk;
+    q->freeprev = blk;
+    blk->tag = MEM_TAG_FREE;
+    blk->flags |= MEM_FLAG_FREE;
     return 1;
 }
 
 //100%
 // PORT: hand-rolled EE EABI va_start (gcc 2.95 va-mips.h form); use <stdarg.h> off-PS2.
-typedef char* func_00251F68_va_list;
-#define func_00251F68_va_start(ap)                                       \
+typedef char* MEM_printf_va_list;
+#define MEM_printf_va_start(ap)                                          \
     (ap = (char*)__builtin_next_arg()                                    \
           - (__builtin_args_info(2) < 8 ? (8 - __builtin_args_info(2)) * 8 : 0))
 
 extern "C" int func_004186C8(char* dst, const char* fmt, char* ap);
 extern "C" void func_003E5D30(int, char*);
 
-extern "C" void func_00251F68(const char* fmt, ...)
+// printf to the debug output; the callback MEM_printclass uses.
+extern "C" void MEM_printf(const char* fmt, ...)
 {
     char buf[0x200];
-    func_00251F68_va_list ap;
-    func_00251F68_va_start(ap);
+    MEM_printf_va_list ap;
+    MEM_printf_va_start(ap);
     func_004186C8(buf, fmt, ap);
     func_003E5D30(2, buf);
 }
 
-extern const char D_004800A8[];
+extern const char D_004800A8[]; // "%-12s %-24.24s %08lx %11lu %11lu %04x %04x %3s %s"
 extern "C" void MEM_printclassf(void* thing, const char* fmt, void (*cb)(const char*, ...));
 
 //100%
 void MEM_printclass(void* thing)
 {
-    MEM_printclassf(thing, D_004800A8, func_00251F68);
+    MEM_printclassf(thing, D_004800A8, MEM_printf);
 }
 
 extern void* D_004A2E78;
@@ -339,37 +269,20 @@ void MEM_print()
 }
 
 //100%
-int func_00252658(void* self);
-extern "C" int func_00252660(void* p);
-struct sMemBlock002522B0;
-extern "C" int func_002522B0(sMemBlock002522B0* blk);
 extern "C" int func_003E62D0(void* p, int size, int seed);
-extern char D_004800E0[];
-extern char D_00480140[];
-extern char D_00480198[];
-extern char D_004801B0[];
-extern char D_004801C0[];
-extern char* D_004801E8[];
-extern char D_004A2E58[];
-extern char D_004A2E60[];
-extern char D_004A2E68[];
-extern char D_004A2E70[];
+extern char D_004800E0[];   // column header
+extern char D_00480140[];   // "-----..."
+extern char D_00480198[];   // "Not initialized\n"
+extern char D_004801B0[];   // "   SPACE "
+extern char D_004801C0[];   // "\nTOTAL FREE MEMORY: %ld ($%08lx)\n"
+extern char* D_004801E8[];  // MEM_checkblock result names
+extern char D_004A2E58[];   // ""
+extern char D_004A2E60[];   // "FREE"
+extern char D_004A2E68[];   // "unknown"
+extern char D_004A2E70[];   // "\n"
 
-struct sMemNode_252010 {
-    unsigned short tag;
-    unsigned short flags;
-    int size;
-    char* next;
-    void* fC;
-};
-
-struct sMemClass_252010 {
-    char pad0[0x8];
-    sMemNode_252010* first;     // 0x8
-};
-
-extern void* D_004D2438[];
-
+// Print a table of every block in class (int)thing through cb: type, name,
+// address, size, span to the next block, flags, payload CRC and check result.
 // PORT: thing is a memory class id (masked with 0x3F) passed through a void* parameter.
 extern "C" void MEM_printclassf(void* thing, const char* fmt, void (*cb)(const char*, ...))
 {
@@ -377,33 +290,33 @@ extern "C" void MEM_printclassf(void* thing, const char* fmt, void (*cb)(const c
     int crc = 0;
     cb(D_004800E0);
     cb(D_00480140);
-    sMemClass_252010* cls = (sMemClass_252010*)D_004D2438[(int)thing & 0x3F];
+    sMemClass* cls = (sMemClass*)D_004D2438[(int)thing & 0x3F];
     if (cls == 0) {
         cb(D_00480198);
         return;
     }
-    for (sMemNode_252010* blk = cls->first; blk != 0; blk = (sMemNode_252010*)blk->next) {
+    for (sMemBlock* blk = cls->first; blk != 0; blk = blk->next) {
         char* data = (char*)blk + 0x10;
-        char* n1 = (char*)func_00252658(data);
+        char* n1 = (char*)MEM_getname(data);
         if (n1 == 0)
             n1 = D_004A2E58;
-        char* n2 = (char*)func_00252660(data);
+        char* n2 = (char*)MEM_gettrailer(data);
         if (n2 == 0)
             n2 = D_004A2E58;
-        if (blk->flags & 0x4000) {
+        if (blk->flags & MEM_FLAG_FREE) {
             int sz = blk->size;
-            if (sz > 0x10 && !(blk->flags & 0x8000))
+            if (sz > 0x10 && !(blk->flags & MEM_FLAG_SYSTEM))
                 crc = func_003E62D0((char*)blk + 0x18, sz - 0x18, 0xFBEA);
             total += sz;
-            int st = func_002522B0((sMemBlock002522B0*)blk);
-            cb(fmt, D_004A2E60, D_004801B0, data, sz, blk->next - (char*)blk, blk->flags, crc, D_004801E8[st], D_004A2E58);
+            int st = MEM_checkblock(blk);
+            cb(fmt, D_004A2E60, D_004801B0, data, sz, (char*)blk->next - (char*)blk, blk->flags, crc, D_004801E8[st], D_004A2E58);
         } else {
             int sz = blk->size;
             crc = 0;
-            if (sz != 0 && !(blk->flags & 0x8000))
+            if (sz != 0 && !(blk->flags & MEM_FLAG_SYSTEM))
                 crc = func_003E62D0(data, sz, 0xFBEA);
-            int st = func_002522B0((sMemBlock002522B0*)blk);
-            cb(fmt, D_004A2E68, n1, data, blk->size, blk->next - (char*)blk, blk->flags, crc, D_004801E8[st], n2);
+            int st = MEM_checkblock(blk);
+            cb(fmt, D_004A2E68, n1, data, blk->size, (char*)blk->next - (char*)blk, blk->flags, crc, D_004801E8[st], n2);
         }
         cb(D_004A2E70);
     }
@@ -412,15 +325,16 @@ extern "C" void MEM_printclassf(void* thing, const char* fmt, void (*cb)(const c
 }
 
 //100%
-extern int D_004A2E74;
+extern int D_004A2E74; // last MEM_validheader/MEM_checkblock error (1-4)
 extern "C" int func_003E6240(void* p, int size, int flags);
 
-extern "C" int func_00252248(void* self)
+// 1 if p is readable and starts with a free or sentinel header.
+extern "C" int MEM_validheader(void* p)
 {
     int ok = 0;
-    if (func_003E6240(self, 0x18, 0) != 0) {
-        unsigned short m = *(unsigned short*)self;
-        if (m == 0x4246 || m == 0x4253) {
+    if (func_003E6240(p, 0x18, 0) != 0) {
+        unsigned short m = *(unsigned short*)p;
+        if (m == MEM_TAG_FREE || m == MEM_TAG_STOP) {
             ok = 1;
         } else {
             D_004A2E74 = 1;
@@ -432,41 +346,33 @@ extern "C" int func_00252248(void* self)
 }
 
 //100%
-struct sMemBlock002522B0 {
-    unsigned short tag;
-    unsigned short flags;
-    int size;
-    int f8;
-    int fC;
-    void* a;
-    void* b;
-};
-
-static inline unsigned int readBE32_002522B0(unsigned char* p)
+static inline unsigned int MEM_readBE32(unsigned char* p)
 {
     return (p[0] << 24) | (p[1] << 16) | (p[2] << 8) | p[3];
 }
 
+// Sanity-check one block header: sentinels must be system blocks, free blocks
+// must link to valid headers, and guarded blocks must end in 'BEND'.
 // PORT: the block-end address is computed as size + (int)blk (pointer held in int) to get the target's addu operand order.
-extern "C" int func_002522B0(sMemBlock002522B0* blk)
+extern "C" int MEM_checkblock(sMemBlock* blk)
 {
     int ok = 0;
     unsigned short tag = blk->tag;
-    if (tag == 0x4253) {
-        if (blk->flags & 0x8000) {
+    if (tag == MEM_TAG_STOP) {
+        if (blk->flags & MEM_FLAG_SYSTEM) {
             ok = 1;
         } else {
             D_004A2E74 = 2;
         }
-    } else if (tag == 0x4246) {
-        if (blk->flags & 0x4000) {
-            ok = func_00252248(blk->a);
+    } else if (tag == MEM_TAG_FREE) {
+        if (blk->flags & MEM_FLAG_FREE) {
+            ok = MEM_validheader(blk->freenext);
             if (ok) {
-                ok = func_00252248(blk->b);
+                ok = MEM_validheader(blk->freeprev);
             }
         }
-    } else if (tag == 0x424D) {
-        if (!(blk->flags & 0x2000) || readBE32_002522B0((unsigned char*)(blk->size + (int)blk) + 0x10) == 0x42454E44) {
+    } else if (tag == MEM_TAG_USED) {
+        if (!(blk->flags & MEM_FLAG_GUARD) || MEM_readBE32((unsigned char*)(blk->size + (int)blk) + 0x10) == MEM_GUARD_WORD) {
             ok = 1;
         } else {
             D_004A2E74 = 3;
@@ -485,10 +391,11 @@ extern "C" int func_002523A0()
 //100%
 void cMemMan_free(void*);
 
-extern "C" void* func_002523A8(void* self)
+// Free a payload pointer (0 is ignored). Always returns 1.
+extern "C" void* MEM_free(void* p)
 {
-    if (self != 0) {
-        cMemMan_free(self);
+    if (p != 0) {
+        cMemMan_free(p);
     }
     return (void*)1;
 }
@@ -508,18 +415,21 @@ extern "C" int func_002525F8(void* p)
     return r;
 }
 
-extern "C" int func_00252648(void* self)
+// Payload size of an allocation.
+extern "C" int MEM_getsize(void* p)
 {
-    return *(int*)((char*)self + -0xC);
+    return *(int*)((char*)p + -0xC);
 }
 
-extern "C" unsigned short func_00252650(void* self)
+// Header flags of an allocation.
+extern "C" unsigned short MEM_getflags(void* p)
 {
-    return *(unsigned short*)((char*)self + -0xE);
+    return *(unsigned short*)((char*)p + -0xE);
 }
 
 //100%
-int func_00252658(void* self)
+// Allocation names are compiled out of this build: always 0.
+int MEM_getname(void* p)
 {
     return 0;
 }
@@ -529,21 +439,24 @@ struct sMemUnalignedInt {
     int value;
 } __attribute__((packed));
 
+// The word after the payload of a MEM_FLAG_TRAILER block (0 if none). It is
+// printed as a string by MEM_printclassf.
 // PORT: pointer arithmetic done in int; a plain `(char*)p - 0xE` makes gcc 2.95
 // emit the offset as unsigned 0xFFFFFFF2 (addiu -0x8000 / 0x7ff2 split).
-extern "C" int func_00252660(void* p)
+extern "C" int MEM_gettrailer(void* p)
 {
     int r = 0;
-    if (*(unsigned short*)((int)p - 0xE) & 0x800) {
+    if (*(unsigned short*)((int)p - 0xE) & MEM_FLAG_TRAILER) {
         r = ((sMemUnalignedInt*)((char*)p + *(int*)((int)p - 0xC) + 4))->value;
     }
     return r;
 }
 
-extern "C" int func_00252688(void* p, int value)
+// Set the trailer word; returns 0 if the block has none.
+extern "C" int MEM_settrailer(void* p, int value)
 {
     int r = 0;
-    if (*(unsigned short*)((int)p - 0xE) & 0x800) {
+    if (*(unsigned short*)((int)p - 0xE) & MEM_FLAG_TRAILER) {
         r = 1;
         ((sMemUnalignedInt*)((char*)p + *(int*)((int)p - 0xC) + 4))->value = value;
     }
@@ -551,26 +464,24 @@ extern "C" int func_00252688(void* p, int value)
 }
 
 //100%
-extern "C" void MUTEX_lock(void* mutex);
-extern "C" void MUTEX_unlock(void* mutex);
 extern "C" void* cMemMan_internalResizeBlock(void* block, int size);
-extern void* D_00538B00[16];
 
-extern "C" void* func_002526B8(void* block, int size)
+// Resize an allocation under the memory manager's lock.
+extern "C" void* MEM_resize(void* p, int size)
 {
     void* r;
     MUTEX_lock(D_00538B00);
-    r = cMemMan_internalResizeBlock(block, size);
+    r = cMemMan_internalResizeBlock(p, size);
     MUTEX_unlock(D_00538B00);
     return r;
 }
 
 INCLUDE_ASM("mem/memstd", func_00252718);
 
-// Word at 0x30 of memory class (id & 0x3F).
-extern "C" int func_00252960(void* self, int id)
+// Extra header bytes per block of class id (the first argument is unused).
+extern "C" int MEMCLASS_hdrsize(void* unused, int id)
 {
-    return *(int*)((char*)D_004D2438[id & 0x3F] + 0x30);
+    return ((sMemClass*)D_004D2438[id & 0x3F])->hdr;
 }
 
 //100%
@@ -654,130 +565,121 @@ extern "C" void* func_002530D0(int size)
     return func_00252A10_6(0, size, 0, 0, 0, 0);
 }
 
-struct sMemBlock_253100 {
-    unsigned short tag;
-    unsigned short flags;
-    int size;
-    int f8;
-    int fC;
-    sMemBlock_253100* next;
-    sMemBlock_253100* prev;
-};
-
-// First block of at least `size` bytes, walking forward or backward from the
-// class's list head; 0 if the walk hits the 'BS' end block.
-extern "C" sMemBlock_253100* func_00253100(char* cls, int size, int backward)
+// First free block of at least size bytes, walking the free list forward or
+// backward from its head; 0 if the walk gets back to the head.
+extern "C" sMemBlock* MEMCLASS_firstfit(sMemClass* cls, int size, int backward)
 {
-    sMemBlock_253100* b = (sMemBlock_253100*)(cls + 0x10);
+    sMemBlock* b = &cls->freehead;
     if (backward == 0) {
         do {
-            b = b->next;
+            b = b->freenext;
         } while (b->size < size);
     } else {
         do {
-            b = b->prev;
+            b = b->freeprev;
         } while (b->size < size);
     }
-    return b->tag != 0x4253 ? b : 0;
+    return b->tag != MEM_TAG_STOP ? b : 0;
 }
 
 //100%
-// Largest block in the class whose payload exceeds size - 1, walking forward
-// (dir 0) or backward; 0 if none.
-extern "C" sMemNode_251718* func_00253170(sMemClass_251718* cls, int size, int dir)
+// Largest free block whose payload exceeds size - 1, walking the free list
+// forward (backward 0) or backward; 0 if none.
+extern "C" sMemBlock* MEMCLASS_largestfree(sMemClass* cls, int size, int backward)
 {
     int best = size - 1;
     if (best < 0) {
         best = 0;
     }
-    sMemNode_251718* r = 0;
-    sMemNode_251718* p;
-    if (dir == 0) {
-        p = cls->head.next;
+    sMemBlock* r = 0;
+    sMemBlock* p;
+    if (backward == 0) {
+        p = cls->freehead.freenext;
         for (;;) {
             if (best < p->size - 0x10) {
-                if (p->tag == 0x4253) {
+                if (p->tag == MEM_TAG_STOP) {
                     break;
                 }
                 r = p;
                 best = r->size - 0x10;
             }
-            p = p->next;
+            p = p->freenext;
         }
     } else {
-        p = cls->head.prev;
+        p = cls->freehead.freeprev;
         for (;;) {
             if (best < p->size - 0x10) {
-                if (p->tag == 0x4253) {
+                if (p->tag == MEM_TAG_STOP) {
                     break;
                 }
                 r = p;
                 best = r->size - 0x10;
             }
-            p = p->prev;
+            p = p->freeprev;
         }
     }
     return r;
 }
 
 //100%
-// Total payload bytes in a class's block list, walked forward (dir 0) or backward.
-extern "C" int func_00253230(sMemClass_251718* cls, int dir)
+// Total free payload bytes in a class, walking the free list forward
+// (backward 0) or backward.
+extern "C" int MEMCLASS_totalfree(sMemClass* cls, int backward)
 {
     int total = 0;
-    if (dir == 0) {
-        sMemNode_251718* node = cls->head.next;
-        while (node->tag != 0x4253) {
+    if (backward == 0) {
+        sMemBlock* node = cls->freehead.freenext;
+        while (node->tag != MEM_TAG_STOP) {
             total += node->size - 0x10;
-            node = node->next;
+            node = node->freenext;
         }
     } else {
-        sMemNode_251718* node = cls->head.prev;
-        while (node->tag != 0x4253) {
+        sMemBlock* node = cls->freehead.freeprev;
+        while (node->tag != MEM_TAG_STOP) {
             total += node->size - 0x10;
-            node = node->prev;
+            node = node->freeprev;
         }
     }
     return total;
 }
 
 //100%
-// Mark blk free and link it into the class's address-ordered block list,
+// Mark blk free and link it into the class's address-ordered free list,
 // searching from whichever end is nearer.
-extern "C" void func_002532B0(sMemClass_251718* cls, sMemNode_251718* blk)
+extern "C" void MEMCLASS_linkfree(sMemClass* cls, sMemBlock* blk)
 {
-    sMemNode_251718* next = &cls->head;
-    sMemNode_251718* prev = next;
-    int size = blk->end - (char*)blk;
-    if ((char*)cls->head.next + ((char*)cls->head.prev - (char*)cls->head.next) / 2 < (char*)blk) {
+    sMemBlock* next = &cls->freehead;
+    sMemBlock* prev = next;
+    int size = (char*)blk->next - (char*)blk;
+    if ((char*)cls->freehead.freenext + ((char*)cls->freehead.freeprev - (char*)cls->freehead.freenext) / 2 < (char*)blk) {
         do {
-            prev = prev->prev;
+            prev = prev->freeprev;
         } while (blk < prev);
-        next = prev->next;
+        next = prev->freenext;
     } else {
         do {
-            next = next->next;
+            next = next->freenext;
         } while (next < blk);
-        prev = next->prev;
+        prev = next->freeprev;
     }
     blk->size = size;
-    blk->next = next;
-    blk->prev = prev;
-    prev->next = blk;
-    next->prev = blk;
-    blk->tag = 0x4246;
-    blk->flags |= 0x4000;
+    blk->freenext = next;
+    blk->freeprev = prev;
+    prev->freenext = blk;
+    next->freeprev = blk;
+    blk->tag = MEM_TAG_FREE;
+    blk->flags |= MEM_FLAG_FREE;
 }
 
-// Unlink a node and mark it free ('BO').
-extern "C" void func_00253368(sMemNode_251718* n)
+// Take blk off the free list and mark it 'BO'.
+extern "C" void MEM_unlinkfree(sMemBlock* blk)
 {
-    sMemNode_251718* prev = n->prev;
-    sMemNode_251718* next = n->next;
-    prev->next = next;
-    next->prev = prev;
-    n->tag = 0x424F;
-    n->flags &= ~0x4000;
+    sMemBlock* prev = blk->freeprev;
+    sMemBlock* next = blk->freenext;
+    prev->freenext = next;
+    next->freeprev = prev;
+    blk->tag = MEM_TAG_OUT;
+    blk->flags &= ~MEM_FLAG_FREE;
 }
 
 //100%
@@ -1146,12 +1048,11 @@ void* func_00253AD0_impl(void* a0, int a1, int align, int a3, int a4)
     return func_00252F60_5(a0, a1, align, a3, a4);
 }
 
-extern "C" void* func_002523A8(void* self);
 
 //99.29%
 void* func_00253AF8(void* self)
 {
-    return func_002523A8(self);
+    return MEM_free(self);
 }
 
 extern "C" void* func_00253B18(void* self, ...)

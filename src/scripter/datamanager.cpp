@@ -1742,14 +1742,14 @@ extern "C" void func_00278210(sDmEngine8210* self)
 
 //100%
 extern "C" void func_00282020(void* self);
-extern "C" void* func_002523A8(void* self);
+extern "C" void* MEM_free(void* self);
 
 extern "C" void func_00278308(void* self)
 {
     func_00282020(self);
-    func_002523A8(*(void**)((char*)self + 0x52C));
+    MEM_free(*(void**)((char*)self + 0x52C));
     if (*(void**)((char*)self + 0x534) != 0) {
-        func_002523A8(*(void**)((char*)self + 0x534));
+        MEM_free(*(void**)((char*)self + 0x534));
     }
     *(int*)((char*)self + 0x52C) = 0;
     *(int*)((char*)self + 0x530) = 0;

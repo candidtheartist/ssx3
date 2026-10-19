@@ -408,7 +408,7 @@ extern "C" void func_0028B2D0(void* self)
 //100%
 extern "C" char* strcpy(char* dst, const char* src);
 extern "C" void* FILE_loadsizez(const char* name, int* size, int align);
-extern "C" void* func_002523A8(void* self);
+extern "C" void* MEM_free(void* self);
 extern "C" void* func_00252FA0(void* a0, int a1, int a2);
 extern "C" void func_0028B2D0(void* self);
 extern "C" void func_0028B528(void* self);
@@ -469,7 +469,7 @@ extern "C" void func_0028B320(void* self, const char* file, int align)
             void* m = func_00252FA0((void*)file, h, 0);
             *(void**)((char*)self + 0x10) = m;
             func_003B6548(m, *(int*)((char*)self + 0x4));
-            func_002523A8(data);
+            MEM_free(data);
             *(int*)((char*)self + 0x14) = h;
         }
         *(int*)self = 1;
@@ -484,7 +484,7 @@ extern "C" void func_0028B320(void* self, const char* file, int align)
         break;
     default:
         if (*(int*)((char*)self + 0x8) != 1) {
-            func_002523A8(data);
+            MEM_free(data);
         }
         *(int*)self = 0;
         break;
@@ -495,7 +495,7 @@ extern "C" void func_0028B320(void* self, const char* file, int align)
 
 //100%
 extern "C" int func_003B6300(int id);
-extern "C" void* func_002523A8(void* self);
+extern "C" void* MEM_free(void* self);
 
 extern "C" void func_0028B528(void* self)
 {
@@ -504,7 +504,7 @@ extern "C" void func_0028B528(void* self)
         func_003B6300(*(int*)((char*)self + 0x4));
         *(int*)((char*)self + 0x4) = -1;
         if (*(int*)((char*)self + 0x8) == 0) {
-            func_002523A8(*(void**)((char*)self + 0x10));
+            MEM_free(*(void**)((char*)self + 0x10));
             *(int*)((char*)self + 0x10) = 0;
             *(int*)((char*)self + 0x14) = 0;
         }

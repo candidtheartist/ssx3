@@ -373,7 +373,7 @@ INCLUDE_ASM("scripter/ssxscriptengine", func_00278B98);
 //100%
 extern "C" void func_003DFAF0(void* file);
 extern "C" int ASYNCFILE_release(void* file, int a, int b);
-extern "C" void* func_002523A8(void* self);
+extern "C" void* MEM_free(void* self);
 extern "C" void func_0027B410(void* self, int idx);
 
 extern "C" void func_00278CD8(void* self)
@@ -385,7 +385,7 @@ extern "C" void func_00278CD8(void* self)
     }
     func_0027B410(self, 1);
     if (*(void**)((char*)self + 0x53C) != 0) {
-        func_002523A8(*(void**)((char*)self + 0x53C));
+        MEM_free(*(void**)((char*)self + 0x53C));
     }
     *(void**)((char*)self + 0x538) = 0;
     *(void**)((char*)self + 0x53C) = 0;
