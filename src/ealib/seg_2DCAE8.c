@@ -234,7 +234,194 @@ unsigned short *func_003DC068(unsigned short *dst, int val, int prec) {
 
 INCLUDE_ASM("ealib/seg_2DCAE8", func_003DC148);
 
-INCLUDE_ASM("ealib/seg_2DCAE8", USTR_vsprintf);
+//100%
+// PORT: 64-bit `long` (8 bytes on EE, 4 on Windows); use int64_t/uint64_t off-PS2.
+// PORT: PS2-only inline asm; needs a C fallback off-PS2.
+extern void func_003DBE90(short *arg0, signed char *arg1);
+extern int func_003DC148_C450(unsigned short **, long, int, int, int, int, unsigned short *) __asm__("func_003DC148");
+extern long func_00412550_C450(int) __asm__("func_00412550");
+extern signed char D_00495BC0_C450[] __asm__("D_00495BC0");
+extern signed char D_00495BD8_C450[] __asm__("D_00495BD8");
+
+#define VA_ARG_C450(ap, T) (*(T *)((ap += 8) - 8))
+
+void USTR_vsprintf_impl(unsigned short *dst, unsigned short *fmt, char *ap) __asm__("USTR_vsprintf");
+void USTR_vsprintf_impl(unsigned short *dst, unsigned short *fmt, char *ap) {
+    unsigned short lower[24];
+    unsigned short upper[24];
+    unsigned short c;
+    int count;
+    int flags;
+    int width;
+    int prec;
+    int more;
+
+    count = 0;
+    func_003DBE90((short *)lower, D_00495BC0_C450);
+    func_003DBE90((short *)upper, D_00495BD8_C450);
+    c = *fmt++;
+    for (;;) {
+        while (c != 0 && c != '%') {
+            count++;
+            *dst++ = c;
+            c = *fmt++;
+        }
+        if (c == 0) {
+            break;
+        }
+        more = 1;
+        c = *fmt++;
+        flags = 0;
+        width = 0;
+        prec = 6;
+        while (more) {
+            switch (c) {
+            case '-':
+                flags |= 0x10;
+                c = *fmt++;
+                break;
+            case '+':
+                flags |= 1;
+                c = *fmt++;
+                break;
+            case '0':
+                flags |= 8;
+                c = *fmt++;
+                break;
+            case ' ':
+                flags |= 4;
+                c = *fmt++;
+                break;
+            case '#':
+                flags |= 2;
+                c = *fmt++;
+                break;
+            default:
+                more = 0;
+                break;
+            }
+        }
+        switch (c) {
+        case '*':
+            width = VA_ARG_C450(ap, int);
+            c = *fmt++;
+            break;
+        case '1' ... '9':
+            width = 0;
+            while ((unsigned int)(c - '0') < 10) {
+                width = width * 10 + (c - '0');
+                c = *fmt++;
+            }
+            break;
+        }
+        if (c == '.') {
+            c = *fmt++;
+            switch (c) {
+            case '*':
+                prec = VA_ARG_C450(ap, int);
+                c = *fmt++;
+                break;
+            case '1' ... '9':
+                prec = 0;
+                while ((unsigned int)(c - '0') < 10) {
+                    prec = prec * 10 + (c - '0');
+                    c = *fmt++;
+                }
+                break;
+            }
+        }
+        switch (c) {
+        case 'c':
+            count++;
+            *dst++ = (unsigned short)VA_ARG_C450(ap, int);
+            break;
+        case 'C':
+            count++;
+            { char ch = VA_ARG_C450(ap, char); *dst++ = ch; }
+            break;
+        case 'd':
+        case 'i':
+            count += func_003DC148_C450(&dst, func_00412550_C450(VA_ARG_C450(ap, int)), 10, flags, width, prec, lower);
+            break;
+        case 'o':
+            flags |= 0x20;
+            count += func_003DC148_C450(&dst, func_00412550_C450(VA_ARG_C450(ap, int)), 8, flags, width, prec, lower);
+            break;
+        case 'u':
+            flags |= 0x20;
+            count += func_003DC148_C450(&dst, func_00412550_C450(VA_ARG_C450(ap, int)), 10, flags, width, prec, lower);
+            break;
+        case 'x':
+        case 'X':
+            flags |= 0x20;
+            count += func_003DC148_C450(&dst, func_00412550_C450(VA_ARG_C450(ap, int)), 16, flags, width, prec, c == 'x' ? lower : upper);
+            break;
+        case 'e':
+        case 'E':
+            count += func_003DC148_C450(&dst, VA_ARG_C450(ap, long), 10, flags | 0x80, width, prec, lower);
+            break;
+        case 'g':
+        case 'G':
+            count += func_003DC148_C450(&dst, VA_ARG_C450(ap, long), 10, flags | 0x100, width, prec, lower);
+            break;
+        case 'f':
+            count += func_003DC148_C450(&dst, VA_ARG_C450(ap, long), 10, flags | 0x40, width, prec, lower);
+            break;
+        case 'n':
+            *VA_ARG_C450(ap, int *) = count;
+            break;
+        case 'p':
+        case 'P':
+            flags |= 0x28;
+            count += func_003DC148_C450(&dst, func_00412550_C450(VA_ARG_C450(ap, int)), 16, flags, 8, prec, c == 'p' ? lower : upper);
+            break;
+        case 's': {
+            unsigned short *s = VA_ARG_C450(ap, unsigned short *);
+            if (s != 0) {
+                unsigned short ch;
+                while ((ch = *s++) != 0) {
+                    count++;
+                    *dst++ = ch;
+                }
+            } else {
+                *dst++ = '(';
+                *dst++ = 'n';
+                *dst++ = 'u';
+                *dst++ = 'l';
+                *dst++ = 'l';
+                *dst++ = ')';
+                count += 6;
+            }
+            break;
+        }
+        case 'S': {
+            char *s = VA_ARG_C450(ap, char *);
+            if (s != 0) {
+                char ch;
+                while ((ch = *s++) != 0) {
+                    count++;
+                    *dst++ = ch;
+                }
+            } else {
+                *dst++ = '(';
+                *dst++ = 'n';
+                *dst++ = 'u';
+                *dst++ = 'l';
+                *dst++ = 'l';
+                *dst++ = ')';
+                count += 6;
+            }
+            break;
+        }
+        default:
+            count++;
+            *dst++ = c;
+            break;
+        }
+        c = *fmt++;
+    }
+    *dst++ = 0;
+}
 
 //100% - objdiff report; single-function view differs only in a relocation name
 extern void USTR_vsprintf(char *, const char *, char *);
