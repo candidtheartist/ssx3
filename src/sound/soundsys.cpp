@@ -1967,7 +1967,58 @@ extern "C" void func_00293B90(void* self)
 
 INCLUDE_ASM("sound/soundsys", func_00293BB0);
 
-INCLUDE_ASM("sound/soundsys", func_00293DC0);
+//100%
+
+struct cRiderMetrix;
+struct cAirPredictor;
+struct cRiderAnim;
+
+struct t4Matrix;
+
+
+struct t4Vector;
+
+
+
+
+struct cRiderHandler;
+
+
+
+
+extern "C" void func_00293DC0(void* self, cRider* rider, int* volume, int* pitch);
+struct sSsVt_3DC0 { short delta; short index; int (*fn)(void*); };
+extern const func_00290B58_sCurve D_00482CB8;
+extern const func_00290B58_sCurve D_00482CE0;
+
+static inline float* getLevels_3DC0(void* self) { return (float*)((char*)self + 0x5990); }
+
+extern "C" void func_00293DC0(void* self, cRider* rider, int* volume, int* pitch)
+{
+    float level = rider->mAudioEdging + rider->mAudioBraking;
+    float speed = rider->mAudioSpeed;
+    if (speed < 0.1f) {
+        level = level * speed * 10.0f;
+    }
+    float pressure = rider->mAudioPressure;
+    char* obj = (char*)&rider->mVtbl;
+    sSsVt_3DC0* vt = *(sSsVt_3DC0**)obj;
+    int idx = vt[kRiderVt_getAIIndex].fn(obj + vt[kRiderVt_getAIIndex].delta);
+    float prev = *(float*)((char*)getLevels_3DC0(self) + (idx << 2));
+    float d = prev - level;
+    if (__builtin_fabsf(d) > 0.1f) {
+        if (level < prev) {
+            level = prev - d * 0.5f;
+        } else if (prev < level) {
+            level = prev + (level - prev) * 0.125f;
+        }
+    }
+    func_00290B58_sCurve c1 = D_00482CB8;
+    *(float*)((char*)getLevels_3DC0(self) + (idx << 2)) = level;
+    func_00290B58_sCurve c2 = D_00482CE0;
+    *volume = (int)func_00290B58(&c1, level);
+    *pitch = (int)(func_00290B58(&c2, pressure) * 4096.0f);
+}
 
 INCLUDE_ASM("sound/soundsys", func_00293FC8);
 
