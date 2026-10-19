@@ -375,7 +375,36 @@ extern "C" void func_0032B460()
 
 INCLUDE_ASM("intersect/riderspheretree", func_0032B468);
 
-INCLUDE_ASM("intersect/riderspheretree", func_0032B620);
+//100%
+// Run-length decode (PackBits style) into dst: a negative count -n copies the next n bytes, a positive count n
+// repeats the next byte n+1 times, 0 terminates. Returns the number of bytes written.
+// PORT: the unit declares it later as void*(void*, void*); defined under its own name bound to the symbol.
+extern "C" int func_0032B620_impl(char* dst, signed char* src) __asm__("func_0032B620");
+extern "C" int func_0032B620_impl(char* dst, signed char* src)
+{
+    if (src == 0)
+        return 0;
+    char* d = dst;
+    int c;
+    do {
+        c = *src++;
+        if (c < 0) {
+            int n = -c;
+            do {
+                *d++ = *src++;
+            } while (--n);
+        } else {
+            int n = c + 1;
+            if (c == 0)
+                break;
+            do {
+                *d++ = *src;
+            } while (--n);
+            src++;
+        }
+    } while (c != 0);
+    return d - dst;
+}
 
 //100%
 // VU0 microprogram entry (micro-memory address 0x6E0; resolved via undefined_syms_auto.txt)
