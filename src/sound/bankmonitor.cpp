@@ -3539,7 +3539,21 @@ extern "C" void func_002B3D48(void* self, float v)
 
 INCLUDE_ASM("sound/bankmonitor", func_002B3D80);
 
-INCLUDE_ASM("sound/bankmonitor", func_002B3E20);
+//100%
+extern "C" int func_002B3E20(void* self)
+{
+    float step = *(float*)((char*)self + 0x40C);
+    float cur = *(float*)((char*)self + 0x410) + step;
+    *(float*)((char*)self + 0x410) = cur;
+    if ((step > 0.0f && cur < (float)*(int*)((char*)self + 0x414))
+        || (step < 0.0f && cur > (float)*(int*)((char*)self + 0x414))) {
+        *(signed char*)((char*)*(void**)((char*)self + 0x408) + 0x40) = (signed char)(int)*(float*)((char*)self + 0x410);
+        return 0;
+    }
+    signed char t = *(int*)((char*)self + 0x414);
+    *(signed char*)((char*)*(void**)((char*)self + 0x408) + 0x40) = t;
+    return 1;
+}
 
 //100%
 // PORT: 64-bit `long` (8 bytes on EE, 4 on Windows); use int64_t/uint64_t off-PS2.
