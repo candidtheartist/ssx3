@@ -11476,7 +11476,20 @@ extern "C" void func_001B6E40(void* self, int a1, unsigned int msg)
     }
 }
 
-INCLUDE_ASM("fe/feasyncfile", func_001B6EA8);
+//100%
+// Key filter: keys 8 and 9 return 0x100, every other key 0x101.
+extern "C" int func_001B6EA8(void* self, int a1, unsigned int key)
+{
+    int r = 0x101;
+    if (key < 10) {
+        if (key < 8) {
+            r = 0x101;
+        } else {
+            return 0x100;
+        }
+    }
+    return r;
+}
 
 //100%
 extern "C" void* func_001ABF70(void* self);
