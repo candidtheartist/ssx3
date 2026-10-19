@@ -1597,7 +1597,7 @@ extern "C" void* func_0028B180();
 extern "C" void func_0029CED8(void*, int, void*, float);
 extern "C" int func_00144C98(void* iface);
 extern "C" int func_00151178(void* self, int level);
-extern "C" void func_0010F338(void* rider, int level, int a2);
+extern "C" void cRider_awardCollectible(void* rider, int level, int a2);
 extern char* D_004A28A8;
 
 struct sWSSlot_B9A0 {
@@ -1617,7 +1617,7 @@ extern "C" void func_0030B9A0(void* self, int rider, int id, int a3)
             void* i11 = cBE_getInterface_Fv(cBE_getBE(), 0xB);
             int lvl = func_00144C98(i0);
             int v = func_00151178(i11, lvl);
-            func_0010F338(*(void**)(*(char**)(*(char**)(D_004A28A8 + 0x84) + 0xC) + (rider << 2) + 0x28), lvl, v);
+            cRider_awardCollectible(*(void**)(*(char**)(*(char**)(D_004A28A8 + 0x84) + 0xC) + (rider << 2) + 0x28), lvl, v);
             return;
         }
     }

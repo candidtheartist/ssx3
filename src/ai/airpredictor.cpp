@@ -156,7 +156,7 @@ extern "C" void cAirPredictor_update(cAirPredictor* ap, sQuad* a, sQuad* b, floa
 }
 
 //100%
-void func_00113998(void* self)
+void cAirPredictor_clearPredictTime(void* self)
 {
     *(int*)&((cAirPredictor*)self)->mPredTime = 0;
 }

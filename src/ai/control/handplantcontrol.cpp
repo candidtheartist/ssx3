@@ -43,16 +43,16 @@ extern "C" void cHandplantMotion_gainFocus(char* self)
     *(sVec4HP*)(rider + 0x1E0) = vu0DivHP(vu0SubHP(*(sVec4HP*)(self + 0x30), *(sVec4HP*)(rider + 0x110)), *(float*)(self + 0x84));
 }
 
-INCLUDE_ASM("ai/control/handplantcontrol", func_00138BA0);
+INCLUDE_ASM("ai/control/handplantcontrol", cHandplantMotion_setup);
 
 typedef int cQuad128_139178 __attribute__((mode(TI)));
-extern "C" void func_00139548(void* self);
+extern "C" void cHandplantMotion_computeLaunchVelocity(void* self);
 
-// Runs func_00139548, then copies the 16-byte vector at +0x10 into the rider (+0xA0) at +0x1E0;
+// Runs cHandplantMotion_computeLaunchVelocity, then copies the 16-byte vector at +0x10 into the rider (+0xA0) at +0x1E0;
 // returns the rider.
 extern "C" char* cHandplantMotion_loseFocus(void* self)
 {
-    func_00139548(self);
+    cHandplantMotion_computeLaunchVelocity(self);
     char* rider = *(char**)((char*)self + 0xA0);
     *(cQuad128_139178*)(rider + 0x1E0) = *(cQuad128_139178*)((char*)self + 0x10);
     return rider;
@@ -68,7 +68,7 @@ void* cHandplantMotion_postUpdate(void* self)
     return cRider_updateQueryBounds(*(int*)((char*)self + 0xa0), 0);
 }
 
-INCLUDE_ASM("ai/control/handplantcontrol", func_00139548);
+INCLUDE_ASM("ai/control/handplantcontrol", cHandplantMotion_computeLaunchVelocity);
 
 //100%
 struct sVEntry00139970 {
@@ -306,7 +306,7 @@ extern "C" float cAirMotion_queryLanding(void* self, char* hit)
 // PORT: cRiderAnimBase_play is declared void elsewhere; callers here match only with an int return.
 extern "C" int cRiderAnimBase_play_i(void* self, int anim, int flags, float blend) __asm__("cRiderAnimBase_play");
 
-extern "C" void func_0013A8F8(void* self, float v)
+extern "C" void cAirMotion_playReverseLandingClip(void* self, float v)
 {
     if (v < -2222.22216796875f)
     {
@@ -343,7 +343,7 @@ extern "C" void cAirMotion_playLandingClip(void* self, float v)
     }
 }
 
-INCLUDE_ASM("ai/control/handplantcontrol", func_0013AA48);
+INCLUDE_ASM("ai/control/handplantcontrol", cAirMotion_collideBody);
 
 //100%
 struct sVEntry0013ACB0 {
@@ -496,7 +496,7 @@ extern "C" void func_00114298(void* rider, float v);
 extern "C" void cRider_updateQueryBounds_v(void* rider, int a1) __asm__("cRider_updateQueryBounds");
 extern "C" void func_00105398(void* rider, int a1);
 extern "C" void func_00107888(void* rider);
-extern "C" void func_0013C140(void* self);
+extern "C" void cRailSlideMotion_collideBody(void* self);
 extern "C" void func_00294170(void* snd, void* rider);
 int cRider_getControlState(void* rider);
 int cRider_getMotionMode(void* rider);
@@ -568,7 +568,7 @@ extern "C" void cRailSlideMotion_postUpdate(void* self)
     }
     func_00105398(RIDER_BFA8, 0);
     *(int*)(*(char**)(RIDER_BFA8 + 0xAA0) + 0x28) = 3;
-    func_0013C140(self);
+    cRailSlideMotion_collideBody(self);
     *(unsigned int*)(*(char**)(RIDER_BFA8 + 0xAA0) + 0x28) = 0xFFFFFFFF;
     func_00107888(RIDER_BFA8);
     if (*(int*)((char*)self + 0x20) != 0 && cRider_getMotionMode(RIDER_BFA8) == 4) {
@@ -581,7 +581,7 @@ extern "C" void cRailSlideMotion_postUpdate(void* self)
         vu0ScaleEq_BFA8(*(sVec4_BFA8*)(r + 0x1E0), *(float*)(r + 0x2E4) / len);
 }
 
-INCLUDE_ASM("ai/control/handplantcontrol", func_0013C140);
+INCLUDE_ASM("ai/control/handplantcontrol", cRailSlideMotion_collideBody);
 
 //100%
 extern "C" void cRailSlideMotion_loseFocus(void* self)
@@ -748,7 +748,7 @@ extern "C" float cGroundMotion_computeNormalAccel(sHpCtl_13C7A8* self, float* p,
     return r;
 }
 
-INCLUDE_ASM("ai/control/handplantcontrol", func_0013C948);
+INCLUDE_ASM("ai/control/handplantcontrol", cGroundMotion_computeDriveAccel);
 
 //100%
 // PORT: cBE_getInterface__Fv is called with (be, kind) here; bind the 2-arg form to that symbol.
@@ -814,7 +814,7 @@ static inline float hpRamp_13CCF0(float v, float lo, float hi)
 
 #define RIDER (*(char**)((char*)self + 0x18))
 
-extern "C" float func_0013CCF0(void* self, sHpCfg_13CCF0* cfg, float a)
+extern "C" float cGroundMotion_computeFrictionAccel(void* self, sHpCfg_13CCF0* cfg, float a)
 {
     float one = 1.0f;
     float spd = hpAbs_13CCF0(*(float*)(RIDER + 0x214));
@@ -884,7 +884,7 @@ static inline float hpCurve_13D028(const sCurvePt_13D028* p, float x)
     return hpLerp_13D028(p[0], p[1], x);
 }
 
-extern "C" float func_0013D028(void* self, float* v, float a, float b, float c)
+extern "C" float cGroundMotion_computeLateralAccel(void* self, float* v, float a, float b, float c)
 {
     if (a < 0.0f && 0.0f < c)
     {
@@ -1133,7 +1133,7 @@ extern "C" void cRider_updateQueryBounds_v13F178(void* rider, int a1) __asm__("c
 extern "C" void func_00105398(void* rider, int a1);
 extern "C" void func_00107888(void* rider);
 extern "C" void func_00116120(void* rider, int a, int b);
-extern "C" void func_0013F488(void* self);
+extern "C" void cGroundMotion_collideBody(void* self);
 extern "C" void func_00294170(void* snd, void* rider);
 int cRider_getMotionMode(void* rider);
 // PORT: cRider_setMotionMode is defined with one parameter but this caller passes (rider, 1).
@@ -1271,7 +1271,7 @@ extern "C" void cGroundMotion_postUpdate(void* self)
     }
     cRider_updateQueryBounds_v13F178(RIDER_13F178, 0);
     *(int*)(*(char**)(RIDER_13F178 + 0xAA0) + 0x28) = D_004A115C;
-    func_0013F488(self);
+    cGroundMotion_collideBody(self);
     *(unsigned int*)(*(char**)(RIDER_13F178 + 0xAA0) + 0x28) = 0xFFFFFFFF;
     func_00105398(RIDER_13F178, 0);
     func_00107888(RIDER_13F178);
@@ -1471,7 +1471,7 @@ static inline bool riderFlag_13F488(char* r)
 #define RIDER (*(char**)((char*)self + 0x18))
 #define RV(off) (*(sVec4HP*)(RIDER + (off)))
 
-extern "C" void func_0013F488(void* self)
+extern "C" void cGroundMotion_collideBody(void* self)
 {
     if (cRider_getControlState(RIDER) == 9)
         return;
@@ -2356,9 +2356,9 @@ extern "C" int func_00140D78(void* self)
 
 INCLUDE_ASM("ai/control/handplantcontrol", cGroundMotion_destroy);
 
-INCLUDE_ASM("ai/control/handplantcontrol", func_00140EE0);
+INCLUDE_ASM("ai/control/handplantcontrol", cAirMotion_destroy);
 
-INCLUDE_ASM("ai/control/handplantcontrol", func_00141040);
+INCLUDE_ASM("ai/control/handplantcontrol", cRailSlideMotion_destroy);
 
 extern "C" int func_001411A0(void* self)
 {
@@ -2380,7 +2380,7 @@ extern "C" void* func_001411B8(void* self)
     return (char*)self + 0x30;
 }
 
-INCLUDE_ASM("ai/control/handplantcontrol", func_001411C0);
+INCLUDE_ASM("ai/control/handplantcontrol", cStaticMotion_destroy);
 
 INCLUDE_ASM("ai/control/handplantcontrol", cHandplantMotion_destroy);
 
@@ -2423,23 +2423,23 @@ extern "C" void* cHandplantMotion_cHandplantMotion(void* self, int inChrg)
     return self;
 }
 
-INCLUDE_ASM("ai/control/handplantcontrol", func_001415C8);
+INCLUDE_ASM("ai/control/handplantcontrol", cCruiseControl_destroy);
 
-INCLUDE_ASM("ai/control/handplantcontrol", func_00141728);
+INCLUDE_ASM("ai/control/handplantcontrol", cBoardPressControl_destroy);
 
-INCLUDE_ASM("ai/control/handplantcontrol", func_00141888);
+INCLUDE_ASM("ai/control/handplantcontrol", cPrewindControl_destroy);
 
-INCLUDE_ASM("ai/control/handplantcontrol", func_001419E8);
+INCLUDE_ASM("ai/control/handplantcontrol", cBumpControl_destroy);
 
-INCLUDE_ASM("ai/control/handplantcontrol", func_00141B48);
+INCLUDE_ASM("ai/control/handplantcontrol", cNaturalAirControl_destroy);
 
-INCLUDE_ASM("ai/control/handplantcontrol", func_00141CA8);
+INCLUDE_ASM("ai/control/handplantcontrol", cSpinControl_destroy);
 
-INCLUDE_ASM("ai/control/handplantcontrol", func_00141E08);
+INCLUDE_ASM("ai/control/handplantcontrol", cGateControl_destroy);
 
-INCLUDE_ASM("ai/control/handplantcontrol", func_00141F68);
+INCLUDE_ASM("ai/control/handplantcontrol", cRailSlideControl_destroy);
 
-INCLUDE_ASM("ai/control/handplantcontrol", func_001420C8);
+INCLUDE_ASM("ai/control/handplantcontrol", cUberGrindControl_destroy);
 
 INCLUDE_ASM("ai/control/handplantcontrol", cWipeoutControl_destroy);
 
@@ -2482,13 +2482,13 @@ extern "C" void* cWipeoutControl_cWipeoutControl(void* self, int inChrg)
     return self;
 }
 
-INCLUDE_ASM("ai/control/handplantcontrol", func_001424D0);
+INCLUDE_ASM("ai/control/handplantcontrol", cFinishLineControl_destroy);
 
-INCLUDE_ASM("ai/control/handplantcontrol", func_00142630);
+INCLUDE_ASM("ai/control/handplantcontrol", cResetControl_destroy);
 
 INCLUDE_ASM("ai/control/handplantcontrol", func_00142790);
 
-INCLUDE_ASM("ai/control/handplantcontrol", func_001428F0);
+INCLUDE_ASM("ai/control/handplantcontrol", cHandplantControl_destroy);
 
 INCLUDE_ASM("ai/control/handplantcontrol", func_00142A50);
 

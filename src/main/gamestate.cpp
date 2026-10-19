@@ -293,12 +293,12 @@ extern "C" void cBENewPlayerInterface_setRiderCharID(void* iface, int rider, int
 extern "C" void func_001473D0(void* iface, int rider, int v);
 extern "C" void func_0012B030(void* p);
 extern "C" void func_0012B000(void* p);
-extern "C" void func_00128958(void* p);
-extern "C" void func_00128998(void* self, int n);
+extern "C" void cAI_spawnComputerRiders(void* p);
+extern "C" void cAI_spawnComputerActors(void* self, int n);
 extern "C" int cAI_areRidersLoaded(void* p);
 void func_001289F0(void* p);
 extern "C" void func_00128A10(void* p);
-extern "C" void func_001296F8(void* p);
+extern "C" void cAI_stepRiderInit(void* p);
 
 struct sRace_235080 {
     char pad0[0x48];
@@ -414,12 +414,12 @@ extern "C" void func_00235080(sState_235080* self)
         if (D_00535BC8_235080.mode48 == 0) {
             solo = D_00535BC8_235080.flag49 == 0;
         }
-        func_00128958(Ai_235080());
+        cAI_spawnComputerRiders(Ai_235080());
         if (n == 0 && solo) {
             if (D_00535BC8_235080.mode48 == 0) {
-                func_00128998(Ai_235080(), 0);
+                cAI_spawnComputerActors(Ai_235080(), 0);
             } else {
-                func_00128998(Ai_235080(), 2);
+                cAI_spawnComputerActors(Ai_235080(), 2);
             }
         }
         self->f10 = 3;
@@ -443,7 +443,7 @@ extern "C" void func_00235080(sState_235080* self)
             }
             self->f10 = 4;
         } else {
-            func_001296F8(Ai_235080());
+            cAI_stepRiderInit(Ai_235080());
             return;
         }
         break;
@@ -824,10 +824,10 @@ struct cRiderObj_235CC8 {
 extern "C" int func_0012ABD0(void* p);
 extern "C" void func_0012B030(void* p);
 extern "C" void func_0012B000(void* p);
-extern "C" void func_00128958(void* p);
+extern "C" void cAI_spawnComputerRiders(void* p);
 extern "C" int cAI_areRidersLoaded(void* p);
 void func_001289F0(void* p);
-extern "C" void func_001296F8(void* p);
+extern "C" void cAI_stepRiderInit(void* p);
 extern "C" sVec4_235CC8 func_00122C28(void* rider);
 extern "C" void func_003A9658(void* cache, int idx, const sVec4_236960* pos, float radius);
 extern "C" int func_003A9770(void* cache, int idx, sVec4_236960* pos, float* dist);
@@ -855,7 +855,7 @@ extern "C" void func_00235CC8(void* self)
             func_0012B030(*(void**)(*(char**)((char*)D_004A28A8 + 0x84) + 0xC));
             if (D_00535C04[0] >= 2)
                 func_0012B000(*(void**)(*(char**)((char*)D_004A28A8 + 0x84) + 0xC));
-            func_00128958(*(void**)(*(char**)((char*)D_004A28A8 + 0x84) + 0xC));
+            cAI_spawnComputerRiders(*(void**)(*(char**)((char*)D_004A28A8 + 0x84) + 0xC));
             *(int*)((char*)self + 0x10) = 1;
         }
         break;
@@ -869,7 +869,7 @@ extern "C" void func_00235CC8(void* self)
             func_003A9658(*cache + 0x10, idx, (const sVec4_236960*)&pos, 45000.0f);
             *(int*)((char*)self + 0x10) = 2;
         } else {
-            func_001296F8(*(void**)(*(char**)((char*)D_004A28A8 + 0x84) + 0xC));
+            cAI_stepRiderInit(*(void**)(*(char**)((char*)D_004A28A8 + 0x84) + 0xC));
         }
         break;
     case 2:

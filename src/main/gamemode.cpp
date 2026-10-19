@@ -1730,7 +1730,7 @@ extern "C" void* cBE_getBE();
 void* cBE_getInterface_Fv(void* be, int kind) __asm__("cBE_getInterface__Fv");
 extern "C" int func_00144BE0(void* iface);
 extern "C" int func_00145668(void* iface, int a1, int a2, int a3);
-extern "C" float func_001195A8(void* self, int value);
+extern "C" float cRiderMetrix_postTimeDeltaMsg(void* self, int value);
 extern signed char D_00535C12[];
 
 extern "C" int func_0023B5F8(void* self)
@@ -1748,7 +1748,7 @@ extern "C" int func_0023B5F8(void* self)
         void* clk = *(void**)(*(char**)((char*)D_004A28A8 + 0x84) + 0xC);
         int secs = (int)((float)*(int*)((char*)clk + 0xC) * 0.01666666753590107f);
         if (d != 0) {
-            func_001195A8(*(void**)(*(char**)((char*)clk + 0x28) + 0x790), secs - d);
+            cRiderMetrix_postTimeDeltaMsg(*(void**)(*(char**)((char*)clk + 0x28) + 0x790), secs - d);
         }
         (*(unsigned short*)((char*)self + 8))++;
     }
@@ -2345,7 +2345,7 @@ extern "C" void* cBE_getBE();
 void* cBE_getInterface_Fv(void* be, int kind) __asm__("cBE_getInterface__Fv");
 extern "C" int func_00144BE0(void* iface);
 extern "C" int func_00145668(void* iface, int a1, int a2, int a3);
-extern "C" float func_001195D8(void* self, int value);
+extern "C" float cRiderMetrix_postScoreDeltaMsg(void* self, int value);
 extern signed char D_00535C12[];
 
 extern "C" int func_0023C560(void* self)
@@ -2363,7 +2363,7 @@ extern "C" int func_0023C560(void* self)
         void* m = *(void**)(*(char**)(*(char**)(*(char**)((char*)D_004A28A8 + 0x84) + 0xC) + 0x28) + 0x790);
         int v = *(int*)((char*)m + 0x198);
         if (d != 0) {
-            func_001195D8(m, v - d);
+            cRiderMetrix_postScoreDeltaMsg(m, v - d);
         }
         (*(unsigned short*)((char*)self + 8))++;
     }

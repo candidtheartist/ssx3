@@ -20,7 +20,7 @@ extern "C" void func_002832D8(void* p);
 extern "C" void func_00283228(void* p, int flags);
 extern "C" void func_0030D540(void* p, int flags);
 extern "C" void func_00329970(void* p, int flags);
-extern "C" void func_00113170(void* p, int flags);
+extern "C" void cAirPredictor_destroy(void* p, int flags);
 extern "C" void func_001033F8(void* a, void* p);
 extern "C" void func_00117290(void* p, int flags);
 extern "C" void func_00375918(void* p, int flags);
@@ -59,7 +59,7 @@ extern "C" void cRider_destroy(char* self, int flags)
     operator_delete(*(int**)(self + 0xABC));
     p = *(void**)(self + 0x788);
     if (p != 0)
-        func_00113170(p, 3);
+        cAirPredictor_destroy(p, 3);
     void* box = *(void**)(self + 0x78C);
     if (box != 0)
         func_001033F8(*(void**)(*(char**)(*(char**)((char*)D_004A28A8 + 0x84) + 0xC) + 0xA4), box);
@@ -1561,11 +1561,11 @@ extern "C" void cRider_updateShadow(void* self)
 
 extern "C" void* func_002F2088(int);
 
-extern "C" void func_001119F8(void* p);
+extern "C" void cMotionOwner_drawFX(void* p);
 
 extern "C" void func_00122618(void* self)
 {
-    func_001119F8(*(void**)((char*)self + 0x77C));
+    cMotionOwner_drawFX(*(void**)((char*)self + 0x77C));
 }
 
 //100%
@@ -1851,7 +1851,7 @@ extern "C" void func_00122CF0(void* self)
 }
 
 //100%
-float func_00113130(void* self);
+float cRider_getProgressOrigin(void* self);
 
 struct sVEntry00122D78 { short delta; short index; int (*fn)(void*); };
 
@@ -1860,7 +1860,7 @@ extern "C" int cRider_estimateFinishTicks(void* self)
     char* s = (char*)self;
     char* sub = s + 0x6C0;
     int n = *(int*)(*(char**)(*(char**)((char*)D_004A28A8 + 0x84) + 0xC) + 0xC);
-    float rate = (func_00113130(self) - *(float*)(s + 0x4D0)) / (float)n;
+    float rate = (cRider_getProgressOrigin(self) - *(float*)(s + 0x4D0)) / (float)n;
     sVEntry00122D78* vt = *(sVEntry00122D78**)sub;
     if (rate < 30.0f - (float)vt[7].fn(sub + vt[7].delta))
     {
@@ -1871,12 +1871,12 @@ extern "C" int cRider_estimateFinishTicks(void* self)
 }
 
 //100%
-float func_00113130(void* self);
+float cRider_getProgressOrigin(void* self);
 
 extern "C" int cRider_estimateFinalScore(void* self)
 {
     int n = *(int*)(*(char**)((char*)self + 0x790) + 0x198) + 1;
-    float t = func_00113130(self) - *(float*)((char*)self + 0x4D0);
+    float t = cRider_getProgressOrigin(self) - *(float*)((char*)self + 0x4D0);
     if (t < 1.0f)
         t = 1.0f;
     float r = (float)n / t;
@@ -2285,7 +2285,7 @@ extern "C" void cRider_addVelocity(void* self, sRiderVec4_001250A8* v)
 //100%
 extern void* D_004A28A8;
 extern char* D_004A2EEC;
-extern "C" float func_001193E0(void* self);
+extern "C" float cRiderMetrix_onFinish(void* self);
 extern "C" void func_00162258(void* self);
 extern "C" void func_00238358(void* self, int a1, int a2);
 extern "C" void func_00286EA0(void* self, void* rider);
@@ -2308,7 +2308,7 @@ extern "C" void cRider_finish(char* self)
         else
             *(int*)(g + 0xA4) = 1;
     }
-    func_001193E0(*(void**)(self + 0x790));
+    cRiderMetrix_onFinish(*(void**)(self + 0x790));
     *(int*)(self + 0x478) = *(int*)(*(char**)(*(char**)((char*)D_004A28A8 + 0x84) + 0xC) + 0xC) + *(int*)(self + 0x47C);
     if (*(float*)(self + 0x470) < 0.0f) *(float*)(self + 0x470) = 0.0f;
     char* obj = self + 0x6C0;
@@ -2660,7 +2660,7 @@ struct sVEntryI_125B18 { short delta; short index; int (*fn)(void*); };
 struct sVEntryF_125B18 { short delta; short index; void (*fn)(void*, float, int); };
 
 // PORT: the unit declares (void*, int, int); the second argument is really an object pointer.
-extern "C" void func_00125B18(void* p, int a, int on)
+extern "C" void updatePadRumble(void* p, int a, int on)
 {
     float* s = (float*)p;
     void* obj = (void*)a;
@@ -2858,7 +2858,7 @@ void cPlayer_setRumbleSlide(void* self, float val)
 // PORT: cBE_getInterface__Fv is called with (be, kind) here; bind the 2-arg form to that symbol.
 void* cBE_getInterface_Fv(void* be, int kind) __asm__("cBE_getInterface__Fv");
 extern "C" int func_001474E8(void* iface, int id);
-extern "C" void func_00125B18(void* p, int a, int b);
+extern "C" void updatePadRumble(void* p, int a, int b);
 
 struct sVEntry001278E8 { short delta; short index; int (*fn)(void*); };
 
@@ -2880,7 +2880,7 @@ extern "C" void cPlayer_updateRumble(void* self)
         {
             flag = !riderInRange_1278E8(**(int**)(*(char**)((char*)D_004A28A8 + 0x84) + 0x28));
         }
-        func_00125B18(s + 0xDFC, *(int*)(s + 0xDF4), flag);
+        updatePadRumble(s + 0xDFC, *(int*)(s + 0xDF4), flag);
     }
 }
 
@@ -2889,7 +2889,7 @@ INCLUDE_ASM("ai/rider", cPlayer_buildInputCommand);
 extern "C" void* cMotionOwner_saveState(void* self);
 
 //100%
-void* func_00128660(void* self)
+void* cPlayer_saveState(void* self)
 {
     return cMotionOwner_saveState(self);
 }
@@ -2897,7 +2897,7 @@ void* func_00128660(void* self)
 extern "C" void* cMotionOwner_loadState(void* self);
 
 //100%
-void* func_00128680(void* self)
+void* cPlayer_loadState(void* self)
 {
     return cMotionOwner_loadState(self);
 }

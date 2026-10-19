@@ -806,7 +806,7 @@ done:
 //100%
 struct sReplayCache;
 extern "C" int func_002712F8(sReplayCache* self);
-extern "C" void func_0012BAF0(void* self, int* dst);
+extern "C" void cAI_getActorCharIDs(void* self, int* dst);
 extern char* D_004A28A8;
 
 struct sReplayHdr_1228 {
@@ -833,7 +833,7 @@ extern "C" void func_00271228(void* self)
     int mode = *(int*)(*(char**)(*(char**)(g + 0x84) + 0xC) + 0x7C);
     hdr->magic = 0xABCD0002;
     hdr->mode = mode;
-    func_0012BAF0(*(void**)(*(char**)(g + 0x84) + 0xC), hdr->data);
+    cAI_getActorCharIDs(*(void**)(*(char**)(g + 0x84) + 0xC), hdr->data);
     *(int*)((char*)self + 0x644) = 0;
     *(int*)((char*)self + 0x648) = 0;
     *(int*)((char*)self + 0x638) = *(int*)((char*)self + 0x638) + 1;

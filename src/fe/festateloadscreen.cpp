@@ -845,11 +845,11 @@ extern "C" int func_00279298(void* p);
 extern "C" void func_00234910(void* self);
 extern "C" void func_0012AB20(void* self);
 extern "C" void func_0012AC48(void* self);
-extern "C" void func_00128958(void* p);
-extern "C" void func_00128998(void* self, int n);
-extern "C" void func_00128A48(void* p, int a);
+extern "C" void cAI_spawnComputerRiders(void* p);
+extern "C" void cAI_spawnComputerActors(void* self, int n);
+extern "C" void cAI_setPlaceMode(void* p, int a);
 extern "C" int cAI_areRidersLoaded(void* p);
-extern "C" void func_001296F8(void* p);
+extern "C" void cAI_stepRiderInit(void* p);
 extern "C" int func_002791D8(void* self, int i);
 extern "C" int func_00278F68(void* self, int i, int a, int b);
 extern "C" int func_00279148(void* self, int i, int a);
@@ -901,26 +901,26 @@ extern "C" void func_002343B0(char* self)
             func_0012AC48(Ai_2343B0());
             *(int*)(self + 0x10) = 1;
         } else if (flag == 0) {
-            func_00128958(Ai_2343B0());
+            cAI_spawnComputerRiders(Ai_2343B0());
             if (*(int*)(Ai_2343B0() + 0x80) == 0) {
                 if (mode == 0)
-                    func_00128998(Ai_2343B0(), 0);
+                    cAI_spawnComputerActors(Ai_2343B0(), 0);
                 else
-                    func_00128998(Ai_2343B0(), 2);
+                    cAI_spawnComputerActors(Ai_2343B0(), 2);
             }
             *(int*)(Ai_2343B0() + 0x8C) = 0;
         }
-        func_00128A48(Ai_2343B0(), 0);
+        cAI_setPlaceMode(Ai_2343B0(), 0);
         if (mode == 5 || mode == 0)
-            func_00128A48(Ai_2343B0(), 1);
+            cAI_setPlaceMode(Ai_2343B0(), 1);
         else if (mode != 4)
-            func_00128A48(Ai_2343B0(), 2);
+            cAI_setPlaceMode(Ai_2343B0(), 2);
         *(int*)(self + 0x1C) = 2;
         break;
     }
     case 2:
         if (cAI_areRidersLoaded(Ai_2343B0()) == 0) {
-            func_001296F8(Ai_2343B0());
+            cAI_stepRiderInit(Ai_2343B0());
             return;
         }
         *(int*)(self + 0x1C) = 3;
@@ -974,14 +974,14 @@ extern "C" void cBE_setState(int state);
 extern "C" void cAI_setAIState(void*, int);
 void* cBEAggressionInterface_getThis();
 extern "C" void func_002790A0(void* self, int i);
-extern "C" void func_00128958(void* p);
+extern "C" void cAI_spawnComputerRiders(void* p);
 void func_001289F0(void* p);
 extern "C" void func_00128A10(void* p);
 extern "C" void func_0026F7B8(void* p);
-extern "C" void func_00128A48(void* p, int a);
+extern "C" void cAI_setPlaceMode(void* p, int a);
 extern "C" void func_00308F38(void* a);
 extern "C" void func_00308C60(void* a);
-extern "C" void func_00129160(void* p);
+extern "C" void cAI_updateRiderPoses(void* p);
 extern "C" void func_00155E58(void* p);
 extern void* D_004A2C68;
 extern void* D_004A28A4;
@@ -1023,7 +1023,7 @@ extern "C" void func_00234750(void* self)
     sRace_234750* r = &D_00535BC8_r234750;
     int mode = r->mode48;
     if (mode == 0) {
-        func_00128958(*(void**)((char*)D_004A2C68 + 0xC));
+        cAI_spawnComputerRiders(*(void**)((char*)D_004A2C68 + 0xC));
         func_001289F0(*(void**)((char*)D_004A2C68 + 0xC));
     } else {
         func_00128A10(*(void**)((char*)D_004A2C68 + 0xC));
@@ -1035,17 +1035,17 @@ extern "C" void func_00234750(void* self)
         vt[5].fn(o + vt[5].delta, 3);
         *(int*)(*(char**)((char*)D_004A2C68 + 0xC) + 0x14) = 1;
     }
-    func_00128A48(*(void**)((char*)D_004A2C68 + 0xC), 0);
+    cAI_setPlaceMode(*(void**)((char*)D_004A2C68 + 0xC), 0);
     if (mode == 5 || mode == 0)
-        func_00128A48(*(void**)((char*)D_004A2C68 + 0xC), 1);
+        cAI_setPlaceMode(*(void**)((char*)D_004A2C68 + 0xC), 1);
     else if (mode != 4)
-        func_00128A48(*(void**)((char*)D_004A2C68 + 0xC), 2);
+        cAI_setPlaceMode(*(void**)((char*)D_004A2C68 + 0xC), 2);
     func_00308F38(D_004A3DD8);
     func_00308C60(D_004A3DD8);
     (*(sRaceMan_234750**)((char*)D_004A2C68 + 0xC))->f8C = 0;
     cAI_setAIState(*(void**)((char*)D_004A2C68 + 0xC), 3);
     cBE_setState(1);
-    func_00129160(*(void**)((char*)D_004A2C68 + 0xC));
+    cAI_updateRiderPoses(*(void**)((char*)D_004A2C68 + 0xC));
     sRace_234750* r2 = &D_00535BC8_r234750;
     if (r2->flag49 != 0)
         func_00155E58(cBEAggressionInterface_getThis());

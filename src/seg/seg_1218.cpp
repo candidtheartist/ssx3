@@ -2001,10 +2001,10 @@ extern "C" int cRider_isGrounded(void*);
 extern "C" void cAirPredictor_startLaunchIntoAir(void*, sV4_7E70*, sV4_7E70*, float);
 extern "C" void cRider_enterCrash_7E70(char*, int, int, int, sInfo_7E70*) __asm__("cRider_enterCrash");
 extern "C" void func_00108388_7E70(char*, sInfo_7E70*, int) __asm__("func_00108388");
-extern "C" void func_0010E468(void*, void*);
-extern "C" void func_0010E2E8(void*, void*);
-extern "C" void func_0010E3A8(void*, void*);
-extern "C" void func_0010E228(void*, void*);
+extern "C" void cRider_onKnockoutAttack(void*, void*);
+extern "C" void cRider_onCrashBump(void*, void*);
+extern "C" void cRider_onSoftAttack(void*, void*);
+extern "C" void cRider_onSoftBump(void*, void*);
 extern float D_004A4C84_7E70 __asm__("D_004A4C84");
 extern int D_005308D0_7E70[] __asm__("D_005308D0");
 
@@ -2215,15 +2215,15 @@ extern "C" void func_00107E70(char* self, char* other, sV4_7E70* n, int flag, fl
         }
         cRider_enterCrash_7E70(self, anim, flag, 0, &info);
         if (flag)
-            func_0010E468(self, other);
+            cRider_onKnockoutAttack(self, other);
         else
-            func_0010E2E8(self, other);
+            cRider_onCrashBump(self, other);
     } else {
         func_00108388_7E70(self, &info, 0);
         if (flag)
-            func_0010E3A8(self, other);
+            cRider_onSoftAttack(self, other);
         else
-            func_0010E228(self, other);
+            cRider_onSoftBump(self, other);
     }
 }
 
@@ -2237,7 +2237,7 @@ int cRider_getMotionMode(void*);
 int cRider_getControlState_8388(void*) __asm__("cRider_getControlState__FPv");
 void cRider_setControlState_8388(void* self, int v) __asm__("cRider_setControlState__FPv");
 int AIrand();
-extern "C" void func_00131348(void*);
+extern "C" void cBoardPressControl_endPress(void*);
 extern "C" void cRiderAnimBase_play(void*, int, int, float);
 extern "C" void* func_0028B180();
 extern "C" void func_002A0E70(void*, void*, int);
@@ -2298,7 +2298,7 @@ extern "C" void func_00108388(char* self, char* info, int flag)
     if (cRider_getMotionMode(self) != 0 && cRider_getMotionMode(self) != 4)
         return;
     if (cRider_getControlState_8388(self) == 1) {
-        func_00131348(*(char**)(self + 0x77C) + 0x1D0);
+        cBoardPressControl_endPress(*(char**)(self + 0x77C) + 0x1D0);
     } else if (cRider_getControlState_8388(self) != 0 && cRider_getControlState_8388(self) != 2 && cRider_getControlState_8388(self) != 7) {
         return;
     }
@@ -2809,21 +2809,21 @@ public:
     Fn_A960 state;
 };
 
-extern "C" int func_0010D1A0(void*);
-extern "C" int func_0010DA10(void*);
-extern "C" int func_0010DBF0(void*, int*);
+extern "C" int cComputer_checkResetPath(void*);
+extern "C" int cComputer_decideBlock(void*);
+extern "C" int cComputer_decideAttack(void*, int*);
 
 extern "C" void func_0010A960(cObj_A960* self, sFlags_A960* f)
 {
     int t;
-    f->b12 = func_0010D1A0(self);
+    f->b12 = cComputer_checkResetPath(self);
     self->fE20 = 0;
-    if (func_0010DBF0(self, &t)) {
+    if (cComputer_decideAttack(self, &t)) {
         if (t)
             f->b19 = 1;
         else
             f->b18 = 1;
-    } else if (func_0010DA10(self)) {
+    } else if (cComputer_decideBlock(self)) {
         f->b19 = 1;
         f->b18 = 1;
     }
@@ -3085,14 +3085,14 @@ extern "C" void func_0010AED8(char* self, sPad_AED8* pad)
 }
 
 //100%
-extern "C" void func_00135CB0(void*, float*, float*);
-extern "C" void func_00135DB0(void*, float*, float*);
+extern "C" void cSpinControl_getSpinTimeEstimate(void*, float*, float*);
+extern "C" void cSpinControl_getFlipTimeEstimate(void*, float*, float*);
 
 extern "C" void func_0010B0E8(char* self, float t)
 {
     float a, b, c, d;
-    func_00135CB0(*(char**)(*(char**)(self + 0x18) + 0x77C) + 0x230, &a, &b);
-    func_00135DB0(*(char**)(*(char**)(self + 0x18) + 0x77C) + 0x230, &c, &d);
+    cSpinControl_getSpinTimeEstimate(*(char**)(*(char**)(self + 0x18) + 0x77C) + 0x230, &a, &b);
+    cSpinControl_getFlipTimeEstimate(*(char**)(*(char**)(self + 0x18) + 0x77C) + 0x230, &c, &d);
     int stop = 0;
     if (*(int*)(self + 0xE20) && t < 1.0f)
         stop = 1;
@@ -3190,7 +3190,7 @@ extern "C" void func_0010B590(char* self, sPad_B590* pad)
 
 //100%
 extern "C" void func_0010B750(void *arg0, int *arg1) {
-    *arg1 = (*arg1 & ~0x1000) | ((func_0010D1A0(arg0) & 1) << 0xC);
+    *arg1 = (*arg1 & ~0x1000) | ((cComputer_checkResetPath(arg0) & 1) << 0xC);
 }
 
 //100%
