@@ -546,7 +546,27 @@ extern "C" int func_0030A2E8(void* self, int id)
     return func_003A6B78(*(void**)((char*)self + 0x28C), id, 3) != -1;
 }
 
-INCLUDE_ASM("wscript/wscriptman", func_0030A310);
+//100%
+struct sEntry_A310 {
+    short type;
+    char pad[10];
+};
+// PORT: the helpers take the object as int in this unit.
+extern "C" int func_0030A310(void* self, void* obj)
+{
+    char* o = (char*)obj;
+    if (*(int*)(o + 0xC) != 0) {
+        return 1;
+    }
+    sEntry_A310* tab = *(sEntry_A310**)(*(char**)(*(char**)((char*)self + 0x28C) + 0x4) + 0x4);
+    bool isType3 = tab[*(unsigned char*)(o + 0x78)].type == 3;
+    if (isType3) {
+        if (func_0030A270(self, (int)obj) || func_0030A2E8(self, (int)obj)) {
+            return 1;
+        }
+    }
+    return 0;
+}
 
 //100% - objdiff report; single-function view differs only in a relocation name
 // script object controller: 0xC bytes of data, then the vptr
