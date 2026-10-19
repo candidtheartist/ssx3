@@ -3404,7 +3404,45 @@ void func_003E3020(int arg0, int arg1) {
 
 INCLUDE_ASM("ealib/seg_2DCAE8", func_003E3098);
 
-INCLUDE_ASM("ealib/seg_2DCAE8", func_003E3208);
+//100%
+extern int func_003E3098_3208(char *, char *, int *) __asm__("func_003E3098");
+extern int func_003E4508_3208(char *, int, int *) __asm__("func_003E4508");
+extern int func_00427D60_3208(char *, int) __asm__("func_00427D60");
+
+int func_003E3208_impl(char *name, int flags, int *out) __asm__("func_003E3208");
+int func_003E3208_impl(char *name, int flags, int *out) {
+    char buf[0x100];
+    int loc;
+    int fl;
+    int fd;
+    func_003E3098_3208(name, buf, &loc);
+    if (loc == 1) {
+        if (func_003E4508_3208(buf, flags, out) == 0) {
+            return 0;
+        }
+        *out = *out | 0x1000000;
+        return 1;
+    }
+    if (loc == 2) {
+        switch ((unsigned)flags & 7) {
+        case 2: fl = 0x203; break;
+        case 6: fl = 0x603; break;
+        case 0: fl = 0x103; break;
+        case 1: fl = 1; break;
+        default:
+            *out = -1;
+            return 0;
+        }
+        fd = func_00427D60_3208(buf, fl);
+        *out = fd;
+        if (fd >= 0) {
+            *out = fd | (loc << 24);
+            return 1;
+        }
+        *out = 0;
+    }
+    return 0;
+}
 
 //100%
 // PORT: PS2-only inline asm; needs a C fallback off-PS2.
