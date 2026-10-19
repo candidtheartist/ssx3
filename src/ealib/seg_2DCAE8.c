@@ -3887,7 +3887,65 @@ void func_003E5098(int arg0, int arg1, int arg2, int arg3, int arg4) {
     func_003E50C8(arg0, arg1, 0, arg2, arg3, arg4);
 }
 
-INCLUDE_ASM("ealib/seg_2DCAE8", func_003E50C8);
+//100%
+// PORT: PS2-only inline asm; needs a C fallback off-PS2.
+extern int func_00423BA0(void *);
+extern void func_00423BC0(int, int);
+extern int D_004A30F0;
+
+struct sReq_50C8 {
+    int w0;
+    int a;
+    int b;
+    int c;
+    int *tbl;
+    int kind;
+    int more[4];
+};
+
+int func_003E50C8_a(int *self, int arg1, int arg2, int arg3, int arg4, int arg5) __asm__("func_003E50C8");
+int func_003E50C8_a(int *self, int arg1, int arg2, int arg3, int arg4, int arg5) {
+    struct sReq_50C8 req;
+    int r;
+    int kind;
+
+    switch (arg5) {
+    case 0x61:
+        kind = 0x61;
+        break;
+    case 0x62:
+        kind = 0x62;
+        break;
+    case 0x63:
+        kind = 0x63;
+        break;
+    case 0x65:
+        kind = 0x65;
+        break;
+    case 0x66:
+        kind = 0x66;
+        break;
+    case 0x67:
+        kind = 0x67;
+        break;
+    default:
+        kind = 0x64;
+        break;
+    }
+    req.a = arg1;
+    req.b = arg3;
+    req.c = arg4;
+    req.kind = kind;
+    req.tbl = &D_004A30F0;
+    r = func_00423BA0(&req);
+    self[1] = r;
+    if (r != 0) {
+        self[0] = 0x50533254;
+        func_00423BC0(r, arg2);
+        return 1;
+    }
+    return 0;
+}
 
 //100%
 // PORT: PS2-only inline asm; needs a C fallback off-PS2.
