@@ -680,7 +680,200 @@ extern "C" void func_001FC768(void* self)
     func_002A31C0(func_0028B180());
 }
 
-INCLUDE_ASM("fe/ovstatepause", func_001FC878);
+//100%
+// self is a pause-menu UI state (no header yet): +0x10 its UI engine, +0x40 its screen.
+int GetHashValue32(char* str);
+struct cUIText;
+void cUIText_setUnicodeStringByID(cUIText* text, int id);
+void cUIText_setAsciiString(cUIText* text, const char* s);
+extern "C" void* cBE_getBE();
+// PORT: cBE_getInterface__Fv is called with (be, kind) here; bind the 2-arg form to that symbol.
+void* cBE_getInterface_Fv(void* be, int kind) __asm__("cBE_getInterface__Fv");
+extern "C" void* cUIEngine_addScreenByHashName(void* engine, void* owner, int hash, int a3);
+extern "C" void cUIScreen_playFrame(void* screen, int a1, int a2);
+extern "C" void* cUIScreen_getObjectByHashName(void* self, int hash);
+extern "C" void cUIState_showObjSafe(void* self, char* name);
+extern "C" void cUIState_hideObjSafe(void* self, char* name);
+extern "C" void func_0020A380(void* self);
+extern "C" char* func_00144BF0_p3(void* iface) __asm__("func_00144BF0");
+extern "C" int func_00146E98(void* iface, int idx);
+extern "C" char* func_00146F88(void* iface, int idx);
+extern "C" char* func_0014EE58_p3(void* iface, int id) __asm__("func_0014EE58");
+extern "C" void* func_00155130(void* iface, int idx);
+extern "C" char* func_0020A1A8_p3(void* p) __asm__("func_0020A1A8");
+extern "C" void func_002C2540_p3(unsigned short* dst, char* src) __asm__("func_002C2540");
+extern "C" int func_002C27C0_p3(unsigned short* buf, unsigned short* fmt, ...) __asm__("func_002C27C0");
+extern "C" void func_002C26D0_p3(unsigned short* dst, unsigned short* fmt, ...) __asm__("func_002C26D0");
+extern "C" void func_003A0E90(void* obj, unsigned short* s);
+extern "C" char* strcpy(char* dst, const char* src);
+extern "C" int sprintf(char* buf, const char* fmt, ...);
+extern void* D_004A28A8;
+extern char D_00535BC8[];
+extern char D_0046FE08[];
+extern char D_0046E378[];
+extern char D_004A21B0[];
+extern char D_0046FC08[];
+extern char D_004A21B8[];
+extern char D_0046E398[];
+extern char D_0046E3A8[];
+extern char D_0046E3C0[];
+extern char D_0046E548[];
+extern unsigned short D_0046E558_p3[] __asm__("D_0046E558");
+extern unsigned short D_004A2140_p3[] __asm__("D_004A2140");
+extern char D_004A2520[];
+extern char D_004A2528[];
+extern char D_004A2530[];
+extern char D_004A2538[];
+extern char D_0046FD38[];
+extern char D_0046FD58[];
+extern char D_0046FE18[];
+extern char D_004A2540[];
+extern char D_0046FE28[];
+extern char D_0046E888[];
+extern char D_0046FE38[];
+extern char D_0046FE50[];
+extern char D_0046FE70[];
+extern char D_0046FE80[];
+extern char D_0046FE98[];
+extern char D_0046FDE8[];
+extern char D_004A2138[];
+
+struct sVE_1FC878 { short delta; short index; unsigned short* (*fn)(void*, int); };
+
+static inline unsigned short* lookupString_1FC878(char* name)
+{
+    char* g = *(char**)((char*)D_004A28A8 + 0x8C);
+    sVE_1FC878* vt = *(sVE_1FC878**)(g + 4);
+    char* t = g + vt[4].delta;
+    return vt[4].fn(t, GetHashValue32(name));
+}
+
+static inline int getField_1FC878(signed char* g, int off)
+{
+    return g[off];
+}
+
+static inline bool isField_1FC878(signed char* g, int off, int v)
+{
+    return g[off] == v;
+}
+
+static inline void* getObj_1FC878(void* self, char* name)
+{
+    return cUIScreen_getObjectByHashName(*(void**)((char*)self + 0x40), GetHashValue32(name));
+}
+
+extern "C" void func_001FC878(void* self)
+{
+    unsigned short title[0x38];
+    unsigned short line[0x68];
+    char rider[0x20];
+    unsigned short label[0x130];
+    char num[0x20];
+    char* s = (char*)self;
+    void* eng = *(void**)(s + 0x10);
+    void* scr = cUIEngine_addScreenByHashName(eng, self, GetHashValue32(D_0046FE08), 0);
+    *(void**)(s + 0x40) = scr;
+    if (scr != 0)
+        cUIScreen_playFrame(scr, 0, 0);
+    eng = *(void**)(s + 0x10);
+    scr = cUIEngine_addScreenByHashName(eng, self, GetHashValue32(D_0046E378), 0);
+    if (scr != 0)
+        cUIScreen_playFrame(scr, 0, 0);
+    func_0020A380(self);
+    signed char* gs = (signed char*)D_00535BC8;
+    void* iface1 = cBE_getInterface_Fv(cBE_getBE(), 1);
+    void* iface0 = cBE_getInterface_Fv(cBE_getBE(), 0);
+    void* iface2 = cBE_getInterface_Fv(cBE_getBE(), 2);
+    void* iface8 = cBE_getInterface_Fv(cBE_getBE(), 8);
+    int mode4A = getField_1FC878(gs, 0x4A);
+    int mode48 = getField_1FC878(gs, 0x48);
+    void* o = getObj_1FC878(self, D_004A21B0);
+    cUIText_setUnicodeStringByID((cUIText*)o, GetHashValue32(D_0046FC08));
+    o = getObj_1FC878(self, D_004A21B8);
+    func_002C2540_p3(title, func_00144BF0_p3(iface0));
+    unsigned short* str = 0;
+    switch (getField_1FC878(gs, 0x48))
+    {
+    case 5:
+        str = lookupString_1FC878(D_0046E548);
+        break;
+    case 1:
+        str = lookupString_1FC878(D_0046E398);
+        break;
+    case 2:
+        str = lookupString_1FC878(D_0046E3A8);
+        break;
+    case 3:
+        str = lookupString_1FC878(D_0046E3C0);
+        break;
+    }
+    unsigned short* lineFmt = D_004A2140_p3;
+    if (mode48 == 6)
+        func_002C27C0_p3(line, D_0046E558_p3, title, str);
+    else
+        func_002C27C0_p3(line, lineFmt, title);
+    func_003A0E90(o, line);
+    o = getObj_1FC878(self, D_004A2520);
+    if (getField_1FC878((signed char*)D_00535BC8, 0x49) == 2)
+        cUIText_setAsciiString((cUIText*)o, func_00146F88(iface1, 0));
+    else
+        cUIText_setAsciiString((cUIText*)o, func_0014EE58_p3(iface2, func_00146E98(iface1, 0)));
+    cUIText* status = (cUIText*)getObj_1FC878(self, D_004A2528);
+    if (mode48 >= 1 && mode48 <= 3)
+    {
+        cUIState_showObjSafe(self, D_004A2530);
+        cUIState_showObjSafe(self, D_004A2538);
+        o = getObj_1FC878(self, D_004A2530);
+        if (mode48 == 1)
+            cUIText_setUnicodeStringByID((cUIText*)o, GetHashValue32(D_0046FD38));
+        else
+            cUIText_setUnicodeStringByID((cUIText*)o, GetHashValue32(D_0046FD58));
+    }
+    else
+    {
+        cUIState_hideObjSafe(self, D_004A2530);
+        cUIState_hideObjSafe(self, D_004A2538);
+    }
+    o = getObj_1FC878(self, D_004A21B0);
+    cUIText_setUnicodeStringByID((cUIText*)o, GetHashValue32(D_0046FC08));
+    if (getField_1FC878((signed char*)D_00535BC8, 0x49) == 2)
+        strcpy(rider, func_00146F88(iface1, 1));
+    else
+        strcpy(rider, func_0014EE58_p3(iface2, func_00146E98(iface1, 1)));
+    unsigned short* fmt = lookupString_1FC878(D_0046FE18);
+    func_002C26D0_p3(label, fmt, rider);
+    func_003A0E90(getObj_1FC878(self, D_004A2540), label);
+    if (mode48 >= 2 && mode48 <= 3)
+    {
+        cUIState_hideObjSafe(self, D_0046FE28);
+    }
+    else if (mode48 >= 5 && mode48 <= 6)
+    {
+        cUIState_hideObjSafe(self, D_0046E888);
+        cUIState_hideObjSafe(self, D_0046FE28);
+    }
+    if (mode4A == 4)
+        cUIText_setUnicodeStringByID(status, GetHashValue32(D_0046FE38));
+    else
+        cUIText_setUnicodeStringByID(status, GetHashValue32(D_0046FE50));
+    o = getObj_1FC878(self, D_0046FE70);
+    if (mode4A == 4 || mode4A == 0)
+    {
+        cUIText_setUnicodeStringByID((cUIText*)o, GetHashValue32(D_0046FE80));
+        void* p = func_00155130(iface8, 0);
+        o = getObj_1FC878(self, D_0046FDE8);
+        cUIText_setAsciiString((cUIText*)o, func_0020A1A8_p3(p));
+    }
+    else
+    {
+        cUIText_setUnicodeStringByID((cUIText*)o, GetHashValue32(D_0046FE98));
+        void* p = func_00155130(iface8, 0);
+        o = getObj_1FC878(self, D_0046FDE8);
+        sprintf(num, D_004A2138, p);
+        cUIText_setAsciiString((cUIText*)o, num);
+    }
+}
 
 //100%
 extern "C" void* cBE_getBE();
