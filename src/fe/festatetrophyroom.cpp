@@ -609,7 +609,20 @@ extern "C" void func_001D4EA8(void* self, void* item, unsigned int msg)
     }
 }
 
-INCLUDE_ASM("fe/festatetrophyroom", func_001D4F68);
+//100%
+// Key filter: keys 8 and 9 return 0x100, every other key 0x101.
+extern "C" int func_001D4F68(void* self, int a1, unsigned int key)
+{
+    int r = 0x101;
+    if (key < 10) {
+        if (key < 8) {
+            r = 0x101;
+        } else {
+            return 0x100;
+        }
+    }
+    return r;
+}
 
 //100%
 extern "C" void* cBE_getBE();
