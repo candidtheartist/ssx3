@@ -143,7 +143,7 @@ static inline void vu0SubWM(sVec4WM& dst, const sVec4WM& a, const sVec4WM& b)
         : "m"(a), "m"(b));
 }
 
-extern "C" void func_00136D40(char* self, sVec4WM* a, sVec4WM* b, sVecPairWM* c)
+extern "C" void cWipeoutMotion_detachBoard(char* self, sVec4WM* a, sVec4WM* b, sVecPairWM* c)
 {
     *(sVecPairWM*)(*(char**)(self + 0x40) + 0x130) = *c;
     *(int*)(*(char**)(self + 0x40) + 0x150) = 1;
@@ -178,7 +178,7 @@ static inline sVec4WM vu0ScaleMemWM_136DE0(const sVec4WM& v, float s)
     return r;
 }
 
-extern "C" void func_00136DE0(char* self, sVec4WM* a, sVec4WM* b)
+extern "C" void cWipeoutMotion_setVelocity(char* self, sVec4WM* a, sVec4WM* b)
 {
     *(sVec4WM*)(self + 0x30) = *b;
     *(sVec4WM*)(*(char**)(self + 0x40) + 0x1E0) = *a;
@@ -199,43 +199,43 @@ extern "C" void func_00136DE0(char* self, sVec4WM* a, sVec4WM* b)
 }
 
 //100%
-extern "C" void func_00136F30();
-extern "C" void func_00137D18(void*);
-extern "C" void func_00137750(void*);
+extern "C" void cWipeoutMotion_updateBoard();
+extern "C" void cWipeoutMotion_updateSliding(void*);
+extern "C" void cWipeoutMotion_updateAirborne(void*);
 
-extern "C" void func_00136E98(int* self)
+extern "C" void cWipeoutMotion_update(int* self)
 {
-    func_00136F30();
+    cWipeoutMotion_updateBoard();
     if (*self == 0)
     {
-        func_00137D18(self);
+        cWipeoutMotion_updateSliding(self);
     }
     else
     {
-        func_00137750(self);
+        cWipeoutMotion_updateAirborne(self);
     }
 }
 
 //100%
 extern "C" void func_00137138();
-extern "C" void func_00138640(void*);
-extern "C" void func_00137860(void*);
+extern "C" void cWipeoutMotion_collideSliding(void*);
+extern "C" void cWipeoutMotion_collideAirborne(void*);
 
-extern "C" void func_00136EE0(int* self)
+extern "C" void cWipeoutMotion_postUpdate(int* self)
 {
     func_00137138();
     if (*self == 0)
     {
-        func_00138640(self);
+        cWipeoutMotion_collideSliding(self);
     }
     else
     {
-        func_00137860(self);
+        cWipeoutMotion_collideAirborne(self);
     }
 }
 
 //100%
-void func_00136F28(void* self)
+void cWipeoutMotion_loseFocus(void* self)
 {
 }
 
@@ -372,7 +372,7 @@ static inline void vu0NormalizeEq_6F30(sVec4_6F30& v)
         : "memory");
 }
 
-extern "C" void func_00136F30(sWipeout_6F30* self)
+extern "C" void cWipeoutMotion_updateBoard(sWipeout_6F30* self)
 {
     if (self->rider->active == 0) {
         return;
@@ -488,8 +488,8 @@ extern "C" void func_00137550(char* self);
 
 //100%
 extern "C" void cRider_updateOrientationImplicit(void*);
-extern "C" void func_00113648(void* ap, void* pos, void* vel, float dt);
-extern "C" void func_00121AA0(void* rider, void* a, void* b, float x, float y);
+extern "C" void cAirPredictor_update(void* ap, void* pos, void* vel, float dt);
+extern "C" void cRider_approachOrientation(void* rider, void* a, void* b, float x, float y);
 
 struct sVec4W7 {
     float x, y, z, w;
@@ -509,12 +509,12 @@ static inline void vu0ScaleEqW7(sVec4W7& v, float s)
         : "m"(v), "f"(s));
 }
 
-extern "C" void func_00137750(void* p)
+extern "C" void cWipeoutMotion_updateAirborne(void* p)
 {
     char* self = (char*)p;
     char* r = *(char**)(self + 0x40);
     float dt = *(float*)(r + 0x300) * 0.01666666753590107f;
-    func_00113648(*(void**)(r + 0x788), r + 0x110, r + 0x1E0, dt);
+    cAirPredictor_update(*(void**)(r + 0x788), r + 0x110, r + 0x1E0, dt);
     int st = *(int*)(*(char**)(*(char**)(self + 0x40) + 0x788) + 0xAC);
     int ok = 0;
     if (st == 1 || st == 3) ok = 1;
@@ -530,17 +530,17 @@ extern "C" void func_00137750(void* p)
             x *= 59.999996185302734f;
         char* r3 = *(char**)(self + 0x40);
         float k = 6.632251739501953f;
-        func_00121AA0(r3, *(char**)(r3 + 0x788) + 0x20, *(char**)(r3 + 0x788) + 0x10, x, *(float*)(r3 + 0x300) * k);
+        cRider_approachOrientation(r3, *(char**)(r3 + 0x788) + 0x20, *(char**)(r3 + 0x788) + 0x10, x, *(float*)(r3 + 0x300) * k);
     }
     vu0ScaleEqW7(*(sVec4W7*)(self + 0x30), 1.0f - dt * 1.5f);
     cRider_updateOrientationImplicit(*(void**)(self + 0x40));
 }
 
-INCLUDE_ASM("ai/motion/wipeoutmotion", func_00137860);
+INCLUDE_ASM("ai/motion/wipeoutmotion", cWipeoutMotion_collideAirborne);
 
-INCLUDE_ASM("ai/motion/wipeoutmotion", func_00137D18);
+INCLUDE_ASM("ai/motion/wipeoutmotion", cWipeoutMotion_updateSliding);
 
-INCLUDE_ASM("ai/motion/wipeoutmotion", func_00138640);
+INCLUDE_ASM("ai/motion/wipeoutmotion", cWipeoutMotion_collideSliding);
 
 //100%
 extern "C" void* func_0032E100(void* seg, const sVec4WG& a, const sVec4WG& b, int n, float r);
@@ -593,7 +593,7 @@ static inline sVec4WG vu0Add_138960(const sVec4WG& a, const sVec4WG& b)
 
 struct sVEntry_138960 { short delta; short index; void (*fn)(void*, void*); };
 
-extern "C" float func_00138960(void* self, char* hit, sVec4WG* dir)
+extern "C" float cWipeoutMotion_probeTerrain(void* self, char* hit, sVec4WG* dir)
 {
     char* rider = *(char**)((char*)self + 0x40);
     char seg[0xB0];
@@ -636,7 +636,7 @@ struct sVEntry00138AD8 {
     void (*fn)(void*, void*, int);
 };
 
-extern "C" void func_00138AD8(void* self, void* obj)
+extern "C" void cWipeoutMotion_writeToReplayFrame(void* self, void* obj)
 {
     sVEntry00138AD8* vt = *(sVEntry00138AD8**)obj;
     vt[1].fn((char*)obj + vt[1].delta, self, 0x40);
@@ -649,7 +649,7 @@ struct sVEntry00138B10 {
     void (*fn)(void*, void*, int);
 };
 
-extern "C" void func_00138B10(void* self, void* obj)
+extern "C" void cWipeoutMotion_readFromReplayFrame(void* self, void* obj)
 {
     sVEntry00138B10* vt = *(sVEntry00138B10**)obj;
     vt[2].fn((char*)obj + vt[2].delta, self, 0x40);

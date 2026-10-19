@@ -232,7 +232,36 @@ extern "C" short func_002C2338(unsigned char c)
     return (v << 8) | (v >> 8);
 }
 
-INCLUDE_ASM("worldpainter/quadtree", func_002C2430);
+//100%
+extern unsigned char D_00445998[];
+// Shift-JIS full-width range table: {first code, ASCII of first code} per range (digits, upper, lower case).
+extern unsigned char D_004A3890[6];
+extern unsigned char D_004A3891[5];
+
+// Converts a Shift-JIS double-byte character (lead byte in the low byte) to ASCII; 0 if it has none.
+// PORT: declared earlier in the unit as char(short); defined under its own name bound to the symbol.
+extern "C" unsigned char func_002C2430_impl(unsigned int code) __asm__("func_002C2430");
+extern "C" unsigned char func_002C2430_impl(unsigned int code)
+{
+    unsigned int hi = (code >> 8) & 0xFF;
+    int i = 0;
+    unsigned char* ascii = D_004A3891;
+    code &= 0xFF;
+    if (code == 0x81)
+        return D_00445998[hi - 0x40];
+    if (code == 0x82) {
+        if (hi - 0x4F < 10)
+            i = 0;
+        else if (hi - 0x60 < 26)
+            i = 1;
+        else if ((unsigned char)(hi + 0x7F) < 26)
+            i = 2;
+        else
+            i = 0;
+        return ascii[i * 2] + (hi - D_004A3890[i * 2]);
+    }
+    return 0;
+}
 
 //100%
 extern "C" int func_002C24D0(unsigned short* s)
@@ -411,11 +440,11 @@ extern "C" void* func_002C28C0(void* self, int size, int big)
     return operator new[](size, D_00486030, big ? 0x100 : 0, 0);
 }
 
-extern "C" int func_002523A8_result(void* p) __asm__("func_002523A8");
+extern "C" int MEM_free_result(void* p) __asm__("MEM_free");
 
 extern "C" int func_002C28F8(void* p)
 {
-    return func_002523A8_result(p) != 0;
+    return MEM_free_result(p) != 0;
 }
 
 extern "C" void func_003E6574(void* dst, const void* src, int size);
@@ -426,7 +455,7 @@ extern "C" void* func_002C2918(void* dst, const void* src, int size)
     return dst;
 }
 
-extern void* D_00538B00[16];
+extern void* gMemMutex[16];
 extern "C" void MUTEX_lock_p(void* m) __asm__("MUTEX_lock");
 extern "C" void MUTEX_unlock_p(void* m) __asm__("MUTEX_unlock");
 extern "C" void* cMemMan_internalResizeBlock(void* p, int size);
@@ -440,9 +469,9 @@ extern "C" void* func_002C2940(void* ptr, void* self, int size, int big)
         func_002C28F8(ptr);
         return 0;
     }
-    MUTEX_lock_p(D_00538B00);
+    MUTEX_lock_p(gMemMutex);
     ptr = cMemMan_internalResizeBlock(ptr, size);
-    MUTEX_unlock_p(D_00538B00);
+    MUTEX_unlock_p(gMemMutex);
     return ptr;
 }
 
@@ -470,20 +499,20 @@ extern "C" void func_002C2B08()
 }
 
 extern char D_004A3898[];
-extern "C" void func_003E5698(void* p);
+extern "C" void MUTEX_init(void* p);
 
 extern "C" void* func_002C2B28()
 {
     void* p = func_002C28C0(D_004A3898, 0x10, 0);
-    func_003E5698(p);
+    MUTEX_init(p);
     return p;
 }
 
-extern "C" void func_003E56E0(void* p);
+extern "C" void MUTEX_destroy(void* p);
 
 extern "C" void func_002C2B68(void* p)
 {
-    func_003E56E0(p);
+    MUTEX_destroy(p);
     func_002C28F8(p);
 }
 
@@ -512,7 +541,7 @@ extern "C" void* func_002C2D30(void* self, int size, int big)
 
 extern "C" int func_002C2D68(void* p)
 {
-    return func_002523A8_result(p) != 0;
+    return MEM_free_result(p) != 0;
 }
 
 extern "C" void* func_002C2D88(void* dst, const void* src, int size)
@@ -530,9 +559,9 @@ extern "C" void* func_002C2DB0(void* ptr, void* self, int size, int big)
         func_002C2D68(ptr);
         return 0;
     }
-    MUTEX_lock_p(D_00538B00);
+    MUTEX_lock_p(gMemMutex);
     ptr = cMemMan_internalResizeBlock(ptr, size);
-    MUTEX_unlock_p(D_00538B00);
+    MUTEX_unlock_p(gMemMutex);
     return ptr;
 }
 
@@ -590,7 +619,7 @@ extern "C" void* func_002C3FA8(void* self)
 
 //100%
 void operator_delete(int* ptr);
-extern "C" void func_002523A8(void* p);
+extern "C" void MEM_free(void* p);
 extern "C" void func_002C6360(void* self);
 extern void* D_00486F78[];
 extern void* D_004871E8[];
@@ -601,7 +630,7 @@ extern "C" void func_002C3FE0(void* self, int flags)
     func_002C6360(self);
     void* p = *(void**)((char*)self + 0x30);
     if (p != 0) {
-        func_002523A8(p);
+        MEM_free(p);
     }
     *(void***)self = D_004871E8;
     if (flags & 1) {
@@ -1055,7 +1084,7 @@ extern "C" void* func_002C48C0(void* selfp, int st)
     case 1:
         self->ports[self->port].status = D_004A3940;
         if (self->buf != 0) {
-            func_002523A8(self->buf);
+            MEM_free(self->buf);
             self->buf = 0;
         }
         if (self->fd >= 0) {
@@ -1121,7 +1150,7 @@ extern "C" void* func_002C48C0(void* selfp, int st)
     case 48: {
         char buf[0x40];
         if (self->buf != 0) {
-            func_002523A8(self->buf);
+            MEM_free(self->buf);
             self->buf = 0;
         }
         int i = self->state == 0x2C ? 1 : self->state == 0x30 ? 2 : 0;
@@ -1155,7 +1184,7 @@ extern "C" void* func_002C48C0(void* selfp, int st)
     case 47:
     case 51:
         if (self->buf != 0) {
-            func_002523A8(self->buf);
+            MEM_free(self->buf);
             self->buf = 0;
         }
         D_004A3940 = func_00409E70(self->fd);
@@ -2834,13 +2863,13 @@ extern "C" void func_002C6D18(void* self)
 
 //100%
 void operator_delete(int* ptr);
-extern "C" void func_002523A8(void* p);
+extern "C" void MEM_free(void* p);
 
 extern "C" void func_002C6D70(void* self, int flags)
 {
     void* p = *(void**)((char*)self + 0x4);
     if (p != 0) {
-        func_002523A8(p);
+        MEM_free(p);
     }
     if (flags & 1) {
         operator_delete((int*)self);

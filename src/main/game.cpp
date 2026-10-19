@@ -516,7 +516,7 @@ extern "C" void func_0022D668(char* self, int arg)
 extern "C" void* cBE_getBE();
 void* cBE_getInterface_Fv(void* be, int kind) __asm__("cBE_getInterface__Fv");
 extern "C" void cBE_setState(int state);
-extern "C" void func_0012B180(void* riders);
+extern "C" void cAI_commitRunStats(void* riders);
 extern "C" void cBENewRaceInterface_setGameMode(void* self, int mode);
 extern "C" void cBENewRaceInterface_setGameEvent(void* self, int evt);
 extern "C" void cGameModeMan_initGameMode(void* self, int mode);
@@ -558,7 +558,7 @@ extern "C" void func_0022D6C8(char* self, int mode)
     if (*(int*)(game + 0x214) != 4) {
         return;
     }
-    func_0012B180(*(void**)(game + 0xC));
+    cAI_commitRunStats(*(void**)(game + 0xC));
     char* g = (char*)D_004A28A8;
     *(int*)(*(char**)(*(char**)(g + 0x84) + 0xC) + 0xC) = 0;
     if ((unsigned int)(*(int*)(*(char**)(*(char**)(g + 0x84) + 0x78) + 0x1BC) - 0xE) < 3) {

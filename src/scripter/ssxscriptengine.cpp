@@ -368,12 +368,51 @@ extern "C" int func_00278AD0(void* self, int key)
     return r;
 }
 
-INCLUDE_ASM("scripter/ssxscriptengine", func_00278B98);
+//100%
+// PORT: cBE_getInterface__Fv is called with (be, kind) here; bind the 2-arg form to that symbol.
+extern "C" void* cBE_getBE();
+void* cBE_getInterface_Fv(void* be, int kind) __asm__("cBE_getInterface__Fv");
+extern "C" int* func_00144BC0(void* iface);
+
+// Minimal view of cBXString; the members are bound to the game's (unmangled) symbols.
+// PORT: asm labels are not accepted on destructors, so the dtor forwards to the out-of-line one (in-charge flag 2).
+struct sBXStr_8B98;
+extern "C" void cBXString_dtor_8B98(sBXStr_8B98* self, int flags) __asm__("cBXString__cBXString");
+
+struct sBXStr_8B98 {
+    char* p;
+    int pad[3];
+    sBXStr_8B98(const char* s) __asm__("cBXString_cBXString2");
+    ~sBXStr_8B98() { cBXString_dtor_8B98(this, 2); }
+    sBXStr_8B98& operator=(const sBXStr_8B98& s) __asm__("cBXString_operatorE");
+};
+sBXStr_8B98 operator+(const char* a, const sBXStr_8B98& b) __asm__("func_003186D0");
+sBXStr_8B98 operator+(const sBXStr_8B98& a, const char* b) __asm__("func_00318630");
+extern "C" void* func_003DF690_8B98(const char* name, int flags) __asm__("func_003DF690");
+extern "C" void func_0027B370(void* self, int slot, const char* name, int flags, int key, int a, int b);
+extern const char D_00481C08[];
+extern const char D_004A34B8[];
+extern const char D_00481C38[];
+extern const char D_004A34C0[];
+
+// Loads the current profile's script file (counting it if found), then queues the profile's second script.
+extern "C" void func_00278B98(char* self)
+{
+    sBXStr_8B98 name((char*)func_00144BC0(cBE_getInterface_Fv(cBE_getBE(), 0)) + 0x34);
+    sBXStr_8B98 path = D_00481C08 + name + D_004A34B8;
+    void* h = func_003DF690_8B98(path.p, 0);
+    *(void**)(self + 0x538) = h;
+    if (h != 0) {
+        *(int*)(self + 0x620) += 1;
+    }
+    path = D_00481C38 + name + D_004A34C0;
+    func_0027B370(self, 1, path.p, 0, -1, 0, 0);
+}
 
 //100%
 extern "C" void func_003DFAF0(void* file);
 extern "C" int ASYNCFILE_release(void* file, int a, int b);
-extern "C" void* func_002523A8(void* self);
+extern "C" void* MEM_free(void* self);
 extern "C" void func_0027B410(void* self, int idx);
 
 extern "C" void func_00278CD8(void* self)
@@ -385,7 +424,7 @@ extern "C" void func_00278CD8(void* self)
     }
     func_0027B410(self, 1);
     if (*(void**)((char*)self + 0x53C) != 0) {
-        func_002523A8(*(void**)((char*)self + 0x53C));
+        MEM_free(*(void**)((char*)self + 0x53C));
     }
     *(void**)((char*)self + 0x538) = 0;
     *(void**)((char*)self + 0x53C) = 0;
@@ -860,7 +899,89 @@ extern "C" void func_002799E0(void* self, void* obj, int a2, int type, int id)
     }
 }
 
-INCLUDE_ASM("scripter/ssxscriptengine", func_00279A70);
+//100%
+unsigned int BXrand();
+unsigned char func_002743C8(void* self);
+int func_00274388(void* self);
+int func_0027C958(void* self);
+// PORT: func_0027C960 forwards (self, index) to func_002742E0; the unit declares it with one arg.
+void* func_0027C960_9A70(void* self, int i) __asm__("func_0027C960__FPv");
+// PORT: callers elsewhere declare func_0027BDB8 with two args; it takes the three player slots too.
+extern "C" void func_0027BDB8_9A70(void* self, int* flags, int p0, int p1, int p2) __asm__("func_0027BDB8");
+extern "C" void* func_00274C20(void* self, int i);
+extern "C" void func_00273A60(void* self, int idx);
+extern int D_00482608[];
+
+struct sScriptHdr_9A70 {
+    char pad_0x0;
+    unsigned char numEvents;        // 0x1
+};
+
+struct sScript_9A70 {
+    char pad_0x0[0x10];
+    sScriptHdr_9A70* hdr;           // 0x10
+};
+
+struct sScriptOpt_9A70 {
+    signed char slot;               // 0x0
+    char pad_0x1;
+    short mask;                     // 0x2
+};
+
+struct sScriptCount_9A70 {
+    int count;
+    int pad[2];
+};
+
+// Picks a random option for every choice event of a script, honouring the per-slot team flags.
+extern "C" void func_00279A70(void* self, sScript_9A70* script, int idx, int* players)
+{
+    int flags[21];
+    int cands[32];
+    unsigned int all = 0;
+    int i;
+    func_0027BDB8_9A70(self, flags, players[0], players[1], players[2]);
+    {
+        int j;
+        for (j = 0; j < 21; j++)
+            all |= flags[j];
+    }
+    for (i = 0; i < script->hdr->numEvents; i++) {
+        void* ev = func_00274C20(script, i);
+        if (func_002743C8(ev) == 5) {
+            int cnt = func_00274388(ev);
+            if (cnt >= 2) {
+                int m = 0;
+                int k;
+                for (k = 0; k < cnt; k++) {
+                    sScriptOpt_9A70* opt = (sScriptOpt_9A70*)func_0027C960_9A70(ev, k);
+                    int slot = D_00482608[opt->slot];
+                    if (slot >= 0) {
+                        if (opt->mask == 0 || (opt->mask & flags[slot]) != 0)
+                            cands[m++] = k;
+                    } else {
+                        if (opt->mask == 0 || (opt->mask & all) != 0)
+                            cands[m++] = k;
+                    }
+                }
+                if (m > 0) {
+                    func_00273A60(ev, cands[BXrand() % m]);
+                    sScriptOpt_9A70* opt = (sScriptOpt_9A70*)func_0027C958(ev);
+                    int slot = D_00482608[opt->slot];
+                    if (slot >= 0) {
+                        all &= ~flags[slot];
+                        flags[slot] = 0;
+                    }
+                }
+            }
+        } else {
+            int cnt = func_00274388(ev);
+            if (cnt >= 2)
+                func_00273A60(ev, BXrand() % cnt);
+        }
+    }
+    (*(sScriptCount_9A70**)((char*)self + 0x530))[idx].count++;
+}
 
 //100%
 void func_0027BD90(void*, void*);
@@ -2304,7 +2425,7 @@ void func_0027BD90(void* self, void* a1)
 }
 
 //100%
-extern "C" int func_00123128(void* rider);
+extern "C" int cRider_getCharacterID(void* rider);
 extern int D_00481BB0[];
 
 struct sRider_BDB8 {
@@ -2336,37 +2457,37 @@ extern "C" void func_0027BDB8_def(void* self, int* out, int a, int b, int c)
         switch (i) {
         case 0:
             if (a >= 0) {
-                out[i] = D_00481BB0[func_00123128(mgr->riders[a])];
+                out[i] = D_00481BB0[cRider_getCharacterID(mgr->riders[a])];
             }
             break;
         case 1:
             if (b >= 0) {
-                out[i] = D_00481BB0[func_00123128(mgr->riders[b])];
+                out[i] = D_00481BB0[cRider_getCharacterID(mgr->riders[b])];
             }
             break;
         case 2:
             if (c >= 0) {
-                out[i] = D_00481BB0[func_00123128(mgr->riders[c])];
+                out[i] = D_00481BB0[cRider_getCharacterID(mgr->riders[c])];
             }
             break;
         case 3: case 4:
             if (i - 3 < nA) {
-                out[i] = D_00481BB0[func_00123128(mgr->groupA[i - 3]->rider)];
+                out[i] = D_00481BB0[cRider_getCharacterID(mgr->groupA[i - 3]->rider)];
             }
             break;
         case 5: case 6: case 7: case 8: case 9:
             if (i - 5 < nB) {
-                out[i] = D_00481BB0[func_00123128(mgr->groupB[i - 5]->rider)];
+                out[i] = D_00481BB0[cRider_getCharacterID(mgr->groupB[i - 5]->rider)];
             }
             break;
         case 10: case 11: case 12: case 13: case 14:
             if (i - 10 < mgr->nC) {
-                out[i] = D_00481BB0[func_00123128(mgr->groupC[i - 10]->rider)];
+                out[i] = D_00481BB0[cRider_getCharacterID(mgr->groupC[i - 10]->rider)];
             }
             break;
         case 15: case 16: case 17: case 18: case 19: case 20:
             if (i - 15 < mgr->nRiders) {
-                out[i] = D_00481BB0[func_00123128(mgr->riders[i - 15])];
+                out[i] = D_00481BB0[cRider_getCharacterID(mgr->riders[i - 15])];
             }
             break;
         }
@@ -3442,8 +3563,8 @@ extern "C" void func_002803F0(void* self)
 }
 
 //100%
-extern "C" int func_0011D640(void* self);
-extern "C" int func_00123128(void* self);
+extern "C" int cRider_isInitDone(void* self);
+extern "C" int cRider_getCharacterID(void* self);
 extern "C" int func_00280560(void* self, void* rider, int id, int a3);
 extern int D_00481BB0[];
 
@@ -3462,8 +3583,8 @@ extern "C" int func_00280458(cScriptCtx0458* self, void* msg, int type)
 {
     if (type != 5) return 0;
     void* rider = self->v06();
-    if (func_0011D640(rider) == 0) return 0;
-    int team = func_00123128(rider);
+    if (cRider_isInitDone(rider) == 0) return 0;
+    int team = cRider_getCharacterID(rider);
     int mask = D_00481BB0[team];
     // PORT: func_0027C958 returns a record pointer as int
     char* info = (char*)func_0027C958(msg);

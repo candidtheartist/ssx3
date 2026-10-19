@@ -163,13 +163,13 @@ extern "C" void func_00113D88(void) {
 
 //100%
 extern "C" void cAI_setAIState(void *, int);
-extern "C" int func_0012A250(void *);
+extern "C" int cAI_haveAllPlayersFinished(void *);
 extern "C" void func_00231250(int, int, int, int);
 extern void *D_004A28A8;
 
 extern "C" void func_00113DB0(void *arg0, void *arg1) {
     (*(int *)((char*)(arg1) + (0xC))) = (int) ((*(int *)((char*)(arg1) + (0xC))) + 1);
-    if (func_0012A250(arg1) == 1) {
+    if (cAI_haveAllPlayersFinished(arg1) == 1) {
         cAI_setAIState(arg1, 6);
         func_00231250((*(int *)((char*)(D_004A28A8) + (0x84))), 5, 0, 0);
     }
@@ -192,10 +192,10 @@ extern "C" void func_00113E48(void) {
 }
 
 //100%
-extern "C" void func_0012B090(int);
+extern "C" void cAI_removeAllRiders(int);
 
 extern "C" void func_00113E50(int arg0, int arg1) {
-    func_0012B090(arg1);
+    cAI_removeAllRiders(arg1);
 }
 
 extern "C" void func_00113E70(void) {
@@ -387,28 +387,28 @@ INCLUDE_ASM("seg/seg_14B10", func_00115358);
 
 //100%
 extern "C" int cRiderAnimBase_play_5B58(void* self, int anim, int flags, float blend) __asm__("cRiderAnimBase_play");
-int func_0011FE98(void* self);
-extern "C" void func_0011DFE0(char* self, Q_5168 q, float angle);
+int cRider_getMotionMode(void* self);
+extern "C" void cRider_rotateAboutAxis(char* self, Q_5168 q, float angle);
 // PORT: the unit defines func_00116930 with no parameters; this call passes self.
 extern "C" void func_00116930_5640(char* self) __asm__("func_00116930");
 
 extern "C" void func_00115640(char* s)
 {
     if (*(int*)(s + 0x328) == 0) return;
-    if (func_0011FE98(s) == 1) {
+    if (cRider_getMotionMode(s) == 1) {
         if ((unsigned int)(*(int*)(s + 0x328) - 3) < 2) {
             SetHeading_5168(*(char**)(s + 0x784), 0.0f);
         }
         if (*(int*)(s + 0x328) == 3) cRiderAnimBase_play_5B58(*(void**)(s + 0x784), 0x11A, 0, -1.0f);
         else if (*(int*)(s + 0x328) == 4) cRiderAnimBase_play_5B58(*(void**)(s + 0x784), 0x115, 0, -1.0f);
         else cRiderAnimBase_play_5B58(*(void**)(s + 0x784), 0x10C, 0, -1.0f);
-    } else if (func_0011FE98(s) == 0) {
+    } else if (cRider_getMotionMode(s) == 0) {
         if (*(int*)(s + 0x328) == 3) {
-            func_0011DFE0(s, *(Q_5168*)(s + 0x1C0), 1.5707963705062866f);
+            cRider_rotateAboutAxis(s, *(Q_5168*)(s + 0x1C0), 1.5707963705062866f);
             cRiderAnimBase_changeHeadingOffset(*(void**)(s + 0x784), 1.5707963705062866f);
             SetHeading_5168(*(char**)(s + 0x784), 0.0f);
         } else if (*(int*)(s + 0x328) == 4) {
-            func_0011DFE0(s, *(Q_5168*)(s + 0x1C0), -1.5707963705062866f);
+            cRider_rotateAboutAxis(s, *(Q_5168*)(s + 0x1C0), -1.5707963705062866f);
             cRiderAnimBase_changeHeadingOffset(*(void**)(s + 0x784), -1.5707963705062866f);
             SetHeading_5168(*(char**)(s + 0x784), 0.0f);
         }
@@ -506,11 +506,11 @@ extern "C" float func_00115B08(void *arg0) {
 
 //100%
 extern "C" int func_00311AE8(void*, int);
-extern "C" int func_001298C8();
+extern "C" int getGameTick();
 extern "C" int cRiderAnimBase_play_5B58(void* self, int anim, int flags, float blend) __asm__("cRiderAnimBase_play");
 extern "C" void* func_0028B180_5B58() __asm__("func_0028B180");
 extern "C" void func_0029FF80(void* snd, void* self, int a);
-extern "C" int func_0011FEE8_5B58(void*) __asm__("func_0011FEE8__FPv");
+extern "C" int cRider_getControlState_5B58(void*) __asm__("cRider_getControlState__FPv");
 
 extern "C" void func_00115B58(char* self)
 {
@@ -526,7 +526,7 @@ extern "C" void func_00115B58(char* self)
     if (func_00311AE8(*(void**)(self + 0x784), 2) == 10) {
         return;
     }
-    int dt = func_001298C8() - *(int*)(self + 0x354);
+    int dt = getGameTick() - *(int*)(self + 0x354);
     if (dt < 0xB4) {
         if (dt < 0) {
             return;
@@ -557,7 +557,7 @@ extern "C" void func_00115B58(char* self)
         case 5:
         case 6:
             if (__builtin_fabsf(*(float*)(self + 0x1FC)) < 0.75f) {
-                if (func_0011FEE8_5B58(self) == 0) {
+                if (cRider_getControlState_5B58(self) == 0) {
                     cRiderAnimBase_play_5B58(*(void**)(self + 0x784), 0x13E, 0, -1.0f);
                 }
             }
@@ -573,8 +573,8 @@ INCLUDE_ASM("seg/seg_14B10", func_00115D48);
 //100%
 // PORT: PS2-only inline asm; needs a C fallback off-PS2.
 void cRiderMetrix_evAutoResetSurface(void *);
-extern "C" void func_0011FE78_6120(void *, int) __asm__("func_0011FE78__FPv");
-extern "C" void func_0011FEC8_6120(void *, int) __asm__("func_0011FEC8__FPv");
+extern "C" void cRider_setMotionMode_6120(void *, int) __asm__("cRider_setMotionMode__FPv");
+extern "C" void cRider_setControlState_6120(void *, int) __asm__("cRider_setControlState__FPv");
 extern "C" int func_0028B180();
 extern "C" void func_0029A220(int, void *);
 extern "C" void func_00270970(int, int);
@@ -587,8 +587,8 @@ extern "C" int func_00116120(char *self, int arg1, int arg2) {
         if (arg2 == 1 || arg2 == 4)
             cRiderMetrix_evAutoResetSurface(*(void **)(self + 0x790));
         *(int *)(*(char **)(self + 0x77C) + 0x350) = (arg2 != 0);
-        func_0011FEC8_6120(self, 9);
-        func_0011FE78_6120(self, 3);
+        cRider_setControlState_6120(self, 9);
+        cRider_setMotionMode_6120(self, 3);
         func_0029A220(func_0028B180(), self);
         func_00270970(*(int *)(*(char **)((char *)D_004A28A8 + 0x84) + 0x28), *(int *)(self + 0x86C));
         return 1;
@@ -623,16 +623,16 @@ static inline float Dot4_61D0(const V4_61D0& a, const V4_61D0& b)
 
 // PORT: returns a value (target keeps the state in v1 across the call)
 extern "C" int cRiderAnimBase_play_61D0(void* self, int anim, int flags, float blend) __asm__("cRiderAnimBase_play");
-int func_0011FE98(void* self);
-// PORT: func_0011FEC8__FPv takes a second argument; bound by asm label
-void func_0011FEC8_61D0(void* self, int on) __asm__("func_0011FEC8__FPv");
+int cRider_getMotionMode(void* self);
+// PORT: cRider_setControlState__FPv takes a second argument; bound by asm label
+void cRider_setControlState_61D0(void* self, int on) __asm__("cRider_setControlState__FPv");
 
 extern "C" int func_001161D0(char* s, float dir)
 {
     int st;
     if (dir == 0.0f) return 0;
     if (*(int*)(s + 0x328) == 3 || *(int*)(s + 0x328) == 4) return 0;
-    if (!func_0011FE98(s)) {
+    if (!cRider_getMotionMode(s)) {
         if (Dot4_61D0(*(V4_61D0*)(s + 0x1E0), *(V4_61D0*)(s + 0x3A0)) < 0.0f) return 0;
     }
     if (dir > 0.0f) {
@@ -642,24 +642,24 @@ extern "C" int func_001161D0(char* s, float dir)
         cRiderAnimBase_play_61D0(*(void**)(s + 0x784), 0x20, 0, -1.0f);
         *(int*)(s + 0x330) = 2;
     }
-    func_0011FEC8_61D0(s, 1);
+    cRider_setControlState_61D0(s, 1);
     return 1;
 }
 
 //100%
 // PORT: PS2-only inline asm; needs a C fallback off-PS2.
-extern "C" void func_0011FEC8_62C8(void *, int) __asm__("func_0011FEC8__FPv");
-extern "C" int func_0011FEE8_62C8(void *) __asm__("func_0011FEE8__FPv");
-extern "C" void func_00131348(char *);
+extern "C" void cRider_setControlState_62C8(void *, int) __asm__("cRider_setControlState__FPv");
+extern "C" int cRider_getControlState_62C8(void *) __asm__("cRider_getControlState__FPv");
+extern "C" void cBoardPressControl_endPress(char *);
 extern "C" void func_002F6AC8(char *, int);
 
 extern "C" int func_001162C8(char *self, int arg1, int arg2) {
     if (arg2 != 0)
         func_002F6AC8(*(char **)(self + 0x77C) + 0xD20, 1);
     if ((*(float *)(self + 0x360) == 0.0f && arg1 != 0) || arg2 != 0) {
-        if (func_0011FEE8_62C8(self) == 1)
-            func_00131348(*(char **)(self + 0x77C) + 0x1D0);
-        func_0011FEC8_62C8(self, 2);
+        if (cRider_getControlState_62C8(self) == 1)
+            cBoardPressControl_endPress(*(char **)(self + 0x77C) + 0x1D0);
+        cRider_setControlState_62C8(self, 2);
         return 1;
     }
     *(float *)(self + 0x360) = 1.0f;
@@ -668,11 +668,11 @@ extern "C" int func_001162C8(char *self, int arg1, int arg2) {
 
 //100%
 // PORT: PS2-only inline asm; needs a C fallback off-PS2.
-extern "C" void func_0011FEC8_6378(void *, int) __asm__("func_0011FEC8__FPv");
+extern "C" void cRider_setControlState_6378(void *, int) __asm__("cRider_setControlState__FPv");
 
 extern "C" int func_00116378(void *arg0) {
     if (*(float *)((char*)arg0 + 0x470) >= 0.0f) {
-        func_0011FEC8_6378(arg0, 10);
+        cRider_setControlState_6378(arg0, 10);
         return 1;
     }
     return 0;
@@ -905,7 +905,7 @@ extern "C" void func_001171A8(char *arg0, int arg1, int arg2, float fparg0, int 
 }
 
 //100%
-extern "C" void func_00117540(void *);
+extern "C" void cRiderMetrix_resetRun(void *);
 
 extern "C" void *func_00117248(void *arg0) {
     *(int *)((char*)arg0 + 0x1AC) = 0;
@@ -913,7 +913,7 @@ extern "C" void *func_00117248(void *arg0) {
     *(int *)((char*)arg0 + 0x1B4) = 0;
     *(int *)((char*)arg0 + 0x1C8) = 0;
     *(float *)((char*)arg0 + 0x1C4) = 1.0f;
-    func_00117540(arg0);
+    cRiderMetrix_resetRun(arg0);
     return arg0;
 }
 

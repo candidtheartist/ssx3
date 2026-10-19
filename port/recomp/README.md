@@ -142,6 +142,39 @@ or any disc file.
     texture page cache has not loaded another page since. The 8,000 recorded race packets replay to the same VRAM
     with 12% fewer instructions. In a race with the old and new code swapped every 30 s, the new code drew about 4%
     more frames, which is within this machine's run-to-run noise;
+  - VIF1, VU1 and the GIF running on a thread of their own, so the game thread runs only the EE. VIF1 and GIF DMA,
+    VIF1 FIFO writes and stores to the GS privileged registers other than CSR become jobs that run there in order.
+    The DMA still reports done at once, and the job reads a copy of the memory it was started on. The EE waits for
+    the thread before it reads or changes anything a job uses (VU1 memory, the VIF1 registers, those GS registers),
+    and stays at most 3 vertical blanks ahead of the drawing. VU1 programs that stop on a D or T bit for the EE
+    to see still run on the game thread. In a race on a 4-core machine with the thread switched on and off every
+    30 s, the game thread was busy 24% of the time instead of 53%. The frame rate stayed within this machine's
+    run-to-run noise (13.5 against 12.6 a second), since the GS workers still set it; with drawing skipped, the
+    race ran 31% faster;
+  - the GS pixel loops specialised further, with the same results. A pixel works out its depth buffer address once
+    for the depth test and the write. Texture reads are compiled for the texture format as well as the frame and
+    depth formats in the pairs a race uses (CT32 frames with CT32, CT16, T8, T4 and T8H textures, CT24 frames with
+    CT32). MODULATE and DECAL texture combining run on all four channels at once and hand the packed colour
+    straight to the pixel write. The texture page cache copies a page only when it is about to be written, the 16
+    or 256 entry palette is filled when it is loaded instead of checked for every texel, and a sprite whose
+    filtered samples land on texel centres reads one texel instead of four. The 8,000 recorded race packets replay
+    to the same VRAM, also with round-toward-zero and on several workers, with 24% fewer instructions. In a race
+    on a 4-core machine with the old and new code swapped every 30 s, the new code drew about 16% more frames
+    (15.7 against 13.5 a second);
+  - the GS workers waiting on each other less, with the same results. With more than one worker, each worker reads
+    textures and CLUTs from its own copy of VRAM and applies the EE's uploads to it in command order, so an upload
+    into a texture slot that slower workers are still reading from no longer stops every worker, the most common
+    wait in a race. Pages the workers drew are copied into each worker's copy just before a later draw reads them
+    as a texture. Commands go through a ring that the workers take from with no sync at the end of each batch, and
+    uploads write a row of pixels at a time. The 8,000 recorded race packets replay to the same VRAM, also with
+    round-toward-zero and on several workers, with 4% fewer instructions and 63 syncs instead of 289. In a 20-minute
+    race with the old and new code swapped every 30 s, the GS workers stopped to wait for each other 4.4 times less
+    often and got through 5% more commands a second; the frame rate changed by less than this machine's run-to-run
+    noise;
+  - a sprite's texel reads worked out once per column and once per row instead of for every pixel: which texels
+    it reads, wrapped as CLAMP sets up, and their filter weights. The full-screen passes are sprites, so the 8,000
+    recorded race packets replay to the same VRAM, also with round-toward-zero and on several workers, with 5%
+    fewer instructions;
   - `printf`, `sprintf` and `scePrintf` reading their arguments the way EE code passes them: every argument,
     32 or 64 bits, takes one 64-bit argument register and then one 8-byte stack slot. The runtime read them as
     32-bit slots, so a `double` (a soft float in one register) came out as 0. SSX 3 prints race and record times
@@ -225,7 +258,8 @@ These debug switches print to stderr:
 | `PS2X_GS_SAMPLE=flagfile` | once `flagfile` exists, 3000 non-sprite primitives drawn to the main framebuffer |
 
 `PS2X_GS_THREADS=n` draws with `n` GS worker threads, and 0 draws on the game thread. By default it uses the cores
-the game and window threads leave free, up to 6.
+the game and window threads leave free, up to 6. `PS2X_VU1_THREAD=0` or `1` turns VIF1, VU1 and the GIF's own
+thread off or on; by default it is on with 6 or more cores.
 
 Keyboard: Enter is START, X is Cross, Z is Square; F1 shows the debug panel.
 
@@ -237,7 +271,7 @@ shadows and the course draw with the right textures, and the race plays from the
 Sound plays through the PC's audio device: the music, and the radio track shown at the start of a race. The game
 makes sound only as fast as it runs, so while it runs slower than the PS2 the sound comes in short runs with gaps.
 
-It is far from full speed. On a 4-core 2.1 GHz Xeon, a race draws about 12 to 14 frames a second. There the two
+It is far from full speed. On a 4-core 2.1 GHz Xeon, a race draws about 15 to 16 frames a second. There the two
 GS worker threads still set the pace.
 
 When a guest address with no function is reached, the scheduler prints its last 64 dispatches (`[sched-trace]`).

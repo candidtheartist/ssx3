@@ -120,7 +120,19 @@ extern "C" void func_00285210(void* self, int flags)
 #undef S_285210
 #undef BM_285210
 
-INCLUDE_ASM("sound/ssxAudio", func_002854A8);
+//100%
+// PORT: the target leaves value in $a1 for this call; bind a 2-arg form.
+extern "C" int func_002ADF80_2(void* bank, int a1) __asm__("func_002ADF80");
+
+extern "C" int func_002854A8(void* self, int value)
+{
+    char* s = (char*)self;
+    int r = func_002ADF80_2(*(void**)(**(char***)(s + 0x118) + 0x1D8), value);
+    if (r == 2) {
+        *(int*)(s + 0x62B0) = value;
+    }
+    return r;
+}
 
 //100%
 extern "C" void* cBE_getBE();
@@ -479,7 +491,14 @@ extern "C" void func_00285FB0(char* self)
     func_002A7890(&parser, 2);
 }
 
-INCLUDE_ASM("sound/ssxAudio", func_002861D0);
+//100%
+struct func_002861D0_vte { short delta; short index; int (*fn)(void*, int); };
+extern "C" void func_002861D0(char* self)
+{
+    func_002861D0_vte* vt = *(func_002861D0_vte**)(self + 0x5558);
+    char* mon = self + 0x118;
+    vt[4].fn(mon + vt[4].delta, 1);
+}
 
 //100% - objdiff report; single-function view differs only in a relocation name
 struct func_00286200_vte { short delta; short index; void (*fn)(void*); };
@@ -675,7 +694,7 @@ extern "C" void func_00297438(void* self, int id);
 extern "C" void func_0029B3C0(void* self, int a1);
 extern "C" int func_0028D960(void* self);
 extern "C" int func_002A4078(void* self);
-extern "C" int func_0012A250(void* p);
+extern "C" int cAI_haveAllPlayersFinished(void* p);
 extern "C" char* func_0028B1D8();
 extern "C" void func_002A3708(void* self, void* rider);
 extern "C" void func_002A34D0(void* self, void* rider, int a2, int a3);
@@ -729,7 +748,7 @@ extern "C" void func_00286EA0(char* self, char* rider)
         if (func_002A4078(self))
             func_002A3708(self, rider);
         else if (sa_state6EA0() == 2) {
-            if (func_0012A250(func_0028B1D8()))
+            if (cAI_haveAllPlayersFinished(func_0028B1D8()))
                 func_002A3708(self, rider);
             else
                 func_002A34D0(self, rider, 0, -1);
@@ -1687,7 +1706,23 @@ void* func_00288AC0(void* self, int a1)
     return (char*)func_0028B210(a1) + 0x20;
 }
 
-INCLUDE_ASM("sound/ssxAudio", func_00288AE0);
+//100%
+extern "C" int func_0028B1B0(void);
+extern "C" void* func_0028B1C8();
+
+extern "C" int func_00288AE0(void* self)
+{
+    if (func_0028B1B0() != 0) {
+        if (*(int**)((char*)func_0028B1C8() + 0x28) != 0) {
+            int v = **(int**)((char*)func_0028B1C8() + 0x28);
+            int busy = v != 0 && v < 10;
+            if (busy) {
+                return 1;
+            }
+        }
+    }
+    return 0;
+}
 
 //100%
 struct sAudV4 {

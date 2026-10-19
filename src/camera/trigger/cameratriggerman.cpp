@@ -217,7 +217,13 @@ extern "C" void func_0016CEA8(void* self)
 }
 
 //80.0%
-INCLUDE_ASM("camera/trigger/cameratriggerman", func_0016CEC8__FPvi);
+//100%
+// PORT: the unit declares func_0016CEF0 as returning void*; this caller treats it as void.
+void func_0016CEF0_CEC8(void*, void*, int) __asm__("func_0016CEF0");
+void func_0016CEC8(void* self, int a1)
+{
+    func_0016CEF0_CEC8((void*)D_004C5830, self, a1);
+}
 
 //100% - objdiff report; single-function view differs only in a relocation name
 extern "C" void cCameraTriggerMan_streamIn(void* self, void* stream);

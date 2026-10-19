@@ -636,8 +636,8 @@ extern "C" void func_002EF6A0(void* self)
 }
 
 //100%
-int func_0011FE98(void*);
-extern "C" int func_001298C8();
+int cRider_getMotionMode(void*);
+extern "C" int getGameTick();
 
 struct sRsVec4_EF6D0 {
     float x, y, z, w;
@@ -732,7 +732,7 @@ static inline int Approach_EF6D0(int n, int step)
 
 extern "C" void func_002EF6D0(sTrail_EF6D0* self)
 {
-    if (func_0011FE98(self->rider) == 1) {
+    if (cRider_getMotionMode(self->rider) == 1) {
         char* r = self->rider;
         sRsVec4_EF6D0 a = *(sRsVec4_EF6D0*)(*(char**)(*(char**)(r + 0x780) + 0x30) + (*(int*)(r + 0x89C) << 6) + 0x30);
         sRsVec4_EF6D0 b = *(sRsVec4_EF6D0*)(*(char**)(*(char**)(r + 0x780) + 0x30) + (*(int*)(r + 0x8A4) << 6) + 0x30);
@@ -740,7 +740,7 @@ extern "C" void func_002EF6D0(sTrail_EF6D0* self)
         sRsVec4_EF6D0 d = Sub_EF6D0(b, Scale_EF6D0(a, 0.699999988079071f));
         self->ring[self->head].p0 = Add_EF6D0(d, Scale_EF6D0(c, 90.0f));
         self->ring[self->head].p1 = Sub_EF6D0(d, Scale_EF6D0(c, 90.0f));
-        if ((func_001298C8() & 1) == 0) {
+        if ((getGameTick() & 1) == 0) {
             int old = self->head;
             self->head = old + 1;
             self->head %= 25;

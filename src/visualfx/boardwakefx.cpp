@@ -128,7 +128,185 @@ extern "C" void func_002DCF28(sWakeDCF28* self)
 
 INCLUDE_ASM("visualfx/boardwakefx", func_002DD0B8);
 
-INCLUDE_ASM("visualfx/boardwakefx", func_002DDAB8);
+//100%
+extern char* D_004A289C;
+extern int D_004A4528;
+
+struct sGs_DAB8 {
+    unsigned int f0_0 : 2;
+    unsigned int f0_2 : 2;
+    unsigned int f0_4 : 28;
+    unsigned int f4_0 : 2;
+    unsigned int f4_2 : 5;
+    unsigned int f4_7 : 5;
+    unsigned int f4_12 : 8;
+    unsigned int f4_20 : 2;
+    unsigned int f4_22 : 1;
+    unsigned int f4_23 : 2;
+    unsigned int f4_25 : 7;
+    unsigned int f8_0 : 5;
+    unsigned int f8_5 : 5;
+    unsigned int f8_10 : 19;
+    unsigned int f8_29 : 3;
+    unsigned int wC;
+    unsigned int f10 : 16;
+    unsigned int f10hi : 16;
+    void SetF22(int v) { f4_22 = v; }
+};
+
+extern sGs_DAB8 D_00501420_DAB8 __asm__("D_00501420");
+
+struct sWakeVtx_DAB8 {
+    char pad0[0x64];
+    float age;               // 0x64
+    char pad68[0x8];
+};
+
+struct sWake_DAB8 {
+    char pad0[0x4];
+    int count;               // 0x04
+    int first;               // 0x08
+    sWakeVtx_DAB8* verts;    // 0x0C
+    char verts10[0xB4 - 0x10]; // 0x10
+    int tex;                 // 0xB4
+    int max;                 // 0xB8
+    float life;              // 0xBC
+};
+
+class cGfx_DAB8 {
+public:
+    char pad[0xE84];
+    sGs_DAB8* stateTop;
+    char padE88[0x1030 - 0xE88];
+    int f1030;
+    int Get1030() { return f1030; }
+    void PushState() { stateTop[1] = stateTop[0]; stateTop++; }
+    char pad1034[0x10D8 - 0x1034];
+    virtual void v1();
+    virtual void v2();
+    virtual void v3();
+    virtual void v4();
+    virtual void v5();
+    virtual void v6();
+    virtual void v7();
+    virtual void v8();
+    virtual void v9();
+    virtual void v10();
+    virtual void v11();
+    virtual void v12();
+    virtual void v13();
+    virtual void v14();
+    virtual void v15();
+    virtual void v16();
+    virtual void v17();
+    virtual void v18();
+    virtual void v19();
+    virtual void v20();
+    virtual void v21();
+    virtual void v22();
+    virtual void v23();
+    virtual void v24();
+    virtual void v25();
+    virtual void v26();
+    virtual void v27();
+    virtual void v28();
+    virtual void v29();
+    virtual void v30();
+    virtual void v31();
+    virtual void v32();
+    virtual void v33();
+    virtual void v34();
+    virtual void v35();
+    virtual void v36();
+    virtual void v37();
+    virtual void v38();
+    virtual void v39();
+    virtual void v40();
+    virtual void v41();
+    virtual void v42();
+    virtual void v43();
+    virtual void v44();
+    virtual void v45();
+    virtual void v46();
+    virtual void v47();
+    virtual void v48();
+    virtual void v49();
+    virtual void v50();
+    virtual void v51();
+    virtual void v52();
+    virtual void v53();
+    virtual void v54();
+    virtual void v55();
+    virtual void v56();
+    virtual void v57();
+    virtual void v58();
+    virtual void v59();
+    virtual void v60();
+    virtual void v61();
+    virtual void v62();
+    virtual void v63();
+    virtual void v64();
+    virtual void v65();
+    virtual void v66();
+    virtual void v67();
+    virtual void v68();
+    virtual void v69();
+    virtual void v70();
+    virtual void v71();
+    virtual void v72();
+    virtual void v73();
+    virtual void v74();
+    virtual void v75();
+    virtual void v76();
+    virtual void v77();
+    virtual void v78();
+    virtual void v79();
+    virtual void v80();
+    virtual void v81();
+    virtual void v82();
+    virtual void v83();
+    virtual void v84();
+    virtual void v85();
+    virtual void v86();
+    virtual void v87();
+    virtual void v88();
+    virtual void v89();
+    virtual void DrawStrip(void* verts, int tex, int first, int max, int n, float a, float da);
+};
+
+// Board wake: draws the wake strip with alpha fading by the age of the newest point.
+extern "C" void func_002DDAB8(sWake_DAB8* self)
+{
+    if (D_004A4528 != 0 || self->count == 0)
+        return;
+    ((cGfx_DAB8*)D_004A289C)->PushState();
+    *((cGfx_DAB8*)D_004A289C)->stateTop = D_00501420_DAB8;
+    *(short*)(*(char**)(D_004A289C + 0xE84) + 0x10) = ((cGfx_DAB8*)D_004A289C)->Get1030();
+    ((cGfx_DAB8*)D_004A289C)->stateTop->f0_2 = 0;
+    ((cGfx_DAB8*)D_004A289C)->stateTop->SetF22(1);
+    ((cGfx_DAB8*)D_004A289C)->stateTop->f4_23 = 0;
+    ((cGfx_DAB8*)D_004A289C)->stateTop->f4_20 = 0;
+    ((cGfx_DAB8*)D_004A289C)->stateTop->f4_12 = 0x14;
+    ((cGfx_DAB8*)D_004A289C)->stateTop->f4_0 = 2;
+    ((cGfx_DAB8*)D_004A289C)->stateTop->f8_10 = 0;
+    ((cGfx_DAB8*)D_004A289C)->stateTop->f8_5 = 7;
+    ((cGfx_DAB8*)D_004A289C)->stateTop->f4_2 = 5;
+    float k = 1.25f;
+    int draw = self->count;
+    int n = draw;
+    int over = draw + 2; over -= self->max;
+    if (over >= 1)
+        draw -= over;
+    int last = (self->first + n - 1) % self->max;
+    float t = (self->life - self->verts[last].age) / self->life;
+    float a = 1.0f;
+    if (t <= 0.8f)
+        a = t * k;
+    float da = (a - k) / (float)n;
+    if (draw >= 2)
+        ((cGfx_DAB8*)D_004A289C)->DrawStrip(self->verts10, self->tex, self->first, self->max, draw, k, da);
+    ((cGfx_DAB8*)D_004A289C)->stateTop--;
+}
 
 //100%
 struct sVecDD30 {
@@ -618,8 +796,8 @@ struct sMtxF920 {
 };
 
 extern void* D_004A28A8;
-int func_0011FE98(void*);
-int func_0011FEE8(void*);
+int cRider_getMotionMode(void*);
+int cRider_getControlState(void*);
 int func_00312AA0(void*, int);
 extern "C" void func_002DF448_F920(void*) __asm__("func_002DF448");
 extern "C" void func_002DF4D0_F920(void*) __asm__("func_002DF4D0");
@@ -740,9 +918,9 @@ extern "C" void func_002DF920(sWakeFxF920* self)
         wakeDivEqF920(self->dir, wakeLenF920(self->dir));
     }
     self->iB0 = 1;
-    int st = func_0011FE98(self->obj);
+    int st = cRider_getMotionMode(self->obj);
     self->iD4 = st;
-    if (st == 1 || st == 2 || st == 4 || func_0011FEE8(self->obj) == 9) {
+    if (st == 1 || st == 2 || st == 4 || cRider_getControlState(self->obj) == 9) {
         self->iB0 = 0;
     } else {
         char* o = self->obj;
@@ -762,7 +940,7 @@ extern "C" void func_002DF920(sWakeFxF920* self)
     self->pD0 = *(char**)(*(char**)((char*)D_004A28A8 + 0x84) + 0x44) + *(int*)(o + 0x438) * 0xB0;
     int x = 0;
     if (555.5555419921875f < acc && 555.5555419921875f < self->fB8) {
-        x = func_0011FEE8(o) != 9;
+        x = cRider_getControlState(o) != 9;
     }
     float f = acc * 0.5f;
     char* o2 = self->obj;
@@ -890,7 +1068,30 @@ extern "C" void func_002E0EE8(sWakeFx0EE8* self)
     }
 }
 
-INCLUDE_ASM("visualfx/boardwakefx", func_002E10B8);
+//100%
+extern int D_004A3AFC;
+
+struct sWake10B8 {
+    char pad0[0x18];
+    int f18;
+    char pad1C[0x4];
+    int f20;
+    float f24;
+};
+
+// PORT: the seed is reinterpreted as a float in [1,2) through memory (type pun).
+static inline float wakeRand10B8()
+{
+    D_004A3AFC = ((D_004A3AFC * 0x18FCD + 0xE9507C) & 0x7FFFFF) | 0x3F800000;
+    return *(float*)&D_004A3AFC - 1.0f;
+}
+
+extern "C" void func_002E10B8(sWake10B8* self)
+{
+    self->f18 = 1;
+    self->f20 = 0;
+    self->f24 = wakeRand10B8() * 0.09999999403953552f + 0.4000000059604645f;
+}
 
 INCLUDE_ASM("visualfx/boardwakefx", func_002E1120);
 
@@ -2898,7 +3099,7 @@ extern "C" void func_002E55D8(int* p, sMat_6008* m, float x, float y, float z)
 
 //100%
 extern void* D_00487FD8[];
-extern "C" void func_00319CC8(void);
+extern "C" void cMemMan_purge(void);
 extern void* D_004A28A8;
 extern char D_004A3B20[];
 extern "C" void* cMemMan_alloc(int size, const char* tag, unsigned int flags, int d);
@@ -2922,14 +3123,14 @@ extern "C" void* func_002E5920(sWake5920* self, void* a1);
 
 //100% - objdiff report; single-function view differs only in a relocation name
 extern void* D_00487FD8[];
-extern "C" void func_00319CC8(void);
+extern "C" void cMemMan_purge(void);
 extern "C" void func_002E4F28(int* self, int flags);
 extern "C" void func_003546C8(void* self, int flags);
 
 extern "C" void func_002E5D18(void* self, int flags)
 {
     *(void***)((char*)self + 0xC) = D_00487FD8;
-    func_00319CC8();
+    cMemMan_purge();
     int i;
     for (i = 0; i < 12; i++) {
         int* p = ((int**)((char*)self + 0x10))[i];
@@ -2937,7 +3138,7 @@ extern "C" void func_002E5D18(void* self, int flags)
             func_002E4F28(p, 3);
         }
     }
-    func_00319CC8();
+    cMemMan_purge();
     func_003546C8(self, flags);
 }
 

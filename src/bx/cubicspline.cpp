@@ -1,4 +1,5 @@
 #include "common.h"
+#include "bx/dlmalloc.h"
 
 //100%
 void func_0031D790(void* self);
@@ -118,7 +119,7 @@ INCLUDE_ASM("bx/cubicspline", func_0031E190);
 
 //100%
 // dlmalloc 2.7 largebin_index() (portable highest-bit version).
-extern "C" int func_0031E1D8(unsigned int sz)
+extern "C" int dl_largebin_index(unsigned int sz)
 {
     unsigned int x = sz >> 8;
     unsigned int m;
@@ -139,7 +140,7 @@ extern "C" int func_0031E1D8(unsigned int sz)
 }
 
 //100%
-void func_0031E260(void* self)
+void dl_malloc_init_state(void* self)
 {
     char* p = (char*)self + 0x38;
     for (int i = 0x5E; i >= 0; i--) {
@@ -160,41 +161,18 @@ void func_0031E260(void* self)
 //100%
 // dlmalloc 2.7 sYSMALLOc()
 // PORT: 64-bit `long` (8 bytes on EE, 4 on Windows); use int64_t/uint64_t off-PS2.
-extern "C" unsigned int func_0031FFD8(void* self, long incr); // PORT: 64-bit long param
-extern "C" void* func_0031E818(void* ms, unsigned int bytes);
-struct sMState_31EEE8;
-extern "C" void func_0031EEE8(void* ms, sMState_31EEE8* av);
-// PORT: the unit declares func_0031ED60(void*); the body really takes (ms, mem).
-extern "C" void func_0031ED60_E2D8(void* ms, void* mem) __asm__("func_0031ED60");
+extern "C" unsigned int cMemHeap_sbrk(void* self, long incr); // PORT: 64-bit long param
+extern "C" void* dl_malloc(void* ms, unsigned int bytes);
+extern "C" void dl_malloc_consolidate(void* ms, sMallocState* av);
+// PORT: the unit declares dl_free(void*); the body really takes (ms, mem).
+extern "C" void dl_free_E2D8(void* ms, void* mem) __asm__("dl_free");
 extern "C" int* func_00415FB8();
 
-struct sMChunk_31E2D8
-{
-    unsigned int prev_size;      // 0x0
-    unsigned int size;           // 0x4
-};
 
-struct sMState_31E2D8
-{
-    unsigned int max_fast;              // 0x0
-    sMChunk_31E2D8* fastbins[11];       // 0x4
-    sMChunk_31E2D8* top;                // 0x30
-    char pad34[0x344 - 0x34];
-    unsigned int trim_threshold;        // 0x344
-    unsigned int top_pad;               // 0x348
-    char pad34C[0x35C - 0x34C];
-    unsigned int pagesize;              // 0x35C
-    unsigned int morecore_properties;   // 0x360
-    unsigned int mmapped_mem;           // 0x364
-    unsigned int sbrked_mem;            // 0x368
-    unsigned int max_sbrked_mem;        // 0x36C
-    unsigned int max_mmapped_mem;       // 0x370
-    unsigned int max_total_mem;         // 0x374
-};
 
-extern "C" void* func_0031E2D8(void* ms, unsigned int nb, sMState_31E2D8* av)
+extern "C" void* dl_sysmalloc(void* ms, unsigned int nb, sMallocState* av)
 {
-    sMChunk_31E2D8* old_top;
+    sMallocChunk* old_top;
     unsigned int old_size;
     char* old_end;
     long size;
@@ -204,15 +182,15 @@ extern "C" void* func_0031E2D8(void* ms, unsigned int nb, sMState_31E2D8* av)
     unsigned int front_misalign;
     unsigned int end_misalign;
     char* aligned_brk;
-    sMChunk_31E2D8* p;
-    sMChunk_31E2D8* remainder;
+    sMallocChunk* p;
+    sMallocChunk* remainder;
     unsigned int remainder_size;
     unsigned int sum;
     unsigned int pagemask = av->pagesize - 1;
 
     if (av->max_fast & 2) {
-        func_0031EEE8(ms, (sMState_31EEE8*)av);
-        return func_0031E818(ms, nb - 15);
+        dl_malloc_consolidate(ms, (sMallocState*)av);
+        return dl_malloc(ms, nb - 15);
     }
 
     old_top = av->top;
@@ -226,7 +204,7 @@ extern "C" void* func_0031E2D8(void* ms, unsigned int nb, sMState_31E2D8* av)
         size -= old_size;
     size = (size + pagemask) & ~pagemask;
     if (size > 0)
-        brk = (char*)func_0031FFD8(ms, size);
+        brk = (char*)cMemHeap_sbrk(ms, size);
 
     if (brk != (char*)0xFFFFFFFF) {
         av->sbrked_mem += size;
@@ -258,11 +236,11 @@ extern "C" void* func_0031E2D8(void* ms, unsigned int nb, sMState_31E2D8* av)
                 end_misalign = (unsigned int)(brk + size + correction);
                 correction += ((end_misalign + pagemask) & ~pagemask) - end_misalign;
 
-                snd_brk = (char*)func_0031FFD8(ms, correction);
+                snd_brk = (char*)cMemHeap_sbrk(ms, correction);
 
                 if (snd_brk == (char*)0xFFFFFFFF) {
                     correction = 0;
-                    snd_brk = (char*)func_0031FFD8(ms, 0);
+                    snd_brk = (char*)cMemHeap_sbrk(ms, 0);
                 } else if (snd_brk < brk) {
                     snd_brk = brk + size;
                     correction = 0;
@@ -270,25 +248,25 @@ extern "C" void* func_0031E2D8(void* ms, unsigned int nb, sMState_31E2D8* av)
                 }
             } else {
                 if (snd_brk == (char*)0xFFFFFFFF) {
-                    snd_brk = (char*)func_0031FFD8(ms, 0);
+                    snd_brk = (char*)cMemHeap_sbrk(ms, 0);
                     av->sbrked_mem += snd_brk - brk - size;
                 }
             }
 
             if (snd_brk != (char*)0xFFFFFFFF) {
-                av->top = (sMChunk_31E2D8*)aligned_brk;
+                av->top = (sMallocChunk*)aligned_brk;
                 av->top->size = (snd_brk - aligned_brk + correction) | 1;
                 av->sbrked_mem += correction;
 
                 if (old_size != 0) {
                     old_size = (old_size - 12) & ~15U;
                     old_top->size = old_size | 1;
-                    ((sMChunk_31E2D8*)((char*)old_top + old_size))->size = 5;
-                    ((sMChunk_31E2D8*)((char*)old_top + old_size + 4))->size = 5;
+                    ((sMallocChunk*)((char*)old_top + old_size))->size = 5;
+                    ((sMallocChunk*)((char*)old_top + old_size + 4))->size = 5;
                     if (old_size >= 16) {
                         unsigned int tt = av->trim_threshold;
                         av->trim_threshold = 0xFFFFFFFF;
-                        func_0031ED60_E2D8(ms, (char*)old_top + 8);
+                        dl_free_E2D8(ms, (char*)old_top + 8);
                         av->trim_threshold = tt;
                     }
                 }
@@ -306,7 +284,7 @@ extern "C" void* func_0031E2D8(void* ms, unsigned int nb, sMState_31E2D8* av)
         size = p->size & ~3U;
         if ((unsigned int)size >= (unsigned int)(nb + 16)) {
             remainder_size = size - nb;
-            remainder = (sMChunk_31E2D8*)((char*)p + nb);
+            remainder = (sMallocChunk*)((char*)p + nb);
             av->top = remainder;
             p->size = nb | 1;
             remainder->size = remainder_size | 1;
@@ -319,29 +297,15 @@ extern "C" void* func_0031E2D8(void* ms, unsigned int nb, sMState_31E2D8* av)
 }
 
 //100%
-extern "C" unsigned int func_0031FFD8(void* self, long incr); // PORT: 64-bit long param
+extern "C" unsigned int cMemHeap_sbrk(void* self, long incr); // PORT: 64-bit long param
 // PORT: libgcc 64-bit helpers called by name so the relocations match
 // (__divdi3 / __muldi3 in the retail ELF's unnamed libgcc copy).
 extern "C" long func_0040FCB0(long a, long b);
 extern "C" long func_004114D0(long a, long b);
 
-struct sChunk_31E6D8
-{
-    unsigned int prev_size;
-    unsigned int size;
-};
 
-struct sMState_31E6D8
-{
-    char pad_0x00[0x30];
-    sChunk_31E6D8* top;         // 0x30
-    char pad_0x34[0x35C - 0x34];
-    unsigned int pagesize;      // 0x35C
-    char pad_0x360[0x8];
-    unsigned int sbrked_mem;    // 0x368
-};
 
-extern "C" int func_0031E6D8(void* ms, unsigned int pad, sMState_31E6D8* av)
+extern "C" int dl_systrim(void* ms, unsigned int pad, sMallocState* av)
 {
     long top_size;
     long extra;
@@ -354,10 +318,10 @@ extern "C" int func_0031E6D8(void* ms, unsigned int pad, sMState_31E6D8* av)
     top_size = av->top->size & ~3;
     extra = func_004114D0(func_0040FCB0(top_size - pad - 16 + (pagesz - 1), pagesz) - 1, pagesz);
     if (extra > 0) {
-        current_brk = (char*)func_0031FFD8(ms, 0);
+        current_brk = (char*)cMemHeap_sbrk(ms, 0);
         if (current_brk == (char*)av->top + top_size) {
-            func_0031FFD8(ms, -extra);
-            new_brk = (char*)func_0031FFD8(ms, 0);
+            cMemHeap_sbrk(ms, -extra);
+            new_brk = (char*)cMemHeap_sbrk(ms, 0);
             if (new_brk != (char*)0xFFFFFFFF) {
                 released = current_brk - new_brk;
                 if (released != 0) {
@@ -373,48 +337,32 @@ extern "C" int func_0031E6D8(void* ms, unsigned int pad, sMState_31E6D8* av)
 
 //100%
 // dlmalloc 2.7.0 malloc()
-struct sMChunk_31E818
-{
-    unsigned int prev_size;      // 0x0
-    unsigned int size;           // 0x4
-    sMChunk_31E818* fd;          // 0x8
-    sMChunk_31E818* bk;          // 0xC
-};
 
-struct sMState_31E818
-{
-    unsigned int max_fast;              // 0x0
-    sMChunk_31E818* fastbins[11];       // 0x4
-    sMChunk_31E818* top;                // 0x30
-    sMChunk_31E818* last_remainder;     // 0x34
-    sMChunk_31E818* bins[192];          // 0x38
-    unsigned int binmap[3];             // 0x338
-};
 
-extern "C" int func_0031E1D8(unsigned int sz);
+extern "C" int dl_largebin_index(unsigned int sz);
 // PORT: the unit declares these with their own state types; bind the malloc view by asm label.
-extern "C" void func_0031EEE8_E818(void* ms, sMState_31E818* av) __asm__("func_0031EEE8");
-extern "C" void* func_0031E2D8_E818(void* ms, unsigned int nb, sMState_31E818* av) __asm__("func_0031E2D8");
+extern "C" void dl_malloc_consolidate_E818(void* ms, sMallocState* av) __asm__("dl_malloc_consolidate");
+extern "C" void* dl_sysmalloc_E818(void* ms, unsigned int nb, sMallocState* av) __asm__("dl_sysmalloc");
 
-#define BIN_AT_31E818(av, i) ((sMChunk_31E818*)((char*)&(av)->bins[(i) << 1] - 8))
+#define BIN_AT_31E818(av, i) ((sMallocChunk*)((char*)&(av)->bins[(i) << 1] - 8))
 
-extern "C" void* func_0031E818(void* ms, unsigned int bytes)
+extern "C" void* dl_malloc(void* ms, unsigned int bytes)
 {
-    sMState_31E818* av = *(sMState_31E818**)ms;
+    sMallocState* av = *(sMallocState**)ms;
     unsigned int nb;
     unsigned int idx;
-    sMChunk_31E818* bin;
-    sMChunk_31E818** fb;
-    sMChunk_31E818* victim;
+    sMallocChunk* bin;
+    sMallocChunk** fb;
+    sMallocChunk* victim;
     unsigned int size;
     int victim_index;
-    sMChunk_31E818* remainder;
+    sMallocChunk* remainder;
     unsigned int remainder_size;
     unsigned int block;
     unsigned int bit;
     unsigned int map;
-    sMChunk_31E818* fwd;
-    sMChunk_31E818* bck;
+    sMallocChunk* fwd;
+    sMallocChunk* bck;
 
     if (bytes >= (unsigned int)-32) {
         *func_00415FB8() = 12;
@@ -424,7 +372,7 @@ extern "C" void* func_0031E818(void* ms, unsigned int bytes)
 
     if (!(av->max_fast & 1)) {
         if (av->max_fast == 0)
-            func_0031EEE8_E818(ms, av);
+            dl_malloc_consolidate_E818(ms, av);
         goto use_top;
     }
 
@@ -438,19 +386,19 @@ extern "C" void* func_0031E818(void* ms, unsigned int bytes)
 
     if (nb < 256) {
         idx = nb >> 3;
-        sMChunk_31E818** base = &av->bins[idx << 1];
-        bin = (sMChunk_31E818*)((char*)base - 8);
+        sMallocChunk** base = &av->bins[idx << 1];
+        bin = (sMallocChunk*)((char*)base - 8);
         if ((victim = base[1]) != bin) {
             bck = victim->bk;
-            ((sMChunk_31E818*)((char*)victim + nb))->size |= 1;
+            ((sMallocChunk*)((char*)victim + nb))->size |= 1;
             base[1] = bck;
             bck->fd = bin;
             return (char*)victim + 8;
         }
     } else {
-        idx = func_0031E1D8(nb);
+        idx = dl_largebin_index(nb);
         if (av->max_fast & 2)
-            func_0031EEE8_E818(ms, av);
+            dl_malloc_consolidate_E818(ms, av);
     }
 
     while ((victim = BIN_AT_31E818(av, 1)->bk) != BIN_AT_31E818(av, 1)) {
@@ -459,13 +407,13 @@ extern "C" void* func_0031E818(void* ms, unsigned int bytes)
 
         if (nb < 256 && bck == BIN_AT_31E818(av, 1) && victim == av->last_remainder && size > nb + 16) {
             remainder_size = size - nb;
-            remainder = (sMChunk_31E818*)((char*)victim + nb);
+            remainder = (sMallocChunk*)((char*)victim + nb);
             av->bins[3] = av->bins[2] = remainder;
             av->last_remainder = remainder;
             remainder->bk = remainder->fd = BIN_AT_31E818(av, 1);
             victim->size = nb | 1;
             remainder->size = remainder_size | 1;
-            ((sMChunk_31E818*)((char*)remainder + remainder_size))->prev_size = remainder_size;
+            ((sMallocChunk*)((char*)remainder + remainder_size))->prev_size = remainder_size;
             return (char*)victim + 8;
         }
 
@@ -473,19 +421,19 @@ extern "C" void* func_0031E818(void* ms, unsigned int bytes)
         bck->fd = BIN_AT_31E818(av, 1);
 
         if (size == nb) {
-            ((sMChunk_31E818*)((char*)victim + size))->size |= 1;
+            ((sMallocChunk*)((char*)victim + size))->size |= 1;
             return (char*)victim + 8;
         }
 
         if (size < 256) {
             victim_index = size >> 3;
-            sMChunk_31E818** base = &av->bins[victim_index << 1];
-            bck = (sMChunk_31E818*)((char*)base - 8);
+            sMallocChunk** base = &av->bins[victim_index << 1];
+            bck = (sMallocChunk*)((char*)base - 8);
             fwd = base[0];
         } else {
-            victim_index = func_0031E1D8(size);
-            sMChunk_31E818** base = &av->bins[victim_index << 1];
-            bck = (sMChunk_31E818*)((char*)base - 8);
+            victim_index = dl_largebin_index(size);
+            sMallocChunk** base = &av->bins[victim_index << 1];
+            bck = (sMallocChunk*)((char*)base - 8);
             fwd = base[0];
             if (fwd != bck) {
                 if (size < bck->bk->size) {
@@ -508,8 +456,8 @@ extern "C" void* func_0031E818(void* ms, unsigned int bytes)
     }
 
     if (!(nb < 256)) {
-        sMChunk_31E818** base = &av->bins[idx << 1];
-        bin = (sMChunk_31E818*)((char*)base - 8);
+        sMallocChunk** base = &av->bins[idx << 1];
+        bin = (sMallocChunk*)((char*)base - 8);
         for (victim = base[1]; victim != bin; victim = victim->bk) {
             size = victim->size & ~3U;
             if (size >= nb) {
@@ -520,15 +468,15 @@ extern "C" void* func_0031E818(void* ms, unsigned int bytes)
                 bck->fd = fwd;
                 void* mem = (char*)victim + 8;
                 if (remainder_size < 16) {
-                    ((sMChunk_31E818*)((char*)victim + size))->size |= 1;
+                    ((sMallocChunk*)((char*)victim + size))->size |= 1;
                     return mem;
                 } else {
-                    remainder = (sMChunk_31E818*)((char*)victim + nb);
+                    remainder = (sMallocChunk*)((char*)victim + nb);
                     av->bins[3] = av->bins[2] = remainder;
                     remainder->bk = remainder->fd = BIN_AT_31E818(av, 1);
                     victim->size = nb | 1;
                     remainder->size = remainder_size | 1;
-                    ((sMChunk_31E818*)((char*)remainder + remainder_size))->prev_size = remainder_size;
+                    ((sMallocChunk*)((char*)remainder + remainder_size))->prev_size = remainder_size;
                     return mem;
                 }
             }
@@ -552,14 +500,14 @@ extern "C" void* func_0031E818(void* ms, unsigned int bytes)
         }
 
         while ((bit & map) == 0) {
-            bin = (sMChunk_31E818*)((char*)bin + 8);
+            bin = (sMallocChunk*)((char*)bin + 8);
             bit <<= 1;
         }
 
         victim = bin->bk;
         if (victim == bin) {
             av->binmap[block] = map &= ~bit;
-            bin = (sMChunk_31E818*)((char*)bin + 8);
+            bin = (sMallocChunk*)((char*)bin + 8);
             bit <<= 1;
         } else {
             size = victim->size & ~3U;
@@ -568,17 +516,17 @@ extern "C" void* func_0031E818(void* ms, unsigned int bytes)
             bin->bk = bck;
             bck->fd = bin;
             if (remainder_size < 16) {
-                ((sMChunk_31E818*)((char*)victim + size))->size |= 1;
+                ((sMallocChunk*)((char*)victim + size))->size |= 1;
                 return (char*)victim + 8;
             } else {
-                remainder = (sMChunk_31E818*)((char*)victim + nb);
+                remainder = (sMallocChunk*)((char*)victim + nb);
                 av->bins[3] = av->bins[2] = remainder;
                 remainder->bk = remainder->fd = BIN_AT_31E818(av, 1);
                 if (nb < 256)
                     av->last_remainder = remainder;
                 victim->size = nb | 1;
                 remainder->size = remainder_size | 1;
-                ((sMChunk_31E818*)((char*)remainder + remainder_size))->prev_size = remainder_size;
+                ((sMallocChunk*)((char*)remainder + remainder_size))->prev_size = remainder_size;
                 return (char*)victim + 8;
             }
         }
@@ -589,84 +537,61 @@ use_top:
     size = victim->size & ~3U;
     if (size >= nb + 16) {
         remainder_size = size - nb;
-        remainder = (sMChunk_31E818*)((char*)victim + nb);
+        remainder = (sMallocChunk*)((char*)victim + nb);
         av->top = remainder;
         victim->size = nb | 1;
         remainder->size = remainder_size | 1;
         return (char*)victim + 8;
     }
-    return func_0031E2D8_E818(ms, nb, av);
+    return dl_sysmalloc_E818(ms, nb, av);
 }
 
 //100%
 // dlmalloc 2.7 free()
-struct sMChunk_31ED60
+
+
+
+extern "C" void dl_malloc_consolidate(void* ms, sMallocState* av);
+extern "C" int dl_systrim(void* ms, unsigned int pad, sMallocState* av);
+
+// PORT: the unit declares dl_free(void*); the body really takes (ms, mem).
+extern "C" void dl_free_free(sMemHeap* ms, void* mem) __asm__("dl_free");
+
+extern "C" void dl_free_free(sMemHeap* ms, void* mem)
 {
-    unsigned int prev_size;      // 0x0
-    unsigned int size;           // 0x4
-    sMChunk_31ED60* fd;          // 0x8
-    sMChunk_31ED60* bk;          // 0xC
-};
-
-struct sMState_31ED60
-{
-    unsigned int max_fast;              // 0x0
-    sMChunk_31ED60* fastbins[11];       // 0x4
-    sMChunk_31ED60* top;                // 0x30
-    sMChunk_31ED60* last_remainder;     // 0x34
-    sMChunk_31ED60* bins[0xC3];         // 0x38
-    unsigned int trim_threshold;        // 0x344
-    unsigned int top_pad;               // 0x348
-};
-
-struct sMalloc_31ED60
-{
-    sMState_31ED60* av;
-};
-
-struct sMState_31EEE8;
-struct sMState_31E6D8;
-extern "C" void func_0031EEE8(void* ms, sMState_31EEE8* av);
-extern "C" int func_0031E6D8(void* ms, unsigned int pad, sMState_31E6D8* av);
-
-// PORT: the unit declares func_0031ED60(void*); the body really takes (ms, mem).
-extern "C" void func_0031ED60_free(sMalloc_31ED60* ms, void* mem) __asm__("func_0031ED60");
-
-extern "C" void func_0031ED60_free(sMalloc_31ED60* ms, void* mem)
-{
-    sMState_31ED60* av = ms->av;
-    sMChunk_31ED60* p;
-    sMChunk_31ED60* nextchunk;
+    sMallocState* av = ms->av;
+    sMallocChunk* p;
+    sMallocChunk* nextchunk;
     unsigned int size;
     unsigned int nextsize;
     unsigned int prevsize;
     int nextinuse;
-    sMChunk_31ED60* bck;
-    sMChunk_31ED60* fwd;
-    sMChunk_31ED60** fb;
+    sMallocChunk* bck;
+    sMallocChunk* fwd;
+    sMallocChunk** fb;
 
     // PORT: chunk header reads go through (int)mem - 8 (pointer in int) to match gcc 2.95 offset folding
     if (mem != 0)
     {
-        size = ((sMChunk_31ED60*)((int)mem - 8))->size & ~3U;
-        p = (sMChunk_31ED60*)((char*)mem - 8);
+        size = ((sMallocChunk*)((int)mem - 8))->size & ~3U;
+        p = (sMallocChunk*)((char*)mem - 8);
         if (size <= av->max_fast)
         {
             av->max_fast |= 3;
             fb = &av->fastbins[(size >> 3) - 2];
-            *(sMChunk_31ED60**)mem = *fb;
+            *(sMallocChunk**)mem = *fb;
             *fb = p;
         }
-        else if (!(((sMChunk_31ED60*)((int)mem - 8))->size & 2))
+        else if (!(((sMallocChunk*)((int)mem - 8))->size & 2))
         {
             av->max_fast |= 1;
-            nextchunk = (sMChunk_31ED60*)((char*)p + size);
+            nextchunk = (sMallocChunk*)((char*)p + size);
             nextsize = nextchunk->size & ~3U;
-            if (!(((sMChunk_31ED60*)((int)mem - 8))->size & 1))
+            if (!(((sMallocChunk*)((int)mem - 8))->size & 1))
             {
                 prevsize = p->prev_size;
                 size += prevsize;
-                p = (sMChunk_31ED60*)((char*)p - (long)prevsize);
+                p = (sMallocChunk*)((char*)p - (long)prevsize);
                 fwd = p->fd;
                 bck = p->bk;
                 fwd->bk = bck;
@@ -674,7 +599,7 @@ extern "C" void func_0031ED60_free(sMalloc_31ED60* ms, void* mem)
             }
             if (nextchunk != av->top)
             {
-                nextinuse = ((sMChunk_31ED60*)((char*)nextchunk + nextsize))->size & 1;
+                nextinuse = ((sMallocChunk*)((char*)nextchunk + nextsize))->size & 1;
                 nextchunk->size = nextsize;
                 if (!nextinuse)
                 {
@@ -684,13 +609,13 @@ extern "C" void func_0031ED60_free(sMalloc_31ED60* ms, void* mem)
                     bck->fd = fwd;
                     size += nextsize;
                 }
-                fwd = ((sMChunk_31ED60*)((char*)&av->bins[1 << 1] - 8))->fd;
-                p->bk = (sMChunk_31ED60*)((char*)&av->bins[1 << 1] - 8);
+                fwd = ((sMallocChunk*)((char*)&av->bins[1 << 1] - 8))->fd;
+                p->bk = (sMallocChunk*)((char*)&av->bins[1 << 1] - 8);
                 p->fd = fwd;
-                ((sMChunk_31ED60*)((char*)&av->bins[1 << 1] - 8))->fd = p;
+                ((sMallocChunk*)((char*)&av->bins[1 << 1] - 8))->fd = p;
                 fwd->bk = p;
                 p->size = size | 1;
-                ((sMChunk_31ED60*)((char*)p + size))->prev_size = size;
+                ((sMallocChunk*)((char*)p + size))->prev_size = size;
             }
             else
             {
@@ -701,9 +626,9 @@ extern "C" void func_0031ED60_free(sMalloc_31ED60* ms, void* mem)
             if (size >= 0x4000)
             {
                 if (av->max_fast & 2)
-                    func_0031EEE8(ms, (sMState_31EEE8*)av);
+                    dl_malloc_consolidate(ms, (sMallocState*)av);
                 if ((av->top->size & ~3U) >= av->trim_threshold)
-                    func_0031E6D8(ms, av->top_pad, (sMState_31E6D8*)av);
+                    dl_systrim(ms, av->top_pad, (sMallocState*)av);
             }
         }
     }
@@ -711,45 +636,30 @@ extern "C" void func_0031ED60_free(sMalloc_31ED60* ms, void* mem)
 
 //100%
 // PORT: 64-bit `long` (8 bytes on EE, 4 on Windows); use int64_t/uint64_t off-PS2.
-void func_0031E260(void* av);
+void dl_malloc_init_state(void* av);
 
 // dlmalloc 2.7 malloc_consolidate()
-struct sMChunk_31EEE8
-{
-    unsigned int prev_size;      // 0x0
-    unsigned int size;           // 0x4
-    sMChunk_31EEE8* fd;          // 0x8
-    sMChunk_31EEE8* bk;          // 0xC
-};
 
-struct sMState_31EEE8
-{
-    unsigned int max_fast;              // 0x0
-    sMChunk_31EEE8* fastbins[11];       // 0x4
-    sMChunk_31EEE8* top;                // 0x30
-    sMChunk_31EEE8* last_remainder;     // 0x34
-    sMChunk_31EEE8* bins[4];            // 0x38
-};
 
-extern "C" void func_0031EEE8(void* ms, sMState_31EEE8* av)
+extern "C" void dl_malloc_consolidate(void* ms, sMallocState* av)
 {
-    sMChunk_31EEE8** fb;
-    sMChunk_31EEE8** maxfb;
-    sMChunk_31EEE8* p;
-    sMChunk_31EEE8* nextp;
-    sMChunk_31EEE8* unsorted_bin;
-    sMChunk_31EEE8* first_unsorted;
-    sMChunk_31EEE8* nextchunk;
+    sMallocChunk** fb;
+    sMallocChunk** maxfb;
+    sMallocChunk* p;
+    sMallocChunk* nextp;
+    sMallocChunk* unsorted_bin;
+    sMallocChunk* first_unsorted;
+    sMallocChunk* nextchunk;
     unsigned int size;
     unsigned int nextsize;
     unsigned int prevsize;
     int nextinuse;
-    sMChunk_31EEE8* bck;
-    sMChunk_31EEE8* fwd;
+    sMallocChunk* bck;
+    sMallocChunk* fwd;
 
     if (av->max_fast != 0) {
         av->max_fast &= ~2U;
-        unsorted_bin = (sMChunk_31EEE8*)((char*)&av->bins[1 << 1] - 8);
+        unsorted_bin = (sMallocChunk*)((char*)&av->bins[1 << 1] - 8);
         maxfb = &av->fastbins[(av->max_fast >> 3) - 2];
         fb = &av->fastbins[0];
         do {
@@ -758,19 +668,19 @@ extern "C" void func_0031EEE8(void* ms, sMState_31EEE8* av)
                 do {
                     nextp = p->fd;
                     size = p->size & ~1U;
-                    nextchunk = (sMChunk_31EEE8*)((char*)p + size);
+                    nextchunk = (sMallocChunk*)((char*)p + size);
                     nextsize = nextchunk->size & ~3U;
                     if (!(p->size & 1)) {
                         prevsize = p->prev_size;
                         size += prevsize;
-                        p = (sMChunk_31EEE8*)((char*)p - (long)prevsize);
+                        p = (sMallocChunk*)((char*)p - (long)prevsize);
                         fwd = p->fd;
                         bck = p->bk;
                         fwd->bk = bck;
                         bck->fd = fwd;
                     }
                     if (nextchunk != av->top) {
-                        nextinuse = ((sMChunk_31EEE8*)((char*)nextchunk + nextsize))->size & 1;
+                        nextinuse = ((sMallocChunk*)((char*)nextchunk + nextsize))->size & 1;
                         nextchunk->size = nextsize;
                         if (!nextinuse) {
                             size += nextsize;
@@ -785,7 +695,7 @@ extern "C" void func_0031EEE8(void* ms, sMState_31EEE8* av)
                         p->size = size | 1;
                         p->bk = unsorted_bin;
                         p->fd = first_unsorted;
-                        ((sMChunk_31EEE8*)((char*)p + size))->prev_size = size;
+                        ((sMallocChunk*)((char*)p + size))->prev_size = size;
                     } else {
                         size += nextsize;
                         p->size = size | 1;
@@ -795,45 +705,38 @@ extern "C" void func_0031EEE8(void* ms, sMState_31EEE8* av)
             }
         } while (fb++ != maxfb);
     } else {
-        func_0031E260(av);
+        dl_malloc_init_state(av);
     }
 }
 
 //100%
 // dlmalloc 2.7 realloc() (no mmap support: an mmapped chunk fails with ENOMEM).
-struct sMChunk_31F018
-{
-    unsigned int prev_size;      // 0x0
-    unsigned int size;           // 0x4
-    sMChunk_31F018* fd;          // 0x8
-    sMChunk_31F018* bk;          // 0xC
-};
 
 extern "C" void func_003E6574(void* d, void* s, int n);
 
-extern "C" void* func_0031F018(void* ms, void* oldmem, unsigned int bytes)
+extern "C" void* dl_realloc(void* ms, void* oldmem, unsigned int bytes)
 {
     char* av = *(char**)ms;
     unsigned int nb;
-    sMChunk_31F018* oldp;
+    sMallocChunk* oldp;
     unsigned int oldsize;
-    sMChunk_31F018* newp;
+    sMallocChunk* newp;
     unsigned int newsize;
     char* newmem;
-    sMChunk_31F018* next;
-    sMChunk_31F018* remainder;
+    sMallocChunk* next;
+    sMallocChunk* remainder;
     unsigned int remainder_size;
     unsigned int head;
 
     if (oldmem == 0)
-        return func_0031E818(ms, bytes);
+        return dl_malloc(ms, bytes);
 
     if (bytes >= (unsigned int)-32)
         goto nomem;
     nb = (bytes + 4 + 15 < 16) ? 16 : (bytes + 4 + 15) & ~15;
 
     head = *(unsigned int*)((char*)oldmem - 4);
-    oldp = (sMChunk_31F018*)((char*)oldmem - 8);
+    oldp = (sMallocChunk*)((char*)oldmem - 8);
     oldsize = head & ~3;
     if (head & 2)
         goto nomem;
@@ -842,18 +745,18 @@ extern "C" void* func_0031F018(void* ms, void* oldmem, unsigned int bytes)
         newp = oldp;
         newsize = oldsize;
     } else {
-        next = (sMChunk_31F018*)((char*)oldp + oldsize);
-        if (next == *(sMChunk_31F018**)(av + 0x30)) {
+        next = (sMallocChunk*)((char*)oldp + oldsize);
+        if (next == *(sMallocChunk**)(av + 0x30)) {
             if ((newsize = oldsize + (next->size & ~3)) >= nb + 16) {
                 *(unsigned int*)((int)oldmem - 4) = (head & 1) | nb;
-                *(sMChunk_31F018**)(av + 0x30) = (sMChunk_31F018*)((char*)oldp + nb);
-                ((sMChunk_31F018*)((char*)oldp + nb))->size = (newsize - nb) | 1;
+                *(sMallocChunk**)(av + 0x30) = (sMallocChunk*)((char*)oldp + nb);
+                ((sMallocChunk*)((char*)oldp + nb))->size = (newsize - nb) | 1;
                 return oldmem;
             }
-        } else if (!(((sMChunk_31F018*)((char*)next + (next->size & ~1)))->size & 1) &&
+        } else if (!(((sMallocChunk*)((char*)next + (next->size & ~1)))->size & 1) &&
                    (newsize = oldsize + (next->size & ~3)) >= nb) {
-            sMChunk_31F018* bck;
-            sMChunk_31F018* fwd;
+            sMallocChunk* bck;
+            sMallocChunk* fwd;
             newp = oldp;
             fwd = next->fd;
             bck = next->bk;
@@ -862,10 +765,10 @@ extern "C" void* func_0031F018(void* ms, void* oldmem, unsigned int bytes)
             goto split;
         }
 
-        newmem = (char*)func_0031E818(ms, nb - 15);
+        newmem = (char*)dl_malloc(ms, nb - 15);
         if (newmem == 0)
             return 0;
-        newp = (sMChunk_31F018*)(newmem - 8);
+        newp = (sMallocChunk*)(newmem - 8);
         newsize = *(unsigned int*)(newmem - 4) & ~3;
         if (newp == next) {
             newsize += oldsize;
@@ -894,7 +797,7 @@ extern "C" void* func_0031F018(void* ms, void* oldmem, unsigned int bytes)
                     }
                 }
             }
-            func_0031ED60_E2D8(ms, oldmem);
+            dl_free_E2D8(ms, oldmem);
             return (char*)newp + 8;
         }
     }
@@ -903,13 +806,13 @@ split:
     remainder_size = newsize - nb;
     if (remainder_size < 16) {
         newp->size = (newp->size & 1) | newsize;
-        ((sMChunk_31F018*)((char*)newp + newsize))->size |= 1;
+        ((sMallocChunk*)((char*)newp + newsize))->size |= 1;
     } else {
-        remainder = (sMChunk_31F018*)((char*)newp + nb);
+        remainder = (sMallocChunk*)((char*)newp + nb);
         newp->size = (newp->size & 1) | nb;
         remainder->size = remainder_size | 1;
-        ((sMChunk_31F018*)((char*)remainder + remainder_size))->size |= 1;
-        func_0031ED60_E2D8(ms, (char*)remainder + 8);
+        ((sMallocChunk*)((char*)remainder + remainder_size))->size |= 1;
+        dl_free_E2D8(ms, (char*)remainder + 8);
     }
     return (char*)newp + 8;
 
@@ -920,8 +823,8 @@ nomem:
 
 //100%
 // dlmalloc 2.7 memalign().
-extern "C" void* func_0031F2C8_impl(void* ms, unsigned int alignment, unsigned int bytes) __asm__("func_0031F2C8");
-extern "C" void* func_0031F2C8_impl(void* ms, unsigned int alignment, unsigned int bytes)
+extern "C" void* dl_memalign_impl(void* ms, unsigned int alignment, unsigned int bytes) __asm__("dl_memalign");
+extern "C" void* dl_memalign_impl(void* ms, unsigned int alignment, unsigned int bytes)
 {
     unsigned int nb;
     char* m;
@@ -935,7 +838,7 @@ extern "C" void* func_0031F2C8_impl(void* ms, unsigned int alignment, unsigned i
     unsigned int head;
 
     if (alignment <= 16)
-        return func_0031E818(ms, bytes);
+        return dl_malloc(ms, bytes);
 
     if (alignment < 16)
         alignment = 16;
@@ -954,7 +857,7 @@ extern "C" void* func_0031F2C8_impl(void* ms, unsigned int alignment, unsigned i
     }
     nb = (req + 4 + 15 < 16) ? 16 : (req + 4 + 15) & ~15;
 
-    m = (char*)func_0031E818(ms, nb + alignment + 16);
+    m = (char*)dl_malloc(ms, nb + alignment + 16);
     if (m == 0)
         return 0;
 
@@ -979,7 +882,7 @@ extern "C" void* func_0031F2C8_impl(void* ms, unsigned int alignment, unsigned i
         *(unsigned int*)(newp + 4) = newsize | 1;
         *(unsigned int*)(newp + newsize + 4) |= 1;
         *(unsigned int*)((int)m - 4) = (*(unsigned int*)((int)m - 4) & 1) | leadsize;
-        func_0031ED60_E2D8(ms, m);
+        dl_free_E2D8(ms, m);
         p = newp;
     }
 
@@ -989,7 +892,7 @@ extern "C" void* func_0031F2C8_impl(void* ms, unsigned int alignment, unsigned i
             char* remainder = p + nb;
             *(unsigned int*)(remainder + 4) = (size - nb) | 1;
             *(unsigned int*)(p + 4) = (*(unsigned int*)(p + 4) & 1) | nb;
-            func_0031ED60_E2D8(ms, remainder + 8);
+            dl_free_E2D8(ms, remainder + 8);
         }
     }
     return p + 8;
@@ -997,8 +900,8 @@ extern "C" void* func_0031F2C8_impl(void* ms, unsigned int alignment, unsigned i
 
 //100%
 // dlmalloc 2.7 memalign() with an offset: returns memory where (mem + offset) is aligned.
-extern "C" void* func_0031F4E8_impl(void* ms, unsigned int alignment, unsigned int bytes, unsigned int offset) __asm__("func_0031F4E8");
-extern "C" void* func_0031F4E8_impl(void* ms, unsigned int alignment, unsigned int bytes, unsigned int offset)
+extern "C" void* dl_memalign_offset_impl(void* ms, unsigned int alignment, unsigned int bytes, unsigned int offset) __asm__("dl_memalign_offset");
+extern "C" void* dl_memalign_offset_impl(void* ms, unsigned int alignment, unsigned int bytes, unsigned int offset)
 {
     unsigned int nb;
     char* m;
@@ -1012,7 +915,7 @@ extern "C" void* func_0031F4E8_impl(void* ms, unsigned int alignment, unsigned i
     unsigned int head;
 
     if (alignment <= 16)
-        return func_0031E818(ms, bytes);
+        return dl_malloc(ms, bytes);
 
     if (alignment < 16)
         alignment = 16;
@@ -1031,7 +934,7 @@ extern "C" void* func_0031F4E8_impl(void* ms, unsigned int alignment, unsigned i
     }
     nb = (req + 4 + 15 < 16) ? 16 : (req + 4 + 15) & ~15;
 
-    m = (char*)func_0031E818(ms, nb + alignment + 16);
+    m = (char*)dl_malloc(ms, nb + alignment + 16);
     if (m == 0)
         return 0;
 
@@ -1056,7 +959,7 @@ extern "C" void* func_0031F4E8_impl(void* ms, unsigned int alignment, unsigned i
         *(unsigned int*)(newp + 4) = newsize | 1;
         *(unsigned int*)(newp + newsize + 4) |= 1;
         *(unsigned int*)((int)m - 4) = (*(unsigned int*)((int)m - 4) & 1) | leadsize;
-        func_0031ED60_E2D8(ms, m);
+        dl_free_E2D8(ms, m);
         p = newp;
     }
 
@@ -1066,7 +969,7 @@ extern "C" void* func_0031F4E8_impl(void* ms, unsigned int alignment, unsigned i
             char* remainder = p + nb;
             *(unsigned int*)(remainder + 4) = (size - nb) | 1;
             *(unsigned int*)(p + 4) = (*(unsigned int*)(p + 4) & 1) | nb;
-            func_0031ED60_E2D8(ms, remainder + 8);
+            dl_free_E2D8(ms, remainder + 8);
         }
     }
     return p + 8;
@@ -1076,9 +979,9 @@ extern "C" void* func_0031F4E8_impl(void* ms, unsigned int alignment, unsigned i
 // dlmalloc calloc: allocate n * size bytes and clear them (unrolled for small chunks).
 extern "C" void func_003E6448(void* p, int v, int n);
 
-extern "C" void* func_0031F718(void* ms, unsigned int n, unsigned int size)
+extern "C" void* dl_calloc(void* ms, unsigned int n, unsigned int size)
 {
-    unsigned int* d = (unsigned int*)func_0031E818(ms, n * size);
+    unsigned int* d = (unsigned int*)dl_malloc(ms, n * size);
     if (d != 0) {
         unsigned int head = d[-1];
         if (!(head & 2)) {
@@ -1110,32 +1013,32 @@ extern "C" void* func_0031F718(void* ms, unsigned int n, unsigned int size)
     return d;
 }
 
-extern "C" int func_0031ED60(void* self);
+extern "C" int dl_free(void* self);
 
-extern "C" int func_0031F7F0(void* self)
+extern "C" int dl_cfree(void* self)
 {
-    return func_0031ED60(self);
+    return dl_free(self);
 }
 
-extern "C" void func_0031F858(void* a, void* b, void* c, int d, int e);
+extern "C" void dl_ialloc(void* a, void* b, void* c, int d, int e);
 
-extern "C" void func_0031F810(void* a, void* b, int c, int e)
+extern "C" void dl_independent_calloc(void* a, void* b, int c, int e)
 {
     int v = c;
-    func_0031F858(a, b, &v, 3, e);
+    dl_ialloc(a, b, &v, 3, e);
 }
 
-extern "C" void func_0031F838(void* a, void* b, void* c, int e)
+extern "C" void dl_independent_comalloc(void* a, void* b, void* c, int e)
 {
-    func_0031F858(a, b, c, 0, e);
+    dl_ialloc(a, b, c, 0, e);
 }
 
 //100%
 // dlmalloc 2.7 independent_calloc/comalloc core (iALLOc): carve n chunks out of one allocation.
 #define REQ2SIZE_31F858(req) (((req) + 4 + 15 < 16) ? 16 : ((req) + 4 + 15) & ~15)
 
-extern "C" void** func_0031F858_impl(void* ms, unsigned int n_elements, unsigned int* sizes, int opts, void** chunks) __asm__("func_0031F858");
-extern "C" void** func_0031F858_impl(void* ms, unsigned int n_elements, unsigned int* sizes, int opts, void** chunks)
+extern "C" void** dl_ialloc_impl(void* ms, unsigned int n_elements, unsigned int* sizes, int opts, void** chunks) __asm__("dl_ialloc");
+extern "C" void** dl_ialloc_impl(void* ms, unsigned int n_elements, unsigned int* sizes, int opts, void** chunks)
 {
     char* av = *(char**)ms;
     unsigned int element_size;
@@ -1151,7 +1054,7 @@ extern "C" void** func_0031F858_impl(void* ms, unsigned int n_elements, unsigned
     unsigned int i;
 
     if (*(unsigned int*)av == 0)
-        func_0031EEE8(ms, (sMState_31EEE8*)av);
+        dl_malloc_consolidate(ms, (sMallocState*)av);
 
     if (chunks != 0) {
         if (n_elements == 0)
@@ -1160,7 +1063,7 @@ extern "C" void** func_0031F858_impl(void* ms, unsigned int n_elements, unsigned
         array_size = 0;
     } else {
         if (n_elements == 0)
-            return (void**)func_0031E818(ms, 0);
+            return (void**)dl_malloc(ms, 0);
         marray = 0;
         array_size = REQ2SIZE_31F858(n_elements * sizeof(void*));
     }
@@ -1179,7 +1082,7 @@ extern "C" void** func_0031F858_impl(void* ms, unsigned int n_elements, unsigned
 
     mmx = *(int*)(av + 0x354);
     *(int*)(av + 0x354) = 0;
-    mem = (char*)func_0031E818(ms, size);
+    mem = (char*)dl_malloc(ms, size);
     *(int*)(av + 0x354) = mmx;
     if (mem == 0)
         return 0;
@@ -1215,44 +1118,38 @@ extern "C" void** func_0031F858_impl(void* ms, unsigned int n_elements, unsigned
     return marray;
 }
 
-struct sMState_31FAA8
-{
-    unsigned int max_fast;  // 0x0
-    char pad4[0x358];       // 0x4
-    unsigned int pagesize;  // 0x35C
-};
 
-extern "C" void* dl_memalign(void* ms, unsigned int alignment, unsigned int bytes) __asm__("func_0031F2C8");
+extern "C" void* dl_memalign_3(void* ms, unsigned int alignment, unsigned int bytes) __asm__("dl_memalign");
 
 // dlmalloc 2.7 vALLOc(): memalign to the page size, consolidating first if needed.
-extern "C" void* func_0031FAA8(void* ms, unsigned int bytes)
+extern "C" void* dl_valloc(void* ms, unsigned int bytes)
 {
-    sMState_31FAA8* av = *(sMState_31FAA8**)ms;
+    sMallocState* av = *(sMallocState**)ms;
     if (av->max_fast == 0)
-        func_0031EEE8(ms, (sMState_31EEE8*)av);
-    return dl_memalign(ms, av->pagesize, bytes);
+        dl_malloc_consolidate(ms, (sMallocState*)av);
+    return dl_memalign_3(ms, av->pagesize, bytes);
 }
 
 // dlmalloc 2.7 pVALLOc(): vALLOc() of bytes rounded up to a whole page.
-extern "C" void* func_0031FB00(void* ms, unsigned int bytes)
+extern "C" void* dl_pvalloc(void* ms, unsigned int bytes)
 {
-    sMState_31FAA8* av = *(sMState_31FAA8**)ms;
+    sMallocState* av = *(sMallocState**)ms;
     if (av->max_fast == 0)
-        func_0031EEE8(ms, (sMState_31EEE8*)av);
+        dl_malloc_consolidate(ms, (sMallocState*)av);
     unsigned int pagesz = av->pagesize;
-    return dl_memalign(ms, pagesz, (bytes + pagesz - 1) & -pagesz);
+    return dl_memalign_3(ms, pagesz, (bytes + pagesz - 1) & -pagesz);
 }
 
 // dlmalloc 2.7 mTRIm(): consolidate, then give memory above pad back.
-extern "C" int func_0031FB68(void* ms, unsigned int pad)
+extern "C" int dl_malloc_trim(void* ms, unsigned int pad)
 {
-    sMState_31FAA8* av = *(sMState_31FAA8**)ms;
-    func_0031EEE8(ms, (sMState_31EEE8*)av);
-    return func_0031E6D8(ms, pad, (sMState_31E6D8*)av);
+    sMallocState* av = *(sMallocState**)ms;
+    dl_malloc_consolidate(ms, (sMallocState*)av);
+    return dl_systrim(ms, pad, (sMallocState*)av);
 }
 
 //100%
-unsigned int func_0031FBB8(void* self, void* mem)
+unsigned int dl_malloc_usable_size(void* self, void* mem)
 {
     if (mem != 0) {
         unsigned int size = *(unsigned int*)((char*)mem - 4);
@@ -1268,65 +1165,25 @@ unsigned int func_0031FBB8(void* self, void* mem)
 
 //100%
 // dlmalloc 2.7 mALLINFo()
-struct sMChunk_31FC20
-{
-    unsigned int prev_size;      // 0x0
-    unsigned int size;           // 0x4
-    sMChunk_31FC20* fd;          // 0x8
-    sMChunk_31FC20* bk;          // 0xC
-};
 
-struct sMState_31FC20
-{
-    unsigned int max_fast;              // 0x0
-    sMChunk_31FC20* fastbins[11];       // 0x4
-    sMChunk_31FC20* top;                // 0x30
-    sMChunk_31FC20* last_remainder;     // 0x34
-    sMChunk_31FC20* bins[192];          // 0x38
-    char pad338[0x18];                  // 0x338
-    int n_mmaps;                        // 0x350
-    int n_mmaps_max;                    // 0x354
-    int max_n_mmaps;                    // 0x358
-    unsigned int pagesize;              // 0x35C
-    unsigned int morecore_properties;   // 0x360
-    unsigned int mmapped_mem;           // 0x364
-    unsigned int sbrked_mem;            // 0x368
-    unsigned int max_sbrked_mem;        // 0x36C
-    unsigned int max_mmapped_mem;       // 0x370
-    unsigned int max_total_mem;         // 0x374
-};
 
-struct sMallinfo_31FC20
-{
-    int arena;
-    int ordblks;
-    int smblks;
-    int hblks;
-    int hblkhd;
-    int usmblks;
-    int fsmblks;
-    int uordblks;
-    int fordblks;
-    int keepcost;
-};
 
-struct sMState_31EEE8;
-extern "C" void func_0031EEE8(void* ms, sMState_31EEE8* av);
+extern "C" void dl_malloc_consolidate(void* ms, sMallocState* av);
 
-extern "C" sMallinfo_31FC20 func_0031FC20(void* ms)
+extern "C" sMallinfo dl_mallinfo(void* ms)
 {
-    sMState_31FC20* av = *(sMState_31FC20**)ms;
-    sMallinfo_31FC20 mi;
+    sMallocState* av = *(sMallocState**)ms;
+    sMallinfo mi;
     int i;
-    sMChunk_31FC20* b;
-    sMChunk_31FC20* p;
+    sMallocChunk* b;
+    sMallocChunk* p;
     unsigned int avail;
     unsigned int fastavail;
     int nblocks;
     int nfastblocks;
 
     if (av->top == 0) {
-        func_0031EEE8(ms, (sMState_31EEE8*)av);
+        dl_malloc_consolidate(ms, (sMallocState*)av);
     }
 
     avail = av->top->size & ~3U;
@@ -1345,8 +1202,8 @@ extern "C" sMallinfo_31FC20 func_0031FC20(void* ms)
     avail += fastavail;
 
     for (i = 1; i < 96; ++i) {
-        sMChunk_31FC20** bp = &av->bins[i << 1];
-        b = (sMChunk_31FC20*)((char*)bp - 8);
+        sMallocChunk** bp = &av->bins[i << 1];
+        b = (sMallocChunk*)((char*)bp - 8);
         for (p = bp[1]; p != b; p = p->bk) {
             ++nblocks;
             avail += p->size & ~3U;
@@ -1373,12 +1230,12 @@ extern "C" void func_0031FE28()
 }
 
 //100%
-void func_0031EEE8_c(void* ms, char* av) __asm__("func_0031EEE8");
+void dl_malloc_consolidate_c(void* ms, char* av) __asm__("dl_malloc_consolidate");
 
-extern "C" int func_0031FE30(void** ms, int which, unsigned int val)
+extern "C" int dl_mallopt(void** ms, int which, unsigned int val)
 {
     char* s = (char*)*ms;
-    func_0031EEE8_c(ms, s);
+    dl_malloc_consolidate_c(ms, s);
     switch (which) {
     case 1: {
         // dlmalloc mallopt(M_MXFAST): set_max_fast(av, request2size(val))
@@ -1411,19 +1268,20 @@ extern "C" int func_0031FE30(void** ms, int which, unsigned int val)
 }
 
 //100%
-void* func_0031FF20(void* self)
+void* cMemHeap_cMemHeap(void* self)
 {
-    *(int*)((char*)self + 0x4) = 0;
-    *(int*)((char*)self + 0x8) = 0;
-    *(int*)((char*)self + 0xC) = 0;
-    *(int*)((char*)self + 0x0) = 0;
+    sMemHeap* heap = (sMemHeap*)self;
+    heap->base = 0;
+    heap->brk = 0;
+    heap->size = 0;
+    heap->av = 0;
     return self;
 }
 
 void operator_delete(int* ptr);
 
 //100%
-void func_0031FF38(void* self, int flags)
+void cMemHeap_delete(void* self, int flags)
 {
     if (flags & 1) {
         operator_delete((int*)self);
@@ -1433,20 +1291,25 @@ void func_0031FF38(void* self, int flags)
 //100%
 extern "C" void func_003E6448(void* dst, int c, int n);
 
-extern "C" void func_0031FF60(void* self, unsigned int base, unsigned int size)
+// Put the heap over [base, base + size): a cleared malloc_state at the
+// 16-aligned start, and the rest as the region cMemHeap_sbrk hands out.
+extern "C" void cMemHeap_init(void* self, unsigned int base, unsigned int size)
 {
+    sMemHeap* heap = (sMemHeap*)self;
     unsigned int start = (base + 0xF) & 0xFFFFFFF0;
-    *(unsigned int*)((char*)self + 0x4) = start;
-    *(unsigned int*)((char*)self + 0x0) = start;
-    *(unsigned int*)((char*)self + 0xC) = (size - (start - base)) & 0xFFFFFFF0;
-    func_003E6448((void*)start, 0, 0x378);
-    *(unsigned int*)((char*)self + 0x4) += 0x380;
-    *(unsigned int*)((char*)self + 0xC) -= 0x380;
-    *(unsigned int*)((char*)self + 0x8) = *(unsigned int*)((char*)self + 0x4);
+    heap->base = (char*)start;
+    heap->av = (sMallocState*)start;
+    heap->size = (size - (start - base)) & 0xFFFFFFF0;
+    func_003E6448((void*)start, 0, sizeof(sMallocState));
+    heap->base += 0x380;
+    heap->size -= 0x380;
+    heap->brk = heap->base;
 }
 
 //100%
-extern "C" unsigned int func_0031FFD8(void* self, long incr) // PORT: 64-bit long param
+// MORECORE for dlmalloc: move heap->brk (0x8) by incr inside [base, base + size)
+// (0x4, 0xC); returns the old break, or -1 when the region is full.
+extern "C" unsigned int cMemHeap_sbrk(void* self, long incr) // PORT: 64-bit long param
 {
     if (incr >= 0) {
         unsigned int old = *(unsigned int*)((char*)self + 0x8);
@@ -1461,33 +1324,33 @@ extern "C" unsigned int func_0031FFD8(void* self, long incr) // PORT: 64-bit lon
     return 0xFFFFFFFF;
 }
 
-extern "C" int func_0031F2C8(void* self);
+extern "C" int dl_memalign(void* self);
 
-extern "C" void* func_0031E818(void* ms, unsigned int bytes);
+extern "C" void* dl_malloc(void* ms, unsigned int bytes);
 
-extern "C" void* func_00320038(void* ms, unsigned int bytes)
+extern "C" void* cMemHeap_malloc(void* ms, unsigned int bytes)
 {
-    return func_0031E818(ms, bytes);
+    return dl_malloc(ms, bytes);
 }
 
 //99.29%
-int func_00320058(void* self)
+int cMemHeap_memalign(void* self)
 {
-    return func_0031F2C8(self);
+    return dl_memalign(self);
 }
 
-extern "C" int func_0031F4E8(void* self);
+extern "C" int dl_memalign_offset(void* self);
 
 //99.29%
-int func_00320078(void* self)
+int cMemHeap_memalignOffset(void* self)
 {
-    return func_0031F4E8(self);
+    return dl_memalign_offset(self);
 }
 
-extern "C" int func_0031ED60(void* self);
+extern "C" int dl_free(void* self);
 
-// Whether p lies inside the block [base, base + size) (exclusive at base).
-int func_00320098(void* self, unsigned int p)
+// Whether p lies inside the heap region (heap->base at 0x4, heap->size at 0xC), exclusive at base.
+int cMemHeap_contains(void* self, unsigned int p)
 {
     unsigned int base = *(unsigned int*)((char*)self + 0x4);
     unsigned int end = base + *(unsigned int*)((char*)self + 0xC);
@@ -1495,9 +1358,9 @@ int func_00320098(void* self, unsigned int p)
 }
 
 //100%
-int func_003200C0(void* self)
+int cMemHeap_free(void* self)
 {
-    return func_0031ED60(self);
+    return dl_free(self);
 }
 
 extern "C" void func_003200E0()
@@ -1505,7 +1368,7 @@ extern "C" void func_003200E0()
 }
 
 //100%
-void* func_003200E8(void* self)
+void* cMemPool8_init(void* self)
 {
     *(void**)((char*)self + 0x800) = self;
     char* p = (char*)self;
@@ -1520,7 +1383,7 @@ void* func_003200E8(void* self)
 }
 
 //100%
-void* func_00320120(void* self)
+void* cMemPool16_init(void* self)
 {
     *(void**)((char*)self + 0x2000) = self;
     char* p = (char*)self;
@@ -1535,7 +1398,7 @@ void* func_00320120(void* self)
 }
 
 //100%
-void* func_00320158(void* self)
+void* cMemPool32_init(void* self)
 {
     *(void**)((char*)self + 0x6000) = self;
     char* p = (char*)self;
@@ -1550,7 +1413,7 @@ void* func_00320158(void* self)
 }
 
 //100%
-void* func_00320190(void* self)
+void* cMemPool64_init(void* self)
 {
     unsigned int i = 0;
     *(void**)((char*)self + 0x32000) = self;
@@ -1566,7 +1429,7 @@ void* func_00320190(void* self)
 }
 
 //100%
-void* func_003201D8(void* self)
+void* cMemPool128_init(void* self)
 {
     unsigned int i = 0;
     *(void**)((char*)self + 0x25800) = self;
@@ -1582,7 +1445,7 @@ void* func_003201D8(void* self)
 }
 
 //100%
-void* func_00320220(void* self)
+void* cMemPool256_init(void* self)
 {
     unsigned int i = 0;
     *(void**)((char*)self + 0x20000) = self;
@@ -1598,7 +1461,7 @@ void* func_00320220(void* self)
 }
 
 //100%
-void* func_00320270(void* self)
+void* cMemPool512_init(void* self)
 {
     unsigned int i = 0;
     *(void**)((char*)self + 0x20000) = self;
@@ -1613,10 +1476,10 @@ void* func_00320270(void* self)
     return self;
 }
 
-extern "C" void* func_00319E48(int size);
+extern "C" void* cMemBlockMan_alloc(int size);
 
 //100%
-void* func_003202C0(void* self)
+void* cMemPool8_alloc(void* self)
 {
     void* node = *(void**)((char*)self + 0x800);
     if (node != 0) {
@@ -1624,11 +1487,11 @@ void* func_003202C0(void* self)
         *(void**)((char*)self + 0x800) = next;
         return node;
     }
-    return func_00319E48(0xC);
+    return cMemBlockMan_alloc(0xC);
 }
 
 //100%
-void* func_003202F8(void* self)
+void* cMemPool16_alloc(void* self)
 {
     void* node = *(void**)((char*)self + 0x2000);
     if (node != 0) {
@@ -1636,11 +1499,11 @@ void* func_003202F8(void* self)
         *(void**)((char*)self + 0x2000) = next;
         return node;
     }
-    return func_00319E48(0x14);
+    return cMemBlockMan_alloc(0x14);
 }
 
 //100%
-void* func_00320330(void* self)
+void* cMemPool32_alloc(void* self)
 {
     void* node = *(void**)((char*)self + 0x6000);
     if (node != 0) {
@@ -1648,7 +1511,7 @@ void* func_00320330(void* self)
         *(void**)((char*)self + 0x6000) = next;
         return node;
     }
-    return func_00319E48(0x24);
+    return cMemBlockMan_alloc(0x24);
 }
 
 //100%
@@ -1659,118 +1522,118 @@ static inline void* popFreeNode(void** head)
     return node;
 }
 
-void* func_00320368(void* self)
+void* cMemPool64_alloc(void* self)
 {
     if (*(void**)((char*)self + 0x32000) != 0) {
         return popFreeNode((void**)((char*)self + 0x32000));
     }
-    return func_00319E48(0x44);
+    return cMemBlockMan_alloc(0x44);
 }
 
 //100%
-void* func_003203B8(void* self)
+void* cMemPool128_alloc(void* self)
 {
     if (*(void**)((char*)self + 0x25800) != 0) {
         return popFreeNode((void**)((char*)self + 0x25800));
     }
-    return func_00319E48(0x84);
+    return cMemBlockMan_alloc(0x84);
 }
 
 //92.5%
-INCLUDE_ASM("bx/cubicspline", func_00320408__FPv);
+INCLUDE_ASM("bx/cubicspline", cMemPool256_alloc__FPv);
 
 //92.5%
-INCLUDE_ASM("bx/cubicspline", func_00320448__FPv);
+INCLUDE_ASM("bx/cubicspline", cMemPool512_alloc__FPv);
 
 //100%
-void func_00320488(void* self, void** node)
+void cMemPool8_free(void* self, void** node)
 {
     *node = *(void**)((char*)self + 0x800);
     *(void**)((char*)self + 0x800) = node;
 }
 
 //100%
-void func_00320498(void* self, void** node)
+void cMemPool16_free(void* self, void** node)
 {
     *node = *(void**)((char*)self + 0x2000);
     *(void**)((char*)self + 0x2000) = node;
 }
 
 //100%
-void func_003204A8(void* self, void** node)
+void cMemPool32_free(void* self, void** node)
 {
     *node = *(void**)((char*)self + 0x6000);
     *(void**)((char*)self + 0x6000) = node;
 }
 
 //100%
-void func_003204B8(void* self, void** node)
+void cMemPool64_free(void* self, void** node)
 {
     *node = *(void**)((char*)self + 0x32000);
     *(void**)((char*)self + 0x32000) = node;
 }
 
 //100%
-void func_003204D0(void* self, void** node)
+void cMemPool128_free(void* self, void** node)
 {
     *node = *(void**)((char*)self + 0x25800);
     *(void**)((char*)self + 0x25800) = node;
 }
 
 //100%
-void func_003204E8(void* self, void** node)
+void cMemPool256_free(void* self, void** node)
 {
     *node = *(void**)((char*)self + 0x20000);
     *(void**)((char*)self + 0x20000) = node;
 }
 
 //100%
-void func_00320500(void* self, void** node)
+void cMemPool512_free(void* self, void** node)
 {
     *node = *(void**)((char*)self + 0x20000);
     *(void**)((char*)self + 0x20000) = node;
 }
 
 //100%
-void func_00320518(void)
+void cMemPool8_purge(void)
 {
 }
 
 //100%
-void func_00320520(void)
+void cMemPool16_purge(void)
 {
 }
 
 //100%
-void func_00320528(void)
+void cMemPool32_purge(void)
 {
 }
 
 //100%
-void func_00320530(void)
+void cMemPool64_purge(void)
 {
 }
 
 //100%
-void func_00320538(void)
+void cMemPool128_purge(void)
 {
 }
 
 //100%
-void func_00320540(void)
+void cMemPool256_purge(void)
 {
 }
 
 //100%
-void func_00320548(void)
+void cMemPool512_purge(void)
 {
 }
 
 //100%
 void* func_00316A00(void* self);
 void* func_00317930(void* self);
-void* func_0031FF20(void* self);
-void func_0031FF38(void* self, int flags);
+void* cMemHeap_cMemHeap(void* self);
+void cMemHeap_delete(void* self, int flags);
 
 inline void* operator new(unsigned int, void* p) { return p; }
 
@@ -1830,7 +1693,7 @@ extern void* D_004A3E94;
 extern char D_004A5960[], D_004A5968[], D_004A5970[];
 extern char D_004FF0D8[], D_004FF0E8[], D_004FF0F8[], D_004FF108[];
 extern char D_004FF120[], D_004FF130[], D_004FF140[], D_004FF150[], D_004FF160[];
-extern char D_004FF170[], D_004FF1A0[], D_004FF1E0[], D_004FF220[], D_004FF230[], D_004FF250[];
+extern char D_004FF170[], D_004FF1A0[], D_004FF1E0[], D_004FF220[], D_004FF230[], gMemHeap[];
 
 extern "C" void func_00320550(int init, int prio)
 {
@@ -1866,9 +1729,9 @@ extern "C" void func_00320550(int init, int prio)
             new (D_004FF1E0) sM44_0550(0.0f);
             new (D_004FF220) sQ_0550(0.0f, 0.0f, 0.0f, 1.0f);
             new (D_004FF230) sXf_0550(*(sV4_0550*)D_004FF130, *(sQ_0550*)D_004FF220);
-            func_0031FF20(D_004FF250);
+            cMemHeap_cMemHeap(gMemHeap);
         } else {
-            func_0031FF38(D_004FF250, 2);
+            cMemHeap_delete(gMemHeap, 2);
         }
     }
 }

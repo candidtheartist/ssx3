@@ -2592,7 +2592,7 @@ struct R12_F850 { int a; int b; int c; };
 extern R12_F850 D_004C9098_F850 __asm__("D_004C9098");
 
 extern int D_00446530_F850[] __asm__("D_00446530");
-extern "C" void func_0010F1C0(int, int, float);
+extern "C" void cRider_applyPickupEffect(int, int, float);
 extern int* D_004A3DD8_F850 __asm__("D_004A3DD8");
 extern char* D_004A28A8_F850 __asm__("D_004A28A8");
 extern int D_004A563C_F850 __asm__("D_004A563C");
@@ -2623,7 +2623,7 @@ extern "C" R12_F850 func_002FF850(int n, Ent_F850* e) {
         vp[0] = *D_004A3DD8_F850;
     char* o = *(char**)(D_004A28A8_F850 + 0x84);
     char* base = *(char**)(o + 0xC);
-    func_0010F1C0(*(int*)(base + (vp[0] << 2) + 0x28), vp[1], *(float*)&vp[2]);
+    cRider_applyPickupEffect(*(int*)(base + (vp[0] << 2) + 0x28), vp[1], *(float*)&vp[2]);
     return D_004C9098_F850;
 }
 
@@ -3175,7 +3175,74 @@ extern "C" V3_0770 func_00300770(int n, Ent_0770 *e) {
     return D_004C9098_0770;
 }
 
-INCLUDE_ASM("seg/seg_1FBE38", func_00300948);
+//100%
+// PORT: PS2-only inline asm; needs a C fallback off-PS2.
+struct Flag_0948 { char c; Flag_0948() {} Flag_0948(const Flag_0948& o) : c(o.c) {} };
+extern unsigned D_004A5698_0948 __asm__("D_004A5698");
+extern Flag_0948 D_004A569C_0948 __asm__("D_004A569C");
+extern int D_004A56A0_0948 __asm__("D_004A56A0");
+extern int D_004A3C48_0948[2] __asm__("D_004A3C48");
+extern int *D_004A3DD8_0948 __asm__("D_004A3DD8");
+extern char **D_004A47B8_0948 __asm__("D_004A47B8");
+extern char *D_004A28A8_0948 __asm__("D_004A28A8");
+struct O_0948 { int p0, p1, p2; virtual void v01(); virtual void v02(); virtual void v03(); virtual void v04(); virtual void v05(); virtual void v06(); virtual void v07(); virtual void v08(); virtual void v09(); virtual void v10(); virtual void v11(); virtual void v12(); virtual void v13(); virtual void v14(); virtual void v15(); virtual void v16(); virtual void v17(); virtual void v18(); virtual void v19(); virtual void v20(); virtual void v21(); virtual void v22(); virtual void v23(); virtual void *v24(); };
+struct Sh_0948 { virtual void v01(); virtual void v02(); virtual void v03(); virtual void v04(); virtual void v05(); virtual void v06(); virtual void v07(); virtual void v08(); virtual void v09(); virtual void v10(); virtual void v11(); virtual void v12(void*); };
+struct Lvl_0948 { char pad[0x28]; char *sh[1]; };
+static inline char *refToPtr_0948(unsigned i) { return (char*)(i << 2); }
+static inline char *conv_0948(unsigned i) { if (i == 0) return 0; return refToPtr_0948(i); }
+struct V3_0948 { float x, y, z; };
+extern V3_0948 D_004C9098_0948 __asm__("D_004C9098");
+extern "C" void* func_003E6574_0948(void*, void*, int) __asm__("func_003E6574");
+struct Ent_0948 { int idx; int val; int pad; int type; };
+extern "C" V3_0948 func_00300948(int n, Ent_0948 *e) {
+    if (D_004A56A0_0948 == 0) {
+        D_004A5698_0948 = 0xFFFFFFFF;
+        D_004A56A0_0948 = 1;
+        // NOTE: guarded static-local init; the target copies the trailing byte through its copy ctor (lbu; sb 0(sp)).
+        D_004A569C_0948 = Flag_0948(D_004A569C_0948);
+    }
+    unsigned buf64[2];
+    unsigned *buf = buf64;
+    buf64[0] = 0xFFFFFFFF;
+    func_003E6574_0948(buf, &D_004A5698_0948, 8);
+    Ent_0948 *x = e;
+    for (int i = 0; i < n; i++, x++) {
+        int idx = x->idx;
+        int t = D_004A3C48_0948[idx];
+        unsigned *d = (unsigned*)((idx << 2) + (int)buf);
+        if (x->type != t && t == 2)
+            *(float*)d = (float)x->val;
+        else
+            *d = x->val;
+    }
+    unsigned id = buf[0];
+    char *obj;
+    if (~id == 0) {
+        obj = *(char**)((char*)D_004A3DD8_0948 + 0x290);
+    } else {
+        char *s = (*(char***)((char*)*D_004A47B8_0948 + 8))[id & 0xFF];
+        unsigned i;
+        char *r;
+        if (!s)
+            r = 0;
+        else {
+            i = ((unsigned*)*(char**)(s + 0x1C))[id >> 8] >> 8;
+            char *t = conv_0948(i);
+            r = t;
+        }
+        obj = r;
+    }
+    int k = *D_004A3DD8_0948;
+    if (k >= 0 && obj) {
+        O_0948 *p = *(O_0948**)(obj + 0xC);
+        void *v = obj + 0x10;
+        if (p)
+            v = p->v24();
+        Lvl_0948 *lvl = *(Lvl_0948**)(*(char**)(D_004A28A8_0948 + 0x84) + 0xC);
+        ((Sh_0948*)(lvl->sh[k] + 0x6C0))->v12(v);
+    }
+    return D_004C9098_0948;
+}
 
 //100%
 // PORT: PS2-only inline asm; needs a C fallback off-PS2.
@@ -3831,7 +3898,83 @@ extern "C" void* func_00301C80(void* self, int n, Ent_1C80* e) {
     return self;
 }
 
-INCLUDE_ASM("seg/seg_1FBE38", func_00301D78);
+//100%
+// PORT: PS2-only inline asm; needs a C fallback off-PS2.
+struct Flag_1D78 { char c; Flag_1D78() {} Flag_1D78(const Flag_1D78& o) : c(o.c) {} };
+extern unsigned D_004A5710_1D78 __asm__("D_004A5710");
+extern Flag_1D78 D_004A5714_1D78 __asm__("D_004A5714");
+extern int D_004A5718_1D78 __asm__("D_004A5718");
+extern int D_004A3CB0_1D78[2] __asm__("D_004A3CB0");
+extern int *D_004A3DD8_1D78 __asm__("D_004A3DD8");
+extern char **D_004A47B8_1D78 __asm__("D_004A47B8");
+extern char *D_004A28A8_1D78 __asm__("D_004A28A8");
+struct O_1D78 { int p0, p1, p2; virtual void v01(); virtual void v02(); virtual void v03(); virtual void v04(); virtual void v05(); virtual void v06(); virtual void v07(); virtual void v08(); virtual void v09(); virtual void v10(); virtual void v11(); virtual void v12(); virtual void v13(); virtual void v14(); virtual void v15(); virtual void v16(); virtual void v17(); virtual void v18(); virtual void v19(); virtual void v20(); virtual void v21(); virtual void v22(); virtual void v23(); virtual void *v24(); };
+struct Sh_1D78 { virtual void v01(); virtual void v02(); virtual void v03(); virtual void v04(); virtual void v05(); virtual void v06(); virtual void v07(); virtual void v08(); virtual void v09(); virtual void v10(void*); };
+struct Lvl_1D78 { char pad[0x28]; char *sh[1]; };
+static inline char *refToPtr_1D78(unsigned i) { return (char*)(i << 2); }
+static inline char *conv_1D78(unsigned i) { if (i == 0) return 0; return refToPtr_1D78(i); }
+struct V3_1D78 { float x, y, z; };
+extern V3_1D78 D_004C9098_1D78 __asm__("D_004C9098");
+extern "C" void* func_003E6574_1D78(void*, void*, int) __asm__("func_003E6574");
+struct Chk_1D78 { virtual void v01(); virtual void v02(); virtual int v03(char*); };
+int* func_00226610_1D78(void*) __asm__("func_00226610__FPv");
+struct Ent_1D78 { int idx; int val; int pad; int type; };
+extern "C" void* func_00301D78(void* self, int n, Ent_1D78 *e) {
+    if (D_004A5718_1D78 == 0) {
+        D_004A5710_1D78 = 0xFFFFFFFF;
+        D_004A5718_1D78 = 1;
+        // NOTE: guarded static-local init; the target copies the trailing byte through its copy ctor (lbu; sb 0(sp)).
+        D_004A5714_1D78 = Flag_1D78(D_004A5714_1D78);
+    }
+    unsigned buf64[2];
+    unsigned *buf = buf64;
+    buf64[0] = 0xFFFFFFFF;
+    func_003E6574_1D78(buf, &D_004A5710_1D78, 8);
+    Ent_1D78 *x = e;
+    for (int i = 0; i < n; i++, x++) {
+        int idx = x->idx;
+        int t = D_004A3CB0_1D78[idx];
+        unsigned *d = (unsigned*)((idx << 2) + (int)buf);
+        if (x->type != t && t == 2)
+            *(float*)d = (float)x->val;
+        else
+            *d = x->val;
+    }
+    unsigned id = buf[0];
+    char *obj;
+    if (~id == 0) {
+        obj = *(char**)((char*)D_004A3DD8_1D78 + 0x290);
+    } else {
+        char *s = (*(char***)((char*)*D_004A47B8_1D78 + 8))[id & 0xFF];
+        unsigned i;
+        char *r;
+        if (!s)
+            r = 0;
+        else {
+            i = ((unsigned*)*(char**)(s + 0x1C))[id >> 8] >> 8;
+            char *t = conv_1D78(i);
+            r = t;
+        }
+        obj = r;
+    }
+    if (obj) {
+        int found = 1;
+        char *lvl = *(char**)(*(char**)(D_004A28A8_1D78 + 0x84) + 0xC);
+        char *q = *(char**)(lvl + (*D_004A3DD8_1D78 << 2) + 0x28);
+        char *a = q ? q + 0x6C0 : 0;
+        char *r = a ? a - 0x6C0 : 0;
+        Chk_1D78 *c = (Chk_1D78*)(r + 0x6C0);
+        if (c->v03(obj)) {
+            *(int*)((char*)self + 8) = found;
+            *func_00226610_1D78(self) = found;
+            goto done;
+        }
+    }
+    *(int*)((char*)self + 8) = 1;
+    *func_00226610_1D78(self) = 0;
+done:
+    return self;
+}
 
 //100%
 // PORT: PS2-only inline asm; needs a C fallback off-PS2.
@@ -4323,7 +4466,7 @@ struct A_2EF8 { char pad[0x6C0]; };
 struct B_2EF8 { virtual void v01(); };
 struct D_2EF8 : A_2EF8, B_2EF8 { };
 struct Tab_2EF8 { char pad[0x28]; D_2EF8 *arr[1]; };
-extern "C" int func_00122EE8_2EF8(D_2EF8*, int) __asm__("func_00122EE8");
+extern "C" int cRider_testCondition_2EF8(D_2EF8*, int) __asm__("cRider_testCondition");
 // Script call: maps the script condition id to a rider condition and returns whether the current rider meets it.
 extern "C" void* func_00302EF8(void* self, int n, Ent_2EF8* e) {
     if (D_004A57B0_2EF8 == 0) {
@@ -4349,25 +4492,25 @@ extern "C" void* func_00302EF8(void* self, int n, Ent_2EF8* e) {
     D_2EF8* d = (D_2EF8*)b;
     int res;
     switch (vp[0]) {
-    case 3: res = func_00122EE8_2EF8(d, 0); break;
-    case 4: res = func_00122EE8_2EF8(d, 1); break;
-    case 1: res = func_00122EE8_2EF8(d, 2); break;
-    case 0: res = func_00122EE8_2EF8(d, 3); break;
-    case 2: res = func_00122EE8_2EF8(d, 4); break;
-    case 5: res = func_00122EE8_2EF8(d, 5); break;
-    case 6: res = func_00122EE8_2EF8(d, 6); break;
-    case 7: res = func_00122EE8_2EF8(d, 7); break;
-    case 9: res = func_00122EE8_2EF8(d, 8); break;
-    case 10: res = func_00122EE8_2EF8(d, 9); break;
-    case 11: res = func_00122EE8_2EF8(d, 10); break;
-    case 12: res = func_00122EE8_2EF8(d, 11); break;
-    case 13: res = func_00122EE8_2EF8(d, 12); break;
-    case 14: res = func_00122EE8_2EF8(d, 13); break;
-    case 15: res = func_00122EE8_2EF8(d, 14); break;
-    case 16: res = func_00122EE8_2EF8(d, 15); break;
-    case 17: res = func_00122EE8_2EF8(d, 16); break;
-    case 8: res = func_00122EE8_2EF8(d, 17); break;
-    case 18: res = func_00122EE8_2EF8(d, 18); break;
+    case 3: res = cRider_testCondition_2EF8(d, 0); break;
+    case 4: res = cRider_testCondition_2EF8(d, 1); break;
+    case 1: res = cRider_testCondition_2EF8(d, 2); break;
+    case 0: res = cRider_testCondition_2EF8(d, 3); break;
+    case 2: res = cRider_testCondition_2EF8(d, 4); break;
+    case 5: res = cRider_testCondition_2EF8(d, 5); break;
+    case 6: res = cRider_testCondition_2EF8(d, 6); break;
+    case 7: res = cRider_testCondition_2EF8(d, 7); break;
+    case 9: res = cRider_testCondition_2EF8(d, 8); break;
+    case 10: res = cRider_testCondition_2EF8(d, 9); break;
+    case 11: res = cRider_testCondition_2EF8(d, 10); break;
+    case 12: res = cRider_testCondition_2EF8(d, 11); break;
+    case 13: res = cRider_testCondition_2EF8(d, 12); break;
+    case 14: res = cRider_testCondition_2EF8(d, 13); break;
+    case 15: res = cRider_testCondition_2EF8(d, 14); break;
+    case 16: res = cRider_testCondition_2EF8(d, 15); break;
+    case 17: res = cRider_testCondition_2EF8(d, 16); break;
+    case 8: res = cRider_testCondition_2EF8(d, 17); break;
+    case 18: res = cRider_testCondition_2EF8(d, 18); break;
     default: res = 0; break;
     }
     *(int*)((char*)self + 8) = 1;
@@ -4535,13 +4678,13 @@ struct A_34F8 { char pad[0x6C0]; };
 struct B_34F8 { virtual void v01(); };
 struct D_34F8 : A_34F8, B_34F8 { };
 struct Tab_34F8 { char pad[0x28]; D_34F8 *arr[1]; };
-extern "C" int func_00122EE8_34F8(D_34F8*, int) __asm__("func_00122EE8");
+extern "C" int cRider_testCondition_34F8(D_34F8*, int) __asm__("cRider_testCondition");
 extern "C" void* func_003034F8(void* self) {
     D_34F8 *r = (*(Tab_34F8**)(*(char**)(D_004A28A8_34F8 + 0x84) + 0xC))->arr[*(int*)D_004A3DD8_34F8];
     B_34F8 *b = r;
     D_34F8 *d = (D_34F8*)b;
     unsigned v;
-    if (func_00122EE8_34F8(d, 4))
+    if (cRider_testCondition_34F8(d, 4))
         v = *(unsigned*)(*(char**)((char*)d + 0x77C) + 0xD4);
     else
         v = 0xFFFFFFFF;
@@ -4644,7 +4787,7 @@ struct A_37B0 { char pad[0x6C0]; };
 struct B_37B0 { virtual void v01(); };
 struct D_37B0 : A_37B0, B_37B0 { };
 struct Tab_37B0 { char pad[0x28]; D_37B0 *arr[1]; };
-extern "C" int func_00122EE8_37B0(D_37B0*, int) __asm__("func_00122EE8");
+extern "C" int cRider_testCondition_37B0(D_37B0*, int) __asm__("cRider_testCondition");
 // Script call: maps the script condition id to a rider condition and returns whether the current rider meets it.
 extern "C" void* func_003037B0(void* self, int n, Ent_37B0* e) {
     if (D_004A57D8_37B0 == 0) {
@@ -4670,25 +4813,25 @@ extern "C" void* func_003037B0(void* self, int n, Ent_37B0* e) {
     D_37B0* d = (D_37B0*)b;
     int res;
     switch (vp[0]) {
-    case 3: res = func_00122EE8_37B0(d, 0); break;
-    case 4: res = func_00122EE8_37B0(d, 1); break;
-    case 1: res = func_00122EE8_37B0(d, 2); break;
-    case 0: res = func_00122EE8_37B0(d, 3); break;
-    case 2: res = func_00122EE8_37B0(d, 4); break;
-    case 5: res = func_00122EE8_37B0(d, 5); break;
-    case 6: res = func_00122EE8_37B0(d, 6); break;
-    case 7: res = func_00122EE8_37B0(d, 7); break;
-    case 9: res = func_00122EE8_37B0(d, 8); break;
-    case 10: res = func_00122EE8_37B0(d, 9); break;
-    case 11: res = func_00122EE8_37B0(d, 10); break;
-    case 12: res = func_00122EE8_37B0(d, 11); break;
-    case 13: res = func_00122EE8_37B0(d, 12); break;
-    case 14: res = func_00122EE8_37B0(d, 13); break;
-    case 15: res = func_00122EE8_37B0(d, 14); break;
-    case 16: res = func_00122EE8_37B0(d, 15); break;
-    case 17: res = func_00122EE8_37B0(d, 16); break;
-    case 8: res = func_00122EE8_37B0(d, 17); break;
-    case 18: res = func_00122EE8_37B0(d, 18); break;
+    case 3: res = cRider_testCondition_37B0(d, 0); break;
+    case 4: res = cRider_testCondition_37B0(d, 1); break;
+    case 1: res = cRider_testCondition_37B0(d, 2); break;
+    case 0: res = cRider_testCondition_37B0(d, 3); break;
+    case 2: res = cRider_testCondition_37B0(d, 4); break;
+    case 5: res = cRider_testCondition_37B0(d, 5); break;
+    case 6: res = cRider_testCondition_37B0(d, 6); break;
+    case 7: res = cRider_testCondition_37B0(d, 7); break;
+    case 9: res = cRider_testCondition_37B0(d, 8); break;
+    case 10: res = cRider_testCondition_37B0(d, 9); break;
+    case 11: res = cRider_testCondition_37B0(d, 10); break;
+    case 12: res = cRider_testCondition_37B0(d, 11); break;
+    case 13: res = cRider_testCondition_37B0(d, 12); break;
+    case 14: res = cRider_testCondition_37B0(d, 13); break;
+    case 15: res = cRider_testCondition_37B0(d, 14); break;
+    case 16: res = cRider_testCondition_37B0(d, 15); break;
+    case 17: res = cRider_testCondition_37B0(d, 16); break;
+    case 8: res = cRider_testCondition_37B0(d, 17); break;
+    case 18: res = cRider_testCondition_37B0(d, 18); break;
     default: res = 0; break;
     }
     *(int*)((char*)self + 8) = 1;
@@ -6419,7 +6562,65 @@ extern "C" void func_003072B0(P_72B0* self) {
     self->v04();
 }
 
-INCLUDE_ASM("seg/seg_1FBE38", func_00307308);
+//100%
+extern "C" void* cBE_getBE();
+// PORT: cBE_getInterface__Fv is called with (be, kind) here; bind the 2-arg form to that symbol.
+void* cBE_getInterface_Fv(void* be, int kind) __asm__("cBE_getInterface__Fv");
+extern char* D_004A28A8_7308 __asm__("D_004A28A8");
+extern "C" int func_00153D78(void* missions, int id);
+extern "C" void func_00154160(void* missions, int id, int done);
+extern "C" int func_00153FA0(void* missions, int id);
+extern "C" int func_001511B0(void* econ, int reward);
+extern "C" int func_00144C98(void* iface);
+extern "C" void func_0010F2D8(void* rider, int player, int money);
+extern "C" unsigned int func_00153FD8(void* missions, int id);
+extern "C" void func_001541D0(void* missions, int id, int active);
+extern "C" void func_0030AC98(int, void *, int);
+extern "C" int func_00153E28(void* missions, int id);
+extern "C" void func_00154010(void* missions, int id, int a);
+extern "C" void func_00154080(void* missions, int id, int a);
+extern "C" void func_00308DB8(int script);
+extern "C" void func_00309B00(int script, void* self);
+extern "C" void func_0026F228(void* replay);
+extern "C" void func_0026F7B8(void* replay);
+
+struct sGame_7308 {
+    char pad_0x0[0x28];
+    void* riders[8];        // 0x28
+};
+
+// Mission completed: pays the reward the first time, unlocks the follow-up mission and resets the script.
+extern "C" void func_00307308(char* self)
+{
+    int money = 0;
+    void* missions = cBE_getInterface_Fv(cBE_getBE(), 0xA);
+    if (func_00153D78(missions, *(int*)(self + 0x20)) == 0) {
+        func_00154160(missions, *(int*)(self + 0x20), 1);
+        int reward = func_00153FA0(missions, *(int*)(self + 0x20));
+        money = func_001511B0(cBE_getInterface_Fv(cBE_getBE(), 0xB), reward);
+    }
+    int pl = func_00144C98(cBE_getInterface_Fv(cBE_getBE(), 0));
+    sGame_7308* game = *(sGame_7308**)(*(char**)(D_004A28A8_7308 + 0x84) + 0xC);
+    func_0010F2D8(game->riders[**(int**)(self + 0x10)], pl, money);
+    unsigned int next = func_00153FD8(missions, *(int*)(self + 0x20));
+    if (next != 0xFFFFFFFF) {
+        func_001541D0(missions, *(int*)(self + 0x20), 0);
+        if (*(int*)(self + 0x6C) != 0) {
+            func_0030AC98(*(int*)(self + 0x10), self, *(int*)(self + 0x6C));
+        }
+        if (func_00153E28(missions, next) != 0) {
+            func_00154010(missions, next, 0);
+            func_00154080(missions, next, 1);
+            func_001541D0(missions, next, 1);
+        }
+    } else if (*(int*)(self + 0x6C) != 0) {
+        func_0030AC98(*(int*)(self + 0x10), self, *(int*)(self + 0x6C));
+    }
+    func_00308DB8(*(int*)(self + 0x10));
+    func_00309B00(*(int*)(self + 0x10), self);
+    func_0026F228(*(void**)(*(char**)(D_004A28A8_7308 + 0x84) + 0x28));
+    func_0026F7B8(*(void**)(*(char**)(D_004A28A8_7308 + 0x84) + 0x28));
+}
 
 //100%
 // PORT: cBE_getInterface__Fv is called with (be, kind) here; bind the 2-arg form to that symbol.

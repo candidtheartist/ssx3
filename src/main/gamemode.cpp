@@ -1386,8 +1386,8 @@ extern char* D_004A2C70;
 extern unsigned int D_00536640[];
 extern int D_005366A8[];
 extern int D_00536730[];
-extern "C" int func_0012A250(void* race);
-extern "C" int func_00122D78(void* self);
+extern "C" int cAI_haveAllPlayersFinished(void* race);
+extern "C" int cRider_estimateFinishTicks(void* self);
 extern "C" void func_00238BF8(void* self, int n);
 
 struct sVEnt_23AE00 { short delta; short index; int (*fn)(void*); };
@@ -1434,7 +1434,7 @@ static inline int finished_23AE00(sRider_23AE00* r)
 extern "C" void func_0023AE00(sSelf_23AE00* self, int idx)
 {
     sRace_23AE00* rc = race_23AE00();
-    if (func_0012A250(rc) == 0 || subActive_23AE00((char*)rc->riders[idx] + 0x6C0) == 0) {
+    if (cAI_haveAllPlayersFinished(rc) == 0 || subActive_23AE00((char*)rc->riders[idx] + 0x6C0) == 0) {
         if (race_23AE00()->riders[idx]->f480) {
             D_00536640[idx] = self->times[idx] = 360000;
             D_005366A8[idx] = 1;
@@ -1445,10 +1445,10 @@ extern "C" void func_0023AE00(sSelf_23AE00* self, int idx)
             D_005366A8[idx] = 0;
         }
     }
-    if (func_0012A250(rc)) {
+    if (cAI_haveAllPlayersFinished(rc)) {
         for (int i = 0; i < *(int*)(D_004A2C70 + 0x10) + 2; i++) {
             if (!finished_23AE00(rc->riders[i]) && i != idx) {
-                self->times[i] = func_00122D78(rc->riders[i]);
+                self->times[i] = cRider_estimateFinishTicks(rc->riders[i]);
             }
             D_00536640[i] = self->times[i];
         }
@@ -1730,7 +1730,7 @@ extern "C" void* cBE_getBE();
 void* cBE_getInterface_Fv(void* be, int kind) __asm__("cBE_getInterface__Fv");
 extern "C" int func_00144BE0(void* iface);
 extern "C" int func_00145668(void* iface, int a1, int a2, int a3);
-extern "C" float func_001195A8(void* self, int value);
+extern "C" float cRiderMetrix_postTimeDeltaMsg(void* self, int value);
 extern signed char D_00535C12[];
 
 extern "C" int func_0023B5F8(void* self)
@@ -1748,7 +1748,7 @@ extern "C" int func_0023B5F8(void* self)
         void* clk = *(void**)(*(char**)((char*)D_004A28A8 + 0x84) + 0xC);
         int secs = (int)((float)*(int*)((char*)clk + 0xC) * 0.01666666753590107f);
         if (d != 0) {
-            func_001195A8(*(void**)(*(char**)((char*)clk + 0x28) + 0x790), secs - d);
+            cRiderMetrix_postTimeDeltaMsg(*(void**)(*(char**)((char*)clk + 0x28) + 0x790), secs - d);
         }
         (*(unsigned short*)((char*)self + 8))++;
     }
@@ -1844,8 +1844,8 @@ extern "C" void func_0023B6C0(void* self)
 // PORT: cBE_getInterface__Fv really takes (be, kind); bound by asm label
 void* cBE_getInterface_Fv(void* be, int kind) __asm__("cBE_getInterface__Fv");
 extern "C" void* cBE_getBE();
-extern "C" int func_00122D78(void* self);
-extern "C" int func_0012A250(void* race);
+extern "C" int cRider_estimateFinishTicks(void* self);
+extern "C" int cAI_haveAllPlayersFinished(void* race);
 extern "C" int func_00146E98(void* iface, int a1);
 extern "C" void func_00238BF8(void* self, int n);
 extern char* D_004A2C70;
@@ -1905,7 +1905,7 @@ static inline char* Rider_23B8C8(int i)
 
 extern "C" void func_0023B8C8(void* self, int idx)
 {
-    if (func_0012A250(*(void**)(*(char**)((char*)D_004A28A8 + 0x84) + 0xC)) == 0 ||
+    if (cAI_haveAllPlayersFinished(*(void**)(*(char**)((char*)D_004A28A8 + 0x84) + 0xC)) == 0 ||
         ((cRiderState_23B8C8*)(Rider_23B8C8(idx) + 0x6C0))->isFinished() == 0) {
         char* r = Rider_23B8C8(idx);
         if (*(int*)(r + 0x480) != 0) {
@@ -1916,7 +1916,7 @@ extern "C" void func_0023B8C8(void* self, int idx)
             D_005366A8[idx] = 0;
         }
     }
-    if (func_0012A250(*(void**)(*(char**)((char*)D_004A28A8 + 0x84) + 0xC)) == 0) {
+    if (cAI_haveAllPlayersFinished(*(void**)(*(char**)((char*)D_004A28A8 + 0x84) + 0xC)) == 0) {
         return;
     }
     if (((cRiderState_23B8C8*)(Rider_23B8C8(idx) + 0x6C0))->isActive() == 0) {
@@ -1938,7 +1938,7 @@ extern "C" void func_0023B8C8(void* self, int idx)
             char* r = Rider_23B8C8(i);
             int done = *(float*)(r + 0x470) >= 0.0f;
             if (!done) {
-                D_00536640[i] = func_00122D78(r);
+                D_00536640[i] = cRider_estimateFinishTicks(r);
             }
         }
         void* player = cBE_getInterface_Fv(cBE_getBE(), 1);
@@ -2050,8 +2050,8 @@ extern "C" void func_0023BB98(void* self)
 // PORT: cBE_getInterface__Fv really takes (be, kind); bound by asm label
 void* cBE_getInterface_Fv(void* be, int kind) __asm__("cBE_getInterface__Fv");
 extern "C" void* cBE_getBE();
-extern "C" int func_00122E50(void* self);
-extern "C" int func_0012A250(void* race);
+extern "C" int cRider_estimateFinalScore(void* self);
+extern "C" int cAI_haveAllPlayersFinished(void* race);
 extern "C" int func_00146E98(void* iface, int a1);
 extern "C" void func_00238B70(void* self, int n);
 extern char* D_004A2C70;
@@ -2113,7 +2113,7 @@ extern "C" void func_0023BDB8(void* self, int idx)
         D_005366A8[idx] = 0;
         D_00536640[idx] = st.time;
     }
-    if (func_0012A250(*(void**)(*(char**)((char*)D_004A28A8 + 0x84) + 0xC)) == 0) {
+    if (cAI_haveAllPlayersFinished(*(void**)(*(char**)((char*)D_004A28A8 + 0x84) + 0xC)) == 0) {
         return;
     }
     cBE_getInterface_Fv(cBE_getBE(), 0);
@@ -2133,7 +2133,7 @@ extern "C" void func_0023BDB8(void* self, int idx)
             char* r = Rider_23BDB8(i);
             int done = *(float*)(r + 0x470) >= 0.0f;
             if (!done) {
-                D_00536640[i] = func_00122E50(r);
+                D_00536640[i] = cRider_estimateFinalScore(r);
             }
         }
         void* player = cBE_getInterface_Fv(cBE_getBE(), 1);
@@ -2345,7 +2345,7 @@ extern "C" void* cBE_getBE();
 void* cBE_getInterface_Fv(void* be, int kind) __asm__("cBE_getInterface__Fv");
 extern "C" int func_00144BE0(void* iface);
 extern "C" int func_00145668(void* iface, int a1, int a2, int a3);
-extern "C" float func_001195D8(void* self, int value);
+extern "C" float cRiderMetrix_postScoreDeltaMsg(void* self, int value);
 extern signed char D_00535C12[];
 
 extern "C" int func_0023C560(void* self)
@@ -2363,7 +2363,7 @@ extern "C" int func_0023C560(void* self)
         void* m = *(void**)(*(char**)(*(char**)(*(char**)((char*)D_004A28A8 + 0x84) + 0xC) + 0x28) + 0x790);
         int v = *(int*)((char*)m + 0x198);
         if (d != 0) {
-            func_001195D8(m, v - d);
+            cRiderMetrix_postScoreDeltaMsg(m, v - d);
         }
         (*(unsigned short*)((char*)self + 8))++;
     }

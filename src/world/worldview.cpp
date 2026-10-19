@@ -716,7 +716,29 @@ extern "C" int func_003AA8D8(void* self, void* a1, int a2)
     return 1;
 }
 
-INCLUDE_ASM("world/worldview", func_003AA8F0);
+//100%
+static inline char *refToPtr_A8F0(unsigned i) { return (char*)(i << 2); }
+static inline char *conv_A8F0(unsigned i) { if (i == 0) return 0; return refToPtr_A8F0(i); }
+// Resolves the node's object handle (0x80) to its object pointer and caches the object's 0xC field.
+extern "C" int func_003AA8F0(char** self, char* node)
+{
+    unsigned id = *(unsigned*)(node + 0x80);
+    char *s = (*(char***)(**(char***)self + 8))[id & 0xFF];
+    unsigned i;
+    char *r;
+    if (!s)
+        r = 0;
+    else {
+        i = ((unsigned*)*(char**)(s + 0x14))[id >> 8] >> 8;
+        char *t = conv_A8F0(i);
+        r = t;
+    }
+    *(char**)(node + 0x80) = r;
+    int v = *(int*)(r + 0xC);
+    *(int*)(node + 0x8C) = 0;
+    *(int*)(node + 0x94) = v;
+    return 1;
+}
 
 //100%
 struct func_003AA960_sNode {
@@ -978,7 +1000,7 @@ extern "C" void func_00242540(void* self, void* obj);
 extern "C" char* func_0028B1C8();
 extern "C" void func_002B6B08(void* self, void* obj, unsigned int arg);
 extern char* D_004A28A8;
-extern "C" int func_0012A340(void* self, int a, unsigned int b, void* obj);
+extern "C" int cAI_loadPathBank(void* self, int a, unsigned int b, void* obj);
 void cMemMan_free(void* p);
 extern "C" void func_002BB348(void* self, int a, void* obj);
 extern "C" void func_003ACA10(void* self, int a, void* obj);
@@ -1116,7 +1138,7 @@ extern "C" void* func_003AAE68(void* self, int msg, unsigned int arg, char* obj)
         func_00242540(func_003AD198(), obj);
         break;
     case 14:
-        if (!func_0012A340(*(void**)(*(char**)(D_004A28A8 + 0x84) + 0xC), arg & 0xFF, arg >> 8, obj)) {
+        if (!cAI_loadPathBank(*(void**)(*(char**)(D_004A28A8 + 0x84) + 0xC), arg & 0xFF, arg >> 8, obj)) {
             if (obj) {
                 cMemMan_free(obj);
             }
@@ -1166,7 +1188,7 @@ extern "C" void* func_003AD198();
 extern "C" void func_00242570(void* self, void* obj);
 extern "C" char* func_0028B1C8();
 extern "C" void func_002B6B30(void* self, void* obj, unsigned int arg);
-extern "C" void func_0012A490(void* self, int a);
+extern "C" void cAI_unloadPathBank(void* self, int a);
 extern "C" void func_002BB5A8(void* entry);
 extern "C" void func_00278A58(void* self, int a);
 extern "C" void* cBE_getBE();
@@ -1298,7 +1320,7 @@ extern "C" void* func_003AB498(void* self, int msg, unsigned int arg, char* obj)
         break;
     case 14:
         obj = 0;
-        func_0012A490(*(void**)(*(char**)(D_004A28A8 + 0x84) + 0xC), arg & 0xFF);
+        cAI_unloadPathBank(*(void**)(*(char**)(D_004A28A8 + 0x84) + 0xC), arg & 0xFF);
         break;
     case 22:
         func_002D9B40();
@@ -1518,7 +1540,45 @@ extern "C" int func_003AC358(void* self, void* a1)
     return 1;
 }
 
-INCLUDE_ASM("world/worldview", func_003AC438);
+//100%
+// PORT: 64-bit `long` (8 bytes on EE, 4 on Windows); use int64_t/uint64_t off-PS2.
+extern char D_2320[];
+extern char D_2358[];
+
+extern "C" char* func_003AC438(int a0, int a1, char* ctx, char* p)
+{
+    int done = 0;
+    int first = 1;
+    long tag;
+    do {
+        tag = *(long*)p;
+        switch (((int)((tag << 4) >> 32)) & 7) {
+        case 3: {
+            *(int*)(p + 4) = *(int*)(ctx + 0x24) + *(int*)(p + 4);
+            p += 0x10;
+            tag = *(long*)p;
+            int* ap = (int*)(p + 4);
+            *ap = *(int*)(ctx + 0x24) + *ap;
+            int qwc = ((int)tag) & 0xFFFF;
+            p += 0x10;
+            char* e = *(char**)ap;
+            e += (qwc - 1) * 0x10;
+            if (first) {
+                *(int*)(e + 8) = ((unsigned int)D_2320 >> 3) | 0x14000000;
+                first = 0;
+            } else {
+                *(int*)(e + 8) = ((unsigned int)D_2358 >> 3) | 0x14000000;
+            }
+            break;
+        }
+        case 6:
+            p += 0x10;
+            done = 1;
+            break;
+        }
+    } while (done == 0);
+    return p;
+}
 
 INCLUDE_ASM("world/worldview", func_003AC508);
 

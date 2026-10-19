@@ -120,7 +120,7 @@ extern "C" void func_002E8560(func_002E8560_sTrail* self)
 
 INCLUDE_ASM("visualfx/boardtrailfx", func_002E86F0);
 
-int func_0011FE98(void* self);
+int cRider_getMotionMode(void* self);
 int func_00312AA0(void* self, int i);
 extern "C" char* func_00311B20(void* self, int i);
 extern "C" int func_001446A0(void* self, int i);
@@ -138,10 +138,10 @@ static inline int func_002E87E8_ready(char* r)
 // Picks the trail scale for the rider's current board state; returns 0 when no trail should draw.
 extern "C" int func_002E87E8(char* self)
 {
-    if (func_0011FE98(*(void**)self) == 2) {
+    if (cRider_getMotionMode(*(void**)self) == 2) {
         if (*(int*)(*(char**)(*(char**)self + 0x77C) + 0x30) != 0)
             return 0;
-    } else if (func_0011FE98(*(void**)self) != 0) {
+    } else if (cRider_getMotionMode(*(void**)self) != 0) {
         if (!func_002E87E8_ready(*(char**)self))
             return 0;
         if (*(int*)(*(char**)self + 0xB00) == 0)
@@ -411,7 +411,60 @@ extern "C" void func_002EA8B8(void* self, int up)
     }
 }
 
-INCLUDE_ASM("visualfx/boardtrailfx", func_002EA900);
+//100%
+extern "C" void func_002EA820(void* self);
+extern "C" void func_002EA860(void* self);
+
+struct sFadeCol_A900 {
+    int id;
+    float c[4];
+};
+
+struct sVE_A900 { short delta; short index; void (*fn)(void*, sFadeCol_A900*); };
+
+struct sFade_A900 {
+    char pad0[0x10];
+    int mode;           // 0x10
+    float t;            // 0x14
+    float dur;          // 0x18
+    int done;           // 0x1C
+    int id;             // 0x20
+    float from[4];      // 0x24
+    int f34;
+    float to[4];        // 0x38
+};
+
+extern char* D_004A5B64_A900 __asm__("D_004A5B64");
+extern char* D_004A5B80_A900 __asm__("D_004A5B80");
+
+extern "C" void func_002EA900(sFade_A900* self)
+{
+    if (self->done != 0)
+        return;
+    int mode = self->mode;
+    if (mode != 2 && mode != 3)
+        return;
+    self->t += 1.0f / (float)*(int*)(D_004A5B64_A900 + 0x10);
+    if (self->dur < self->t) {
+        if (mode == 2)
+            func_002EA820(self);
+        else
+            func_002EA860(self);
+        return;
+    }
+    float k = self->t / self->dur;
+    if (mode == 2)
+        k = 1.0f - k;
+    sFadeCol_A900 col;
+    col.id = self->id;
+    col.c[2] = self->from[2] + (self->to[2] - self->from[2]) * k;
+    col.c[3] = self->from[3] + (self->to[3] - self->from[3]) * k;
+    col.c[0] = self->from[0] + (self->to[0] - self->from[0]) * k;
+    col.c[1] = self->from[1] + (self->to[1] - self->from[1]) * k;
+    char* d = D_004A5B80_A900;
+    sVE_A900* vt = *(sVE_A900**)(d + 0x10D8);
+    vt[41].fn(d + vt[41].delta, &col);
+}
 
 //100%
 struct sBTState {
@@ -471,7 +524,7 @@ void func_002EADC0(void* self)
 }
 
 //100%
-int func_0011FE98(void* self);
+int cRider_getMotionMode(void* self);
 void func_00392DE8(void* self, int val);
 extern "C" void func_00392D90(void* self, void* q, void* v);
 extern int D_004A4720;
@@ -580,7 +633,7 @@ extern "C" void func_002EADD0(sTrail_2EADD0* self)
         col.w = zero;
         func_00392D90(fs, &col, &sz);
     }
-    if (zero < speed && func_0011FE98(self->rider) == 1)
+    if (zero < speed && cRider_getMotionMode(self->rider) == 1)
     {
         self->cur = (self->cur + 2) % 3;
         int n = self->count + 1;

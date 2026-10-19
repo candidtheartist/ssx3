@@ -326,14 +326,14 @@ extern "C" void func_00270658(void* self)
 
 //100%
 extern "C" void func_0026F980(void* self);
-extern "C" void func_001173B8(void* p);
+extern "C" void cRiderMetrix_clearAllMsgs(void* p);
 extern char* D_004A28A8;
 
 extern "C" void func_00270670(void* self)
 {
     if (*(int*)((char*)self + 0x620) != 0) {
         func_0026F980(self);
-        func_001173B8(*(void**)(*(char**)(*(char**)(*(char**)(*(char**)(D_004A28A8 + 0x84) + 0xC) + 0x40) + 0x18) + 0x790));
+        cRiderMetrix_clearAllMsgs(*(void**)(*(char**)(*(char**)(*(char**)(*(char**)(D_004A28A8 + 0x84) + 0xC) + 0x40) + 0x18) + 0x790));
     }
 }
 
@@ -806,7 +806,7 @@ done:
 //100%
 struct sReplayCache;
 extern "C" int func_002712F8(sReplayCache* self);
-extern "C" void func_0012BAF0(void* self, int* dst);
+extern "C" void cAI_getActorCharIDs(void* self, int* dst);
 extern char* D_004A28A8;
 
 struct sReplayHdr_1228 {
@@ -833,7 +833,7 @@ extern "C" void func_00271228(void* self)
     int mode = *(int*)(*(char**)(*(char**)(g + 0x84) + 0xC) + 0x7C);
     hdr->magic = 0xABCD0002;
     hdr->mode = mode;
-    func_0012BAF0(*(void**)(*(char**)(g + 0x84) + 0xC), hdr->data);
+    cAI_getActorCharIDs(*(void**)(*(char**)(g + 0x84) + 0xC), hdr->data);
     *(int*)((char*)self + 0x644) = 0;
     *(int*)((char*)self + 0x648) = 0;
     *(int*)((char*)self + 0x638) = *(int*)((char*)self + 0x638) + 1;
@@ -1204,7 +1204,51 @@ void* func_002722E0(void* self, void* a1, void* a2)
     return self;
 }
 
-INCLUDE_ASM("replay/replaycache", func_00272308);
+//100%
+struct sBlk_2308 {
+    unsigned int size;
+    sBlk_2308* next;
+};
+struct sHeap_2308 {
+    int f0;
+    int f4;
+    sBlk_2308* free;
+};
+
+// First-fit allocation from the heap's free list (8-byte block headers); splits a block that has room to spare.
+// PORT: the unit declares it as void*(void*, int); defined under its own name bound to the symbol.
+extern "C" void* func_00272308_impl(sHeap_2308* h, unsigned int size) __asm__("func_00272308");
+extern "C" void* func_00272308_impl(sHeap_2308* h, unsigned int size)
+{
+    size = (size + 3) & ~3;
+    sBlk_2308* prev = 0;
+    sBlk_2308* b = h->free;
+    sBlk_2308* r = 0;
+    unsigned int split = size + 16;
+    if (b != 0) {
+        do {
+            if (b->size >= size) {
+                if (split < b->size) {
+                    sBlk_2308* nb = (sBlk_2308*)((char*)b + (size + 8));
+                    nb->size = (b->size - size) - 8;
+                    nb->next = b->next;
+                    b->next = nb;
+                    b->size = size;
+                }
+                r = b;
+                if (prev == 0)
+                    h->free = r->next;
+                else
+                    prev->next = r->next;
+                b->next = 0;
+                break;
+            }
+            prev = b;
+            b = b->next;
+        } while (b != 0);
+    }
+    return (char*)r + 8;
+}
 
 //100%
 struct sRcBlock {
@@ -1328,7 +1372,20 @@ extern "C" void* func_00272550(void* self)
     return func_002724E8(self);
 }
 
-INCLUDE_ASM("replay/replaycache", func_00272570);
+//100%
+extern "C" float func_00272570(float* p, float t)
+{
+    float r;
+    if (t != 0.0f) {
+        r = p[0];
+        r = r * t + p[1];
+        r = r * t + p[2];
+        r = r * t + p[3];
+    } else {
+        r = p[3];
+    }
+    return r;
+}
 
 //100%
 extern void* D_00481A10[];
@@ -1753,7 +1810,62 @@ extern "C" void func_00272EC0(void* self)
     }
 }
 
-INCLUDE_ASM("replay/replaycache", func_00272F28);
+//100%
+struct sCacheEvent_2F28 {
+    char pad0[0xC];
+    int end;                        // 0xC
+    char pad10[0x18 - 0x10];
+    sCacheEvent_2F28* next;         // 0x18
+};
+
+struct sCacheRec_2F28 {
+    char pad0[4];
+    unsigned short time;            // 0x4
+};
+
+struct sCacheTrack_2F28 {
+    char pad0[0x14];
+    sCacheRec_2F28* rec;            // 0x14
+    char pad18[0x24 - 0x18];
+    sCacheEvent_2F28* events;       // 0x24
+    int numEvents;                  // 0x28
+};
+
+// Drops finished events and plays every record whose start time has been reached.
+extern "C" int func_00272F28(sCacheTrack_2F28* self, int* flags, float t)
+{
+    float zero;
+    sCacheEvent_2F28* prev = 0;
+    sCacheEvent_2F28* e = self->events;
+    while (e != 0) {
+        if ((float)e->end <= t) {
+            *flags |= 8;
+            if (prev == 0) {
+                e = self->events = e->next;
+            } else {
+                e = e->next;
+                prev->next = e;
+            }
+            self->numEvents--;
+        } else {
+            prev = e;
+            e = e->next;
+        }
+    }
+    zero = 0.0f;
+loop:
+    do {
+        if (self->rec != 0 && t - (float)self->rec->time >= zero) {
+            *flags |= 4;
+            func_002730C0(self, (sCacheRecord*)self->rec);
+            func_00273140(self);
+            goto loop;
+        }
+    } while (0);
+    if (self->events == 0 && self->rec == 0)
+        return 0;
+    return 1;
+}
 
 //100%
 struct sCacheTimeNode {
@@ -2077,7 +2189,70 @@ extern "C" void func_00273630(void* self)
     }
 }
 
-INCLUDE_ASM("replay/replaycache", func_00273698);
+//100%
+struct sCacheEvent_3698 {
+    char pad0[0x8];
+    int end;                        // 0x8
+    char padC[0x10 - 0xC];
+    float value;                    // 0x10
+    float speed;                    // 0x14
+    char pad18[0x20 - 0x18];
+    sCacheEvent_3698* next;         // 0x20
+};
+
+struct sCacheRec_3698 {
+    char pad0[4];
+    unsigned short time;            // 0x4
+};
+
+struct sCacheTrack_3698 {
+    char pad0[0x14];
+    sCacheRec_3698* rec;            // 0x14
+    char pad18[0x20 - 0x18];
+    sCacheEvent_3698* events;       // 0x20
+    int numEvents;                  // 0x24
+};
+
+// Advances running events by dt, drops finished ones and starts every record that is due.
+extern "C" int func_00273698(sCacheTrack_3698* self, int* flags, float t, float dt)
+{
+    float zero;
+    sCacheEvent_3698* prev = 0;
+    sCacheEvent_3698* e = self->events;
+    while (e != 0) {
+        if ((float)e->end <= t) {
+            *flags |= 2;
+            if (prev == 0) {
+                e = self->events = e->next;
+            } else {
+                e = e->next;
+                prev->next = e;
+            }
+            self->numEvents--;
+        } else {
+            prev = e;
+            e->value += e->speed * dt;
+            e = e->next;
+        }
+    }
+    zero = 0.0f;
+loop:
+    do {
+        if (self->rec != 0) {
+            float d = t - (float)self->rec->time;
+            if (d >= zero) {
+                *flags |= 1;
+                sCacheEvent_3698* n = (sCacheEvent_3698*)func_00273860(self, (sCacheRecord2*)self->rec);
+                n->value += d * n->speed;
+                func_002738F8(self);
+                goto loop;
+            }
+        }
+    } while (0);
+    if (self->events == 0 && self->rec == 0)
+        return 0;
+    return 1;
+}
 
 //100%
 struct sCacheTimeNode2 {
@@ -2516,7 +2691,62 @@ extern "C" int func_00273F68(void* self)
     return changed;
 }
 
-INCLUDE_ASM("replay/replaycache", func_00274100);
+//100%
+extern "C" int func_002743E8(void* self, float t, float dt);
+
+class cChan_274100 {
+public:
+    int f0;
+    virtual void v1();
+    virtual void v2();
+    virtual void v3();
+    virtual void v4();
+    virtual void v5();
+    virtual int nextTime();
+};
+
+struct sTrackHdr_274100 {
+    char pad0[2];
+    unsigned char count;    // 0x2
+    unsigned char id;       // 0x3
+};
+
+struct sTrack_274100 {
+    char pad0[0x1C];
+    sTrackHdr_274100* hdr;          // 0x1C
+    int pad20;
+    cChan_274100** chans;           // 0x24
+    int active;                     // 0x28
+};
+
+// Plays the track from prev to time; when jumping, stops at every channel event in between.
+extern "C" int func_00274100(void* self_, float prev, float time, float speed, int jump)
+{
+    sTrack_274100* self = (sTrack_274100*)self_;
+    if (self->active == 0) {
+        return 1;
+    }
+    if (jump) {
+        for (;;) {
+            float next = time;
+            for (int i = 0; i < self->hdr->count; i++) {
+                float f = (float)self->chans[i]->nextTime();
+                if (f >= 0.0f && f < next) {
+                    next = f;
+                }
+            }
+            if (next == time) {
+                return func_002743E8(self, time, time - prev);
+            }
+            float d = next - prev;
+            prev = next;
+            if (!func_002743E8(self, prev, d)) {
+                return 0;
+            }
+        }
+    }
+    return func_002743E8(self, time, speed);
+}
 
 // Sets the field at +0xC, returning its old value
 extern "C" int func_00274230(void* self, int value)

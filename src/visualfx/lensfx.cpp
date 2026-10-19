@@ -178,7 +178,7 @@ void* func_0014BDB8_noarg() __asm__("func_0014BDB8__FPv");
 int func_0014D988(void* self, int i);
 extern "C" void* func_0014D998(void* self, int i);
 extern "C" int func_00123168(void* self);
-extern "C" int func_00123128(void* self);
+extern "C" int cRider_getCharacterID(void* self);
 extern "C" void* cUIStateStack_getCurrentState(void* self);
 extern "C" void func_002F2218(int a, int id);
 extern char* D_004A28A8;
@@ -223,7 +223,7 @@ extern "C" void func_002ECCB8(void* vself)
         tbl = (char*)func_0014AD50(lib, vt[7].fn(o + vt[7].delta));
         id = func_00123168(self->rider);
         if (id < 10) {
-            id = func_00123128(self->rider);
+            id = cRider_getCharacterID(self->rider);
         }
     } else if (self->charId != 0) {
         char* st = (char*)cUIStateStack_getCurrentState(*(char**)(*(char**)(D_004A28A8 + 0x7C) + 0xC) + 0x18);

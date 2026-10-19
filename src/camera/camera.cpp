@@ -266,7 +266,44 @@ extern "C" void func_0015E2A8(void)
     D_004C5430[4] = 1;
 }
 
-INCLUDE_ASM("camera/camera", func_0015E360);
+//100%
+extern void* D_004A28A8;
+struct sCamShake_E360 {
+    float f0;
+    float f4;
+    float weight;   // 0x8
+    float range;    // 0xC
+};
+// View of the tuning block initialised by func_0015E2A8 as one entry per shake type.
+extern sCamShake_E360 D_004C53E0_E360[] __asm__("D_004C53E0");
+
+#define MIN_E360(a, b) ((a) <= (b) ? (a) : (b))
+#define MAX_E360(a, b) ((b) <= (a) ? (a) : (b))
+
+// Requests a camera shake of 'type' with strength 'amount' at 'dist' from the camera; keeps the strongest request.
+// Replays ignore types 1-4.
+extern "C" void func_0015E360(char* self, int type, float amount, float dist)
+{
+    int state = **(int**)(*(char**)((char*)D_004A28A8 + 0x84) + 0x28);
+    int replay = state != 0 && state < 10;
+    if (replay && (unsigned int)(type - 1) < 4) {
+        return;
+    }
+    float scale;
+    float range = D_004C53E0_E360[type].range;
+    if (0.0f < dist && 0.0f < range) {
+        float t = 2.0f - (dist + dist) / range;
+        scale = MAX_E360(MIN_E360(t, 1.0f), 0.0f);
+    } else {
+        scale = 1.0f;
+    }
+    float v = amount * scale * D_004C53E0_E360[type].weight;
+    if (*(float*)(self + 0x454) < v) {
+        *(int*)(self + 0x450) = type;
+        *(float*)(self + 0x454) = v;
+    }
+    *(int*)(self + 0x458) = 1;
+}
 
 INCLUDE_ASM("camera/camera", func_0015E460);
 
@@ -1865,7 +1902,7 @@ struct sCam162138;
 extern "C" void func_00161EF0(void* self, int v);
 extern "C" void func_001621A8(sCam162138* self);
 extern "C" void func_00162218(sCam162138* self);
-int func_0011FE98(void*);
+int cRider_getMotionMode(void*);
 
 struct sCamVec4_161AB0
 {
@@ -1908,7 +1945,7 @@ extern "C" void func_00161AB0(char* self)
         func_00161EF0(self, mode);
     *(int*)(self + 0x1C) = mode;
     float speed = vlength_161AB0((*(cCamRider_161AB0**)(self + 0x20))->getVelocity()) * 0.035999998450279236f;
-    int boarding = func_0011FE98(*(void**)(*(char**)(self + 0x20) + 4)) == 5;
+    int boarding = cRider_getMotionMode(*(void**)(*(char**)(self + 0x20) + 4)) == 5;
     if (*(int*)(self + 0x3C) == 0) {
         if (boarding) {
             *(int*)(self + 0x3C) = 1;
@@ -2200,13 +2237,13 @@ extern "C" void* func_00162170(sCam162138* self)
 }
 
 //100%
-int func_0011FE98(void*);
+int cRider_getMotionMode(void*);
 
 extern "C" void func_001621A8(sCam162138* self)
 {
     self->b2 = 1;
     if (!self->b0 && !self->b1) {
-        float t = func_0011FE98(*(void**)(*(char**)((char*)self + 0x20) + 4)) == 5 ? 1.2000000476837158f : 0.6000000238418579f;
+        float t = cRider_getMotionMode(*(void**)(*(char**)((char*)self + 0x20) + 4)) == 5 ? 1.2000000476837158f : 0.6000000238418579f;
         cChaseCameraController_createChaseAlgorithmBlend(self, 0x42, 0, t * 0.01666666753590107f);
     }
 }
@@ -2359,7 +2396,7 @@ extern "C" void func_00162560()
 }
 
 //100%
-int func_0011FE98(void*);
+int cRider_getMotionMode(void*);
 extern sVec_001607E0 D_004FF120_v162568 __asm__("D_004FF120");
 
 struct sVEi_162568 {
@@ -2471,7 +2508,7 @@ extern "C" void func_00162568_impl(char* self, char* out, float a, float b, floa
                                    float g, float h)
 {
     sVec_001607E0 v = cmGet_001607E0(self, 3);
-    int mode = func_0011FE98(*(void**)(*(char**)(self + 0x30) + 4));
+    int mode = cRider_getMotionMode(*(void**)(*(char**)(self + 0x30) + 4));
     if (cmLength_001607E0(v) < 27.77777862548828f) {
         v = *(sVec_001607E0*)(self + 0x1B0);
     }
@@ -2555,7 +2592,7 @@ extern "C" void func_00162998(void* self, void* obj)
 }
 
 //100%
-extern "C" int func_001298C8();
+extern "C" int getGameTick();
 
 struct sVec4_162A20
 {
@@ -2630,13 +2667,13 @@ extern "C" void func_00162A20(char* self, char* trig)
                 }
             }
             *(int*)(self + 0x2D4) = 1;
-            int late = func_001298C8() - *(int*)(self + 0x2CC) >= 31;
+            int late = getGameTick() - *(int*)(self + 0x2CC) >= 31;
             if (*(int*)(self + 0x2E0) == 0 && late)
                 *(int*)(self + 0x2C4) = 15;
         }
         else
         {
-            *(int*)(self + 0x2CC) = func_001298C8();
+            *(int*)(self + 0x2CC) = getGameTick();
             return;
         }
     }
@@ -2647,7 +2684,7 @@ extern "C" void func_00162A20(char* self, char* trig)
         *(int*)(self + 0x2D8) = 0;
     }
     if (*(int*)(trig + 0x60))
-        *(int*)(self + 0x2CC) = func_001298C8();
+        *(int*)(self + 0x2CC) = getGameTick();
 }
 
 //100%
