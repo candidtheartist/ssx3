@@ -1642,7 +1642,20 @@ extern "C" void func_0018D3C0(void* self)
     }
 }
 
-INCLUDE_ASM("fe/festateoptions", func_0018D438);
+//100%
+// Key filter: keys 8 and 9 return 0x100, every other key 0x101.
+extern "C" int func_0018D438(void* self, int a1, unsigned int key)
+{
+    int r = 0x101;
+    if (key < 10) {
+        if (key < 8) {
+            r = 0x101;
+        } else {
+            return 0x100;
+        }
+    }
+    return r;
+}
 
 //100%
 // PORT: PS2-only inline asm; needs a C fallback off-PS2.
