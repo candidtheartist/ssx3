@@ -1247,7 +1247,35 @@ extern "C" void func_00373C28(void* self, sPtVec3_3C28* p, sPtMtx_3C28* mt, floa
     out[2] = ptBlend_3C28(p, mt, w, 2);
 }
 
-INCLUDE_ASM("render/particle", func_00373EA8);
+//100%
+struct sPtVec4_3EA8 {
+    float x, y, z, w;
+};
+
+// One bone matrix: 4 rows of 4 floats; column j of each row is used for output component j.
+struct sPtMtx_3EA8 {
+    float m[4][4];
+};
+
+static inline float ptBlend4_3EA8(sPtVec4_3EA8* p, sPtMtx_3EA8* mt, float* w, int j)
+{
+    float x = p->x;
+    float y = p->y;
+    float z = p->z;
+    float h = p->w;
+    return (mt[0].m[0][j] * x + mt[0].m[1][j] * y + mt[0].m[2][j] * z + mt[0].m[3][j] * h) * w[0]
+         + (mt[1].m[0][j] * x + mt[1].m[1][j] * y + mt[1].m[2][j] * z + mt[1].m[3][j] * h) * w[1]
+         + (mt[2].m[0][j] * x + mt[2].m[1][j] * y + mt[2].m[2][j] * z + mt[2].m[3][j] * h) * w[2]
+         + (mt[3].m[0][j] * x + mt[3].m[1][j] * y + mt[3].m[2][j] * z + mt[3].m[3][j] * h) * w[3];
+}
+
+// Blends the homogeneous point p through four matrices weighted by w[0..3]; writes x, y, z.
+extern "C" void func_00373EA8(void* self, sPtVec4_3EA8* p, sPtMtx_3EA8* mt, float* w, float* out)
+{
+    out[0] = ptBlend4_3EA8(p, mt, w, 0);
+    out[1] = ptBlend4_3EA8(p, mt, w, 1);
+    out[2] = ptBlend4_3EA8(p, mt, w, 2);
+}
 
 //100%
 struct sPatchVec {
