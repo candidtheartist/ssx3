@@ -1471,7 +1471,70 @@ extern "C" void func_00292CB8(void* self, void* obj) {
     func_002ABE78(obj, b);
 }
 
-INCLUDE_ASM("sound/soundsys", func_00292DA0);
+//100%
+struct cRiderMetrix;
+struct cAirPredictor;
+struct cRiderAnim;
+
+struct t4Matrix;
+
+
+struct t4Vector;
+
+
+
+
+struct cRiderHandler;
+
+
+
+
+extern "C" int func_002934D0_p3(void* self, int id, void* rider) __asm__("func_002934D0");
+extern "C" void func_00293290(void* self, int id, void* rider, int* out, int* size);
+extern "C" void func_002ABB38(void*);
+extern "C" void func_002ABE78(void*, int);
+extern "C" void* func_0028B1C8();
+extern "C" int func_00270280(void* p);
+extern int D_004A2A50;
+
+// PORT: the rider pointer is passed to func_00291710/func_00291C88 as an int (the unit declares them that way).
+extern "C" void func_00292DA0(void* self, void* obj) {
+    int a;
+    int b;
+    cRider* rider = *(cRider**)((char*)obj + 0x80);
+    int st = func_0011FE98(rider);
+    if (st != rider->unk_760) {
+        rider->unk_760 = st;
+    }
+    a = 0;
+    b = 0x40;
+    if (st == 1 || st == 5) {
+        if (func_002934D0_p3(self, rider->unk_768, rider) == 2) {
+            rider->unk_768 = 9;
+        }
+    } else {
+        int id = func_00291710(self, (int)rider);
+        if (id != rider->unk_768) {
+            rider->unk_768 = id;
+            func_002ABB38(obj);
+            func_00291C88(self, (int)rider, id);
+        } else {
+            func_00293290(self, func_00291710(self, (int)rider), rider, &a, &b);
+        }
+    }
+    if (func_0011FE98(rider) == 2) {
+        a = 0;
+    }
+    int c = 0;
+    if ((D_004A2A50 & 1) || func_00270280(*(void**)((char*)func_0028B1C8() + 0x28)) != 0) {
+        c = 1;
+    }
+    if (c) {
+        a = 0;
+    }
+    *(int*)((char*)obj + 0x64) = a;
+    func_002ABE78(obj, b);
+}
 
 INCLUDE_ASM("sound/soundsys", func_00292EF8);
 
