@@ -1114,7 +1114,57 @@ extern "C" void func_00292AE8(void* self, int a1)
     func_002ADDE0_k(**(char***)((char*)self + 0x118) + 0x1D8, D_004A36A8[0].v);
 }
 
-INCLUDE_ASM("sound/soundsys", func_00292B48);
+//100%
+extern "C" void func_002ADDE0(void* bank, long id);
+struct sSndId292AE8 {
+    long v;
+} __attribute__((packed));
+struct sVE292B48 { short delta; short index; void (*fn)(void*, long); };
+
+struct sBank292B48 {
+    char pad0[0x8D8];
+    sVE292B48* vt;      // 0x8D8
+};
+struct sSys292B48 {
+    char pad0[0x1D8];
+    sBank292B48 bank;   // 0x1D8
+};
+
+extern sSndId292AE8 D_004A3688_2B48[] __asm__("D_004A3688");
+extern sSndId292AE8 D_004A3690_2B48[] __asm__("D_004A3690");
+extern sSndId292AE8 D_004A3698_2B48[] __asm__("D_004A3698");
+extern sSndId292AE8 D_004A36A0_2B48[] __asm__("D_004A36A0");
+extern sSndId292AE8 D_004A36B0_2B48[] __asm__("D_004A36B0");
+extern sSndId292AE8 D_004A36B8_2B48[] __asm__("D_004A36B8");
+extern "C" void func_002AD5F0(void* p, int idx, int a2, float v);
+
+// Stops one bank sound (vtable slot 3 of the bank).
+static inline void bankStop292B48(char* self, long id)
+{
+    sSys292B48* sys = **(sSys292B48***)(self + 0x118);
+    sVE292B48* vt = sys->bank.vt;
+    char* b = (char*)&sys->bank;
+    vt[3].fn(b + vt[3].delta, id);
+}
+
+// PORT: the 8-byte sound ids are passed by value from unaligned globals (64-bit `long`).
+// Stops every front-end/ambient sound and the current stream fade.
+extern "C" void func_00292B48(void* vself)
+{
+    char* self = (char*)vself;
+    func_002913D8(self);
+    bankStop292B48(self, D_004A3688_2B48[0].v);
+    bankStop292B48(self, D_004A3690_2B48[0].v);
+    bankStop292B48(self, D_004A3698_2B48[0].v);
+    bankStop292B48(self, D_004A36A0_2B48[0].v);
+    func_002ADDE0(&(**(sSys292B48***)(self + 0x118))->bank, D_004A36A8[0].v);
+    if (*(int*)(self + 0x59E4) > 0) {
+        func_002AD5F0(&(**(sSys292B48***)(self + 0x118))->bank, *(int*)(self + 0x59E0), 1, 0.0f);
+        *(int*)(self + 0x59E4) = 0;
+    }
+    bankStop292B48(self, D_004A36B0_2B48[0].v);
+    bankStop292B48(self, D_004A36B8_2B48[0].v);
+}
 
 INCLUDE_ASM("sound/soundsys", func_00292CB8);
 
