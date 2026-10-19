@@ -215,7 +215,22 @@ extern "C" void func_00186D60(void)
     vvt[25].fn(w2 + vvt[25].delta, 1);
 }
 
-INCLUDE_ASM("fe/fememcard", func_00186F40);
+//100%
+extern void* D_004A28A8;
+extern int D_004A14BC;
+extern "C" void* func_00227F80(void* p);
+extern "C" int func_0023C8D0(void* game);
+
+extern "C" bool func_00186F40(void)
+{
+    void* game = func_00227F80(D_004A28A8);
+    if (D_004A14BC >= 4) {
+        if (func_0023C8D0(game)) {
+            return true;
+        }
+    }
+    return false;
+}
 
 //100%
 extern "C" void* cBE_getBE();

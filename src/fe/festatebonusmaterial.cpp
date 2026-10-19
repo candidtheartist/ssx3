@@ -38,7 +38,20 @@ extern "C" void func_00195540(void* self, void* menu)
     }
 }
 
-INCLUDE_ASM("fe/festatebonusmaterial", func_001955B8);
+//100%
+// Key filter: keys 8 and 9 return 0x100, every other key 0x101.
+extern "C" int func_001955B8(void* self, int a1, unsigned int key)
+{
+    int r = 0x101;
+    if (key < 10) {
+        if (key < 8) {
+            r = 0x101;
+        } else {
+            return 0x100;
+        }
+    }
+    return r;
+}
 
 extern "C" void* func_0039E4C0(void* self);
 

@@ -375,7 +375,36 @@ extern "C" void func_0032B460()
 
 INCLUDE_ASM("intersect/riderspheretree", func_0032B468);
 
-INCLUDE_ASM("intersect/riderspheretree", func_0032B620);
+//100%
+// Run-length decode (PackBits style) into dst: a negative count -n copies the next n bytes, a positive count n
+// repeats the next byte n+1 times, 0 terminates. Returns the number of bytes written.
+// PORT: the unit declares it later as void*(void*, void*); defined under its own name bound to the symbol.
+extern "C" int func_0032B620_impl(char* dst, signed char* src) __asm__("func_0032B620");
+extern "C" int func_0032B620_impl(char* dst, signed char* src)
+{
+    if (src == 0)
+        return 0;
+    char* d = dst;
+    int c;
+    do {
+        c = *src++;
+        if (c < 0) {
+            int n = -c;
+            do {
+                *d++ = *src++;
+            } while (--n);
+        } else {
+            int n = c + 1;
+            if (c == 0)
+                break;
+            do {
+                *d++ = *src;
+            } while (--n);
+            src++;
+        }
+    } while (c != 0);
+    return d - dst;
+}
 
 //100%
 // VU0 microprogram entry (micro-memory address 0x6E0; resolved via undefined_syms_auto.txt)
@@ -2242,7 +2271,26 @@ extern "C" int func_0032FFA0(void* self, sSphereVec4* a, sSphereVec4* b, sSphere
 INCLUDE_ASM("intersect/riderspheretree", func_003300F8);
 extern "C" float func_003300F8(sSphereVec4* a, sSphereVec4* b);
 
-INCLUDE_ASM("intersect/riderspheretree", func_00330128);
+//100%
+// PORT: callers use this as a by-value struct return (hidden out pointer in $4).
+sSphereVec4 func_00330128_def(sSphereVec4* a, sSphereVec4* b, sSphereVec4* p) __asm__("func_00330128");
+
+sSphereVec4 func_00330128_def(sSphereVec4* a, sSphereVec4* b, sSphereVec4* p)
+{
+    sSphereVec4 d = Sub_CDB0(*p, *a);
+    sSphereVec4 e = Sub_CDB0(*b, *a);
+    sSphereVec4 n = Normalize_CDB0(e);
+    float t = Dot_CDB0(n, d);
+    float len = sphereLength_32FDB0(e);
+    if (t <= 0.0f) {
+        return *a;
+    } else if (len <= t) {
+        return *b;
+    } else {
+        sSphereVec4 r = Add_CDB0(*a, Scale_CDB0(n, t));
+        return r;
+    }
+}
 
 //100% - objdiff report; single-function view differs only in a relocation name
 // PORT: func_00330128 is defined as (out, a, b, p) returning out; this caller uses it as a by-value

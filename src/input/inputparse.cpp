@@ -929,7 +929,36 @@ extern "C" void* cInputMapParser_parseBinaryFunc(void* self, int op)
 
 INCLUDE_ASM("input/inputparse", cInputMapParser_parseUnaryFunc);
 
-INCLUDE_ASM("input/inputparse", cInputMapParser_compileStatement);
+//100%
+struct sEntry_324590 {
+    char pad[0x40];
+    void* code;     // 0x40
+};
+extern "C" sEntry_324590* func_00321A40_K(void* self, const char* name) __asm__("func_00321A40");
+extern "C" int func_00324678(void* self, void* node, int* src, void* code, int cap, int a5);
+extern char D_0048E208[];
+extern char D_0048E228[];
+
+// Compiles one named statement into out (space-terminated); returns the new length or -1.
+extern "C" int cInputMapParser_compileStatement(void* self, const char* name, int* out, int max, int a5)
+{
+    sEntry_324590* e = func_00321A40_K(self, name);
+    if (e == 0) {
+        func_00321500(self, D_0048E208, name);
+        return -1;
+    }
+    int sep = ' ';
+    int state = 0;
+    int n = func_00324678(self, e->code, &state, out, max, a5);
+    max -= n;
+    out += n;
+    if (max <= 0) {
+        func_00321500(self, D_0048E228);
+        return -1;
+    }
+    *out = sep;
+    return n + 1;
+}
 
 //100%
 extern "C" void func_00321500(void* self, const char* fmt, ...);
@@ -1590,7 +1619,39 @@ extern "C" void func_00326478(void* self, sParseStream* s)
     }
 }
 
-INCLUDE_ASM("input/inputparse", func_003264B0);
+//100%
+// PORT: func_00326A20__FPv is called with (self, s, a2, a3, msg) here; bind the 5-arg form to that symbol.
+void func_00326A20_5(void* self, sParseStream* s, int a2, int a3, const char* msg) __asm__("func_00326A20__FPv");
+extern char D_0048E3D8[];
+
+// Skips a /* */ comment; newlines inside it are kept, otherwise it becomes one space.
+extern "C" void func_003264B0(void* self, sParseStream* s, int a2, int a3)
+{
+    int single = 1;
+    int run = 1;
+    while (run) {
+        int ch = *(int*)((char*)self + 0xC);
+        if (ch == '\n') {
+            single = 0;
+            *(int*)((char*)s + 0xC) += 1;
+            func_00326360(self, (char)*(int*)((char*)self + 0xC));
+        } else if (ch == '*') {
+            func_00326478(self, s);
+            if (*(int*)((char*)self + 0xC) != '/')
+                continue;
+            func_00326478(self, s);
+            if (single) {
+                func_00326360(self, ' ');
+            }
+            return;
+        } else if (ch < 0) {
+            goto error;
+        }
+        func_00326478(self, s);
+    }
+error:
+    func_00326A20_5(self, s, a2, a3, D_0048E3D8);
+}
 
 //100%
 struct sParseStream;
