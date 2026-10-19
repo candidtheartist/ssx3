@@ -3424,7 +3424,92 @@ extern "C" int func_0037D348(sPtGfx_A430* self, int idx)
     return 1;
 }
 
-INCLUDE_ASM("render/particle", func_0037D450);
+//100%
+struct sPtRS_D450 {
+    int f0;
+    int f4;
+    int f8;                         // bits 0..4 = key
+    int fC;
+    short tex;
+    short pad;
+};
+
+struct sPtEnt_D450 {
+    sPtRS_D450 rs;                  // 0x00
+    unsigned int buf;               // 0x14
+    unsigned int next;              // 0x18
+    short key;                      // 0x1C
+    short one;                      // 0x1E
+    char pad_0x20[0x60];
+};
+
+struct sPtRing_D450 {
+    int count;                      // 0x0
+    char pad_0x4[0x7C];
+    sPtEnt_D450 ents[1];            // 0x80
+};
+
+struct sPtGfx_D450 {
+    char pad_0x0[0xE84];
+    sPtRS_D450* top;                // 0xE84
+    char pad_0xE88[0x18F0 - 0xE88];
+    sPtRing_D450* ring;             // 0x18F0
+    char pad_0x18F4[0x5900 - 0x18F4];
+    unsigned short scX;             // 0x5900
+    unsigned short scY;             // 0x5902
+    unsigned short scW;             // 0x5904
+    unsigned short scH;             // 0x5906
+    char pad_0x5908[0x5A00 - 0x5908];
+    unsigned int bufAddr;           // 0x5A00
+    char pad_0x5A04[0x2C];
+    unsigned int width;             // 0x5A30
+    unsigned int height;            // 0x5A34
+    char pad_0x5A38[0x4];
+    unsigned int psm;               // 0x5A3C
+    char pad_0x5A40[0x10];
+    unsigned int fbw;               // 0x5A50
+    char pad_0x5A54[0x30];
+    unsigned int fbp;               // 0x5A84
+};
+
+// PORT: 64-bit `ulong` GS packet words; uncached (0x30000000) pointers held in int.
+extern "C" int func_0037D450(sPtGfx_D450* self)
+{
+    unsigned int buf = self->bufAddr;
+    ulong* p = (ulong*)(buf | 0x30000000);
+    p[0] = 0x10000006;
+    p[1] = 0;
+    p[2] = (ulong)0x8800 << 45;
+    p[3] = (ulong)0x50000005 << 32;
+    p[4] = ((ulong)0x10000000 << 32) | 0x8004;
+    p[5] = 0xE;
+    p[6] = (ulong)self->fbp | ((ulong)self->fbw << 16) | ((ulong)self->psm << 24);
+    p[7] = 0x4C;
+    p[8] = (ulong)self->scX | ((ulong)(self->scX + (self->scW - 1)) << 16) | ((ulong)self->scY << 32) | ((ulong)(self->scY + (self->scH - 1)) << 48);
+    p[9] = 0x40;
+    p[10] = (ulong)self->scX | ((ulong)(self->scX + (self->scW - 1)) << 16) | ((ulong)self->scY << 32) | ((ulong)(self->scY + (self->scH - 1)) << 48);
+    p[11] = 0x41;
+    p[12] = (ulong)((0x800 - (self->width >> 1)) << 4) | ((ulong)((0x800 - (self->height >> 1)) << 4) << 32);
+    p[13] = 0x18;
+    p += 14;
+    unsigned int next = (unsigned int)p & 0x0FFFFFFF;
+    sPtRing_D450* ring = self->ring;
+    sPtRS_D450* rs = self->top;
+    self->bufAddr = next;
+    int one = 1;
+    if (ring->count < 0xA28) {
+        rs->f8 = (rs->f8 & ~0x1F) | (*(int*)((char*)ring + 0x69CC4) & 0x1F);
+        int key = *(int*)((char*)ring + 0x69CC0);
+        sPtEnt_D450* e = (sPtEnt_D450*)((ring->count++ << 7) + ((unsigned int)ring->ents | 0x30000000));
+        e->rs = *rs;
+        e->one = one;
+        e->next = next;
+        e->key = key;
+        e->buf = buf;
+    }
+    self->bufAddr += 0x10;
+    return 0;
+}
 
 extern "C" void* func_00367CD0(int);
 
