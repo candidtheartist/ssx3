@@ -4124,7 +4124,29 @@ void func_003C3358(void) { func_00423DB0_3358(D_0050AD00_3358.h); }
 
 INCLUDE_ASM("ealib/seg_2B4578", func_003C3380);
 
-INCLUDE_ASM("ealib/seg_2B4578", func_003C33E0);
+//100%
+struct G_33E0 {
+    char pad[0x1B10];
+    volatile int f1B10;
+    volatile int f1B14;
+    volatile int f1B18;
+};
+extern struct G_33E0 D_0050AD00_33E0 __asm__("D_0050AD00");
+extern int func_00423C90_33E0(void) __asm__("func_00423C90");
+extern void func_00423DC0_33E0(int) __asm__("func_00423DC0");
+
+void func_003C33E0(void) {
+    int r = func_00423C90_33E0();
+    if (D_0050AD00_33E0.f1B14 == r) {
+        D_0050AD00_33E0.f1B18--;
+        if (D_0050AD00_33E0.f1B18 == 0) {
+            D_0050AD00_33E0.f1B14 = -1;
+        }
+    }
+    if (D_0050AD00_33E0.f1B18 <= 0) {
+        func_00423DC0_33E0(D_0050AD00_33E0.f1B10);
+    }
+}
 
 //100% - objdiff report; single-function view differs only in a relocation name
 // PORT: PS2-only inline asm; needs a C fallback off-PS2.
