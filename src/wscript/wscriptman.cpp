@@ -33,7 +33,37 @@ extern "C" void* cWScriptMan_addProcess1(void* self, int a1, int a2, int a3, int
     return p;
 }
 
-INCLUDE_ASM("wscript/wscriptman", func_00309618);
+//100%
+// PORT: PS2-only inline asm; needs a C fallback off-PS2.
+class cWSObj_309618 {
+public:
+    char pad_0x00[0x5C];
+    virtual void v00(int);
+    virtual void v01();
+};
+
+extern "C" void* func_0030B320_a(void* self, int id) __asm__("func_0030B320");
+extern "C" int func_0030B2D0_a(void* self, void* node) __asm__("func_0030B2D0");
+
+extern "C" void func_00309618(char* self, int id) {
+    cWSObj_309618* obj = (cWSObj_309618*)func_0030B320_a(self + 0x2B8, id);
+    if (obj != 0) {
+        func_0030B2D0_a(self + 0x2B8, obj);
+        obj->v00(3);
+        return;
+    }
+    obj = (cWSObj_309618*)func_0030B320_a(self + 0x2BC, id);
+    if (obj != 0) {
+        func_0030B2D0_a(self + 0x2BC, obj);
+        obj->v00(3);
+        return;
+    }
+    obj = (cWSObj_309618*)func_0030B320_a(self + 0x2B4, id);
+    if (obj != 0) {
+        func_0030B2D0_a(self + 0x2B4, obj);
+        obj->v00(3);
+    }
+}
 
 struct cWScriptListHead;
 struct cWScriptListNode;
@@ -516,7 +546,27 @@ extern "C" int func_0030A2E8(void* self, int id)
     return func_003A6B78(*(void**)((char*)self + 0x28C), id, 3) != -1;
 }
 
-INCLUDE_ASM("wscript/wscriptman", func_0030A310);
+//100%
+struct sEntry_A310 {
+    short type;
+    char pad[10];
+};
+// PORT: the helpers take the object as int in this unit.
+extern "C" int func_0030A310(void* self, void* obj)
+{
+    char* o = (char*)obj;
+    if (*(int*)(o + 0xC) != 0) {
+        return 1;
+    }
+    sEntry_A310* tab = *(sEntry_A310**)(*(char**)(*(char**)((char*)self + 0x28C) + 0x4) + 0x4);
+    bool isType3 = tab[*(unsigned char*)(o + 0x78)].type == 3;
+    if (isType3) {
+        if (func_0030A270(self, (int)obj) || func_0030A2E8(self, (int)obj)) {
+            return 1;
+        }
+    }
+    return 0;
+}
 
 //100% - objdiff report; single-function view differs only in a relocation name
 // script object controller: 0xC bytes of data, then the vptr
@@ -1176,7 +1226,63 @@ extern "C" void func_0030B068(func_0030B068_cNode** self, int flags)
     }
 }
 
-INCLUDE_ASM("wscript/wscriptman", func_0030B0E8);
+//100%
+struct sVE_B0E8 {
+    short delta;
+    short index;
+    void (*fn)(void*, int);
+};
+
+struct sNode_B0E8 {
+    char pad0[0x18];
+    sNode_B0E8* next;   // 0x18
+    char pad1C[0x24 - 0x1C];
+    int key;            // 0x24
+    char pad28[0x5C - 0x28];
+    sVE_B0E8* vt;       // 0x5C
+};
+
+static inline void destroy_B0E8(sNode_B0E8* n)
+{
+    if (n != 0) {
+        n->vt[1].fn((char*)n + n->vt[1].delta, 3);
+    }
+}
+
+// Deletes the leading run of nodes with the given key, then the run after the new head.
+extern "C" void func_0030B0E8(sNode_B0E8** head, int key)
+{
+    if (*head == 0) {
+        return;
+    }
+    sNode_B0E8* next = (*head)->next;
+    if ((*head)->key == key) {
+        for (;;) {
+            destroy_B0E8(*head);
+            *head = next;
+            sNode_B0E8* cur = next;
+            if (cur == 0) {
+                return;
+            }
+            next = cur->next;
+            if (cur->key != key) {
+                break;
+            }
+        }
+    }
+    if (*head == 0) {
+        return;
+    }
+    sNode_B0E8* n = (*head)->next;
+    while (n != 0) {
+        sNode_B0E8* cur = n;
+        n = cur->next;
+        if (cur->key != key) {
+            break;
+        }
+        destroy_B0E8(cur);
+    }
+}
 
 //100%
 class func_0030B1B8_cObj {

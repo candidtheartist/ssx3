@@ -274,7 +274,43 @@ extern "C" int func_0026C998(void* self, int key)
     return 0;
 }
 
-INCLUDE_ASM("replay/playbackman", func_0026C9F0);
+//100%
+extern "C" int func_0026CFE8_k(void* self, int key) __asm__("func_0026CFE8");
+extern "C" int func_003DF690(char* path, int flags);
+extern char* D_004A3414;
+extern char D_004A3430[];
+
+struct sPbEntry_26C9F0 { int id; int used; int pad; };
+struct sPb_26C9F0 {
+    char pad0[8];
+    char name[0x50];
+    int entries;                // 0x58 (pointer held as int)
+    char pad5C[0x18];
+    int cur;                    // 0x74
+    int handle;                 // 0x78
+};
+
+extern "C" int func_0026C9F0(void* self_, int key)
+{
+    sPb_26C9F0* self = (sPb_26C9F0*)self_;
+    char path[0x100];
+    int idx = func_0026CFE8_k(self, key);
+    if (idx >= 0) {
+        sPbEntry_26C9F0* entry = (sPbEntry_26C9F0*)(idx * 0xC + self->entries);
+        if (entry->used != 0)
+            return 1;
+        self->cur = idx;
+        self->handle = -1;
+        int num = D_004A3410;
+        sprintf(path, D_004A3414, D_004A3430, num, self->name, entry->id);
+        int h = func_003DF690(path, 0x100);
+        self->handle = h;
+        if (h >= 0)
+            return 1;
+        self->handle = -1;
+    }
+    return 0;
+}
 
 //100%
 extern "C" void func_0026CDF8(void* self);
@@ -625,7 +661,41 @@ extern "C" int func_0026D2B0(sPbStream_D2B0* self, sPbChunk_D2B0* chunk)
     return 1;
 }
 
-INCLUDE_ASM("replay/playbackman", func_0026D390);
+//100%
+struct sEntry_D390 {
+    unsigned int len : 12;
+    unsigned int rest : 20;
+    int data;
+};
+
+struct sOwner_D390 {
+    int count;                  // 0x0
+    char pad4[8];
+    sEntry_D390* entries;       // 0xC
+};
+
+extern "C" void func_0026D390(sOwner_D390* self, unsigned int pos)
+{
+    int n = self->count;
+    unsigned int sum = 0;
+    sEntry_D390* p = self->entries;
+    int i = 0;
+    if (n > 0) {
+        sum = p->len;
+        p++;
+        if (pos >= sum) {
+            do {
+                i++;
+                if (i >= n)
+                    break;
+                sum += p->len;
+                p++;
+            } while (pos >= sum);
+        }
+    }
+    self->entries[i].len = sum - pos + 1;
+    self->count = i + 1;
+}
 
 //100%
 struct sPbChunk_D420 {

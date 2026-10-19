@@ -53,7 +53,20 @@ extern "C" sStreamInst_99D8* cStreamInstance_cStreamInstance(sStreamInst_99D8* s
     return self;
 }
 
-INCLUDE_ASM("sound/streamsys", func_002A9C00);
+//100%
+extern "C" sStreamInst_99D8* func_002A9C00(sStreamInst_99D8* self, sSsPlayer_99D8* p, char* mem, int size, int n, int m)
+{
+    self->scale = p->scales[p->cur];
+    self->vol = curVol_99D8(p);
+    if (self->scale) {
+        p->vols[p->cur] = (int)MAX_99D8(MIN_99D8((float)p->vols[p->cur] * *self->scale, 127.0f), 0.0f);
+        p->ents[p->cur].vol = MAX_99D8(MIN_99D8(p->vols[p->cur], 127), 0);
+    }
+    self->mem = mem;
+    self->f4 = 1;
+    self->handle = func_003B7818(&p->ents[p->cur], n, m, mem, size);
+    return self;
+}
 
 extern "C" void* func_002A9DD8(void* self, int handle)
 {

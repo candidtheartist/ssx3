@@ -55,7 +55,61 @@ extern "C" void cGraphicsMan_AddBlendedMatrix(sGfxManBlend* self, sBlendMatrix* 
     self->nBlend++;
 }
 
-INCLUDE_ASM("render/graphicsman", func_00369A78);
+//100%
+struct sKey_9A78 {
+    short x;                        // 0x0
+    unsigned short id;              // 0x2
+    short y;                        // 0x4
+    unsigned short idA;             // 0x6
+    short z;                        // 0x8
+    unsigned short idB;             // 0xA
+};
+
+struct sEnt_9A78 {
+    int type;
+    sKey_9A78* key;
+};
+
+static inline int iabs_9A78(int v)
+{
+    return v < 0 ? -v : v;
+}
+
+// Compares two entries' keys; type 3 (and inexact 1/2) allow position tolerances and swapped ends.
+extern "C" int func_00369A78(void* ap, void* bp, int tol0, int tol1, int tol2)
+{
+    sEnt_9A78* a = (sEnt_9A78*)ap;
+    sEnt_9A78* b = (sEnt_9A78*)bp;
+    if (a->type != b->type)
+        goto fail;
+    if (a->key->id != b->key->id)
+        goto fail;
+    switch (a->type) {
+    case 1:
+        if (a->key->x == b->key->x)
+            return 1;
+        break;
+    case 2:
+        if (a->key->x == b->key->x && a->key->idA == b->key->idA && a->key->y == b->key->y)
+            return 1;
+        break;
+    case 3:
+        break;
+    default:
+        goto fail;
+    }
+    if (a->key->idA == b->key->idA && a->key->idB == b->key->idB) {
+        if (iabs_9A78(a->key->x - b->key->x) > tol0 || iabs_9A78(a->key->y - b->key->y) > tol1 || iabs_9A78(a->key->z - b->key->z) > tol2)
+            goto fail;
+        return 1;
+    }
+    if (a->key->idB == b->key->idA && a->key->idA == b->key->idB) {
+        if (iabs_9A78(a->key->x - b->key->x) <= tol0 && iabs_9A78(a->key->z - b->key->y) <= tol1 && iabs_9A78(a->key->y - b->key->z) <= tol2)
+            return 1;
+    }
+fail:
+    return 0;
+}
 
 //100%
 extern char* D_004A5B64;
@@ -810,7 +864,11 @@ extern "C" void func_0036CEF8(char* self, sGfxVec4* a, sGfxVec4* b, sGfxVec4* c)
 
 extern cQuad128 D_004FF120;
 
-INCLUDE_ASM("render/graphicsman", func_0036CFA8);
+//100%
+extern "C" void func_0036CFA8(char* self, sGfxVec4* v, float s)
+{
+    *(sGfxVec4*)(self + 0xE0) = vu0DivGM(vu0ScaleGM(*v, *(float*)(self + 0xC)), s * *(float*)(self + 0x4C));
+}
 
 //100%
 extern "C" void func_0036D008(void* self)

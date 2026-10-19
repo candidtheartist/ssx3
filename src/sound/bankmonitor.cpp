@@ -543,7 +543,46 @@ extern "C" void func_002ADDA0(void* self)
     }
 }
 
-INCLUDE_ASM("sound/bankmonitor", func_002ADDE0);
+//100%
+extern "C" void func_002AD940(void*);
+
+struct sBmKeyDDE0 {
+    short a;
+    short id;
+    union {
+        int v;
+        short s;
+    };
+};
+
+static inline int func_002ADDE0_match(char* e, sBmKeyDDE0 k)
+{
+    int r = 0;
+    if (k.id == *(short*)(e + 0xE)) {
+        if ((k.id != -1 && k.s == *(short*)(e + 0x10)) || k.v == *(int*)(e + 0x10)) {
+            r = 1;
+        }
+    }
+    return r;
+}
+
+// Release-build assert: expands to an empty do { } while (0). Its loop notes keep GCC from reversing the
+// slot loop into a count-down, as in the target.
+#define ASSERT_DDE0(cond) do { } while (0)
+
+// PORT: callers in this unit declare func_002ADDE0(void*, long); the key is the same 8 bytes viewed as a struct.
+void func_002ADDE0_impl(void* self, sBmKeyDDE0 key) __asm__("func_002ADDE0");
+
+// Stops every one of the 48 monitored sounds that matches the key.
+void func_002ADDE0_impl(void* self, sBmKeyDDE0 key)
+{
+    for (int i = 0; i < 48; i++) {
+        if (func_002ADDE0_match((char*)self + 0x98 + i * 0x2C, key)) {
+            func_002AD940((char*)self + 0x98 + i * 0x2C);
+        }
+        ASSERT_DDE0(i < 48);
+    }
+}
 
 //100%
 class func_002ADE88_cObj {
@@ -2561,7 +2600,29 @@ extern "C" int func_002B1520(sBMon_1520* self, int id, int key)
     return 0;
 }
 
-INCLUDE_ASM("sound/bankmonitor", func_002B16A0);
+//100%
+struct sSlot16A0 {
+    int active;     // 0x0
+    int pad4;
+    int idx;        // 0x8
+    int key;        // 0xC
+    char pad[0x10];
+};
+
+extern "C" void func_002B16A0(void* self, int idx, int key)
+{
+    sSlot16A0* slots = (sSlot16A0*)((char*)self + 0x18);
+    for (int i = 0; i < 10; i++) {
+        if (slots[i].active != 0 && slots[i].idx == idx && slots[i].key == key) {
+            *(int*)((char*)self + 0xC) = 0;
+            *(int*)((char*)self + 0x10) = -1;
+            *(int*)((char*)(*(int**)((char*)self + 4))[idx] + 0x8F4) = 0;
+            *(int*)((char*)(*(int**)((char*)self + 4))[idx] + 0x8CC) = 0;
+            *(int*)((char*)(*(int**)((char*)self + 4))[idx] + 0x8D0) = 0;
+            slots[i].active = 0;
+        }
+    }
+}
 
 //100%
 extern "C" void func_002B1720(sBankSlots* self)
@@ -3478,7 +3539,21 @@ extern "C" void func_002B3D48(void* self, float v)
 
 INCLUDE_ASM("sound/bankmonitor", func_002B3D80);
 
-INCLUDE_ASM("sound/bankmonitor", func_002B3E20);
+//100%
+extern "C" int func_002B3E20(void* self)
+{
+    float step = *(float*)((char*)self + 0x40C);
+    float cur = *(float*)((char*)self + 0x410) + step;
+    *(float*)((char*)self + 0x410) = cur;
+    if ((step > 0.0f && cur < (float)*(int*)((char*)self + 0x414))
+        || (step < 0.0f && cur > (float)*(int*)((char*)self + 0x414))) {
+        *(signed char*)((char*)*(void**)((char*)self + 0x408) + 0x40) = (signed char)(int)*(float*)((char*)self + 0x410);
+        return 0;
+    }
+    signed char t = *(int*)((char*)self + 0x414);
+    *(signed char*)((char*)*(void**)((char*)self + 0x408) + 0x40) = t;
+    return 1;
+}
 
 //100%
 // PORT: 64-bit `long` (8 bytes on EE, 4 on Windows); use int64_t/uint64_t off-PS2.

@@ -78,7 +78,33 @@ extern "C" void func_003581B8(sParticleList* list, int item)
     }
 }
 
-INCLUDE_ASM("object/multiparticle", func_003581F0);
+//100%
+struct sMoveList_81F0 {
+    int field_0x0;          // 0x0
+    int count;              // 0x4
+    int field_0x8;          // 0x8
+    unsigned int* entries;  // 0xC
+};
+
+// Removes the first entry equal to key, filling the hole with the last entry.
+extern "C" void func_003581F0(sMoveList_81F0* self, unsigned int key)
+{
+    int i;
+    for (i = 0; i < self->count; i++) {
+        if (self->entries[i] == key) {
+            self->count--;
+            // the do/while(0) wrapper (a compiled-out macro block) is needed to match register allocation
+            do {
+                if (i < self->count) {
+                    self->entries[i] = self->entries[self->count];
+                } else {
+                    self->entries[i] = 0xFFFFFFFF;
+                }
+                return;
+            } while (0);
+        }
+    }
+}
 
 //100%
 struct sMPVec4 {
