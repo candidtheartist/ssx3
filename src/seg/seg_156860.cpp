@@ -1872,7 +1872,91 @@ extern "C" void func_002583A8(S83A8 *self, int arg1, int arg2) {
     }
 }
 
-INCLUDE_ASM("seg/seg_156860", cGameComm_syncGame);
+//100%
+void* cBE_getInterface_Fv(void* be, int kind) __asm__("cBE_getInterface__Fv");
+// PORT: PS2-only inline asm; needs a C fallback off-PS2.
+void* operator_new_8448(unsigned int size, const char* tag, int flags, int align) __asm__("operator_new__FUi");
+void cMemMan_free_8448(void* p) __asm__("cMemMan_free__FPv");
+extern "C" void func_0014E9F8(void* iface);
+extern "C" void func_0014EA90(void* iface);
+extern "C" void func_0014F898();
+extern "C" void func_0014E2C8_8448(void* iface, int which, void* buf) __asm__("func_0014E2C8");
+extern "C" void func_0014E5C8_8448(void* iface, int which, void* buf) __asm__("func_0014E5C8");
+extern "C" void func_003E6448_8448(char* p, int c, int n) __asm__("func_003E6448");
+extern "C" char* strncpy(char* dst, const char* src, unsigned int n);
+extern "C" void* cBE_getBE();
+extern "C" int func_00147318(void* iface, int a1);
+extern "C" void func_001472C8(void* iface, int a1, int a2);
+extern "C" void func_00237CB0(unsigned int seed);
+extern "C" void THREAD_yieldticks(int);
+unsigned int AIrand();
+void func_003178E0_8448(void* self) __asm__("func_003178E0__FPv");
+void* func_00317908(void* self);
+
+struct sVEnt_8448 {
+    short delta;
+    short index;
+    void (*fn)(void*);
+};
+
+extern char D_004805B8[];
+extern char D_004805C8[];
+extern char D_00534B30[];
+
+static inline int ggHost_8448(char* g) { return *(int*)(g + 8); }
+static inline void ggSetTime_8448(char* g, float t) { *(float*)(g + 0x10) = t; }
+static inline int ggSynced_8448(char* s) { return *(int*)(s + 0x70) == 0xE; }
+static inline int ggDropped_8448(char* s) { return *(int*)(s + 4); }
+
+// Joins the game session: sets up the sync buffer and this side's name slot, then pumps
+// messages until the sync state (0xE) is reached or the link drops.
+extern "C" void cGameComm_syncGame(char* self)
+{
+    void* iface = cBE_getInterface_Fv(*(void**)((char*)D_004A28A8 + 0x78), 7);
+    *(void**)(self + 0x3EC) = operator_new_8448(*(unsigned int*)(self + 0x3F0), D_004805B8, 0x100, 0);
+    func_0014E9F8(iface);
+    if (ggHost_8448(D_00534B30) != 0) {
+        func_003E6448_8448(self + 0xF0, 0, 0x10);
+        strncpy(self + 0xF0, D_004805C8, 0xF);
+        *(int*)(self + 0xEC) = *(int*)((char*)D_004A2EB8 + 0x2C);
+        func_0014E2C8_8448(iface, 0, *(void**)(self + 0x3EC));
+        func_0014E5C8_8448(iface, 0, *(void**)(self + 0x3EC));
+    } else {
+        func_0014F898();
+        func_003E6448_8448(self + 0x104, 0, 0x10);
+        strncpy(self + 0x104, D_004805C8, 0xF);
+        *(int*)(self + 0x100) = *(int*)((char*)D_004A2EB8 + 0x2C);
+        func_0014E2C8_8448(iface, 1, *(void**)(self + 0x3EC));
+        func_0014E5C8_8448(iface, 1, *(void**)(self + 0x3EC));
+        void* ui = cBE_getInterface_Fv(cBE_getBE(), 1);
+        func_001472C8(ui, 1, func_00147318(ui, 0));
+        sVEnt_8448* vt = *(sVEnt_8448**)((char*)ui + 0xC);
+        vt[1].fn((char*)ui + vt[1].delta);
+    }
+    func_003178E0_8448(self + 0xD4);
+    while (!ggSynced_8448(self) && ggDropped_8448(self) == 0) {
+        func_002570D8(self);
+        THREAD_yieldticks(1);
+    }
+    if (*(void**)(self + 0x3EC)) {
+        cMemMan_free_8448(*(void**)(self + 0x3EC));
+    }
+    *(int*)(self + 0x120) = 3;
+    *(void**)(self + 0x3EC) = 0;
+    if (*(int*)(self + 4) == 0) {
+        func_0014EA90(iface);
+        func_00317908(self + 0xD4);
+        func_00237CB0(AIrand());
+        ggSetTime_8448(D_00534B30, *(float*)(self + 0x11C));
+        if (*(int*)(self + 0xEC) != 0 && *(int*)(self + 0x100) != 0) {
+            *(int*)(self + 0x120) = 2;
+        }
+        if (*(int*)(self + 4) == 0 && func_00416B18_70D8(self + 0xF0, self + 0x104, 9) != 0) {
+            func_00257678(self);
+            func_002578F8(self);
+        }
+    }
+}
 
 //100% - objdiff report; single-function view differs only in a relocation name
 // PORT: PS2-only inline asm; needs a C fallback off-PS2.
