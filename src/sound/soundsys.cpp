@@ -1724,7 +1724,25 @@ extern "C" void func_00293350(void* self, int id, void* rider, int* out, int* si
     }
 }
 
-INCLUDE_ASM("sound/soundsys", func_00293410);
+//100%
+// PORT: PS2-only inline asm; needs a C fallback off-PS2.
+extern "C" int func_002934D0_p3(void* self, int id, void* rider) __asm__("func_002934D0");
+void snd_dec_g(void*, void*, int*, int*) __asm__("func_00293BB0");
+void snd_dec_h(void*, void*, int*, int*) __asm__("func_00293DC0");
+void snd_dec_i(void*, void*, int*, int*) __asm__("func_00293FC8");
+
+extern "C" void func_00293410(void* self, int id, void* rider, int* out, int* size) {
+    *out = 0;
+    *size = 0x1000;
+    int t = func_002934D0_p3(self, id, rider);
+    if (t == 0) {
+        snd_dec_g(self, rider, out, size);
+    } else if (t == 1) {
+        snd_dec_h(self, rider, out, size);
+    } else if (t == 2) {
+        snd_dec_i(self, rider, out, size);
+    }
+}
 
 //100%
 extern "C" int func_002934D0(void* self, unsigned int kind, void* rider)
