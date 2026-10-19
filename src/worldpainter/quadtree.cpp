@@ -411,11 +411,11 @@ extern "C" void* func_002C28C0(void* self, int size, int big)
     return operator new[](size, D_00486030, big ? 0x100 : 0, 0);
 }
 
-extern "C" int func_002523A8_result(void* p) __asm__("func_002523A8");
+extern "C" int MEM_free_result(void* p) __asm__("MEM_free");
 
 extern "C" int func_002C28F8(void* p)
 {
-    return func_002523A8_result(p) != 0;
+    return MEM_free_result(p) != 0;
 }
 
 extern "C" void func_003E6574(void* dst, const void* src, int size);
@@ -512,7 +512,7 @@ extern "C" void* func_002C2D30(void* self, int size, int big)
 
 extern "C" int func_002C2D68(void* p)
 {
-    return func_002523A8_result(p) != 0;
+    return MEM_free_result(p) != 0;
 }
 
 extern "C" void* func_002C2D88(void* dst, const void* src, int size)
@@ -590,7 +590,7 @@ extern "C" void* func_002C3FA8(void* self)
 
 //100%
 void operator_delete(int* ptr);
-extern "C" void func_002523A8(void* p);
+extern "C" void MEM_free(void* p);
 extern "C" void func_002C6360(void* self);
 extern void* D_00486F78[];
 extern void* D_004871E8[];
@@ -601,7 +601,7 @@ extern "C" void func_002C3FE0(void* self, int flags)
     func_002C6360(self);
     void* p = *(void**)((char*)self + 0x30);
     if (p != 0) {
-        func_002523A8(p);
+        MEM_free(p);
     }
     *(void***)self = D_004871E8;
     if (flags & 1) {
@@ -1055,7 +1055,7 @@ extern "C" void* func_002C48C0(void* selfp, int st)
     case 1:
         self->ports[self->port].status = D_004A3940;
         if (self->buf != 0) {
-            func_002523A8(self->buf);
+            MEM_free(self->buf);
             self->buf = 0;
         }
         if (self->fd >= 0) {
@@ -1121,7 +1121,7 @@ extern "C" void* func_002C48C0(void* selfp, int st)
     case 48: {
         char buf[0x40];
         if (self->buf != 0) {
-            func_002523A8(self->buf);
+            MEM_free(self->buf);
             self->buf = 0;
         }
         int i = self->state == 0x2C ? 1 : self->state == 0x30 ? 2 : 0;
@@ -1155,7 +1155,7 @@ extern "C" void* func_002C48C0(void* selfp, int st)
     case 47:
     case 51:
         if (self->buf != 0) {
-            func_002523A8(self->buf);
+            MEM_free(self->buf);
             self->buf = 0;
         }
         D_004A3940 = func_00409E70(self->fd);
@@ -2834,13 +2834,13 @@ extern "C" void func_002C6D18(void* self)
 
 //100%
 void operator_delete(int* ptr);
-extern "C" void func_002523A8(void* p);
+extern "C" void MEM_free(void* p);
 
 extern "C" void func_002C6D70(void* self, int flags)
 {
     void* p = *(void**)((char*)self + 0x4);
     if (p != 0) {
-        func_002523A8(p);
+        MEM_free(p);
     }
     if (flags & 1) {
         operator_delete((int*)self);

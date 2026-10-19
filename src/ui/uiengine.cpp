@@ -388,7 +388,7 @@ extern char D_00493DB0[];
 extern char D_004A4778[];
 extern char* D_004A289C_8138 __asm__("D_004A289C");
 extern "C" sUIFsh8138* func_003E22F0(char* name, int flags);
-extern "C" void func_002523A8(void* p);
+extern "C" void MEM_free(void* p);
 extern "C" void* func_00416210(void* dst, int c, int n);
 // PORT: operator_new__FUi really takes (size, tag, flags, d); bound by asm label
 void* operator_new_tag(unsigned int size, const char* tag, int flags, int d) __asm__("operator_new__FUi");

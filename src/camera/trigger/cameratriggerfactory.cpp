@@ -2652,7 +2652,7 @@ extern "C" int func_0017A2C8(int* self, int start, void* key)
 
 extern "C" void* FILE_loadsizez(const char* name, int* size, int align);
 extern "C" void func_00318350(void* self, const char* s, int len);
-extern "C" void* func_002523A8(void* self);
+extern "C" void* MEM_free(void* self);
 extern "C" void cBXString__cBXString(void* self, int flags);
 extern "C" int func_0017A830(void* selfp, char* name, char* tag);
 extern "C" char* strcpy(char* d, const char* s);
@@ -2743,7 +2743,7 @@ extern "C" void func_0017A378(void* selfp, const char* file)
         }
         cBXString__cBXString(&str, 2);
     }
-    func_002523A8(buf);
+    MEM_free(buf);
 }
 
 

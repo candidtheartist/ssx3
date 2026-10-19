@@ -73,7 +73,7 @@ struct sVEntP_B8E0 {
     short index;
     void (*fn)(void*, int);
 };
-extern "C" void func_002523A8(void* p);
+extern "C" void MEM_free(void* p);
 int cCrowdRender2D_purge(int* param_1)
 {
     for (int i = 0; i < 1; i++) {
@@ -83,7 +83,7 @@ int cCrowdRender2D_purge(int* param_1)
             vt[50].fn(g + vt[50].delta, D_00445D38_B7A8[i].frames[j]);
         }
     }
-    func_002523A8(*(void**)param_1);
+    MEM_free(*(void**)param_1);
 }
 
 //100%

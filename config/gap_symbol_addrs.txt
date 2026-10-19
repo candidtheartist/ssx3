@@ -5719,13 +5719,6 @@ func_00251690__FPv = 0x00251690; //type:func
 func_002516B0__FPv = 0x002516B0; //type:func
 
 // --- src/mem/memstd.cpp ---
-func_00251F68 = 0x00251F68; //type:func
-func_00252248 = 0x00252248; //type:func
-func_002522B0 = 0x002522B0; //type:func
-func_002523A8 = 0x002523A8; //type:func
-func_00252658__FPv = 0x00252658; //type:func
-func_00252660 = 0x00252660; //type:func
-func_002526B8 = 0x002526B8; //type:func
 func_00252980 = 0x00252980; //type:func
 func_00252F60__FPv = 0x00252F60; //type:func
 func_00252FA0 = 0x00252FA0; //type:func

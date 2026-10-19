@@ -34,7 +34,7 @@ extern "C" void* cBankInstance_AllocMem(void* self, int size, int extra, int tag
 
 //100%
 extern "C" void func_0028B528(void*);
-extern "C" void* func_002523A8(void* self);
+extern "C" void* MEM_free(void* self);
 extern char* D_004A3614;
 
 class cSndStream_B650 {
@@ -55,7 +55,7 @@ extern "C" void func_0028B650(void* self)
             (**(cSndStream_B650***)(D_004A3614 + 0x1D8))->stop(*(int*)((char*)self + 0xC));
             *(int*)((char*)self + 0xC) = -1;
         }
-        func_002523A8(*(void**)((char*)self + 0x10));
+        MEM_free(*(void**)((char*)self + 0x10));
         *(int*)((char*)self + 0x10) = 0;
         *(int*)((char*)self + 0x14) = 0;
         *(int*)((char*)self + 0x8) = 0;
