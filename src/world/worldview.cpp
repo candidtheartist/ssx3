@@ -1540,7 +1540,45 @@ extern "C" int func_003AC358(void* self, void* a1)
     return 1;
 }
 
-INCLUDE_ASM("world/worldview", func_003AC438);
+//100%
+// PORT: 64-bit `long` (8 bytes on EE, 4 on Windows); use int64_t/uint64_t off-PS2.
+extern char D_2320[];
+extern char D_2358[];
+
+extern "C" char* func_003AC438(int a0, int a1, char* ctx, char* p)
+{
+    int done = 0;
+    int first = 1;
+    long tag;
+    do {
+        tag = *(long*)p;
+        switch (((int)((tag << 4) >> 32)) & 7) {
+        case 3: {
+            *(int*)(p + 4) = *(int*)(ctx + 0x24) + *(int*)(p + 4);
+            p += 0x10;
+            tag = *(long*)p;
+            int* ap = (int*)(p + 4);
+            *ap = *(int*)(ctx + 0x24) + *ap;
+            int qwc = ((int)tag) & 0xFFFF;
+            p += 0x10;
+            char* e = *(char**)ap;
+            e += (qwc - 1) * 0x10;
+            if (first) {
+                *(int*)(e + 8) = ((unsigned int)D_2320 >> 3) | 0x14000000;
+                first = 0;
+            } else {
+                *(int*)(e + 8) = ((unsigned int)D_2358 >> 3) | 0x14000000;
+            }
+            break;
+        }
+        case 6:
+            p += 0x10;
+            done = 1;
+            break;
+        }
+    } while (done == 0);
+    return p;
+}
 
 INCLUDE_ASM("world/worldview", func_003AC508);
 
