@@ -174,7 +174,20 @@ extern "C" void func_001F3A38(char* self, char* w, int event)
     }
 }
 
-INCLUDE_ASM("fe/festatelodge", func_001F3CC8);
+//100%
+// Key filter: keys 7, 8 and 9 return 0x100, every other key 0x101.
+extern "C" int func_001F3CC8(void* self, int a1, unsigned int key)
+{
+    int r = 0x101;
+    if (key < 10) {
+        if (key < 7) {
+            r = 0x101;
+        } else {
+            return 0x100;
+        }
+    }
+    return r;
+}
 
 //100%
 extern "C" void* cMemMan_alloc(int size, const char* tag, unsigned int flags, int d);
