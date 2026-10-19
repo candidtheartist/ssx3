@@ -2548,7 +2548,20 @@ extern "C" void cUIStateBuyPopup_onWidgetCreate(void* self, void* widget)
     }
 }
 
-INCLUDE_ASM("fe/fepopup", func_001CAED8);
+//100%
+// Key filter: keys 7, 8 and 9 return 0x100, every other key 0x101.
+extern "C" int func_001CAED8(void* self, int a1, unsigned int key)
+{
+    int r = 0x101;
+    if (key < 10) {
+        if (key < 7) {
+            r = 0x101;
+        } else {
+            return 0x100;
+        }
+    }
+    return r;
+}
 
 //100%
 int GetHashValue32(char* str);
