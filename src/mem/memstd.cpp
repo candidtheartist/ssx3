@@ -5,7 +5,7 @@
 extern "C" int sprintf(char* buf, const char* fmt, ...);
 extern "C" void* func_003E6448(void* dst, int value, int size);
 extern "C" char* strcpy(char* dst, const char* src);
-extern "C" int func_003E5698(void* mutex);
+extern "C" int MUTEX_init(void* mutex);
 extern char D_004A2E38[]; // "%s LOW"
 extern char D_004A2E40[]; // "%s HIGH"
 
@@ -77,13 +77,13 @@ extern "C" int MEMCLASS_create(int id, char* name, char* mem, int size, int defa
     blk->tag = MEM_TAG_FREE;
     blk->flags |= MEM_FLAG_FREE;
     if (lock) {
-        func_003E5698(cls->mutex);
+        MUTEX_init(cls->mutex);
         cls->locked = 1;
     }
     return blk->size;
 }
 
-extern "C" void func_003E56E0(void* mutex);
+extern "C" void MUTEX_destroy(void* mutex);
 
 // Destroy class id: release its mutex, clear it and free the slot.
 extern "C" int MEMCLASS_destroy(int id)
@@ -93,7 +93,7 @@ extern "C" int MEMCLASS_destroy(int id)
     int r = 0;
     if (cls != 0) {
         if (cls->locked) {
-            func_003E56E0(cls->mutex);
+            MUTEX_destroy(cls->mutex);
         }
         func_003E6448(cls, 0, sizeof(sMemClass));
         *slot = 0;
@@ -404,14 +404,14 @@ INCLUDE_ASM("mem/memstd", func_002523D0);
 
 extern "C" void MUTEX_lock(void* mutex);
 extern "C" void MUTEX_unlock(void* mutex);
-extern void* D_00538B00[16];
+extern void* gMemMutex[16];
 extern "C" int cMemMan_internalBlockSize(void* p);
 
 extern "C" int func_002525F8(void* p)
 {
-    MUTEX_lock(D_00538B00);
+    MUTEX_lock(gMemMutex);
     int r = cMemMan_internalBlockSize(p);
-    MUTEX_unlock(D_00538B00);
+    MUTEX_unlock(gMemMutex);
     return r;
 }
 
@@ -470,9 +470,9 @@ extern "C" void* cMemMan_internalResizeBlock(void* block, int size);
 extern "C" void* MEM_resize(void* p, int size)
 {
     void* r;
-    MUTEX_lock(D_00538B00);
+    MUTEX_lock(gMemMutex);
     r = cMemMan_internalResizeBlock(p, size);
-    MUTEX_unlock(D_00538B00);
+    MUTEX_unlock(gMemMutex);
     return r;
 }
 

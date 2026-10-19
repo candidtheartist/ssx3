@@ -288,7 +288,7 @@ int func_003DCBD8(int arg0, int arg1, int arg2) {
 //100%
 extern int D_00519AB0_CC88[] __asm__("D_00519AB0");
 extern int D_00450C60_CC88 __asm__("D_00450C60");
-extern void func_003E5698_CC88(void *) __asm__("func_003E5698");
+extern void MUTEX_init_CC88(void *) __asm__("MUTEX_init");
 extern int func_003DCD98_CC88(int, int, int) __asm__("func_003DCD98");
 extern void func_003E6448_CC88(int, int, int) __asm__("func_003E6448");
 extern int func_003E4040_CC88(int, int) __asm__("func_003E4040");
@@ -302,7 +302,7 @@ int func_003DCC88(int a, int b, int c, int d) {
         D_00519AB0_CC88[2] = 0xFF;
         D_00519AB0_CC88[0] = c;
         D_00519AB0_CC88[1] = a;
-        func_003E5698_CC88(&D_00519AB0_CC88[5]);
+        MUTEX_init_CC88(&D_00519AB0_CC88[5]);
         D_00519AB0_CC88[10] = d;
         func_003E6448_CC88(D_00519AB0_CC88[10], 0, func_003DCD98_CC88(a, b, c));
         D_00519AB0_CC88[11] = D_00519AB0_CC88[10] + D_00519AB0_CC88[0] * 0x30;
@@ -333,7 +333,7 @@ int func_003DCD98(int a, int b, int c) {
 // PORT: PS2-only inline asm; needs a C fallback off-PS2.
 extern void func_003E44B0_CDE0(void) __asm__("func_003E44B0");
 extern void func_003DECA0_CDE0(int, int) __asm__("func_003DECA0");
-extern void func_003E56E0_CDE0(char *) __asm__("func_003E56E0");
+extern void MUTEX_destroy_CDE0(char *) __asm__("MUTEX_destroy");
 extern void func_003E6220_CDE0(char *, int) __asm__("func_003E6220");
 extern void (*D_00450C10_CDE0[])(int) __asm__("D_00450C10");
 extern void (*D_00450C18_CDE0[])(int) __asm__("D_00450C18");
@@ -348,7 +348,7 @@ void func_003DCDE0(void) {
         D_00450C10_CDE0[2](n[0]);
         func_003DECA0_CDE0(*(int *)n[3], 0);
     }
-    func_003E56E0_CDE0(D_00519AC4_CDE0);
+    MUTEX_destroy_CDE0(D_00519AC4_CDE0);
     func_003E6220_CDE0(D_00519AC4_CDE0 - 0x14, 0x38);
     if (D_00519AE8_CDE0[0] != 0) {
         D_00450C18_CDE0[0](D_00519AE8_CDE0[0]);
@@ -1299,7 +1299,7 @@ extern int D_00519BF0_F488 __asm__("D_00519BF0");
 extern E_F488 *D_00519BF8_F488[2] __asm__("D_00519BF8");
 extern char D_00519C08_F488[] __asm__("D_00519C08");
 extern char D_00495DB8_F488[] __asm__("D_00495DB8");
-extern void func_003E5698_F488(void *) __asm__("func_003E5698");
+extern void MUTEX_init_F488(void *) __asm__("MUTEX_init");
 
 void func_003DF488(int n, int x) {
     E_F488 *p;
@@ -1310,7 +1310,7 @@ void func_003DF488(int n, int x) {
         D_00519BF8_F488[1] = &p[n - 1];
         D_00519BF8_F488[0] = p;
         D_00450C34_F488 = p;
-        func_003E5698_F488(D_00519C08_F488);
+        MUTEX_init_F488(D_00519C08_F488);
         for (i = 0; i < n; i++) {
             D_00450C34_F488[i].id = i;
             D_00450C34_F488[i].next = &D_00450C34_F488[i + 1];
@@ -1837,7 +1837,7 @@ extern void f_1110_0A28(int) __asm__("func_003E1110");
 extern int f_5440_0A28(int) __asm__("func_003E5440");
 extern void f_SYNC_0A28(int) __asm__("SYNCTASK_run");
 extern void f_5398_0A28(int) __asm__("func_003E5398");
-extern void f_56E0_0A28(void *) __asm__("func_003E56E0");
+extern void f_56E0_0A28(void *) __asm__("MUTEX_destroy");
 extern void f_ECA0_0A28(int, int) __asm__("func_003DECA0");
 struct S_0A28 { int w0; char pad[0x34]; int w38; char pad2[0x130]; int w16C; };
 
@@ -3282,25 +3282,25 @@ struct D_5018 { int tag; int thread; };
 extern struct D_5018 D_00450DF8_5018 __asm__("D_00450DF8");
 extern int func_00423C90_5018(void) __asm__("func_00423C90");
 extern void func_00423C30_5018(int, int) __asm__("func_00423C30");
-extern void func_003E5698_5018(void *) __asm__("func_003E5698");
+extern void MUTEX_init_5018(void *) __asm__("MUTEX_init");
 extern char D_0051ED88_5018[] __asm__("D_0051ED88");
 void func_003E5018(void) {
     int t = func_00423C90_5018();
     D_00450DF8_5018.tag = 0x50533254;
     D_00450DF8_5018.thread = t;
     func_00423C30_5018(t, 100);
-    func_003E5698_5018(D_0051ED88_5018);
+    MUTEX_init_5018(D_0051ED88_5018);
 }
 
 //100%
 // PORT: PS2-only inline asm; needs a C fallback off-PS2.
-extern void func_003E56E0(void *);
+extern void MUTEX_destroy(void *);
 extern void func_003E6220_5068(int *, int) __asm__("func_003E6220");
 extern int D_00450DF8_5068[] __asm__("D_00450DF8");
 extern int D_0051ED88_5068[] __asm__("D_0051ED88");
 
 void func_003E5068(void) {
-    func_003E56E0(D_0051ED88_5068);
+    MUTEX_destroy(D_0051ED88_5068);
     func_003E6220_5068(D_00450DF8_5068, 8);
 }
 
@@ -3524,7 +3524,7 @@ void func_003E5678(void) {
 typedef struct { int a; int b; int c; int d[5]; } S_5698;
 extern int func_00423DA0(S_5698 *);
 
-int func_003E5698(int *self) {
+int MUTEX_init(int *self) {
     S_5698 s;
     self[2] = 0;
     self[1] = 0;
@@ -3537,7 +3537,7 @@ int func_003E5698(int *self) {
 //100%
 extern void func_00423DB0(int);
 
-void func_003E56E0(void *arg0) {
+void MUTEX_destroy(void *arg0) {
     func_00423DB0((*(int *)((char*)(arg0) + (0xC))));
 }
 

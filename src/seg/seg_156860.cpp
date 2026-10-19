@@ -26,13 +26,13 @@ INCLUDE_ASM("seg/seg_156860", cCommSystem_cCommSystem);
 
 //100%
 // PORT: PS2-only inline asm; needs a C fallback off-PS2.
-extern "C" void func_003E56E0_59B0(void *) __asm__("func_003E56E0");
+extern "C" void MUTEX_destroy_59B0(void *) __asm__("MUTEX_destroy");
 extern "C" void cMemMan_free__FPv_59B0(void *) __asm__("cMemMan_free__FPv");
 extern "C" void operator_delete__FPi_59B0(void *) __asm__("operator_delete__FPi");
 
 extern "C" void cCommSystem__cCommSystem_59B0(void *self, int flags) __asm__("cCommSystem__cCommSystem");
 extern "C" void cCommSystem__cCommSystem_59B0(void *self, int flags) {
-    func_003E56E0_59B0((char*)self + 4);
+    MUTEX_destroy_59B0((char*)self + 4);
     void *p = *(void **)((char*)self + 0x14);
     if (p != 0) {
         cMemMan_free__FPv_59B0(p);
