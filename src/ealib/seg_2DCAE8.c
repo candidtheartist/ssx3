@@ -1192,7 +1192,34 @@ void func_003DEA48(int a, int mode, struct S_EA48 *s) {
     s->d = 0;
 }
 
-INCLUDE_ASM("ealib/seg_2DCAE8", func_003DEB50);
+//100%
+struct S_EB50 { volatile int e, a, b, d, r, n; int c; int (*fn)(int, int, int, int, int, void *); int h; };
+extern void func_003DCF70_EB50(int, void (*)(void)) __asm__("func_003DCF70");
+extern int func_003DD1D8_EB50(int) __asm__("func_003DD1D8");
+extern void func_003DEA48_EB50(void) __asm__("func_003DEA48");
+
+int func_003DEB50(int a, int b, int c, int d, int e, int (*fn)(int, int, int, int, int, void *)) {
+    struct S_EB50 s;
+    s.e = e;
+    s.a = a;
+    s.b = b;
+    s.d = d;
+    s.r = 0;
+    s.n = d;
+    s.c = c;
+    s.fn = fn;
+    if (s.n > 0x8000) {
+        s.n = 0x8000;
+    }
+    s.h = fn(a, b, s.c, s.n, e, &s);
+    if (s.h) {
+        func_003DCF70_EB50(s.h, func_003DEA48_EB50);
+        do {
+            func_003DD1D8_EB50(s.h);
+        } while (s.d || s.h);
+    }
+    return s.r;
+}
 
 //100% - objdiff report; single-function view differs only in a relocation name
 // PORT: PS2-only inline asm; needs a C fallback off-PS2.
