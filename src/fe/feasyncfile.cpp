@@ -8595,7 +8595,149 @@ extern "C" void func_001B25E0(const char* src, void* out)
     func_002C2688(out, wext);
 }
 
-INCLUDE_ASM("fe/feasyncfile", func_001B27B0);
+//100%
+int GetHashValue32(char* str);
+struct cUIText;
+extern "C" cUIText* cUIScreen_getObjectByHashName(void* screen, int hash);
+void cUIText_setAsciiString(cUIText* self, const char* str);
+extern "C" void* cBXString_cBXString2(void* self, const char* str);
+extern "C" void cBXString__cBXString(void* self, int flags);
+extern "C" char* strcpy(char* dst, const char* src);
+extern "C" int func_0025F1B0(void* self);
+extern "C" void func_0025F288(void* self, int idx, void* info);
+// PORT: func_002C27C0 is a varargs formatter (buf, fmt, ...); the unit declares a 4-arg view later
+extern "C" int func_002C27C0_v(char* buf, const char* fmt, ...) __asm__("func_002C27C0");
+extern "C" void func_003A0E90(cUIText* text, char* str);
+// PORT: SN soft-float float->double helper called by name
+extern "C" double func_00413AF8(float f);
+extern void* D_004A3028;
+extern const char* D_004A1B30;
+extern const char* D_004A1B34;
+extern const char* D_004A1B38;
+extern const char* D_004A1B3C;
+extern const char* D_004A1B40;
+extern char D_004A1390[];
+extern char D_004A1408[];
+extern char D_004A1B60[];
+extern char D_00463108[];
+extern char D_00463568[];
+extern char D_00463580[];
+extern char D_004635A8[];
+extern char D_00463AD8[];
+extern char D_00463AE8[];
+extern char D_00463AF8[];
+extern char D_00463B10[];
+extern char D_00463B20[];
+extern char D_00463B30[];
+extern char D_00463B40[];
+extern char D_00463B58[];
+
+struct sBXString_1B27B0 {
+    char* str;
+    sBXString_1B27B0() {}
+    sBXString_1B27B0(const sBXString_1B27B0& o);
+};
+
+struct sInfo_1B27B0 {
+    int a;
+    int b;
+    int c;
+    int d;
+    int e;
+};
+
+extern "C" void func_001B27B0(void* vself, int idx)
+{
+    char* self = (char*)vself;
+    sBXString_1B27B0 s;
+    char buf[0x400];
+    sInfo_1B27B0 info;
+    int flag = 0;
+    cBXString_cBXString2(&s, func_0025F1E0_p(D_004A3028, idx, &flag));
+    strcpy(self + 0x70C, s.str);
+    if (*(void**)(self + 0x40) == 0) {
+        cBXString__cBXString(&s, 2);
+        return;
+    }
+    int valid = 0;
+    if (func_0025F1B0(D_004A3028) > 0) {
+        valid = idx < func_0025F1B0(D_004A3028);
+    }
+    cUIText* title = cUIScreen_getObjectByHashName(*(void**)(self + 0x40), GetHashValue32(D_00463108));
+    if (title != 0) {
+        cFEVObj_001B2378* a = (cFEVObj_001B2378*)cUIScreen_getObjectByHashName(*(void**)(self + 0x40), GetHashValue32(D_00463AD8));
+        cFEVObj_001B2378* b = (cFEVObj_001B2378*)cUIScreen_getObjectByHashName(*(void**)(self + 0x40), GetHashValue32(D_004A1B60));
+        if (a != 0 && b != 0) {
+            if (flag != 0) {
+                b->v09(0);
+                a->v09(0);
+            } else {
+                b->v09(1);
+                a->v09(1);
+            }
+        }
+        if (valid && *(int*)(s.str - 8) > 0) {
+            cUIText_setAsciiString(title, s.str);
+        } else {
+            cUIText_setAsciiString(title, D_004A1390);
+        }
+    }
+    func_0025F288(D_004A3028, idx, &info);
+    cUIText* t = cUIScreen_getObjectByHashName(*(void**)(self + 0x40), GetHashValue32(D_00463AE8));
+    if (t != 0) {
+        if (valid) {
+            func_002C27C0_v(buf, D_004A1B30, Loc1B25E0(D_00463AF8), info.a);
+            func_003A0E90(t, buf);
+        } else {
+            cUIText_setAsciiString(t, D_004A1408);
+        }
+    }
+    t = cUIScreen_getObjectByHashName(*(void**)(self + 0x40), GetHashValue32(D_00463B10));
+    if (t != 0) {
+        if (valid) {
+            func_002C27C0_v(buf, D_004A1B34, Loc1B25E0(D_00463568), info.c);
+            func_003A0E90(t, buf);
+        } else {
+            cUIText_setAsciiString(t, D_004A1408);
+        }
+    }
+    t = cUIScreen_getObjectByHashName(*(void**)(self + 0x40), GetHashValue32(D_00463B20));
+    if (t != 0) {
+        if (valid) {
+            int done = info.b;
+            int total = info.c;
+            float pct = 0.0f;
+            if (done < total) {
+                pct = (float)done / (float)total * 100.0f;
+            } else if (done != 0) {
+                pct = 100.0f;
+            }
+            func_002C27C0_v(buf, D_004A1B38, Loc1B25E0(D_00463580), info.b, info.c, func_00413AF8(pct));
+            func_003A0E90(t, buf);
+        } else {
+            cUIText_setAsciiString(t, D_004A1408);
+        }
+    }
+    t = cUIScreen_getObjectByHashName(*(void**)(self + 0x40), GetHashValue32(D_00463B30));
+    if (t != 0) {
+        if (valid) {
+            func_002C27C0_v(buf, D_004A1B3C, Loc1B25E0(D_004635A8), info.d);
+            func_003A0E90(t, buf);
+        } else {
+            cUIText_setAsciiString(t, D_004A1408);
+        }
+    }
+    t = cUIScreen_getObjectByHashName(*(void**)(self + 0x40), GetHashValue32(D_00463B40));
+    if (t != 0) {
+        if (valid) {
+            func_002C27C0_v(buf, D_004A1B40, Loc1B25E0(D_00463B58), info.a);
+            func_003A0E90(t, buf);
+        } else {
+            cUIText_setAsciiString(t, D_004A1408);
+        }
+    }
+    cBXString__cBXString(&s, 2);
+}
 
 //100%
 extern "C" void* cBXString_cBXString1(void* self, void* other);
