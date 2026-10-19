@@ -2898,7 +2898,7 @@ extern "C" void func_002E55D8(int* p, sMat_6008* m, float x, float y, float z)
 
 //100%
 extern void* D_00487FD8[];
-extern "C" void func_00319CC8(void);
+extern "C" void cMemMan_purge(void);
 extern void* D_004A28A8;
 extern char D_004A3B20[];
 extern "C" void* cMemMan_alloc(int size, const char* tag, unsigned int flags, int d);
@@ -2922,14 +2922,14 @@ extern "C" void* func_002E5920(sWake5920* self, void* a1);
 
 //100% - objdiff report; single-function view differs only in a relocation name
 extern void* D_00487FD8[];
-extern "C" void func_00319CC8(void);
+extern "C" void cMemMan_purge(void);
 extern "C" void func_002E4F28(int* self, int flags);
 extern "C" void func_003546C8(void* self, int flags);
 
 extern "C" void func_002E5D18(void* self, int flags)
 {
     *(void***)((char*)self + 0xC) = D_00487FD8;
-    func_00319CC8();
+    cMemMan_purge();
     int i;
     for (i = 0; i < 12; i++) {
         int* p = ((int**)((char*)self + 0x10))[i];
@@ -2937,7 +2937,7 @@ extern "C" void func_002E5D18(void* self, int flags)
             func_002E4F28(p, 3);
         }
     }
-    func_00319CC8();
+    cMemMan_purge();
     func_003546C8(self, flags);
 }
 

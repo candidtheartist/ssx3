@@ -30,13 +30,13 @@ void* operator_new(unsigned int size)
 extern void* D_00538B00[16];
 extern "C" void MUTEX_lock(void* mutex);
 extern "C" void MUTEX_unlock(void* mutex);
-extern "C" void func_00319B48(void* ptr);
+extern "C" void cMemMan_internalFree(void* ptr);
 
 //100%
 void operator_delete(int* ptr)
 {
     MUTEX_lock(D_00538B00);
-    func_00319B48(ptr);
+    cMemMan_internalFree(ptr);
     MUTEX_unlock(D_00538B00);
 }
 
@@ -44,7 +44,7 @@ void operator_delete(int* ptr)
 void cMemMan_free(void* ptr)
 {
     MUTEX_lock(D_00538B00);
-    func_00319B48(ptr);
+    cMemMan_internalFree(ptr);
     MUTEX_unlock(D_00538B00);
 }
 
@@ -56,9 +56,9 @@ extern "C" void func_00317EE0()
     MUTEX_unlock(D_00538B00);
 }
 
-extern "C" void func_00319CC8();
+extern "C" void cMemMan_purge();
 
 extern "C" void func_00317F18()
 {
-    func_00319CC8();
+    cMemMan_purge();
 }
