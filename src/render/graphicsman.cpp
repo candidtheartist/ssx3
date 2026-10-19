@@ -864,7 +864,11 @@ extern "C" void func_0036CEF8(char* self, sGfxVec4* a, sGfxVec4* b, sGfxVec4* c)
 
 extern cQuad128 D_004FF120;
 
-INCLUDE_ASM("render/graphicsman", func_0036CFA8);
+//100%
+extern "C" void func_0036CFA8(char* self, sGfxVec4* v, float s)
+{
+    *(sGfxVec4*)(self + 0xE0) = vu0DivGM(vu0ScaleGM(*v, *(float*)(self + 0xC)), s * *(float*)(self + 0x4C));
+}
 
 //100%
 extern "C" void func_0036D008(void* self)
