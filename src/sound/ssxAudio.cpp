@@ -1706,7 +1706,23 @@ void* func_00288AC0(void* self, int a1)
     return (char*)func_0028B210(a1) + 0x20;
 }
 
-INCLUDE_ASM("sound/ssxAudio", func_00288AE0);
+//100%
+extern "C" int func_0028B1B0(void);
+extern "C" void* func_0028B1C8();
+
+extern "C" int func_00288AE0(void* self)
+{
+    if (func_0028B1B0() != 0) {
+        if (*(int**)((char*)func_0028B1C8() + 0x28) != 0) {
+            int v = **(int**)((char*)func_0028B1C8() + 0x28);
+            int busy = v != 0 && v < 10;
+            if (busy) {
+                return 1;
+            }
+        }
+    }
+    return 0;
+}
 
 //100%
 struct sAudV4 {
