@@ -1109,10 +1109,10 @@ index 0485d50..ab1e7ad 100644
  #define FPU_C_F_S(a, b) (0)
  #define FPU_C_UN_S(a, b) (isnan((float)(a)) || isnan((float)(b)))
 diff --git a/ps2xRuntime/include/runtime/gs/gs_cpu_backend.h b/ps2xRuntime/include/runtime/gs/gs_cpu_backend.h
-index 2421f9e..2acc7b0 100644
+index 2421f9e..baafc02 100644
 --- a/ps2xRuntime/include/runtime/gs/gs_cpu_backend.h
 +++ b/ps2xRuntime/include/runtime/gs/gs_cpu_backend.h
-@@ -33,7 +33,23 @@ public:
+@@ -33,19 +33,197 @@ public:
      void SnapshotVram(std::vector<uint8_t> &out) const override;
      GSTransferSnapshot GetTransferSnapshot() const override;
  
@@ -1121,6 +1121,12 @@ index 2421f9e..2acc7b0 100644
 +    // the rows of a small object over every backend. A band of 4 rows is made of whole
 +    // 64-byte columns of the 32- and 16-bit buffers, so no two backends write one column.
 +    void SetRowBand(uint32_t index, uint32_t count);
++
++    // Reads textures and CLUTs from `memory`, a copy of VRAM, and writes host to local
++    // transfers there, to VRAM as well only with transfersToVram, so other backends can
++    // draw to VRAM while this one replaces a texture the draws before it still read.
++    // Null goes back to VRAM.
++    void SetTextureMemory(uint8_t *memory, bool transfersToVram);
 +
 +    // The texel columns and rows, before wrapping, that DrawSprite reads drawing a UV
 +    // (PRIM.FST) sprite in the current rounding mode. False for anything else, or when
@@ -1136,7 +1142,12 @@ index 2421f9e..2acc7b0 100644
      void ResetUnlocked();
      void LoadClutUnlocked(const GSTex0Reg &tex0, const GSTexClutReg &texclut);
      uint32_t ReadVramUnlocked(uint32_t psm, uint32_t base, uint32_t bw, uint32_t x, uint32_t y) const;
-@@ -43,9 +59,153 @@ private:
+     uint32_t ReadTextureVramUnlocked(uint32_t psm, uint32_t base, uint32_t bw, uint32_t x, uint32_t y);
+     void WriteVramUnlocked(uint32_t psm, uint32_t base, uint32_t bw, uint32_t x, uint32_t y, uint32_t value);
++    void WriteTextureMemoryUnlocked(uint32_t psm, uint32_t base, uint32_t bw, uint32_t x, uint32_t y, uint32_t value);
++    // Whether no pixel a primitive can draw is in the memory its texture is read from.
++    bool TextureApartFromTarget(const GSDrawState &state) const;
+ 
      void DrawPrimitive(const GSPrimitiveBatch &batch);
      void DrawSprite(const GSPrimitiveBatch &batch);
      void DrawTriangle(const GSPrimitiveBatch &batch);
@@ -1190,6 +1201,15 @@ index 2421f9e..2acc7b0 100644
 +        uint8_t fogB = 0;
 +    };
 +    void PreparePixelTarget(const GSDrawState &state, PixelTarget &target);
++    // A row's GSMem::RowAddress in the frame and depth buffers, for WritePixelAs
++    // with known PSMs. Unused for kAnyPsm.
++    struct PixelRow
++    {
++        uint32_t frame = 0;
++        uint32_t depth = 0;
++    };
++    template <uint32_t FramePsm, uint32_t DepthPsm>
++    static PixelRow PixelRowAt(const PixelTarget &target, int y);
 +    void WritePixel(const PixelTarget &target, int x, int y, int z, uint8_t r, uint8_t g, uint8_t b, uint8_t a, uint8_t fog);
 +    // WritePixel with the frame and depth buffer PSMs fixed at compile time
 +    // (kAnyPsm: read from the target); see DispatchPixelFormats. InScissor:
@@ -1201,7 +1221,7 @@ index 2421f9e..2acc7b0 100644
 +    template <uint32_t FramePsm, uint32_t DepthPsm>
 +    static constexpr bool kWritesAnnounced = FramePsm != kAnyPsm && DepthPsm != kAnyPsm;
 +    template <uint32_t FramePsm, uint32_t DepthPsm, bool InScissor = false, bool DepthTested = false>
-+    void WritePixelAs(const PixelTarget &target, int x, int y, int z, uint32_t color, uint8_t fog, uint32_t testedDepthAddress = 0);
++    void WritePixelAs(const PixelTarget &target, const PixelRow &row, int x, int y, int z, uint32_t color, uint8_t fog, uint32_t testedDepthAddress = 0);
      void WritePixel(const GSDrawState &state, int x, int y, int z, uint8_t r, uint8_t g, uint8_t b, uint8_t a, uint8_t fog);
 -    uint32_t SampleTexture(const GSDrawState &state, float s, float t, float q, uint16_t u, uint16_t v);
 +    // How a texel read from VRAM becomes RGBA, by the texture's PSM.
@@ -1259,11 +1279,11 @@ index 2421f9e..2acc7b0 100644
 +    public:
 +        DirectTextureReads(GSCpuBackend &backend, bool allowed) : m_backend(backend)
 +        {
-+            m_backend.m_texturePageCache.AllowDirect(m_backend.m_vram, allowed);
++            m_backend.m_texturePageCache.AllowDirect(m_backend.m_textureMemory, allowed);
 +        }
 +        ~DirectTextureReads()
 +        {
-+            m_backend.m_texturePageCache.AllowDirect(m_backend.m_vram, false);
++            m_backend.m_texturePageCache.AllowDirect(m_backend.m_textureMemory, false);
 +        }
 +        DirectTextureReads(const DirectTextureReads &) = delete;
 +        DirectTextureReads &operator=(const DirectTextureReads &) = delete;
@@ -1291,7 +1311,16 @@ index 2421f9e..2acc7b0 100644
      uint32_t LookupCLUT(const GSDrawState &state, uint8_t index, uint8_t cpsm, uint8_t csm, uint8_t csa, uint8_t sourcePsm);
  
      void PerformLocalToLocalTransfer();
-@@ -72,10 +232,29 @@ private:
+@@ -68,14 +246,38 @@ private:
+     mutable std::mutex m_mutex;
+     uint8_t *m_vram = nullptr;
+     uint32_t m_vramSize = 0;
++    // Where textures and CLUTs are read from and host to local transfers write:
++    // m_vram unless SetTextureMemory gave another copy.
++    uint8_t *m_textureMemory = nullptr;
++    // Host to local transfers to another copy write VRAM as well.
++    bool m_transfersToVram = false;
+     std::array<ReadVramFunc, kPsmHandlerCount> m_readVramFuncs{};
      std::array<WriteVramFunc, kPsmHandlerCount> m_writeVramFuncs{};
      std::array<uint16_t, 512> m_clut{};
      std::array<uint32_t, 2> m_clutCbp{};
@@ -1393,16 +1422,17 @@ index 1cb1540..7d2ac28 100644
  }
 diff --git a/ps2xRuntime/include/runtime/gs/gs_threaded_backend.h b/ps2xRuntime/include/runtime/gs/gs_threaded_backend.h
 new file mode 100644
-index 0000000..43fe622
+index 0000000..a790a70
 --- /dev/null
 +++ b/ps2xRuntime/include/runtime/gs/gs_threaded_backend.h
-@@ -0,0 +1,173 @@
+@@ -0,0 +1,218 @@
 +#pragma once
 +
 +#include "runtime/gs/gs_backend.h"
 +#include "runtime/gs/gs_cpu_backend.h"
 +
 +#include <array>
++#include <atomic>
 +#include <barrier>
 +#include <condition_variable>
 +#include <memory>
@@ -1413,13 +1443,17 @@ index 0000000..43fe622
 +// Draws on worker threads, in submission order, so the EE can keep going while the GS
 +// draws. Each worker has its own CPU backend over the shared VRAM and draws every
 +// worker-count-th band of rows, so a pixel is always drawn by the same worker, in
-+// order. Transfers, VRAM writes, presentation and any draw that reads what another
-+// worker may be writing (or writes what one may be reading) run on one worker while
-+// the others wait at that point in the stream. Calls that return VRAM contents wait
-+// for the queued work first, so everything the guest can read back is unchanged. Each
-+// command runs in the rounding mode its caller had (VU1 XGKICK draws run toward zero).
-+// Presentation never waits: a frame is captured in order with the draws and returned
-+// by a later call.
++// order. With more than one worker each reads textures from a copy of VRAM of its own
++// and writes host to local transfers to it as well, so neither a texture upload nor a
++// draw over a texture waits for the draws before it that read that texture. The first
++// worker also writes those transfers to VRAM. Pages drawn to since the copies last had
++// them are copied to each before a command reads them as textures. Local transfers,
++// VRAM writes, presentation and any draw that reads what another worker may be writing
++// (or writes what one may be copying) run on one worker while the others wait at that
++// point in the stream. Calls that return VRAM contents wait for the queued work first, so
++// everything the guest can read back is unchanged. Each command runs in the rounding
++// mode its caller had (VU1 XGKICK draws run toward zero). Presentation never waits: a
++// frame is captured in order with the draws and returned by a later call.
 +class GSThreadedBackend final : public GSRasterBackend
 +{
 +public:
@@ -1460,24 +1494,9 @@ index 0000000..43fe622
 +        Present,
 +    };
 +
-+    struct Command
-+    {
-+        CommandKind kind = CommandKind::Submit;
-+        int roundingMode = 0;
-+        // Every worker finishes the commands before this one first.
-+        bool waitForAll = false;
-+        // Runs once, on the first worker's backend, for all rows, while the others wait.
-+        bool runAlone = false;
-+        GSPrimitiveBatch batch{};
-+        GSTex0Reg tex0{};
-+        GSTexClutReg texclut{};
-+        GSTransferCommand transfer{};
-+        std::vector<uint8_t> data;
-+        uint32_t args[6]{};
-+    };
-+
 +    // The VRAM pages (8 KiB each) that commands since the workers last waited for each
-+    // other have drawn to or read as textures.
++    // other have drawn to, copied to the workers' texture copies, or written by host to
++    // local transfers.
 +    class PageTracker
 +    {
 +    public:
@@ -1496,15 +1515,42 @@ index 0000000..43fe622
 +        static bool Intersects(const PageSet &a, const PageSet &b);
 +
 +        void Clear();
-+        // Whether a command drawing to `drawn` and texturing from `textured` must wait
-+        // for the earlier commands on every worker.
-+        bool Conflicts(const Access *drawn, size_t count, const PageSet &textured) const;
-+        void Add(const Access *drawn, size_t count, const PageSet &textured);
++        // Whether a command drawing to `drawn` that first copies `refreshed` from VRAM
++        // to the workers' copies must wait for the earlier commands on every worker.
++        bool Conflicts(const Access *drawn, size_t count, const PageSet &refreshed) const;
++        void Add(const Access *drawn, size_t count, const PageSet &refreshed);
++        // The same for a host to local transfer to `pages`, which the first worker
++        // also writes to VRAM, whatever rows the others draw.
++        bool UploadConflicts(const PageSet &pages) const;
++        void AddUpload(const PageSet &pages);
 +
 +    private:
 +        PageSet m_drawn{};
-+        PageSet m_textured{};
++        PageSet m_refreshed{};
++        PageSet m_uploaded{};
 +        std::array<uint32_t, kPageCount> m_layout{};
++    };
++
++    struct Command
++    {
++        CommandKind kind = CommandKind::Submit;
++        int roundingMode = 0;
++        // Every worker finishes the commands before this one first.
++        bool waitForAll = false;
++        // Runs once, on the first worker's backend, for all rows, while the others wait.
++        bool runAlone = false;
++        // Every worker reads textures from VRAM, not from its copy.
++        bool texturesFromVram = false;
++        // The pages each worker copies from VRAM to its copy before it runs the command.
++        // The draws to them are done by then, and later ones wait for every worker to
++        // get past this command.
++        PageTracker::PageSet refresh{};
++        GSPrimitiveBatch batch{};
++        GSTex0Reg tex0{};
++        GSTexClutReg texclut{};
++        GSTransferCommand transfer{};
++        std::vector<uint8_t> data;
++        uint32_t args[6]{};
 +    };
 +
 +    struct BarrierCompletion
@@ -1519,46 +1565,74 @@ index 0000000..43fe622
 +        std::thread thread;
 +    };
 +
++    // How many commands a worker has run, on a cache line of its own.
++    struct alignas(64) WorkerProgress
++    {
++        std::atomic<uint64_t> done{0};
++    };
++
 +    Command &beginCommand(std::unique_lock<std::mutex> &lock, CommandKind kind, bool mayWait = true);
 +    void endCommand(std::unique_lock<std::mutex> &lock);
-+    void startBatchLocked();
++    // The number of commands every worker has run.
++    uint64_t completedCommands() const;
++    // Waits, with m_queueMutex held, until every worker has run `target` commands.
++    void waitForCompleted(std::unique_lock<std::mutex> &lock, uint64_t target) const;
++    // After a worker finishes commands, wakes a thread waiting for them.
++    void notifyCompleted();
 +    void waitForQueuedWork() const;
 +    void classifySubmit(Command &command);
 +    // readsOwnPixels: each pixel the draw writes to drawn[0] reads only itself.
 +    void classifyDraw(Command &command, const PageTracker::Access *drawn, size_t count,
 +                      const PageTracker::PageSet &textured, bool readsOwnPixels);
 +    void markRunAlone(Command &command);
-+    // The end of the run of commands from m_working[begin], a runAlone one, that
++    // The end of the run of commands from the ring's command `begin`, a runAlone one, that
 +    // the barrier can run in one go: runAlone commands, and the CLUT loads and
 +    // texture flushes between them, which it runs on every worker's backend.
-+    size_t aloneRunEnd(size_t begin) const;
-+    void runCommand(GSCpuBackend &backend, const Command &command);
++    uint64_t aloneRunEnd(uint64_t begin) const;
++    // A command that isn't runAlone, on one worker's backend.
++    void runCommand(size_t worker, const Command &command);
 +    void runAlone(const Command &command);
++    // Copies `pages` from VRAM to the worker's texture copy.
++    void refreshTextureCopy(size_t worker, const PageTracker::PageSet &pages);
++    // Points the worker's backend at VRAM or at its copy for textures.
++    void readTexturesFromVram(size_t worker, bool fromVram);
++    // Marks pages drawn to in VRAM, so the copies get them before they are read.
++    void markDrawn(const PageTracker::PageSet &pages);
 +    void workerMain(size_t index);
 +
 +    std::vector<Worker> m_workers;
 +    uint8_t *m_vram = nullptr;
++    uint32_t m_vramSize = 0;
++    // Each worker's copy of VRAM it reads textures from, with more than one worker.
++    std::vector<std::unique_ptr<uint8_t[]>> m_textureCopies;
 +
 +    mutable std::mutex m_queueMutex;
 +    mutable std::condition_variable m_workAvailable;
 +    mutable std::condition_variable m_workDone;
-+    std::vector<Command> m_pending;
-+    std::vector<Command> m_working;
-+    uint64_t m_submitted = 0;
-+    uint64_t m_completed = 0;
++    // Submitted commands, in order, by their number modulo its size. Each worker goes
++    // through them at its own pace and waits for the others only where a command says
++    // so (waitForAll, runAlone). A command's slot is reused once every worker has run it.
++    std::vector<Command> m_ring;
++    std::unique_ptr<WorkerProgress[]> m_progress;
++    // Written with m_queueMutex held; workers read it without.
++    std::atomic<uint64_t> m_submitted{0};
 +    uint64_t m_lastTransferCommand = 0;
-+    uint64_t m_batchGeneration = 0;
-+    size_t m_workersDone = 0;
-+    bool m_batchRunning = false;
++    // Workers waiting for commands, with m_queueMutex held.
++    size_t m_idleWorkers = 0;
++    // Threads waiting in waitForCompleted, and the lowest count they wait for.
++    mutable std::atomic<uint32_t> m_completionWaiters{0};
++    mutable std::atomic<uint64_t> m_completionTarget{UINT64_MAX};
 +    bool m_stopping = false;
 +    PageTracker m_pages;
++    // Pages VRAM may hold other bytes in than the workers' copies, by the commands
++    // submitted so far.
++    PageTracker::PageSet m_stale{};
 +
 +    std::barrier<BarrierCompletion> m_barrier;
-+    // The commands the barrier runs once every worker has arrived,
-+    // m_working[m_aloneBegin, m_aloneEnd), set by the first worker. Empty for a
-+    // plain wait.
-+    size_t m_aloneBegin = 0;
-+    size_t m_aloneEnd = 0;
++    // The command every worker has arrived at, set by the first worker, and the end of
++    // the run the barrier then ran from it (m_aloneBegin itself for a plain wait).
++    uint64_t m_aloneBegin = 0;
++    uint64_t m_aloneEnd = 0;
 +
 +    mutable std::mutex m_transferMutex;
 +    GSTransferSnapshot m_transferSnapshot{};
@@ -1571,10 +1645,10 @@ index 0000000..43fe622
 +    PresentationFrame m_lastPresented;
 +};
 diff --git a/ps2xRuntime/include/runtime/gs/ps2_gs_memory.h b/ps2xRuntime/include/runtime/gs/ps2_gs_memory.h
-index c784ff7..f37e5b1 100644
+index c784ff7..69e6c95 100644
 --- a/ps2xRuntime/include/runtime/gs/ps2_gs_memory.h
 +++ b/ps2xRuntime/include/runtime/gs/ps2_gs_memory.h
-@@ -540,6 +540,157 @@ namespace GSMem
+@@ -540,6 +540,258 @@ namespace GSMem
  
  	void InitLookupTables();
  
@@ -1607,6 +1681,100 @@ index c784ff7..f37e5b1 100644
 +			return PageTableP8;
 +		else
 +			return PageTableP4;
++	}
++
++	// Address splits into a part that depends on the row alone and a part that
++	// depends on the column alone, and for P8 and P4 also on the row's place in
++	// its group of 8: Address(bp, bw, x, y) == RowAddress(bp, bw, y) + ColumnOffset(x, y),
++	// in u32 arithmetic. A loop along a row works out the row's part once.
++	template<PixelStorageMode psm>
++	constexpr usz ColumnOffsetRows()
++	{
++		return psm == P8 || psm == P4 ? 8 : 1;
++	}
++
++	template<PixelStorageMode psm>
++	using ColumnOffsetTableT = LookupTable<u32, PixelStorageTraits<psm>::PageExtent().x, ColumnOffsetRows<psm>()>;
++
++	// The column parts of the page tables above, which InitLookupTables also fills.
++	extern ColumnOffsetTableT<C32> ColumnOffsetsC32;
++	extern ColumnOffsetTableT<Z32> ColumnOffsetsZ32;
++	extern ColumnOffsetTableT<C16> ColumnOffsetsC16;
++	extern ColumnOffsetTableT<C16S> ColumnOffsetsC16S;
++	extern ColumnOffsetTableT<Z16> ColumnOffsetsZ16;
++	extern ColumnOffsetTableT<Z16S> ColumnOffsetsZ16S;
++	extern ColumnOffsetTableT<P8> ColumnOffsetsP8;
++	extern ColumnOffsetTableT<P4> ColumnOffsetsP4;
++
++	template<PixelStorageMode psm>
++	constexpr const auto& ColumnOffsetsFor()
++	{
++		if constexpr (psm == C32 || psm == C24 || psm == P8H || psm == P4HL || psm == P4HH)
++			return ColumnOffsetsC32;
++		else if constexpr (psm == Z32 || psm == Z24)
++			return ColumnOffsetsZ32;
++		else if constexpr (psm == C16)
++			return ColumnOffsetsC16;
++		else if constexpr (psm == C16S)
++			return ColumnOffsetsC16S;
++		else if constexpr (psm == Z16)
++			return ColumnOffsetsZ16;
++		else if constexpr (psm == Z16S)
++			return ColumnOffsetsZ16S;
++		else if constexpr (psm == P8)
++			return ColumnOffsetsP8;
++		else
++			return ColumnOffsetsP4;
++	}
++
++	template<PixelStorageMode psm>
++	inline u32 RowAddress(u32 bp, u32 bw, u32 y)
++	{
++		using Traits = PixelStorageTraits<psm>;
++		constexpr auto extent = Traits::PageExtent();
++		return static_cast<u32>(Traits::PageId(bp, bw, 0, y) * Traits::PixelsPerPage()) +
++			PageTableFor<psm>()[bp % Traits::BlocksPerPage()][y % extent.y][0];
++	}
++
++	template<PixelStorageMode psm>
++	inline u32 ColumnOffset(u32 x, u32 y)
++	{
++		using Traits = PixelStorageTraits<psm>;
++		constexpr auto extent = Traits::PageExtent();
++		return static_cast<u32>((x / extent.x) * Traits::PixelsPerPage()) +
++			ColumnOffsetsFor<psm>()[y % ColumnOffsetRows<psm>()][x % extent.x];
++	}
++
++	// Writes `count` pixels of row y from column x on, the i-th of them pixelAt(i),
++	// as Write would one by one, with the row's part of their addresses worked out once.
++	template<PixelStorageMode psm, typename PixelAt>
++	inline void WriteRow(u8* data, u32 bp, u32 bw, u32 x, u32 y, u32 count, PixelAt&& pixelAt)
++	{
++		using Traits = PixelStorageTraits<psm>;
++		using PackedT = typename Traits::PackedT;
++		const u32 row = RowAddress<psm>(bp, bw, y);
++		for (u32 i = 0; i < count; ++i)
++		{
++			const u32 bits = (row + ColumnOffset<psm>(x + i, y)) * static_cast<u32>(UnpackedBitWidth(psm)) +
++				static_cast<u32>(Traits::BitOffset());
++			u8* ptr = data + ((bits / 8) & static_cast<u32>(MEMORY_SIZE - sizeof(PackedT)));
++			PackedT value = static_cast<PackedT>(pixelAt(i));
++			if constexpr (psm == C24 || psm == Z24 || psm == P4 || psm == P4HL || psm == P4HH)
++			{
++				PackedT old;
++				std::memcpy(&old, ptr, sizeof(PackedT));
++				if constexpr (psm == C24 || psm == Z24)
++				{
++					value = (old & 0xFF000000) | (value & 0x00FFFFFF);
++				}
++				else
++				{
++					const u32 shift = bits % 8;
++					value = static_cast<PackedT>((old & ~(0x0F << shift)) | ((value & 0x0F) << shift));
++				}
++			}
++			std::memcpy(ptr, &value, sizeof(PackedT));
++		}
 +	}
 +
 +	// ReadTexture for one PSM known at compile time, inlined into the caller.
@@ -1695,13 +1863,20 @@ index c784ff7..f37e5b1 100644
 +	// For formats of 16 bits or more: a pixel's byte address as Read and Write
 +	// work it out, and the load and store they do there, so a caller can
 +	// read and then write the same pixel from one address.
++	// ByteAddress of the pixel at x in the row whose RowAddress is rowAddress.
++	template<PixelStorageMode psm>
++	inline u32 ByteAddressInRow(u32 rowAddress, u32 x)
++	{
++		using Traits = PixelStorageTraits<psm>;
++		static_assert(UnpackedBitWidth(psm) >= 16 && Traits::BitOffset() == 0 && ColumnOffsetRows<psm>() == 1);
++		return ((rowAddress + ColumnOffset<psm>(x, 0)) * static_cast<u32>(UnpackedBitWidth(psm) / 8)) &
++			static_cast<u32>(MEMORY_SIZE - sizeof(typename Traits::PackedT));
++	}
++
 +	template<PixelStorageMode psm>
 +	inline u32 ByteAddress(u32 bp, u32 bw, u32 x, u32 y)
 +	{
-+		using Traits = PixelStorageTraits<psm>;
-+		static_assert(UnpackedBitWidth(psm) >= 16 && Traits::BitOffset() == 0);
-+		return (Traits::Address(PageTableFor<psm>(), bp, bw, x, y) * static_cast<u32>(UnpackedBitWidth(psm) / 8)) &
-+			static_cast<u32>(MEMORY_SIZE - sizeof(typename Traits::PackedT));
++		return ByteAddressInRow<psm>(RowAddress<psm>(bp, bw, y), x);
 +	}
 +
 +	template<PixelStorageMode psm>
@@ -2973,7 +3148,7 @@ index 9614016..f651975 100644
          setReturnU32(ctx, ret);
      }
 diff --git a/ps2xRuntime/src/lib/gs/gs_cpu_backend.cpp b/ps2xRuntime/src/lib/gs/gs_cpu_backend.cpp
-index f0ad507..8a1a42f 100644
+index f0ad507..b691dc9 100644
 --- a/ps2xRuntime/src/lib/gs/gs_cpu_backend.cpp
 +++ b/ps2xRuntime/src/lib/gs/gs_cpu_backend.cpp
 @@ -1,3 +1,4 @@
@@ -3233,7 +3408,7 @@ index f0ad507..8a1a42f 100644
      uint32_t swizzleClutIndexCSM1(uint32_t index)
      {
          // CSM1 swaps address bits 3 and 4. Preserve the remaining bits:
-@@ -292,11 +446,137 @@ namespace
+@@ -292,11 +446,140 @@ namespace
          return psm == GS_PSM_T8 || psm == GS_PSM_T8H;
      }
  
@@ -3289,6 +3464,9 @@ index f0ad507..8a1a42f 100644
 +    {
 +        return (b.first - a.first) % 512u < a.count || (a.first - b.first) % 512u < b.count;
 +    }
++
++    template <GSMem::PixelStorageMode Psm>
++    using PsmConstant = std::integral_constant<GSMem::PixelStorageMode, Psm>;
 +
 +    // Whether no pixel a primitive can draw, colour or depth, is on a page its
 +    // texture can be read from.
@@ -3372,7 +3550,15 @@ index f0ad507..8a1a42f 100644
      }
  }
  
-@@ -533,6 +813,7 @@ void GSCpuBackend::Reset()
+@@ -521,6 +804,7 @@ void GSCpuBackend::Initialize(uint8_t *vram, uint32_t vramSize)
+     std::lock_guard<std::mutex> lock(m_mutex);
+     m_vram = vram;
+     m_vramSize = vramSize;
++    m_textureMemory = vram;
+     ResetUnlocked();
+ }
+ 
+@@ -533,6 +817,7 @@ void GSCpuBackend::Reset()
  void GSCpuBackend::ResetUnlocked()
  {
      m_clut.fill(0u);
@@ -3380,10 +3566,22 @@ index f0ad507..8a1a42f 100644
      m_clutCbp.fill(0u);
      m_texturePageCache.Invalidate();
      m_transfer = {};
-@@ -543,6 +824,13 @@ void GSCpuBackend::ResetUnlocked()
+@@ -543,6 +828,25 @@ void GSCpuBackend::ResetUnlocked()
      m_localToHostReadPos = 0u;
  }
  
++void GSCpuBackend::SetTextureMemory(uint8_t *memory, bool transfersToVram)
++{
++    std::lock_guard<std::mutex> lock(m_mutex);
++    m_textureMemory = memory ? memory : m_vram;
++    m_transfersToVram = transfersToVram && m_textureMemory != m_vram;
++}
++
++bool GSCpuBackend::TextureApartFromTarget(const GSDrawState &state) const
++{
++    return m_textureMemory != m_vram || textureApartFromTarget(state);
++}
++
 +void GSCpuBackend::SetRowBand(uint32_t index, uint32_t count)
 +{
 +    std::lock_guard<std::mutex> lock(m_mutex);
@@ -3394,7 +3592,7 @@ index f0ad507..8a1a42f 100644
  void GSCpuBackend::Submit(const GSPrimitiveBatch &batch)
  {
      std::lock_guard<std::mutex> lock(m_mutex);
-@@ -602,6 +890,7 @@ void GSCpuBackend::LoadClutUnlocked(const GSTex0Reg &tex0, const GSTexClutReg &t
+@@ -602,6 +906,7 @@ void GSCpuBackend::LoadClutUnlocked(const GSTex0Reg &tex0, const GSTexClutReg &t
  
      const bool loadCsm1Suffix = tex0.csm == 0u && thirtyTwoBit && !fourBit;
      const uint32_t firstEntry = loadCsm1Suffix ? destinationBase : 0u;
@@ -3402,7 +3600,30 @@ index f0ad507..8a1a42f 100644
  
      for (uint32_t entry = firstEntry; entry < entryCount; ++entry)
      {
-@@ -818,6 +1107,54 @@ void GSCpuBackend::DrawPrimitive(const GSPrimitiveBatch &batch)
+@@ -670,7 +975,7 @@ uint32_t GSCpuBackend::ReadTextureVramUnlocked(uint32_t psm, uint32_t base, uint
+     if (!m_vram)
+         return 0u;
+ 
+-    return GSMem::ReadTexture(m_texturePageCache, m_vram, psm, base, bw, x, y);
++    return GSMem::ReadTexture(m_texturePageCache, m_textureMemory, psm, base, bw, x, y);
+ }
+ 
+ void GSCpuBackend::WriteVram(uint32_t psm, uint32_t base, uint32_t bw, uint32_t x, uint32_t y, uint32_t value)
+@@ -686,6 +991,13 @@ void GSCpuBackend::WriteVramUnlocked(uint32_t psm, uint32_t base, uint32_t bw, u
+     m_writeVramFuncs[psm & 0x3Fu](m_vram, base, bw, x, y, value);
+ }
+ 
++void GSCpuBackend::WriteTextureMemoryUnlocked(uint32_t psm, uint32_t base, uint32_t bw, uint32_t x, uint32_t y, uint32_t value)
++{
++    m_writeVramFuncs[psm & 0x3Fu](m_textureMemory, base, bw, x, y, value);
++    if (m_transfersToVram)
++        m_writeVramFuncs[psm & 0x3Fu](m_vram, base, bw, x, y, value);
++}
++
+ void GSCpuBackend::SnapshotVram(std::vector<uint8_t> &out) const
+ {
+     std::lock_guard<std::mutex> lock(m_mutex);
+@@ -818,6 +1130,54 @@ void GSCpuBackend::DrawPrimitive(const GSPrimitiveBatch &batch)
          }
      });
  
@@ -3457,7 +3678,7 @@ index f0ad507..8a1a42f 100644
      switch (state.prim.type)
      {
      case GS_PRIM_SPRITE:
-@@ -838,7 +1175,8 @@ void GSCpuBackend::DrawPrimitive(const GSPrimitiveBatch &batch)
+@@ -838,7 +1198,8 @@ void GSCpuBackend::DrawPrimitive(const GSPrimitiveBatch &batch)
          const auto &ctx = state.context;
          int px = static_cast<int>(v.x) - (ctx.xyoffset.ofx >> 4);
          int py = static_cast<int>(v.y) - (ctx.xyoffset.ofy >> 4);
@@ -3467,7 +3688,7 @@ index f0ad507..8a1a42f 100644
          break;
      }
      default:
-@@ -846,54 +1184,121 @@ void GSCpuBackend::DrawPrimitive(const GSPrimitiveBatch &batch)
+@@ -846,54 +1207,132 @@ void GSCpuBackend::DrawPrimitive(const GSPrimitiveBatch &batch)
      }
  }
  
@@ -3514,11 +3735,22 @@ index f0ad507..8a1a42f 100644
 +
 +void GSCpuBackend::WritePixel(const PixelTarget &target, int x, int y, int z, uint8_t r, uint8_t g, uint8_t b, uint8_t a, uint8_t fog)
 +{
-+    WritePixelAs<kAnyPsm, kAnyPsm>(target, x, y, z, pack32(r, g, b, a), fog);
++    WritePixelAs<kAnyPsm, kAnyPsm>(target, PixelRow{}, x, y, z, pack32(r, g, b, a), fog);
++}
++
++template <uint32_t FramePsm, uint32_t DepthPsm>
++__attribute__((always_inline)) inline GSCpuBackend::PixelRow GSCpuBackend::PixelRowAt(const PixelTarget &target, int y)
++{
++    PixelRow row;
++    if constexpr (FramePsm != kAnyPsm)
++        row.frame = GSMem::RowAddress<static_cast<GSMem::PixelStorageMode>(FramePsm)>(target.fbp, target.fbw, static_cast<u32>(y));
++    if constexpr (DepthPsm != kAnyPsm)
++        row.depth = GSMem::RowAddress<static_cast<GSMem::PixelStorageMode>(DepthPsm)>(target.zbp, target.fbw, static_cast<u32>(y));
++    return row;
 +}
 +
 +template <uint32_t FramePsm, uint32_t DepthPsm, bool InScissor, bool DepthTested>
-+__attribute__((always_inline)) inline void GSCpuBackend::WritePixelAs(const PixelTarget &target, int x, int y, int z, uint32_t color, uint8_t fog, uint32_t testedDepthAddress)
++__attribute__((always_inline)) inline void GSCpuBackend::WritePixelAs(const PixelTarget &target, const PixelRow &row, int x, int y, int z, uint32_t color, uint8_t fog, uint32_t testedDepthAddress)
 +{
 +    // A known PSM reads and writes through the inlined swizzle, at one address per buffer.
 +    constexpr bool frameKnown = FramePsm != kAnyPsm;
@@ -3594,7 +3826,7 @@ index f0ad507..8a1a42f 100644
 -        rawFramebufferPixel = ReadVramUnlocked(fpsm, fbp, fbw, x, y);
 +        if constexpr (frameKnown)
 +        {
-+            frameAddress = GSMem::ByteAddress<framePsm>(fbp, fbw, x, y);
++            frameAddress = GSMem::ByteAddressInRow<framePsm>(row.frame, static_cast<u32>(x));
 +            rawFramebufferPixel = GSMem::LoadPixel<framePsm>(target.vram, frameAddress);
 +        }
 +        else
@@ -3608,7 +3840,7 @@ index f0ad507..8a1a42f 100644
          {
              fbrgba = Rgba5551ToRgba8888(fbrgba);
          }
-@@ -904,14 +1309,29 @@ void GSCpuBackend::WritePixel(const GSDrawState &state, int x, int y, int z, uin
+@@ -904,14 +1343,29 @@ void GSCpuBackend::WritePixel(const GSDrawState &state, int x, int y, int z, uin
          }
      }
  
@@ -3626,7 +3858,7 @@ index f0ad507..8a1a42f 100644
 +    {
 +        if constexpr (depthKnown)
 +        {
-+            depthAddress = GSMem::ByteAddress<depthPsm>(zbp, fbw, x, y);
++            depthAddress = GSMem::ByteAddressInRow<depthPsm>(row.depth, static_cast<u32>(x));
 +            return GSMem::LoadPixel<depthPsm>(target.vram, depthAddress);
 +        }
 +        else
@@ -3640,7 +3872,7 @@ index f0ad507..8a1a42f 100644
      {
      case 0:
          zpass = false;
-@@ -920,11 +1340,11 @@ void GSCpuBackend::WritePixel(const GSDrawState &state, int x, int y, int z, uin
+@@ -920,11 +1374,11 @@ void GSCpuBackend::WritePixel(const GSDrawState &state, int x, int y, int z, uin
          zpass = true;
          break;
      case 2:
@@ -3654,7 +3886,7 @@ index f0ad507..8a1a42f 100644
          zpass = static_cast<uint32_t>(z) > storedZ;
          break;
      }
-@@ -936,27 +1356,43 @@ void GSCpuBackend::WritePixel(const GSDrawState &state, int x, int y, int z, uin
+@@ -936,27 +1390,43 @@ void GSCpuBackend::WritePixel(const GSDrawState &state, int x, int y, int z, uin
  
      if (writeMask.writesFramebuffer())
      {
@@ -3687,10 +3919,10 @@ index f0ad507..8a1a42f 100644
 +                const uint8_t csel = target.blendC;
 +                const uint8_t dsel = target.blendD;
 +                const uint8_t fix = target.blendFix;
- 
++
 +                int cAlpha = (csel == 0) ? a : (csel == 1) ? da
 +                                                           : fix;
-+
+ 
 +#if defined(__SSE2__)
 +                // The scalar formula below on one 32-bit lane per channel. The
 +                // differences and alphas fit 16 bits, so _mm_madd_epi16 multiplies
@@ -3713,7 +3945,7 @@ index f0ad507..8a1a42f 100644
                  auto pickRGB = [&](uint8_t sel, int cs, int cd) -> int
                  {
                      if (sel == 0)
-@@ -965,31 +1401,24 @@ void GSCpuBackend::WritePixel(const GSDrawState &state, int x, int y, int z, uin
+@@ -965,31 +1435,24 @@ void GSCpuBackend::WritePixel(const GSDrawState &state, int x, int y, int z, uin
                          return cd;
                      return 0;
                  };
@@ -3755,7 +3987,7 @@ index f0ad507..8a1a42f 100644
          }
  
          if (preserveDestinationAlpha)
-@@ -998,17 +1427,39 @@ void GSCpuBackend::WritePixel(const GSDrawState &state, int x, int y, int z, uin
+@@ -998,17 +1461,39 @@ void GSCpuBackend::WritePixel(const GSDrawState &state, int x, int y, int z, uin
          }
  
          // format conversion
@@ -3769,7 +4001,7 @@ index f0ad507..8a1a42f 100644
 +        if constexpr (frameKnown)
 +        {
 +            if (!frmw)
-+                frameAddress = GSMem::ByteAddress<framePsm>(fbp, fbw, x, y);
++                frameAddress = GSMem::ByteAddressInRow<framePsm>(row.frame, static_cast<u32>(x));
 +            if (target.watchTexture)
 +                m_texturePageCache.BeforeWrite(target.vram, frameAddress);
 +            GSMem::StorePixel<framePsm>(target.vram, frameAddress, pixel);
@@ -3787,7 +4019,7 @@ index f0ad507..8a1a42f 100644
 +        if constexpr (depthKnown)
 +        {
 +            if (ztestMethod < 2u)
-+                depthAddress = GSMem::ByteAddress<depthPsm>(zbp, fbw, x, y);
++                depthAddress = GSMem::ByteAddressInRow<depthPsm>(row.depth, static_cast<u32>(x));
 +            if (target.watchTexture)
 +                m_texturePageCache.BeforeWrite(target.vram, depthAddress);
 +            GSMem::StorePixel<depthPsm>(target.vram, depthAddress, static_cast<u32>(z));
@@ -3799,7 +4031,7 @@ index f0ad507..8a1a42f 100644
      }
  }
  
-@@ -1055,68 +1506,138 @@ uint32_t GSCpuBackend::LookupCLUT(const GSDrawState &state,
+@@ -1055,68 +1540,138 @@ uint32_t GSCpuBackend::LookupCLUT(const GSDrawState &state,
      return 0xFFFF00FFu;
  }
  
@@ -3821,13 +4053,13 @@ index f0ad507..8a1a42f 100644
 -
 -    float texUf, texVf;
 -    if (state.prim.fst)
-+    switch (psm)
-     {
+-    {
 -        texUf = static_cast<float>(u) / 16.0f;
 -        texVf = static_cast<float>(v) / 16.0f;
 -    }
 -    else
--    {
++    switch (psm)
+     {
 -        const float invQ = 1.0f / fabsQ(q);
 -        texUf = s * invQ * static_cast<float>(texW);
 -        texVf = t * invQ * static_cast<float>(texH);
@@ -3955,7 +4187,7 @@ index f0ad507..8a1a42f 100644
 -    if (!state.linearFilter)
 +    u = wrapTexel(u, sampler.clampU, sampler.lowU, sampler.highU);
 +    v = wrapTexel(v, sampler.clampV, sampler.lowV, sampler.highV);
-+    const u32 out = m_vram ? GSMem::ReadTextureAs<static_cast<GSMem::PixelStorageMode>(Psm)>(m_texturePageCache, m_vram,
++    const u32 out = m_vram ? GSMem::ReadTextureAs<static_cast<GSMem::PixelStorageMode>(Psm)>(m_texturePageCache, m_textureMemory,
 +                                                                                          sampler.tbp0, sampler.tbw, u, v)
 +                           : 0u;
 +    return ConvertTexel<Psm>(sampler, out);
@@ -3989,7 +4221,7 @@ index f0ad507..8a1a42f 100644
  
      const float sampleU = texUf - 0.5f;
      const float sampleV = texVf - 0.5f;
-@@ -1127,87 +1648,273 @@ uint32_t GSCpuBackend::SampleTexture(const GSDrawState &state, float s, float t,
+@@ -1127,87 +1682,273 @@ uint32_t GSCpuBackend::SampleTexture(const GSDrawState &state, float s, float t,
      const float fx = sampleU - static_cast<float>(u0);
      const float fy = sampleV - static_cast<float>(v0);
  
@@ -4036,7 +4268,7 @@ index f0ad507..8a1a42f 100644
 +            uint32_t t00;
 +            if (m_vram &&
 +                GSMem::ReadTextureQuadCornerAs<static_cast<GSMem::PixelStorageMode>(Psm)>(
-+                    m_texturePageCache, m_vram, sampler.tbp0, sampler.tbw,
++                    m_texturePageCache, m_textureMemory, sampler.tbp0, sampler.tbw,
 +                    wrapTexel(u0, sampler.clampU, sampler.lowU, sampler.highU), wrapTexel(u1, sampler.clampU, sampler.lowU, sampler.highU),
 +                    wrapTexel(v0, sampler.clampV, sampler.lowV, sampler.highV), wrapTexel(v1, sampler.clampV, sampler.lowV, sampler.highV),
 +                    t00))
@@ -4046,7 +4278,7 @@ index f0ad507..8a1a42f 100644
 +        uint32_t t00, t10, t01, t11;
 +        if (m_vram &&
 +            GSMem::ReadTextureQuadAs<static_cast<GSMem::PixelStorageMode>(Psm)>(
-+                m_texturePageCache, m_vram, sampler.tbp0, sampler.tbw,
++                m_texturePageCache, m_textureMemory, sampler.tbp0, sampler.tbw,
 +                wrapTexel(u0, sampler.clampU, sampler.lowU, sampler.highU), wrapTexel(u1, sampler.clampU, sampler.lowU, sampler.highU),
 +                wrapTexel(v0, sampler.clampV, sampler.lowV, sampler.highV), wrapTexel(v1, sampler.clampV, sampler.lowV, sampler.highV),
 +                t00, t10, t01, t11))
@@ -4315,13 +4547,13 @@ index f0ad507..8a1a42f 100644
          const int texH = state.textureHeight;
 +        TextureSampler sampler;
 +        PrepareTextureSampler(state, sampler);
-+        const bool apart = textureApartFromTarget(state);
++        const bool apart = TextureApartFromTarget(state);
 +        target.watchTexture = !apart && kWritesAnnounced<FramePsm, DepthPsm>;
 +        DirectTextureReads directReads(*this, apart || target.watchTexture);
  
          float u0f, v0f, u1f, v1f;
          if (state.prim.fst)
-@@ -1227,61 +1934,79 @@ void GSCpuBackend::DrawSprite(const GSPrimitiveBatch &batch)
+@@ -1227,61 +1968,81 @@ void GSCpuBackend::DrawSprite(const GSPrimitiveBatch &batch)
              v1f = (v1.t / q1) * static_cast<float>(texH);
          }
  
@@ -4354,6 +4586,7 @@ index f0ad507..8a1a42f 100644
 -            float texVf = v0f + (v1f - v0f) * ty;
 +            if (!OwnsRow(y))
 +                continue;
++            const PixelRow row = PixelRowAt<FramePsm, DepthPsm>(target, y);
 +            if (!columnsReady)
 +            {
 +                columnU.resize(static_cast<size_t>(drawX1 - drawX0 + 1));
@@ -4381,16 +4614,16 @@ index f0ad507..8a1a42f 100644
 -                {
 -                    texel = SampleTexture(state, texUf / static_cast<float>(texW), texVf / static_cast<float>(texH), 1.0f, 0u, 0u);
 -                }
--
++                const uint32_t texel = SampleTextureAt<TexturePsm, true>(sampler, columns[x - drawX0], texVf);
+ 
 -                uint8_t tr = static_cast<uint8_t>(texel & 0xFF);
 -                uint8_t tg = static_cast<uint8_t>((texel >> 8) & 0xFF);
 -                uint8_t tb = static_cast<uint8_t>((texel >> 16) & 0xFF);
 -                uint8_t ta = static_cast<uint8_t>((texel >> 24) & 0xFF);
-+                const uint32_t texel = SampleTextureAt<TexturePsm, true>(sampler, columns[x - drawX0], texVf);
- 
+-
 -                const TextureCombineResult color = combineTexture(tex, r, g, b, a, tr, tg, tb, ta);
 -                WritePixel(state, x, y, z1, color.r, color.g, color.b, color.a, v1.fog);
-+                WritePixelAs<FramePsm, DepthPsm, true>(target, x, y, z1, combineTexturePacked(tex, shade, texel), v1.fog);
++                WritePixelAs<FramePsm, DepthPsm, true>(target, row, x, y, z1, combineTexturePacked(tex, shade, texel), v1.fog);
              }
          }
      }
@@ -4401,9 +4634,10 @@ index f0ad507..8a1a42f 100644
 +        {
 +            if (!OwnsRow(y))
 +                continue;
++            const PixelRow row = PixelRowAt<FramePsm, DepthPsm>(target, y);
              for (int x = drawX0; x <= drawX1; ++x)
 -                WritePixel(state, x, y, z1, r, g, b, a, v1.fog);
-+                WritePixelAs<FramePsm, DepthPsm, true>(target, x, y, z1, color, v1.fog);
++                WritePixelAs<FramePsm, DepthPsm, true>(target, row, x, y, z1, color, v1.fog);
 +        }
      }
  }
@@ -4435,7 +4669,7 @@ index f0ad507..8a1a42f 100644
  
      int ofx = ctx.xyoffset.ofx >> 4;
      int ofy = ctx.xyoffset.ofy >> 4;
-@@ -1311,10 +2036,44 @@ void GSCpuBackend::DrawTriangle(const GSPrimitiveBatch &batch)
+@@ -1311,10 +2072,45 @@ void GSCpuBackend::DrawTriangle(const GSPrimitiveBatch &batch)
      const float invAbsDenom = 1.0f / std::fabs(denom);
      constexpr float kEdgeEpsilon = 1.0e-4f;
  
@@ -4453,7 +4687,7 @@ index f0ad507..8a1a42f 100644
 +        PrepareTextureSampler(state, sampler);
 +    PixelTarget target;
 +    PreparePixelTarget(state, target);
-+    const bool apart = state.prim.tme && textureApartFromTarget(state);
++    const bool apart = state.prim.tme && TextureApartFromTarget(state);
 +    target.watchTexture = state.prim.tme && !apart && kWritesAnnounced<FramePsm, DepthPsm>;
 +    DirectTextureReads directReads(*this, apart || target.watchTexture);
 +
@@ -4477,11 +4711,12 @@ index f0ad507..8a1a42f 100644
 -        for (int x = minX; x <= maxX; ++x)
 +        int rowX0 = minX, rowX1 = maxX;
 +        spans.Narrow(py, rowX0, rowX1);
++        const PixelRow row = PixelRowAt<FramePsm, DepthPsm>(target, y);
 +        for (int x = rowX0; x <= rowX1; ++x)
          {
              float px = static_cast<float>(x) + 0.5f;
  
-@@ -1326,28 +2085,63 @@ void GSCpuBackend::DrawTriangle(const GSPrimitiveBatch &batch)
+@@ -1326,28 +2122,63 @@ void GSCpuBackend::DrawTriangle(const GSPrimitiveBatch &batch)
                  continue;
  
              double z = v0.z * w0 + v1.z * w1 + v2.z * w2;
@@ -4493,7 +4728,7 @@ index f0ad507..8a1a42f 100644
 +                if constexpr (DepthPsm != kAnyPsm)
 +                {
 +                    constexpr auto depthPsm = static_cast<GSMem::PixelStorageMode>(DepthPsm);
-+                    depthAddress = GSMem::ByteAddress<depthPsm>(zbp, zbw, x, y);
++                    depthAddress = GSMem::ByteAddressInRow<depthPsm>(row.depth, static_cast<u32>(x));
 +                    storedZ = GSMem::LoadPixel<depthPsm>(target.vram, depthAddress);
 +                }
 +                else
@@ -4511,11 +4746,7 @@ index f0ad507..8a1a42f 100644
 +            const __m128 weight1 = _mm_set1_ps(w1);
 +            const __m128 weight2 = _mm_set1_ps(w2);
 +            const auto interpolate = [&](__m128 c0, __m128 c1, __m128 c2)
-             {
--                r = clampU8(static_cast<int>(v0.r * w0 + v1.r * w1 + v2.r * w2));
--                g = clampU8(static_cast<int>(v0.g * w0 + v1.g * w1 + v2.g * w2));
--                b = clampU8(static_cast<int>(v0.b * w0 + v1.b * w1 + v2.b * w2));
--                a = clampU8(static_cast<int>(v0.a * w0 + v1.a * w1 + v2.a * w2));
++            {
 +                return _mm_add_ps(_mm_add_ps(_mm_mul_ps(c0, weight0), _mm_mul_ps(c1, weight1)), _mm_mul_ps(c2, weight2));
 +            };
 +            // Truncated to int, then clamped to 0..255 by the saturating packs, as clampU8 does.
@@ -4528,7 +4759,11 @@ index f0ad507..8a1a42f 100644
 +#endif
 +            uint32_t rgba;
 +            if (gouraud)
-+            {
+             {
+-                r = clampU8(static_cast<int>(v0.r * w0 + v1.r * w1 + v2.r * w2));
+-                g = clampU8(static_cast<int>(v0.g * w0 + v1.g * w1 + v2.g * w2));
+-                b = clampU8(static_cast<int>(v0.b * w0 + v1.b * w1 + v2.b * w2));
+-                a = clampU8(static_cast<int>(v0.a * w0 + v1.a * w1 + v2.a * w2));
 +#if defined(__SSE2__)
 +                rgba = clampLanes(interpolate(rgba0, rgba1, rgba2));
 +#else
@@ -4557,7 +4792,7 @@ index f0ad507..8a1a42f 100644
                  {
                      iu = static_cast<uint16_t>(v0.u * w0 + v1.u * w1 + v2.u * w2);
                      iv = static_cast<uint16_t>(v0.v * w0 + v1.v * w1 + v2.v * w2);
-@@ -1360,35 +2154,30 @@ void GSCpuBackend::DrawTriangle(const GSPrimitiveBatch &batch)
+@@ -1360,35 +2191,30 @@ void GSCpuBackend::DrawTriangle(const GSPrimitiveBatch &batch)
                      // The GS DDA interpolates the homogeneous S, T and Q
                      // values. Texel coordinates are calculated from S/Q and
                      // T/Q only after interpolation.
@@ -4603,11 +4838,11 @@ index f0ad507..8a1a42f 100644
 -            WritePixel(state, x, y, static_cast<u32>(z + 0.5), r, g, b, a, fog);
 +#endif
 +            // Nothing has written VRAM since the test above, so WritePixel's would pass too.
-+            WritePixelAs<FramePsm, DepthPsm, true, true>(target, x, y, depth, rgba, fog, depthAddress);
++            WritePixelAs<FramePsm, DepthPsm, true, true>(target, row, x, y, depth, rgba, fog, depthAddress);
          }
      }
  }
-@@ -1418,6 +2207,8 @@ void GSCpuBackend::DrawLine(const GSPrimitiveBatch &batch)
+@@ -1418,6 +2244,8 @@ void GSCpuBackend::DrawLine(const GSPrimitiveBatch &batch)
      if (totalSteps == 0)
          totalSteps = 1;
      int step = 0;
@@ -4616,7 +4851,7 @@ index f0ad507..8a1a42f 100644
  
      for (;;)
      {
-@@ -1440,7 +2231,8 @@ void GSCpuBackend::DrawLine(const GSPrimitiveBatch &batch)
+@@ -1440,7 +2268,8 @@ void GSCpuBackend::DrawLine(const GSPrimitiveBatch &batch)
  
          double z = (v0.z + (v1.z - v0.z) * t);
          const uint8_t fog = clampU8(static_cast<int>(v0.fog + (v1.fog - v0.fog) * t));
@@ -4626,7 +4861,146 @@ index f0ad507..8a1a42f 100644
  
          if (x0 == x1 && y0 == y1)
              break;
-@@ -1732,6 +2524,9 @@ bool GSCpuBackend::ClearFramebuffer(const GSContext &context, uint32_t rgba)
+@@ -1509,8 +2338,86 @@ void GSCpuBackend::UploadImage(const uint8_t *data, uint32_t sizeBytes)
+         m_transferState.y = m_transfer.trxpos.dsay + (m_transferState.copiedPixels / rrw);
+     };
+ 
++    // The pixels left in the current row, or in the transfer if fewer, written in one
++    // go when the data holds whole pixels for them: `width` bytes each, or two pixels
++    // to a byte for a 4-bit format.
++    const auto writeRun = [&](auto psmConstant, uint32_t width) -> bool
++    {
++        constexpr GSMem::PixelStorageMode psm = decltype(psmConstant)::value;
++        const uint32_t copied = m_transferState.copiedPixels;
++        const uint32_t left = std::min<uint32_t>(rrw - copied % rrw, m_transferState.totalPixels - copied);
++        const uint8_t *source = data + offset;
++        uint32_t run;
++        if constexpr (psm == GSMem::P4 || psm == GSMem::P4HL || psm == GSMem::P4HH)
++        {
++            // Two pixels to a byte, the first in the low nibble: whole bytes only, so
++            // never a byte split between two rows.
++            if ((copied & 1u) != 0u || (left & 1u) != 0u)
++                return false;
++            run = std::min<uint32_t>(left, (sizeBytes - offset) * 2u);
++            const auto pixelAt = [source](uint32_t i) { return static_cast<uint32_t>(source[i >> 1u] >> ((i & 1u) * 4u)) & 0x0Fu; };
++            GSMem::WriteRow<psm>(m_textureMemory, dbp, dbw, m_transferState.x, m_transferState.y, run, pixelAt);
++            if (m_transfersToVram)
++                GSMem::WriteRow<psm>(m_vram, dbp, dbw, m_transferState.x, m_transferState.y, run, pixelAt);
++            offset += run / 2u;
++        }
++        else
++        {
++            run = std::min<uint32_t>(left, (sizeBytes - offset) / width);
++            if (run == 0u)
++                return false;
++            const auto pixelAt = [source, width](uint32_t i)
++            {
++                const uint8_t *pixel = source + i * width;
++                if constexpr (sizeof(typename GSMem::PixelStorageTraits<psm>::PackedT) == 4u)
++                {
++                    uint32_t value = 0u;
++                    std::memcpy(&value, pixel, std::min<uint32_t>(width, 4u));
++                    return width == 3u ? value & 0x00FFFFFFu : value;
++                }
++                else if constexpr (sizeof(typename GSMem::PixelStorageTraits<psm>::PackedT) == 2u)
++                {
++                    uint16_t value = 0u;
++                    std::memcpy(&value, pixel, sizeof(value));
++                    return static_cast<uint32_t>(value);
++                }
++                else
++                {
++                    return static_cast<uint32_t>(*pixel);
++                }
++            };
++            GSMem::WriteRow<psm>(m_textureMemory, dbp, dbw, m_transferState.x, m_transferState.y, run, pixelAt);
++            if (m_transfersToVram)
++                GSMem::WriteRow<psm>(m_vram, dbp, dbw, m_transferState.x, m_transferState.y, run, pixelAt);
++            offset += run * width;
++        }
++        advancePixel(run);
++        return true;
++    };
+     while (offset < sizeBytes && m_transferState.direction == 0u)
+     {
++        bool written = false;
++        switch (dpsm)
++        {
++        case GS_PSM_CT32: written = writeRun(PsmConstant<GSMem::C32>{}, 4u); break;
++        case GS_PSM_Z32: written = writeRun(PsmConstant<GSMem::Z32>{}, 4u); break;
++        case GS_PSM_CT24: written = writeRun(PsmConstant<GSMem::C24>{}, 3u); break;
++        case GS_PSM_Z24: written = writeRun(PsmConstant<GSMem::Z24>{}, 3u); break;
++        case GS_PSM_CT16: written = writeRun(PsmConstant<GSMem::C16>{}, 2u); break;
++        case GS_PSM_CT16S: written = writeRun(PsmConstant<GSMem::C16S>{}, 2u); break;
++        case GS_PSM_Z16: written = writeRun(PsmConstant<GSMem::Z16>{}, 2u); break;
++        case GS_PSM_Z16S: written = writeRun(PsmConstant<GSMem::Z16S>{}, 2u); break;
++        case GS_PSM_T8: written = writeRun(PsmConstant<GSMem::P8>{}, 1u); break;
++        case GS_PSM_T8H: written = writeRun(PsmConstant<GSMem::P8H>{}, 1u); break;
++        case GS_PSM_T4: written = writeRun(PsmConstant<GSMem::P4>{}, 1u); break;
++        case GS_PSM_T4HL: written = writeRun(PsmConstant<GSMem::P4HL>{}, 1u); break;
++        case GS_PSM_T4HH: written = writeRun(PsmConstant<GSMem::P4HH>{}, 1u); break;
++        default: break;
++        }
++        if (written)
++            continue;
++
++        // One pixel (a pair for a 4-bit format) at a time.
+         switch (dpsm)
+         {
+         case GS_PSM_CT32:
+@@ -1520,7 +2427,7 @@ void GSCpuBackend::UploadImage(const uint8_t *data, uint32_t sizeBytes)
+                 return;
+             uint32_t value = 0u;
+             std::memcpy(&value, data + offset, sizeof(value));
+-            WriteVramUnlocked(dpsm, dbp, dbw, m_transferState.x, m_transferState.y, value);
++            WriteTextureMemoryUnlocked(dpsm, dbp, dbw, m_transferState.x, m_transferState.y, value);
+             offset += 4u;
+             advancePixel(1u);
+             break;
+@@ -1533,7 +2440,7 @@ void GSCpuBackend::UploadImage(const uint8_t *data, uint32_t sizeBytes)
+             const uint32_t value = static_cast<uint32_t>(data[offset]) |
+                                    (static_cast<uint32_t>(data[offset + 1u]) << 8u) |
+                                    (static_cast<uint32_t>(data[offset + 2u]) << 16u);
+-            WriteVramUnlocked(dpsm, dbp, dbw, m_transferState.x, m_transferState.y, value);
++            WriteTextureMemoryUnlocked(dpsm, dbp, dbw, m_transferState.x, m_transferState.y, value);
+             offset += 3u;
+             advancePixel(1u);
+             break;
+@@ -1547,14 +2454,14 @@ void GSCpuBackend::UploadImage(const uint8_t *data, uint32_t sizeBytes)
+                 return;
+             uint16_t value = 0u;
+             std::memcpy(&value, data + offset, sizeof(value));
+-            WriteVramUnlocked(dpsm, dbp, dbw, m_transferState.x, m_transferState.y, value);
++            WriteTextureMemoryUnlocked(dpsm, dbp, dbw, m_transferState.x, m_transferState.y, value);
+             offset += 2u;
+             advancePixel(1u);
+             break;
+         }
+         case GS_PSM_T8:
+         case GS_PSM_T8H:
+-            WriteVramUnlocked(dpsm, dbp, dbw, m_transferState.x, m_transferState.y, data[offset++]);
++            WriteTextureMemoryUnlocked(dpsm, dbp, dbw, m_transferState.x, m_transferState.y, data[offset++]);
+             advancePixel(1u);
+             break;
+         case GS_PSM_T4:
+@@ -1563,14 +2470,14 @@ void GSCpuBackend::UploadImage(const uint8_t *data, uint32_t sizeBytes)
+         {
+             const uint8_t packed = data[offset++];
+             const uint32_t firstPixel = m_transferState.copiedPixels;
+-            WriteVramUnlocked(dpsm, dbp, dbw,
++            WriteTextureMemoryUnlocked(dpsm, dbp, dbw,
+                               dsax + (firstPixel % rrw),
+                               m_transfer.trxpos.dsay + (firstPixel / rrw),
+                               packed & 0x0Fu);
+             if (firstPixel + 1u < m_transferState.totalPixels)
+             {
+                 const uint32_t secondPixel = firstPixel + 1u;
+-                WriteVramUnlocked(dpsm, dbp, dbw,
++                WriteTextureMemoryUnlocked(dpsm, dbp, dbw,
+                                   dsax + (secondPixel % rrw),
+                                   m_transfer.trxpos.dsay + (secondPixel / rrw),
+                                   (packed >> 4u) & 0x0Fu);
+@@ -1732,6 +2639,9 @@ bool GSCpuBackend::ClearFramebuffer(const GSContext &context, uint32_t rgba)
                                  (static_cast<uint32_t>(b) << 16u) |
                                  (static_cast<uint32_t>(a) << 24u);
          for (uint32_t y = y0; y <= y1; ++y)
@@ -4636,7 +5010,7 @@ index f0ad507..8a1a42f 100644
              for (uint32_t x = x0; x <= x1; ++x)
              {
                  uint32_t pixel = source;
-@@ -1742,6 +2537,7 @@ bool GSCpuBackend::ClearFramebuffer(const GSContext &context, uint32_t rgba)
+@@ -1742,6 +2652,7 @@ bool GSCpuBackend::ClearFramebuffer(const GSContext &context, uint32_t rgba)
                  }
                  WriteVramUnlocked(context.frame.psm, fbp, fbw, x, y, pixel);
              }
@@ -4644,7 +5018,7 @@ index f0ad507..8a1a42f 100644
          return true;
      }
  
-@@ -1750,6 +2546,9 @@ bool GSCpuBackend::ClearFramebuffer(const GSContext &context, uint32_t rgba)
+@@ -1750,6 +2661,9 @@ bool GSCpuBackend::ClearFramebuffer(const GSContext &context, uint32_t rgba)
          const uint16_t source = encodeFramePixelPSMCT16(r, g, b, a);
          const uint16_t mask = static_cast<uint16_t>(context.frame.fbmsk);
          for (uint32_t y = y0; y <= y1; ++y)
@@ -4654,7 +5028,7 @@ index f0ad507..8a1a42f 100644
              for (uint32_t x = x0; x <= x1; ++x)
              {
                  uint16_t pixel = source;
-@@ -1760,6 +2559,7 @@ bool GSCpuBackend::ClearFramebuffer(const GSContext &context, uint32_t rgba)
+@@ -1760,6 +2674,7 @@ bool GSCpuBackend::ClearFramebuffer(const GSContext &context, uint32_t rgba)
                  }
                  WriteVramUnlocked(context.frame.psm, fbp, fbw, x, y, pixel);
              }
@@ -4664,21 +5038,29 @@ index f0ad507..8a1a42f 100644
      return false;
 diff --git a/ps2xRuntime/src/lib/gs/gs_threaded_backend.cpp b/ps2xRuntime/src/lib/gs/gs_threaded_backend.cpp
 new file mode 100644
-index 0000000..c0fd907
+index 0000000..a0add39
 --- /dev/null
 +++ b/ps2xRuntime/src/lib/gs/gs_threaded_backend.cpp
-@@ -0,0 +1,875 @@
+@@ -0,0 +1,1052 @@
 +#include "runtime/gs/gs_threaded_backend.h"
 +#include "runtime/gs/ps2_gs_common.h"
 +
 +#include <algorithm>
 +#include <cfenv>
 +#include <cmath>
++#include <cstring>
 +
 +namespace
 +{
 +    // Enough for a few frames of SSX 3's draws; beyond it the EE waits for the GS.
-+    constexpr size_t kMaxPendingCommands = 16384u;
++    constexpr uint64_t kMaxPendingCommands = 16384u;
++    // When the queue is full, the EE waits until this many commands have been run, so
++    // the workers don't wake it for every one.
++    constexpr uint64_t kRefillCommands = 1024u;
++    // A presentation request never waits for room, and a new one can be queued as soon
++    // as the last one has run but before the workers have moved past it: at most two
++    // commands beyond the limit.
++    constexpr uint64_t kRingSize = kMaxPendingCommands + 4u;
 +
 +    struct PageExtent
 +    {
@@ -4921,19 +5303,22 @@ index 0000000..c0fd907
 +void GSThreadedBackend::PageTracker::Clear()
 +{
 +    m_drawn.fill(0u);
-+    m_textured.fill(0u);
++    m_refreshed.fill(0u);
++    m_uploaded.fill(0u);
 +}
 +
-+bool GSThreadedBackend::PageTracker::Conflicts(const Access *drawn, size_t count, const PageSet &textured) const
++bool GSThreadedBackend::PageTracker::Conflicts(const Access *drawn, size_t count, const PageSet &refreshed) const
 +{
-+    // Reading pages another worker may still be drawing to.
-+    if (Intersects(textured, m_drawn))
++    // Copying pages another worker may still be drawing to, or the first worker may
++    // still be writing a transfer to.
++    if (Intersects(refreshed, m_drawn) || Intersects(refreshed, m_uploaded))
 +        return true;
 +
 +    for (size_t i = 0; i < count; ++i)
 +    {
-+        // Drawing to pages another worker may still be reading.
-+        if (Intersects(drawn[i].pages, m_textured))
++        // Drawing to pages another worker may still be copying, or the first worker
++        // may still be writing a transfer to.
++        if (Intersects(drawn[i].pages, m_refreshed) || Intersects(drawn[i].pages, m_uploaded))
 +            return true;
 +
 +        // Drawing through another layout puts pixels on rows another worker draws.
@@ -4952,10 +5337,10 @@ index 0000000..c0fd907
 +    return false;
 +}
 +
-+void GSThreadedBackend::PageTracker::Add(const Access *drawn, size_t count, const PageSet &textured)
++void GSThreadedBackend::PageTracker::Add(const Access *drawn, size_t count, const PageSet &refreshed)
 +{
-+    for (size_t word = 0; word < m_textured.size(); ++word)
-+        m_textured[word] |= textured[word];
++    for (size_t word = 0; word < m_refreshed.size(); ++word)
++        m_refreshed[word] |= refreshed[word];
 +
 +    for (size_t i = 0; i < count; ++i)
 +    {
@@ -4973,21 +5358,40 @@ index 0000000..c0fd907
 +    }
 +}
 +
++bool GSThreadedBackend::PageTracker::UploadConflicts(const PageSet &pages) const
++{
++    // The first worker writes the transfer to VRAM as well, perhaps before or after
++    // another worker draws there or copies the page.
++    return Intersects(pages, m_drawn) || Intersects(pages, m_refreshed);
++}
++
++void GSThreadedBackend::PageTracker::AddUpload(const PageSet &pages)
++{
++    for (size_t word = 0; word < m_uploaded.size(); ++word)
++        m_uploaded[word] |= pages[word];
++}
++
 +void GSThreadedBackend::BarrierCompletion::operator()() noexcept
 +{
-+    for (size_t i = self->m_aloneBegin; i < self->m_aloneEnd; ++i)
++    const uint64_t begin = self->m_aloneBegin;
++    const Command &first = self->m_ring[begin % kRingSize];
++    const uint64_t end = first.runAlone ? self->aloneRunEnd(begin) : begin;
++    self->m_aloneEnd = end;
++    for (uint64_t i = begin; i < end; ++i)
 +    {
-+        const Command &command = self->m_working[i];
++        const Command &command = self->m_ring[i % kRingSize];
 +        try
 +        {
++            for (size_t worker = 0; worker < self->m_workers.size(); ++worker)
++                self->refreshTextureCopy(worker, command.refresh);
 +            if (command.runAlone)
 +            {
 +                self->runAlone(command);
 +            }
 +            else
 +            {
-+                for (Worker &worker : self->m_workers)
-+                    self->runCommand(*worker.backend, command);
++                for (size_t worker = 0; worker < self->m_workers.size(); ++worker)
++                    self->runCommand(worker, command);
 +            }
 +        }
 +        catch (...)
@@ -5002,13 +5406,13 @@ index 0000000..c0fd907
 +{
 +    const unsigned count = std::max(workerCount, 1u);
 +    m_workers.resize(count);
++    m_ring.resize(kRingSize);
++    m_progress = std::make_unique<WorkerProgress[]>(count);
 +    for (unsigned i = 0; i < count; ++i)
 +    {
 +        m_workers[i].backend = std::make_unique<GSCpuBackend>();
 +        m_workers[i].backend->SetRowBand(i, count);
 +    }
-+    m_pending.reserve(1024u);
-+    m_working.reserve(1024u);
 +    for (size_t i = 0; i < m_workers.size(); ++i)
 +        m_workers[i].thread = std::thread([this, i]() { workerMain(i); });
 +}
@@ -5030,9 +5434,11 @@ index 0000000..c0fd907
 +
 +GSThreadedBackend::Command &GSThreadedBackend::beginCommand(std::unique_lock<std::mutex> &lock, CommandKind kind, bool mayWait)
 +{
-+    if (mayWait && m_pending.size() >= kMaxPendingCommands)
-+        m_workDone.wait(lock, [this]() { return m_pending.size() < kMaxPendingCommands; });
-+    Command &command = m_pending.emplace_back();
++    const uint64_t submitted = m_submitted.load(std::memory_order_relaxed);
++    if (mayWait && submitted >= kMaxPendingCommands && completedCommands() + kMaxPendingCommands <= submitted)
++        waitForCompleted(lock, submitted - kMaxPendingCommands + kRefillCommands);
++    Command &command = m_ring[submitted % kRingSize];
++    command = Command{};
 +    command.kind = kind;
 +    command.roundingMode = std::fegetround();
 +    return command;
@@ -5040,30 +5446,52 @@ index 0000000..c0fd907
 +
 +void GSThreadedBackend::endCommand(std::unique_lock<std::mutex> &lock)
 +{
-+    ++m_submitted;
-+    if (!m_batchRunning)
-+        startBatchLocked();
++    m_submitted.fetch_add(1u);
++    if (m_idleWorkers != 0u)
++        m_workAvailable.notify_all();
 +    lock.unlock();
 +}
 +
-+void GSThreadedBackend::startBatchLocked()
++uint64_t GSThreadedBackend::completedCommands() const
 +{
-+    if (m_pending.empty())
-+    {
-+        m_batchRunning = false;
++    uint64_t completed = m_progress[0].done.load();
++    for (size_t i = 1; i < m_workers.size(); ++i)
++        completed = std::min(completed, m_progress[i].done.load());
++    return completed;
++}
++
++void GSThreadedBackend::waitForCompleted(std::unique_lock<std::mutex> &lock, uint64_t target) const
++{
++    if (completedCommands() >= target)
 +        return;
++    // The target is lowered before the waiter count goes up, so a worker that sees the
++    // count also sees a target no higher than this one. Both change only with
++    // m_queueMutex held.
++    uint64_t lowest = m_completionTarget.load();
++    while (target < lowest && !m_completionTarget.compare_exchange_weak(lowest, target))
++    {
 +    }
-+    m_working.swap(m_pending);
-+    m_batchRunning = true;
-+    ++m_batchGeneration;
-+    m_workAvailable.notify_all();
++    m_completionWaiters.fetch_add(1u);
++    m_workDone.wait(lock, [this, target]() { return completedCommands() >= target; });
++    if (m_completionWaiters.fetch_sub(1u) == 1u)
++        m_completionTarget.store(UINT64_MAX);
++}
++
++void GSThreadedBackend::notifyCompleted()
++{
++    // A waiter registers before checking the workers' progress, and a worker publishes
++    // its progress before checking for waiters, so one of them sees the other.
++    if (m_completionWaiters.load() != 0u && completedCommands() >= m_completionTarget.load())
++    {
++        std::lock_guard<std::mutex> lock(m_queueMutex);
++        m_workDone.notify_all();
++    }
 +}
 +
 +void GSThreadedBackend::waitForQueuedWork() const
 +{
 +    std::unique_lock<std::mutex> lock(m_queueMutex);
-+    const uint64_t target = m_submitted;
-+    m_workDone.wait(lock, [this, target]() { return m_completed >= target; });
++    waitForCompleted(lock, m_submitted.load());
 +}
 +
 +void GSThreadedBackend::markRunAlone(Command &command)
@@ -5072,15 +5500,49 @@ index 0000000..c0fd907
 +    m_pages.Clear();
 +}
 +
-+size_t GSThreadedBackend::aloneRunEnd(size_t begin) const
++void GSThreadedBackend::markDrawn(const PageTracker::PageSet &pages)
++{
++    for (size_t word = 0; word < m_stale.size(); ++word)
++        m_stale[word] |= pages[word];
++}
++
++void GSThreadedBackend::refreshTextureCopy(size_t worker, const PageTracker::PageSet &pages)
++{
++    constexpr uint32_t kPageBytes = 8192u;
++    uint8_t *const copy = m_textureCopies.size() > worker ? m_textureCopies[worker].get() : nullptr;
++    if (!copy)
++        return;
++    for (size_t word = 0; word < pages.size(); ++word)
++    {
++        uint64_t bits = pages[word];
++        while (bits != 0u)
++        {
++            const uint32_t page = static_cast<uint32_t>(word * 64u) + static_cast<uint32_t>(__builtin_ctzll(bits));
++            const size_t offset = static_cast<size_t>(page) * kPageBytes;
++            if (offset + kPageBytes <= m_vramSize)
++                std::memcpy(copy + offset, m_vram + offset, kPageBytes);
++            bits &= bits - 1u;
++        }
++    }
++}
++
++void GSThreadedBackend::readTexturesFromVram(size_t worker, bool fromVram)
++{
++    uint8_t *const copy = m_textureCopies.size() > worker ? m_textureCopies[worker].get() : nullptr;
++    if (copy)
++        m_workers[worker].backend->SetTextureMemory(fromVram ? nullptr : copy, worker == 0u);
++}
++
++uint64_t GSThreadedBackend::aloneRunEnd(uint64_t begin) const
 +{
 +    // Nothing between them draws, so the workers have nothing to do in between.
 +    // SSX 3 sends a texture's mip levels as one transfer each, with a texture
 +    // flush after each and a CLUT load after the last.
-+    size_t end = begin + 1u;
-+    while (end < m_working.size())
++    const uint64_t submitted = m_submitted.load();
++    uint64_t end = begin + 1u;
++    while (end < submitted)
 +    {
-+        const Command &next = m_working[end];
++        const Command &next = m_ring[end % kRingSize];
 +        if (!next.runAlone && next.kind != CommandKind::LoadClut && next.kind != CommandKind::TextureFlush)
 +            break;
 +        ++end;
@@ -5106,21 +5568,36 @@ index 0000000..c0fd907
 +    }
 +    if (alone)
 +    {
++        // The first worker reads its textures from VRAM.
++        for (size_t i = 0; i < count; ++i)
++            markDrawn(drawn[i].pages);
 +        markRunAlone(command);
 +        return;
 +    }
 +
-+    // Its own worker drew every pixel it reads, unless an earlier draw reached those
-+    // pages through another layout, which Conflicts checks along with the draws that
-+    // may still be reading them. Nothing else can need what it reads.
++    // Its own worker drew every pixel it reads, in VRAM, unless an earlier draw reached
++    // those pages through another layout, which Conflicts checks. Nothing else can need
++    // what it reads.
 +    static const PageTracker::PageSet kNoPages{};
 +    const PageTracker::PageSet &reads = readsOwnPixels ? kNoPages : textured;
-+    if (m_pages.Conflicts(drawn, count, reads))
++    command.texturesFromVram = readsOwnPixels;
++
++    // Pages drawn to since the copies last had them are copied to each worker's copy
++    // before it runs the command. Unless Conflicts says to wait, those draws were
++    // before the workers last waited for each other, so they are done.
++    for (size_t word = 0; word < reads.size(); ++word)
++    {
++        command.refresh[word] = reads[word] & m_stale[word];
++        m_stale[word] &= ~command.refresh[word];
++    }
++    if (m_pages.Conflicts(drawn, count, command.refresh))
 +    {
 +        command.waitForAll = true;
 +        m_pages.Clear();
 +    }
-+    m_pages.Add(drawn, count, reads);
++    m_pages.Add(drawn, count, command.refresh);
++    for (size_t i = 0; i < count; ++i)
++        markDrawn(drawn[i].pages);
 +}
 +
 +void GSThreadedBackend::classifySubmit(Command &command)
@@ -5229,18 +5706,34 @@ index 0000000..c0fd907
 +    classifyDraw(command, drawn, drawnCount, textured, readsOwnPixels);
 +}
 +
-+void GSThreadedBackend::runCommand(GSCpuBackend &backend, const Command &command)
++void GSThreadedBackend::runCommand(size_t worker, const Command &command)
 +{
++    GSCpuBackend &backend = *m_workers[worker].backend;
 +    if (std::fegetround() != command.roundingMode)
 +        std::fesetround(command.roundingMode);
 +
 +    switch (command.kind)
 +    {
 +    case CommandKind::Submit:
-+        backend.Submit(command.batch);
++        if (command.texturesFromVram)
++        {
++            readTexturesFromVram(worker, true);
++            backend.Submit(command.batch);
++            readTexturesFromVram(worker, false);
++        }
++        else
++        {
++            backend.Submit(command.batch);
++        }
 +        break;
 +    case CommandKind::LoadClut:
 +        backend.LoadClut(command.tex0, command.texclut);
++        break;
++    case CommandKind::BeginTransfer:
++        backend.BeginTransfer(command.transfer);
++        break;
++    case CommandKind::UploadImage:
++        backend.UploadImage(command.data.data(), static_cast<uint32_t>(command.data.size()));
 +        break;
 +    case CommandKind::TextureFlush:
 +        backend.TextureFlush();
@@ -5250,6 +5743,13 @@ index 0000000..c0fd907
 +        break;
 +    default:
 +        break;
++    }
++
++    if (worker == 0u && (command.kind == CommandKind::BeginTransfer || command.kind == CommandKind::UploadImage))
++    {
++        const GSTransferSnapshot snapshot = backend.GetTransferSnapshot();
++        std::lock_guard<std::mutex> lock(m_transferMutex);
++        m_transferSnapshot = snapshot;
 +    }
 +}
 +
@@ -5263,16 +5763,24 @@ index 0000000..c0fd907
 +    {
 +    case CommandKind::Submit:
 +    case CommandKind::ClearFramebuffer:
++        // It may read what it draws, so it reads VRAM.
 +        backend.SetRowBand(0u, 1u);
-+        runCommand(backend, command);
++        readTexturesFromVram(0u, true);
++        runCommand(0u, command);
++        readTexturesFromVram(0u, false);
 +        backend.SetRowBand(0u, static_cast<uint32_t>(m_workers.size()));
 +        break;
 +    case CommandKind::BeginTransfer:
++    {
++        // A local to local or local to host transfer, which reads and writes only
++        // VRAM. The other workers just end any host to local transfer they were in.
 +        backend.BeginTransfer(command.transfer);
++        GSTransferCommand ended = command.transfer;
++        ended.direction = 3u;
++        for (size_t worker = 1; worker < m_workers.size(); ++worker)
++            m_workers[worker].backend->BeginTransfer(ended);
 +        break;
-+    case CommandKind::UploadImage:
-+        backend.UploadImage(command.data.data(), static_cast<uint32_t>(command.data.size()));
-+        break;
++    }
 +    case CommandKind::WriteVram:
 +        backend.WriteVram(command.args[0], command.args[1], command.args[2], command.args[3], command.args[4], command.args[5]);
 +        break;
@@ -5290,7 +5798,7 @@ index 0000000..c0fd907
 +        break;
 +    }
 +
-+    if (command.kind == CommandKind::BeginTransfer || command.kind == CommandKind::UploadImage)
++    if (command.kind == CommandKind::BeginTransfer)
 +    {
 +        const GSTransferSnapshot snapshot = backend.GetTransferSnapshot();
 +        std::lock_guard<std::mutex> lock(m_transferMutex);
@@ -5300,55 +5808,49 @@ index 0000000..c0fd907
 +
 +void GSThreadedBackend::workerMain(size_t index)
 +{
-+    GSCpuBackend &backend = *m_workers[index].backend;
-+    uint64_t seenGeneration = 0;
-+    std::unique_lock<std::mutex> lock(m_queueMutex);
++    std::atomic<uint64_t> &done = m_progress[index].done;
++    uint64_t next = 0;
 +    for (;;)
 +    {
-+        m_workAvailable.wait(lock, [this, seenGeneration]()
-+                             { return m_stopping || m_batchGeneration != seenGeneration; });
-+        if (m_batchGeneration == seenGeneration)
-+            return;
-+        seenGeneration = m_batchGeneration;
-+        lock.unlock();
-+
-+        for (size_t i = 0; i < m_working.size(); ++i)
++        if (next == m_submitted.load())
 +        {
-+            const Command &command = m_working[i];
-+            if (command.waitForAll || command.runAlone)
-+            {
-+                const size_t end = command.runAlone ? aloneRunEnd(i) : i;
-+                if (index == 0u)
-+                {
-+                    m_aloneBegin = i;
-+                    m_aloneEnd = end;
-+                }
-+                m_barrier.arrive_and_wait();
-+                if (command.runAlone)
-+                {
-+                    i = end - 1u;
-+                    continue;
-+                }
-+            }
-+            try
-+            {
-+                runCommand(backend, command);
-+            }
-+            catch (...)
-+            {
-+                // A failed draw must not take the worker, and every later draw, with it.
-+            }
++            std::unique_lock<std::mutex> lock(m_queueMutex);
++            ++m_idleWorkers;
++            m_workAvailable.wait(lock, [this, next]() { return m_stopping || m_submitted.load() != next; });
++            --m_idleWorkers;
++            if (m_submitted.load() == next)
++                return;
++            continue;
 +        }
 +
-+        lock.lock();
-+        if (++m_workersDone == m_workers.size())
++        const Command &command = m_ring[next % kRingSize];
++        if (command.waitForAll || command.runAlone)
 +        {
-+            m_workersDone = 0;
-+            m_completed += m_working.size();
-+            m_working.clear();
-+            startBatchLocked();
-+            m_workDone.notify_all();
++            const bool alone = command.runAlone;
++            if (index == 0u)
++                m_aloneBegin = next;
++            m_barrier.arrive_and_wait();
++            if (alone)
++            {
++                // The barrier ran the commands up to m_aloneEnd. Their slots can be
++                // reused as soon as this is published, so don't read them again.
++                next = m_aloneEnd;
++                done.store(next);
++                notifyCompleted();
++                continue;
++            }
 +        }
++        try
++        {
++            refreshTextureCopy(index, command.refresh);
++            runCommand(index, command);
++        }
++        catch (...)
++        {
++            // A failed draw must not take the worker, and every later draw, with it.
++        }
++        done.store(++next);
++        notifyCompleted();
 +    }
 +}
 +
@@ -5356,8 +5858,23 @@ index 0000000..c0fd907
 +{
 +    waitForQueuedWork();
 +    m_vram = vram;
-+    for (Worker &worker : m_workers)
-+        worker.backend->Initialize(vram, vramSize);
++    m_vramSize = vram ? vramSize : 0u;
++    m_textureCopies.clear();
++    m_textureCopies.resize(m_workers.size());
++    for (size_t i = 0; i < m_workers.size(); ++i)
++    {
++        m_workers[i].backend->Initialize(vram, vramSize);
++        if (m_workers.size() > 1u && vram)
++        {
++            m_textureCopies[i] = std::make_unique<uint8_t[]>(vramSize);
++            std::memcpy(m_textureCopies[i].get(), vram, vramSize);
++            readTexturesFromVram(i, false);
++        }
++    }
++    {
++        std::lock_guard<std::mutex> lock(m_queueMutex);
++        m_stale.fill(0u);
++    }
 +    std::lock_guard<std::mutex> lock(m_transferMutex);
 +    m_transferSnapshot = m_workers[0].backend->GetTransferSnapshot();
 +}
@@ -5405,8 +5922,40 @@ index 0000000..c0fd907
 +    std::unique_lock<std::mutex> lock(m_queueMutex);
 +    Command &command = beginCommand(lock, CommandKind::BeginTransfer);
 +    command.transfer = transfer;
-+    markRunAlone(command);
-+    m_lastTransferCommand = m_submitted + 1u;
++    const GSBitBltBuf &buffers = transfer.bitbltbuf;
++    const int rrw = static_cast<int>(transfer.trxreg.rrw);
++    const int rrh = static_cast<int>(transfer.trxreg.rrh);
++    if (transfer.direction == 0u)
++    {
++        // Every worker writes it to the memory it reads textures from, while the
++        // others draw.
++        if (m_workers.size() > 1u)
++        {
++            PageTracker::PageSet pages{};
++            PageTracker::AddPages(pages, buffers.dbp, std::max<uint32_t>(buffers.dbw, 1u), buffers.dpsm,
++                                  transfer.trxpos.dsax, transfer.trxpos.dsay,
++                                  transfer.trxpos.dsax + rrw - 1, transfer.trxpos.dsay + rrh - 1);
++            if (m_pages.UploadConflicts(pages))
++            {
++                command.waitForAll = true;
++                m_pages.Clear();
++            }
++            m_pages.AddUpload(pages);
++        }
++    }
++    else if (transfer.direction == 1u || transfer.direction == 2u)
++    {
++        if (transfer.direction == 2u)
++        {
++            PageTracker::PageSet pages{};
++            PageTracker::AddPages(pages, buffers.dbp, std::max<uint32_t>(buffers.dbw, 1u), buffers.dpsm,
++                                  transfer.trxpos.dsax, transfer.trxpos.dsay,
++                                  transfer.trxpos.dsax + rrw - 1, transfer.trxpos.dsay + rrh - 1);
++            markDrawn(pages);
++        }
++        markRunAlone(command);
++    }
++    m_lastTransferCommand = m_submitted.load() + 1u;
 +    endCommand(lock);
 +}
 +
@@ -5416,8 +5965,7 @@ index 0000000..c0fd907
 +    Command &command = beginCommand(lock, CommandKind::UploadImage);
 +    if (data && sizeBytes != 0u)
 +        command.data.assign(data, data + sizeBytes);
-+    markRunAlone(command);
-+    m_lastTransferCommand = m_submitted + 1u;
++    m_lastTransferCommand = m_submitted.load() + 1u;
 +    endCommand(lock);
 +}
 +
@@ -5521,6 +6069,10 @@ index 0000000..c0fd907
 +    command.args[3] = x;
 +    command.args[4] = y;
 +    command.args[5] = value;
++    PageTracker::PageSet pages{};
++    PageTracker::AddPages(pages, base, std::max<uint32_t>(bw, 1u), psm, static_cast<int>(x), static_cast<int>(y),
++                          static_cast<int>(x), static_cast<int>(y));
++    markDrawn(pages);
 +    markRunAlone(command);
 +    endCommand(lock);
 +}
@@ -5537,17 +6089,16 @@ index 0000000..c0fd907
 +    // transfers, and read the worker's copy instead of locking a drawing backend.
 +    {
 +        std::unique_lock<std::mutex> lock(m_queueMutex);
-+        const uint64_t target = m_lastTransferCommand;
-+        m_workDone.wait(lock, [this, target]() { return m_completed >= target; });
++        waitForCompleted(lock, m_lastTransferCommand);
 +    }
 +    std::lock_guard<std::mutex> lock(m_transferMutex);
 +    return m_transferSnapshot;
 +}
 diff --git a/ps2xRuntime/src/lib/gs/ps2_gs_memory.cpp b/ps2xRuntime/src/lib/gs/ps2_gs_memory.cpp
-index a8f9fa8..27a6c62 100644
+index a8f9fa8..76130f6 100644
 --- a/ps2xRuntime/src/lib/gs/ps2_gs_memory.cpp
 +++ b/ps2xRuntime/src/lib/gs/ps2_gs_memory.cpp
-@@ -192,14 +192,14 @@ namespace GSMem
+@@ -192,14 +192,37 @@ namespace GSMem
      }};
  
      // this is going to be massive (an entire page of addess lookups)
@@ -5567,9 +6118,48 @@ index a8f9fa8..27a6c62 100644
 +    Z16SPageLookupTable PageTableZ16S{ };
 +    P8PageLookupTable   PageTableP8{ };
 +    P4PageLookupTable   PageTableP4{ };
++
++    ColumnOffsetTableT<C32> ColumnOffsetsC32{ };
++    ColumnOffsetTableT<Z32> ColumnOffsetsZ32{ };
++    ColumnOffsetTableT<C16> ColumnOffsetsC16{ };
++    ColumnOffsetTableT<C16S> ColumnOffsetsC16S{ };
++    ColumnOffsetTableT<Z16> ColumnOffsetsZ16{ };
++    ColumnOffsetTableT<Z16S> ColumnOffsetsZ16S{ };
++    ColumnOffsetTableT<P8> ColumnOffsetsP8{ };
++    ColumnOffsetTableT<P4> ColumnOffsetsP4{ };
++
++    namespace
++    {
++        // Each page table entry less the first of its row, in the first block. The
++        // swizzles make this the same in every block, and in every row (P8 and P4:
++        // in every eighth row).
++        template<typename PageTable, typename ColumnTable>
++        void InitColumnOffsets(ColumnTable& columns, const PageTable& page)
++        {
++            for (usz row = 0; row < columns.size(); ++row)
++                for (usz x = 0; x < columns[row].size(); ++x)
++                    columns[row][x] = static_cast<u32>(page[0][row][x]) - static_cast<u32>(page[0][row][0]);
++        }
++    }
  
      void InitLookupTables()
      {
+@@ -218,6 +241,15 @@ namespace GSMem
+ 
+         // 4 bit
+         PixelStorageTraits<P4>::InitPageLookupTable(PageTableP4, BlockTableP4, ColumnTable4);
++
++        InitColumnOffsets(ColumnOffsetsC32, PageTableC32);
++        InitColumnOffsets(ColumnOffsetsZ32, PageTableZ32);
++        InitColumnOffsets(ColumnOffsetsC16, PageTableC16);
++        InitColumnOffsets(ColumnOffsetsC16S, PageTableC16S);
++        InitColumnOffsets(ColumnOffsetsZ16, PageTableZ16);
++        InitColumnOffsets(ColumnOffsetsZ16S, PageTableZ16S);
++        InitColumnOffsets(ColumnOffsetsP8, PageTableP8);
++        InitColumnOffsets(ColumnOffsetsP4, PageTableP4);
+     }
+ 
+     u32 ReadTexture(TexturePageCache& cache, const u8* data, u32 psm, u32 bp, u32 bw, u32 x, u32 y)
 diff --git a/ps2xRuntime/src/lib/ps2_audio.cpp b/ps2xRuntime/src/lib/ps2_audio.cpp
 index 6bb6494..4b9444d 100644
 --- a/ps2xRuntime/src/lib/ps2_audio.cpp
@@ -10610,7 +11200,7 @@ index 2866d2b..ab51b27 100644
          {
              // _mm_set_ps lists lanes 3..0
 diff --git a/ps2xTest/src/ps2_gs_tests.cpp b/ps2xTest/src/ps2_gs_tests.cpp
-index 0458a8c..bb4fa29 100644
+index 0458a8c..f81ec65 100644
 --- a/ps2xTest/src/ps2_gs_tests.cpp
 +++ b/ps2xTest/src/ps2_gs_tests.cpp
 @@ -4,6 +4,8 @@
@@ -10713,7 +11303,7 @@ index 0458a8c..bb4fa29 100644
          tc.Run("GS T8 CT32-uploaded CSM1 CLUT follows swizzled palette layout", [](TestCase &t)
          {
              std::vector<uint8_t> vram(PS2_GS_VRAM_SIZE, 0u);
-@@ -3006,6 +3063,305 @@ void register_ps2_gs_tests()
+@@ -3006,6 +3063,321 @@ void register_ps2_gs_tests()
                       "switching raster backends must retain the logical 4 MiB GS local memory");
          });
  
@@ -10830,6 +11420,22 @@ index 0458a8c..bb4fa29 100644
 +                gs.writeRegister(GS_REG_XYZ2, (16ull << 4) | ((64ull << 4) << 16));
 +                gs.writeRegister(GS_REG_UV, 256ull | (256ull << 16));
 +                gs.writeRegister(GS_REG_XYZ2, (48ull << 4) | ((192ull << 4) << 16));
++
++                // Copy rows 32 to 63 of A to page 26 inside VRAM, then draw them onto rows 200 to
++                // 231 of A. One worker runs the copy, so the others must see the page it wrote.
++                gs.writeRegister(GS_REG_BITBLTBUF, (1ull << 16) | (static_cast<uint64_t>(GS_PSM_CT32) << 24) |
++                                                       ((26ull << 5) << 32) | (1ull << 48) |
++                                                       (static_cast<uint64_t>(GS_PSM_CT32) << 56));
++                gs.writeRegister(GS_REG_TRXPOS, 32ull << 16);
++                gs.writeRegister(GS_REG_TRXREG, 64ull | (32ull << 32));
++                gs.writeRegister(GS_REG_TRXDIR, 2ull);
++                gs.writeRegister(GS_REG_TEXFLUSH, 0ull);
++                gs.writeRegister(GS_REG_TEX0_1, (26ull << 5) | (1ull << 14) | (static_cast<uint64_t>(GS_PSM_CT32) << 20) |
++                                                    (6ull << 26) | (5ull << 30) | (1ull << 34) | (1ull << 35));
++                gs.writeRegister(GS_REG_UV, 0ull);
++                gs.writeRegister(GS_REG_XYZ2, (200ull << 4) << 16);
++                gs.writeRegister(GS_REG_UV, 1024ull | (512ull << 16));
++                gs.writeRegister(GS_REG_XYZ2, 1024ull | ((232ull << 4) << 16));
 +
 +                // Resample A into B with bilinear filtering, 256 rows of texels onto 255, as
 +                // SSX 3's last full-screen pass does: B's pages start where A's rows end.
@@ -11019,7 +11625,7 @@ index 0458a8c..bb4fa29 100644
          tc.Run("GS TEX2 updates CLUT state independently from TEX0", [](TestCase &t)
          {
              std::vector<uint8_t> vram(PS2_GS_VRAM_SIZE, 0u);
-@@ -3278,6 +3634,96 @@ void register_ps2_gs_tests()
+@@ -3278,6 +3650,96 @@ void register_ps2_gs_tests()
                       "TCC=0 MODULATE should still use texture RGB while sourcing alpha from the shaded vertex");
          });
  
