@@ -4880,7 +4880,51 @@ int func_003C54C0(unsigned int kind, int *out) {
     return 0;
 }
 
-INCLUDE_ASM("ealib/seg_2B4578", func_003C5538);
+//100%
+extern char D_004958C8[];
+extern char D_004958D0[];
+extern char D_004958D8[];
+extern char D_004958E0[];
+extern char D_004958E8[];
+extern char D_004958F0[];
+extern char D_004958F8[];
+extern char D_00495910[];
+extern char D_00495920[];
+
+int func_003C5538(unsigned int kind, char **out) {
+    switch (kind) {
+    case 0:
+        *out = D_004958C8;
+        break;
+    case 1:
+        *out = D_004958D0;
+        break;
+    case 2:
+        *out = D_004958D8;
+        break;
+    case 3:
+        *out = D_004958E0;
+        break;
+    case 4:
+        *out = D_004958E8;
+        break;
+    case 5:
+        *out = D_004958F0;
+        break;
+    case 6:
+        *out = D_004958F8;
+        break;
+    case 7:
+        *out = D_00495910;
+        break;
+    case 8:
+        *out = D_00495920;
+        break;
+    default:
+        return -5;
+    }
+    return 0;
+}
 
 //100% - objdiff report; single-function view differs only in a relocation name
 // PORT: PS2-only inline asm; needs a C fallback off-PS2.
