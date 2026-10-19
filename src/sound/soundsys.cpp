@@ -8936,7 +8936,25 @@ extern "C" void func_002A8450(char** sys, int a, int b)
 
 INCLUDE_ASM("sound/soundsys", func_002A86B8);
 
-INCLUDE_ASM("sound/soundsys", func_002A8B28);
+//100%
+// PORT: PS2-only inline asm; needs a C fallback off-PS2.
+extern sSnd8450Sys* D_004A3744_8B28 __asm__("D_004A3744");
+extern "C" int func_002A86B8(char** sys);
+
+extern "C" int func_002A8B28(void* unused, char* obj)
+{
+    func_002A8450((char**)D_004A3744_8B28, *(int*)(obj + 0x1C), *(int*)(obj + 0x20));
+    sSnd8450Mgr* m = D_004A3744_8B28->mgr;
+    m->sub.p3C[m->sub.cur] = *(int*)(obj + 0x18);
+    sSnd8450Mgr* m2 = D_004A3744_8B28->mgr;
+    sSnd8450Sub* s = &m2->sub;
+    s->vals[m2->sub.cur] = *(int*)(obj + 0x24);
+#define SND_X (s->vals[s->cur])
+#define SND_MIN127 (SND_X < 0x7F ? SND_X : 0x7F)
+    s->ch[m2->sub.cur].vol = SND_MIN127 < 0 ? 0 : SND_MIN127;
+    func_002A86B8((char**)D_004A3744_8B28);
+    return 1;
+}
 
 //100%
 extern char D_004835F8[];
