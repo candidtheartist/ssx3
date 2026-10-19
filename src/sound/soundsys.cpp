@@ -1654,7 +1654,35 @@ extern "C" void func_00293018(void* self, void* obj) {
     func_002ABE78(obj, b);
 }
 
-INCLUDE_ASM("sound/soundsys", func_00293168);
+//100%
+struct cRiderMetrix;
+struct cAirPredictor;
+struct cRiderAnim;
+
+struct t4Matrix;
+
+
+struct t4Vector;
+
+
+
+
+struct cRiderHandler;
+
+
+
+
+extern func_00290B58_sCurve D_00482AF8;
+extern func_00290B58_sCurve D_00482B20;
+
+extern "C" void func_00293168(void* self, void* vrider, int* out1, int* out2) {
+    cRider* rider = (cRider*)vrider;
+    float spd = rider->mAudioSpeed;
+    func_00290B58_sCurve c1 = D_00482AF8;
+    func_00290B58_sCurve c2 = D_00482B20;
+    *out1 = (int)func_00290B58(&c1, spd);
+    *out2 = (int)(func_00290B58(&c2, spd) * 4096.0f);
+}
 
 INCLUDE_ASM("sound/soundsys", func_00293290);
 
