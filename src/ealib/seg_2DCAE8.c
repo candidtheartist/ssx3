@@ -4031,7 +4031,18 @@ int func_003E4EA8(void) {
     return now - old;
 }
 
-INCLUDE_ASM("ealib/seg_2DCAE8", func_003E4EE8);
+//100%
+extern int D_00450DE8_4EE8[] __asm__("D_00450DE8");
+extern int D_00450DEC_4EE8[] __asm__("D_00450DEC");
+extern int D_00450DCC_4EE8[] __asm__("D_00450DCC");
+
+// Resets the timer state.
+void func_003E4EE8(void) {
+    int *p = D_00450DE8_4EE8;
+    D_00450DEC_4EE8[0] = 0;
+    D_00450DCC_4EE8[0] = 0;
+    p[0] = 0;
+}
 
 //100% - objdiff report; single-function view differs only in a relocation name
 // PORT: PS2-only inline asm; needs a C fallback off-PS2.
