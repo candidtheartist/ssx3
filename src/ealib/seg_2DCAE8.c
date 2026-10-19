@@ -2449,7 +2449,90 @@ int func_003E0D80(int h, int *p, int n, int key) {
     return *(int *)o;
 }
 
-INCLUDE_ASM("ealib/seg_2DCAE8", func_003E0E90);
+//100%
+// PORT: PS2-only inline asm; needs a C fallback off-PS2.
+extern void MUTEX_unlock_0E90(void *) __asm__("MUTEX_unlock");
+extern int func_003E12E0_0E90(char *) __asm__("func_003E12E0");
+extern void func_003E13E8_0E90(char *, int) __asm__("func_003E13E8");
+
+void func_003E0E90(int hnd, int id) {
+    char *st;
+    char *q;
+    int *head;
+    int *from;
+    int *to;
+    char *r;
+    char *nx;
+    int fail;
+    int i;
+
+    from = 0;
+    to = 0;
+    head = 0;
+    if (func_003DFBD0(hnd, &st, &q) != 0) {
+        return;
+    }
+    MUTEX_lock(st + 4);
+    r = func_003DFDD0(st, id);
+    if (r == 0 || *(int *)(r + 4) == 4) {
+        fail = 1;
+    } else if (*(int *)(r + 4) == 1) {
+        func_003DFE18(st, r);
+        fail = 1;
+    } else {
+        *(int *)(r + 4) = 4;
+        head = *(int **)(st + 0x50);
+        if (r == *(char **)(st + 0x5C)) {
+            from = head;
+        } else {
+            from = *(int **)(r + 0x120);
+        }
+        nx = *(char **)(r + 0xC);
+        if (nx == 0 || *(int *)(nx + 4) == 1) {
+            to = *(int **)(st + 0x54);
+        } else {
+            to = *(int **)(nx + 0x120);
+        }
+        fail = 0;
+    }
+    MUTEX_unlock_0E90(st + 4);
+    if (fail) {
+        return;
+    }
+    for (i = 0; i < *(int *)(st + 0x28); i++) {
+        q = *(char **)(st + 0x24) + i * 0x10;
+        if (*(int *)(q + 8) <= 0) {
+            continue;
+        }
+        if (func_003DFC08((unsigned int)head, (unsigned int)from, *(unsigned int *)(q + 0xC))) {
+            int *p = from;
+            int tag = *(int *)(q + 4) << 24;
+            int len;
+
+            while (p != to) {
+                if (p[0] == -1) {
+                    p = *(int **)(st + 0x30);
+                } else {
+                    len = p[1] & 0xFFFFFF;
+                    if ((p[1] & 0xFF000000) == tag) {
+                        MUTEX_lock(st + 4);
+                        *(int *)(q + 8) -= len;
+                        MUTEX_unlock_0E90(st + 4);
+                        func_003DFC48(st, len);
+                        p[0] = -2;
+                        p[1] = len;
+                    }
+                    p = (int *)((char *)p + len);
+                }
+            }
+        } else if (func_003DFC08((unsigned int)from, (unsigned int)to, *(unsigned int *)(q + 0xC))) {
+            do {
+                int n = func_003E12E0_0E90(q);
+                func_003E13E8_0E90(q, n);
+            } while (*(int *)(q + 8) > 0 && func_003DFC08((unsigned int)from, (unsigned int)to, *(unsigned int *)(q + 0xC)));
+        }
+    }
+}
 
 INCLUDE_ASM("ealib/seg_2DCAE8", func_003E1110);
 
