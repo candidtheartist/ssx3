@@ -978,7 +978,7 @@ extern "C" void func_00242540(void* self, void* obj);
 extern "C" char* func_0028B1C8();
 extern "C" void func_002B6B08(void* self, void* obj, unsigned int arg);
 extern char* D_004A28A8;
-extern "C" int func_0012A340(void* self, int a, unsigned int b, void* obj);
+extern "C" int cAI_loadPathBank(void* self, int a, unsigned int b, void* obj);
 void cMemMan_free(void* p);
 extern "C" void func_002BB348(void* self, int a, void* obj);
 extern "C" void func_003ACA10(void* self, int a, void* obj);
@@ -1116,7 +1116,7 @@ extern "C" void* func_003AAE68(void* self, int msg, unsigned int arg, char* obj)
         func_00242540(func_003AD198(), obj);
         break;
     case 14:
-        if (!func_0012A340(*(void**)(*(char**)(D_004A28A8 + 0x84) + 0xC), arg & 0xFF, arg >> 8, obj)) {
+        if (!cAI_loadPathBank(*(void**)(*(char**)(D_004A28A8 + 0x84) + 0xC), arg & 0xFF, arg >> 8, obj)) {
             if (obj) {
                 cMemMan_free(obj);
             }
@@ -1166,7 +1166,7 @@ extern "C" void* func_003AD198();
 extern "C" void func_00242570(void* self, void* obj);
 extern "C" char* func_0028B1C8();
 extern "C" void func_002B6B30(void* self, void* obj, unsigned int arg);
-extern "C" void func_0012A490(void* self, int a);
+extern "C" void cAI_unloadPathBank(void* self, int a);
 extern "C" void func_002BB5A8(void* entry);
 extern "C" void func_00278A58(void* self, int a);
 extern "C" void* cBE_getBE();
@@ -1298,7 +1298,7 @@ extern "C" void* func_003AB498(void* self, int msg, unsigned int arg, char* obj)
         break;
     case 14:
         obj = 0;
-        func_0012A490(*(void**)(*(char**)(D_004A28A8 + 0x84) + 0xC), arg & 0xFF);
+        cAI_unloadPathBank(*(void**)(*(char**)(D_004A28A8 + 0x84) + 0xC), arg & 0xFF);
         break;
     case 22:
         func_002D9B40();

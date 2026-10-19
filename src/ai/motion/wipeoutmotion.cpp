@@ -178,7 +178,7 @@ static inline sVec4WM vu0ScaleMemWM_136DE0(const sVec4WM& v, float s)
     return r;
 }
 
-extern "C" void func_00136DE0(char* self, sVec4WM* a, sVec4WM* b)
+extern "C" void cWipeoutMotion_setVelocity(char* self, sVec4WM* a, sVec4WM* b)
 {
     *(sVec4WM*)(self + 0x30) = *b;
     *(sVec4WM*)(*(char**)(self + 0x40) + 0x1E0) = *a;
@@ -218,19 +218,19 @@ extern "C" void cWipeoutMotion_update(int* self)
 
 //100%
 extern "C" void func_00137138();
-extern "C" void func_00138640(void*);
-extern "C" void func_00137860(void*);
+extern "C" void cWipeoutMotion_collideSliding(void*);
+extern "C" void cWipeoutMotion_collideAirborne(void*);
 
 extern "C" void cWipeoutMotion_postUpdate(int* self)
 {
     func_00137138();
     if (*self == 0)
     {
-        func_00138640(self);
+        cWipeoutMotion_collideSliding(self);
     }
     else
     {
-        func_00137860(self);
+        cWipeoutMotion_collideAirborne(self);
     }
 }
 
@@ -536,11 +536,11 @@ extern "C" void cWipeoutMotion_updateAirborne(void* p)
     cRider_updateOrientationImplicit(*(void**)(self + 0x40));
 }
 
-INCLUDE_ASM("ai/motion/wipeoutmotion", func_00137860);
+INCLUDE_ASM("ai/motion/wipeoutmotion", cWipeoutMotion_collideAirborne);
 
 INCLUDE_ASM("ai/motion/wipeoutmotion", cWipeoutMotion_updateSliding);
 
-INCLUDE_ASM("ai/motion/wipeoutmotion", func_00138640);
+INCLUDE_ASM("ai/motion/wipeoutmotion", cWipeoutMotion_collideSliding);
 
 //100%
 extern "C" void* func_0032E100(void* seg, const sVec4WG& a, const sVec4WG& b, int n, float r);

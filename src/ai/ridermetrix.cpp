@@ -216,7 +216,7 @@ extern "C" void cRiderMetrix_suspendComboClock(void* self)
 
 //100%
 // PORT: g++ >? (max) operator, removed in GCC 4.3.
-extern "C" void func_00117708(void* self, float seconds)
+extern "C" void cRiderMetrix_extendComboClock(void* self, float seconds)
 {
     cRiderMetrix* metrix = (cRiderMetrix*)self;
     metrix->mComboClock = metrix->mComboClock >? seconds;
@@ -228,7 +228,7 @@ void* cBE_getInterface_Fv(void* be, int kind) __asm__("cBE_getInterface__Fv");
 // Same function as cRiderMetrix_postPointsMsg(self, type, value, arg, duration): the float travels in $f12 either way,
 // but the original prototype lists it before arg, which decides the argument evaluation order.
 extern "C" void cRiderMetrix_postPointsMsg_f(void* self, int type, int value, float duration, int arg) __asm__("cRiderMetrix_postPointsMsg");
-extern "C" void func_00119EF8(void* self, int type, int value);
+extern "C" void cRiderMetrix_awardCash(void* self, int type, int value);
 
 struct sRaceSettings_117718 {
     char pad[0x48];
@@ -261,7 +261,7 @@ extern "C" void cRiderMetrix_payCombo(void* self_)
                 cRiderMetrix_postPointsMsg_f(self, 0x18, metrix->mComboPoints, 0.7f, 0);
             } else {
                 int v = metrix->mComboPoints / 500;
-                func_00119EF8(self, 2, v > 20 ? 20 : v);
+                cRiderMetrix_awardCash(self, 2, v > 20 ? 20 : v);
             }
         }
     }
@@ -315,7 +315,7 @@ extern "C" void cRiderMetrix_resetTrick(void* p)
 }
 
 //100%
-float func_00117900(void* self)
+float cRiderMetrix_getTrickReward(void* self)
 {
     cRiderMetrix* metrix = (cRiderMetrix*)self;
     return metrix->mReward;
@@ -763,7 +763,7 @@ extern "C" int cRiderMetrix_checkDurationBonus(void* self, int* idx, sGradeStep_
 }
 
 //100%
-extern "C" int func_00119310(void* self, int points)
+extern "C" int cRiderMetrix_getPointsGrade(void* self, int points)
 {
     if (points < 1000)
     {
@@ -807,7 +807,7 @@ extern "C" void cRiderMetrix_payCombo(void*);
 
 //99.38% - identical instructions; jal addend differs only because the
 // callee sits at a different .text offset in our object than in the target
-extern "C" float func_001193E0(void* self)
+extern "C" float cRiderMetrix_onFinish(void* self)
 {
     cRiderMetrix_payCombo(self);
     return 0.0f;
@@ -857,7 +857,7 @@ static inline bool rmRiderFlags_1194C0(char* r)
     return *(int*)(r + 0x874) != 0 && *(int*)(r + 0x87C) != 0;
 }
 
-extern "C" float func_001194C0(char* self, int a1)
+extern "C" float cRiderMetrix_onCheckpointBonus(char* self, int a1)
 {
     cRiderMetrix* metrix = (cRiderMetrix*)self;
     char* sub = metrix->mRider + 0x6C0;
@@ -882,7 +882,7 @@ extern "C" float func_001194C0(char* self, int a1)
 //100%
 extern "C" void cRiderMetrix_postPointsMsg(void* self, int type, int value, int arg, float duration);
 
-extern "C" float func_001195A8(void* self, int value)
+extern "C" float cRiderMetrix_postTimeDeltaMsg(void* self, int value)
 {
     cRiderMetrix_postPointsMsg(self, 0x2A, value, 0, 5.0f);
     return 0.0f;
@@ -891,7 +891,7 @@ extern "C" float func_001195A8(void* self, int value)
 //100%
 extern "C" void cRiderMetrix_postPointsMsg(void* self, int type, int value, int arg, float duration);
 
-extern "C" float func_001195D8(void* self, int value)
+extern "C" float cRiderMetrix_postScoreDeltaMsg(void* self, int value)
 {
     cRiderMetrix_postPointsMsg(self, 0x2B, value, 0, 5.0f);
     return 0.0f;
@@ -902,7 +902,7 @@ extern "C" void* cBE_getBE();
 // PORT: cBE_getInterface__Fv really takes (be, kind); bind the 2-arg form to that symbol.
 void* cBE_getInterface(void* be, int kind) __asm__("cBE_getInterface__Fv");
 extern "C" void cRiderMetrix_postPointsMsg(void* self, int type, int value, int arg, float duration);
-extern "C" void func_00119EF8(void* self, int kind, int amount);
+extern "C" void cRiderMetrix_awardCash(void* self, int kind, int amount);
 
 // View of sGameSettings (defined later in this unit); bound to the same symbol by asm label.
 struct sGameSettings_119608 {
@@ -930,7 +930,7 @@ extern "C" float cRiderMetrix_onPointPickup(void* self, int pts)
         {
             amount = 20;
         }
-        func_00119EF8(self, 1, amount);
+        cRiderMetrix_awardCash(self, 1, amount);
     }
     metrix->mTotalScore += v;
     return 0.0f;
@@ -1041,7 +1041,7 @@ extern "C" float cRiderMetrix_setFlipScore(void* self, float x)
 extern "C" void* cRiderMetrix_setSpinScore(void*);
 
 //99.29%
-void* func_00119918(void* self, int a1)
+void* cRiderMetrix_scoreRailSpin(void* self, int a1)
 {
     cRiderMetrix* metrix = (cRiderMetrix*)self;
     metrix->mTrickStyle = a1;
@@ -1049,7 +1049,7 @@ void* func_00119918(void* self, int a1)
 }
 
 //100%
-float func_00119938(void* self, int a1, int a2)
+float cRiderMetrix_beginUberGrind(void* self, int a1, int a2)
 {
     cRiderMetrix* metrix = (cRiderMetrix*)self;
     metrix->mActiveTime = 0.0f;
@@ -1063,7 +1063,7 @@ float func_00119938(void* self, int a1, int a2)
 //100%
 extern "C" float cRiderMetrix_commitTrick(void* self, int stance, int alternate, int style, int flag, int takeoff);
 
-extern "C" float func_00119958(void* self, int v)
+extern "C" float cRiderMetrix_endUberGrind(void* self, int v)
 {
     cRiderMetrix* metrix = (cRiderMetrix*)self;
     float s24 = metrix->mRailDistance;
@@ -1081,7 +1081,7 @@ extern "C" float func_00119958(void* self, int v)
 
 //100% - objdiff report; single-function view differs only in a relocation name
 // PORT: g++ >?/<? (min/max) operator, removed in GCC 4.3.
-extern "C" float func_001199F8(char* self, int v)
+extern "C" float cRiderMetrix_beginBoardPress(char* self, int v)
 {
     cRiderMetrix* metrix = (cRiderMetrix*)self;
     metrix->mPressStyle = v;
@@ -1094,7 +1094,7 @@ extern "C" float func_001199F8(char* self, int v)
 //100%
 extern "C" float cRiderMetrix_commitTrick(void* self, int stance, int alternate, int style, int flag, int takeoff);
 
-extern "C" float func_00119A38(void* self)
+extern "C" float cRiderMetrix_endBoardPress(void* self)
 {
     cRiderMetrix* metrix = (cRiderMetrix*)self;
     float s24 = metrix->mRailDistance;
@@ -1113,7 +1113,7 @@ extern "C" float func_00119A38(void* self)
 // PORT: prototype mismatch (see cRiderMetrix_setSpinScore).
 float cRiderMetrix_setSpinScore_impl(void* self, float x) __asm__("cRiderMetrix_setSpinScore");
 
-extern "C" float func_00119AD8(void* self, int a1)
+extern "C" float cRiderMetrix_scoreBoardPivot(void* self, int a1)
 {
     cRiderMetrix* metrix = (cRiderMetrix*)self;
     metrix->mSpecial = a1;
@@ -1160,7 +1160,7 @@ extern "C" float cRiderMetrix_onQuickRecover(void* self, int a1)
 }
 
 //100%
-extern "C" float func_00119BF0(void* self, int a1)
+extern "C" float cRiderMetrix_beginHandplant(void* self, int a1)
 {
     cRiderMetrix* metrix = (cRiderMetrix*)self;
     metrix->mIdentity = a1;
@@ -1175,7 +1175,7 @@ extern "C" float func_00119BF0(void* self, int a1)
 extern "C" float cRiderMetrix_commitTrick(void* self, int stance, int alternate, int style, int flag, int takeoff);
 extern "C" void cRiderMetrix_resetTrick(void* self);
 
-extern "C" float func_00119C38(void* self)
+extern "C" float cRiderMetrix_endHandplant(void* self)
 {
     cRiderMetrix* metrix = (cRiderMetrix*)self;
     *(int*)((char*)self + 0x80) += 1;
@@ -1186,12 +1186,12 @@ extern "C" float func_00119C38(void* self)
 }
 
 //100% - objdiff report; single-function view differs only in a relocation name
-extern "C" void func_0011A168(void* self, int a, int b, int c, int d);
+extern "C" void cRiderMetrix_nameAirTrick(void* self, int a, int b, int c, int d);
 
-extern "C" float func_00119C98(void* self, int v)
+extern "C" float cRiderMetrix_startAirTrick(void* self, int v)
 {
     cRiderMetrix* metrix = (cRiderMetrix*)self;
-    func_0011A168(self, 0, 0, 0, 0);
+    cRiderMetrix_nameAirTrick(self, 0, 0, 0, 0);
     float r = 0.0f;
     if (metrix->mReward > r)
     {
@@ -1289,9 +1289,9 @@ public:
     virtual int v07();
 };
 
-extern "C" float func_00119EF8_def(char* self, int kind, int amount) __asm__("func_00119EF8");
+extern "C" float cRiderMetrix_awardCash_def(char* self, int kind, int amount) __asm__("cRiderMetrix_awardCash");
 extern "C" int cRiderMetrix_postPointsMsg_9EF8(void* self, int type, int value, int arg, float duration) __asm__("cRiderMetrix_postPointsMsg");
-extern "C" float func_00119EF8_def(char* self, int kind, int amount)
+extern "C" float cRiderMetrix_awardCash_def(char* self, int kind, int amount)
 {
     cRiderMetrix* metrix = (cRiderMetrix*)self;
     if (amount == 0) {
@@ -1360,18 +1360,18 @@ extern "C" float func_0011A0E0(void* self)
 }
 
 //100%
-extern "C" void func_00119EF8(void* self, int kind, int amount);
-extern "C" float func_0011A110(void* self, int amount)
+extern "C" void cRiderMetrix_awardCash(void* self, int kind, int amount);
+extern "C" float cRiderMetrix_onBigChallengeComplete(void* self, int amount)
 {
     cRiderMetrix_postPointsMsg(self, 0x1B, amount, 0, 1.5f);
-    func_00119EF8(self, 4, amount);
+    cRiderMetrix_awardCash(self, 4, amount);
     return 0.0f;
 }
 
 //100%
 struct sTrickId;
 extern "C" int cRiderMetrix_buildTrickId(void* self, sTrickId* id, int stance, int alternate, int style, int flag);
-extern "C" int func_0011B1A8(void* self, sTrickId* id);
+extern "C" int cRiderMetrix_matchMonsterTrick(void* self, sTrickId* id);
 extern "C" void cRiderMetrix_postPointsMsg(void* self, int type, int value, int arg, float duration);
 extern "C" void* func_0028B180();
 extern "C" void func_0029B7E0(void* audio, int rider);
@@ -1384,14 +1384,14 @@ struct sTrickIdA168 {
     int w1;
 };
 
-extern "C" void func_0011A168(void* self, int stance, int alternate, int style, int flag)
+extern "C" void cRiderMetrix_nameAirTrick(void* self, int stance, int alternate, int style, int flag)
 {
     cRiderMetrix* metrix = (cRiderMetrix*)self;
     sTrickIdA168 idv;
     sTrickId* id = (sTrickId*)&idv;
     if (cRiderMetrix_buildTrickId(self, id, stance, alternate, style, flag) != 0)
     {
-        int pts = func_0011B1A8(self, id);
+        int pts = cRiderMetrix_matchMonsterTrick(self, id);
         if (pts > 0)
         {
             metrix->mReward += pts * 9.999999747378752e-05f;
@@ -1416,7 +1416,7 @@ struct sGameSettings {
 
 struct sScoreGrades {
     char pad_0x00[0x16c];
-    int gradeCounts[6]; // 0x16c: landed tricks per grade (func_00119310)
+    int gradeCounts[6]; // 0x16c: landed tricks per grade (cRiderMetrix_getPointsGrade)
 };
 
 extern void* D_004A28A8;
@@ -1426,19 +1426,19 @@ extern "C" void cRiderMetrix_clearMsgType(void* self, int type);
 extern "C" int cAI_haveAllPlayersFinished(void* race);
 extern "C" int cRiderMetrix_buildTrickId(void* self, sTrickId* id, int stance, int alternate, int style, int flag);
 extern "C" int cRiderMetrix_getPendingPoints(void* self);
-extern "C" int func_0011B1A8(void* self, sTrickId* id);
+extern "C" int cRiderMetrix_matchMonsterTrick(void* self, sTrickId* id);
 extern "C" void cRiderMetrix_postPointsMsg(void* self, int type, int value, int arg, float duration);
 extern "C" void* func_0028B180();
 extern "C" void func_0029B7E0(void* audio, int rider);
 extern "C" int cRiderMetrix_updateRepeatHistory(void* self, sTrickId* id);
 extern "C" void cRiderMetrix_showTrickName(void* self, sTrickId* id, int repeat);
 extern "C" int cRiderMetrix_getMultipliedPoints(void* self);
-extern "C" int func_00119310(void* self, int points);
+extern "C" int cRiderMetrix_getPointsGrade(void* self, int points);
 extern "C" int cRiderMetrix_getInvertedPoints(void* self);
 extern "C" void cRiderMetrix_addComboTrick(void* self, int points);
 extern "C" void func_0029B430(void* audio, int rider, int ubers, int runUbers);
-extern "C" void func_00119EF8(void* self, int kind, int amount);
-extern "C" void func_00117708(void* self, float seconds);
+extern "C" void cRiderMetrix_awardCash(void* self, int kind, int amount);
+extern "C" void cRiderMetrix_extendComboClock(void* self, float seconds);
 extern "C" void* cBE_getBE();
 // PORT: cBE_getInterface__Fv really takes (be, kind); bind the 2-arg form to that symbol.
 void* cBE_getInterface(void* be, int kind) __asm__("cBE_getInterface__Fv");
@@ -1498,7 +1498,7 @@ extern "C" float cRiderMetrix_commitTrick(void* self, int stance, int alternate,
     if (cRiderMetrix_getPendingPoints(self) > 0) {
         repeats = 0;
         if (valid) {
-            int bonus = func_0011B1A8(self, &id);
+            int bonus = cRiderMetrix_matchMonsterTrick(self, &id);
             if (bonus > 0) {
                 metrix->mReward += (float)bonus * 0.0001f;
                 cRiderMetrix_postPointsMsg(self, 0x32, bonus, 0, 1.5f);
@@ -1510,10 +1510,10 @@ extern "C" float cRiderMetrix_commitTrick(void* self, int stance, int alternate,
         divisor = repeats + 1;
         pending = cRiderMetrix_getPendingPoints(self);
         points = cRiderMetrix_getMultipliedPoints(self);
-        grade = func_00119310(self, pending);
+        grade = cRiderMetrix_getPointsGrade(self, pending);
         inverted = cRiderMetrix_getInvertedPoints(self);
         cRiderMetrix_addComboTrick(self, pending / divisor);
-        delta = func_00117900(self) / (float)divisor;
+        delta = cRiderMetrix_getTrickReward(self) / (float)divisor;
 
         points /= divisor;
         points -= points % 10;
@@ -1565,7 +1565,7 @@ extern "C" float cRiderMetrix_commitTrick(void* self, int stance, int alternate,
             if (amount > 20) {
                 amount = 20;
             }
-            func_00119EF8(self, 0, amount);
+            cRiderMetrix_awardCash(self, 0, amount);
         }
     }
 
@@ -1577,7 +1577,7 @@ extern "C" float cRiderMetrix_commitTrick(void* self, int stance, int alternate,
         return delta;
     }
     if (metrix->mReward > 0.0f || metrix->mComboClock < 0.0f) {
-        func_00117708(self, 1.5f);
+        cRiderMetrix_extendComboClock(self, 1.5f);
     }
     return delta;
 }
@@ -1654,7 +1654,7 @@ struct sTrickBits_11B1A8
     unsigned int grade : 5; // bits 27-31
 };
 
-extern "C" int func_0011B1A8(void* self, sTrickId* id)
+extern "C" int cRiderMetrix_matchMonsterTrick(void* self, sTrickId* id)
 {
     sTrickBits_11B1A8* t = (sTrickBits_11B1A8*)id;
     sTrickBonus_11B1A8* e = D_0043D608;
@@ -1677,7 +1677,7 @@ extern "C" int func_0011B1A8(void* self, sTrickId* id)
 //100%
 extern float D_004A6310[2][3][4][2];
 
-extern "C" void func_0011B2C0(void)
+extern "C" void initSpeedLimitTable(void)
 {
     for (int a = 0; a < 2; a++) {
         for (int b = 0; b < 3; b++) {

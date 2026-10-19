@@ -192,10 +192,10 @@ extern "C" void func_00113E48(void) {
 }
 
 //100%
-extern "C" void func_0012B090(int);
+extern "C" void cAI_removeAllRiders(int);
 
 extern "C" void func_00113E50(int arg0, int arg1) {
-    func_0012B090(arg1);
+    cAI_removeAllRiders(arg1);
 }
 
 extern "C" void func_00113E70(void) {
@@ -650,7 +650,7 @@ extern "C" int func_001161D0(char* s, float dir)
 // PORT: PS2-only inline asm; needs a C fallback off-PS2.
 extern "C" void cRider_setControlState_62C8(void *, int) __asm__("cRider_setControlState__FPv");
 extern "C" int cRider_getControlState_62C8(void *) __asm__("cRider_getControlState__FPv");
-extern "C" void func_00131348(char *);
+extern "C" void cBoardPressControl_endPress(char *);
 extern "C" void func_002F6AC8(char *, int);
 
 extern "C" int func_001162C8(char *self, int arg1, int arg2) {
@@ -658,7 +658,7 @@ extern "C" int func_001162C8(char *self, int arg1, int arg2) {
         func_002F6AC8(*(char **)(self + 0x77C) + 0xD20, 1);
     if ((*(float *)(self + 0x360) == 0.0f && arg1 != 0) || arg2 != 0) {
         if (cRider_getControlState_62C8(self) == 1)
-            func_00131348(*(char **)(self + 0x77C) + 0x1D0);
+            cBoardPressControl_endPress(*(char **)(self + 0x77C) + 0x1D0);
         cRider_setControlState_62C8(self, 2);
         return 1;
     }
