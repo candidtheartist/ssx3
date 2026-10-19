@@ -1217,7 +1217,35 @@ extern "C" void func_003739D0(sPtPools39D0* self)
     }
 }
 
-INCLUDE_ASM("render/particle", func_00373C28);
+//100%
+struct sPtVec3_3C28 {
+    float x, y, z;
+};
+
+// One bone matrix: 4 rows of 4 floats; column j of each row is used for output component j.
+struct sPtMtx_3C28 {
+    float m[4][4];
+};
+
+static inline float ptBlend_3C28(sPtVec3_3C28* p, sPtMtx_3C28* mt, float* w, int j)
+{
+    float x = p->x;
+    float y = p->y;
+    float z = p->z;
+    return (mt[0].m[0][j] * x + mt[0].m[1][j] * y + mt[0].m[2][j] * z + mt[0].m[3][j]) * w[0]
+         + (mt[1].m[0][j] * x + mt[1].m[1][j] * y + mt[1].m[2][j] * z + mt[1].m[3][j]) * w[1]
+         + (mt[2].m[0][j] * x + mt[2].m[1][j] * y + mt[2].m[2][j] * z + mt[2].m[3][j]) * w[2]
+         + (mt[3].m[0][j] * x + mt[3].m[1][j] * y + mt[3].m[2][j] * z + mt[3].m[3][j]);
+}
+
+// Blends p through four matrices: out = M0 p * w[0] + M1 p * w[1] + M2 p * w[2] + M3 p
+// (rows 0-2 scale x, y, z; row 3 is the translation).
+extern "C" void func_00373C28(void* self, sPtVec3_3C28* p, sPtMtx_3C28* mt, float* w, float* out)
+{
+    out[0] = ptBlend_3C28(p, mt, w, 0);
+    out[1] = ptBlend_3C28(p, mt, w, 1);
+    out[2] = ptBlend_3C28(p, mt, w, 2);
+}
 
 INCLUDE_ASM("render/particle", func_00373EA8);
 
