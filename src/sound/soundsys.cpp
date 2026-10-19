@@ -6130,7 +6130,49 @@ extern "C" int func_0029E438(void* self, char* snd)
     return (int)f;
 }
 
-INCLUDE_ASM("sound/soundsys", func_0029E4A0);
+//100%
+
+struct cRiderMetrix;
+struct cAirPredictor;
+struct cRiderAnim;
+
+struct t4Matrix;
+
+
+struct t4Vector;
+
+
+
+
+struct cRiderHandler;
+
+
+
+
+struct sQuad2_29E4A0 { t4Vector a; t4Vector b; };
+extern "C" int func_0029E438_m5722(void *, void *) __asm__("func_0029E438");
+extern "C" void func_002DA1C0_m5723(void *, float *) __asm__("func_002DA1C0");
+
+struct sVEntryP_29E4A0 { short delta; short index; float* (*fn)(void*); };
+struct sSndCam_29E4A0 { char pad[0x6050]; sQuad2_29E4A0 xf; int idx; };
+
+extern "C" void func_0029E4A0(sSndCam_29E4A0 *arg0, void *arg1) {
+    if (arg0->idx < *(int *)((char*)func_0028B1D8() + 0x78)) {
+        sQuad2_29E4A0 q;
+        float v[3];
+        sQuad2_29E4A0* dst = &arg0->xf;
+        cRider* rider = *(cRider**)((char*)func_0028B1D8() + (arg0->idx << 2) + 0x28);
+        char* obj = (char*)&rider->mVtbl;
+        sVEntryP_29E4A0* vt = *(sVEntryP_29E4A0**)obj;
+        float* pos = vt[kRiderVt_getPosition].fn(obj + vt[kRiderVt_getPosition].delta);
+        v[0] = pos[0];
+        v[1] = pos[1];
+        v[2] = pos[2];
+        func_002DA1C0_m5723(&q, v);
+        arg0->xf = q;
+        *(int *)((char*)arg1 + 0x64) = func_0029E438_m5722(arg0, dst);
+    }
+}
 
 //100%
 void func_0029E560(void* self)
