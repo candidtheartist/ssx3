@@ -151,7 +151,27 @@ extern "C" int func_0014FEA8(void* self, int rider, int idx, int second)
     return r;
 }
 
-INCLUDE_ASM("be/beintbagt", func_0014FF90);
+//100%
+struct sBagInfo_FF90 {
+    char pad[0xC];
+    unsigned short count;  // 0xC
+    short pad2;
+    int value;             // 0x10
+};
+extern sBagInfo_FF90 D_0045AEB8_FF90[] __asm__("D_0045AEB8");
+
+// Release-build assert: expands to an empty do { } while (0); its loop notes keep the target's register choice.
+#define ASSERT_FF90(cond) do { } while (0)
+
+extern "C" int func_0014FF90(void* self, int rider, int idx, int* count)
+{
+    int r = D_0045AEB8_FF90[idx].value;
+    unsigned short c;
+    c = D_0045AEB8_FF90[idx].count;
+    *count = c;
+    ASSERT_FF90(count != 0);
+    return r;
+}
 
 //100%
 // PORT: PS2-only inline asm; needs a C fallback off-PS2.
