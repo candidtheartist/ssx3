@@ -1532,7 +1532,52 @@ extern "C" void func_00295950(void* vself, int evt, int h, int idx)
     }
 }
 
-INCLUDE_ASM("sound/soundsys", func_00295CC8);
+//100%
+static inline int ring5CC8Full(sSnd5028Sys* s)
+{
+    return (s->ring.head + 1) % s->ring.cap == s->ring.tail;
+}
+static inline int ring5CC8Pop(sSnd5028Sys* s)
+{
+    sSnd5028Ring* r = &s->ring;
+    if (ring5028Empty(s)) return -1;
+    int v = r->data[r->tail];
+    if (++s->ring.tail >= s->ring.cap) s->ring.tail = 0;
+    return v;
+}
+static inline void ring5CC8Push(sSnd5028Sys* s, int v)
+{
+    sSnd5028Ring* r = &s->ring;
+    if (ring5CC8Full(s)) return;
+    r->data[r->head] = v;
+    if (++s->ring.head >= s->ring.cap) s->ring.head = 0;
+}
+
+// Drops every queued 5-word event record whose first word is evt (stopping its voice if the
+// record's fourth word is set) and requeues the rest.
+extern "C" void func_00295CC8(void* vself, int evt)
+{
+    sSnd5028Sys* self = (sSnd5028Sys*)vself;
+    int n = ring5028Count(self);
+    for (int i = 0; i < n; i++) {
+        int e = ring5CC8Pop(self);
+        int v1 = ring5CC8Pop(self);
+        int v2 = ring5CC8Pop(self);
+        int v3 = ring5CC8Pop(self);
+        int v4 = ring5CC8Pop(self);
+        if (evt == e) {
+            if (v3 != 0) {
+                func_002AD5F0(*self->mgr + 0x1D8, v1, 1, 0.0f);
+            }
+        } else {
+            ring5CC8Push(self, e);
+            ring5CC8Push(self, v1);
+            ring5CC8Push(self, v2);
+            ring5CC8Push(self, v3);
+            ring5CC8Push(self, v4);
+        }
+    }
+}
 
 //100% - objdiff report; single-function view differs only in a relocation name
 // PORT: PS2-only inline asm; needs a C fallback off-PS2.
