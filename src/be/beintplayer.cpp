@@ -46,7 +46,25 @@ void* cBENewPlayerInterface_getThis()
     return D_004A11C0;
 }
 
-INCLUDE_ASM("be/beintplayer", func_001459B8);
+//100%
+struct sRecords_59B8 {
+    int w[42];
+};
+extern sRecords_59B8 D_00535B20_59B8 __asm__("D_00535B20");
+extern sRecords_59B8 D_00534FE0_59B8 __asm__("D_00534FE0");
+extern void* D_004A11C0;
+// PORT: func_00145A98 takes no arguments; this caller passes its own self through untouched in $a0.
+extern "C" void func_00145A98_59B8(void* self) __asm__("func_00145A98");
+
+// Copies the 0xA8-byte character table from its backup when D_004A11C0 says so, otherwise rebuilds it.
+extern "C" void func_001459B8(void* self)
+{
+    if (*(int*)((char*)D_004A11C0 + 8) != 0) {
+        D_00535B20_59B8 = D_00534FE0_59B8;
+    } else {
+        func_00145A98_59B8(self);
+    }
+}
 
 //100%
 // PORT: PS2-only inline asm; needs a C fallback off-PS2.
