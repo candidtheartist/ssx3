@@ -2296,7 +2296,7 @@ extern "C" void func_0019D738(sEquipTable_DC20* self, int bank, int size);
 extern "C" void MUTEX_lock(void* mutex);
 extern "C" void MUTEX_unlock(void* mutex);
 extern char D_004609D8[];
-extern char D_00538B00[];
+extern char gMemMutex[];
 
 struct sSlotK19D000 {
     int state;
@@ -2322,8 +2322,8 @@ extern "C" void func_0019D000(sEquipTable_DC20* self, int bank, sEquipSlot_DC20*
     func_0019D578(self, bank, size);
     void* buf = operator_new_tag(size, D_004609D8, 0x60000000, 0);
     while (buf == 0) {
-        MUTEX_lock(D_00538B00);
-        MUTEX_unlock(D_00538B00);
+        MUTEX_lock(gMemMutex);
+        MUTEX_unlock(gMemMutex);
         func_0019D738(self, bank, size);
         buf = operator_new_tag(size, D_004609D8, 0x60000000, 0);
     }
@@ -2672,7 +2672,7 @@ extern "C" void func_0019D738(sEquipTable_DC20* self, int bank, int size);
 extern "C" void MUTEX_lock(void* mutex);
 extern "C" void MUTEX_unlock(void* mutex);
 extern char D_004609F0[];
-extern char D_00538B00[];
+extern char gMemMutex[];
 
 struct sSlotK19D8B8 {
     int state;
@@ -2693,8 +2693,8 @@ extern "C" void func_0019D8B8(sEquipTable_DC20* self, int bank, int i)
     func_0019D578(self, bank, size);
     s->data = operator_new_tag(size, D_004609F0, 0x60000000, 0);
     while (s->data == 0) {
-        MUTEX_lock(D_00538B00);
-        MUTEX_unlock(D_00538B00);
+        MUTEX_lock(gMemMutex);
+        MUTEX_unlock(gMemMutex);
         func_0019D738(self, bank, size);
         s->data = operator_new_tag(size, D_004609F0, 0x60000000, 0);
     }

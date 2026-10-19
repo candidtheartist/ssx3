@@ -27,7 +27,7 @@ void* operator_new(unsigned int size)
     return cMemMan_alloc1(size);
 }
 
-extern void* D_00538B00[16];
+extern void* gMemMutex[16];
 extern "C" void MUTEX_lock(void* mutex);
 extern "C" void MUTEX_unlock(void* mutex);
 extern "C" void cMemMan_internalFree(void* ptr);
@@ -35,25 +35,25 @@ extern "C" void cMemMan_internalFree(void* ptr);
 //100%
 void operator_delete(int* ptr)
 {
-    MUTEX_lock(D_00538B00);
+    MUTEX_lock(gMemMutex);
     cMemMan_internalFree(ptr);
-    MUTEX_unlock(D_00538B00);
+    MUTEX_unlock(gMemMutex);
 }
 
 //100%
 void cMemMan_free(void* ptr)
 {
-    MUTEX_lock(D_00538B00);
+    MUTEX_lock(gMemMutex);
     cMemMan_internalFree(ptr);
-    MUTEX_unlock(D_00538B00);
+    MUTEX_unlock(gMemMutex);
 }
 
 //100%
 // Locks and immediately unlocks the memory manager mutex.
 extern "C" void func_00317EE0()
 {
-    MUTEX_lock(D_00538B00);
-    MUTEX_unlock(D_00538B00);
+    MUTEX_lock(gMemMutex);
+    MUTEX_unlock(gMemMutex);
 }
 
 extern "C" void cMemMan_purge();

@@ -426,7 +426,7 @@ extern "C" void* func_002C2918(void* dst, const void* src, int size)
     return dst;
 }
 
-extern void* D_00538B00[16];
+extern void* gMemMutex[16];
 extern "C" void MUTEX_lock_p(void* m) __asm__("MUTEX_lock");
 extern "C" void MUTEX_unlock_p(void* m) __asm__("MUTEX_unlock");
 extern "C" void* cMemMan_internalResizeBlock(void* p, int size);
@@ -440,9 +440,9 @@ extern "C" void* func_002C2940(void* ptr, void* self, int size, int big)
         func_002C28F8(ptr);
         return 0;
     }
-    MUTEX_lock_p(D_00538B00);
+    MUTEX_lock_p(gMemMutex);
     ptr = cMemMan_internalResizeBlock(ptr, size);
-    MUTEX_unlock_p(D_00538B00);
+    MUTEX_unlock_p(gMemMutex);
     return ptr;
 }
 
@@ -470,20 +470,20 @@ extern "C" void func_002C2B08()
 }
 
 extern char D_004A3898[];
-extern "C" void func_003E5698(void* p);
+extern "C" void MUTEX_init(void* p);
 
 extern "C" void* func_002C2B28()
 {
     void* p = func_002C28C0(D_004A3898, 0x10, 0);
-    func_003E5698(p);
+    MUTEX_init(p);
     return p;
 }
 
-extern "C" void func_003E56E0(void* p);
+extern "C" void MUTEX_destroy(void* p);
 
 extern "C" void func_002C2B68(void* p)
 {
-    func_003E56E0(p);
+    MUTEX_destroy(p);
     func_002C28F8(p);
 }
 
@@ -530,9 +530,9 @@ extern "C" void* func_002C2DB0(void* ptr, void* self, int size, int big)
         func_002C2D68(ptr);
         return 0;
     }
-    MUTEX_lock_p(D_00538B00);
+    MUTEX_lock_p(gMemMutex);
     ptr = cMemMan_internalResizeBlock(ptr, size);
-    MUTEX_unlock_p(D_00538B00);
+    MUTEX_unlock_p(gMemMutex);
     return ptr;
 }
 
