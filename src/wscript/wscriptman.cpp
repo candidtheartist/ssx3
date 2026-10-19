@@ -33,7 +33,37 @@ extern "C" void* cWScriptMan_addProcess1(void* self, int a1, int a2, int a3, int
     return p;
 }
 
-INCLUDE_ASM("wscript/wscriptman", func_00309618);
+//100%
+// PORT: PS2-only inline asm; needs a C fallback off-PS2.
+class cWSObj_309618 {
+public:
+    char pad_0x00[0x5C];
+    virtual void v00(int);
+    virtual void v01();
+};
+
+extern "C" void* func_0030B320_a(void* self, int id) __asm__("func_0030B320");
+extern "C" int func_0030B2D0_a(void* self, void* node) __asm__("func_0030B2D0");
+
+extern "C" void func_00309618(char* self, int id) {
+    cWSObj_309618* obj = (cWSObj_309618*)func_0030B320_a(self + 0x2B8, id);
+    if (obj != 0) {
+        func_0030B2D0_a(self + 0x2B8, obj);
+        obj->v00(3);
+        return;
+    }
+    obj = (cWSObj_309618*)func_0030B320_a(self + 0x2BC, id);
+    if (obj != 0) {
+        func_0030B2D0_a(self + 0x2BC, obj);
+        obj->v00(3);
+        return;
+    }
+    obj = (cWSObj_309618*)func_0030B320_a(self + 0x2B4, id);
+    if (obj != 0) {
+        func_0030B2D0_a(self + 0x2B4, obj);
+        obj->v00(3);
+    }
+}
 
 struct cWScriptListHead;
 struct cWScriptListNode;
