@@ -2142,7 +2142,103 @@ int func_003E06B0(int a, int b, int c) {
     return a * 0x124 + t + c * 0x10 + 0x40;
 }
 
-INCLUDE_ASM("ealib/seg_2DCAE8", func_003E06D8);
+//100%
+extern void func_003E5698_06D8(void *) __asm__("func_003E5698");
+extern void func_003E6220_06D8(void *, int) __asm__("func_003E6220");
+
+void *func_003E06D8(int nslots, int nq, int nreq, char *mem, int size) {
+    int avail;
+    char *slots;
+    char *qs;
+    char *reqs;
+    int data;
+    int i;
+
+    avail = size - func_003E06B0(nslots, nq, nreq);
+    if (avail < 0x1800) {
+        return 0;
+    }
+    if (nslots < 2) {
+        return 0;
+    }
+    if (nslots > 0x100) {
+        return 0;
+    }
+    if (nq < 1 || nq > 0x10) {
+        return 0;
+    }
+    if (nreq <= 0 || nq < nreq) {
+        return 0;
+    }
+    *(int *)mem = 0x4D525453;
+    func_003E5698_06D8(mem + 4);
+    /* PORT: pointer arithmetic done in int */
+    slots = mem + 0x180;
+    *(char **)(mem + 0x14) = slots;
+    *(int *)(mem + 0x18) = nslots;
+    qs = (char *)(nslots * 0x124 + (int)slots);
+    *(char **)(mem + 0x1C) = qs;
+    *(int *)(mem + 0x20) = nq;
+    reqs = (char *)(nq * 0xC + (int)qs);
+    *(char **)(mem + 0x24) = reqs;
+    *(int *)(mem + 0x28) = nreq;
+    data = (((int)reqs + nreq * 0x10) & ~0x3F) + 0x40;
+    *(int *)(mem + 0x2C) = data;
+    *(int *)(mem + 0x30) = data;
+    *(char **)(mem + 0x34) = mem + size;
+    *(int *)(mem + 0x38) = 0;
+    *(int *)(mem + 0x3C) = 0x96;
+    *(int *)(mem + 0x40) = 0x32;
+    *(int *)(mem + 0x44) = 0;
+    *(int *)(mem + 0x48) = 0;
+    *(int *)(mem + 0x4C) = 0;
+    *(int *)(mem + 0x50) = data;
+    *(int *)(mem + 0x54) = data;
+    *(int *)(mem + 0x58) = data;
+    *(int *)(mem + 0x5C) = 0;
+    *(int *)(mem + 0x60) = 0;
+    *(int *)(mem + 0x64) = 0;
+    *(char **)(mem + 0x68) = slots;
+    func_003E6220_06D8(mem + 0x6C, 0x100);
+    *(int *)(mem + 0x16C) = 0;
+    if (avail < 0x4000) {
+        *(int *)(mem + 0x17C) = 0x800;
+    } else if (avail < 0x8000) {
+        *(int *)(mem + 0x17C) = 0x1000;
+    } else if (avail < 0x10000) {
+        *(int *)(mem + 0x17C) = 0x2000;
+    } else if (avail < 0x20000) {
+        *(int *)(mem + 0x17C) = 0x4000;
+    } else {
+        *(int *)(mem + 0x17C) = 0x8000;
+    }
+    for (i = 0; i < nslots; i++) {
+        char *e;
+
+        e = *(char **)(mem + 0x14) + i * 0x124;
+        *(int *)(e + 0) = i;
+        *(int *)(e + 4) = 0;
+        *(char **)(e + 0xC) = *(char **)(mem + 0x14) + (i + 1) * 0x124;
+    }
+    *(char **)(*(char **)(mem + 0x14) + (nslots - 1) * 0x124 + 0xC) = 0;
+    for (i = 0; i < nq; i++) {
+        char *e;
+
+        e = *(char **)(mem + 0x1C) + i * 0xC;
+        *(int *)(e + 0) = 0;
+        *(int *)(e + 4) = 0;
+        *(int *)(e + 8) = 1;
+    }
+    for (i = 0; i < nreq; i++) {
+        char *e;
+
+        e = *(char **)(mem + 0x24) + i * 0x10;
+        *(char **)(e + 0) = mem;
+        *(int *)(e + 4) = i + 1;
+        *(int *)(e + 8) = 0;
+    }
+    return *(void **)(mem + 0x24);
+}
 
 //100%
 // PORT: PS2-only inline asm; needs a C fallback off-PS2.
