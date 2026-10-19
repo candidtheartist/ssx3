@@ -301,7 +301,31 @@ char *func_003B4690(char *shape) {
     return p;
 }
 
-INCLUDE_ASM("ealib/seg_2B4578", func_003B4708);
+//100%
+int func_003B4708(int arg0) {
+    int var_5;
+
+    var_5 = 0;
+    switch (arg0) {
+    case 0x20:
+    case 0x21:
+    case 0x22:
+    case 0x24:
+    case 0x29:
+    case 0x2A:
+    case 0x2C:
+    case 0x2D:
+    case 0x2E:
+    case 0x30:
+    case 0x31:
+    case 0x32:
+    case 0x33:
+    case 0x38:
+        var_5 = 1;
+        break;
+    }
+    return var_5;
+}
 
 INCLUDE_ASM("ealib/seg_2B4578", func_003B4740);
 
