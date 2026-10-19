@@ -618,8 +618,8 @@ struct sMtxF920 {
 };
 
 extern void* D_004A28A8;
-int func_0011FE98(void*);
-int func_0011FEE8(void*);
+int cRider_getMotionMode(void*);
+int cRider_getControlState(void*);
 int func_00312AA0(void*, int);
 extern "C" void func_002DF448_F920(void*) __asm__("func_002DF448");
 extern "C" void func_002DF4D0_F920(void*) __asm__("func_002DF4D0");
@@ -740,9 +740,9 @@ extern "C" void func_002DF920(sWakeFxF920* self)
         wakeDivEqF920(self->dir, wakeLenF920(self->dir));
     }
     self->iB0 = 1;
-    int st = func_0011FE98(self->obj);
+    int st = cRider_getMotionMode(self->obj);
     self->iD4 = st;
-    if (st == 1 || st == 2 || st == 4 || func_0011FEE8(self->obj) == 9) {
+    if (st == 1 || st == 2 || st == 4 || cRider_getControlState(self->obj) == 9) {
         self->iB0 = 0;
     } else {
         char* o = self->obj;
@@ -762,7 +762,7 @@ extern "C" void func_002DF920(sWakeFxF920* self)
     self->pD0 = *(char**)(*(char**)((char*)D_004A28A8 + 0x84) + 0x44) + *(int*)(o + 0x438) * 0xB0;
     int x = 0;
     if (555.5555419921875f < acc && 555.5555419921875f < self->fB8) {
-        x = func_0011FEE8(o) != 9;
+        x = cRider_getControlState(o) != 9;
     }
     float f = acc * 0.5f;
     char* o2 = self->obj;

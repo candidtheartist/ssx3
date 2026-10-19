@@ -489,7 +489,7 @@ extern "C" void func_00137550(char* self);
 //100%
 extern "C" void cRider_updateOrientationImplicit(void*);
 extern "C" void func_00113648(void* ap, void* pos, void* vel, float dt);
-extern "C" void func_00121AA0(void* rider, void* a, void* b, float x, float y);
+extern "C" void cRider_approachOrientation(void* rider, void* a, void* b, float x, float y);
 
 struct sVec4W7 {
     float x, y, z, w;
@@ -530,7 +530,7 @@ extern "C" void func_00137750(void* p)
             x *= 59.999996185302734f;
         char* r3 = *(char**)(self + 0x40);
         float k = 6.632251739501953f;
-        func_00121AA0(r3, *(char**)(r3 + 0x788) + 0x20, *(char**)(r3 + 0x788) + 0x10, x, *(float*)(r3 + 0x300) * k);
+        cRider_approachOrientation(r3, *(char**)(r3 + 0x788) + 0x20, *(char**)(r3 + 0x788) + 0x10, x, *(float*)(r3 + 0x300) * k);
     }
     vu0ScaleEqW7(*(sVec4W7*)(self + 0x30), 1.0f - dt * 1.5f);
     cRider_updateOrientationImplicit(*(void**)(self + 0x40));

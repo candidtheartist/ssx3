@@ -373,7 +373,7 @@ extern "C" void* func_003AD198(void)
 //100%
 extern char* D_004A28A8;
 extern "C" void func_002F5998(void* lights);
-extern "C" void func_00122658(void* self);
+extern "C" void cRider_clearLocalLights(void* self);
 
 extern "C" void func_003AD1A8(void)
 {
@@ -381,7 +381,7 @@ extern "C" void func_003AD1A8(void)
     char* riders = *(char**)(*(char**)(D_004A28A8 + 0x84) + 0xC);
     if (riders != 0) {
         for (int i = 0; i < *(int*)(riders + 0x78); i++) {
-            func_00122658(*(void**)(riders + 0x28 + i * 4));
+            cRider_clearLocalLights(*(void**)(riders + 0x28 + i * 4));
         }
     }
 }

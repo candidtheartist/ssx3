@@ -4323,7 +4323,7 @@ struct A_2EF8 { char pad[0x6C0]; };
 struct B_2EF8 { virtual void v01(); };
 struct D_2EF8 : A_2EF8, B_2EF8 { };
 struct Tab_2EF8 { char pad[0x28]; D_2EF8 *arr[1]; };
-extern "C" int func_00122EE8_2EF8(D_2EF8*, int) __asm__("func_00122EE8");
+extern "C" int cRider_testCondition_2EF8(D_2EF8*, int) __asm__("cRider_testCondition");
 // Script call: maps the script condition id to a rider condition and returns whether the current rider meets it.
 extern "C" void* func_00302EF8(void* self, int n, Ent_2EF8* e) {
     if (D_004A57B0_2EF8 == 0) {
@@ -4349,25 +4349,25 @@ extern "C" void* func_00302EF8(void* self, int n, Ent_2EF8* e) {
     D_2EF8* d = (D_2EF8*)b;
     int res;
     switch (vp[0]) {
-    case 3: res = func_00122EE8_2EF8(d, 0); break;
-    case 4: res = func_00122EE8_2EF8(d, 1); break;
-    case 1: res = func_00122EE8_2EF8(d, 2); break;
-    case 0: res = func_00122EE8_2EF8(d, 3); break;
-    case 2: res = func_00122EE8_2EF8(d, 4); break;
-    case 5: res = func_00122EE8_2EF8(d, 5); break;
-    case 6: res = func_00122EE8_2EF8(d, 6); break;
-    case 7: res = func_00122EE8_2EF8(d, 7); break;
-    case 9: res = func_00122EE8_2EF8(d, 8); break;
-    case 10: res = func_00122EE8_2EF8(d, 9); break;
-    case 11: res = func_00122EE8_2EF8(d, 10); break;
-    case 12: res = func_00122EE8_2EF8(d, 11); break;
-    case 13: res = func_00122EE8_2EF8(d, 12); break;
-    case 14: res = func_00122EE8_2EF8(d, 13); break;
-    case 15: res = func_00122EE8_2EF8(d, 14); break;
-    case 16: res = func_00122EE8_2EF8(d, 15); break;
-    case 17: res = func_00122EE8_2EF8(d, 16); break;
-    case 8: res = func_00122EE8_2EF8(d, 17); break;
-    case 18: res = func_00122EE8_2EF8(d, 18); break;
+    case 3: res = cRider_testCondition_2EF8(d, 0); break;
+    case 4: res = cRider_testCondition_2EF8(d, 1); break;
+    case 1: res = cRider_testCondition_2EF8(d, 2); break;
+    case 0: res = cRider_testCondition_2EF8(d, 3); break;
+    case 2: res = cRider_testCondition_2EF8(d, 4); break;
+    case 5: res = cRider_testCondition_2EF8(d, 5); break;
+    case 6: res = cRider_testCondition_2EF8(d, 6); break;
+    case 7: res = cRider_testCondition_2EF8(d, 7); break;
+    case 9: res = cRider_testCondition_2EF8(d, 8); break;
+    case 10: res = cRider_testCondition_2EF8(d, 9); break;
+    case 11: res = cRider_testCondition_2EF8(d, 10); break;
+    case 12: res = cRider_testCondition_2EF8(d, 11); break;
+    case 13: res = cRider_testCondition_2EF8(d, 12); break;
+    case 14: res = cRider_testCondition_2EF8(d, 13); break;
+    case 15: res = cRider_testCondition_2EF8(d, 14); break;
+    case 16: res = cRider_testCondition_2EF8(d, 15); break;
+    case 17: res = cRider_testCondition_2EF8(d, 16); break;
+    case 8: res = cRider_testCondition_2EF8(d, 17); break;
+    case 18: res = cRider_testCondition_2EF8(d, 18); break;
     default: res = 0; break;
     }
     *(int*)((char*)self + 8) = 1;
@@ -4535,13 +4535,13 @@ struct A_34F8 { char pad[0x6C0]; };
 struct B_34F8 { virtual void v01(); };
 struct D_34F8 : A_34F8, B_34F8 { };
 struct Tab_34F8 { char pad[0x28]; D_34F8 *arr[1]; };
-extern "C" int func_00122EE8_34F8(D_34F8*, int) __asm__("func_00122EE8");
+extern "C" int cRider_testCondition_34F8(D_34F8*, int) __asm__("cRider_testCondition");
 extern "C" void* func_003034F8(void* self) {
     D_34F8 *r = (*(Tab_34F8**)(*(char**)(D_004A28A8_34F8 + 0x84) + 0xC))->arr[*(int*)D_004A3DD8_34F8];
     B_34F8 *b = r;
     D_34F8 *d = (D_34F8*)b;
     unsigned v;
-    if (func_00122EE8_34F8(d, 4))
+    if (cRider_testCondition_34F8(d, 4))
         v = *(unsigned*)(*(char**)((char*)d + 0x77C) + 0xD4);
     else
         v = 0xFFFFFFFF;
@@ -4644,7 +4644,7 @@ struct A_37B0 { char pad[0x6C0]; };
 struct B_37B0 { virtual void v01(); };
 struct D_37B0 : A_37B0, B_37B0 { };
 struct Tab_37B0 { char pad[0x28]; D_37B0 *arr[1]; };
-extern "C" int func_00122EE8_37B0(D_37B0*, int) __asm__("func_00122EE8");
+extern "C" int cRider_testCondition_37B0(D_37B0*, int) __asm__("cRider_testCondition");
 // Script call: maps the script condition id to a rider condition and returns whether the current rider meets it.
 extern "C" void* func_003037B0(void* self, int n, Ent_37B0* e) {
     if (D_004A57D8_37B0 == 0) {
@@ -4670,25 +4670,25 @@ extern "C" void* func_003037B0(void* self, int n, Ent_37B0* e) {
     D_37B0* d = (D_37B0*)b;
     int res;
     switch (vp[0]) {
-    case 3: res = func_00122EE8_37B0(d, 0); break;
-    case 4: res = func_00122EE8_37B0(d, 1); break;
-    case 1: res = func_00122EE8_37B0(d, 2); break;
-    case 0: res = func_00122EE8_37B0(d, 3); break;
-    case 2: res = func_00122EE8_37B0(d, 4); break;
-    case 5: res = func_00122EE8_37B0(d, 5); break;
-    case 6: res = func_00122EE8_37B0(d, 6); break;
-    case 7: res = func_00122EE8_37B0(d, 7); break;
-    case 9: res = func_00122EE8_37B0(d, 8); break;
-    case 10: res = func_00122EE8_37B0(d, 9); break;
-    case 11: res = func_00122EE8_37B0(d, 10); break;
-    case 12: res = func_00122EE8_37B0(d, 11); break;
-    case 13: res = func_00122EE8_37B0(d, 12); break;
-    case 14: res = func_00122EE8_37B0(d, 13); break;
-    case 15: res = func_00122EE8_37B0(d, 14); break;
-    case 16: res = func_00122EE8_37B0(d, 15); break;
-    case 17: res = func_00122EE8_37B0(d, 16); break;
-    case 8: res = func_00122EE8_37B0(d, 17); break;
-    case 18: res = func_00122EE8_37B0(d, 18); break;
+    case 3: res = cRider_testCondition_37B0(d, 0); break;
+    case 4: res = cRider_testCondition_37B0(d, 1); break;
+    case 1: res = cRider_testCondition_37B0(d, 2); break;
+    case 0: res = cRider_testCondition_37B0(d, 3); break;
+    case 2: res = cRider_testCondition_37B0(d, 4); break;
+    case 5: res = cRider_testCondition_37B0(d, 5); break;
+    case 6: res = cRider_testCondition_37B0(d, 6); break;
+    case 7: res = cRider_testCondition_37B0(d, 7); break;
+    case 9: res = cRider_testCondition_37B0(d, 8); break;
+    case 10: res = cRider_testCondition_37B0(d, 9); break;
+    case 11: res = cRider_testCondition_37B0(d, 10); break;
+    case 12: res = cRider_testCondition_37B0(d, 11); break;
+    case 13: res = cRider_testCondition_37B0(d, 12); break;
+    case 14: res = cRider_testCondition_37B0(d, 13); break;
+    case 15: res = cRider_testCondition_37B0(d, 14); break;
+    case 16: res = cRider_testCondition_37B0(d, 15); break;
+    case 17: res = cRider_testCondition_37B0(d, 16); break;
+    case 8: res = cRider_testCondition_37B0(d, 17); break;
+    case 18: res = cRider_testCondition_37B0(d, 18); break;
     default: res = 0; break;
     }
     *(int*)((char*)self + 8) = 1;

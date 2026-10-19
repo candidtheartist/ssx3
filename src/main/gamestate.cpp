@@ -955,8 +955,8 @@ extern "C" void func_00235FD0(void* self, void* stream)
 extern "C" void func_0030B7F8(void* self);
 extern "C" void cGameModeMan_initGameMode(void* gm, int mode);
 extern "C" void func_00230180(void* self);
-extern "C" void func_0011DE60(void* self, int a1, int a2);
-extern "C" void func_0011DF18(void* self, int notify);
+extern "C" void cRider_placeAtRegion(void* self, int a1, int a2);
+extern "C" void cRider_finishPlacement(void* self, int notify);
 void* func_00230698(void* self, int id);
 // PORT: func_002E4CE8 is the wake pool's allocator; it ignores the size the caller passes
 extern "C" void* func_002E4CE8_sz(int size) __asm__("func_002E4CE8");
@@ -976,8 +976,8 @@ extern "C" void func_00236058(void* self)
     cGameModeMan_initGameMode(gm, 0xC);
     char* iface = (char*)cBE_getInterface_Fv(cBE_getBE(), 0xA);
     func_00230180(*(void**)((char*)D_004A28A8 + 0x84));
-    func_0011DE60(*(void**)(*(char**)(*(char**)(*(char**)((char*)D_004A28A8 + 0x84) + 0xC) + 0x40) + 0x18), *(int*)(iface + 0x10), 2);
-    func_0011DF18(*(void**)(*(char**)(*(char**)(*(char**)((char*)D_004A28A8 + 0x84) + 0xC) + 0x40) + 0x18), 1);
+    cRider_placeAtRegion(*(void**)(*(char**)(*(char**)(*(char**)((char*)D_004A28A8 + 0x84) + 0xC) + 0x40) + 0x18), *(int*)(iface + 0x10), 2);
+    cRider_finishPlacement(*(void**)(*(char**)(*(char**)(*(char**)((char*)D_004A28A8 + 0x84) + 0xC) + 0x40) + 0x18), 1);
     void* r = func_00230698(*(void**)((char*)D_004A28A8 + 0x84), 0);
     char* o = (char*)func_002E4CE8_sz(0x14);
     sColor_236058 c;
@@ -1039,7 +1039,7 @@ extern "C" void cAI_setAIState(void*, int);
 extern "C" int* func_00144BC0(void* iface);
 extern "C" void func_00230180(void* self);
 extern "C" void func_0030B7F8(void* self);
-extern "C" void func_0011D390(void* rider);
+extern "C" void cRider_placeOnArrival(void* rider);
 extern "C" void func_00278E50(void* self, int i, int a, int b, int c, int d, int f, int g);
 // PORT: func_00278F38 returns func_00276270's result (ssxscriptengine defines it void).
 extern "C" int func_00278F38(void* self, int i);
@@ -1084,7 +1084,7 @@ extern "C" void func_00236250(void* self, int mode)
             if (!isOne_6250(m))
                 func_00278E50(D_004A28A4, 1, 0xB, 3, 0, -1, -1, -1);
             func_00278F38(D_004A28A4, 1);
-            func_0011D390(*(void**)(*(char**)(*(char**)(*(char**)((char*)D_004A28A8 + 0x84) + 0xC) + 0x40) + 0x18));
+            cRider_placeOnArrival(*(void**)(*(char**)(*(char**)(*(char**)((char*)D_004A28A8 + 0x84) + 0xC) + 0x40) + 0x18));
             func_00278F68(D_004A28A4, 1, *(int*)((char*)self + 0x14) == 2, 0);
         }
     }

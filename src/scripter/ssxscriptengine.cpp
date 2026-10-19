@@ -2304,7 +2304,7 @@ void func_0027BD90(void* self, void* a1)
 }
 
 //100%
-extern "C" int func_00123128(void* rider);
+extern "C" int cRider_getCharacterID(void* rider);
 extern int D_00481BB0[];
 
 struct sRider_BDB8 {
@@ -2336,37 +2336,37 @@ extern "C" void func_0027BDB8_def(void* self, int* out, int a, int b, int c)
         switch (i) {
         case 0:
             if (a >= 0) {
-                out[i] = D_00481BB0[func_00123128(mgr->riders[a])];
+                out[i] = D_00481BB0[cRider_getCharacterID(mgr->riders[a])];
             }
             break;
         case 1:
             if (b >= 0) {
-                out[i] = D_00481BB0[func_00123128(mgr->riders[b])];
+                out[i] = D_00481BB0[cRider_getCharacterID(mgr->riders[b])];
             }
             break;
         case 2:
             if (c >= 0) {
-                out[i] = D_00481BB0[func_00123128(mgr->riders[c])];
+                out[i] = D_00481BB0[cRider_getCharacterID(mgr->riders[c])];
             }
             break;
         case 3: case 4:
             if (i - 3 < nA) {
-                out[i] = D_00481BB0[func_00123128(mgr->groupA[i - 3]->rider)];
+                out[i] = D_00481BB0[cRider_getCharacterID(mgr->groupA[i - 3]->rider)];
             }
             break;
         case 5: case 6: case 7: case 8: case 9:
             if (i - 5 < nB) {
-                out[i] = D_00481BB0[func_00123128(mgr->groupB[i - 5]->rider)];
+                out[i] = D_00481BB0[cRider_getCharacterID(mgr->groupB[i - 5]->rider)];
             }
             break;
         case 10: case 11: case 12: case 13: case 14:
             if (i - 10 < mgr->nC) {
-                out[i] = D_00481BB0[func_00123128(mgr->groupC[i - 10]->rider)];
+                out[i] = D_00481BB0[cRider_getCharacterID(mgr->groupC[i - 10]->rider)];
             }
             break;
         case 15: case 16: case 17: case 18: case 19: case 20:
             if (i - 15 < mgr->nRiders) {
-                out[i] = D_00481BB0[func_00123128(mgr->riders[i - 15])];
+                out[i] = D_00481BB0[cRider_getCharacterID(mgr->riders[i - 15])];
             }
             break;
         }
@@ -3442,8 +3442,8 @@ extern "C" void func_002803F0(void* self)
 }
 
 //100%
-extern "C" int func_0011D640(void* self);
-extern "C" int func_00123128(void* self);
+extern "C" int cRider_isInitDone(void* self);
+extern "C" int cRider_getCharacterID(void* self);
 extern "C" int func_00280560(void* self, void* rider, int id, int a3);
 extern int D_00481BB0[];
 
@@ -3462,8 +3462,8 @@ extern "C" int func_00280458(cScriptCtx0458* self, void* msg, int type)
 {
     if (type != 5) return 0;
     void* rider = self->v06();
-    if (func_0011D640(rider) == 0) return 0;
-    int team = func_00123128(rider);
+    if (cRider_isInitDone(rider) == 0) return 0;
+    int team = cRider_getCharacterID(rider);
     int mask = D_00481BB0[team];
     // PORT: func_0027C958 returns a record pointer as int
     char* info = (char*)func_0027C958(msg);

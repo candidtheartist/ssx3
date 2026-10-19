@@ -60,12 +60,12 @@ extern "C" char* func_00139178(void* self)
 
 INCLUDE_ASM("ai/control/handplantcontrol", func_001391A8);
 
-extern "C" void* func_0011E150(int, int);
+extern "C" void* cRider_updateQueryBounds(int, int);
 
 //100%
 void* func_00139528(void* self)
 {
-    return func_0011E150(*(int*)((char*)self + 0xa0), 0);
+    return cRider_updateQueryBounds(*(int*)((char*)self + 0xa0), 0);
 }
 
 INCLUDE_ASM("ai/control/handplantcontrol", func_00139548);
@@ -114,9 +114,9 @@ void func_00139A18(void* self)
 //100%
 extern "C" void cRider_updateOrientationImplicit(void*);
 extern "C" void func_00113648(void* ap, void* pos, void* vel, float dt);
-extern "C" void func_00121AA0(void* rider, void* a, void* b, float x, float y);
-extern "C" void func_00125970(char* self);
-int func_0011FEE8(void* rider);
+extern "C" void cRider_approachOrientation(void* rider, void* a, void* b, float x, float y);
+extern "C" void cRider_applyWindPush(char* self);
+int cRider_getControlState(void* rider);
 extern void* D_004A28A8;
 extern void* D_004FF120[];
 
@@ -165,7 +165,7 @@ static inline float absf_139A20(float x)
 extern "C" void func_00139A20(void* p)
 {
     char* self = (char*)p;
-    func_00125970(*(char**)(self + 0x4));
+    cRider_applyWindPush(*(char**)(self + 0x4));
     char* r = *(char**)(self + 0x4);
     func_00113648(*(void**)(r + 0x788), r + 0x110, r + 0x1E0, *(float*)(r + 0x300) * 0.01666666753590107f);
     char* r1 = *(char**)(self + 0x4);
@@ -197,12 +197,12 @@ extern "C" void func_00139A20(void* p)
             else
                 x = t * 59.999996185302734f;
             float y = *(float*)(*(char**)(self + 0x4) + 0x300) * 1.396263599395752f;
-            if (func_0011FEE8(*(void**)(self + 0x4)) == 5) {
+            if (cRider_getControlState(*(void**)(self + 0x4)) == 5) {
                 char* r3 = *(char**)(self + 0x4);
                 int big = 1;
                 if (!(0.0872664749622345f < absf_139A20(*(float*)(*(char**)(r3 + 0x77C) + 0x258)))) big = 0;
                 if (big) {
-                    func_00121AA0(r3, *(char**)(r3 + 0x788) + 0x20, D_004FF120, x, y);
+                    cRider_approachOrientation(r3, *(char**)(r3 + 0x788) + 0x20, D_004FF120, x, y);
                     goto done;
                 }
             }
@@ -215,9 +215,9 @@ extern "C" void func_00139A20(void* p)
                     vu0ScaleEq_139A20(v, -1.0f);
                 }
                 char* r5 = *(char**)(self + 0x4);
-                func_00121AA0(r5, *(char**)(r5 + 0x788) + 0x20, &v, x, y);
+                cRider_approachOrientation(r5, *(char**)(r5 + 0x788) + 0x20, &v, x, y);
             } else {
-                func_00121AA0(r4, tgt, D_004FF120, x, y);
+                cRider_approachOrientation(r4, tgt, D_004FF120, x, y);
             }
         }
     }
@@ -492,16 +492,16 @@ INCLUDE_ASM("ai/control/handplantcontrol", func_0013BD80);
 
 //100%
 extern "C" void func_00114298(void* rider, float v);
-// PORT: func_0011E150 is declared void* in this unit; this caller ignores the result (void call).
-extern "C" void func_0011E150_v(void* rider, int a1) __asm__("func_0011E150");
+// PORT: cRider_updateQueryBounds is declared void* in this unit; this caller ignores the result (void call).
+extern "C" void cRider_updateQueryBounds_v(void* rider, int a1) __asm__("cRider_updateQueryBounds");
 extern "C" void func_00105398(void* rider, int a1);
 extern "C" void func_00107888(void* rider);
 extern "C" void func_0013C140(void* self);
 extern "C" void func_00294170(void* snd, void* rider);
-int func_0011FEE8(void* rider);
-int func_0011FE98(void* rider);
-// PORT: func_0011FE78 is defined with one parameter but this caller passes (rider, 1).
-void func_0011FE78_impl_BFA8(void* rider, int v) __asm__("func_0011FE78__FPv");
+int cRider_getControlState(void* rider);
+int cRider_getMotionMode(void* rider);
+// PORT: cRider_setMotionMode is defined with one parameter but this caller passes (rider, 1).
+void cRider_setMotionMode_impl_BFA8(void* rider, int v) __asm__("cRider_setMotionMode__FPv");
 extern char* D_004A3500;
 
 struct sTbl_BFA8 {
@@ -552,7 +552,7 @@ static inline void vu0ScaleEq_BFA8(sVec4_BFA8& v, float s)
 
 extern "C" void func_0013BFA8(void* self)
 {
-    func_0011E150_v(RIDER_BFA8, 0);
+    cRider_updateQueryBounds_v(RIDER_BFA8, 0);
     if (*(int*)((char*)self + 0x20) != 0) {
         char* r = RIDER_BFA8;
         *(int*)(r + 0x234) = 0;
@@ -560,7 +560,7 @@ extern "C" void func_0013BFA8(void* self)
         func_00114298(RIDER_BFA8, -1.0f);
     }
     sTbl_BFA8 tbl = D_00458230;
-    if (func_0011FEE8(RIDER_BFA8) == 0xC) {
+    if (cRider_getControlState(RIDER_BFA8) == 0xC) {
         char* r = RIDER_BFA8;
         *(int*)(*(char**)(r + 0xAA0) + 0x28) = tbl.v[*(int*)(*(char**)(r + 0x77C) + 0x394)];
     } else {
@@ -571,8 +571,8 @@ extern "C" void func_0013BFA8(void* self)
     func_0013C140(self);
     *(unsigned int*)(*(char**)(RIDER_BFA8 + 0xAA0) + 0x28) = 0xFFFFFFFF;
     func_00107888(RIDER_BFA8);
-    if (*(int*)((char*)self + 0x20) != 0 && func_0011FE98(RIDER_BFA8) == 4) {
-        func_0011FE78_impl_BFA8(RIDER_BFA8, 1);
+    if (*(int*)((char*)self + 0x20) != 0 && cRider_getMotionMode(RIDER_BFA8) == 4) {
+        cRider_setMotionMode_impl_BFA8(RIDER_BFA8, 1);
         func_00294170(D_004A3500, RIDER_BFA8);
     }
     char* r = RIDER_BFA8;
@@ -1128,16 +1128,16 @@ INCLUDE_ASM("ai/control/handplantcontrol", func_0013D818);
 
 //100%
 extern "C" void func_00114298(void* rider, float v);
-// PORT: func_0011E150 is declared void* in this unit; this caller ignores the result (void call).
-extern "C" void func_0011E150_v13F178(void* rider, int a1) __asm__("func_0011E150");
+// PORT: cRider_updateQueryBounds is declared void* in this unit; this caller ignores the result (void call).
+extern "C" void cRider_updateQueryBounds_v13F178(void* rider, int a1) __asm__("cRider_updateQueryBounds");
 extern "C" void func_00105398(void* rider, int a1);
 extern "C" void func_00107888(void* rider);
 extern "C" void func_00116120(void* rider, int a, int b);
 extern "C" void func_0013F488(void* self);
 extern "C" void func_00294170(void* snd, void* rider);
-int func_0011FE98(void* rider);
-// PORT: func_0011FE78 is defined with one parameter but this caller passes (rider, 1).
-void func_0011FE78_impl_13F178(void* rider, int v) __asm__("func_0011FE78__FPv");
+int cRider_getMotionMode(void* rider);
+// PORT: cRider_setMotionMode is defined with one parameter but this caller passes (rider, 1).
+void cRider_setMotionMode_impl_13F178(void* rider, int v) __asm__("cRider_setMotionMode__FPv");
 extern char* D_004A3500;
 extern int D_004A115C;
 extern void* D_004A28A8;
@@ -1269,14 +1269,14 @@ extern "C" void func_0013F178(void* self)
             func_00116120(r, 0, 1);
         }
     }
-    func_0011E150_v13F178(RIDER_13F178, 0);
+    cRider_updateQueryBounds_v13F178(RIDER_13F178, 0);
     *(int*)(*(char**)(RIDER_13F178 + 0xAA0) + 0x28) = D_004A115C;
     func_0013F488(self);
     *(unsigned int*)(*(char**)(RIDER_13F178 + 0xAA0) + 0x28) = 0xFFFFFFFF;
     func_00105398(RIDER_13F178, 0);
     func_00107888(RIDER_13F178);
-    if (*(int*)((char*)self + 0xC) != 0 && func_0011FE98(RIDER_13F178) == 0) {
-        func_0011FE78_impl_13F178(RIDER_13F178, 1);
+    if (*(int*)((char*)self + 0xC) != 0 && cRider_getMotionMode(RIDER_13F178) == 0) {
+        cRider_setMotionMode_impl_13F178(RIDER_13F178, 1);
         func_00294170(D_004A3500, RIDER_13F178);
     }
     char* r = RIDER_13F178;
@@ -1323,7 +1323,7 @@ extern "C" void func_0013F410(void* self)
 
 //100%
 extern "C" void cRider_updateOrientationImplicit(void*);
-int func_0011FEE8(void* rider);
+int cRider_getControlState(void* rider);
 extern "C" float func_003342D0(void* world, void* seg, void* hit, int flags);
 extern "C" void func_00106538(void* rider, void* v);
 extern "C" void func_001065B0(void* rider, void* hit);
@@ -1473,7 +1473,7 @@ static inline bool riderFlag_13F488(char* r)
 
 extern "C" void func_0013F488(void* self)
 {
-    if (func_0011FEE8(RIDER) == 9)
+    if (cRider_getControlState(RIDER) == 9)
         return;
     if (!riderFlag_13F488(RIDER)) {
         char* r = RIDER;

@@ -750,7 +750,7 @@ void func_0028C8C0(void* self, int val)
 // func_00285D98 returns a rider pointer here (the unit declares it int).
 struct sRiderC8C8;
 extern "C" sRiderC8C8* func_00285D98_p(void* self, int which) __asm__("func_00285D98");
-int func_0011FE98(void* rider);
+int cRider_getMotionMode(void* rider);
 int func_0028D898(void* self);
 extern "C" void* func_00287968(void* self, int a1, int a2);
 extern "C" int func_00288AE0(void* self);
@@ -824,7 +824,7 @@ extern "C" void func_0028C8C8(sBmC8C8* self)
         self->f6250--;
     sRiderC8C8* rider = func_00285D98_p(self, -1);
     float spd;
-    if (func_0011FE98(rider) == 1) {
+    if (cRider_getMotionMode(rider) == 1) {
         int s = rider->ap->state;
         int air = 0;
         if (s == 1 || s == 3)

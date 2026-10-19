@@ -120,7 +120,7 @@ extern "C" void func_002E8560(func_002E8560_sTrail* self)
 
 INCLUDE_ASM("visualfx/boardtrailfx", func_002E86F0);
 
-int func_0011FE98(void* self);
+int cRider_getMotionMode(void* self);
 int func_00312AA0(void* self, int i);
 extern "C" char* func_00311B20(void* self, int i);
 extern "C" int func_001446A0(void* self, int i);
@@ -138,10 +138,10 @@ static inline int func_002E87E8_ready(char* r)
 // Picks the trail scale for the rider's current board state; returns 0 when no trail should draw.
 extern "C" int func_002E87E8(char* self)
 {
-    if (func_0011FE98(*(void**)self) == 2) {
+    if (cRider_getMotionMode(*(void**)self) == 2) {
         if (*(int*)(*(char**)(*(char**)self + 0x77C) + 0x30) != 0)
             return 0;
-    } else if (func_0011FE98(*(void**)self) != 0) {
+    } else if (cRider_getMotionMode(*(void**)self) != 0) {
         if (!func_002E87E8_ready(*(char**)self))
             return 0;
         if (*(int*)(*(char**)self + 0xB00) == 0)
@@ -471,7 +471,7 @@ void func_002EADC0(void* self)
 }
 
 //100%
-int func_0011FE98(void* self);
+int cRider_getMotionMode(void* self);
 void func_00392DE8(void* self, int val);
 extern "C" void func_00392D90(void* self, void* q, void* v);
 extern int D_004A4720;
@@ -580,7 +580,7 @@ extern "C" void func_002EADD0(sTrail_2EADD0* self)
         col.w = zero;
         func_00392D90(fs, &col, &sz);
     }
-    if (zero < speed && func_0011FE98(self->rider) == 1)
+    if (zero < speed && cRider_getMotionMode(self->rider) == 1)
     {
         self->cur = (self->cur + 2) % 3;
         int n = self->count + 1;

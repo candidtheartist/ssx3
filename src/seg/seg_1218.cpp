@@ -1994,10 +1994,10 @@ public:
     virtual sV4_7E70* GetPos();
 };
 
-int func_0011FEE8_7E70(void*) __asm__("func_0011FEE8__FPv");
-int func_0011FE98(void*);
+int cRider_getControlState_7E70(void*) __asm__("cRider_getControlState__FPv");
+int cRider_getMotionMode(void*);
 int AIrand();
-extern "C" int func_001231A8(void*);
+extern "C" int cRider_isGrounded(void*);
 extern "C" void cAirPredictor_startLaunchIntoAir(void*, sV4_7E70*, sV4_7E70*, float);
 extern "C" void func_0010EB30_7E70(char*, int, int, int, sInfo_7E70*) __asm__("func_0010EB30");
 extern "C" void func_00108388_7E70(char*, sInfo_7E70*, int) __asm__("func_00108388");
@@ -2148,18 +2148,18 @@ static inline sV4_7E70 Get_7E70(char* p) { return *(sV4_7E70*)p; }
 
 extern "C" void func_00107E70(char* self, char* other, sV4_7E70* n, int flag, float speed)
 {
-    if (func_0011FEE8_7E70(self) == 10)
+    if (cRider_getControlState_7E70(self) == 10)
         return;
     float absSpd = Abs_7E70(speed);
     float lim = 555.5555419921875f;
     float s = Clamp_7E70(speed, -lim, lim);
     sV4_7E70 imp = Scale_7E70(*n, s);
-    if (func_001231A8(self)) {
+    if (cRider_isGrounded(self)) {
         AddEq_7E70(*(sV4_7E70*)(self + 0x1E0),
                    Sub_7E70(imp, Scale_7E70(*(sV4_7E70*)(self + 0x370), Dot_7E70(imp, *(sV4_7E70*)(self + 0x370)))));
     } else {
         AddEq_7E70(*(sV4_7E70*)(self + 0x1E0), imp);
-        if (func_0011FE98(self) == 1 || (func_0011FE98(self) == 2 && *(int*)(*(char**)(self + 0x77C) + 0x30) == 1)) {
+        if (cRider_getMotionMode(self) == 1 || (cRider_getMotionMode(self) == 2 && *(int*)(*(char**)(self + 0x77C) + 0x30) == 1)) {
             cAI_7E70* ai = (cAI_7E70*)(self + 0x6C0);
             sV4_7E70* pos = ai->GetPos();
             cAirPredictor_startLaunchIntoAir(*(void**)(self + 0x788), pos, ai->GetDir(), *(float*)(self + 0x2E4));
@@ -2167,9 +2167,9 @@ extern "C" void func_00107E70(char* self, char* other, sV4_7E70* n, int flag, fl
                 absSpd = 0.0f;
         }
     }
-    if (func_0011FE98(self) == 2)
+    if (cRider_getMotionMode(self) == 2)
         return;
-    if (func_0011FEE8_7E70(self) == 9)
+    if (cRider_getControlState_7E70(self) == 9)
         return;
     if (absSpd < 39.99532699584961f)
         return;
@@ -2233,9 +2233,9 @@ struct sV4_8388
     float x, y, z, w;
 } __attribute__((aligned(16)));
 
-int func_0011FE98(void*);
-int func_0011FEE8_8388(void*) __asm__("func_0011FEE8__FPv");
-void func_0011FEC8_8388(void* self, int v) __asm__("func_0011FEC8__FPv");
+int cRider_getMotionMode(void*);
+int cRider_getControlState_8388(void*) __asm__("cRider_getControlState__FPv");
+void cRider_setControlState_8388(void* self, int v) __asm__("cRider_setControlState__FPv");
 int AIrand();
 extern "C" void func_00131348(void*);
 extern "C" void cRiderAnimBase_play(void*, int, int, float);
@@ -2295,11 +2295,11 @@ static inline sV4_8388 Get_8388(char* p) { return *(sV4_8388*)p; }
 
 extern "C" void func_00108388(char* self, char* info, int flag)
 {
-    if (func_0011FE98(self) != 0 && func_0011FE98(self) != 4)
+    if (cRider_getMotionMode(self) != 0 && cRider_getMotionMode(self) != 4)
         return;
-    if (func_0011FEE8_8388(self) == 1) {
+    if (cRider_getControlState_8388(self) == 1) {
         func_00131348(*(char**)(self + 0x77C) + 0x1D0);
-    } else if (func_0011FEE8_8388(self) != 0 && func_0011FEE8_8388(self) != 2 && func_0011FEE8_8388(self) != 7) {
+    } else if (cRider_getControlState_8388(self) != 0 && cRider_getControlState_8388(self) != 2 && cRider_getControlState_8388(self) != 7) {
         return;
     }
     int played = 0;
@@ -2313,7 +2313,7 @@ extern "C" void func_00108388(char* self, char* info, int flag)
         if (*(int*)(self + 0x320))
             side = -side;
         if (*(float*)(info + 0x30) < 1111.111083984375f && Len_8388(*(sV4_8388*)(self + 0x1E0)) > 1388.888916015625f &&
-            func_0011FE98(self) != 4) {
+            cRider_getMotionMode(self) != 4) {
             float a = *(float*)(self + 0x2DC);
             if (Abs_8388(a) < 6.2831854820251465f) {
                 if (a < 0.0f)
@@ -2331,7 +2331,7 @@ extern "C" void func_00108388(char* self, char* info, int flag)
     }
     if (flag)
         func_002A0E70(func_0028B180(), self, played);
-    func_0011FEC8_8388(self, 3);
+    cRider_setControlState_8388(self, 3);
 }
 
 //100%
@@ -2600,7 +2600,7 @@ static inline float vDot_8A48(const sVec4_8A48& a, const sVec4_8A48& b)
     return r;
 }
 
-int func_0011FE98(void*);
+int cRider_getMotionMode(void*);
 extern "C" int func_00334680(void*, sVec4_8A48*, sVec4_8A48*, int, float);
 extern "C" int func_00311AE8(void*, int);
 extern "C" char* func_00311B20(void*, int);
@@ -2609,7 +2609,7 @@ extern "C" int func_001086B8(void*, sVec4_8A48*, sVec4_8A48*);
 
 extern "C" int func_00108A48(char* self, sVec4_8A48* tgt)
 {
-    if (func_0011FE98(self) != 0 && func_0011FE98(self) != 1)
+    if (cRider_getMotionMode(self) != 0 && cRider_getMotionMode(self) != 1)
         return 0;
     sVec4_8A48 p = vAdd_8A48(*(sVec4_8A48*)((char*)(*(sPath_8A48**)(self + 0x780))->nodes + (*(int*)(self + 0x8A0) << 5)),
                              *(sVec4_8A48*)(self + 0x9D0));
@@ -2709,8 +2709,8 @@ INCLUDE_ASM("seg/seg_1218", func_00108FA8);
 //100%
 extern "C" void func_003E6448_A768(void* dst, int value, int size) __asm__("func_003E6448");
 extern "C" float func_0010DEF0_A768(void* self) __asm__("func_0010DEF0");
-extern "C" void func_00120090_A768(void* p, float f) __asm__("func_00120090");
-int func_0011FEE8_A768(void*) __asm__("func_0011FEE8__FPv");
+extern "C" void cRider_approachTimeScale_A768(void* p, float f) __asm__("cRider_approachTimeScale");
+int cRider_getControlState_A768(void*) __asm__("cRider_getControlState__FPv");
 extern "C" void func_0010A960_A768(void*, void*) __asm__("func_0010A960");
 extern "C" void func_0010AA70_A768(void*, void*) __asm__("func_0010AA70");
 extern "C" void func_0010B790_A768(void*, void*) __asm__("func_0010B790");
@@ -2723,8 +2723,8 @@ extern "C" void func_0010AD78_A768(void*, void*) __asm__("func_0010AD78");
 extern "C" void func_0010A768(char* self, void* pad)
 {
     func_003E6448_A768(pad, 0, 8);
-    func_00120090_A768(*(void**)(self + 0x18), func_0010DEF0_A768(self));
-    int s = func_0011FEE8_A768(*(void**)(self + 0x18));
+    cRider_approachTimeScale_A768(*(void**)(self + 0x18), func_0010DEF0_A768(self));
+    int s = cRider_getControlState_A768(*(void**)(self + 0x18));
     switch (s) {
     case 0:
         func_0010A960_A768(self, pad);

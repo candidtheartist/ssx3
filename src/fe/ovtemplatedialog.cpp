@@ -663,8 +663,8 @@ extern "C" void* func_00212138(void* self, void* a1, int a2);
 extern "C" void* func_00211088(void* self, void* a1, int a2, int a3);
 extern "C" void func_0030B758(void* self);
 extern "C" void func_00128A10(void* self);
-extern "C" void func_0011DE60(void* self, int a1, int a2);
-extern "C" void func_0011DF18(void* self, int notify);
+extern "C" void cRider_placeAtRegion(void* self, int a1, int a2);
+extern "C" void cRider_finishPlacement(void* self, int notify);
 extern "C" void func_00230180(void* self);
 void func_00238348(void* self);
 extern "C" void func_00257610(void* self, int a1);
@@ -810,8 +810,8 @@ extern "C" void cOVTemplate_Dialog_onWidgetEvent(char* self, char* w, int ev)
                 ((sI10_D5A8*)i10)->f10 = 1;
                 func_00231250(*(void**)((char*)D_004A28A8 + 0x84), 1, 1, 0);
                 func_00230180(*(void**)((char*)D_004A28A8 + 0x84));
-                func_0011DE60(*(void**)(*(char**)(*(char**)(*(char**)((char*)D_004A28A8 + 0x84) + 0xC) + 0x40) + 0x18), 1, 2);
-                func_0011DF18(*(void**)(*(char**)(*(char**)(*(char**)((char*)D_004A28A8 + 0x84) + 0xC) + 0x40) + 0x18), 1);
+                cRider_placeAtRegion(*(void**)(*(char**)(*(char**)(*(char**)((char*)D_004A28A8 + 0x84) + 0xC) + 0x40) + 0x18), 1, 2);
+                cRider_finishPlacement(*(void**)(*(char**)(*(char**)(*(char**)((char*)D_004A28A8 + 0x84) + 0xC) + 0x40) + 0x18), 1);
                 break;
             }
             case 5:
