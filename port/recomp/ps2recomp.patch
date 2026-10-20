@@ -2328,10 +2328,10 @@ index a8c2a55..642e8cb 100644
      struct DecodedSample
 diff --git a/ps2xRuntime/include/runtime/ps2_host_fpu.h b/ps2xRuntime/include/runtime/ps2_host_fpu.h
 new file mode 100644
-index 0000000..8dea1db
+index 0000000..f7c76fc
 --- /dev/null
 +++ b/ps2xRuntime/include/runtime/ps2_host_fpu.h
-@@ -0,0 +1,45 @@
+@@ -0,0 +1,81 @@
 +#pragma once
 +
 +#include <cfenv>
@@ -2339,8 +2339,6 @@ index 0000000..8dea1db
 +#if (defined(__i386__) || defined(__x86_64__)) && (defined(__GNUC__) || defined(__clang__))
 +#include <xmmintrin.h>
 +#define PS2X_HOST_FPU_X86 1
-+static_assert(FE_TONEAREST == 0 && FE_DOWNWARD == 0x400 && FE_UPWARD == 0x800 && FE_TOWARDZERO == 0xC00,
-+              "x87 rounding bits");
 +#endif
 +
 +// The host rounding mode, changed without the C library on x86. MinGW's 32-bit
@@ -2349,26 +2347,64 @@ index 0000000..8dea1db
 +// mode around every VU1 program it runs, so those calls added up.
 +namespace ps2_host_fpu
 +{
++#if defined(PS2X_HOST_FPU_X86)
++    // The FE_* values differ between C libraries (glibc and older MinGW use the x87
++    // control word's bits, newer MinGW-w64 uses _controlfp's _RC_* values), so they are
++    // mapped to the x87 rounding bits here. The MXCSR has the same two bits three places
++    // higher.
++    inline unsigned x87Bits(int mode)
++    {
++        switch (mode)
++        {
++        case FE_TONEAREST:
++            return 0x000u;
++        case FE_DOWNWARD:
++            return 0x400u;
++        case FE_UPWARD:
++            return 0x800u;
++        case FE_TOWARDZERO:
++            return 0xC00u;
++        default:
++            return ~0u;
++        }
++    }
++#endif
++
 +    inline int getRounding()
 +    {
++#if defined(PS2X_HOST_FPU_X86)
++        unsigned short cw;
++        __asm__ volatile("fnstcw %0" : "=m"(cw));
++        switch (cw & 0x0C00u)
++        {
++        case 0x400u:
++            return FE_DOWNWARD;
++        case 0x800u:
++            return FE_UPWARD;
++        case 0xC00u:
++            return FE_TOWARDZERO;
++        default:
++            return FE_TONEAREST;
++        }
++#else
 +        return std::fegetround();
++#endif
 +    }
 +
 +    // Returns true once the mode is set, like fesetround returning 0.
 +    inline bool setRounding(int mode)
 +    {
 +#if defined(PS2X_HOST_FPU_X86)
-+        // On x86 the FE_* values are the x87 control word's rounding bits; the MXCSR
-+        // has the same two bits three places higher.
-+        if ((mode & ~0x0C00) != 0)
++        const unsigned bits = x87Bits(mode);
++        if (bits == ~0u)
 +            return false;
 +        unsigned short cw;
 +        __asm__ volatile("fnstcw %0" : "=m"(cw));
-+        const unsigned short newCw = static_cast<unsigned short>((cw & ~0x0C00u) | static_cast<unsigned>(mode));
++        const unsigned short newCw = static_cast<unsigned short>((cw & ~0x0C00u) | bits);
 +        if (newCw != cw)
 +            __asm__ volatile("fldcw %0" : : "m"(newCw) : "memory");
 +        const unsigned int csr = _mm_getcsr();
-+        const unsigned int newCsr = (csr & ~0x6000u) | (static_cast<unsigned int>(mode) << 3);
++        const unsigned int newCsr = (csr & ~0x6000u) | (bits << 3);
 +        if (newCsr != csr)
 +            _mm_setcsr(newCsr);
 +        return true;
