@@ -660,7 +660,7 @@ came from frame N-1's update of the bank after tick N-2.
 ## Related gameplay facts (PS2)
 
 - The animator's pending next rate `+0x1C` (setter `0x003158E0`) is given to every new sequence by `0x00311F00`;
-  placement `0x00311A50` and the air selector reset it after their own play; `0x0012C678` sets 0.75 only around
+  full animator reset `0x00311A50` and the air selector reset it after their own play; `0x0012C678` sets 0.75 only around
   the finish reaction (`0x00115B58`) and then back to 1. This affects spin timing, prewinds and finish reactions.
 - The prewind branches of `0x0012E9B8` use class 10 and semantic 21, and `0x00114CC0` makes a reverse turn when
   rider `+0x328` == 0 and `+0x2DC` == 0.

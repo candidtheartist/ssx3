@@ -18,7 +18,7 @@ Translation units per the current splits:
 - `src/animation/animmodel.cpp`: model assembly and compile (`0x0030D8B8` `cAnimModel_addModelPartLOD`,
   `0x0030DBD0` `cAnimModel_compile`), part-active query `0x0030EBC0`, single-bone sampling `0x0030ECD8`, the
   local-pose sampler `0x0030F2B0`, forward kinematics `0x00310200`, late translation `0x00310530`, bone
-  world-position query `0x00310C48`, mask helper `0x00310CE8` (bone lists to masks, unconfirmed), 30 Hz segment
+  index lookup by name `0x00310C48`, mask helper `0x00310CE8` (bone lists to masks, unconfirmed), 30 Hz segment
   lookup `0x00311318`.
 - `src/animation/rideranimbase.cpp`: the rider animator (`0x003118D0` `cRiderAnimBase_cRiderAnimBase`,
   `0x003128E8` `cRiderAnimBase_play`, `0x00311B48` `cRiderAnimBase_changeHeadingOffset`, `0x00311BF0`
@@ -359,7 +359,7 @@ contact vectors **(PS2)**.
 
 - It is the rate for the *next* request, not the current sequence's rate. A new play request consumes it and
   resets it to 1; if the selected semantic does not change, a newly computed value survives to a later request.
-- `0x00311A50` (placement) resets it to 1. The air selector sets it and then plays with the default argument;
+- `0x00311A50` (the full animator reset) resets it to 1. The air selector sets it and then plays with the default argument;
   the in-flight switch passes it on.
 - The finish reaction plays at 0.75 inside a transient `0x0012C678` window, after which the rate returns to 1.
 - The charged-release rate is -1 when there is neither spin nor flip (meaning of -1 unconfirmed).

@@ -1,29 +1,31 @@
 #include "common.h"
 
 struct cAnimSequence {
-    char pad_0x00[0x98];
-    float mCurrentWeight; // 0x98
-    float mTargetWeight; // 0x9C
-    float mFadeSpeed; // 0xA0
+    char pad_0x00[0x94];
+    float mWeight;          // 0x94 current blend weight
+    float mTargetWeight;    // 0x98 weight being faded towards
+    float mFadeTime;        // 0x9C fade time remaining
+    int mRemoveWhenFaded;   // 0xA0 drop the sequence once the fade ends
 };
 
 //100%
-void cAnimSequence_fadeWeight(cAnimSequence* self, float weight, float target)
+void cAnimSequence_fadeWeight(cAnimSequence* self, float target, float time)
 {
-    self->mCurrentWeight = weight;
     self->mTargetWeight = target;
-    self->mFadeSpeed = 0.0f;
+    self->mFadeTime = time;
+    self->mRemoveWhenFaded = 0;
 }
 
 //100%
-extern "C" void cAnimSequence_fadeOut(void* self, float v)
+extern "C" void cAnimSequence_fadeOut(void* self_, float time)
 {
-    if (*(float*)((char*)self + 0x98) != 0.0f || *(float*)((char*)self + 0x9C) == 0.0f || v < *(float*)((char*)self + 0x9C))
+    cAnimSequence* self = (cAnimSequence*)self_;
+    if (self->mTargetWeight != 0.0f || self->mFadeTime == 0.0f || time < self->mFadeTime)
     {
-        *(float*)((char*)self + 0x9C) = v;
+        self->mFadeTime = time;
     }
-    *(float*)((char*)self + 0x98) = 0.0f;
-    *(int*)((char*)self + 0xA0) = 1;
+    self->mTargetWeight = 0.0f;
+    self->mRemoveWhenFaded = 1;
 }
 
 //100%
