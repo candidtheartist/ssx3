@@ -499,12 +499,13 @@ Per-channel sequence data reached through the rider animator.
 
 | Offset | Type | Meaning | Evidence |
 |---|---|---|---|
-| +0x84 | | Channel priority array, initialised from table 0x0048D808 = {3,2,1,0,0,0} | PS2 |
+| +0x84 | int | Sequence priority, the channel's value from table 0x0048D808 = {3,2,1,0,0,0} | PS2 |
 | +0x90 | float | Playback rate (the attack control writes 0 to freeze channel 1 and 1 to restore it) | |
 | +0x94 | float | Blend weight (attack strength is copied here for class 13) | |
 | +0x98 | float | Blend weight target | |
-| +0x9C | float | Fade value/time | |
-| +0xC0 | | Completion pulse flags; the crash semantics' pulses drive the control-8 phase machine | |
+| +0x9C | float | Fade time remaining | |
+| +0xA0 | int | Remove the sequence once the fade ends (set by fadeOut) | |
+| +0xC0 | int | Completion flag; the crash semantics' pulses drive the control-8 phase machine | |
 
 ## Front-end / rider animator
 

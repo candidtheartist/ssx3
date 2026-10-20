@@ -183,17 +183,22 @@ Channel priorities come from the table at `0x0048D808` = {3, 2, 1, 0, 0, 0}, ind
 | `+0x10` | Slot 0 duration. |
 | `+0x14` | Slot 0 weight. |
 | `+0x18` | Slot 0 enabled. |
+| `+0x1C` | Slot 0 loop flag. |
 | `+0x60` / `+0x70` | Per-sequence root offsets (rotated on stance reversal). |
 | `+0x80` | Mirror flag. |
 | `+0x84` | Priority. |
 | `+0x88` | 64-bit bone mask. |
 | `+0x90` | Sequence playback rate. |
+| `+0x94` / `+0x98` / `+0x9C` | Blend weight, target weight, fade time remaining. |
+| `+0xA0` | Remove when the fade ends. |
+| `+0xA4` / `+0xA8` | Slot weight ramp-out / ramp-in times. |
+| `+0xAC` | Trigger list (0x10-byte nodes {key, isEnd, point, next}). |
 | `+0xB0` / `+0xB8` | Latched / newly raised event flags. |
 | `+0xC0` | Completion flag (returned by `0x00312AE8`). |
 | `+0xC4` | Seek pending. |
 | `+0xC8` | Next sequence in the channel list. |
 
-A sequence has three playback slots with stride 0x1C; slot n's fields are at the slot-0 offsets plus n x 0x1C.
+A sequence is 0xD0 bytes (`include/animation/animsequence.h`) with three playback slots at `+0x04`, stride 0x1C; slot n's fields are at the slot-0 offsets plus n x 0x1C.
 The packed clip ID for bank 0 (the basic bank) is `index << 8`.
 
 Example: the Snow Jam glide state (Zoe) **(PS2)**
