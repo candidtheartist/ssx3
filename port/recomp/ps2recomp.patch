@@ -927,7 +927,7 @@ index 509fd07..b5210f9 100644
  
      std::string CodeGenerator::translateVU_VRGET(const Instruction &inst)
 diff --git a/ps2xRuntime/CMakeLists.txt b/ps2xRuntime/CMakeLists.txt
-index 589d768..4249a35 100644
+index 589d768..c08e969 100644
 --- a/ps2xRuntime/CMakeLists.txt
 +++ b/ps2xRuntime/CMakeLists.txt
 @@ -253,7 +253,7 @@ option(PS2X_ENABLE_FFMPEG "Enable FFmpeg-backed MPEG video decoding" ${PS2X_ENAB
@@ -939,7 +939,7 @@ index 589d768..4249a35 100644
      include(ExternalProject)
  
      set(FFMPEG_PREBUILT_TAG "n7.1-241205")
-@@ -383,8 +383,12 @@ add_library(ps2_runtime STATIC
+@@ -383,8 +383,13 @@ add_library(ps2_runtime STATIC
      src/lib/gs/ps2_gs_memory.cpp
      src/lib/gs/gs_frontend.cpp
      src/lib/gs/gs_cpu_backend.cpp
@@ -947,12 +947,13 @@ index 589d768..4249a35 100644
      src/lib/ps2_iop_host.cpp
      src/lib/ps2_memory.cpp
 +    src/lib/ps2_vu1_thread.cpp
++    src/lib/ps2_host_sync.cpp
 +    src/lib/ps2_host_thread.cpp
 +    src/lib/ps2_host_alloc.cpp
      src/lib/ps2_pad.cpp
      src/lib/ps2_rom_device.cpp
      src/lib/ps2_vfs.cpp
-@@ -393,6 +397,7 @@ add_library(ps2_runtime STATIC
+@@ -393,6 +398,7 @@ add_library(ps2_runtime STATIC
      src/lib/vu/ps2_vu1_core.cpp
      src/lib/vu/ps2_vu1_upper.cpp
      src/lib/vu/ps2_vu1_lower.cpp
@@ -960,7 +961,7 @@ index 589d768..4249a35 100644
      src/lib/games_database.cpp
  )
  
-@@ -429,6 +434,22 @@ target_compile_definitions(ps2_runtime PRIVATE
+@@ -429,6 +435,22 @@ target_compile_definitions(ps2_runtime PRIVATE
      PS2X_HAS_FFMPEG=$<BOOL:${PS2X_ENABLE_FFMPEG}>
  )
  
@@ -983,7 +984,7 @@ index 589d768..4249a35 100644
  file(GLOB_RECURSE KERNEL_SRC_FILES CONFIGURE_DEPENDS
      "${CMAKE_CURRENT_SOURCE_DIR}/src/lib/Kernel/*.cpp"
  )
-@@ -437,11 +458,17 @@ target_sources(ps2_runtime PRIVATE
+@@ -437,11 +459,17 @@ target_sources(ps2_runtime PRIVATE
      ${KERNEL_SRC_FILES}
  )
  
@@ -1003,7 +1004,7 @@ index 589d768..4249a35 100644
  set(ROOT_MAIN_CPP "${CMAKE_CURRENT_SOURCE_DIR}/src/main.cpp")
  
  if(EXISTS "${RUNNER_MAIN_CPP}")
-@@ -460,6 +487,62 @@ else()
+@@ -460,6 +488,62 @@ else()
      add_executable(ps2EntryRunner
          ${RUNNER_SRC_FILES}
      )
@@ -1066,7 +1067,7 @@ index 589d768..4249a35 100644
  endif()
  
  if(PS2X_ENABLE_RUNNER_UNITY_BUILD)
-@@ -476,6 +559,8 @@ if(PS2X_ENABLE_RUNNER_PCH)
+@@ -476,6 +560,8 @@ if(PS2X_ENABLE_RUNNER_PCH)
      )
  
      foreach(PS2X_RUNNER_GENERATED_HEADER IN ITEMS
@@ -1075,7 +1076,7 @@ index 589d768..4249a35 100644
          "${CMAKE_CURRENT_SOURCE_DIR}/include/ps2_recompiled_functions.h"
          "${CMAKE_CURRENT_SOURCE_DIR}/include/ps2_recompiled_stubs.h")
          if(EXISTS "${PS2X_RUNNER_GENERATED_HEADER}")
-@@ -511,6 +596,8 @@ target_link_libraries(ps2EntryRunner
+@@ -511,6 +597,8 @@ target_link_libraries(ps2EntryRunner
      PRIVATE
      ps2_runtime
  )
@@ -1084,7 +1085,7 @@ index 589d768..4249a35 100644
  
  if(PS2X_ENABLE_DEBUG_UI AND NOT PS2X_IS_VITA AND NOT PS2X_IS_ANDROID)
      target_sources(ps2EntryRunner PRIVATE
-@@ -597,7 +684,7 @@ install(TARGETS ps2_runtime ps2EntryRunner
+@@ -597,7 +685,7 @@ install(TARGETS ps2_runtime ps2EntryRunner
      ARCHIVE DESTINATION lib
  )
  
@@ -1775,19 +1776,18 @@ index 1cb1540..7d2ac28 100644
  }
 diff --git a/ps2xRuntime/include/runtime/gs/gs_threaded_backend.h b/ps2xRuntime/include/runtime/gs/gs_threaded_backend.h
 new file mode 100644
-index 0000000..0508748
+index 0000000..5ad4438
 --- /dev/null
 +++ b/ps2xRuntime/include/runtime/gs/gs_threaded_backend.h
-@@ -0,0 +1,232 @@
+@@ -0,0 +1,231 @@
 +#pragma once
 +
 +#include "runtime/gs/gs_backend.h"
 +#include "runtime/gs/gs_cpu_backend.h"
++#include "runtime/ps2_host_sync.h"
 +
 +#include <array>
 +#include <atomic>
-+#include <barrier>
-+#include <condition_variable>
 +#include <memory>
 +#include <mutex>
 +#include <thread>
@@ -1927,12 +1927,12 @@ index 0000000..0508748
 +        std::atomic<uint64_t> done{0};
 +    };
 +
-+    Command &beginCommand(std::unique_lock<std::mutex> &lock, CommandKind kind, bool mayWait = true);
-+    void endCommand(std::unique_lock<std::mutex> &lock);
++    Command &beginCommand(std::unique_lock<ps2_host_sync::Mutex> &lock, CommandKind kind, bool mayWait = true);
++    void endCommand(std::unique_lock<ps2_host_sync::Mutex> &lock);
 +    // The number of commands every worker has run.
 +    uint64_t completedCommands() const;
 +    // Waits, with m_queueMutex held, until every worker has run `target` commands.
-+    void waitForCompleted(std::unique_lock<std::mutex> &lock, uint64_t target) const;
++    void waitForCompleted(std::unique_lock<ps2_host_sync::Mutex> &lock, uint64_t target) const;
 +    // After a worker finishes commands, wakes a thread waiting for them.
 +    void notifyCompleted();
 +    // With m_queueMutex held, wakes idle workers for the commands queued since they were
@@ -1967,12 +1967,12 @@ index 0000000..0508748
 +    // Each worker's copy of VRAM it reads textures from, with more than one worker.
 +    std::vector<std::unique_ptr<uint8_t[]>> m_textureCopies;
 +
-+    mutable std::mutex m_queueMutex;
-+    mutable std::condition_variable m_workDone;
++    mutable ps2_host_sync::Mutex m_queueMutex;
++    mutable ps2_host_sync::CondVar m_workDone;
 +    // Idle workers sleep with their own mutex, so a worker going idle or waking never
 +    // waits for m_queueMutex, which a submitter holds while it sorts out each command.
-+    mutable std::mutex m_wakeMutex;
-+    mutable std::condition_variable m_workAvailable;
++    mutable ps2_host_sync::Mutex m_wakeMutex;
++    mutable ps2_host_sync::CondVar m_workAvailable;
 +    // Submitted commands, in order, by their number modulo its size. Each worker goes
 +    // through them at its own pace and waits for the others only where a command says
 +    // so (waitForAll, runAlone). A command's slot is reused once every worker has run it.
@@ -1995,19 +1995,19 @@ index 0000000..0508748
 +    // submitted so far.
 +    PageTracker::PageSet m_stale{};
 +
-+    std::barrier<BarrierCompletion> m_barrier;
++    ps2_host_sync::Barrier<BarrierCompletion> m_barrier;
 +    // The command every worker has arrived at, set by the first worker, and the end of
 +    // the run the barrier then ran from it (m_aloneBegin itself for a plain wait).
 +    uint64_t m_aloneBegin = 0;
 +    uint64_t m_aloneEnd = 0;
 +
-+    mutable std::mutex m_transferMutex;
++    mutable ps2_host_sync::Mutex m_transferMutex;
 +    GSTransferSnapshot m_transferSnapshot{};
 +
 +    // A presentation request waits in the queue until the draws before it are done.
 +    // m_presentMutex guards the flag and the last captured frame.
 +    GSPresentationRequest m_presentRequest{};
-+    mutable std::mutex m_presentMutex;
++    mutable ps2_host_sync::Mutex m_presentMutex;
 +    bool m_presentQueued = false;
 +    PresentationFrame m_lastPresented;
 +};
@@ -2376,6 +2376,130 @@ index 0000000..8dea1db
 +        return std::fesetround(mode) == 0;
 +#endif
 +    }
++}
+diff --git a/ps2xRuntime/include/runtime/ps2_host_sync.h b/ps2xRuntime/include/runtime/ps2_host_sync.h
+new file mode 100644
+index 0000000..b5957a0
+--- /dev/null
++++ b/ps2xRuntime/include/runtime/ps2_host_sync.h
+@@ -0,0 +1,118 @@
++#pragma once
++
++#include <atomic>
++#include <condition_variable>
++#include <cstddef>
++#include <cstdint>
++#include <mutex>
++#include <utility>
++
++// The mutex and condition variable of the threads that hand each other work many times
++// a frame: the VU1 thread and the GS workers. MinGW's std::mutex and
++// std::condition_variable are winpthreads', whose condition variable sleeps on a
++// semaphore through WaitForMultipleObjects and wakes through ReleaseSemaphore, both
++// system calls every time; on a Windows PC the GS workers spent about a fifth of a core
++// each in them. Windows' own slim reader/writer lock and condition variable stay in user
++// mode unless a thread really has to sleep. Elsewhere these are the standard types.
++namespace ps2_host_sync
++{
++#if defined(_WIN32)
++    class Mutex
++    {
++    public:
++        Mutex() = default;
++        Mutex(const Mutex &) = delete;
++        Mutex &operator=(const Mutex &) = delete;
++
++        void lock();
++        bool try_lock();
++        void unlock();
++
++    private:
++        friend class CondVar;
++        void *m_lock = nullptr; // an SRWLOCK
++    };
++
++    class CondVar
++    {
++    public:
++        CondVar() = default;
++        CondVar(const CondVar &) = delete;
++        CondVar &operator=(const CondVar &) = delete;
++
++        void notify_one() noexcept;
++        void notify_all() noexcept;
++        void wait(std::unique_lock<Mutex> &lock);
++        template <class Predicate>
++        void wait(std::unique_lock<Mutex> &lock, Predicate pred)
++        {
++            while (!pred())
++                wait(lock);
++        }
++
++    private:
++        void *m_cv = nullptr; // a CONDITION_VARIABLE
++    };
++#else
++    using Mutex = std::mutex;
++    using CondVar = std::condition_variable;
++#endif
++
++    // How many times a thread checks again, with a pause, before it sleeps at a Barrier.
++    // PS2X_GS_SPIN overrides it.
++    unsigned barrierSpins();
++    void spinPause();
++
++    // A barrier for a fixed number of threads, like std::barrier (whose waits also go
++    // through winpthreads with MinGW): the last thread to arrive runs the completion
++    // while the others wait, then releases them. A waiting thread checks for a while
++    // before it sleeps, since the others are often close behind.
++    template <class Completion>
++    class Barrier
++    {
++    public:
++        Barrier(std::ptrdiff_t count, Completion completion)
++            : m_count(count), m_left(count), m_completion(std::move(completion)), m_spins(barrierSpins())
++        {
++        }
++
++        void arrive_and_wait()
++        {
++            std::unique_lock<Mutex> lock(m_mutex);
++            const uint64_t phase = m_phase.load(std::memory_order_relaxed);
++            if (--m_left == 0)
++            {
++                m_completion();
++                m_left = m_count;
++                m_phase.store(phase + 1u, std::memory_order_release);
++                const bool sleepers = m_sleepers != 0u;
++                lock.unlock();
++                if (sleepers)
++                    m_released.notify_all();
++                return;
++            }
++            lock.unlock();
++            for (unsigned spin = 0; spin < m_spins; ++spin)
++            {
++                if (m_phase.load(std::memory_order_acquire) != phase)
++                    return;
++                spinPause();
++            }
++            lock.lock();
++            ++m_sleepers;
++            m_released.wait(lock, [&]
++                            { return m_phase.load(std::memory_order_relaxed) != phase; });
++            --m_sleepers;
++        }
++
++    private:
++        Mutex m_mutex;
++        CondVar m_released;
++        const std::ptrdiff_t m_count;
++        std::ptrdiff_t m_left;           // with m_mutex held
++        uint32_t m_sleepers = 0;         // with m_mutex held
++        std::atomic<uint64_t> m_phase{0}; // changed with m_mutex held
++        Completion m_completion;
++        const unsigned m_spins;
++    };
 +}
 diff --git a/ps2xRuntime/include/runtime/ps2_memory.h b/ps2xRuntime/include/runtime/ps2_memory.h
 index ea86a9c..50d3a59 100644
@@ -2831,21 +2955,22 @@ index 67c8184..dae19d5 100644
      void reportReservedInstruction(bool upper, uint32_t instruction);
 diff --git a/ps2xRuntime/include/runtime/ps2_vu1_thread.h b/ps2xRuntime/include/runtime/ps2_vu1_thread.h
 new file mode 100644
-index 0000000..22540f9
+index 0000000..935924d
 --- /dev/null
 +++ b/ps2xRuntime/include/runtime/ps2_vu1_thread.h
-@@ -0,0 +1,72 @@
+@@ -0,0 +1,73 @@
 +#pragma once
 +
 +#include <array>
 +#include <atomic>
-+#include <condition_variable>
 +#include <cstddef>
 +#include <cstdint>
 +#include <deque>
 +#include <functional>
 +#include <mutex>
 +#include <thread>
++
++#include "runtime/ps2_host_sync.h"
 +
 +// Runs VIF1 lists, the VU1 microprograms they start and the GIF packets they and GIF
 +// DMA send, one job at a time in submission order, on its own thread, so the EE can
@@ -2887,9 +3012,9 @@ index 0000000..22540f9
 +    void WaitFor(uint64_t sequence);
 +    bool hasRoomFor(size_t bytes) const; // with m_mutex held
 +
-+    std::mutex m_mutex;
-+    std::condition_variable m_jobReady;
-+    std::condition_variable m_jobDone;
++    ps2_host_sync::Mutex m_mutex;
++    ps2_host_sync::CondVar m_jobReady;
++    ps2_host_sync::CondVar m_jobDone;
 +    std::deque<Job> m_jobs;
 +    size_t m_pendingBytes = 0;
 +    // Waking a thread costs a lot more than checking whether it needs waking (on Windows
@@ -5819,7 +5944,7 @@ index f0ad507..d816ecd 100644
      return false;
 diff --git a/ps2xRuntime/src/lib/gs/gs_threaded_backend.cpp b/ps2xRuntime/src/lib/gs/gs_threaded_backend.cpp
 new file mode 100644
-index 0000000..8d65185
+index 0000000..d094918
 --- /dev/null
 +++ b/ps2xRuntime/src/lib/gs/gs_threaded_backend.cpp
 @@ -0,0 +1,1097 @@
@@ -6207,7 +6332,7 @@ index 0000000..8d65185
 +{
 +    waitForQueuedWork();
 +    {
-+        std::lock_guard<std::mutex> lock(m_wakeMutex);
++        std::lock_guard<ps2_host_sync::Mutex> lock(m_wakeMutex);
 +        m_stopping = true;
 +    }
 +    m_workAvailable.notify_all();
@@ -6218,7 +6343,7 @@ index 0000000..8d65185
 +    }
 +}
 +
-+GSThreadedBackend::Command &GSThreadedBackend::beginCommand(std::unique_lock<std::mutex> &lock, CommandKind kind, bool mayWait)
++GSThreadedBackend::Command &GSThreadedBackend::beginCommand(std::unique_lock<ps2_host_sync::Mutex> &lock, CommandKind kind, bool mayWait)
 +{
 +    const uint64_t submitted = m_submitted.load(std::memory_order_relaxed);
 +    if (mayWait && submitted >= kMaxPendingCommands && completedCommands() + kMaxPendingCommands <= submitted)
@@ -6232,7 +6357,7 @@ index 0000000..8d65185
 +    return command;
 +}
 +
-+void GSThreadedBackend::endCommand(std::unique_lock<std::mutex> &lock)
++void GSThreadedBackend::endCommand(std::unique_lock<ps2_host_sync::Mutex> &lock)
 +{
 +    // Workers already awake see the command at once. Idle ones are woken for a batch,
 +    // for a command they all wait at, and before anything waits for them (so a short
@@ -6252,7 +6377,7 @@ index 0000000..8d65185
 +    // looks and goes to sleep with m_wakeMutex held, so the wakeup can't fall in between.
 +    if (m_idleWorkers.load() != 0u)
 +    {
-+        std::lock_guard<std::mutex> lock(m_wakeMutex);
++        std::lock_guard<ps2_host_sync::Mutex> lock(m_wakeMutex);
 +        m_workAvailable.notify_all();
 +    }
 +}
@@ -6265,7 +6390,7 @@ index 0000000..8d65185
 +    return completed;
 +}
 +
-+void GSThreadedBackend::waitForCompleted(std::unique_lock<std::mutex> &lock, uint64_t target) const
++void GSThreadedBackend::waitForCompleted(std::unique_lock<ps2_host_sync::Mutex> &lock, uint64_t target) const
 +{
 +    if (completedCommands() >= target)
 +        return;
@@ -6289,14 +6414,14 @@ index 0000000..8d65185
 +    // its progress before checking for waiters, so one of them sees the other.
 +    if (m_completionWaiters.load() != 0u && completedCommands() >= m_completionTarget.load())
 +    {
-+        std::lock_guard<std::mutex> lock(m_queueMutex);
++        std::lock_guard<ps2_host_sync::Mutex> lock(m_queueMutex);
 +        m_workDone.notify_all();
 +    }
 +}
 +
 +void GSThreadedBackend::waitForQueuedWork() const
 +{
-+    std::unique_lock<std::mutex> lock(m_queueMutex);
++    std::unique_lock<ps2_host_sync::Mutex> lock(m_queueMutex);
 +    waitForCompleted(lock, m_submitted.load());
 +}
 +
@@ -6574,7 +6699,7 @@ index 0000000..8d65185
 +    if (worker == 0u && (command.kind == CommandKind::BeginTransfer || command.kind == CommandKind::UploadImage))
 +    {
 +        const GSTransferSnapshot snapshot = backend.GetTransferSnapshot();
-+        std::lock_guard<std::mutex> lock(m_transferMutex);
++        std::lock_guard<ps2_host_sync::Mutex> lock(m_transferMutex);
 +        m_transferSnapshot = snapshot;
 +    }
 +}
@@ -6613,7 +6738,7 @@ index 0000000..8d65185
 +    {
 +        PresentationFrame frame = backend.Present(m_presentRequest);
 +        {
-+            std::lock_guard<std::mutex> lock(m_presentMutex);
++            std::lock_guard<ps2_host_sync::Mutex> lock(m_presentMutex);
 +            m_lastPresented = std::move(frame);
 +            m_presentQueued = false;
 +        }
@@ -6626,7 +6751,7 @@ index 0000000..8d65185
 +    if (command.kind == CommandKind::BeginTransfer)
 +    {
 +        const GSTransferSnapshot snapshot = backend.GetTransferSnapshot();
-+        std::lock_guard<std::mutex> lock(m_transferMutex);
++        std::lock_guard<ps2_host_sync::Mutex> lock(m_transferMutex);
 +        m_transferSnapshot = snapshot;
 +    }
 +}
@@ -6639,7 +6764,7 @@ index 0000000..8d65185
 +    {
 +        if (next == m_submitted.load())
 +        {
-+            std::unique_lock<std::mutex> lock(m_wakeMutex);
++            std::unique_lock<ps2_host_sync::Mutex> lock(m_wakeMutex);
 +            ++m_idleWorkers;
 +            m_workAvailable.wait(lock, [this, next]() { return m_stopping || m_submitted.load() != next; });
 +            --m_idleWorkers;
@@ -6698,10 +6823,10 @@ index 0000000..8d65185
 +        }
 +    }
 +    {
-+        std::lock_guard<std::mutex> lock(m_queueMutex);
++        std::lock_guard<ps2_host_sync::Mutex> lock(m_queueMutex);
 +        m_stale.fill(0u);
 +    }
-+    std::lock_guard<std::mutex> lock(m_transferMutex);
++    std::lock_guard<ps2_host_sync::Mutex> lock(m_transferMutex);
 +    m_transferSnapshot = m_workers[0].backend->GetTransferSnapshot();
 +}
 +
@@ -6710,13 +6835,13 @@ index 0000000..8d65185
 +    waitForQueuedWork();
 +    for (Worker &worker : m_workers)
 +        worker.backend->Reset();
-+    std::lock_guard<std::mutex> lock(m_transferMutex);
++    std::lock_guard<ps2_host_sync::Mutex> lock(m_transferMutex);
 +    m_transferSnapshot = m_workers[0].backend->GetTransferSnapshot();
 +}
 +
 +void GSThreadedBackend::Submit(const GSPrimitiveBatch &batch)
 +{
-+    std::unique_lock<std::mutex> lock(m_queueMutex);
++    std::unique_lock<ps2_host_sync::Mutex> lock(m_queueMutex);
 +    Command &command = beginCommand(lock, CommandKind::Submit);
 +    command.batch = batch;
 +    classifySubmit(command);
@@ -6725,7 +6850,7 @@ index 0000000..8d65185
 +
 +void GSThreadedBackend::LoadClut(const GSTex0Reg &tex0, const GSTexClutReg &texclut)
 +{
-+    std::unique_lock<std::mutex> lock(m_queueMutex);
++    std::unique_lock<ps2_host_sync::Mutex> lock(m_queueMutex);
 +    Command &command = beginCommand(lock, CommandKind::LoadClut);
 +    command.tex0 = tex0;
 +    command.texclut = texclut;
@@ -6745,7 +6870,7 @@ index 0000000..8d65185
 +
 +void GSThreadedBackend::BeginTransfer(const GSTransferCommand &transfer)
 +{
-+    std::unique_lock<std::mutex> lock(m_queueMutex);
++    std::unique_lock<ps2_host_sync::Mutex> lock(m_queueMutex);
 +    Command &command = beginCommand(lock, CommandKind::BeginTransfer);
 +    command.transfer = transfer;
 +    const GSBitBltBuf &buffers = transfer.bitbltbuf;
@@ -6787,7 +6912,7 @@ index 0000000..8d65185
 +
 +void GSThreadedBackend::UploadImage(const uint8_t *data, uint32_t sizeBytes)
 +{
-+    std::unique_lock<std::mutex> lock(m_queueMutex);
++    std::unique_lock<ps2_host_sync::Mutex> lock(m_queueMutex);
 +    Command &command = beginCommand(lock, CommandKind::UploadImage);
 +    if (data && sizeBytes != 0u)
 +        command.data.assign(data, data + sizeBytes);
@@ -6801,7 +6926,7 @@ index 0000000..8d65185
 +
 +void GSThreadedBackend::TextureFlush()
 +{
-+    std::unique_lock<std::mutex> lock(m_queueMutex);
++    std::unique_lock<ps2_host_sync::Mutex> lock(m_queueMutex);
 +    beginCommand(lock, CommandKind::TextureFlush);
 +    endCommand(lock);
 +}
@@ -6818,10 +6943,10 @@ index 0000000..8d65185
 +    // for room in a full queue. A request is captured once everything submitted before
 +    // it has been drawn; until then this keeps returning the last captured frame.
 +    {
-+        std::unique_lock<std::mutex> lock(m_queueMutex);
++        std::unique_lock<ps2_host_sync::Mutex> lock(m_queueMutex);
 +        bool queued;
 +        {
-+            std::lock_guard<std::mutex> presentLock(m_presentMutex);
++            std::lock_guard<ps2_host_sync::Mutex> presentLock(m_presentMutex);
 +            queued = m_presentQueued;
 +            if (!queued)
 +            {
@@ -6835,7 +6960,7 @@ index 0000000..8d65185
 +            endCommand(lock);
 +        }
 +    }
-+    std::lock_guard<std::mutex> lock(m_presentMutex);
++    std::lock_guard<ps2_host_sync::Mutex> lock(m_presentMutex);
 +    return m_lastPresented;
 +}
 +
@@ -6849,7 +6974,7 @@ index 0000000..8d65185
 +    if (!handled)
 +        return false;
 +
-+    std::unique_lock<std::mutex> lock(m_queueMutex);
++    std::unique_lock<ps2_host_sync::Mutex> lock(m_queueMutex);
 +    Command &command = beginCommand(lock, CommandKind::ClearFramebuffer);
 +    command.batch.state.context = context;
 +    command.args[0] = rgba;
@@ -6874,7 +6999,7 @@ index 0000000..8d65185
 +    GSCpuBackend &backend = *m_workers[0].backend;
 +    const uint32_t consumed = backend.ConsumeLocalToHostBytes(dst, maxBytes);
 +    const GSTransferSnapshot snapshot = backend.GetTransferSnapshot();
-+    std::lock_guard<std::mutex> lock(m_transferMutex);
++    std::lock_guard<ps2_host_sync::Mutex> lock(m_transferMutex);
 +    m_transferSnapshot = snapshot;
 +    return consumed;
 +}
@@ -6887,7 +7012,7 @@ index 0000000..8d65185
 +
 +void GSThreadedBackend::WriteVram(uint32_t psm, uint32_t base, uint32_t bw, uint32_t x, uint32_t y, uint32_t value)
 +{
-+    std::unique_lock<std::mutex> lock(m_queueMutex);
++    std::unique_lock<ps2_host_sync::Mutex> lock(m_queueMutex);
 +    Command &command = beginCommand(lock, CommandKind::WriteVram);
 +    command.args[0] = psm;
 +    command.args[1] = base;
@@ -6914,10 +7039,10 @@ index 0000000..8d65185
 +    // GS records this with every draw for its debug history, so wait only for queued
 +    // transfers, and read the worker's copy instead of locking a drawing backend.
 +    {
-+        std::unique_lock<std::mutex> lock(m_queueMutex);
++        std::unique_lock<ps2_host_sync::Mutex> lock(m_queueMutex);
 +        waitForCompleted(lock, m_lastTransferCommand);
 +    }
-+    std::lock_guard<std::mutex> lock(m_transferMutex);
++    std::lock_guard<ps2_host_sync::Mutex> lock(m_transferMutex);
 +    return m_transferSnapshot;
 +}
 diff --git a/ps2xRuntime/src/lib/gs/ps2_gs_memory.cpp b/ps2xRuntime/src/lib/gs/ps2_gs_memory.cpp
@@ -7219,6 +7344,84 @@ index 0000000..a8752e8
 +void operator delete[](void *p, std::align_val_t, const std::nothrow_t &) noexcept { _aligned_free(p); }
 +
 +#endif
+diff --git a/ps2xRuntime/src/lib/ps2_host_sync.cpp b/ps2xRuntime/src/lib/ps2_host_sync.cpp
+new file mode 100644
+index 0000000..6654028
+--- /dev/null
++++ b/ps2xRuntime/src/lib/ps2_host_sync.cpp
+@@ -0,0 +1,72 @@
++#include "runtime/ps2_host_sync.h"
++
++#include <cstdlib>
++#include <thread>
++
++#if defined(_WIN32)
++#include <windows.h>
++#endif
++
++#if defined(__i386__) || defined(__x86_64__) || defined(_M_IX86) || defined(_M_X64)
++#include <immintrin.h>
++#endif
++
++namespace ps2_host_sync
++{
++#if defined(_WIN32)
++    static_assert(sizeof(SRWLOCK) == sizeof(void *) && sizeof(CONDITION_VARIABLE) == sizeof(void *),
++                  "SRWLOCK and CONDITION_VARIABLE are a pointer each, zero when unused");
++
++    void Mutex::lock()
++    {
++        AcquireSRWLockExclusive(reinterpret_cast<PSRWLOCK>(&m_lock));
++    }
++
++    bool Mutex::try_lock()
++    {
++        return TryAcquireSRWLockExclusive(reinterpret_cast<PSRWLOCK>(&m_lock)) != 0;
++    }
++
++    void Mutex::unlock()
++    {
++        ReleaseSRWLockExclusive(reinterpret_cast<PSRWLOCK>(&m_lock));
++    }
++
++    void CondVar::notify_one() noexcept
++    {
++        WakeConditionVariable(reinterpret_cast<PCONDITION_VARIABLE>(&m_cv));
++    }
++
++    void CondVar::notify_all() noexcept
++    {
++        WakeAllConditionVariable(reinterpret_cast<PCONDITION_VARIABLE>(&m_cv));
++    }
++
++    void CondVar::wait(std::unique_lock<Mutex> &lock)
++    {
++        SleepConditionVariableSRW(reinterpret_cast<PCONDITION_VARIABLE>(&m_cv),
++                                  reinterpret_cast<PSRWLOCK>(&lock.mutex()->m_lock), INFINITE, 0);
++    }
++#endif
++
++    unsigned barrierSpins()
++    {
++        // About 20 microseconds on a current x86 core, near what waking a sleeping
++        // thread costs.
++        static const unsigned spins = []
++        {
++            const char *value = std::getenv("PS2X_GS_SPIN");
++            return value ? static_cast<unsigned>(std::strtoul(value, nullptr, 10)) : 2000u;
++        }();
++        return spins;
++    }
++
++    void spinPause()
++    {
++#if defined(__i386__) || defined(__x86_64__) || defined(_M_IX86) || defined(_M_X64)
++        _mm_pause();
++#else
++        std::this_thread::yield();
++#endif
++    }
++}
 diff --git a/ps2xRuntime/src/lib/ps2_host_thread.cpp b/ps2xRuntime/src/lib/ps2_host_thread.cpp
 new file mode 100644
 index 0000000..d6561bb
@@ -8680,7 +8883,7 @@ index b02c7ca..b60974f 100644
      }
 diff --git a/ps2xRuntime/src/lib/ps2_vu1_thread.cpp b/ps2xRuntime/src/lib/ps2_vu1_thread.cpp
 new file mode 100644
-index 0000000..57a39f3
+index 0000000..b3e6b0d
 --- /dev/null
 +++ b/ps2xRuntime/src/lib/ps2_vu1_thread.cpp
 @@ -0,0 +1,127 @@
@@ -8704,7 +8907,7 @@ index 0000000..57a39f3
 +Vu1Thread::~Vu1Thread()
 +{
 +    {
-+        std::lock_guard<std::mutex> lock(m_mutex);
++        std::lock_guard<ps2_host_sync::Mutex> lock(m_mutex);
 +        m_stop = true;
 +    }
 +    m_jobReady.notify_all();
@@ -8718,7 +8921,7 @@ index 0000000..57a39f3
 +    entry.bytes = bytes;
 +    entry.roundingMode = ps2_host_fpu::getRounding();
 +
-+    std::unique_lock<std::mutex> lock(m_mutex);
++    std::unique_lock<ps2_host_sync::Mutex> lock(m_mutex);
 +    // A job bigger than the limit still goes in, once the queue has drained.
 +    if (!hasRoomFor(bytes))
 +    {
@@ -8760,7 +8963,7 @@ index 0000000..57a39f3
 +{
 +    if (m_completed.load(std::memory_order_acquire) >= sequence)
 +        return;
-+    std::unique_lock<std::mutex> lock(m_mutex);
++    std::unique_lock<ps2_host_sync::Mutex> lock(m_mutex);
 +    ++m_completionWaiters;
 +    m_waitTarget = std::min(m_waitTarget, sequence);
 +    m_jobDone.wait(lock, [&]
@@ -8776,7 +8979,7 @@ index 0000000..57a39f3
 +    {
 +        Job job;
 +        {
-+            std::unique_lock<std::mutex> lock(m_mutex);
++            std::unique_lock<ps2_host_sync::Mutex> lock(m_mutex);
 +            if (!m_stop && m_jobs.empty())
 +            {
 +                m_idle = true;
@@ -8802,7 +9005,7 @@ index 0000000..57a39f3
 +
 +        bool wake = false;
 +        {
-+            std::lock_guard<std::mutex> lock(m_mutex);
++            std::lock_guard<ps2_host_sync::Mutex> lock(m_mutex);
 +            m_pendingBytes -= job.bytes;
 +            const uint64_t completed = m_completed.fetch_add(1u, std::memory_order_release) + 1u;
 +            wake = completed >= m_waitTarget || (m_roomWanted != SIZE_MAX && hasRoomFor(m_roomWanted));
