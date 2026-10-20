@@ -2326,6 +2326,57 @@ index a8c2a55..642e8cb 100644
  
  private:
      struct DecodedSample
+diff --git a/ps2xRuntime/include/runtime/ps2_host_fpu.h b/ps2xRuntime/include/runtime/ps2_host_fpu.h
+new file mode 100644
+index 0000000..8dea1db
+--- /dev/null
++++ b/ps2xRuntime/include/runtime/ps2_host_fpu.h
+@@ -0,0 +1,45 @@
++#pragma once
++
++#include <cfenv>
++
++#if (defined(__i386__) || defined(__x86_64__)) && (defined(__GNUC__) || defined(__clang__))
++#include <xmmintrin.h>
++#define PS2X_HOST_FPU_X86 1
++static_assert(FE_TONEAREST == 0 && FE_DOWNWARD == 0x400 && FE_UPWARD == 0x800 && FE_TOWARDZERO == 0xC00,
++              "x87 rounding bits");
++#endif
++
++// The host rounding mode, changed without the C library on x86. MinGW's 32-bit
++// fesetround, fegetenv and fesetenv check for SSE with CPUID on every call, and CPUID
++// traps into the hypervisor when Windows runs under one. The VU1 thread changes the
++// mode around every VU1 program it runs, so those calls added up.
++namespace ps2_host_fpu
++{
++    inline int getRounding()
++    {
++        return std::fegetround();
++    }
++
++    // Returns true once the mode is set, like fesetround returning 0.
++    inline bool setRounding(int mode)
++    {
++#if defined(PS2X_HOST_FPU_X86)
++        // On x86 the FE_* values are the x87 control word's rounding bits; the MXCSR
++        // has the same two bits three places higher.
++        if ((mode & ~0x0C00) != 0)
++            return false;
++        unsigned short cw;
++        __asm__ volatile("fnstcw %0" : "=m"(cw));
++        const unsigned short newCw = static_cast<unsigned short>((cw & ~0x0C00u) | static_cast<unsigned>(mode));
++        if (newCw != cw)
++            __asm__ volatile("fldcw %0" : : "m"(newCw) : "memory");
++        const unsigned int csr = _mm_getcsr();
++        const unsigned int newCsr = (csr & ~0x6000u) | (static_cast<unsigned int>(mode) << 3);
++        if (newCsr != csr)
++            _mm_setcsr(newCsr);
++        return true;
++#else
++        return std::fesetround(mode) == 0;
++#endif
++    }
++}
 diff --git a/ps2xRuntime/include/runtime/ps2_memory.h b/ps2xRuntime/include/runtime/ps2_memory.h
 index ea86a9c..50d3a59 100644
 --- a/ps2xRuntime/include/runtime/ps2_memory.h
@@ -2780,15 +2831,14 @@ index 67c8184..dae19d5 100644
      void reportReservedInstruction(bool upper, uint32_t instruction);
 diff --git a/ps2xRuntime/include/runtime/ps2_vu1_thread.h b/ps2xRuntime/include/runtime/ps2_vu1_thread.h
 new file mode 100644
-index 0000000..f937538
+index 0000000..22540f9
 --- /dev/null
 +++ b/ps2xRuntime/include/runtime/ps2_vu1_thread.h
-@@ -0,0 +1,74 @@
+@@ -0,0 +1,72 @@
 +#pragma once
 +
 +#include <array>
 +#include <atomic>
-+#include <cfenv>
 +#include <condition_variable>
 +#include <cstddef>
 +#include <cstdint>
@@ -2799,10 +2849,9 @@ index 0000000..f937538
 +
 +// Runs VIF1 lists, the VU1 microprograms they start and the GIF packets they and GIF
 +// DMA send, one job at a time in submission order, on its own thread, so the EE can
-+// keep going meanwhile. Each job runs in the floating-point environment its submitter
-+// had. Before the EE side reads or changes anything a job may touch (VIF1 and VU1
-+// state, the GIF arbiter, the GS frontend and the GS registers the GIF writes), it
-+// calls WaitIdle.
++// keep going meanwhile. Each job runs in the rounding mode its submitter had. Before
++// the EE side reads or changes anything a job may touch (VIF1 and VU1 state, the GIF
++// arbiter, the GS frontend and the GS registers the GIF writes), it calls WaitIdle.
 +class Vu1Thread
 +{
 +public:
@@ -2831,7 +2880,7 @@ index 0000000..f937538
 +    {
 +        std::function<void()> run;
 +        size_t bytes = 0;
-+        fenv_t env{};
++        int roundingMode = 0;
 +    };
 +
 +    void Run();
@@ -5770,12 +5819,13 @@ index f0ad507..d816ecd 100644
      return false;
 diff --git a/ps2xRuntime/src/lib/gs/gs_threaded_backend.cpp b/ps2xRuntime/src/lib/gs/gs_threaded_backend.cpp
 new file mode 100644
-index 0000000..ea8e62b
+index 0000000..8d65185
 --- /dev/null
 +++ b/ps2xRuntime/src/lib/gs/gs_threaded_backend.cpp
-@@ -0,0 +1,1098 @@
+@@ -0,0 +1,1097 @@
 +#include "runtime/gs/gs_threaded_backend.h"
 +#include "runtime/gs/ps2_gs_common.h"
++#include "runtime/ps2_host_fpu.h"
 +
 +#include <algorithm>
 +#include <cfenv>
@@ -6178,7 +6228,7 @@ index 0000000..ea8e62b
 +    Command &command = m_ring[m_submitted.load(std::memory_order_relaxed) % kRingSize];
 +    command = Command{};
 +    command.kind = kind;
-+    command.roundingMode = std::fegetround();
++    command.roundingMode = ps2_host_fpu::getRounding();
 +    return command;
 +}
 +
@@ -6486,8 +6536,7 @@ index 0000000..ea8e62b
 +void GSThreadedBackend::runCommand(size_t worker, const Command &command)
 +{
 +    GSCpuBackend &backend = *m_workers[worker].backend;
-+    if (std::fegetround() != command.roundingMode)
-+        std::fesetround(command.roundingMode);
++    ps2_host_fpu::setRounding(command.roundingMode);
 +
 +    switch (command.kind)
 +    {
@@ -6533,8 +6582,7 @@ index 0000000..ea8e62b
 +void GSThreadedBackend::runAlone(const Command &command)
 +{
 +    GSCpuBackend &backend = *m_workers[0].backend;
-+    if (std::fegetround() != command.roundingMode)
-+        std::fesetround(command.roundingMode);
++    ps2_host_fpu::setRounding(command.roundingMode);
 +
 +    switch (command.kind)
 +    {
@@ -8632,13 +8680,14 @@ index b02c7ca..b60974f 100644
      }
 diff --git a/ps2xRuntime/src/lib/ps2_vu1_thread.cpp b/ps2xRuntime/src/lib/ps2_vu1_thread.cpp
 new file mode 100644
-index 0000000..89b0ea2
+index 0000000..57a39f3
 --- /dev/null
 +++ b/ps2xRuntime/src/lib/ps2_vu1_thread.cpp
-@@ -0,0 +1,126 @@
+@@ -0,0 +1,127 @@
 +#include "runtime/ps2_vu1_thread.h"
 +
 +#include "ThreadNaming.h"
++#include "runtime/ps2_host_fpu.h"
 +
 +#include <algorithm>
 +#include <cstdio>
@@ -8667,7 +8716,7 @@ index 0000000..89b0ea2
 +    Job entry;
 +    entry.run = std::move(job);
 +    entry.bytes = bytes;
-+    fegetenv(&entry.env);
++    entry.roundingMode = ps2_host_fpu::getRounding();
 +
 +    std::unique_lock<std::mutex> lock(m_mutex);
 +    // A job bigger than the limit still goes in, once the queue has drained.
@@ -8741,7 +8790,7 @@ index 0000000..89b0ea2
 +            m_jobs.pop_front();
 +        }
 +
-+        fesetenv(&job.env);
++        ps2_host_fpu::setRounding(job.roundingMode);
 +        try
 +        {
 +            job.run();
@@ -8764,10 +8813,10 @@ index 0000000..89b0ea2
 +}
 diff --git a/ps2xRuntime/src/lib/vu/ps2_vu1_compiled.cpp b/ps2xRuntime/src/lib/vu/ps2_vu1_compiled.cpp
 new file mode 100644
-index 0000000..dd79cf6
+index 0000000..bb1fff6
 --- /dev/null
 +++ b/ps2xRuntime/src/lib/vu/ps2_vu1_compiled.cpp
-@@ -0,0 +1,771 @@
+@@ -0,0 +1,772 @@
 +// Compiled blocks for VU1 programs.
 +//
 +// The interpreter (run()) is the spec: a compiled run must leave the same
@@ -8784,6 +8833,7 @@ index 0000000..dd79cf6
 +
 +#include "runtime/ps2_vu1.h"
 +#include "runtime/ps2_memory.h"
++#include "runtime/ps2_host_fpu.h"
 +#include "ps2_vu1_detail.h"
 +
 +#include <algorithm>
@@ -9364,8 +9414,8 @@ index 0000000..dd79cf6
 +    m_activeVuDataSize = dataSize;
 +    m_activeGs = &gs;
 +    m_activeMemory = memory;
-+    const int previousRoundingMode = std::fegetround();
-+    const bool useVuRounding = std::fesetround(FE_TOWARDZERO) == 0;
++    const int previousRoundingMode = ps2_host_fpu::getRounding();
++    const bool useVuRounding = ps2_host_fpu::setRounding(FE_TOWARDZERO);
 +    const uint64_t budgetEnd = m_cycle + maxCycles;
 +    m_compiledRun = true;
 +    m_compiledNextVi = ~0ull;
@@ -9510,7 +9560,7 @@ index 0000000..dd79cf6
 +        m_pendingHaltT = false;
 +        m_state.cycles = m_cycle;
 +        if (useVuRounding && previousRoundingMode != -1)
-+            std::fesetround(previousRoundingMode);
++            ps2_host_fpu::setRounding(previousRoundingMode);
 +        return true;
 +    }
 +
@@ -9526,7 +9576,7 @@ index 0000000..dd79cf6
 +    if (m_stopRequested && outOfBudget)
 +        advanceTo(budgetEnd);
 +    if (useVuRounding && previousRoundingMode != -1)
-+        std::fesetround(previousRoundingMode);
++        ps2_host_fpu::setRounding(previousRoundingMode);
 +    run(vuCode, codeSize, vuData, dataSize, gs, memory, static_cast<uint32_t>(budgetEnd - m_cycle));
 +    return true;
 +}
@@ -10598,10 +10648,14 @@ index 0000000..c2e64ac
 +    static size_t generatedBlocks(const VU1Interpreter &vu);
 +};
 diff --git a/ps2xRuntime/src/lib/vu/ps2_vu1_core.cpp b/ps2xRuntime/src/lib/vu/ps2_vu1_core.cpp
-index bd75bba..446fd5d 100644
+index bd75bba..6274276 100644
 --- a/ps2xRuntime/src/lib/vu/ps2_vu1_core.cpp
 +++ b/ps2xRuntime/src/lib/vu/ps2_vu1_core.cpp
-@@ -5,6 +5,7 @@
+@@ -2,9 +2,11 @@
+ #include "runtime/gs/ps2_gif_arbiter.h"
+ #include "runtime/gs/gs_frontend.h"
+ #include "runtime/ps2_memory.h"
++#include "runtime/ps2_host_fpu.h"
  #include "ps2_vu1_detail.h"
  
  #include <algorithm>
@@ -10609,7 +10663,7 @@ index bd75bba..446fd5d 100644
  #include <cfenv>
  #include <cmath>
  #include <cstdio>
-@@ -14,12 +15,186 @@
+@@ -14,12 +16,186 @@
  #include <limits>
  #include <ps2_log.h>
  
@@ -10796,7 +10850,7 @@ index bd75bba..446fd5d 100644
  }
  
  void VU1Interpreter::addVfRead(InstructionUsage &usage, uint8_t reg, uint8_t lanes)
-@@ -61,25 +236,31 @@ uint8_t VU1Interpreter::vfReadLanes(const InstructionUsage &usage, uint8_t reg)
+@@ -61,25 +237,31 @@ uint8_t VU1Interpreter::vfReadLanes(const InstructionUsage &usage, uint8_t reg)
  VU1Interpreter::VU1Interpreter(Unit unit)
      : m_unit(unit)
  {
@@ -10834,7 +10888,7 @@ index bd75bba..446fd5d 100644
      m_nextWriteSequence = 0;
      m_efuResourceReady = 0;
      m_workingClip = m_state.clip;
-@@ -103,24 +284,12 @@ void VU1Interpreter::reset()
+@@ -103,24 +285,12 @@ void VU1Interpreter::reset()
  
  float VU1Interpreter::broadcast(const float *vf, uint8_t bc)
  {
@@ -10861,7 +10915,7 @@ index bd75bba..446fd5d 100644
  }
  
  float VU1Interpreter::normalizeResult(float value, uint32_t &laneFlags) const
-@@ -151,11 +320,6 @@ float VU1Interpreter::normalizeResult(float value, uint32_t &laneFlags) const
+@@ -151,11 +321,6 @@ float VU1Interpreter::normalizeResult(float value, uint32_t &laneFlags) const
      return value;
  }
  
@@ -10873,7 +10927,7 @@ index bd75bba..446fd5d 100644
  int32_t VU1Interpreter::readBranchVi(uint8_t reg) const
  {
      if (reg == 0u)
-@@ -194,18 +358,31 @@ void VU1Interpreter::applyDestAcc(const float *result, uint8_t dest)
+@@ -194,18 +359,31 @@ void VU1Interpreter::applyDestAcc(const float *result, uint8_t dest)
      applyDest(m_state.acc, result, dest);
  }
  
@@ -10909,7 +10963,7 @@ index bd75bba..446fd5d 100644
              laneFlags[component] = normalizeFmacExactResult(result[component], exactResult);
              continue;
          }
-@@ -214,6 +391,7 @@ void VU1Interpreter::normalizeFmacResult(float *result, uint8_t dest,
+@@ -214,6 +392,7 @@ void VU1Interpreter::normalizeFmacResult(float *result, uint8_t dest,
          result[component] = normalizeResult(result[component], flags);
          laneFlags[component] = static_cast<uint8_t>(flags);
      }
@@ -10917,7 +10971,7 @@ index bd75bba..446fd5d 100644
  }
  
  bool VU1Interpreter::calculateFmacExactResult(uint32_t component,
-@@ -402,90 +580,7 @@ bool VU1Interpreter::calculateFmacExactResult(uint32_t component,
+@@ -402,90 +581,7 @@ bool VU1Interpreter::calculateFmacExactResult(uint32_t component,
  uint8_t VU1Interpreter::normalizeFmacExactResult(float &value,
                                                    long double exactResult) const
  {
@@ -11009,7 +11063,7 @@ index bd75bba..446fd5d 100644
  }
  
  void VU1Interpreter::updateFmacFlags(const uint8_t laneFlags[4], uint8_t dest,
-@@ -513,114 +608,90 @@ void VU1Interpreter::updateFmacFlags(const uint8_t laneFlags[4], uint8_t dest,
+@@ -513,114 +609,90 @@ void VU1Interpreter::updateFmacFlags(const uint8_t laneFlags[4], uint8_t dest,
              mac |= static_cast<uint32_t>(lane) << 12;
          status |= flags;
      }
@@ -11172,7 +11226,7 @@ index bd75bba..446fd5d 100644
  }
  
  void VU1Interpreter::queueQ(float value, uint32_t latency, uint32_t statusDi)
-@@ -629,6 +700,7 @@ void VU1Interpreter::queueQ(float value, uint32_t latency, uint32_t statusDi)
+@@ -629,6 +701,7 @@ void VU1Interpreter::queueQ(float value, uint32_t latency, uint32_t statusDi)
      value = normalizeResult(value, ignoredFlags);
      m_fdiv.valid = true;
      m_fdiv.readyCycle = m_cycle + latency;
@@ -11180,7 +11234,7 @@ index bd75bba..446fd5d 100644
      m_fdiv.value = value;
      m_fdiv.statusDi = statusDi & 0x30u;
  }
-@@ -643,6 +715,7 @@ void VU1Interpreter::queueP(float value, uint32_t latency)
+@@ -643,6 +716,7 @@ void VU1Interpreter::queueP(float value, uint32_t latency)
          {
              entry.valid = true;
              entry.readyCycle = m_cycle + latency;
@@ -11188,7 +11242,7 @@ index bd75bba..446fd5d 100644
              entry.value = value;
              // EFU throughput is one cycle shorter than result visibility.
              m_efuResourceReady = m_cycle + (latency > 0u ? latency - 1u : 0u);
-@@ -654,190 +727,218 @@ void VU1Interpreter::queueP(float value, uint32_t latency)
+@@ -654,190 +728,218 @@ void VU1Interpreter::queueP(float value, uint32_t latency)
  
  void VU1Interpreter::queueStore(uint32_t address, const uint32_t words[4], uint8_t laneMask)
  {
@@ -11540,7 +11594,7 @@ index bd75bba..446fd5d 100644
  }
  
  void VU1Interpreter::progressXgkick()
-@@ -857,10 +958,16 @@ void VU1Interpreter::progressXgkick()
+@@ -857,10 +959,16 @@ void VU1Interpreter::progressXgkick()
          }
  
          const uint32_t qwordOffset = m_xgkick.copiedBytes;
@@ -11560,7 +11614,7 @@ index bd75bba..446fd5d 100644
          }
          m_xgkick.copiedBytes += 16u;
  
-@@ -932,21 +1039,23 @@ void VU1Interpreter::startXgkick(uint32_t qwordAddress)
+@@ -932,21 +1040,23 @@ void VU1Interpreter::startXgkick(uint32_t qwordAddress)
          return;
  
      const uint32_t sourceAddress = (qwordAddress * 16u) % m_activeVuDataSize;
@@ -11588,7 +11642,7 @@ index bd75bba..446fd5d 100644
  }
  
  void VU1Interpreter::advanceTo(uint64_t targetCycle)
-@@ -962,22 +1071,7 @@ bool VU1Interpreter::pipelinesPending() const
+@@ -962,22 +1072,7 @@ bool VU1Interpreter::pipelinesPending() const
      for (const ScalarPipelineEntry &entry : m_efu)
          if (entry.valid)
              return true;
@@ -11612,7 +11666,7 @@ index bd75bba..446fd5d 100644
  }
  
  void VU1Interpreter::flushPipelines()
-@@ -988,91 +1082,90 @@ void VU1Interpreter::flushPipelines()
+@@ -988,91 +1083,90 @@ void VU1Interpreter::flushPipelines()
  
  uint64_t VU1Interpreter::calculatePairReadyCycle(const DecodedInstructionPair &decoded) const
  {
@@ -11765,7 +11819,7 @@ index bd75bba..446fd5d 100644
  }
  
  VU1Interpreter::InstructionUsage VU1Interpreter::decodeUpperUsage(uint32_t upper) const
-@@ -1517,6 +1610,8 @@ VU1Interpreter::DecodedInstructionPair VU1Interpreter::decodeInstructionPair(con
+@@ -1517,6 +1611,8 @@ VU1Interpreter::DecodedInstructionPair VU1Interpreter::decodeInstructionPair(con
      decoded.mBit = (decoded.upper & 0x20000000u) != 0u;
      decoded.dBit = (decoded.upper & 0x10000000u) != 0u;
      decoded.tBit = (decoded.upper & 0x08000000u) != 0u;
@@ -11774,7 +11828,7 @@ index bd75bba..446fd5d 100644
      decoded.upperUsage = decodeUpperUsage(decoded.upper);
      if (!decoded.iBit)
          decoded.lowerUsage = decodeLowerUsage(decoded.lower);
-@@ -1528,6 +1623,7 @@ VU1Interpreter::DecodedInstructionPair VU1Interpreter::decodeInstructionPair(con
+@@ -1528,6 +1624,7 @@ VU1Interpreter::DecodedInstructionPair VU1Interpreter::decodeInstructionPair(con
          if (decoded.lowerUsage.vfWrite.reg == upperWriteReg)
              decoded.suppressedLowerVf = upperWriteReg;
      }
@@ -11782,7 +11836,7 @@ index bd75bba..446fd5d 100644
      return decoded;
  }
  
-@@ -1545,6 +1641,27 @@ void VU1Interpreter::rebuildDecodedCodeCache(const uint8_t *vuCode, uint32_t cod
+@@ -1545,6 +1642,27 @@ void VU1Interpreter::rebuildDecodedCodeCache(const uint8_t *vuCode, uint32_t cod
      m_decodedCodeCacheValid = true;
  }
  
@@ -11810,7 +11864,7 @@ index bd75bba..446fd5d 100644
  VU1Interpreter::DecodedInstructionPair VU1Interpreter::getDecodedInstructionPairForPc(
      const uint8_t *vuCode, uint32_t codeSize, PS2Memory *memory, uint32_t pc)
  {
-@@ -1605,6 +1722,8 @@ void VU1Interpreter::execute(uint8_t *vuCode, uint32_t codeSize,
+@@ -1605,6 +1723,8 @@ void VU1Interpreter::execute(uint8_t *vuCode, uint32_t codeSize,
      m_state.vf[0][1] = 0.0f;
      m_state.vf[0][2] = 0.0f;
      m_state.vf[0][3] = 1.0f;
@@ -11819,8 +11873,14 @@ index bd75bba..446fd5d 100644
      run(vuCode, codeSize, vuData, dataSize, gs, memory, maxCycles);
  }
  
-@@ -1633,13 +1752,27 @@ void VU1Interpreter::run(uint8_t *vuCode, uint32_t codeSize,
-     const bool useVuRounding = std::fesetround(FE_TOWARDZERO) == 0;
+@@ -1629,17 +1749,31 @@ void VU1Interpreter::run(uint8_t *vuCode, uint32_t codeSize,
+     m_activeGs = &gs;
+     m_activeMemory = memory;
+ 
+-    const int previousRoundingMode = std::fegetround();
+-    const bool useVuRounding = std::fesetround(FE_TOWARDZERO) == 0;
++    const int previousRoundingMode = ps2_host_fpu::getRounding();
++    const bool useVuRounding = ps2_host_fpu::setRounding(FE_TOWARDZERO);
      const uint64_t budgetEnd = m_cycle + maxCycles;
      bool programEnded = false;
 +    // Code memory cannot change while the unit runs, so the decoded pairs
@@ -11849,7 +11909,7 @@ index bd75bba..446fd5d 100644
          if (decoded.upperUsage.reserved || decoded.lowerUsage.reserved)
          {
              reportReservedInstruction(decoded.upperUsage.reserved, decoded.upperUsage.reserved ? decoded.upper : decoded.lower);
-@@ -1662,14 +1795,10 @@ void VU1Interpreter::run(uint8_t *vuCode, uint32_t codeSize,
+@@ -1662,14 +1796,10 @@ void VU1Interpreter::run(uint8_t *vuCode, uint32_t codeSize,
  
          uint8_t writtenVi = 0u;
          int32_t oldVi = 0;
@@ -11867,7 +11927,7 @@ index bd75bba..446fd5d 100644
          }
  
          const VfAccess upperWrite = decoded.upperUsage.vfWrite;
-@@ -1678,21 +1807,16 @@ void VU1Interpreter::run(uint8_t *vuCode, uint32_t codeSize,
+@@ -1678,21 +1808,16 @@ void VU1Interpreter::run(uint8_t *vuCode, uint32_t codeSize,
          const bool hasLowerWrite = lowerWrite.reg != 0u && decoded.suppressedLowerVf != lowerWrite.reg;
          const bool hasDistinctLowerWrite = hasLowerWrite && (!hasUpperWrite || lowerWrite.reg != upperWrite.reg);
          float oldUpperVf[4]{};
@@ -11891,7 +11951,7 @@ index bd75bba..446fd5d 100644
              float immediate = 0.0f;
              std::memcpy(&immediate, &decoded.lower, sizeof(immediate));
              m_state.i = normalizeOperand(immediate);
-@@ -1711,56 +1835,48 @@ void VU1Interpreter::run(uint8_t *vuCode, uint32_t codeSize,
+@@ -1711,56 +1836,48 @@ void VU1Interpreter::run(uint8_t *vuCode, uint32_t codeSize,
              std::memcpy(m_state.vf[decoded.upperVfShadowReg],
                          oldVf,
                          sizeof(oldVf));
@@ -11972,7 +12032,7 @@ index bd75bba..446fd5d 100644
          }
  
          markPairWrites(decoded);
-@@ -1824,6 +1940,8 @@ void VU1Interpreter::run(uint8_t *vuCode, uint32_t codeSize,
+@@ -1824,6 +1941,8 @@ void VU1Interpreter::run(uint8_t *vuCode, uint32_t codeSize,
              break;
      }
  
@@ -11981,6 +12041,13 @@ index bd75bba..446fd5d 100644
      if (programEnded)
      {
          flushPipelines();
+@@ -1834,5 +1953,5 @@ void VU1Interpreter::run(uint8_t *vuCode, uint32_t codeSize,
+     }
+     m_state.cycles = m_cycle;
+     if (useVuRounding && previousRoundingMode != -1)
+-        std::fesetround(previousRoundingMode);
++        ps2_host_fpu::setRounding(previousRoundingMode);
+ }
 diff --git a/ps2xRuntime/src/lib/vu/ps2_vu1_detail.h b/ps2xRuntime/src/lib/vu/ps2_vu1_detail.h
 index ed0ee71..e42ffa1 100644
 --- a/ps2xRuntime/src/lib/vu/ps2_vu1_detail.h

@@ -226,6 +226,11 @@ or any disc file.
     The VU1 thread signalled after every job it finished and the game thread after every job it queued, though
     each waits for the other only a few times a frame. On the Windows PC the VU1 thread spent about 7% of its
     time releasing those waits;
+  - rounding-mode changes made with the x87 and SSE control registers directly. MinGW's 32-bit `fesetround`,
+    `fegetenv` and `fesetenv` check for SSE with CPUID on every call, and CPUID traps into the hypervisor when
+    Windows runs under one (as it does with memory integrity on). The VU1 thread switches to round-toward-zero
+    around every VU1 program, the GS workers switch to each command's mode, and each VU1 thread job ran in a
+    copy of the game thread's whole floating-point environment; a job now carries just its rounding mode;
   - a fix for a picture that stopped changing while the game went on. A presentation request queued while the
     thread that queues draws was waiting for room in a full queue was overwritten by that thread's next draw, so
     the window kept its last frame for the rest of the session. A 4-core Linux machine, where the queue is often
