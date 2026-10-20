@@ -1262,7 +1262,29 @@ int func_003B7080(int ch, int *msg) {
     return 1;
 }
 
-INCLUDE_ASM("ealib/seg_2B4578", func_003B70F8);
+//100%
+extern unsigned int f_14C8_70F8(int) __asm__("func_003E14C8");
+extern int f_14F8_70F8(int) __asm__("func_003E14F8");
+struct S_70F8 { int pad[4]; unsigned int rate; int pad2[3]; volatile int cnt; };
+
+int func_003B70F8(int *p) {
+    struct S_70F8 *s = (struct S_70F8 *)p[0x134 / 4];
+    unsigned int t;
+    if (s == 0 || s->rate == 0) return 0;
+    if (s->cnt < 0) return 1;
+    if (s->cnt == 0) return 0;
+    t = f_14C8_70F8(p[0]);
+    if (t > 4000000) t = 4000000;
+    if (t * 1000 / s->rate >= (unsigned int)s->cnt) {
+    clr:
+        s->cnt = 0;
+        return 0;
+    }
+    if (f_14F8_70F8(p[0]) == 2) goto clr;
+    if (p[0x130 / 4] > 0) return 1;
+    if (f_14F8_70F8(p[0]) == 0) goto clr;
+    return 1;
+}
 
 INCLUDE_ASM("ealib/seg_2B4578", func_003B71D8);
 
