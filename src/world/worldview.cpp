@@ -783,8 +783,8 @@ extern "C" int func_003AA960(void* self, void* list)
 }
 
 //100%
-extern "C" void func_0032C540(void* self);
-extern "C" int func_00327DA8(void* self, char* data, void* ctx);
+extern "C" void cSphereTree_reset(void* self);
+extern "C" int cSphereTree_load(void* self, char* data, void* ctx);
 
 struct sList_3AAA08 {
     char* items;
@@ -832,11 +832,11 @@ extern "C" int func_003AAA08(void* self, void* ctx, sChunk_3AAA08* c)
         l->count = c->n;
         l->items = c->items;
         for (int i = 0; i < l->count; i++) {
-            func_0032C540(l->items + i * 0x140);
+            cSphereTree_reset(l->items + i * 0x140);
         }
         char* data = c->data;
         for (int i = 0; i < l->count; i++) {
-            data += func_00327DA8(l->items + i * 0x140, data, ctx);
+            data += cSphereTree_load(l->items + i * 0x140, data, ctx);
         }
     } else if (c->type == 1) {
         sList_3AAA08* l = c->list;

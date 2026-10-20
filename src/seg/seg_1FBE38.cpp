@@ -10,7 +10,7 @@ extern char D_00489638_AE38[] __asm__("D_00489638");
 extern char D_00489648_AE38[] __asm__("D_00489648");
 extern "C" void func_003578A8_AE38(void*, int, void*, void*, void*) __asm__("func_003578A8");
 extern "C" void func_00351B40_AE38(void*, int, void*, void*, int, void*) __asm__("func_00351B40");
-extern "C" void func_00342C08_AE38(void*, int, void*, void*, void*) __asm__("func_00342C08");
+extern "C" void cDebounceNode_construct_AE38(void*, int, void*, void*, void*) __asm__("cDebounceNode_construct");
 extern "C" void cDeadFadeNode_cDeadFadeNode_AE38(void*, int, void*, void*, void*) __asm__("cDeadFadeNode_cDeadFadeNode");
 struct N_AE38 { int p0, p1, p2; virtual ~N_AE38(); virtual void v02(); virtual void v03(); virtual void v04(); virtual void v05(); virtual void v06(); virtual void v07(); virtual void v08(); virtual void v09(); virtual int v10(int); virtual void v11(); virtual void v12(); virtual void v13(); virtual void v14(); virtual void v15(); virtual void v16(); virtual void v17(); virtual void v18(); virtual void v19(); virtual void v20(); virtual void v21(); virtual void v22(); virtual void v23(); virtual void v24(); virtual void v25(); virtual void v26(); virtual void v27(); virtual void v28(); virtual void v29(); virtual void v30(); virtual void v31(); virtual void v32(); virtual void v33(); virtual void v34(); virtual void v35(); virtual void v36(); virtual void v37(); };
 extern "C" int checkActiveNode(void *a, int type, void *buf) {
@@ -33,7 +33,7 @@ extern "C" int checkActiveNode(void *a, int type, void *buf) {
         return -1;
     case 0:
         *(int*)(o + 0xC) = 0;
-        func_00342C08_AE38(cMemMan_alloc(0x34, D_00489638_AE38, 0x20000000, 0), 1, o, buf, n);
+        cDebounceNode_construct_AE38(cMemMan_alloc(0x34, D_00489638_AE38, 0x20000000, 0), 1, o, buf, n);
         return -1;
     case 22:
         *(int*)(o + 0xC) = 0;
@@ -204,7 +204,7 @@ static inline char *refToPtr_B498(unsigned i) { return (char*)(i << 2); }
 static inline char *conv_B498(unsigned i) { if (i == 0) return 0; return refToPtr_B498(i); }
 extern "C" int checkActiveNode(void*, int, void*);
 extern "C" void* cMemMan_alloc(int, void*, int, int);
-extern "C" void func_003421A0_B498(void*, int, void*, void*) __asm__("func_003421A0");
+extern "C" void cAnimTeeterNode_construct_B498(void*, int, void*, void*) __asm__("cAnimTeeterNode_construct");
 extern char D_00489678_B498[] __asm__("D_00489678");
 struct V3_B498 { float x, y, z; };
 extern V3_B498 D_004C9098_B498 __asm__("D_004C9098");
@@ -266,7 +266,7 @@ extern "C" V3_B498 func_002FB498(int n, Ent_B498 *e) {
     void *p = *(void**)(obj + 0xC);
     if (p && checkActiveNode(p, 4, buf))
         return D_004C9098_B498;
-    func_003421A0_B498(cMemMan_alloc(0x80, D_00489678_B498, 0x20000000, 0), 1, obj, buf);
+    cAnimTeeterNode_construct_B498(cMemMan_alloc(0x80, D_00489678_B498, 0x20000000, 0), 1, obj, buf);
     return D_004C9098_B498;
 }
 
@@ -492,7 +492,7 @@ static inline char *refToPtr_BCB8(unsigned i) { return (char*)(i << 2); }
 static inline char *conv_BCB8(unsigned i) { if (i == 0) return 0; return refToPtr_BCB8(i); }
 extern "C" int checkActiveNode(void*, int, void*);
 extern "C" void* cMemMan_alloc(int, void*, int, int);
-extern "C" void func_00341AA0_BCB8(void*, int, int, void*, void*) __asm__("func_00341AA0");
+extern "C" void cAnimObjectNode_construct_BCB8(void*, int, int, void*, void*) __asm__("cAnimObjectNode_construct");
 extern char D_004896A8_BCB8[] __asm__("D_004896A8");
 struct V3_BCB8 { float x, y, z; };
 extern V3_BCB8 D_004C9098_BCB8 __asm__("D_004C9098");
@@ -554,7 +554,7 @@ extern "C" V3_BCB8 func_002FBCB8(int n, Ent_BCB8 *e) {
     void *p = *(void**)(obj + 0xC);
     if (p && checkActiveNode(p, 1, buf))
         return D_004C9098_BCB8;
-    func_00341AA0_BCB8(cMemMan_alloc(0x6C, D_004896A8_BCB8, 0x20000000, 0), 1, 1, obj, buf);
+    cAnimObjectNode_construct_BCB8(cMemMan_alloc(0x6C, D_004896A8_BCB8, 0x20000000, 0), 1, 1, obj, buf);
     return D_004C9098_BCB8;
 }
 
@@ -566,7 +566,7 @@ static inline char *refToPtr_BEC8(unsigned i) { return (char*)(i << 2); }
 static inline char *conv_BEC8(unsigned i) { if (i == 0) return 0; return refToPtr_BEC8(i); }
 extern "C" int checkActiveNode(void*, int, void*);
 extern "C" void* cMemMan_alloc(int, void*, int, int);
-extern "C" void func_00341388_BEC8(void*, int, int, void*, void*) __asm__("func_00341388");
+extern "C" void cBoostNode_construct_BEC8(void*, int, int, void*, void*) __asm__("cBoostNode_construct");
 extern char D_004A3BF0_BEC8[] __asm__("D_004A3BF0");
 struct V3_BEC8 { float x, y, z; };
 extern V3_BEC8 D_004C9098_BEC8 __asm__("D_004C9098");
@@ -627,7 +627,7 @@ extern "C" V3_BEC8 func_002FBEC8(int n, Ent_BEC8 *e) {
     void *p = *(void**)(obj + 0xC);
     if (p && checkActiveNode(p, 8, buf))
         return D_004C9098_BEC8;
-    func_00341388_BEC8(cMemMan_alloc(0x50, D_004A3BF0_BEC8, 0x20000000, 0), 1, 8, obj, buf);
+    cBoostNode_construct_BEC8(cMemMan_alloc(0x50, D_004A3BF0_BEC8, 0x20000000, 0), 1, 8, obj, buf);
     return D_004C9098_BEC8;
 }
 
@@ -889,7 +889,7 @@ static inline char *refToPtr_C7D0(unsigned i) { return (char*)(i << 2); }
 static inline char *conv_C7D0(unsigned i) { if (i == 0) return 0; return refToPtr_C7D0(i); }
 extern "C" int checkActiveNode(void*, int, void*);
 extern "C" void* cMemMan_alloc(int, void*, int, int);
-extern "C" void func_00342C08_C7D0(void*, int, void*, void*, int) __asm__("func_00342C08");
+extern "C" void cDebounceNode_construct_C7D0(void*, int, void*, void*, int) __asm__("cDebounceNode_construct");
 extern char D_004896E8_C7D0[] __asm__("D_004896E8");
 struct V3_C7D0 { float x, y, z; };
 extern V3_C7D0 D_004C9098_C7D0 __asm__("D_004C9098");
@@ -945,7 +945,7 @@ extern "C" V3_C7D0 func_002FC7D0(int n, Ent_C7D0 *e) {
     void *p = *(void**)(obj + 0xC);
     if (p && checkActiveNode(p, 0, buf))
         return D_004C9098_C7D0;
-    func_00342C08_C7D0(cMemMan_alloc(0x34, D_004896E8_C7D0, 0x20000000, 0), 1, obj, buf, 0);
+    cDebounceNode_construct_C7D0(cMemMan_alloc(0x34, D_004896E8_C7D0, 0x20000000, 0), 1, obj, buf, 0);
     return D_004C9098_C7D0;
 }
 

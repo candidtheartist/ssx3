@@ -45,10 +45,10 @@ struct sFwdDiffList;
 struct sFwdDiffLink;
 struct sFwdDiffTable;
 struct sFwdDiffNode;
-extern "C" void func_00327AC0(sFwdDiffList* list, sFwdDiffLink* n);
-extern "C" void func_00327B30(void* self, void* node);
-extern "C" void func_00327BB0(sFwdDiffTable* table, sFwdDiffNode* node);
-extern "C" void func_00327C00(void* self, void* src, void* node);
+extern "C" void cAIFwdDiffCache_touch(sFwdDiffList* list, sFwdDiffLink* n);
+extern "C" void cAIFwdDiffCache_unhash(void* self, void* node);
+extern "C" void cAIFwdDiffCache_hash(sFwdDiffTable* table, sFwdDiffNode* node);
+extern "C" void cAIFwdDiffCache_evaluatePatch(void* self, void* src, void* node);
 
 struct sCacheNode_279D0 {
     unsigned int key;           // 0x0
@@ -64,26 +64,26 @@ struct sCache_279D0 {
     unsigned int count;         // 0xC
 };
 
-static inline int func_003279D0_less(unsigned int a, unsigned int b) { return a < b; }
+static inline int cAIFwdDiffCache_lookup_less(unsigned int a, unsigned int b) { return a < b; }
 
-extern "C" void func_003279D0(sCache_279D0* self, void* src, sCacheNode_279D0** out)
+extern "C" void cAIFwdDiffCache_lookup(sCache_279D0* self, void* src, sCacheNode_279D0** out)
 {
     unsigned int key = *(unsigned int*)((char*)src + 0x150);
     sCacheNode_279D0* n = self->buckets[key % self->count];
-    while (n != 0 && !func_003279D0_less(key, n->key)) {
+    while (n != 0 && !cAIFwdDiffCache_lookup_less(key, n->key)) {
         if (n->key == key) {
-            func_00327AC0((sFwdDiffList*)self, (sFwdDiffLink*)n);
+            cAIFwdDiffCache_touch((sFwdDiffList*)self, (sFwdDiffLink*)n);
             *out = n;
             return;
         }
         n = n->next;
     }
     n = self->lru;
-    func_00327B30(self, n);
+    cAIFwdDiffCache_unhash(self, n);
     n->key = key;
-    func_00327BB0((sFwdDiffTable*)self, (sFwdDiffNode*)n);
+    cAIFwdDiffCache_hash((sFwdDiffTable*)self, (sFwdDiffNode*)n);
     self->lru = n->lruNext;
-    func_00327C00(self, src, n);
+    cAIFwdDiffCache_evaluatePatch(self, src, n);
     *out = n;
 }
 
@@ -99,7 +99,7 @@ struct sFwdDiffList {
     sFwdDiffLink* head;   // 0x4
 };
 
-extern "C" void func_00327AC0(sFwdDiffList* list, sFwdDiffLink* n)
+extern "C" void cAIFwdDiffCache_touch(sFwdDiffList* list, sFwdDiffLink* n)
 {
     if (list->head == n) {
         list->head = n->next;
@@ -116,7 +116,7 @@ extern "C" void func_00327AC0(sFwdDiffList* list, sFwdDiffLink* n)
     list->head->prev = n;
 }
 
-INCLUDE_ASM("intersect/aifwddiff", func_00327B30);
+INCLUDE_ASM("intersect/aifwddiff", cAIFwdDiffCache_unhash);
 
 //100%
 struct sFwdDiffNode {
@@ -133,7 +133,7 @@ struct sFwdDiffTable {
     unsigned int count;
 };
 
-extern "C" void func_00327BB0(sFwdDiffTable* table, sFwdDiffNode* node)
+extern "C" void cAIFwdDiffCache_hash(sFwdDiffTable* table, sFwdDiffNode* node)
 {
     unsigned int key = node->key;
     sFwdDiffNode** link = &table->buckets[key % table->count];
@@ -156,7 +156,7 @@ extern "C" void func_00391480(void* t, void* a);
 struct sGp2930 { int a, b; };
 extern sGp2930 D_004A5A20; // placeholder: target is a raw $gp+0x2930 reference
 
-extern "C" void func_00327C00(void* self, void* a1, void* a2)
+extern "C" void cAIFwdDiffCache_evaluatePatch(void* self, void* a1, void* a2)
 {
     sGp2930* t = &D_004A5A20;
     func_00391418(t, (char*)a1 + 0x40);
@@ -204,7 +204,7 @@ struct sFwdDiff_27CC8 {
     sBlock_27CC8 blk;       // 0xC0
 };
 
-extern "C" sFwdDiff_27CC8* func_00327CC8(sFwdDiff_27CC8* self, sFwdDiff_27CC8* src)
+extern "C" sFwdDiff_27CC8* cSphereTree_assign(sFwdDiff_27CC8* self, sFwdDiff_27CC8* src)
 {
     int i;
     for (i = 0; i < 8; i++) {
@@ -219,7 +219,7 @@ extern "C" sFwdDiff_27CC8* func_00327CC8(sFwdDiff_27CC8* self, sFwdDiff_27CC8* s
 //100%
 extern "C" void func_003E6574(void* dst, void* src, int n);
 
-extern "C" int func_00327DA8(sFwdDiff_27CC8* self, char* buf, int a2)
+extern "C" int cSphereTree_load(sFwdDiff_27CC8* self, char* buf, int a2)
 {
     if (buf == 0) {
         return 0;
@@ -261,8 +261,8 @@ extern "C" int func_00327DA8(sFwdDiff_27CC8* self, char* buf, int a2)
 }
 
 //100%
-extern "C" int func_0032DF28(void* self);
-extern "C" int func_0032CDB0(void* self, void* pos, void* out, int a3, int a4, int a5, int a6, float radius);
+extern "C" int cSphereTree_getMasks(void* self);
+extern "C" int cSphereTree_testSphereNode(void* self, void* pos, void* out, int a3, int a4, int a5, int a6, float radius);
 
 struct sSphere_27F18 {
     float pos[4];
@@ -278,20 +278,20 @@ struct sShape_27F18 {
     sSphere_27F18 subs[1];  // 0x30
 };
 
-extern "C" int func_00327F18(void* self, sShape_27F18* shape, int a2, int a3)
+extern "C" int cSphereTree_testRiderSphereTree(void* self, sShape_27F18* shape, int a2, int a3)
 {
     void* m = *(void**)((char*)self + 0x98);
     if (*(int*)((char*)m + 8) != 0) {
-        *(int*)(*(char**)((char*)self + 0x98) + 0x28) = func_0032DF28(m);
+        *(int*)(*(char**)((char*)self + 0x98) + 0x28) = cSphereTree_getMasks(m);
     }
-    if (func_0032CDB0(self, shape->pos, (char*)self + 0x80, 0, 0, a2, a3, shape->radius) == 0) {
+    if (cSphereTree_testSphereNode(self, shape->pos, (char*)self + 0x80, 0, 0, a2, a3, shape->radius) == 0) {
         return 0;
     }
     if (shape->count == 0) {
         return 1;
     }
     for (int i = 0; i < shape->count; i++) {
-        if (func_0032CDB0(self, shape->subs[i].pos, (char*)self + 0x80, 0, 0, a2, a3, shape->subs[i].radius) != 0) {
+        if (cSphereTree_testSphereNode(self, shape->subs[i].pos, (char*)self + 0x80, 0, 0, a2, a3, shape->subs[i].radius) != 0) {
             return 1;
         }
     }
@@ -299,8 +299,8 @@ extern "C" int func_00327F18(void* self, sShape_27F18* shape, int a2, int a3)
 }
 
 //100%
-extern "C" float func_0032C590(void* self);
-extern "C" int func_0032CA78(void* self, void* a1, void* a2, void* a3, void* v, void* a5, void* a6);
+extern "C" float cSphereTree_getRadius(void* self);
+extern "C" int cSphereTree_testTriangle(void* self, void* a1, void* a2, void* a3, void* v, void* a5, void* a6);
 
 struct sVec4_28030 {
     float x, y, z, w;
@@ -356,21 +356,21 @@ static inline sVec4_28030 vu0Scale_28030(const sVec4_28030& v, float s)
     return r;
 }
 
-extern "C" int func_00328030(void* self, sVec4_28030* p, void* a2, void* a3, sVec4_28030* dir, void* a5, void* a6)
+extern "C" int cSphereTree_testTriangleTwoSided(void* self, sVec4_28030* p, void* a2, void* a3, sVec4_28030* dir, void* a5, void* a6)
 {
     float dot;
     {
         sVec4_28030 d = vu0Sub_28030(*(sVec4_28030*)((char*)self + 0x80), *p);
         dot = vu0Dot_28030(*dir, d);
     }
-    if (func_0032C590(self) < __builtin_fabsf(dot)) {
+    if (cSphereTree_getRadius(self) < __builtin_fabsf(dot)) {
         return 0;
     }
     if (dot < 0.0f) {
         sVec4_28030 nd = vu0Scale_28030(*dir, -1.0f);
-        return func_0032CA78(self, p, a2, a3, &nd, a5, a6);
+        return cSphereTree_testTriangle(self, p, a2, a3, &nd, a5, a6);
     }
-    return func_0032CA78(self, p, a2, a3, dir, a5, a6);
+    return cSphereTree_testTriangle(self, p, a2, a3, dir, a5, a6);
 }
 
 //100%
@@ -380,7 +380,7 @@ extern "C" void func_00328170(void* self)
 {
     void* m = *(void**)((char*)self + 0x98);
     if (*(int*)((char*)m + 8) != 0) {
-        *(int*)(*(char**)((char*)self + 0x98) + 0x28) = func_0032DF28(m);
+        *(int*)(*(char**)((char*)self + 0x98) + 0x28) = cSphereTree_getMasks(m);
     }
     func_003281D0(self, *(int*)(*(char**)((char*)self + 0x98) + 0xC), (char*)self + 0x80, 0, 0);
 }
@@ -397,7 +397,7 @@ struct sBox_00328360 {
     float maxx, maxy, maxz;
 };
 
-extern "C" int func_00328360(sCell_00328360* c, sBox_00328360* b)
+extern "C" int cSpaceHash_classifyCell(sCell_00328360* c, sBox_00328360* b)
 {
     union {
         int i;
@@ -545,7 +545,7 @@ struct sCell_00328660 {
     int x, y, z;
 };
 
-extern "C" void func_00328660(sNode_00328660* node, int idx, sItem_00328660* item, sCell_00328660* target, const sCell_00328660* at)
+extern "C" void cSpaceHash_insertItemAt(sNode_00328660* node, int idx, sItem_00328660* item, sCell_00328660* target, const sCell_00328660* at)
 {
     sCell_00328660 cur = *at;
     while (cur.level != target->level) {
@@ -627,7 +627,7 @@ extern "C" void func_00328C20(sRoot_8C20* root, int idx, sItem_00328660* item, s
         root->cell = nc;
         root->node = n;
     }
-    func_00328660((sNode_00328660*)root->node, idx, item, cell, &root->cell);
+    cSpaceHash_insertItemAt((sNode_00328660*)root->node, idx, item, cell, &root->cell);
 }
 
 //100%
@@ -755,7 +755,7 @@ extern "C" void func_00328F28(sCell_8F28* c, sBox_8F28* b)
     }
 }
 
-INCLUDE_ASM("intersect/aifwddiff", func_003291E0);
+INCLUDE_ASM("intersect/aifwddiff", cSpaceHash_moveItem);
 
 INCLUDE_ASM("intersect/aifwddiff", func_00329590);
 

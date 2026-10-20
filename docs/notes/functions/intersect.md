@@ -14,7 +14,7 @@ Segment `0x00327890`-`0x00329910`.
 - **`0x003284B8`** - Removes a location's instances from the activation octree at eviction; a later read brings them back without entities, at their authored flags. *[static]*
 - **`0x00328C20`** - Inserts a location's instances into the activation octree when its read completes (resolver kind 3); runs while the row is still in state 6/8. *[static]*
 - **`0x003291E0`** - Relocates an instance in the spatial tree after its bounds change. *[static]*
-- **`0x00329590`** - Body vs box contact (with `0x0032B2B8`): tests box face projections and rejects overlaps confined to edges/corners. The loop repeatedly tests the broad sphere while reading enabled-mask bits and never advances to child sphere coordinates. *[static]*
+- **`0x00329590`** - Body vs box contact (with `0x0032B2B8`): tests box face projections and rejects overlaps confined to edges/corners. Single sphere vs box test (no loop). *[static]*
 
 ## `src/intersect/riderspheretree.cpp`
 
@@ -23,7 +23,7 @@ Segment `0x00329910`-`0x003303F0`.
 - **`0x00329B40`** - Body translation helper used with `0x00106538` in rider pair separation (the push); role beyond translation not detailed. *[static]*
 - **`0x00329F98`** - Rider pair body overlap: rejects disjoint broad spheres and returns the first overlapping child-sphere pair in authored order. Ignores the active mask bits. *[static]*
 - **`0x0032A1C0`** - Body vs triangle contact: broad-sphere reject, then enabled body spheres by plane projection and vertex/edge overlap. Chooses the sphere with the smallest signed center-to-plane distance (not the largest penetration); the returned point is the center's plane projection even when an edge test admitted the overlap. *[static]*
-- **`0x0032B2B8`** - Body vs box contact helper paired with `0x00329590` (face projection tests). *[static]*
+- **`0x0032B2B8`** `cRiderSphereTree_testBox` - Rider body vs box: broad sphere via `0x00329590`, then a loop over the enabled-mask bits keeping the deepest hit. The loop re-tests the broad sphere centre and radius and never advances to child sphere coordinates. *[static]*
 - **`0x0032B6A8`** - Point-in-triangle test (reached from `0x0032D440` in the sphere-tree kernel). *[static]*
 - **`0x0032B6E0`** - Terrain segment intersection with a coarse cell scan on the 9x9 patch grid: checks the cached cell first if the patch matches, else scans U outer, V inner, triangles (d,b,c) then (c,b,a), plane via `0x0032E4D0` plus a VU0 inclusion test; the first hit seeds refinement and the cache updates per visited candidate. For kind-2 queries it then calls the query `+0x44` refinement callback, which replaces point/normal/UV but keeps the coarse fraction. Coarse roller mode: 3x3 cells, stride 3, callback `0x00330788`. *[static]*
   - `0x0032BE28`: Region (to `0x0032BE70`) that calls the query refinement callback `0x0032E9A0` for kind-2 queries. *[static]*
@@ -53,8 +53,8 @@ Segment `0x00329910`-`0x003303F0`.
 Segment `0x003303F0`-`0x00342D10`.
 
 - **`0x003303F0`** `cWorldSphTree_cWorldSphTree` - Builds a coarse, unfiltered query from a sphere-tree collider: query `+0` = 0, bounds = collider centre +/- level-0 radius. Called as `0x003303F0(collider, 1)` by `0x0035EDC8`. *[static]*
-- **`0x00330540`** - World-query handler for type-1 mesh surface nodes. *[static]*
-- **`0x003306D8`** - Contact packet comparison used by `0x00336850`: depth closest to -1 first, then tie rules. *[static]*
+- **`0x00330540`** `cWorldSphTree_overlapsBox` - Broad sphere (centre +0x80, radius from the tree at +0x60) vs AABB test; slot 9 of the query vtable `0x0048E5F0`. *[static]*
+- **`0x003306D8`** `cWorldSphTree_getRadius` - Returns -1 when the query is empty (+0 = 0), else twice the broad sphere radius; slot 3 of the query vtable `0x0048E5F0`. *[static]*
 - **`0x00330788`** - Sphere-tree vs terrain triangle callback for coarse queries (the coarse roller mode of `0x0032B6E0`); calls `0x0032CA78`. *[static]*
 - **`0x00330828`** - Step of the sphere-tree vs type-1 mesh chain `0x0032C0F8` -> `0x00330828` -> `0x00328030` -> `0x0032CA78`. *[static]*
 - **`0x003309D8`** - Collision-instance list collector / inline-box instance test used during the spatial traversal of `0x00332DB8`: instance flag 0x20, box `+0x60`/`+0x6C`. *[PS2]*
@@ -73,14 +73,14 @@ Segment `0x003303F0`-`0x00342D10`.
 - **`0x00335B90`** - Instance collector for mode-0 rays and whole-world queries; always uses node surface filter 2, so every surface -1 node (all crashbags, most scenery) is skipped. *[static]*
   - `0x00335BB0`: Flag routing block: static flag 0x20 first, else entity flag 0x40 (skipped when the entity pointer is null), else skip. *[static]*
 - **`0x00335D78`** - Octree walk (together with `0x0033CCF8` and `0x00340FA0`) that visits children in order 0,1,3,2,6,7,5,4. Tests only patch flags (`+0xA`), not streaming chunks. *[static]*
-- **`0x00336850`** - Whole-world sphere-tree query: gathers terrain and instance hit packets and keeps the one whose depth is closest to -1 (compare via `0x003306D8`; ties prefer instance over terrain, then lower instance `+0x78`, then lower patch `+0x150`). Terrain comes via `0x00335960`/`0x0032B6E0`, instances via `0x00335B90` (filter 2). Used by the crashbag rigid body (RollerModifier; no 64-packet cap on that path), air trajectory kind-1 rays and status-0 prediction queries, camera clearance, and the reset placement probe. *[PS2]*
+- **`0x00336850`** - Whole-world sphere-tree query: gathers terrain and instance hit packets and keeps the one whose depth is closest to -1 (ties prefer instance over terrain, then lower instance `+0x78`, then lower patch `+0x150`). Terrain comes via `0x00335960`/`0x0032B6E0`, instances via `0x00335B90` (filter 2). Used by the crashbag rigid body (RollerModifier; no 64-packet cap on that path), air trajectory kind-1 rays and status-0 prediction queries, camera clearance, and the reset placement probe. *[PS2]*
 - **`0x003369D8`** - Ground snap: picks the collision hit with the smallest |dz|. *[PS2]*
 - **`0x00336D40`** - Instance collector for mode-2 (scenery-only) air trajectory rays. Unlike the mode-0 collector `0x00335B90`, its flag routing does not check the entity pointer before reading its vtable. *[static]*
   - `0x00336D64`: Flag routing block: static flag 0x20 first, else entity flag 0x40 dispatch with no null check on the entity pointer. *[static]*
 - **`0x003378C0`** - Mode-2 air trajectory ray query (trajectory prediction status 2): instance/scenery collision only, omits terrain. *[static]*
-- **`0x0033B748`** - Recursive spatial-tree (octree) traversal helper used by `0x00332DB8`, paired with `0x00340DC0` (roles of the two not split): node lists are visited before children; partially covered nodes visit children in Gray order 0,1,3,2,6,7,5,4, fully contained subtrees 0..7; child boxes use half scale/padding with strict comparisons; partial recursion stops at exponent 11. Contains recursive calls. *[static]*
+- **`0x0033B748`** - Recursive spatial-tree (octree) traversal helper used by `0x00332DB8`; walks partially covered cells and hands fully covered subtrees to `0x00340DC0`: node lists are visited before children; partially covered nodes visit children in Gray order 0,1,3,2,6,7,5,4, fully contained subtrees 0..7; child boxes use half scale/padding with strict comparisons; partial recursion stops at exponent 11. Contains recursive calls. *[static]*
 - **`0x0033CCF8`** - Octree walk helper, part of the walk with `0x00335D78` and `0x00340FA0`. *[static]*
-- **`0x00340DC0`** - Recursive spatial-tree (octree) traversal helper used by `0x00332DB8`, paired with `0x0033B748` (roles of the two not split): node lists are visited before children; partially covered nodes visit children in Gray order 0,1,3,2,6,7,5,4, fully contained subtrees 0..7; child boxes use half scale/padding with strict comparisons; partial recursion stops at exponent 11. Contains recursive calls. *[static]*
+- **`0x00340DC0`** - Recursive spatial-tree (octree) traversal helper used by `0x00332DB8`; collects whole subtrees (instances, overlapping patches, list-2 objects) handed over by `0x0033B748`: node lists are visited before children; partially covered nodes visit children in Gray order 0,1,3,2,6,7,5,4, fully contained subtrees 0..7; child boxes use half scale/padding with strict comparisons; partial recursion stops at exponent 11. Contains recursive calls. *[static]*
 - **`0x00340FA0`** - Octree walk helper, part of the walk with `0x00335D78` and `0x0033CCF8`. *[static]*
 - **`0x003411B8`** - Tests the rail descriptor flag word (`desc+0x1C & mask`), like the query walker `0x00334680`; its role is otherwise not described. *[static]*
 - **`0x00341388`** - One of the one-way volume (stage-script builtin 7) functions; which slot (constructor/update/test) is not stated. *[PS2]*
