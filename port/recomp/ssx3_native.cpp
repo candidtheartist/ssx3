@@ -11,14 +11,23 @@
 // first n calls of each swapped function both ways from the same RAM and
 // registers and reports any difference in EE RAM or in the result (debug only:
 // it copies all of EE RAM three times per checked call).
+//
+// Recompiled code wraps every address into EE RAM, so a stray pointer the game
+// follows (it does: a UI animation is updated after its track array is freed and
+// reused) still reads RAM. Native code faults instead; the SIGSEGV handler then
+// maps the RAM page that address wraps to at that address and retries, so both
+// read the same.
 #include "native/native_abi.h"
 #include "ps2_runtime.h"
 #include "ps2_runtime_macros.h"
 
+#include <atomic>
+#include <csignal>
 #include <cstdio>
 #include <cstdlib>
 #include <cstring>
 #include <memory>
+#include <sys/mman.h>
 #include <unordered_map>
 
 struct Ssx3NativeEntry
@@ -53,6 +62,47 @@ namespace
     uint32_t g_checksPerFunction = 0;
     bool g_inCheck = false;
 
+    // Set while this thread runs native code; only its faults are wrapped.
+    thread_local int t_inNative = 0;
+    uint8_t *g_rdram = nullptr;
+    std::atomic<uint32_t> g_wrappedPages{0};
+    struct sigaction g_prevSegv;
+
+    void onSegv(int sig, siginfo_t *info, void *uc)
+    {
+        const uintptr_t addr = reinterpret_cast<uintptr_t>(info->si_addr);
+        if (t_inNative > 0 && info->si_code == SEGV_MAPERR && addr >= 0x10000u && g_rdram)
+        {
+            // An unmapped page: show the RAM page the recompiled code would read there.
+            const uintptr_t page = addr & ~uintptr_t(0xFFF);
+            void *view = mremap(g_rdram + (page & PS2_RAM_MASK), 0, 0x1000, MREMAP_MAYMOVE | MREMAP_FIXED,
+                                reinterpret_cast<void *>(page));
+            if (view == reinterpret_cast<void *>(page))
+            {
+                g_wrappedPages.fetch_add(1u, std::memory_order_relaxed);
+                return;
+            }
+        }
+        if (g_prevSegv.sa_flags & SA_SIGINFO)
+            g_prevSegv.sa_sigaction(sig, info, uc);
+        else if (g_prevSegv.sa_handler != SIG_DFL && g_prevSegv.sa_handler != SIG_IGN)
+            g_prevSegv.sa_handler(sig);
+        else
+        {
+            std::signal(sig, SIG_DFL);
+            std::raise(sig);
+        }
+    }
+
+    void installSegvHandler()
+    {
+        struct sigaction sa{};
+        sa.sa_sigaction = onSegv;
+        sa.sa_flags = SA_SIGINFO | SA_ONSTACK;
+        sigemptyset(&sa.sa_mask);
+        sigaction(SIGSEGV, &sa, &g_prevSegv);
+    }
+
     // Returns what the function gives back: 0 nothing, 1 v0, 2 f0.
     unsigned int runNative(const Swapped &fn, R5900Context *ctx)
     {
@@ -62,7 +112,9 @@ namespace
             frame.gpr[i] = getRegU32(ctx, 4 + i);
             frame.fpr[i] = ctx->f[12 + i];
         }
+        ++t_inNative;
         fn.entry(&frame);
+        --t_inNative;
         if (frame.result == 1u)
             SET_GPR_S32(ctx, 2, static_cast<int32_t>(frame.v0));
         else if (frame.result == 2u)
@@ -140,14 +192,15 @@ namespace
                 functions += kv.second.checksLeft != g_checksPerFunction;
                 mismatched += kv.second.mismatches != 0u;
             }
-            std::fprintf(stderr, "[native] checked %u calls of %u functions, %u functions differ\n", g_checkCalls,
-                         functions, mismatched);
+            std::fprintf(stderr, "[native] checked %u calls of %u functions, %u functions differ, %u stray pages\n",
+                         g_checkCalls, functions, mismatched, g_wrappedPages.load());
         }
         return true;
     }
 
     void nativeShim(uint8_t *rdram, R5900Context *ctx, PS2Runtime *runtime)
     {
+        g_rdram = rdram;
         const auto it = g_swapped.find(ctx->pc);
         if (it == g_swapped.end())
         {
@@ -197,6 +250,7 @@ void ssx3RegisterNative(PS2Runtime &runtime)
     const char *check = std::getenv("PS2X_NATIVE_CHECK");
     const uint32_t checks = check ? static_cast<uint32_t>(std::strtoul(check, nullptr, 0)) : 0u;
     g_checksPerFunction = checks;
+    installSegvHandler();
     uint32_t swapped = 0;
     for (unsigned int i = 0; i < g_ssx3NativeCount; ++i)
     {

@@ -24,6 +24,10 @@ These native functions replace their recompiled copies at startup, and the rest 
 - Native code works on the game's memory directly. EE RAM is mapped at its PS2 addresses in the 32-bit process, so a
   pointer the game stored is a valid host pointer. Every global the C refers to resolves to its address in the retail
   executable.
+- The recompiled code wraps every address into EE RAM, so a stray pointer still reads RAM there. The game does follow
+  some: a menu animation keeps updating after its track array is freed and reused. When native code faults on an
+  unmapped page, `../ssx3_native.cpp` maps the RAM page that address wraps to at that address and retries, so both read
+  the same thing.
 
 ## Which functions qualify
 
@@ -49,5 +53,6 @@ most of the remaining matched functions can go native too.
 ## Checking it
 
 `PS2X_NATIVE_CHECK=n` runs the first `n` calls of every native function both ways, from the same RAM and registers. It
-then reports any EE RAM word or result that differs between the two. `PS2X_NATIVE=0` turns native code off at run time.
+then reports any EE RAM word or result that differs between the two. `PS2X_NATIVE=0` turns native code off at run time,
+and `PS2X_NATIVE_SKIP=addr,addr,...` (hex) keeps only the listed functions recompiled, to narrow down a problem.
 The `SSX3PC_NATIVE=OFF` CMake option leaves it out of the build.
