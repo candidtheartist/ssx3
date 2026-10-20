@@ -241,6 +241,9 @@ or any disc file.
   - the same Windows waits for the EE scheduler, whose timed waits keep the game at 60 vblanks a second. With
     winpthreads they took 36 to 42% of the game thread on the Windows PC. Windows sleeps in whole
     milliseconds, so the last part of a millisecond before a deadline is waited out by yielding;
+  - idle GS workers woken one by one: the thread that queues draws wakes one, and each woken worker wakes
+    the next. That thread is the VU1 thread, which limits the frame rate in busy scenes (93 to 99% busy on the
+    Windows PC while the game ran slow), and waking all six at once cost it about an eighth of its time;
   - a fix for a picture that stopped changing while the game went on. A presentation request queued while the
     thread that queues draws was waiting for room in a full queue was overwritten by that thread's next draw, so
     the window kept its last frame for the rest of the session. A 4-core Linux machine, where the queue is often

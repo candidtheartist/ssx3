@@ -1799,10 +1799,10 @@ index 1cb1540..7d2ac28 100644
  }
 diff --git a/ps2xRuntime/include/runtime/gs/gs_threaded_backend.h b/ps2xRuntime/include/runtime/gs/gs_threaded_backend.h
 new file mode 100644
-index 0000000..5ad4438
+index 0000000..a49106d
 --- /dev/null
 +++ b/ps2xRuntime/include/runtime/gs/gs_threaded_backend.h
-@@ -0,0 +1,231 @@
+@@ -0,0 +1,248 @@
 +#pragma once
 +
 +#include "runtime/gs/gs_backend.h"
@@ -1950,6 +1950,16 @@ index 0000000..5ad4438
 +        std::atomic<uint64_t> done{0};
 +    };
 +
++    // An idle worker's sleep, with m_wakeMutex held.
++    struct WorkerSleep
++    {
++        ps2_host_sync::CondVar wake;
++        bool sleeping = false;
++        bool woken = false;
++        // The last wake round that reached this worker.
++        uint64_t round = 0;
++    };
++
 +    Command &beginCommand(std::unique_lock<ps2_host_sync::Mutex> &lock, CommandKind kind, bool mayWait = true);
 +    void endCommand(std::unique_lock<ps2_host_sync::Mutex> &lock);
 +    // The number of commands every worker has run.
@@ -1961,6 +1971,9 @@ index 0000000..5ad4438
 +    // With m_queueMutex held, wakes idle workers for the commands queued since they were
 +    // last woken.
 +    void wakeIdleWorkers() const;
++    // With m_wakeMutex held, wakes one sleeping worker other than `self` that this wake
++    // round hasn't reached yet.
++    void wakeNextWorker(size_t self) const;
 +    void waitForQueuedWork() const;
 +    void classifySubmit(Command &command);
 +    // readsOwnPixels: each pixel the draw writes to drawn[0] reads only itself.
@@ -1994,8 +2007,12 @@ index 0000000..5ad4438
 +    mutable ps2_host_sync::CondVar m_workDone;
 +    // Idle workers sleep with their own mutex, so a worker going idle or waking never
 +    // waits for m_queueMutex, which a submitter holds while it sorts out each command.
++    // The submitter wakes one of them, and each woken worker wakes the next: waking a
++    // thread is a system call, and the submitter is the VU1 thread, which the frame rate
++    // waits on.
 +    mutable ps2_host_sync::Mutex m_wakeMutex;
-+    mutable ps2_host_sync::CondVar m_workAvailable;
++    std::unique_ptr<WorkerSleep[]> m_sleep;
++    mutable uint64_t m_wakeRound = 0; // with m_wakeMutex held
 +    // Submitted commands, in order, by their number modulo its size. Each worker goes
 +    // through them at its own pace and waits for the others only where a command says
 +    // so (waitForAll, runAlone). A command's slot is reused once every worker has run it.
@@ -6027,10 +6044,10 @@ index f0ad507..d816ecd 100644
      return false;
 diff --git a/ps2xRuntime/src/lib/gs/gs_threaded_backend.cpp b/ps2xRuntime/src/lib/gs/gs_threaded_backend.cpp
 new file mode 100644
-index 0000000..f5dd018
+index 0000000..161e960
 --- /dev/null
 +++ b/ps2xRuntime/src/lib/gs/gs_threaded_backend.cpp
-@@ -0,0 +1,1104 @@
+@@ -0,0 +1,1138 @@
 +#include "runtime/gs/gs_threaded_backend.h"
 +#include "runtime/gs/ps2_gs_common.h"
 +#include "runtime/ps2_host_fpu.h"
@@ -6038,6 +6055,7 @@ index 0000000..f5dd018
 +#include <algorithm>
 +#include <cfenv>
 +#include <cmath>
++#include <cstdint>
 +#include <cstring>
 +
 +namespace
@@ -6402,6 +6420,7 @@ index 0000000..f5dd018
 +    m_workers.resize(count);
 +    m_ring.resize(kRingSize);
 +    m_progress = std::make_unique<WorkerProgress[]>(count);
++    m_sleep = std::make_unique<WorkerSleep[]>(count);
 +    for (unsigned i = 0; i < count; ++i)
 +    {
 +        m_workers[i].backend = std::make_unique<GSCpuBackend>();
@@ -6417,8 +6436,9 @@ index 0000000..f5dd018
 +    {
 +        std::lock_guard<ps2_host_sync::Mutex> lock(m_wakeMutex);
 +        m_stopping = true;
++        for (size_t i = 0; i < m_workers.size(); ++i)
++            m_sleep[i].wake.notify_one();
 +    }
-+    m_workAvailable.notify_all();
 +    for (Worker &worker : m_workers)
 +    {
 +        if (worker.thread.joinable())
@@ -6461,7 +6481,25 @@ index 0000000..f5dd018
 +    if (m_idleWorkers.load() != 0u)
 +    {
 +        std::lock_guard<ps2_host_sync::Mutex> lock(m_wakeMutex);
-+        m_workAvailable.notify_all();
++        ++m_wakeRound;
++        wakeNextWorker(SIZE_MAX);
++    }
++}
++
++void GSThreadedBackend::wakeNextWorker(size_t self) const
++{
++    // A round reaches each worker at most once, so workers woken with nothing to do
++    // can't keep waking each other.
++    for (size_t i = 0; i < m_workers.size(); ++i)
++    {
++        WorkerSleep &sleep = m_sleep[i];
++        if (i != self && sleep.sleeping && !sleep.woken && sleep.round != m_wakeRound)
++        {
++            sleep.woken = true;
++            sleep.round = m_wakeRound;
++            sleep.wake.notify_one();
++            return;
++        }
 +    }
 +}
 +
@@ -6855,8 +6893,21 @@ index 0000000..f5dd018
 +            if (next != m_submitted.load())
 +                continue;
 +            std::unique_lock<ps2_host_sync::Mutex> lock(m_wakeMutex);
++            WorkerSleep &sleep = m_sleep[index];
 +            ++m_idleWorkers;
-+            m_workAvailable.wait(lock, [this, next]() { return m_stopping || m_submitted.load() != next; });
++            sleep.sleeping = true;
++            for (;;)
++            {
++                if (sleep.woken)
++                {
++                    sleep.woken = false;
++                    wakeNextWorker(index);
++                }
++                if (m_stopping || m_submitted.load() != next)
++                    break;
++                sleep.wake.wait(lock);
++            }
++            sleep.sleeping = false;
 +            --m_idleWorkers;
 +            if (m_submitted.load() == next)
 +                return;
