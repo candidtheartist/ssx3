@@ -927,10 +927,19 @@ index 509fd07..b5210f9 100644
  
      std::string CodeGenerator::translateVU_VRGET(const Instruction &inst)
 diff --git a/ps2xRuntime/CMakeLists.txt b/ps2xRuntime/CMakeLists.txt
-index 589d768..fbff776 100644
+index 589d768..70c4a33 100644
 --- a/ps2xRuntime/CMakeLists.txt
 +++ b/ps2xRuntime/CMakeLists.txt
-@@ -383,8 +383,10 @@ add_library(ps2_runtime STATIC
+@@ -253,7 +253,7 @@ option(PS2X_ENABLE_FFMPEG "Enable FFmpeg-backed MPEG video decoding" ${PS2X_ENAB
+ if(NOT PS2X_ENABLE_FFMPEG)
+     message(STATUS "FFmpeg disabled; MPEG video decode falls back to stub frames")
+     add_library(ffmpeg INTERFACE)
+-elseif(WIN32)
++elseif(MSVC)
+     include(ExternalProject)
+ 
+     set(FFMPEG_PREBUILT_TAG "n7.1-241205")
+@@ -383,8 +383,14 @@ add_library(ps2_runtime STATIC
      src/lib/gs/ps2_gs_memory.cpp
      src/lib/gs/gs_frontend.cpp
      src/lib/gs/gs_cpu_backend.cpp
@@ -938,10 +947,14 @@ index 589d768..fbff776 100644
      src/lib/ps2_iop_host.cpp
      src/lib/ps2_memory.cpp
 +    src/lib/ps2_vu1_thread.cpp
++    src/lib/ps2_gs_feed.cpp
++    src/lib/ps2_host_sync.cpp
++    src/lib/ps2_host_thread.cpp
++    src/lib/ps2_host_alloc.cpp
      src/lib/ps2_pad.cpp
      src/lib/ps2_rom_device.cpp
      src/lib/ps2_vfs.cpp
-@@ -393,6 +395,7 @@ add_library(ps2_runtime STATIC
+@@ -393,6 +399,7 @@ add_library(ps2_runtime STATIC
      src/lib/vu/ps2_vu1_core.cpp
      src/lib/vu/ps2_vu1_upper.cpp
      src/lib/vu/ps2_vu1_lower.cpp
@@ -949,7 +962,7 @@ index 589d768..fbff776 100644
      src/lib/games_database.cpp
  )
  
-@@ -429,6 +432,22 @@ target_compile_definitions(ps2_runtime PRIVATE
+@@ -429,6 +436,22 @@ target_compile_definitions(ps2_runtime PRIVATE
      PS2X_HAS_FFMPEG=$<BOOL:${PS2X_ENABLE_FFMPEG}>
  )
  
@@ -972,7 +985,7 @@ index 589d768..fbff776 100644
  file(GLOB_RECURSE KERNEL_SRC_FILES CONFIGURE_DEPENDS
      "${CMAKE_CURRENT_SOURCE_DIR}/src/lib/Kernel/*.cpp"
  )
-@@ -437,11 +456,17 @@ target_sources(ps2_runtime PRIVATE
+@@ -437,11 +460,17 @@ target_sources(ps2_runtime PRIVATE
      ${KERNEL_SRC_FILES}
  )
  
@@ -992,7 +1005,7 @@ index 589d768..fbff776 100644
  set(ROOT_MAIN_CPP "${CMAKE_CURRENT_SOURCE_DIR}/src/main.cpp")
  
  if(EXISTS "${RUNNER_MAIN_CPP}")
-@@ -460,6 +485,52 @@ else()
+@@ -460,6 +489,62 @@ else()
      add_executable(ps2EntryRunner
          ${RUNNER_SRC_FILES}
      )
@@ -1010,6 +1023,12 @@ index 589d768..fbff776 100644
 +        target_sources(ps2EntryRunner PRIVATE "${CMAKE_CURRENT_SOURCE_DIR}/src/lib/ps2_identity_map.cpp")
 +        set_source_files_properties("${CMAKE_CURRENT_SOURCE_DIR}/src/lib/ps2_identity_map.cpp" PROPERTIES SKIP_UNITY_BUILD_INCLUSION ON)
 +    endif()
++    if(CMAKE_SIZEOF_VOID_P EQUAL 4 AND MINGW)
++        # Static, so the executable runs without MinGW's DLLs next to it, and large-address-aware, so it gets
++        # 4 GB of address space on 64-bit Windows. EE RAM isn't identity-mapped here: Windows 11 already has
++        # memory at 0x00100000 when a process starts, and only natively compiled C needs the mapping.
++        target_link_options(ps2EntryRunner PRIVATE -static "LINKER:--large-address-aware")
++    endif()
 +endif()
 +
 +# VU1 blocks as straight-line code, generated at build time: the block list
@@ -1021,6 +1040,10 @@ index 589d768..fbff776 100644
 +if(PS2X_VU1_BLOCK_LIST AND PS2X_VU1_BLOCK_ELF)
 +    add_executable(ps2_vu1_blockgen src/tools/vu1_blockgen.cpp)
 +    target_link_libraries(ps2_vu1_blockgen PRIVATE ps2_runtime)
++    if(MINGW)
++        # It runs during the build, where MinGW's DLLs may not be on the path.
++        target_link_options(ps2_vu1_blockgen PRIVATE -static)
++    endif()
 +    target_include_directories(ps2_vu1_blockgen PRIVATE "${CMAKE_CURRENT_SOURCE_DIR}/src/lib")
 +
 +    set(PS2X_VU1_BLOCK_DIR "${CMAKE_CURRENT_BINARY_DIR}/vu1_blocks")
@@ -1045,7 +1068,7 @@ index 589d768..fbff776 100644
  endif()
  
  if(PS2X_ENABLE_RUNNER_UNITY_BUILD)
-@@ -476,6 +547,8 @@ if(PS2X_ENABLE_RUNNER_PCH)
+@@ -476,6 +561,8 @@ if(PS2X_ENABLE_RUNNER_PCH)
      )
  
      foreach(PS2X_RUNNER_GENERATED_HEADER IN ITEMS
@@ -1054,7 +1077,7 @@ index 589d768..fbff776 100644
          "${CMAKE_CURRENT_SOURCE_DIR}/include/ps2_recompiled_functions.h"
          "${CMAKE_CURRENT_SOURCE_DIR}/include/ps2_recompiled_stubs.h")
          if(EXISTS "${PS2X_RUNNER_GENERATED_HEADER}")
-@@ -511,6 +584,8 @@ target_link_libraries(ps2EntryRunner
+@@ -511,6 +598,8 @@ target_link_libraries(ps2EntryRunner
      PRIVATE
      ps2_runtime
  )
@@ -1063,6 +1086,15 @@ index 589d768..fbff776 100644
  
  if(PS2X_ENABLE_DEBUG_UI AND NOT PS2X_IS_VITA AND NOT PS2X_IS_ANDROID)
      target_sources(ps2EntryRunner PRIVATE
+@@ -597,7 +686,7 @@ install(TARGETS ps2_runtime ps2EntryRunner
+     ARCHIVE DESTINATION lib
+ )
+ 
+-if(WIN32 AND PS2X_ENABLE_FFMPEG)
++if(MSVC AND PS2X_ENABLE_FFMPEG)
+     install(DIRECTORY "${FFMPEG_BIN_DIR}/"
+         DESTINATION bin
+         FILES_MATCHING
 diff --git a/ps2xRuntime/include/ps2_guest_scratch.h b/ps2xRuntime/include/ps2_guest_scratch.h
 new file mode 100644
 index 0000000..06fdb29
@@ -1089,6 +1121,38 @@ index 0000000..06fdb29
 +// The range the game asked for through SetupHeap while a scratch region is active.
 +extern uint32_t g_ps2xGameHeapBase;
 +extern uint32_t g_ps2xGameHeapLimit;
+diff --git a/ps2xRuntime/include/ps2_host_thread.h b/ps2xRuntime/include/ps2_host_thread.h
+new file mode 100644
+index 0000000..bdeead2
+--- /dev/null
++++ b/ps2xRuntime/include/ps2_host_thread.h
+@@ -0,0 +1,26 @@
++#pragma once
++
++#include <cstddef>
++#include <functional>
++#include <thread>
++
++// A joinable host thread with a stack of at least stackBytes. std::thread leaves the stack size to the
++// platform: 8 MB on Linux, but the executable's default on Windows (2 MB with MinGW, 1 MB with MSVC).
++class Ps2HostThread
++{
++public:
++    Ps2HostThread(size_t stackBytes, std::function<void()> body);
++    ~Ps2HostThread();
++    Ps2HostThread(const Ps2HostThread &) = delete;
++    Ps2HostThread &operator=(const Ps2HostThread &) = delete;
++
++    bool joinable() const;
++    void join();
++
++private:
++#if defined(_WIN32)
++    void *m_handle = nullptr;
++#else
++    std::thread m_thread;
++#endif
++};
 diff --git a/ps2xRuntime/include/ps2_runtime.h b/ps2xRuntime/include/ps2_runtime.h
 index 4b9242c..f1c8648 100644
 --- a/ps2xRuntime/include/ps2_runtime.h
@@ -1347,11 +1411,34 @@ index 0485d50..9a44ba3 100644
  #define FPU_CVT_L_S(a) ((int64_t)(float)(a))
  #define FPU_C_F_S(a, b) (0)
  #define FPU_C_UN_S(a, b) (isnan((float)(a)) || isnan((float)(b)))
+diff --git a/ps2xRuntime/include/runtime/ee_scheduler.h b/ps2xRuntime/include/runtime/ee_scheduler.h
+index f247ff9..b1c7bd9 100644
+--- a/ps2xRuntime/include/runtime/ee_scheduler.h
++++ b/ps2xRuntime/include/runtime/ee_scheduler.h
+@@ -1,6 +1,7 @@
+ #pragma once
+ 
+ #include "ps2_runtime.h"
++#include "runtime/ps2_host_sync.h"
+ 
+ #include <array>
+ #include <atomic>
+@@ -434,8 +435,8 @@ private:
+     std::atomic<bool> m_checkpointPending{false};
+     uint32_t m_debugPublishCountdown = 0u;
+ 
+-    mutable std::mutex m_eventMutex;
+-    std::condition_variable m_eventCv;
++    mutable ps2_host_sync::Mutex m_eventMutex;
++    ps2_host_sync::CondVar m_eventCv;
+     std::deque<EeEvent> m_events;
+     std::vector<ScheduledEvent> m_deadlines;
+     std::deque<GuestInvocation> m_pendingInvocations;
 diff --git a/ps2xRuntime/include/runtime/gs/gs_cpu_backend.h b/ps2xRuntime/include/runtime/gs/gs_cpu_backend.h
-index 2421f9e..acd552d 100644
+index 2421f9e..1be49f9 100644
 --- a/ps2xRuntime/include/runtime/gs/gs_cpu_backend.h
 +++ b/ps2xRuntime/include/runtime/gs/gs_cpu_backend.h
-@@ -33,19 +33,240 @@ public:
+@@ -33,19 +33,242 @@ public:
      void SnapshotVram(std::vector<uint8_t> &out) const override;
      GSTransferSnapshot GetTransferSnapshot() const override;
  
@@ -1360,6 +1447,8 @@ index 2421f9e..acd552d 100644
 +    // the rows of a small object over every backend. A band of 4 rows is made of whole
 +    // 64-byte columns of the 32- and 16-bit buffers, so no two backends write one column.
 +    void SetRowBand(uint32_t index, uint32_t count);
++    // Row y is in band y >> kRowBandShift.
++    static constexpr uint32_t kRowBandShift = 2u;
 +
 +    // Reads textures and CLUTs from `memory`, a copy of VRAM, and writes host to local
 +    // transfers there, to VRAM as well only with transfersToVram, so other backends can
@@ -1375,7 +1464,7 @@ index 2421f9e..acd552d 100644
  private:
 +    bool OwnsRow(int y) const
 +    {
-+        return m_bandCount <= 1u || ((static_cast<uint32_t>(y) >> 2u) % m_bandCount) == m_bandIndex;
++        return m_bandCount <= 1u || ((static_cast<uint32_t>(y) >> kRowBandShift) % m_bandCount) == m_bandIndex;
 +    }
 +
      void ResetUnlocked();
@@ -1593,7 +1682,7 @@ index 2421f9e..acd552d 100644
      uint32_t LookupCLUT(const GSDrawState &state, uint8_t index, uint8_t cpsm, uint8_t csm, uint8_t csa, uint8_t sourcePsm);
  
      void PerformLocalToLocalTransfer();
-@@ -68,14 +289,45 @@ private:
+@@ -68,14 +291,45 @@ private:
      mutable std::mutex m_mutex;
      uint8_t *m_vram = nullptr;
      uint32_t m_vramSize = 0;
@@ -1711,19 +1800,18 @@ index 1cb1540..7d2ac28 100644
  }
 diff --git a/ps2xRuntime/include/runtime/gs/gs_threaded_backend.h b/ps2xRuntime/include/runtime/gs/gs_threaded_backend.h
 new file mode 100644
-index 0000000..a790a70
+index 0000000..1cff8d3
 --- /dev/null
 +++ b/ps2xRuntime/include/runtime/gs/gs_threaded_backend.h
-@@ -0,0 +1,218 @@
+@@ -0,0 +1,282 @@
 +#pragma once
 +
 +#include "runtime/gs/gs_backend.h"
 +#include "runtime/gs/gs_cpu_backend.h"
++#include "runtime/ps2_host_sync.h"
 +
 +#include <array>
 +#include <atomic>
-+#include <barrier>
-+#include <condition_variable>
 +#include <memory>
 +#include <mutex>
 +#include <thread>
@@ -1820,21 +1908,44 @@ index 0000000..a790a70
 +        std::array<uint32_t, kPageCount> m_layout{};
 +    };
 +
-+    struct Command
++    // How the workers run a command, worked out as it is queued.
++    struct DrawPlan
 +    {
-+        CommandKind kind = CommandKind::Submit;
-+        int roundingMode = 0;
 +        // Every worker finishes the commands before this one first.
 +        bool waitForAll = false;
 +        // Runs once, on the first worker's backend, for all rows, while the others wait.
 +        bool runAlone = false;
++        // The workers that draw a row the command can reach (bit i for worker i). The
++        // others skip it, which saves them a small draw's setup.
++        uint32_t workers = ~0u;
 +        // Every worker reads textures from VRAM, not from its copy.
 +        bool texturesFromVram = false;
 +        // The pages each worker copies from VRAM to its copy before it runs the command.
 +        // The draws to them are done by then, and later ones wait for every worker to
 +        // get past this command.
 +        PageTracker::PageSet refresh{};
++    };
++
++    // A primitive drawn with the one before it in the same command.
++    struct RunPrimitive
++    {
++        std::array<GSVertex, 3> vertices{};
++        uint8_t vertexCount = 0;
++        uint32_t workers = ~0u;
++    };
++
++    struct Command : DrawPlan
++    {
++        CommandKind kind = CommandKind::Submit;
++        int roundingMode = 0;
++        // A Submit's first primitive, and the draw state of all of them. Those after it,
++        // drawn with the same state, are m_runPrimitives[runBegin] to [runEnd - 1] (by
++        // their number modulo its size); `workers` covers them all.
 +        GSPrimitiveBatch batch{};
++        uint64_t runBegin = 0;
++        uint64_t runEnd = 0;
++        // The workers that draw a row the first primitive can reach.
++        uint32_t firstWorkers = ~0u;
 +        GSTex0Reg tex0{};
 +        GSTexClutReg texclut{};
 +        GSTransferCommand transfer{};
@@ -1860,20 +1971,44 @@ index 0000000..a790a70
 +        std::atomic<uint64_t> done{0};
 +    };
 +
-+    Command &beginCommand(std::unique_lock<std::mutex> &lock, CommandKind kind, bool mayWait = true);
-+    void endCommand(std::unique_lock<std::mutex> &lock);
++    // An idle worker's sleep, with m_wakeMutex held.
++    struct WorkerSleep
++    {
++        ps2_host_sync::CondVar wake;
++        bool sleeping = false;
++        bool woken = false;
++        // The last wake round that reached this worker.
++        uint64_t round = 0;
++    };
++
++    Command &beginCommand(std::unique_lock<ps2_host_sync::Mutex> &lock, CommandKind kind, bool mayWait = true);
++    void endCommand(std::unique_lock<ps2_host_sync::Mutex> &lock);
 +    // The number of commands every worker has run.
 +    uint64_t completedCommands() const;
 +    // Waits, with m_queueMutex held, until every worker has run `target` commands.
-+    void waitForCompleted(std::unique_lock<std::mutex> &lock, uint64_t target) const;
++    void waitForCompleted(std::unique_lock<ps2_host_sync::Mutex> &lock, uint64_t target) const;
 +    // After a worker finishes commands, wakes a thread waiting for them.
 +    void notifyCompleted();
++    // With m_queueMutex held, wakes idle workers for the commands queued since they were
++    // last woken.
++    void wakeIdleWorkers() const;
++    // With m_wakeMutex held, wakes one sleeping worker other than `self` that this wake
++    // round hasn't reached yet.
++    void wakeNextWorker(size_t self) const;
 +    void waitForQueuedWork() const;
-+    void classifySubmit(Command &command);
++    void classifySubmit(const GSPrimitiveBatch &batch, DrawPlan &plan);
 +    // readsOwnPixels: each pixel the draw writes to drawn[0] reads only itself.
-+    void classifyDraw(Command &command, const PageTracker::Access *drawn, size_t count,
++    void classifyDraw(DrawPlan &plan, const PageTracker::Access *drawn, size_t count,
 +                      const PageTracker::PageSet &textured, bool readsOwnPixels);
-+    void markRunAlone(Command &command);
++    void markRunAlone(DrawPlan &plan);
++    // With m_queueMutex held, queues the Submit still taking primitives, if there is one.
++    void closeRun();
++    // Makes the command in the slot after the last queued one visible to the workers.
++    void publishCommand();
++    // With m_queueMutex held, waits until a primitive can be added to m_runPrimitives.
++    void waitForRunRoom(std::unique_lock<ps2_host_sync::Mutex> &lock);
++    // The workers that draw a row from y0 to y1.
++    uint32_t workersForRows(int y0, int y1) const;
 +    // The end of the run of commands from the ring's command `begin`, a runAlone one, that
 +    // the barrier can run in one go: runAlone commands, and the CLUT loads and
 +    // texture flushes between them, which it runs on every worker's backend.
@@ -1895,9 +2030,16 @@ index 0000000..a790a70
 +    // Each worker's copy of VRAM it reads textures from, with more than one worker.
 +    std::vector<std::unique_ptr<uint8_t[]>> m_textureCopies;
 +
-+    mutable std::mutex m_queueMutex;
-+    mutable std::condition_variable m_workAvailable;
-+    mutable std::condition_variable m_workDone;
++    mutable ps2_host_sync::Mutex m_queueMutex;
++    mutable ps2_host_sync::CondVar m_workDone;
++    // Idle workers sleep with their own mutex, so a worker going idle or waking never
++    // waits for m_queueMutex, which a submitter holds while it sorts out each command.
++    // The submitter wakes one of them, and each woken worker wakes the next: waking a
++    // thread is a system call, and the submitter is the VU1 thread, which the frame rate
++    // waits on.
++    mutable ps2_host_sync::Mutex m_wakeMutex;
++    std::unique_ptr<WorkerSleep[]> m_sleep;
++    mutable uint64_t m_wakeRound = 0; // with m_wakeMutex held
 +    // Submitted commands, in order, by their number modulo its size. Each worker goes
 +    // through them at its own pace and waits for the others only where a command says
 +    // so (waitForAll, runAlone). A command's slot is reused once every worker has run it.
@@ -1906,33 +2048,137 @@ index 0000000..a790a70
 +    // Written with m_queueMutex held; workers read it without.
 +    std::atomic<uint64_t> m_submitted{0};
 +    uint64_t m_lastTransferCommand = 0;
-+    // Workers waiting for commands, with m_queueMutex held.
-+    size_t m_idleWorkers = 0;
++    // Workers waiting for commands, changed with m_wakeMutex held.
++    std::atomic<size_t> m_idleWorkers{0};
++    // Primitives queued since idle workers were last woken, with m_queueMutex held.
++    mutable uint64_t m_unwokenCommands = 0;
++    // Primitives drawn with the one before them in their command, and the number of the
++    // next one, with m_queueMutex held. Each Submit takes primitives with the same state
++    // and rounding mode until something else is queued, so a run of a mesh's triangles
++    // costs the VU1 thread, which queues them, one command rather than one each.
++    std::vector<RunPrimitive> m_runPrimitives;
++    uint64_t m_nextRunPrimitive = 0;
++    // The Submit in the slot after the last queued one still takes primitives.
++    bool m_runOpen = false;
 +    // Threads waiting in waitForCompleted, and the lowest count they wait for.
 +    mutable std::atomic<uint32_t> m_completionWaiters{0};
 +    mutable std::atomic<uint64_t> m_completionTarget{UINT64_MAX};
++    // Set with m_wakeMutex held.
 +    bool m_stopping = false;
 +    PageTracker m_pages;
 +    // Pages VRAM may hold other bytes in than the workers' copies, by the commands
 +    // submitted so far.
 +    PageTracker::PageSet m_stale{};
 +
-+    std::barrier<BarrierCompletion> m_barrier;
++    ps2_host_sync::Barrier<BarrierCompletion> m_barrier;
 +    // The command every worker has arrived at, set by the first worker, and the end of
 +    // the run the barrier then ran from it (m_aloneBegin itself for a plain wait).
 +    uint64_t m_aloneBegin = 0;
 +    uint64_t m_aloneEnd = 0;
 +
-+    mutable std::mutex m_transferMutex;
++    mutable ps2_host_sync::Mutex m_transferMutex;
 +    GSTransferSnapshot m_transferSnapshot{};
 +
 +    // A presentation request waits in the queue until the draws before it are done.
 +    // m_presentMutex guards the flag and the last captured frame.
 +    GSPresentationRequest m_presentRequest{};
-+    mutable std::mutex m_presentMutex;
++    mutable ps2_host_sync::Mutex m_presentMutex;
 +    bool m_presentQueued = false;
 +    PresentationFrame m_lastPresented;
 +};
+diff --git a/ps2xRuntime/include/runtime/gs/gs_types.h b/ps2xRuntime/include/runtime/gs/gs_types.h
+index 836a3ff..b7c6feb 100644
+--- a/ps2xRuntime/include/runtime/gs/gs_types.h
++++ b/ps2xRuntime/include/runtime/gs/gs_types.h
+@@ -123,6 +123,8 @@ struct GSFrameReg
+     uint32_t fbw = 0;
+     uint8_t psm = 0;
+     uint32_t fbmsk = 0;
++
++    bool operator==(const GSFrameReg &) const = default;
+ };
+ 
+ struct GSZbufReg
+@@ -130,6 +132,8 @@ struct GSZbufReg
+     uint32_t zbp = 0;
+     uint8_t psm = 0;
+     bool zmask = false;
++
++    bool operator==(const GSZbufReg &) const = default;
+ };
+ 
+ struct GSScissorReg
+@@ -138,6 +142,8 @@ struct GSScissorReg
+     uint16_t x1 = 0;
+     uint16_t y0 = 0;
+     uint16_t y1 = 0;
++
++    bool operator==(const GSScissorReg &) const = default;
+ };
+ 
+ struct GSTex0Reg
+@@ -154,12 +160,16 @@ struct GSTex0Reg
+     uint8_t csm = 0;
+     uint8_t csa = 0;
+     uint8_t cld = 0;
++
++    bool operator==(const GSTex0Reg &) const = default;
+ };
+ 
+ struct GSXYOffsetReg
+ {
+     uint16_t ofx = 0;
+     uint16_t ofy = 0;
++
++    bool operator==(const GSXYOffsetReg &) const = default;
+ };
+ 
+ struct GSTexaReg
+@@ -167,6 +177,8 @@ struct GSTexaReg
+     uint8_t ta0 = 0;
+     bool aem = false;
+     uint8_t ta1 = 0;
++
++    bool operator==(const GSTexaReg &) const = default;
+ };
+ 
+ struct GSTexClutReg
+@@ -174,6 +186,8 @@ struct GSTexClutReg
+     uint8_t cbw = 0;
+     uint8_t cou = 0;
+     uint16_t cov = 0;
++
++    bool operator==(const GSTexClutReg &) const = default;
+ };
+ 
+ struct GSContext
+@@ -190,6 +204,8 @@ struct GSContext
+     uint64_t alpha = 0;
+     uint64_t test = 0;
+     uint64_t fba = 0;
++
++    bool operator==(const GSContext &) const = default;
+ };
+ 
+ struct GSPrimReg
+@@ -203,6 +219,8 @@ struct GSPrimReg
+     bool fst = false;
+     bool ctxt = false;
+     bool fix = false;
++
++    bool operator==(const GSPrimReg &) const = default;
+ };
+ 
+ struct GSBitBltBuf
+@@ -247,6 +265,8 @@ struct GSDrawState
+     uint16_t textureWidth = 1;
+     uint16_t textureHeight = 1;
+     bool linearFilter = false;
++
++    bool operator==(const GSDrawState &) const = default;
+ };
+ 
+ struct GSPrimitiveBatch
 diff --git a/ps2xRuntime/include/runtime/gs/ps2_gs_memory.h b/ps2xRuntime/include/runtime/gs/ps2_gs_memory.h
 index c784ff7..d6dc38a 100644
 --- a/ps2xRuntime/include/runtime/gs/ps2_gs_memory.h
@@ -2248,11 +2494,301 @@ index a8c2a55..642e8cb 100644
  
  private:
      struct DecodedSample
+diff --git a/ps2xRuntime/include/runtime/ps2_gs_feed.h b/ps2xRuntime/include/runtime/ps2_gs_feed.h
+new file mode 100644
+index 0000000..d1a2c20
+--- /dev/null
++++ b/ps2xRuntime/include/runtime/ps2_gs_feed.h
+@@ -0,0 +1,49 @@
++#pragma once
++
++#include <cstddef>
++#include <cstdint>
++#include <functional>
++#include <vector>
++
++#include "runtime/ps2_vu1_thread.h"
++
++// Runs the GS frontend, and so the hand-over of each draw to the raster backend, on a
++// thread of its own after the VU1 thread, so that thread can go on with the next VIF1
++// list meanwhile. The VU1 thread queues the GIF packets it sends, and the GS register
++// stores that must stay in order with them, and hands them over at the end of each of
++// its jobs. Only the VU1 thread queues. The EE side waits for the VU1 thread and then
++// for this one before it touches the GS (PS2Memory::waitForVu1Thread).
++class GsFeed
++{
++public:
++    using PacketFn = std::function<void(const uint8_t *, uint32_t)>;
++
++    explicit GsFeed(PacketFn process);
++
++    // Each item runs in the rounding mode the queuing thread has now.
++    void QueuePacket(const uint8_t *data, uint32_t sizeBytes);
++    void QueueCall(std::function<void()> call);
++    // Hands over what is queued.
++    void Flush();
++    void WaitIdle() { m_thread.WaitIdle(); }
++    void VsyncFence() { m_thread.VsyncFence(); }
++    bool OnThread() const { return m_thread.OnThread(); }
++
++    // Past this much queued data the queue is handed over without waiting for the job's end.
++    static constexpr size_t kBatchBytes = 64u << 10u;
++
++private:
++    struct Batch
++    {
++        // Each item is a 16-byte header, then for a packet its data padded to 16 bytes.
++        std::vector<uint8_t> bytes;
++        std::vector<std::function<void()>> calls;
++    };
++
++    void Run(const Batch &batch) const;
++    void queueHeader(uint32_t sizeBytes, uint32_t call);
++
++    PacketFn m_process;
++    Batch m_batch;
++    Vu1Thread m_thread{"GsFeed"}; // last, so it stops before the rest goes
++};
+diff --git a/ps2xRuntime/include/runtime/ps2_host_fpu.h b/ps2xRuntime/include/runtime/ps2_host_fpu.h
+new file mode 100644
+index 0000000..f7c76fc
+--- /dev/null
++++ b/ps2xRuntime/include/runtime/ps2_host_fpu.h
+@@ -0,0 +1,81 @@
++#pragma once
++
++#include <cfenv>
++
++#if (defined(__i386__) || defined(__x86_64__)) && (defined(__GNUC__) || defined(__clang__))
++#include <xmmintrin.h>
++#define PS2X_HOST_FPU_X86 1
++#endif
++
++// The host rounding mode, changed without the C library on x86. MinGW's 32-bit
++// fesetround, fegetenv and fesetenv check for SSE with CPUID on every call, and CPUID
++// traps into the hypervisor when Windows runs under one. The VU1 thread changes the
++// mode around every VU1 program it runs, so those calls added up.
++namespace ps2_host_fpu
++{
++#if defined(PS2X_HOST_FPU_X86)
++    // The FE_* values differ between C libraries (glibc and older MinGW use the x87
++    // control word's bits, newer MinGW-w64 uses _controlfp's _RC_* values), so they are
++    // mapped to the x87 rounding bits here. The MXCSR has the same two bits three places
++    // higher.
++    inline unsigned x87Bits(int mode)
++    {
++        switch (mode)
++        {
++        case FE_TONEAREST:
++            return 0x000u;
++        case FE_DOWNWARD:
++            return 0x400u;
++        case FE_UPWARD:
++            return 0x800u;
++        case FE_TOWARDZERO:
++            return 0xC00u;
++        default:
++            return ~0u;
++        }
++    }
++#endif
++
++    inline int getRounding()
++    {
++#if defined(PS2X_HOST_FPU_X86)
++        unsigned short cw;
++        __asm__ volatile("fnstcw %0" : "=m"(cw));
++        switch (cw & 0x0C00u)
++        {
++        case 0x400u:
++            return FE_DOWNWARD;
++        case 0x800u:
++            return FE_UPWARD;
++        case 0xC00u:
++            return FE_TOWARDZERO;
++        default:
++            return FE_TONEAREST;
++        }
++#else
++        return std::fegetround();
++#endif
++    }
++
++    // Returns true once the mode is set, like fesetround returning 0.
++    inline bool setRounding(int mode)
++    {
++#if defined(PS2X_HOST_FPU_X86)
++        const unsigned bits = x87Bits(mode);
++        if (bits == ~0u)
++            return false;
++        unsigned short cw;
++        __asm__ volatile("fnstcw %0" : "=m"(cw));
++        const unsigned short newCw = static_cast<unsigned short>((cw & ~0x0C00u) | bits);
++        if (newCw != cw)
++            __asm__ volatile("fldcw %0" : : "m"(newCw) : "memory");
++        const unsigned int csr = _mm_getcsr();
++        const unsigned int newCsr = (csr & ~0x6000u) | (bits << 3);
++        if (newCsr != csr)
++            _mm_setcsr(newCsr);
++        return true;
++#else
++        return std::fesetround(mode) == 0;
++#endif
++    }
++}
+diff --git a/ps2xRuntime/include/runtime/ps2_host_sync.h b/ps2xRuntime/include/runtime/ps2_host_sync.h
+new file mode 100644
+index 0000000..bf12500
+--- /dev/null
++++ b/ps2xRuntime/include/runtime/ps2_host_sync.h
+@@ -0,0 +1,142 @@
++#pragma once
++
++#include <atomic>
++#include <chrono>
++#include <condition_variable>
++#include <cstddef>
++#include <cstdint>
++#include <mutex>
++#include <utility>
++
++// The mutex and condition variable of the threads that hand each other work many times
++// a frame: the EE scheduler, the VU1 thread and the GS workers. MinGW's std::mutex and
++// std::condition_variable are winpthreads', whose condition variable sleeps on a
++// semaphore through WaitForMultipleObjects and wakes through ReleaseSemaphore, both
++// system calls every time; on a Windows PC the GS workers spent about a fifth of a core
++// each in them. Windows' own slim reader/writer lock and condition variable stay in user
++// mode unless a thread really has to sleep. Elsewhere these are the standard types.
++namespace ps2_host_sync
++{
++#if defined(_WIN32)
++    class Mutex
++    {
++    public:
++        Mutex() = default;
++        Mutex(const Mutex &) = delete;
++        Mutex &operator=(const Mutex &) = delete;
++
++        void lock();
++        bool try_lock();
++        void unlock();
++
++    private:
++        friend class CondVar;
++        void *m_lock = nullptr; // an SRWLOCK
++    };
++
++    class CondVar
++    {
++    public:
++        CondVar() = default;
++        CondVar(const CondVar &) = delete;
++        CondVar &operator=(const CondVar &) = delete;
++
++        void notify_one() noexcept;
++        void notify_all() noexcept;
++        void wait(std::unique_lock<Mutex> &lock);
++        template <class Predicate>
++        void wait(std::unique_lock<Mutex> &lock, Predicate pred)
++        {
++            while (!pred())
++                wait(lock);
++        }
++
++        // Like std::condition_variable::wait_until: false if the deadline passed with
++        // pred still false. Windows sleeps in whole milliseconds, so the last part of a
++        // millisecond is waited out by yielding, which keeps the EE's vblank pacing exact.
++        template <class Clock, class Duration, class Predicate>
++        bool wait_until(std::unique_lock<Mutex> &lock,
++                        const std::chrono::time_point<Clock, Duration> &deadline, Predicate pred)
++        {
++            while (!pred())
++            {
++                const auto now = Clock::now();
++                if (now >= deadline)
++                    return pred();
++                const auto left = std::chrono::duration_cast<std::chrono::milliseconds>(deadline - now).count();
++                waitMs(lock, left > static_cast<long long>(kMaxWaitMs) ? kMaxWaitMs
++                                                                        : static_cast<unsigned long>(left));
++            }
++            return true;
++        }
++
++    private:
++        static constexpr unsigned long kMaxWaitMs = 0x7FFFFFFFul;
++        // Sleeps at most ms milliseconds, or only yields when ms is 0.
++        void waitMs(std::unique_lock<Mutex> &lock, unsigned long ms);
++
++        void *m_cv = nullptr; // a CONDITION_VARIABLE
++    };
++#else
++    using Mutex = std::mutex;
++    using CondVar = std::condition_variable;
++#endif
++
++    // How many times a GS worker that ran out of work, or waits at a Barrier, checks
++    // again with a pause before it sleeps. PS2X_GS_SPIN overrides it.
++    unsigned spinCount();
++    void spinPause();
++
++    // A barrier for a fixed number of threads, like std::barrier (whose waits also go
++    // through winpthreads with MinGW): the last thread to arrive runs the completion
++    // while the others wait, then releases them. A waiting thread checks for a while
++    // before it sleeps, since the others are often close behind.
++    template <class Completion>
++    class Barrier
++    {
++    public:
++        Barrier(std::ptrdiff_t count, Completion completion)
++            : m_count(count), m_left(count), m_completion(std::move(completion)), m_spins(spinCount())
++        {
++        }
++
++        void arrive_and_wait()
++        {
++            std::unique_lock<Mutex> lock(m_mutex);
++            const uint64_t phase = m_phase.load(std::memory_order_relaxed);
++            if (--m_left == 0)
++            {
++                m_completion();
++                m_left = m_count;
++                m_phase.store(phase + 1u, std::memory_order_release);
++                const bool sleepers = m_sleepers != 0u;
++                lock.unlock();
++                if (sleepers)
++                    m_released.notify_all();
++                return;
++            }
++            lock.unlock();
++            for (unsigned spin = 0; spin < m_spins; ++spin)
++            {
++                if (m_phase.load(std::memory_order_acquire) != phase)
++                    return;
++                spinPause();
++            }
++            lock.lock();
++            ++m_sleepers;
++            m_released.wait(lock, [&]
++                            { return m_phase.load(std::memory_order_relaxed) != phase; });
++            --m_sleepers;
++        }
++
++    private:
++        Mutex m_mutex;
++        CondVar m_released;
++        const std::ptrdiff_t m_count;
++        std::ptrdiff_t m_left;           // with m_mutex held
++        uint32_t m_sleepers = 0;         // with m_mutex held
++        std::atomic<uint64_t> m_phase{0}; // changed with m_mutex held
++        Completion m_completion;
++        const unsigned m_spins;
++    };
++}
 diff --git a/ps2xRuntime/include/runtime/ps2_memory.h b/ps2xRuntime/include/runtime/ps2_memory.h
-index ea86a9c..50d3a59 100644
+index ea86a9c..88200fd 100644
 --- a/ps2xRuntime/include/runtime/ps2_memory.h
 +++ b/ps2xRuntime/include/runtime/ps2_memory.h
-@@ -9,9 +9,11 @@
+@@ -9,9 +9,12 @@
  #include <unordered_map>
  #include <atomic>
  #include <iostream>
@@ -2260,11 +2796,12 @@ index ea86a9c..50d3a59 100644
  #include <mutex>
  
  #include "gs/ps2_gif_arbiter.h"
++#include "runtime/ps2_gs_feed.h"
 +#include "runtime/ps2_vu1_thread.h"
  #if defined(_MSC_VER)
  #include <intrin.h>
  #elif defined(USE_SSE2NEON)
-@@ -19,6 +21,7 @@
+@@ -19,6 +22,7 @@
  #else
  #include <immintrin.h> // For SSE/AVX instructions
  #include <smmintrin.h> // For SSE4.1 instructions
@@ -2272,7 +2809,7 @@ index ea86a9c..50d3a59 100644
  #endif
  
  class GS;
-@@ -212,7 +215,7 @@ struct GSRegisters
+@@ -212,7 +216,7 @@ struct GSRegisters
      uint64_t siglblid; // Signal label ID
  };
  static_assert(sizeof(GSRegisters) == (20u * sizeof(uint64_t)), "GSRegisters layout changed unexpectedly");
@@ -2281,7 +2818,7 @@ index ea86a9c..50d3a59 100644
  static_assert(std::atomic<uint64_t>::is_always_lock_free, "GS CSR atomic must be lock-free on all supported targets");
  
  // PS2 VIF (VPU Interface) registers
-@@ -331,8 +334,31 @@ public:
+@@ -331,8 +335,48 @@ public:
      uint8_t *getVU0Data() { return m_vu0Data; }
      const uint8_t *getVU0Data() const { return m_vu0Data; }
  
@@ -2294,17 +2831,34 @@ index ea86a9c..50d3a59 100644
 +    void enableVu1Thread(bool enabled, Vu1AsyncAllowedFn asyncAllowed = {});
 +    bool vu1ThreadEnabled() const { return m_vu1Thread != nullptr; }
 +    bool onVu1Thread() const { return m_vu1Thread && m_vu1Thread->OnThread(); }
++    // With the VU1 thread on, the GS feed can take the GS frontend off it (see GsFeed);
++    // process runs each packet there. Turning the VU1 thread off turns the feed off too.
++    void enableGsFeed(bool enabled, GsFeed::PacketFn process = {});
++    // On the VU1 thread with the feed on, queues the packet for the feed and returns true;
++    // otherwise returns false and the caller sends it to the GS itself.
++    bool queueForGsFeed(const uint8_t *data, uint32_t sizeBytes)
++    {
++        if (!m_gsFeed || !m_vu1Thread->OnThread())
++            return false;
++        m_gsFeed->QueuePacket(data, sizeBytes);
++        return true;
++    }
 +    // Called from the EE side before it reads or changes what the thread's jobs use.
 +    void waitForVu1Thread() const
 +    {
-+        if (m_vu1Thread && !m_vu1Thread->OnThread())
-+            m_vu1Thread->WaitIdle();
++        if (!m_vu1Thread || m_vu1Thread->OnThread() || (m_gsFeed && m_gsFeed->OnThread()))
++            return;
++        m_vu1Thread->WaitIdle();
++        if (m_gsFeed)
++            m_gsFeed->WaitIdle();
 +    }
 +    // Called at each vertical blank, to keep the EE close behind the drawing.
 +    void vu1ThreadVsync()
 +    {
 +        if (m_vu1Thread)
 +            m_vu1Thread->VsyncFence();
++        if (m_gsFeed)
++            m_gsFeed->VsyncFence();
 +    }
 +
      bool isPath3Masked() const { return m_path3Masked; }
@@ -2313,11 +2867,12 @@ index ea86a9c..50d3a59 100644
  
      void submitGifPacket(GifPathId pathId, const uint8_t *data, uint32_t sizeBytes, bool drainImmediately = true, bool path2DirectHl = false);
      void processGIFPacket(uint32_t srcPhysAddr, uint32_t qwCount);
-@@ -401,15 +427,18 @@ public:
+@@ -401,15 +445,19 @@ public:
      GifArbiter *m_gifArbiter = nullptr;
      Vu1MscalCallback m_vu1MscalCallback;
      Vu1MscntCallback m_vu1MscntCallback;
 +    std::unique_ptr<Vu1Thread> m_vu1Thread;
++    std::unique_ptr<GsFeed> m_gsFeed; // only with m_vu1Thread
 +    Vu1AsyncAllowedFn m_vu1AsyncAllowed;
  
      uint8_t *m_vu0Code = nullptr;
@@ -2333,7 +2888,7 @@ index ea86a9c..50d3a59 100644
  
      struct PendingTransfer
      {
-@@ -421,6 +450,8 @@ public:
+@@ -421,6 +469,8 @@ public:
      std::vector<PendingTransfer> m_pendingGifTransfers;
      std::vector<PendingTransfer> m_pendingVif0Transfers;
      std::vector<PendingTransfer> m_pendingVif1Transfers;
@@ -2702,16 +3257,14 @@ index 67c8184..dae19d5 100644
      void reportReservedInstruction(bool upper, uint32_t instruction);
 diff --git a/ps2xRuntime/include/runtime/ps2_vu1_thread.h b/ps2xRuntime/include/runtime/ps2_vu1_thread.h
 new file mode 100644
-index 0000000..27026c8
+index 0000000..d820167
 --- /dev/null
 +++ b/ps2xRuntime/include/runtime/ps2_vu1_thread.h
-@@ -0,0 +1,66 @@
+@@ -0,0 +1,78 @@
 +#pragma once
 +
 +#include <array>
 +#include <atomic>
-+#include <cfenv>
-+#include <condition_variable>
 +#include <cstddef>
 +#include <cstdint>
 +#include <deque>
@@ -2719,24 +3272,29 @@ index 0000000..27026c8
 +#include <mutex>
 +#include <thread>
 +
++#include "runtime/ps2_host_sync.h"
++
 +// Runs VIF1 lists, the VU1 microprograms they start and the GIF packets they and GIF
 +// DMA send, one job at a time in submission order, on its own thread, so the EE can
-+// keep going meanwhile. Each job runs in the floating-point environment its submitter
-+// had. Before the EE side reads or changes anything a job may touch (VIF1 and VU1
-+// state, the GIF arbiter, the GS frontend and the GS registers the GIF writes), it
-+// calls WaitIdle.
++// keep going meanwhile. Each job runs in the rounding mode its submitter had. Before
++// the EE side reads or changes anything a job may touch (VIF1 and VU1 state, the GIF
++// arbiter, the GS frontend and the GS registers the GIF writes), it calls WaitIdle.
++// GsFeed runs a second one, named after it, for the GS frontend.
 +class Vu1Thread
 +{
 +public:
-+    Vu1Thread();
++    explicit Vu1Thread(const char *name = "Vu1Thread");
 +    ~Vu1Thread();
 +
 +    Vu1Thread(const Vu1Thread &) = delete;
 +    Vu1Thread &operator=(const Vu1Thread &) = delete;
 +
-+    // Submit, WaitIdle and VsyncFence are called from one thread, the EE's.
++    // Submit is called from one thread at a time, WaitIdle and VsyncFence from the EE's.
++    // When another thread submits, the EE first waits for that thread to finish its jobs.
 +    // bytes is the data the job carries: past kMaxPendingBytes the submitter waits.
 +    void Submit(std::function<void()> job, size_t bytes);
++    // Runs on the thread after each job, before the job counts as finished.
++    void SetJobEnd(std::function<void()> jobEnd);
 +    // Returns once every submitted job has finished.
 +    void WaitIdle();
 +    // Called at each vertical blank. Returns once every job submitted before the
@@ -2753,17 +3311,26 @@ index 0000000..27026c8
 +    {
 +        std::function<void()> run;
 +        size_t bytes = 0;
-+        fenv_t env{};
++        int roundingMode = 0;
 +    };
 +
-+    void Run();
++    void Run(const char *name);
 +    void WaitFor(uint64_t sequence);
++    bool hasRoomFor(size_t bytes) const; // with m_mutex held
 +
-+    std::mutex m_mutex;
-+    std::condition_variable m_jobReady;
-+    std::condition_variable m_jobDone;
++    ps2_host_sync::Mutex m_mutex;
++    ps2_host_sync::CondVar m_jobReady;
++    ps2_host_sync::CondVar m_jobDone;
 +    std::deque<Job> m_jobs;
++    std::function<void()> m_jobEnd;
 +    size_t m_pendingBytes = 0;
++    // Waking a thread costs a lot more than checking whether it needs waking (on Windows
++    // most of all), so the two threads only wake each other when the other is waiting
++    // for this. All of these change with m_mutex held.
++    bool m_idle = false;                // the job thread waits for a job
++    uint32_t m_completionWaiters = 0;   // threads waiting for jobs to finish
++    uint64_t m_waitTarget = UINT64_MAX; // the fewest finished jobs one of them waits for
++    size_t m_roomWanted = SIZE_MAX;     // the submitter waits for room for a job this big
 +    std::atomic<uint64_t> m_submitted{0};
 +    std::array<uint64_t, kVsyncsAhead> m_vsyncMarks{}; // the submitting thread's own
 +    size_t m_nextVsyncMark = 0;
@@ -2802,7 +3369,7 @@ index 0000000..e50bf59
 +#define _mm_extract_epi64(v, i) ps2x_extract_epi64((v), (i))
 +#endif
 diff --git a/ps2xRuntime/src/lib/Kernel/EeScheduler.cpp b/ps2xRuntime/src/lib/Kernel/EeScheduler.cpp
-index c5e31c4..2973636 100644
+index c5e31c4..03b09c2 100644
 --- a/ps2xRuntime/src/lib/Kernel/EeScheduler.cpp
 +++ b/ps2xRuntime/src/lib/Kernel/EeScheduler.cpp
 @@ -1,3 +1,5 @@
@@ -2901,7 +3468,30 @@ index c5e31c4..2973636 100644
      {
          return KE_ERROR;
      }
-@@ -1867,6 +1929,7 @@ void EeScheduler::processEvent(const EeEvent &event)
+@@ -1843,15 +1905,20 @@ void EeScheduler::processDueDeadlines()
+             return;
+         }
+ 
++        const auto firedAt = std::chrono::steady_clock::now();
+         for (ScheduledEvent &scheduled : due)
+         {
+             if (scheduled.event.type == EeEventType::VBlankStart)
+             {
++                // When frames take longer to run than to show, the host falls behind the
++                // PS2's schedule. Making that time up would run the game fast until it had,
++                // so once it is more than a frame behind, the next blank is timed from now.
++                const auto hostStart = firedAt - scheduled.hostDeadline > kVBlankPeriod ? firedAt : scheduled.hostDeadline;
+                 scheduleEvent(scheduled.deadlineCycle + kVBlankDurationCycles,
+-                              scheduled.hostDeadline + kVBlankDuration,
++                              hostStart + kVBlankDuration,
+                               EeEvent{EeEventType::VBlankEnd, 0, m_vsyncTick + 1u});
+                 scheduleEvent(scheduled.deadlineCycle + kVBlankPeriodCycles,
+-                              scheduled.hostDeadline + kVBlankPeriod,
++                              hostStart + kVBlankPeriod,
+                               EeEvent{EeEventType::VBlankStart, 0, 0});
+             }
+             processEvent(scheduled.event);
+@@ -1867,6 +1934,7 @@ void EeScheduler::processEvent(const EeEvent &event)
          requestStop();
          break;
      case EeEventType::VBlankStart:
@@ -2909,7 +3499,7 @@ index c5e31c4..2973636 100644
          ++m_vsyncTick;
          m_runtime.memory().gs().vsyncTick.store(m_vsyncTick, std::memory_order_release);
          if ((m_vsyncTick & 1u) != 0u)
-@@ -1996,6 +2059,43 @@ void EeScheduler::writeGuestU32(uint32_t address, uint32_t value)
+@@ -1996,6 +2064,43 @@ void EeScheduler::writeGuestU32(uint32_t address, uint32_t value)
  
  void EeScheduler::waitForEvent()
  {
@@ -5661,16 +6251,18 @@ index f0ad507..d816ecd 100644
      return false;
 diff --git a/ps2xRuntime/src/lib/gs/gs_threaded_backend.cpp b/ps2xRuntime/src/lib/gs/gs_threaded_backend.cpp
 new file mode 100644
-index 0000000..a0add39
+index 0000000..924e8e3
 --- /dev/null
 +++ b/ps2xRuntime/src/lib/gs/gs_threaded_backend.cpp
-@@ -0,0 +1,1052 @@
+@@ -0,0 +1,1233 @@
 +#include "runtime/gs/gs_threaded_backend.h"
 +#include "runtime/gs/ps2_gs_common.h"
++#include "runtime/ps2_host_fpu.h"
 +
 +#include <algorithm>
 +#include <cfenv>
 +#include <cmath>
++#include <cstdint>
 +#include <cstring>
 +
 +namespace
@@ -5684,6 +6276,24 @@ index 0000000..a0add39
 +    // as the last one has run but before the workers have moved past it: at most two
 +    // commands beyond the limit.
 +    constexpr uint64_t kRingSize = kMaxPendingCommands + 4u;
++    // Idle workers are woken once this many commands are queued, rather than for each
++    // one: a race can queue 30,000 draws a frame, and waking several threads costs the
++    // EE a system call, and the lock it then waits for, each time.
++    constexpr uint64_t kWakeBatch = 32u;
++    // Primitives a Submit takes at most, and room for the runs of a full queue's worth of
++    // them (each primitive's slot is reused once every worker has run its command).
++    constexpr uint64_t kMaxRunLength = 64u;
++    constexpr uint64_t kRunPrimitives = 65536u;
++
++    bool noPages(const std::array<uint64_t, 8> &pages)
++    {
++        for (uint64_t word : pages)
++        {
++            if (word != 0u)
++                return false;
++        }
++        return true;
++    }
 +
 +    struct PageExtent
 +    {
@@ -6031,6 +6641,8 @@ index 0000000..a0add39
 +    m_workers.resize(count);
 +    m_ring.resize(kRingSize);
 +    m_progress = std::make_unique<WorkerProgress[]>(count);
++    m_sleep = std::make_unique<WorkerSleep[]>(count);
++    m_runPrimitives.resize(kRunPrimitives);
 +    for (unsigned i = 0; i < count; ++i)
 +    {
 +        m_workers[i].backend = std::make_unique<GSCpuBackend>();
@@ -6044,10 +6656,11 @@ index 0000000..a0add39
 +{
 +    waitForQueuedWork();
 +    {
-+        std::lock_guard<std::mutex> lock(m_queueMutex);
++        std::lock_guard<ps2_host_sync::Mutex> lock(m_wakeMutex);
 +        m_stopping = true;
++        for (size_t i = 0; i < m_workers.size(); ++i)
++            m_sleep[i].wake.notify_one();
 +    }
-+    m_workAvailable.notify_all();
 +    for (Worker &worker : m_workers)
 +    {
 +        if (worker.thread.joinable())
@@ -6055,24 +6668,97 @@ index 0000000..a0add39
 +    }
 +}
 +
-+GSThreadedBackend::Command &GSThreadedBackend::beginCommand(std::unique_lock<std::mutex> &lock, CommandKind kind, bool mayWait)
++GSThreadedBackend::Command &GSThreadedBackend::beginCommand(std::unique_lock<ps2_host_sync::Mutex> &lock, CommandKind kind, bool mayWait)
 +{
++    closeRun();
 +    const uint64_t submitted = m_submitted.load(std::memory_order_relaxed);
 +    if (mayWait && submitted >= kMaxPendingCommands && completedCommands() + kMaxPendingCommands <= submitted)
 +        waitForCompleted(lock, submitted - kMaxPendingCommands + kRefillCommands);
-+    Command &command = m_ring[submitted % kRingSize];
++    // The wait lets go of m_queueMutex, so another thread may have queued a command in
++    // the meantime (a presentation request never waits for room).
++    Command &command = m_ring[m_submitted.load(std::memory_order_relaxed) % kRingSize];
 +    command = Command{};
 +    command.kind = kind;
-+    command.roundingMode = std::fegetround();
++    command.roundingMode = ps2_host_fpu::getRounding();
++    command.runBegin = m_nextRunPrimitive;
++    command.runEnd = m_nextRunPrimitive;
 +    return command;
 +}
 +
-+void GSThreadedBackend::endCommand(std::unique_lock<std::mutex> &lock)
++void GSThreadedBackend::endCommand(std::unique_lock<ps2_host_sync::Mutex> &lock)
 +{
-+    m_submitted.fetch_add(1u);
-+    if (m_idleWorkers != 0u)
-+        m_workAvailable.notify_all();
++    publishCommand();
 +    lock.unlock();
++}
++
++void GSThreadedBackend::publishCommand()
++{
++    // Workers already awake see the command at once. Idle ones are woken for a batch,
++    // for a command they all wait at, and before anything waits for them (so a short
++    // batch never waits long: the presentation request comes every frame and wakes them).
++    const Command &command = m_ring[m_submitted.load(std::memory_order_relaxed) % kRingSize];
++    m_submitted.fetch_add(1u);
++    m_unwokenCommands += 1u + (command.runEnd - command.runBegin);
++    if (m_unwokenCommands >= kWakeBatch || command.waitForAll || command.runAlone)
++        wakeIdleWorkers();
++}
++
++void GSThreadedBackend::closeRun()
++{
++    if (m_runOpen)
++    {
++        m_runOpen = false;
++        publishCommand();
++    }
++}
++
++void GSThreadedBackend::waitForRunRoom(std::unique_lock<ps2_host_sync::Mutex> &lock)
++{
++    for (;;)
++    {
++        // The oldest primitive still needed is the first of the oldest command a worker
++        // hasn't run yet, or of the open run.
++        const uint64_t submitted = m_submitted.load(std::memory_order_relaxed);
++        const uint64_t completed = completedCommands();
++        uint64_t oldest = m_nextRunPrimitive;
++        if (completed < submitted || m_runOpen)
++            oldest = m_ring[completed % kRingSize].runBegin;
++        if (m_nextRunPrimitive - oldest < kRunPrimitives)
++            return;
++        // The open run holds at most kMaxRunLength of them, so the queued commands do.
++        waitForCompleted(lock, completed + std::max<uint64_t>(1u, (submitted - completed) / 2u));
++    }
++}
++
++void GSThreadedBackend::wakeIdleWorkers() const
++{
++    m_unwokenCommands = 0;
++    // A worker counts itself idle before it looks for commands, and commands are published
++    // before this reads the count, so a worker either sees them or is counted here. It
++    // looks and goes to sleep with m_wakeMutex held, so the wakeup can't fall in between.
++    if (m_idleWorkers.load() != 0u)
++    {
++        std::lock_guard<ps2_host_sync::Mutex> lock(m_wakeMutex);
++        ++m_wakeRound;
++        wakeNextWorker(SIZE_MAX);
++    }
++}
++
++void GSThreadedBackend::wakeNextWorker(size_t self) const
++{
++    // A round reaches each worker at most once, so workers woken with nothing to do
++    // can't keep waking each other.
++    for (size_t i = 0; i < m_workers.size(); ++i)
++    {
++        WorkerSleep &sleep = m_sleep[i];
++        if (i != self && sleep.sleeping && !sleep.woken && sleep.round != m_wakeRound)
++        {
++            sleep.woken = true;
++            sleep.round = m_wakeRound;
++            sleep.wake.notify_one();
++            return;
++        }
++    }
 +}
 +
 +uint64_t GSThreadedBackend::completedCommands() const
@@ -6083,10 +6769,11 @@ index 0000000..a0add39
 +    return completed;
 +}
 +
-+void GSThreadedBackend::waitForCompleted(std::unique_lock<std::mutex> &lock, uint64_t target) const
++void GSThreadedBackend::waitForCompleted(std::unique_lock<ps2_host_sync::Mutex> &lock, uint64_t target) const
 +{
 +    if (completedCommands() >= target)
 +        return;
++    wakeIdleWorkers();
 +    // The target is lowered before the waiter count goes up, so a worker that sees the
 +    // count also sees a target no higher than this one. Both change only with
 +    // m_queueMutex held.
@@ -6106,21 +6793,39 @@ index 0000000..a0add39
 +    // its progress before checking for waiters, so one of them sees the other.
 +    if (m_completionWaiters.load() != 0u && completedCommands() >= m_completionTarget.load())
 +    {
-+        std::lock_guard<std::mutex> lock(m_queueMutex);
++        std::lock_guard<ps2_host_sync::Mutex> lock(m_queueMutex);
 +        m_workDone.notify_all();
 +    }
 +}
 +
 +void GSThreadedBackend::waitForQueuedWork() const
 +{
-+    std::unique_lock<std::mutex> lock(m_queueMutex);
++    std::unique_lock<ps2_host_sync::Mutex> lock(m_queueMutex);
++    // The calls that return VRAM contents are const, but the primitives of an open run
++    // are drawn before them.
++    const_cast<GSThreadedBackend *>(this)->closeRun();
 +    waitForCompleted(lock, m_submitted.load());
 +}
 +
-+void GSThreadedBackend::markRunAlone(Command &command)
++void GSThreadedBackend::markRunAlone(DrawPlan &plan)
 +{
-+    command.runAlone = true;
++    plan.runAlone = true;
 +    m_pages.Clear();
++}
++
++uint32_t GSThreadedBackend::workersForRows(int y0, int y1) const
++{
++    // GSCpuBackend::SetRowBand: worker i draws the bands of rows whose number modulo the
++    // worker count is i.
++    const uint32_t count = static_cast<uint32_t>(m_workers.size());
++    const uint32_t first = static_cast<uint32_t>(std::max(y0, 0)) >> GSCpuBackend::kRowBandShift;
++    const uint32_t last = static_cast<uint32_t>(std::max(y1, 0)) >> GSCpuBackend::kRowBandShift;
++    if (last - first + 1u >= count)
++        return ~0u;
++    uint32_t workers = 0u;
++    for (uint32_t band = first; band <= last; ++band)
++        workers |= 1u << (band % count);
++    return workers;
 +}
 +
 +void GSThreadedBackend::markDrawn(const PageTracker::PageSet &pages)
@@ -6173,7 +6878,7 @@ index 0000000..a0add39
 +    return end;
 +}
 +
-+void GSThreadedBackend::classifyDraw(Command &command, const PageTracker::Access *drawn, size_t count,
++void GSThreadedBackend::classifyDraw(DrawPlan &plan, const PageTracker::Access *drawn, size_t count,
 +                                     const PageTracker::PageSet &textured, bool readsOwnPixels)
 +{
 +    if (m_workers.size() <= 1u)
@@ -6194,7 +6899,7 @@ index 0000000..a0add39
 +        // The first worker reads its textures from VRAM.
 +        for (size_t i = 0; i < count; ++i)
 +            markDrawn(drawn[i].pages);
-+        markRunAlone(command);
++        markRunAlone(plan);
 +        return;
 +    }
 +
@@ -6203,32 +6908,32 @@ index 0000000..a0add39
 +    // what it reads.
 +    static const PageTracker::PageSet kNoPages{};
 +    const PageTracker::PageSet &reads = readsOwnPixels ? kNoPages : textured;
-+    command.texturesFromVram = readsOwnPixels;
++    plan.texturesFromVram = readsOwnPixels;
 +
 +    // Pages drawn to since the copies last had them are copied to each worker's copy
-+    // before it runs the command. Unless Conflicts says to wait, those draws were
++    // before it runs the plan. Unless Conflicts says to wait, those draws were
 +    // before the workers last waited for each other, so they are done.
 +    for (size_t word = 0; word < reads.size(); ++word)
 +    {
-+        command.refresh[word] = reads[word] & m_stale[word];
-+        m_stale[word] &= ~command.refresh[word];
++        plan.refresh[word] = reads[word] & m_stale[word];
++        m_stale[word] &= ~plan.refresh[word];
 +    }
-+    if (m_pages.Conflicts(drawn, count, command.refresh))
++    if (m_pages.Conflicts(drawn, count, plan.refresh))
 +    {
-+        command.waitForAll = true;
++        plan.waitForAll = true;
 +        m_pages.Clear();
 +    }
-+    m_pages.Add(drawn, count, command.refresh);
++    m_pages.Add(drawn, count, plan.refresh);
 +    for (size_t i = 0; i < count; ++i)
 +        markDrawn(drawn[i].pages);
 +}
 +
-+void GSThreadedBackend::classifySubmit(Command &command)
++void GSThreadedBackend::classifySubmit(const GSPrimitiveBatch &batch, DrawPlan &plan)
 +{
 +    if (m_workers.size() <= 1u)
 +        return;
 +
-+    const GSDrawState &state = command.batch.state;
++    const GSDrawState &state = batch.state;
 +    const GSContext &ctx = state.context;
 +
 +    size_t vertexCount = 0;
@@ -6254,14 +6959,14 @@ index 0000000..a0add39
 +    // The rows and columns the primitive can touch, with a pixel to spare each side.
 +    const float ofx = static_cast<float>(ctx.xyoffset.ofx >> 4);
 +    const float ofy = static_cast<float>(ctx.xyoffset.ofy >> 4);
-+    float minX = command.batch.vertices[0].x - ofx;
++    float minX = batch.vertices[0].x - ofx;
 +    float maxX = minX;
-+    float minY = command.batch.vertices[0].y - ofy;
++    float minY = batch.vertices[0].y - ofy;
 +    float maxY = minY;
 +    for (size_t i = 1; i < vertexCount; ++i)
 +    {
-+        const float x = command.batch.vertices[i].x - ofx;
-+        const float y = command.batch.vertices[i].y - ofy;
++        const float x = batch.vertices[i].x - ofx;
++        const float y = batch.vertices[i].y - ofy;
 +        minX = std::min(minX, x);
 +        maxX = std::max(maxX, x);
 +        minY = std::min(minY, y);
@@ -6290,10 +6995,16 @@ index 0000000..a0add39
 +            PageTracker::AddPages(drawn[drawnCount].pages, zbp, fbw, ctx.zbuf.psm, x0, y0, x1, y1);
 +            ++drawnCount;
 +        }
++        plan.workers = workersForRows(y0, y1);
++    }
++    else
++    {
++        // Outside the scissor: no worker draws a pixel of it.
++        plan.workers = 0u;
 +    }
 +
 +    // A copy of the target onto itself reads exactly the pixels it draws.
-+    const bool readsOwnPixels = drawnCount != 0u && readsOnlyItsOwnPixels(command.batch);
++    const bool readsOwnPixels = drawnCount != 0u && readsOnlyItsOwnPixels(batch);
 +    PageTracker::PageSet textured{};
 +    if (readsOwnPixels)
 +    {
@@ -6305,7 +7016,7 @@ index 0000000..a0add39
 +        // runs in the rounding mode the draw will).
 +        float minU = 0.0f, maxU = 0.0f, minV = 0.0f, maxV = 0.0f;
 +        int spriteU0, spriteU1, spriteV0, spriteV1;
-+        bool bounded = GSCpuBackend::SpriteTexelRange(command.batch, spriteU0, spriteU1, spriteV0, spriteV1);
++        bool bounded = GSCpuBackend::SpriteTexelRange(batch, spriteU0, spriteU1, spriteV0, spriteV1);
 +        if (bounded)
 +        {
 +            minU = static_cast<float>(spriteU0);
@@ -6315,7 +7026,7 @@ index 0000000..a0add39
 +        }
 +        else
 +        {
-+            bounded = texelBounds(command.batch, vertexCount, minU, maxU, minV, maxV);
++            bounded = texelBounds(batch, vertexCount, minU, maxU, minV, maxV);
 +        }
 +        const uint64_t clamp = ctx.clamp;
 +        int u0, u1, v0, v1;
@@ -6326,29 +7037,39 @@ index 0000000..a0add39
 +        PageTracker::AddPages(textured, ctx.tex0.tbp0, ctx.tex0.tbw, ctx.tex0.psm, u0, v0, u1, v1);
 +    }
 +
-+    classifyDraw(command, drawn, drawnCount, textured, readsOwnPixels);
++    classifyDraw(plan, drawn, drawnCount, textured, readsOwnPixels);
 +}
 +
 +void GSThreadedBackend::runCommand(size_t worker, const Command &command)
 +{
 +    GSCpuBackend &backend = *m_workers[worker].backend;
-+    if (std::fegetround() != command.roundingMode)
-+        std::fesetround(command.roundingMode);
++    ps2_host_fpu::setRounding(command.roundingMode);
 +
 +    switch (command.kind)
 +    {
 +    case CommandKind::Submit:
++    {
 +        if (command.texturesFromVram)
-+        {
 +            readTexturesFromVram(worker, true);
++        if (command.runAlone || ((command.firstWorkers >> worker) & 1u))
 +            backend.Submit(command.batch);
-+            readTexturesFromVram(worker, false);
-+        }
-+        else
++        if (command.runEnd != command.runBegin)
 +        {
-+            backend.Submit(command.batch);
++            GSPrimitiveBatch batch = command.batch;
++            for (uint64_t i = command.runBegin; i != command.runEnd; ++i)
++            {
++                const RunPrimitive &primitive = m_runPrimitives[i % kRunPrimitives];
++                if (((primitive.workers >> worker) & 1u) == 0u)
++                    continue;
++                batch.vertices = primitive.vertices;
++                batch.vertexCount = primitive.vertexCount;
++                backend.Submit(batch);
++            }
 +        }
++        if (command.texturesFromVram)
++            readTexturesFromVram(worker, false);
 +        break;
++    }
 +    case CommandKind::LoadClut:
 +        backend.LoadClut(command.tex0, command.texclut);
 +        break;
@@ -6371,7 +7092,7 @@ index 0000000..a0add39
 +    if (worker == 0u && (command.kind == CommandKind::BeginTransfer || command.kind == CommandKind::UploadImage))
 +    {
 +        const GSTransferSnapshot snapshot = backend.GetTransferSnapshot();
-+        std::lock_guard<std::mutex> lock(m_transferMutex);
++        std::lock_guard<ps2_host_sync::Mutex> lock(m_transferMutex);
 +        m_transferSnapshot = snapshot;
 +    }
 +}
@@ -6379,8 +7100,7 @@ index 0000000..a0add39
 +void GSThreadedBackend::runAlone(const Command &command)
 +{
 +    GSCpuBackend &backend = *m_workers[0].backend;
-+    if (std::fegetround() != command.roundingMode)
-+        std::fesetround(command.roundingMode);
++    ps2_host_fpu::setRounding(command.roundingMode);
 +
 +    switch (command.kind)
 +    {
@@ -6411,7 +7131,7 @@ index 0000000..a0add39
 +    {
 +        PresentationFrame frame = backend.Present(m_presentRequest);
 +        {
-+            std::lock_guard<std::mutex> lock(m_presentMutex);
++            std::lock_guard<ps2_host_sync::Mutex> lock(m_presentMutex);
 +            m_lastPresented = std::move(frame);
 +            m_presentQueued = false;
 +        }
@@ -6424,7 +7144,7 @@ index 0000000..a0add39
 +    if (command.kind == CommandKind::BeginTransfer)
 +    {
 +        const GSTransferSnapshot snapshot = backend.GetTransferSnapshot();
-+        std::lock_guard<std::mutex> lock(m_transferMutex);
++        std::lock_guard<ps2_host_sync::Mutex> lock(m_transferMutex);
 +        m_transferSnapshot = snapshot;
 +    }
 +}
@@ -6432,14 +7152,34 @@ index 0000000..a0add39
 +void GSThreadedBackend::workerMain(size_t index)
 +{
 +    std::atomic<uint64_t> &done = m_progress[index].done;
++    const unsigned spins = ps2_host_sync::spinCount();
 +    uint64_t next = 0;
 +    for (;;)
 +    {
 +        if (next == m_submitted.load())
 +        {
-+            std::unique_lock<std::mutex> lock(m_queueMutex);
++            // The next commands usually come within microseconds, and going to sleep and
++            // being woken for them costs more than looking again for a while first.
++            for (unsigned spin = 0; spin < spins && next == m_submitted.load(std::memory_order_relaxed); ++spin)
++                ps2_host_sync::spinPause();
++            if (next != m_submitted.load())
++                continue;
++            std::unique_lock<ps2_host_sync::Mutex> lock(m_wakeMutex);
++            WorkerSleep &sleep = m_sleep[index];
 +            ++m_idleWorkers;
-+            m_workAvailable.wait(lock, [this, next]() { return m_stopping || m_submitted.load() != next; });
++            sleep.sleeping = true;
++            for (;;)
++            {
++                if (sleep.woken)
++                {
++                    sleep.woken = false;
++                    wakeNextWorker(index);
++                }
++                if (m_stopping || m_submitted.load() != next)
++                    break;
++                sleep.wake.wait(lock);
++            }
++            sleep.sleeping = false;
 +            --m_idleWorkers;
 +            if (m_submitted.load() == next)
 +                return;
@@ -6466,7 +7206,8 @@ index 0000000..a0add39
 +        try
 +        {
 +            refreshTextureCopy(index, command.refresh);
-+            runCommand(index, command);
++            if ((command.workers >> index) & 1u)
++                runCommand(index, command);
 +        }
 +        catch (...)
 +        {
@@ -6495,10 +7236,10 @@ index 0000000..a0add39
 +        }
 +    }
 +    {
-+        std::lock_guard<std::mutex> lock(m_queueMutex);
++        std::lock_guard<ps2_host_sync::Mutex> lock(m_queueMutex);
 +        m_stale.fill(0u);
 +    }
-+    std::lock_guard<std::mutex> lock(m_transferMutex);
++    std::lock_guard<ps2_host_sync::Mutex> lock(m_transferMutex);
 +    m_transferSnapshot = m_workers[0].backend->GetTransferSnapshot();
 +}
 +
@@ -6507,22 +7248,52 @@ index 0000000..a0add39
 +    waitForQueuedWork();
 +    for (Worker &worker : m_workers)
 +        worker.backend->Reset();
-+    std::lock_guard<std::mutex> lock(m_transferMutex);
++    std::lock_guard<ps2_host_sync::Mutex> lock(m_transferMutex);
 +    m_transferSnapshot = m_workers[0].backend->GetTransferSnapshot();
 +}
 +
 +void GSThreadedBackend::Submit(const GSPrimitiveBatch &batch)
 +{
-+    std::unique_lock<std::mutex> lock(m_queueMutex);
++    std::unique_lock<ps2_host_sync::Mutex> lock(m_queueMutex);
++    waitForRunRoom(lock);
++    DrawPlan plan;
++    classifySubmit(batch, plan);
++    const int roundingMode = ps2_host_fpu::getRounding();
++
++    // A primitive joins the open run when the workers would run it straight after the
++    // run's others anyway: no waiting for each other first, no pages to copy first.
++    if (m_runOpen)
++    {
++        Command &run = m_ring[m_submitted.load(std::memory_order_relaxed) % kRingSize];
++        if (!plan.waitForAll && !plan.runAlone && noPages(plan.refresh) &&
++            plan.texturesFromVram == run.texturesFromVram && run.roundingMode == roundingMode &&
++            run.runEnd - run.runBegin + 1u < kMaxRunLength && run.batch.state == batch.state)
++        {
++            RunPrimitive &primitive = m_runPrimitives[m_nextRunPrimitive % kRunPrimitives];
++            primitive.vertices = batch.vertices;
++            primitive.vertexCount = batch.vertexCount;
++            primitive.workers = plan.workers;
++            run.runEnd = ++m_nextRunPrimitive;
++            run.workers |= plan.workers;
++            if (run.runEnd - run.runBegin + 1u >= kMaxRunLength)
++                closeRun();
++            return;
++        }
++    }
++
 +    Command &command = beginCommand(lock, CommandKind::Submit);
++    static_cast<DrawPlan &>(command) = plan;
++    command.firstWorkers = plan.workers;
 +    command.batch = batch;
-+    classifySubmit(command);
-+    endCommand(lock);
++    if (command.runAlone)
++        publishCommand();
++    else
++        m_runOpen = true;
 +}
 +
 +void GSThreadedBackend::LoadClut(const GSTex0Reg &tex0, const GSTexClutReg &texclut)
 +{
-+    std::unique_lock<std::mutex> lock(m_queueMutex);
++    std::unique_lock<ps2_host_sync::Mutex> lock(m_queueMutex);
 +    Command &command = beginCommand(lock, CommandKind::LoadClut);
 +    command.tex0 = tex0;
 +    command.texclut = texclut;
@@ -6542,7 +7313,7 @@ index 0000000..a0add39
 +
 +void GSThreadedBackend::BeginTransfer(const GSTransferCommand &transfer)
 +{
-+    std::unique_lock<std::mutex> lock(m_queueMutex);
++    std::unique_lock<ps2_host_sync::Mutex> lock(m_queueMutex);
 +    Command &command = beginCommand(lock, CommandKind::BeginTransfer);
 +    command.transfer = transfer;
 +    const GSBitBltBuf &buffers = transfer.bitbltbuf;
@@ -6584,7 +7355,7 @@ index 0000000..a0add39
 +
 +void GSThreadedBackend::UploadImage(const uint8_t *data, uint32_t sizeBytes)
 +{
-+    std::unique_lock<std::mutex> lock(m_queueMutex);
++    std::unique_lock<ps2_host_sync::Mutex> lock(m_queueMutex);
 +    Command &command = beginCommand(lock, CommandKind::UploadImage);
 +    if (data && sizeBytes != 0u)
 +        command.data.assign(data, data + sizeBytes);
@@ -6598,7 +7369,7 @@ index 0000000..a0add39
 +
 +void GSThreadedBackend::TextureFlush()
 +{
-+    std::unique_lock<std::mutex> lock(m_queueMutex);
++    std::unique_lock<ps2_host_sync::Mutex> lock(m_queueMutex);
 +    beginCommand(lock, CommandKind::TextureFlush);
 +    endCommand(lock);
 +}
@@ -6615,10 +7386,10 @@ index 0000000..a0add39
 +    // for room in a full queue. A request is captured once everything submitted before
 +    // it has been drawn; until then this keeps returning the last captured frame.
 +    {
-+        std::unique_lock<std::mutex> lock(m_queueMutex);
++        std::unique_lock<ps2_host_sync::Mutex> lock(m_queueMutex);
 +        bool queued;
 +        {
-+            std::lock_guard<std::mutex> presentLock(m_presentMutex);
++            std::lock_guard<ps2_host_sync::Mutex> presentLock(m_presentMutex);
 +            queued = m_presentQueued;
 +            if (!queued)
 +            {
@@ -6632,7 +7403,7 @@ index 0000000..a0add39
 +            endCommand(lock);
 +        }
 +    }
-+    std::lock_guard<std::mutex> lock(m_presentMutex);
++    std::lock_guard<ps2_host_sync::Mutex> lock(m_presentMutex);
 +    return m_lastPresented;
 +}
 +
@@ -6646,7 +7417,7 @@ index 0000000..a0add39
 +    if (!handled)
 +        return false;
 +
-+    std::unique_lock<std::mutex> lock(m_queueMutex);
++    std::unique_lock<ps2_host_sync::Mutex> lock(m_queueMutex);
 +    Command &command = beginCommand(lock, CommandKind::ClearFramebuffer);
 +    command.batch.state.context = context;
 +    command.args[0] = rgba;
@@ -6671,7 +7442,7 @@ index 0000000..a0add39
 +    GSCpuBackend &backend = *m_workers[0].backend;
 +    const uint32_t consumed = backend.ConsumeLocalToHostBytes(dst, maxBytes);
 +    const GSTransferSnapshot snapshot = backend.GetTransferSnapshot();
-+    std::lock_guard<std::mutex> lock(m_transferMutex);
++    std::lock_guard<ps2_host_sync::Mutex> lock(m_transferMutex);
 +    m_transferSnapshot = snapshot;
 +    return consumed;
 +}
@@ -6684,7 +7455,7 @@ index 0000000..a0add39
 +
 +void GSThreadedBackend::WriteVram(uint32_t psm, uint32_t base, uint32_t bw, uint32_t x, uint32_t y, uint32_t value)
 +{
-+    std::unique_lock<std::mutex> lock(m_queueMutex);
++    std::unique_lock<ps2_host_sync::Mutex> lock(m_queueMutex);
 +    Command &command = beginCommand(lock, CommandKind::WriteVram);
 +    command.args[0] = psm;
 +    command.args[1] = base;
@@ -6711,10 +7482,10 @@ index 0000000..a0add39
 +    // GS records this with every draw for its debug history, so wait only for queued
 +    // transfers, and read the worker's copy instead of locking a drawing backend.
 +    {
-+        std::unique_lock<std::mutex> lock(m_queueMutex);
++        std::unique_lock<ps2_host_sync::Mutex> lock(m_queueMutex);
 +        waitForCompleted(lock, m_lastTransferCommand);
 +    }
-+    std::lock_guard<std::mutex> lock(m_transferMutex);
++    std::lock_guard<ps2_host_sync::Mutex> lock(m_transferMutex);
 +    return m_transferSnapshot;
 +}
 diff --git a/ps2xRuntime/src/lib/gs/ps2_gs_memory.cpp b/ps2xRuntime/src/lib/gs/ps2_gs_memory.cpp
@@ -6935,6 +7706,348 @@ index c9aa2c6..5cfa0e7 100644
      }
  #endif
  }
+diff --git a/ps2xRuntime/src/lib/ps2_gs_feed.cpp b/ps2xRuntime/src/lib/ps2_gs_feed.cpp
+new file mode 100644
+index 0000000..81d390b
+--- /dev/null
++++ b/ps2xRuntime/src/lib/ps2_gs_feed.cpp
+@@ -0,0 +1,85 @@
++#include "runtime/ps2_gs_feed.h"
++
++#include "runtime/ps2_host_fpu.h"
++
++#include <cstring>
++#include <utility>
++
++namespace
++{
++    struct ItemHeader
++    {
++        uint32_t sizeBytes;
++        uint32_t call; // kNoCall for a packet
++        int32_t roundingMode;
++        uint32_t unused;
++    };
++    static_assert(sizeof(ItemHeader) == 16u, "items stay 16-byte aligned");
++
++    constexpr uint32_t kNoCall = UINT32_MAX;
++}
++
++GsFeed::GsFeed(PacketFn process) : m_process(std::move(process))
++{
++    m_batch.bytes.reserve(kBatchBytes);
++}
++
++void GsFeed::queueHeader(uint32_t sizeBytes, uint32_t call)
++{
++    ItemHeader header{sizeBytes, call, ps2_host_fpu::getRounding(), 0u};
++    const size_t at = m_batch.bytes.size();
++    m_batch.bytes.resize(at + sizeof(header));
++    std::memcpy(m_batch.bytes.data() + at, &header, sizeof(header));
++}
++
++void GsFeed::QueuePacket(const uint8_t *data, uint32_t sizeBytes)
++{
++    queueHeader(sizeBytes, kNoCall);
++    const size_t at = m_batch.bytes.size();
++    m_batch.bytes.resize(at + ((sizeBytes + 15u) & ~size_t{15u}));
++    std::memcpy(m_batch.bytes.data() + at, data, sizeBytes);
++    if (m_batch.bytes.size() >= kBatchBytes)
++        Flush();
++}
++
++void GsFeed::QueueCall(std::function<void()> call)
++{
++    queueHeader(0u, static_cast<uint32_t>(m_batch.calls.size()));
++    m_batch.calls.push_back(std::move(call));
++}
++
++void GsFeed::Flush()
++{
++    if (m_batch.bytes.empty())
++        return;
++    const size_t bytes = m_batch.bytes.size();
++    m_thread.Submit([this, batch = std::move(m_batch)]
++                    { Run(batch); },
++                    bytes);
++    m_batch = Batch{};
++    m_batch.bytes.reserve(kBatchBytes);
++}
++
++void GsFeed::Run(const Batch &batch) const
++{
++    int roundingMode = ps2_host_fpu::getRounding();
++    size_t pos = 0u;
++    while (pos < batch.bytes.size())
++    {
++        ItemHeader header;
++        std::memcpy(&header, batch.bytes.data() + pos, sizeof(header));
++        pos += sizeof(header);
++        if (header.roundingMode != roundingMode)
++        {
++            ps2_host_fpu::setRounding(header.roundingMode);
++            roundingMode = header.roundingMode;
++        }
++        if (header.call != kNoCall)
++        {
++            batch.calls[header.call]();
++            continue;
++        }
++        m_process(batch.bytes.data() + pos, header.sizeBytes);
++        pos += (header.sizeBytes + 15u) & ~size_t{15u};
++    }
++}
+diff --git a/ps2xRuntime/src/lib/ps2_host_alloc.cpp b/ps2xRuntime/src/lib/ps2_host_alloc.cpp
+new file mode 100644
+index 0000000..a8752e8
+--- /dev/null
++++ b/ps2xRuntime/src/lib/ps2_host_alloc.cpp
+@@ -0,0 +1,75 @@
++// MinGW's GCC promises 16-byte aligned memory from operator new on 32-bit x86
++// (__STDCPP_DEFAULT_NEW_ALIGNMENT__ is 16), but the C runtime's malloc only gives 8 there, so objects holding
++// __m128i members could come out misaligned and fault on their first SSE load. Every operator new here hands
++// out 16-byte aligned blocks instead. It lives in the runtime library, which comes before libstdc++ on the
++// link line, so these definitions are the ones every new and delete in the program use.
++
++#if defined(__MINGW32__) && !defined(_WIN64)
++
++#include <cstddef>
++#include <malloc.h>
++#include <new>
++
++namespace
++{
++    constexpr std::size_t kMinAlignment = 16;
++
++    void *allocate(std::size_t size, std::size_t alignment)
++    {
++        if (alignment < kMinAlignment)
++            alignment = kMinAlignment;
++        if (size == 0)
++            size = 1;
++        for (;;)
++        {
++            if (void *p = _aligned_malloc(size, alignment))
++                return p;
++            const std::new_handler handler = std::get_new_handler();
++            if (!handler)
++                throw std::bad_alloc();
++            handler();
++        }
++    }
++
++    void *allocateOrNull(std::size_t size, std::size_t alignment) noexcept
++    {
++        try
++        {
++            return allocate(size, alignment);
++        }
++        catch (...)
++        {
++            return nullptr;
++        }
++    }
++}
++
++void *operator new(std::size_t size) { return allocate(size, kMinAlignment); }
++void *operator new[](std::size_t size) { return allocate(size, kMinAlignment); }
++void *operator new(std::size_t size, const std::nothrow_t &) noexcept { return allocateOrNull(size, kMinAlignment); }
++void *operator new[](std::size_t size, const std::nothrow_t &) noexcept { return allocateOrNull(size, kMinAlignment); }
++void *operator new(std::size_t size, std::align_val_t a) { return allocate(size, static_cast<std::size_t>(a)); }
++void *operator new[](std::size_t size, std::align_val_t a) { return allocate(size, static_cast<std::size_t>(a)); }
++void *operator new(std::size_t size, std::align_val_t a, const std::nothrow_t &) noexcept
++{
++    return allocateOrNull(size, static_cast<std::size_t>(a));
++}
++void *operator new[](std::size_t size, std::align_val_t a, const std::nothrow_t &) noexcept
++{
++    return allocateOrNull(size, static_cast<std::size_t>(a));
++}
++
++void operator delete(void *p) noexcept { _aligned_free(p); }
++void operator delete[](void *p) noexcept { _aligned_free(p); }
++void operator delete(void *p, std::size_t) noexcept { _aligned_free(p); }
++void operator delete[](void *p, std::size_t) noexcept { _aligned_free(p); }
++void operator delete(void *p, const std::nothrow_t &) noexcept { _aligned_free(p); }
++void operator delete[](void *p, const std::nothrow_t &) noexcept { _aligned_free(p); }
++void operator delete(void *p, std::align_val_t) noexcept { _aligned_free(p); }
++void operator delete[](void *p, std::align_val_t) noexcept { _aligned_free(p); }
++void operator delete(void *p, std::size_t, std::align_val_t) noexcept { _aligned_free(p); }
++void operator delete[](void *p, std::size_t, std::align_val_t) noexcept { _aligned_free(p); }
++void operator delete(void *p, std::align_val_t, const std::nothrow_t &) noexcept { _aligned_free(p); }
++void operator delete[](void *p, std::align_val_t, const std::nothrow_t &) noexcept { _aligned_free(p); }
++
++#endif
+diff --git a/ps2xRuntime/src/lib/ps2_host_sync.cpp b/ps2xRuntime/src/lib/ps2_host_sync.cpp
+new file mode 100644
+index 0000000..d3f7a85
+--- /dev/null
++++ b/ps2xRuntime/src/lib/ps2_host_sync.cpp
+@@ -0,0 +1,85 @@
++#include "runtime/ps2_host_sync.h"
++
++#include <cstdlib>
++#include <thread>
++
++#if defined(_WIN32)
++#include <windows.h>
++#endif
++
++#if defined(__i386__) || defined(__x86_64__) || defined(_M_IX86) || defined(_M_X64)
++#include <immintrin.h>
++#endif
++
++namespace ps2_host_sync
++{
++#if defined(_WIN32)
++    static_assert(sizeof(SRWLOCK) == sizeof(void *) && sizeof(CONDITION_VARIABLE) == sizeof(void *),
++                  "SRWLOCK and CONDITION_VARIABLE are a pointer each, zero when unused");
++
++    void Mutex::lock()
++    {
++        AcquireSRWLockExclusive(reinterpret_cast<PSRWLOCK>(&m_lock));
++    }
++
++    bool Mutex::try_lock()
++    {
++        return TryAcquireSRWLockExclusive(reinterpret_cast<PSRWLOCK>(&m_lock)) != 0;
++    }
++
++    void Mutex::unlock()
++    {
++        ReleaseSRWLockExclusive(reinterpret_cast<PSRWLOCK>(&m_lock));
++    }
++
++    void CondVar::notify_one() noexcept
++    {
++        WakeConditionVariable(reinterpret_cast<PCONDITION_VARIABLE>(&m_cv));
++    }
++
++    void CondVar::notify_all() noexcept
++    {
++        WakeAllConditionVariable(reinterpret_cast<PCONDITION_VARIABLE>(&m_cv));
++    }
++
++    void CondVar::wait(std::unique_lock<Mutex> &lock)
++    {
++        SleepConditionVariableSRW(reinterpret_cast<PCONDITION_VARIABLE>(&m_cv),
++                                  reinterpret_cast<PSRWLOCK>(&lock.mutex()->m_lock), INFINITE, 0);
++    }
++
++    void CondVar::waitMs(std::unique_lock<Mutex> &lock, unsigned long ms)
++    {
++        if (ms == 0)
++        {
++            lock.unlock();
++            std::this_thread::yield();
++            lock.lock();
++            return;
++        }
++        SleepConditionVariableSRW(reinterpret_cast<PCONDITION_VARIABLE>(&m_cv),
++                                  reinterpret_cast<PSRWLOCK>(&lock.mutex()->m_lock), ms, 0);
++    }
++#endif
++
++    unsigned spinCount()
++    {
++        // About 20 microseconds on a current x86 core, near what waking a sleeping
++        // thread costs.
++        static const unsigned spins = []
++        {
++            const char *value = std::getenv("PS2X_GS_SPIN");
++            return value ? static_cast<unsigned>(std::strtoul(value, nullptr, 10)) : 2000u;
++        }();
++        return spins;
++    }
++
++    void spinPause()
++    {
++#if defined(__i386__) || defined(__x86_64__) || defined(_M_IX86) || defined(_M_X64)
++        _mm_pause();
++#else
++        std::this_thread::yield();
++#endif
++    }
++}
+diff --git a/ps2xRuntime/src/lib/ps2_host_thread.cpp b/ps2xRuntime/src/lib/ps2_host_thread.cpp
+new file mode 100644
+index 0000000..d6561bb
+--- /dev/null
++++ b/ps2xRuntime/src/lib/ps2_host_thread.cpp
+@@ -0,0 +1,73 @@
++#include "ps2_host_thread.h"
++
++#include <exception>
++#include <memory>
++#include <system_error>
++
++#if defined(_WIN32)
++#include <cerrno>
++#include <process.h>
++#include <windows.h>
++
++namespace
++{
++    unsigned __stdcall runBody(void *arg)
++    {
++        const std::unique_ptr<std::function<void()>> body(static_cast<std::function<void()> *>(arg));
++        (*body)();
++        return 0;
++    }
++}
++
++Ps2HostThread::Ps2HostThread(size_t stackBytes, std::function<void()> body)
++{
++    auto *heapBody = new std::function<void()>(std::move(body));
++    const uintptr_t handle = _beginthreadex(nullptr, static_cast<unsigned>(stackBytes), runBody, heapBody,
++                                            STACK_SIZE_PARAM_IS_A_RESERVATION, nullptr);
++    if (!handle)
++    {
++        delete heapBody;
++        throw std::system_error(errno, std::generic_category(), "cannot start a host thread");
++    }
++    m_handle = reinterpret_cast<void *>(handle);
++}
++
++Ps2HostThread::~Ps2HostThread()
++{
++    if (joinable())
++        std::terminate();
++}
++
++bool Ps2HostThread::joinable() const
++{
++    return m_handle != nullptr;
++}
++
++void Ps2HostThread::join()
++{
++    WaitForSingleObject(static_cast<HANDLE>(m_handle), INFINITE);
++    CloseHandle(static_cast<HANDLE>(m_handle));
++    m_handle = nullptr;
++}
++
++#else
++
++// pthreads' default stack (8 MB with glibc) is already enough, so stackBytes isn't used.
++Ps2HostThread::Ps2HostThread(size_t, std::function<void()> body)
++    : m_thread(std::move(body))
++{
++}
++
++Ps2HostThread::~Ps2HostThread() = default;
++
++bool Ps2HostThread::joinable() const
++{
++    return m_thread.joinable();
++}
++
++void Ps2HostThread::join()
++{
++    m_thread.join();
++}
++
++#endif
 diff --git a/ps2xRuntime/src/lib/ps2_identity_map.cpp b/ps2xRuntime/src/lib/ps2_identity_map.cpp
 new file mode 100644
 index 0000000..e46a8ef
@@ -7086,7 +8199,7 @@ index 6bd1835..25608c0 100644
  {
  public:
 diff --git a/ps2xRuntime/src/lib/ps2_memory.cpp b/ps2xRuntime/src/lib/ps2_memory.cpp
-index 37b6a4d..378880d 100644
+index 37b6a4d..97a7ada 100644
 --- a/ps2xRuntime/src/lib/ps2_memory.cpp
 +++ b/ps2xRuntime/src/lib/ps2_memory.cpp
 @@ -238,6 +238,55 @@ static inline uint32_t gs_vram_offset(uint32_t basePage, uint32_t x, uint32_t y,
@@ -7475,10 +8588,7 @@ index 37b6a4d..378880d 100644
 -                continue;
 -            }
 -            if (p.fromScratchpad)
-+            const size_t first = gifChunks.size();
-+            queueChunk(gifChunks, p, 16u);
-+            if (gifChunks.size() != first)
-             {
+-            {
 -                uint32_t bytesLeft = sizeBytes;
 -                while (bytesLeft > 0)
 -                {
@@ -7495,7 +8605,10 @@ index 37b6a4d..378880d 100644
 -                }
 -            }
 -            else
--            {
++            const size_t first = gifChunks.size();
++            queueChunk(gifChunks, p, 16u);
++            if (gifChunks.size() != first)
+             {
 -                uint32_t bytesLeft = sizeBytes;
 -                while (bytesLeft > 0)
 -                {
@@ -7623,7 +8736,7 @@ index 37b6a4d..378880d 100644
  
      static constexpr uint32_t GIF_CHANNEL = 0x1000A000;
      static constexpr uint32_t VIF0_CHANNEL = 0x10008000;
-@@ -1905,6 +1916,37 @@ void PS2Memory::processPendingTransfers()
+@@ -1905,6 +1916,65 @@ void PS2Memory::processPendingTransfers()
      }
  }
  
@@ -7634,7 +8747,7 @@ index 37b6a4d..378880d 100644
 +        if (uint64_t *reg = gsRegPtr(gs_regs, address))
 +            *reg = (*reg & ~mask) | (value & mask);
 +    };
-+    if (!m_vu1Thread || m_vu1Thread->OnThread())
++    if (!m_vu1Thread)
 +    {
 +        store();
 +        return;
@@ -7642,14 +8755,26 @@ index 37b6a4d..378880d 100644
 +
 +    // The store waits its turn behind the GIF packets already queued, so the display
 +    // changes at the same point in the drawing as on a PS2.
-+    m_vu1Thread->Submit(store, 0u);
++    auto storeInTurn = [this, store]
++    {
++        if (m_gsFeed)
++            m_gsFeed->QueueCall(store);
++        else
++            store();
++    };
++    if (m_vu1Thread->OnThread())
++        storeInTurn();
++    else
++        m_vu1Thread->Submit(storeInTurn, 0u);
 +}
 +
 +void PS2Memory::enableVu1Thread(bool enabled, Vu1AsyncAllowedFn asyncAllowed)
 +{
 +    if (!enabled)
 +    {
++        // The VU1 thread finishes its jobs first, and they may still hand work to the feed.
 +        m_vu1Thread.reset();
++        m_gsFeed.reset();
 +        m_vu1AsyncAllowed = {};
 +        return;
 +    }
@@ -7658,10 +8783,26 @@ index 37b6a4d..378880d 100644
 +        m_vu1Thread = std::make_unique<Vu1Thread>();
 +}
 +
++void PS2Memory::enableGsFeed(bool enabled, GsFeed::PacketFn process)
++{
++    if (!m_vu1Thread || enabled == (m_gsFeed != nullptr))
++        return;
++    waitForVu1Thread();
++    if (!enabled)
++    {
++        m_vu1Thread->SetJobEnd({});
++        m_gsFeed.reset();
++        return;
++    }
++    m_gsFeed = std::make_unique<GsFeed>(std::move(process));
++    m_vu1Thread->SetJobEnd([feed = m_gsFeed.get()]
++                           { feed->Flush(); });
++}
++
  void PS2Memory::queueCompletedDmacCause(uint32_t cause)
  {
      std::lock_guard<std::mutex> lock(m_completedDmacMutex);
-@@ -1919,8 +1961,42 @@ std::vector<uint32_t> PS2Memory::consumeCompletedDmacCauses()
+@@ -1919,8 +1989,42 @@ std::vector<uint32_t> PS2Memory::consumeCompletedDmacCauses()
      return causes;
  }
  
@@ -7704,7 +8845,7 @@ index 37b6a4d..378880d 100644
      if (m_path3Masked || m_path3MaskedFifo.empty())
          return;
  
-@@ -1932,21 +2008,65 @@ void PS2Memory::flushMaskedPath3Packets(bool drainImmediately)
+@@ -1932,21 +2036,65 @@ void PS2Memory::flushMaskedPath3Packets(bool drainImmediately)
              m_gifPacketCallback(packetData, packetSize);
      };
  
@@ -7773,7 +8914,7 @@ index 37b6a4d..378880d 100644
  
      if (pathId == GifPathId::Path3)
      {
-@@ -2007,7 +2127,8 @@ bool PS2Memory::tryProcessNativeGifImageUploadChain(GS &gs, uint32_t tadr, uint3
+@@ -2007,7 +2155,8 @@ bool PS2Memory::tryProcessNativeGifImageUploadChain(GS &gs, uint32_t tadr, uint3
      static constexpr uint32_t D_STAT = 0x1000E010u;
      static constexpr uint32_t D_CTRL = 0x1000E000u;
  
@@ -7783,7 +8924,7 @@ index 37b6a4d..378880d 100644
          return false;
      if (m_gifArbiter && !m_gifArbiter->empty())
          return false;
-@@ -2199,7 +2320,8 @@ bool PS2Memory::tryProcessNativeGifPackedChain(GS &gs, uint32_t tadr, uint32_t c
+@@ -2199,7 +2348,8 @@ bool PS2Memory::tryProcessNativeGifPackedChain(GS &gs, uint32_t tadr, uint32_t c
      static constexpr uint32_t D_STAT = 0x1000E010u;
      static constexpr uint32_t D_CTRL = 0x1000E000u;
  
@@ -7793,7 +8934,7 @@ index 37b6a4d..378880d 100644
          return false;
      if (m_gifArbiter && !m_gifArbiter->empty())
          return false;
-@@ -2310,6 +2432,7 @@ uint32_t PS2Memory::readIORegister(uint32_t address)
+@@ -2310,6 +2460,7 @@ uint32_t PS2Memory::readIORegister(uint32_t address)
          {
              return static_cast<uint32_t>((gs_regs.csr.load() >> (off * 8u)) & 0xFFFFFFFFull);
          }
@@ -7801,7 +8942,7 @@ index 37b6a4d..378880d 100644
          if (uint64_t *reg = gsRegPtr(gs_regs, address))
          {
              return static_cast<uint32_t>((*reg >> (off * 8u)) & 0xFFFFFFFFull);
-@@ -2346,7 +2469,9 @@ uint32_t PS2Memory::readIORegister(uint32_t address)
+@@ -2346,7 +2497,9 @@ uint32_t PS2Memory::readIORegister(uint32_t address)
          const uint32_t ctrl = m_ioRegisters.count(0x10003000u) ? m_ioRegisters[0x10003000u] : 0u;
  
          // M3R and IMT mirror GIF_MODE, PSE mirrors GIF_CTRL, and M3P is the
@@ -7812,15 +8953,89 @@ index 37b6a4d..378880d 100644
          stat = (stat & ~0xFu) |
                 (mode & 0x1u) |
                 (m_path3Masked ? 0x2u : 0u) |
+diff --git a/ps2xRuntime/src/lib/ps2_pad.cpp b/ps2xRuntime/src/lib/ps2_pad.cpp
+index 8590f14..8c831eb 100644
+--- a/ps2xRuntime/src/lib/ps2_pad.cpp
++++ b/ps2xRuntime/src/lib/ps2_pad.cpp
+@@ -87,37 +87,37 @@ bool PSPadBackend::readState(int /*port*/, int /*slot*/, uint8_t *data, size_t s
+         data[4] = static_cast<uint8_t>(128 + rx * 127);
+         data[5] = static_cast<uint8_t>(128 + ry * 127);
+     }
+-    else
+-    {
+-        if (IsKeyDown(KEY_UP) || IsKeyDown(KEY_W))
+-            clearBit(PAD_UP);
+-        if (IsKeyDown(KEY_DOWN) || IsKeyDown(KEY_S))
+-            clearBit(PAD_DOWN);
+-        if (IsKeyDown(KEY_LEFT) || IsKeyDown(KEY_A))
+-            clearBit(PAD_LEFT);
+-        if (IsKeyDown(KEY_RIGHT) || IsKeyDown(KEY_D))
+-            clearBit(PAD_RIGHT);
+-        if (IsKeyDown(KEY_X) || IsKeyDown(KEY_SPACE))
+-            clearBit(PAD_CROSS);
+-        if (IsKeyDown(KEY_C) || IsKeyDown(KEY_ESCAPE))
+-            clearBit(PAD_CIRCLE);
+-        if (IsKeyDown(KEY_Z) || IsKeyDown(KEY_KP_0))
+-            clearBit(PAD_SQUARE);
+-        if (IsKeyDown(KEY_V) || IsKeyDown(KEY_KP_1))
+-            clearBit(PAD_TRIANGLE);
+-        if (IsKeyDown(KEY_Q))
+-            clearBit(PAD_L1);
+-        if (IsKeyDown(KEY_E))
+-            clearBit(PAD_R1);
+-        if (IsKeyDown(KEY_LEFT_SHIFT))
+-            clearBit(PAD_L2);
+-        if (IsKeyDown(KEY_RIGHT_SHIFT))
+-            clearBit(PAD_R2);
+-        if (IsKeyDown(KEY_ENTER))
+-            clearBit(PAD_START);
+-        if (IsKeyDown(KEY_TAB))
+-            clearBit(PAD_SELECT);
+-    }
++
++    // The keyboard works with a gamepad connected too: Windows can list a virtual one (a
++    // controller remapper's) that would otherwise leave the keys dead.
++    if (IsKeyDown(KEY_UP) || IsKeyDown(KEY_W))
++        clearBit(PAD_UP);
++    if (IsKeyDown(KEY_DOWN) || IsKeyDown(KEY_S))
++        clearBit(PAD_DOWN);
++    if (IsKeyDown(KEY_LEFT) || IsKeyDown(KEY_A))
++        clearBit(PAD_LEFT);
++    if (IsKeyDown(KEY_RIGHT) || IsKeyDown(KEY_D))
++        clearBit(PAD_RIGHT);
++    if (IsKeyDown(KEY_X) || IsKeyDown(KEY_SPACE))
++        clearBit(PAD_CROSS);
++    if (IsKeyDown(KEY_C) || IsKeyDown(KEY_ESCAPE))
++        clearBit(PAD_CIRCLE);
++    if (IsKeyDown(KEY_Z) || IsKeyDown(KEY_KP_0))
++        clearBit(PAD_SQUARE);
++    if (IsKeyDown(KEY_V) || IsKeyDown(KEY_KP_1))
++        clearBit(PAD_TRIANGLE);
++    if (IsKeyDown(KEY_Q))
++        clearBit(PAD_L1);
++    if (IsKeyDown(KEY_E))
++        clearBit(PAD_R1);
++    if (IsKeyDown(KEY_LEFT_SHIFT))
++        clearBit(PAD_L2);
++    if (IsKeyDown(KEY_RIGHT_SHIFT))
++        clearBit(PAD_R2);
++    if (IsKeyDown(KEY_ENTER))
++        clearBit(PAD_START);
++    if (IsKeyDown(KEY_TAB))
++        clearBit(PAD_SELECT);
+ 
+     data[2] = static_cast<uint8_t>(btns & 0xFF);
+     data[3] = static_cast<uint8_t>(btns >> 8);
 diff --git a/ps2xRuntime/src/lib/ps2_runtime.cpp b/ps2xRuntime/src/lib/ps2_runtime.cpp
-index 45cb9d2..9789fc0 100644
+index 45cb9d2..80e404e 100644
 --- a/ps2xRuntime/src/lib/ps2_runtime.cpp
 +++ b/ps2xRuntime/src/lib/ps2_runtime.cpp
-@@ -1,10 +1,15 @@
+@@ -1,10 +1,16 @@
 +#include <cstdio>
 +#include <cstdlib>
 +#include <map>
  #include "ps2_runtime.h"
++#include "ps2_host_thread.h"
 +#include "ps2_guest_scratch.h"
  #include "ps2_log.h"
  #include "ps2_stubs.h"
@@ -7832,7 +9047,7 @@ index 45cb9d2..9789fc0 100644
  #include "runtime/ee_scheduler.h"
  #include "ThreadNaming.h"
  #include "Kernel/Stubs/Audio.h"
-@@ -27,6 +32,11 @@
+@@ -27,6 +33,11 @@
  #include <unordered_map>
  #include <sstream>
  
@@ -7844,7 +9059,7 @@ index 45cb9d2..9789fc0 100644
  namespace ps2_stubs
  {
      void resetSifState();
-@@ -477,10 +487,17 @@ static void UploadFrame(Texture2D &tex, PS2Runtime *rt, uint32_t &outWidth, uint
+@@ -477,10 +488,17 @@ static void UploadFrame(Texture2D &tex, PS2Runtime *rt, uint32_t &outWidth, uint
      s_hasUploadedFrame = true;
  }
  
@@ -7862,7 +9077,7 @@ index 45cb9d2..9789fc0 100644
  
      m_eeScheduler = std::make_unique<EeScheduler>(*this);
  
-@@ -537,8 +554,8 @@ PS2Runtime::~PS2Runtime()
+@@ -537,8 +555,8 @@ PS2Runtime::~PS2Runtime()
  #else
          if (IsAudioDeviceReady())
          {
@@ -7872,14 +9087,17 @@ index 45cb9d2..9789fc0 100644
          }
  #endif
          if (m_debugUiInitialized && m_debugUiShutdownCallback)
-@@ -664,43 +681,70 @@ bool PS2Runtime::syncCoreSubsystems()
+@@ -664,43 +682,72 @@ bool PS2Runtime::syncCoreSubsystems()
          return true;
      }
  
 +    m_memory.waitForVu1Thread();
      m_gs.init(gsVram, static_cast<uint32_t>(PS2_GS_VRAM_SIZE), &m_memory.gs());
      m_gifArbiter.setProcessPacketFn([this](const uint8_t *data, uint32_t size)
-                                     { m_gs.processGIFPacket(data, size); });
+-                                    { m_gs.processGIFPacket(data, size); });
++                                    {
++                                        if (!m_memory.queueForGsFeed(data, size))
++                                            m_gs.processGIFPacket(data, size); });
      m_memory.setGifArbiter(&m_gifArbiter);
      m_memory.setVu1MscalCallback([this](uint32_t startPC, uint32_t top, uint32_t itop)
                                   {
@@ -7955,7 +9173,7 @@ index 45cb9d2..9789fc0 100644
                                           (cpuContext->vu0_vpu_stat & ~0x0600u) |
                                           (m_vu1.state().stoppedByD ? 0x0200u : 0u) |
                                           (m_vu1.state().stoppedByT ? 0x0400u : 0u); });
-@@ -1275,6 +1319,15 @@ void PS2Runtime::reportMissingFunction(uint8_t *rdram,
+@@ -1275,6 +1322,15 @@ void PS2Runtime::reportMissingFunction(uint8_t *rdram,
  
      if (firstReport)
      {
@@ -7971,7 +9189,7 @@ index 45cb9d2..9789fc0 100644
          std::ostringstream oss;
          oss << "[guest-branch:missing-target] kind=" << describeGuestBranchKind(kind)
              << " op=" << (debugName ? debugName : "<unknown>")
-@@ -1342,6 +1395,19 @@ void PS2Runtime::reportMissingFunction(uint8_t *rdram,
+@@ -1342,6 +1398,19 @@ void PS2Runtime::reportMissingFunction(uint8_t *rdram,
      }
  }
  
@@ -7991,7 +9209,7 @@ index 45cb9d2..9789fc0 100644
  bool PS2Runtime::dispatchGuestBranch(uint8_t *rdram,
                                       R5900Context *ctx,
                                       uint32_t targetPc,
-@@ -1350,6 +1416,13 @@ bool PS2Runtime::dispatchGuestBranch(uint8_t *rdram,
+@@ -1350,6 +1419,13 @@ bool PS2Runtime::dispatchGuestBranch(uint8_t *rdram,
                                       GuestBranchKind kind,
                                       const char *debugName)
  {
@@ -8005,7 +9223,7 @@ index 45cb9d2..9789fc0 100644
      ctx->pc = targetPc;
      const bool isCall = (kind == GuestBranchKind::DirectCall || kind == GuestBranchKind::IndirectCall);
  
-@@ -1358,6 +1431,7 @@ bool PS2Runtime::dispatchGuestBranch(uint8_t *rdram,
+@@ -1358,6 +1434,7 @@ bool PS2Runtime::dispatchGuestBranch(uint8_t *rdram,
      // this charge bounds straight-line call chains that have no local loop.
      if (m_eeScheduler && m_eeScheduler->checkpointDue(EeScheduler::kGuestDispatchCycles))
      {
@@ -8013,7 +9231,7 @@ index 45cb9d2..9789fc0 100644
          return false;
      }
  
-@@ -1369,6 +1443,7 @@ bool PS2Runtime::dispatchGuestBranch(uint8_t *rdram,
+@@ -1369,6 +1446,7 @@ bool PS2Runtime::dispatchGuestBranch(uint8_t *rdram,
          }
  
          ctx->pc = targetPc;
@@ -8021,7 +9239,7 @@ index 45cb9d2..9789fc0 100644
          return false;
      }
  
-@@ -1396,6 +1471,7 @@ bool PS2Runtime::dispatchGuestBranch(uint8_t *rdram,
+@@ -1396,6 +1474,7 @@ bool PS2Runtime::dispatchGuestBranch(uint8_t *rdram,
  
      RecompiledFunction targetFn = lookupFunction(targetPc);
      const uint32_t entryPc = ctx->pc;
@@ -8029,7 +9247,7 @@ index 45cb9d2..9789fc0 100644
      targetFn(rdram, ctx, this);
  
      if (isStopRequested() || ctx->pc == 0u)
-@@ -1403,7 +1479,10 @@ bool PS2Runtime::dispatchGuestBranch(uint8_t *rdram,
+@@ -1403,7 +1482,10 @@ bool PS2Runtime::dispatchGuestBranch(uint8_t *rdram,
          return false;
      }
  
@@ -8041,7 +9259,7 @@ index 45cb9d2..9789fc0 100644
      {
          ctx->pc = fallthroughPc;
      }
-@@ -1677,6 +1756,11 @@ void PS2Runtime::ensureGuestHeapInitializedLocked()
+@@ -1677,6 +1759,11 @@ void PS2Runtime::ensureGuestHeapInitializedLocked()
          return;
      }
  
@@ -8053,7 +9271,7 @@ index 45cb9d2..9789fc0 100644
      const uint32_t suggested = (m_guestHeapSuggestedBase == 0u) ? kGuestHeapDefaultBase : m_guestHeapSuggestedBase;
      resetGuestHeapLocked(suggested, clampGuestHeapLimit(0u));
  }
-@@ -1807,6 +1891,17 @@ void PS2Runtime::freeGuestBlockLocked(uint32_t guestAddr)
+@@ -1807,6 +1894,17 @@ void PS2Runtime::freeGuestBlockLocked(uint32_t guestAddr)
  void PS2Runtime::configureGuestHeap(uint32_t guestBase, uint32_t guestLimit)
  {
      std::lock_guard<std::mutex> lock(m_guestHeapMutex);
@@ -8071,7 +9289,7 @@ index 45cb9d2..9789fc0 100644
      uint32_t normalizedBase = alignGuestHeapValue(clampGuestHeapBase(guestBase), kGuestHeapDefaultAlignment);
      if (normalizedBase == 0u)
      {
-@@ -1820,7 +1915,10 @@ uint32_t PS2Runtime::guestMalloc(uint32_t size, uint32_t alignment)
+@@ -1820,7 +1918,10 @@ uint32_t PS2Runtime::guestMalloc(uint32_t size, uint32_t alignment)
  {
      std::lock_guard<std::mutex> lock(m_guestHeapMutex);
      ensureGuestHeapInitializedLocked();
@@ -8083,7 +9301,7 @@ index 45cb9d2..9789fc0 100644
  }
  
  uint32_t PS2Runtime::guestCalloc(uint32_t count, uint32_t size, uint32_t alignment)
-@@ -1975,6 +2073,16 @@ uint32_t PS2Runtime::guestHeapLimit() const
+@@ -1975,6 +2076,16 @@ uint32_t PS2Runtime::guestHeapLimit() const
      return m_guestHeapConfigured ? m_guestHeapLimit : m_guestHeapSuggestedBase;
  }
  
@@ -8100,7 +9318,7 @@ index 45cb9d2..9789fc0 100644
  uint32_t PS2Runtime::reserveAsyncCallbackStack(uint32_t size, uint32_t alignment)
  {
      if (size == 0u)
-@@ -2211,7 +2319,12 @@ void PS2Runtime::postEeEvent(EeEvent event)
+@@ -2211,7 +2322,12 @@ void PS2Runtime::postEeEvent(EeEvent event)
  
  bool PS2Runtime::eeCheckpointDue(uint32_t cycles) noexcept
  {
@@ -8114,7 +9332,7 @@ index 45cb9d2..9789fc0 100644
  }
  
  [[noreturn]] void PS2Runtime::eeWaitVSyncTicks(uint32_t ticks, uint32_t resumePc)
-@@ -2362,6 +2475,33 @@ void PS2Runtime::run()
+@@ -2362,9 +2478,46 @@ void PS2Runtime::run()
      Texture2D frameTex = LoadTextureFromImage(blank);
      UnloadImage(blank);
  
@@ -8143,12 +9361,26 @@ index 45cb9d2..9789fc0 100644
 +                                         cpuContext = &m_cpuContext;
 +                                     return (cpuContext->vu0_fbrst & 0x0C00u) == 0u &&
 +                                            (cpuContext->vu0_vpu_stat & 0x0600u) == 0u; });
++
++        // Run the GS frontend on a thread after it, so the VU1 thread does not wait for
++        // each draw to be handed to the GS workers. PS2X_GS_FEED=0 keeps it on the VU1 thread.
++        bool gsFeed = true;
++        if (const char *value = std::getenv("PS2X_GS_FEED"))
++            gsFeed = std::strtoul(value, nullptr, 10) != 0u;
++        if (gsFeed)
++            m_memory.enableGsFeed(true, [this](const uint8_t *data, uint32_t size)
++                                  { m_gs.processGIFPacket(data, size); });
 +    }
 +
      std::atomic<bool> gameThreadFinished{false};
  
-     std::thread gameThread([&]()
-@@ -2420,6 +2560,22 @@ void PS2Runtime::run()
+-    std::thread gameThread([&]()
++    // Recompiled code nests a host call for every guest call, so the game thread gets a deep stack.
++    Ps2HostThread gameThread(16u << 20, [&]()
+                            {
+         ThreadNaming::SetCurrentThreadName("GameThread");
+         try
+@@ -2420,6 +2573,22 @@ void PS2Runtime::run()
  
              }
          });
@@ -8171,7 +9403,7 @@ index 45cb9d2..9789fc0 100644
          uint32_t presentWidth = FB_WIDTH;
          uint32_t presentHeight = DEFAULT_DISPLAY_HEIGHT;
          UploadFrame(frameTex, this, presentWidth, presentHeight);
-@@ -2459,6 +2615,7 @@ void PS2Runtime::run()
+@@ -2459,6 +2628,7 @@ void PS2Runtime::run()
      {
          gameThread.join();
      }
@@ -8238,29 +9470,31 @@ index b02c7ca..b60974f 100644
      }
 diff --git a/ps2xRuntime/src/lib/ps2_vu1_thread.cpp b/ps2xRuntime/src/lib/ps2_vu1_thread.cpp
 new file mode 100644
-index 0000000..2b909de
+index 0000000..68f8342
 --- /dev/null
 +++ b/ps2xRuntime/src/lib/ps2_vu1_thread.cpp
-@@ -0,0 +1,100 @@
+@@ -0,0 +1,138 @@
 +#include "runtime/ps2_vu1_thread.h"
 +
 +#include "ThreadNaming.h"
++#include "runtime/ps2_host_fpu.h"
 +
++#include <algorithm>
 +#include <cstdio>
 +#include <exception>
 +#include <utility>
 +
-+Vu1Thread::Vu1Thread()
++Vu1Thread::Vu1Thread(const char *name)
 +{
-+    m_thread = std::thread([this]
-+                           { Run(); });
++    m_thread = std::thread([this, name]
++                           { Run(name); });
 +    m_threadId = m_thread.get_id();
 +}
 +
 +Vu1Thread::~Vu1Thread()
 +{
 +    {
-+        std::lock_guard<std::mutex> lock(m_mutex);
++        std::lock_guard<ps2_host_sync::Mutex> lock(m_mutex);
 +        m_stop = true;
 +    }
 +    m_jobReady.notify_all();
@@ -8272,17 +9506,36 @@ index 0000000..2b909de
 +    Job entry;
 +    entry.run = std::move(job);
 +    entry.bytes = bytes;
-+    fegetenv(&entry.env);
++    entry.roundingMode = ps2_host_fpu::getRounding();
 +
-+    std::unique_lock<std::mutex> lock(m_mutex);
++    std::unique_lock<ps2_host_sync::Mutex> lock(m_mutex);
 +    // A job bigger than the limit still goes in, once the queue has drained.
-+    m_jobDone.wait(lock, [&]
-+                   { return m_pendingBytes == 0u || m_pendingBytes + bytes <= kMaxPendingBytes; });
++    if (!hasRoomFor(bytes))
++    {
++        m_roomWanted = bytes;
++        m_jobDone.wait(lock, [&]
++                       { return hasRoomFor(bytes); });
++        m_roomWanted = SIZE_MAX;
++    }
 +    m_pendingBytes += bytes;
 +    m_jobs.push_back(std::move(entry));
 +    m_submitted.fetch_add(1u, std::memory_order_relaxed);
++    const bool wake = m_idle;
++    m_idle = false;
 +    lock.unlock();
-+    m_jobReady.notify_one();
++    if (wake)
++        m_jobReady.notify_one();
++}
++
++void Vu1Thread::SetJobEnd(std::function<void()> jobEnd)
++{
++    std::lock_guard<ps2_host_sync::Mutex> lock(m_mutex);
++    m_jobEnd = std::move(jobEnd);
++}
++
++bool Vu1Thread::hasRoomFor(size_t bytes) const
++{
++    return m_pendingBytes == 0u || m_pendingBytes + bytes <= kMaxPendingBytes;
 +}
 +
 +void Vu1Thread::WaitIdle()
@@ -8303,28 +9556,40 @@ index 0000000..2b909de
 +{
 +    if (m_completed.load(std::memory_order_acquire) >= sequence)
 +        return;
-+    std::unique_lock<std::mutex> lock(m_mutex);
++    std::unique_lock<ps2_host_sync::Mutex> lock(m_mutex);
++    ++m_completionWaiters;
++    m_waitTarget = std::min(m_waitTarget, sequence);
 +    m_jobDone.wait(lock, [&]
 +                   { return m_completed.load(std::memory_order_relaxed) >= sequence; });
++    if (--m_completionWaiters == 0u)
++        m_waitTarget = UINT64_MAX;
 +}
 +
-+void Vu1Thread::Run()
++void Vu1Thread::Run(const char *name)
 +{
-+    ThreadNaming::SetCurrentThreadName("Vu1Thread");
++    ThreadNaming::SetCurrentThreadName(name);
 +    for (;;)
 +    {
 +        Job job;
++        std::function<void()> jobEnd;
 +        {
-+            std::unique_lock<std::mutex> lock(m_mutex);
-+            m_jobReady.wait(lock, [&]
-+                            { return m_stop || !m_jobs.empty(); });
++            std::unique_lock<ps2_host_sync::Mutex> lock(m_mutex);
++            if (!m_stop && m_jobs.empty())
++            {
++                m_idle = true;
++                m_jobReady.wait(lock, [&]
++                                { return m_stop || !m_jobs.empty(); });
++                m_idle = false;
++            }
 +            if (m_jobs.empty())
 +                return;
 +            job = std::move(m_jobs.front());
 +            m_jobs.pop_front();
++            if (m_jobEnd)
++                jobEnd = m_jobEnd;
 +        }
 +
-+        fesetenv(&job.env);
++        ps2_host_fpu::setRounding(job.roundingMode);
 +        try
 +        {
 +            job.run();
@@ -8333,21 +9598,26 @@ index 0000000..2b909de
 +        {
 +            std::fprintf(stderr, "[vu1-thread] job failed: %s\n", error.what());
 +        }
++        if (jobEnd)
++            jobEnd();
 +
++        bool wake = false;
 +        {
-+            std::lock_guard<std::mutex> lock(m_mutex);
++            std::lock_guard<ps2_host_sync::Mutex> lock(m_mutex);
 +            m_pendingBytes -= job.bytes;
-+            m_completed.fetch_add(1u, std::memory_order_release);
++            const uint64_t completed = m_completed.fetch_add(1u, std::memory_order_release) + 1u;
++            wake = completed >= m_waitTarget || (m_roomWanted != SIZE_MAX && hasRoomFor(m_roomWanted));
 +        }
-+        m_jobDone.notify_all();
++        if (wake)
++            m_jobDone.notify_all();
 +    }
 +}
 diff --git a/ps2xRuntime/src/lib/vu/ps2_vu1_compiled.cpp b/ps2xRuntime/src/lib/vu/ps2_vu1_compiled.cpp
 new file mode 100644
-index 0000000..dd79cf6
+index 0000000..bb1fff6
 --- /dev/null
 +++ b/ps2xRuntime/src/lib/vu/ps2_vu1_compiled.cpp
-@@ -0,0 +1,771 @@
+@@ -0,0 +1,772 @@
 +// Compiled blocks for VU1 programs.
 +//
 +// The interpreter (run()) is the spec: a compiled run must leave the same
@@ -8364,6 +9634,7 @@ index 0000000..dd79cf6
 +
 +#include "runtime/ps2_vu1.h"
 +#include "runtime/ps2_memory.h"
++#include "runtime/ps2_host_fpu.h"
 +#include "ps2_vu1_detail.h"
 +
 +#include <algorithm>
@@ -8944,8 +10215,8 @@ index 0000000..dd79cf6
 +    m_activeVuDataSize = dataSize;
 +    m_activeGs = &gs;
 +    m_activeMemory = memory;
-+    const int previousRoundingMode = std::fegetround();
-+    const bool useVuRounding = std::fesetround(FE_TOWARDZERO) == 0;
++    const int previousRoundingMode = ps2_host_fpu::getRounding();
++    const bool useVuRounding = ps2_host_fpu::setRounding(FE_TOWARDZERO);
 +    const uint64_t budgetEnd = m_cycle + maxCycles;
 +    m_compiledRun = true;
 +    m_compiledNextVi = ~0ull;
@@ -9090,7 +10361,7 @@ index 0000000..dd79cf6
 +        m_pendingHaltT = false;
 +        m_state.cycles = m_cycle;
 +        if (useVuRounding && previousRoundingMode != -1)
-+            std::fesetround(previousRoundingMode);
++            ps2_host_fpu::setRounding(previousRoundingMode);
 +        return true;
 +    }
 +
@@ -9106,7 +10377,7 @@ index 0000000..dd79cf6
 +    if (m_stopRequested && outOfBudget)
 +        advanceTo(budgetEnd);
 +    if (useVuRounding && previousRoundingMode != -1)
-+        std::fesetround(previousRoundingMode);
++        ps2_host_fpu::setRounding(previousRoundingMode);
 +    run(vuCode, codeSize, vuData, dataSize, gs, memory, static_cast<uint32_t>(budgetEnd - m_cycle));
 +    return true;
 +}
@@ -10178,10 +11449,14 @@ index 0000000..c2e64ac
 +    static size_t generatedBlocks(const VU1Interpreter &vu);
 +};
 diff --git a/ps2xRuntime/src/lib/vu/ps2_vu1_core.cpp b/ps2xRuntime/src/lib/vu/ps2_vu1_core.cpp
-index bd75bba..446fd5d 100644
+index bd75bba..6274276 100644
 --- a/ps2xRuntime/src/lib/vu/ps2_vu1_core.cpp
 +++ b/ps2xRuntime/src/lib/vu/ps2_vu1_core.cpp
-@@ -5,6 +5,7 @@
+@@ -2,9 +2,11 @@
+ #include "runtime/gs/ps2_gif_arbiter.h"
+ #include "runtime/gs/gs_frontend.h"
+ #include "runtime/ps2_memory.h"
++#include "runtime/ps2_host_fpu.h"
  #include "ps2_vu1_detail.h"
  
  #include <algorithm>
@@ -10189,7 +11464,7 @@ index bd75bba..446fd5d 100644
  #include <cfenv>
  #include <cmath>
  #include <cstdio>
-@@ -14,12 +15,186 @@
+@@ -14,12 +16,186 @@
  #include <limits>
  #include <ps2_log.h>
  
@@ -10376,7 +11651,7 @@ index bd75bba..446fd5d 100644
  }
  
  void VU1Interpreter::addVfRead(InstructionUsage &usage, uint8_t reg, uint8_t lanes)
-@@ -61,25 +236,31 @@ uint8_t VU1Interpreter::vfReadLanes(const InstructionUsage &usage, uint8_t reg)
+@@ -61,25 +237,31 @@ uint8_t VU1Interpreter::vfReadLanes(const InstructionUsage &usage, uint8_t reg)
  VU1Interpreter::VU1Interpreter(Unit unit)
      : m_unit(unit)
  {
@@ -10414,7 +11689,7 @@ index bd75bba..446fd5d 100644
      m_nextWriteSequence = 0;
      m_efuResourceReady = 0;
      m_workingClip = m_state.clip;
-@@ -103,24 +284,12 @@ void VU1Interpreter::reset()
+@@ -103,24 +285,12 @@ void VU1Interpreter::reset()
  
  float VU1Interpreter::broadcast(const float *vf, uint8_t bc)
  {
@@ -10441,7 +11716,7 @@ index bd75bba..446fd5d 100644
  }
  
  float VU1Interpreter::normalizeResult(float value, uint32_t &laneFlags) const
-@@ -151,11 +320,6 @@ float VU1Interpreter::normalizeResult(float value, uint32_t &laneFlags) const
+@@ -151,11 +321,6 @@ float VU1Interpreter::normalizeResult(float value, uint32_t &laneFlags) const
      return value;
  }
  
@@ -10453,7 +11728,7 @@ index bd75bba..446fd5d 100644
  int32_t VU1Interpreter::readBranchVi(uint8_t reg) const
  {
      if (reg == 0u)
-@@ -194,18 +358,31 @@ void VU1Interpreter::applyDestAcc(const float *result, uint8_t dest)
+@@ -194,18 +359,31 @@ void VU1Interpreter::applyDestAcc(const float *result, uint8_t dest)
      applyDest(m_state.acc, result, dest);
  }
  
@@ -10489,7 +11764,7 @@ index bd75bba..446fd5d 100644
              laneFlags[component] = normalizeFmacExactResult(result[component], exactResult);
              continue;
          }
-@@ -214,6 +391,7 @@ void VU1Interpreter::normalizeFmacResult(float *result, uint8_t dest,
+@@ -214,6 +392,7 @@ void VU1Interpreter::normalizeFmacResult(float *result, uint8_t dest,
          result[component] = normalizeResult(result[component], flags);
          laneFlags[component] = static_cast<uint8_t>(flags);
      }
@@ -10497,7 +11772,7 @@ index bd75bba..446fd5d 100644
  }
  
  bool VU1Interpreter::calculateFmacExactResult(uint32_t component,
-@@ -402,90 +580,7 @@ bool VU1Interpreter::calculateFmacExactResult(uint32_t component,
+@@ -402,90 +581,7 @@ bool VU1Interpreter::calculateFmacExactResult(uint32_t component,
  uint8_t VU1Interpreter::normalizeFmacExactResult(float &value,
                                                    long double exactResult) const
  {
@@ -10589,7 +11864,7 @@ index bd75bba..446fd5d 100644
  }
  
  void VU1Interpreter::updateFmacFlags(const uint8_t laneFlags[4], uint8_t dest,
-@@ -513,114 +608,90 @@ void VU1Interpreter::updateFmacFlags(const uint8_t laneFlags[4], uint8_t dest,
+@@ -513,114 +609,90 @@ void VU1Interpreter::updateFmacFlags(const uint8_t laneFlags[4], uint8_t dest,
              mac |= static_cast<uint32_t>(lane) << 12;
          status |= flags;
      }
@@ -10752,7 +12027,7 @@ index bd75bba..446fd5d 100644
  }
  
  void VU1Interpreter::queueQ(float value, uint32_t latency, uint32_t statusDi)
-@@ -629,6 +700,7 @@ void VU1Interpreter::queueQ(float value, uint32_t latency, uint32_t statusDi)
+@@ -629,6 +701,7 @@ void VU1Interpreter::queueQ(float value, uint32_t latency, uint32_t statusDi)
      value = normalizeResult(value, ignoredFlags);
      m_fdiv.valid = true;
      m_fdiv.readyCycle = m_cycle + latency;
@@ -10760,7 +12035,7 @@ index bd75bba..446fd5d 100644
      m_fdiv.value = value;
      m_fdiv.statusDi = statusDi & 0x30u;
  }
-@@ -643,6 +715,7 @@ void VU1Interpreter::queueP(float value, uint32_t latency)
+@@ -643,6 +716,7 @@ void VU1Interpreter::queueP(float value, uint32_t latency)
          {
              entry.valid = true;
              entry.readyCycle = m_cycle + latency;
@@ -10768,7 +12043,7 @@ index bd75bba..446fd5d 100644
              entry.value = value;
              // EFU throughput is one cycle shorter than result visibility.
              m_efuResourceReady = m_cycle + (latency > 0u ? latency - 1u : 0u);
-@@ -654,190 +727,218 @@ void VU1Interpreter::queueP(float value, uint32_t latency)
+@@ -654,190 +728,218 @@ void VU1Interpreter::queueP(float value, uint32_t latency)
  
  void VU1Interpreter::queueStore(uint32_t address, const uint32_t words[4], uint8_t laneMask)
  {
@@ -11120,7 +12395,7 @@ index bd75bba..446fd5d 100644
  }
  
  void VU1Interpreter::progressXgkick()
-@@ -857,10 +958,16 @@ void VU1Interpreter::progressXgkick()
+@@ -857,10 +959,16 @@ void VU1Interpreter::progressXgkick()
          }
  
          const uint32_t qwordOffset = m_xgkick.copiedBytes;
@@ -11140,7 +12415,7 @@ index bd75bba..446fd5d 100644
          }
          m_xgkick.copiedBytes += 16u;
  
-@@ -932,21 +1039,23 @@ void VU1Interpreter::startXgkick(uint32_t qwordAddress)
+@@ -932,21 +1040,23 @@ void VU1Interpreter::startXgkick(uint32_t qwordAddress)
          return;
  
      const uint32_t sourceAddress = (qwordAddress * 16u) % m_activeVuDataSize;
@@ -11168,7 +12443,7 @@ index bd75bba..446fd5d 100644
  }
  
  void VU1Interpreter::advanceTo(uint64_t targetCycle)
-@@ -962,22 +1071,7 @@ bool VU1Interpreter::pipelinesPending() const
+@@ -962,22 +1072,7 @@ bool VU1Interpreter::pipelinesPending() const
      for (const ScalarPipelineEntry &entry : m_efu)
          if (entry.valid)
              return true;
@@ -11192,7 +12467,7 @@ index bd75bba..446fd5d 100644
  }
  
  void VU1Interpreter::flushPipelines()
-@@ -988,91 +1082,90 @@ void VU1Interpreter::flushPipelines()
+@@ -988,91 +1083,90 @@ void VU1Interpreter::flushPipelines()
  
  uint64_t VU1Interpreter::calculatePairReadyCycle(const DecodedInstructionPair &decoded) const
  {
@@ -11345,7 +12620,7 @@ index bd75bba..446fd5d 100644
  }
  
  VU1Interpreter::InstructionUsage VU1Interpreter::decodeUpperUsage(uint32_t upper) const
-@@ -1517,6 +1610,8 @@ VU1Interpreter::DecodedInstructionPair VU1Interpreter::decodeInstructionPair(con
+@@ -1517,6 +1611,8 @@ VU1Interpreter::DecodedInstructionPair VU1Interpreter::decodeInstructionPair(con
      decoded.mBit = (decoded.upper & 0x20000000u) != 0u;
      decoded.dBit = (decoded.upper & 0x10000000u) != 0u;
      decoded.tBit = (decoded.upper & 0x08000000u) != 0u;
@@ -11354,7 +12629,7 @@ index bd75bba..446fd5d 100644
      decoded.upperUsage = decodeUpperUsage(decoded.upper);
      if (!decoded.iBit)
          decoded.lowerUsage = decodeLowerUsage(decoded.lower);
-@@ -1528,6 +1623,7 @@ VU1Interpreter::DecodedInstructionPair VU1Interpreter::decodeInstructionPair(con
+@@ -1528,6 +1624,7 @@ VU1Interpreter::DecodedInstructionPair VU1Interpreter::decodeInstructionPair(con
          if (decoded.lowerUsage.vfWrite.reg == upperWriteReg)
              decoded.suppressedLowerVf = upperWriteReg;
      }
@@ -11362,7 +12637,7 @@ index bd75bba..446fd5d 100644
      return decoded;
  }
  
-@@ -1545,6 +1641,27 @@ void VU1Interpreter::rebuildDecodedCodeCache(const uint8_t *vuCode, uint32_t cod
+@@ -1545,6 +1642,27 @@ void VU1Interpreter::rebuildDecodedCodeCache(const uint8_t *vuCode, uint32_t cod
      m_decodedCodeCacheValid = true;
  }
  
@@ -11390,7 +12665,7 @@ index bd75bba..446fd5d 100644
  VU1Interpreter::DecodedInstructionPair VU1Interpreter::getDecodedInstructionPairForPc(
      const uint8_t *vuCode, uint32_t codeSize, PS2Memory *memory, uint32_t pc)
  {
-@@ -1605,6 +1722,8 @@ void VU1Interpreter::execute(uint8_t *vuCode, uint32_t codeSize,
+@@ -1605,6 +1723,8 @@ void VU1Interpreter::execute(uint8_t *vuCode, uint32_t codeSize,
      m_state.vf[0][1] = 0.0f;
      m_state.vf[0][2] = 0.0f;
      m_state.vf[0][3] = 1.0f;
@@ -11399,8 +12674,14 @@ index bd75bba..446fd5d 100644
      run(vuCode, codeSize, vuData, dataSize, gs, memory, maxCycles);
  }
  
-@@ -1633,13 +1752,27 @@ void VU1Interpreter::run(uint8_t *vuCode, uint32_t codeSize,
-     const bool useVuRounding = std::fesetround(FE_TOWARDZERO) == 0;
+@@ -1629,17 +1749,31 @@ void VU1Interpreter::run(uint8_t *vuCode, uint32_t codeSize,
+     m_activeGs = &gs;
+     m_activeMemory = memory;
+ 
+-    const int previousRoundingMode = std::fegetround();
+-    const bool useVuRounding = std::fesetround(FE_TOWARDZERO) == 0;
++    const int previousRoundingMode = ps2_host_fpu::getRounding();
++    const bool useVuRounding = ps2_host_fpu::setRounding(FE_TOWARDZERO);
      const uint64_t budgetEnd = m_cycle + maxCycles;
      bool programEnded = false;
 +    // Code memory cannot change while the unit runs, so the decoded pairs
@@ -11429,7 +12710,7 @@ index bd75bba..446fd5d 100644
          if (decoded.upperUsage.reserved || decoded.lowerUsage.reserved)
          {
              reportReservedInstruction(decoded.upperUsage.reserved, decoded.upperUsage.reserved ? decoded.upper : decoded.lower);
-@@ -1662,14 +1795,10 @@ void VU1Interpreter::run(uint8_t *vuCode, uint32_t codeSize,
+@@ -1662,14 +1796,10 @@ void VU1Interpreter::run(uint8_t *vuCode, uint32_t codeSize,
  
          uint8_t writtenVi = 0u;
          int32_t oldVi = 0;
@@ -11447,7 +12728,7 @@ index bd75bba..446fd5d 100644
          }
  
          const VfAccess upperWrite = decoded.upperUsage.vfWrite;
-@@ -1678,21 +1807,16 @@ void VU1Interpreter::run(uint8_t *vuCode, uint32_t codeSize,
+@@ -1678,21 +1808,16 @@ void VU1Interpreter::run(uint8_t *vuCode, uint32_t codeSize,
          const bool hasLowerWrite = lowerWrite.reg != 0u && decoded.suppressedLowerVf != lowerWrite.reg;
          const bool hasDistinctLowerWrite = hasLowerWrite && (!hasUpperWrite || lowerWrite.reg != upperWrite.reg);
          float oldUpperVf[4]{};
@@ -11471,7 +12752,7 @@ index bd75bba..446fd5d 100644
              float immediate = 0.0f;
              std::memcpy(&immediate, &decoded.lower, sizeof(immediate));
              m_state.i = normalizeOperand(immediate);
-@@ -1711,56 +1835,48 @@ void VU1Interpreter::run(uint8_t *vuCode, uint32_t codeSize,
+@@ -1711,56 +1836,48 @@ void VU1Interpreter::run(uint8_t *vuCode, uint32_t codeSize,
              std::memcpy(m_state.vf[decoded.upperVfShadowReg],
                          oldVf,
                          sizeof(oldVf));
@@ -11552,7 +12833,7 @@ index bd75bba..446fd5d 100644
          }
  
          markPairWrites(decoded);
-@@ -1824,6 +1940,8 @@ void VU1Interpreter::run(uint8_t *vuCode, uint32_t codeSize,
+@@ -1824,6 +1941,8 @@ void VU1Interpreter::run(uint8_t *vuCode, uint32_t codeSize,
              break;
      }
  
@@ -11561,6 +12842,13 @@ index bd75bba..446fd5d 100644
      if (programEnded)
      {
          flushPipelines();
+@@ -1834,5 +1953,5 @@ void VU1Interpreter::run(uint8_t *vuCode, uint32_t codeSize,
+     }
+     m_state.cycles = m_cycle;
+     if (useVuRounding && previousRoundingMode != -1)
+-        std::fesetround(previousRoundingMode);
++        ps2_host_fpu::setRounding(previousRoundingMode);
+ }
 diff --git a/ps2xRuntime/src/lib/vu/ps2_vu1_detail.h b/ps2xRuntime/src/lib/vu/ps2_vu1_detail.h
 index ed0ee71..e42ffa1 100644
 --- a/ps2xRuntime/src/lib/vu/ps2_vu1_detail.h
@@ -12259,10 +13547,10 @@ index 0000000..c79579a
 +    return 0;
 +}
 diff --git a/ps2xTest/CMakeLists.txt b/ps2xTest/CMakeLists.txt
-index 3eaa8b3..66d58c7 100644
+index 3eaa8b3..0ff682d 100644
 --- a/ps2xTest/CMakeLists.txt
 +++ b/ps2xTest/CMakeLists.txt
-@@ -64,6 +64,31 @@ add_executable(ps2x_tests
+@@ -64,6 +64,35 @@ add_executable(ps2x_tests
      $<TARGET_OBJECTS:ps2_test_function_table>
  )
  
@@ -12275,6 +13563,10 @@ index 3eaa8b3..66d58c7 100644
 +    ${CMAKE_SOURCE_DIR}/ps2xRuntime/src/lib
 +)
 +target_link_libraries(ps2x_vu1_test_blocks PRIVATE ps2_runtime)
++if(MINGW)
++    # It runs during the build, where MinGW's DLLs may not be on the path.
++    target_link_options(ps2x_vu1_test_blocks PRIVATE -static)
++endif()
 +set(PS2X_TEST_VU1_BLOCK_DIR "${CMAKE_CURRENT_BINARY_DIR}/vu1_test_blocks")
 +set(PS2X_TEST_VU1_BLOCKS
 +    "${PS2X_TEST_VU1_BLOCK_DIR}/vu1_blocks_0.cpp"
@@ -12294,6 +13586,15 @@ index 3eaa8b3..66d58c7 100644
  option(PRINT_GENERATED_CODE "Print generated code in tests" OFF)
  if(PRINT_GENERATED_CODE)
  
+@@ -91,7 +120,7 @@ target_link_libraries(ps2x_tests PRIVATE
+ if(MSVC)
+     target_link_options(ps2x_tests PRIVATE "/STACK:8388608")
+ elseif(MINGW)
+-    target_link_options(ps2x_tests PRIVATE "--stack,8388608")
++    target_link_options(ps2x_tests PRIVATE -static "LINKER:--stack,8388608")
+ endif()
+ 
+ if(COMMAND ps2x_stage_ffmpeg_runtime_dlls)
 diff --git a/ps2xTest/include/vu1_fuzzer.h b/ps2xTest/include/vu1_fuzzer.h
 new file mode 100644
 index 0000000..75b971f
@@ -12607,7 +13908,7 @@ index 2866d2b..ab51b27 100644
          {
              // _mm_set_ps lists lanes 3..0
 diff --git a/ps2xTest/src/ps2_gs_tests.cpp b/ps2xTest/src/ps2_gs_tests.cpp
-index 0458a8c..849d384 100644
+index 0458a8c..a303306 100644
 --- a/ps2xTest/src/ps2_gs_tests.cpp
 +++ b/ps2xTest/src/ps2_gs_tests.cpp
 @@ -4,6 +4,8 @@
@@ -12710,7 +14011,7 @@ index 0458a8c..849d384 100644
          tc.Run("GS T8 CT32-uploaded CSM1 CLUT follows swizzled palette layout", [](TestCase &t)
          {
              std::vector<uint8_t> vram(PS2_GS_VRAM_SIZE, 0u);
-@@ -3006,6 +3063,321 @@ void register_ps2_gs_tests()
+@@ -3006,6 +3063,336 @@ void register_ps2_gs_tests()
                       "switching raster backends must retain the logical 4 MiB GS local memory");
          });
  
@@ -12786,6 +14087,21 @@ index 0458a8c..849d384 100644
 +                };
 +
 +                drawTriangles(kFrameA);
++                // A mesh: many triangles in one state and rounding mode, which the queue
++                // sends in runs, longer than one run can be.
++                gs.writeRegister(GS_REG_PRIM, static_cast<uint64_t>(GS_PRIM_TRIANGLE) | (1ull << 3));
++                for (int tri = 0; tri < 150; ++tri)
++                {
++                    for (int vertex = 0; vertex < 3; ++vertex)
++                    {
++                        const uint64_t rgba = 0x3F80000080000000ull | next(0x1000000u);
++                        const uint64_t x = next(64u) << 4;
++                        const uint64_t y = next(256u) << 4;
++                        const uint64_t z = next(0x10000u);
++                        gs.writeRegister(GS_REG_RGBAQ, rgba);
++                        gs.writeRegister(GS_REG_XYZ2, x | (y << 16) | (z << 32));
++                    }
++                }
 +                // B reads rows of A that other workers drew.
 +                drawSprite(kFrameB, 0u, true);
 +                // A is drawn over while B's copy may still be reading it.
@@ -13032,7 +14348,7 @@ index 0458a8c..849d384 100644
          tc.Run("GS TEX2 updates CLUT state independently from TEX0", [](TestCase &t)
          {
              std::vector<uint8_t> vram(PS2_GS_VRAM_SIZE, 0u);
-@@ -3278,6 +3650,180 @@ void register_ps2_gs_tests()
+@@ -3278,6 +3665,180 @@ void register_ps2_gs_tests()
                       "TCC=0 MODULATE should still use texture RGB while sourcing alpha from the shaded vertex");
          });
  
@@ -13340,7 +14656,7 @@ index f1172e9..13913df 100644
          {
              iop_test::Host host;
 diff --git a/ps2xTest/src/ps2_memory_tests.cpp b/ps2xTest/src/ps2_memory_tests.cpp
-index 0b22fe0..0eaf636 100644
+index 0b22fe0..d6cf576 100644
 --- a/ps2xTest/src/ps2_memory_tests.cpp
 +++ b/ps2xTest/src/ps2_memory_tests.cpp
 @@ -8,8 +8,10 @@
@@ -13443,7 +14759,7 @@ index 0b22fe0..0eaf636 100644
          tc.Run("GIF arbiter prioritizes PATH1 then PATH2 then PATH3", [](TestCase &t)
          {
              std::vector<uint8_t> order;
-@@ -1059,6 +1143,119 @@ void register_ps2_memory_tests()
+@@ -1059,6 +1143,177 @@ void register_ps2_memory_tests()
              t.Equals(mem.readIORegister(kGifCh + 0x20u), 0u, "GIF QWC should be cleared after drain");
          });
  
@@ -13560,10 +14876,68 @@ index 0b22fe0..0eaf636 100644
 +            mem.enableVu1Thread(false);
 +        });
 +
++        tc.Run("GS feed runs VU1 thread packets and display stores in order on its own thread", [](TestCase &t)
++        {
++            PS2Memory mem;
++            t.IsTrue(mem.initialize(), "PS2Memory initialize should succeed");
++            mem.enableVu1Thread(true);
++
++            struct Seen
++            {
++                size_t size;
++                uint8_t last;
++                uint64_t dispfb;
++                bool onFeed;
++            };
++            std::vector<Seen> seen;
++            const std::thread::id eeThread = std::this_thread::get_id();
++            mem.enableGsFeed(true, [&](const uint8_t *data, uint32_t sizeBytes)
++            {
++                const bool onFeed = std::this_thread::get_id() != eeThread && !mem.onVu1Thread();
++                seen.push_back({sizeBytes, data[sizeBytes - 1u], mem.gs().dispfb1, onFeed});
++            });
++            GifArbiter arbiter([&](const uint8_t *data, uint32_t sizeBytes)
++            {
++                if (!mem.queueForGsFeed(data, sizeBytes))
++                    seen.push_back({sizeBytes, data[sizeBytes - 1u], mem.gs().dispfb1, false});
++            });
++            mem.setGifArbiter(&arbiter);
++
++            constexpr uint32_t kGifCh = 0x1000A000u;
++            constexpr uint32_t kGifSrc = 0x00022000u;
++            constexpr uint32_t kDispfb1 = 0x12000070u;
++            uint8_t *rdram = mem.getRDRAM();
++            mem.write64(kDispfb1, 0x11ull);
++            for (uint32_t qwc = 1u; qwc <= 2u; ++qwc)
++            {
++                std::memset(rdram + kGifSrc, 0, 32u);
++                rdram[kGifSrc] = 0x01u;          // NLOOP 1
++                rdram[kGifSrc + 1u] = 0x80u;     // EOP
++                rdram[kGifSrc + 7u] = 0x08u;     // IMAGE
++                rdram[kGifSrc + qwc * 16u - 1u] = static_cast<uint8_t>(0xA0u + qwc);
++                mem.writeIORegister(kGifCh + 0x10u, kGifSrc);
++                mem.writeIORegister(kGifCh + 0x20u, qwc);
++                mem.writeIORegister(kGifCh + 0x00u, 0x100u);
++                mem.processPendingTransfers();
++                if (qwc == 1u)
++                    mem.write64(kDispfb1, 0x22ull);
++            }
++            mem.waitForVu1Thread();
++
++            t.Equals(seen.size(), static_cast<size_t>(2u), "both packets should reach the GS");
++            t.IsTrue(seen[0].onFeed && seen[1].onFeed, "both should run on the feed thread");
++            t.Equals(seen[0].size, static_cast<size_t>(16u), "the first packet should be one quadword");
++            t.Equals(seen[1].last, static_cast<uint8_t>(0xA2u), "the second packet should hold its own data");
++            t.Equals(seen[0].dispfb, 0x11ull, "the first packet should run before the display store");
++            t.Equals(seen[1].dispfb, 0x22ull, "the second packet should run after it");
++            mem.setGifArbiter(nullptr);
++            mem.enableVu1Thread(false);
++        });
++
          tc.Run("GIF DMA can source from scratchpad", [](TestCase &t)
          {
              PS2Memory mem;
-@@ -1370,6 +1567,47 @@ void register_ps2_memory_tests()
+@@ -1370,6 +1625,47 @@ void register_ps2_memory_tests()
              t.IsTrue(ct32Ok, "all CT32 pixels should survive a preceding paletted upload in the same GIF DMA chain");
          });
  
