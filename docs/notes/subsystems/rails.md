@@ -16,7 +16,7 @@ PS2 emulator (savestates, memory reads at specific frames, or controller replays
 Source files are the decomp's current splits, as reported by the address lookup.
 
 - `src/intersect/worldsphtree.cpp`: the spline rail query `0x00334680`, the per-segment search `0x00335128`,
-  the kind-8 rail record constructor `0x00341548`, and `0x003411B8` (reads the descriptor flag word).
+  and `0x003411B8` (reads the descriptor flag word).
 - `src/object/railmodifier.cpp`: the type-2 (object-attached) rail query `0x0035C698` and its transform
   composition `0x0035C5A0`. The same unit holds `0x0035C0E8` (`cRailModifier_buildXform`), which the notes
   below do not describe.
@@ -50,19 +50,19 @@ Source files are the decomp's current splits, as reported by the address lookup.
 
 ## Rail data: world record kind 8
 
-The record-kind switch in `0x0026DED8` (named `cReplay_restoreObject` in the decomp; the notes describe it as
-the world loader's record dispatch) handles kinds 0..22 through the jump table at `0x004816C0`. The case for
-kind 8 calls the rail constructor `0x00341548`. Other kinds mentioned alongside it:
+The kind switch in `0x0026DED8` (`cReplay_restoreObject`) is the replay object restore, not a rail loader:
+each case allocates an object under its memory tag and calls its restore constructor (jump table
+`0x004816C0`). Earlier notes read kind 8 as spline rails; the tags show otherwise:
 
-| Kind | Constructor | Content (as described) |
+| Kind | Constructor | Object (memory tag) |
 |---|---|---|
-| 8 | `0x00341548` | spline rails |
-| 14 | `0x0034ED88` | AI paths |
-| 16 | `0x00350F08` | collision bindings |
-| 17 | `0x00356E60` | course-progress objects |
-| 21 | `0x00349DB0` | course spine |
+| 8 | `0x00341548` | Boost |
+| 14 | `0x0034ED88` | Floating |
+| 16 | `0x00350F08` | Hide |
+| 17 | `0x00356E60` | Object |
+| 21 | `0x00349DB0` | SpringRail |
 
-Kind-8 records sit in the SSB world data inside `DATA/WORLDS/BAM.BIG` (the GameCube `bam.gsb` has the same
+Rail spline records sit in the SSB world data inside `DATA/WORLDS/BAM.BIG` (the GameCube `bam.gsb` has the same
 records big-endian). Their names come from the "splines" array (group 3) of the
 matching PHM/PSM files, for example `spline_ARA1_EventRail_0`, `spline_ARA1_GondolaRail_0`,
 `spline_ARA1_LogRail_0`, `spline_ARA1_RAIL_wood_1003`. Scenery instances with rail names

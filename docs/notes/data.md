@@ -143,7 +143,7 @@ Globals, tables, vtables and constants, by address. Section boundaries are from 
 - **`0x0047CFA0`** - Game mode handler 0 vtable (freestyle), shared by slope style, pipe and big air, which differ only by kind (GMM `+8`), table rows and course data: init `0x00238E20`, results `0x00239230`. *[PS2]*
 - **`0x0047D130`** - Race game class vtable; slot +0x14 (at `0x0047D144`) is the race game update `0x002306B8`. *[static]*
 - **`0x00481478`** - Runtime interface (vtable) of the AI path objects built from the 64-byte AI path headers. *[PS2]*
-- **`0x004816C0`** - SSB record-kind constructor table (kinds 0..22) used by the world loader `0x0026DED8`: 8 `0x00341548` rail spline, 14 `0x0034ED88` AIP paths, 16 `0x00350F08` collision bindings, 17 `0x00356E60` course-progress objects, 21 `0x00349DB0` course spine. *[static]*
+- **`0x004816C0`** - Jump table of the replay object restore switch in `cReplay_restoreObject` `0x0026DED8` (kinds 0..22). Each case allocates the object with its memory tag and calls its restore constructor: 8 `0x00341548` Boost node, 14 `0x0034ED88` Floating node, 16 `0x00350F08` Hide node, 17 `0x00356E60` Object node, 21 `0x00349DB0` SpringRail node. *[static]*
 - **`0x00481C68`** - Format string '%s%08d.big' naming the per-script NIS load groups in SCDAT.BIG. *[static]*
 - **`0x00481D00`** - NIS anchor table: anchor id -> frame source (world, start-grid node, locator, podium step, live actor). *[static]*
 - **`0x00481E48`** - CTM intro NIS list table: venue fly-over 2 (flags 0) -> approach 3 (flags 3) -> start-gate idle 5 (flags 0). *[PS2]*
