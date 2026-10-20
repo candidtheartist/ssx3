@@ -8234,7 +8234,81 @@ unsigned char func_003CBC20(int arg0, int arg1, int arg2) {
     return D_0044E770_BC20[arg0 - 1][arg1 - 1][arg2 - 1];
 }
 
-INCLUDE_ASM("ealib/seg_2B4578", func_003CBC58);
+//100%
+// Mixes one frame of n samples: copies a pending buffer straight out when one is
+// queued, else runs each channel's voice and sends it (and its linked channels)
+// to the output once, then clears the mix buffer.
+struct V_BC58 { int (*fn)(struct V_BC58 *, int, int, int, int); };
+struct G_BC58 {
+    char pad00[0x5];
+    unsigned char n;
+    char pad06[0x14 - 0x6];
+    void *f14;
+    char pad18[0xB0 - 0x18];
+    int fB0;
+    int fB4;
+    char padB8[0xD0 - 0xB8];
+    int out[(0x1E0 - 0xD0) / 4];
+    void (*send)(int, int, int, float);
+};
+struct M_BC58 { char pad[0x1800]; int frames; };
+extern struct G_BC58 D_00515B40_BC58 __asm__("D_00515B40");
+extern struct M_BC58 D_00515D80_BC58 __asm__("D_00515D80");
+extern signed char D_0044E164_BC58[] __asm__("D_0044E164");
+extern int *D_00515D40;
+extern int *D_00515D44;
+extern struct V_BC58 **D_00515D48;
+extern int D_00515D58;
+extern int D_00517600;
+extern void *func_00416210_BC58(void *, int, int) __asm__("func_00416210");
+extern void func_003C51E8_BC58(void *, void *, int) __asm__("func_003C51E8");
+extern int func_003C72F8_BC58(void *, int) __asm__("func_003C72F8");
+extern void func_003CF798_BC58(int, void *) __asm__("func_003CF798");
+
+void func_003CBC58(int n) {
+    int done[6];
+    int b0;
+    int b4;
+    int size;
+    int i;
+    int j;
+    struct V_BC58 *v;
+    signed char *p;
+    signed char *q;
+
+    func_00416210_BC58(done, 0, 0x18);
+    if (D_00515B40_BC58.f14 != 0) {
+        func_003C51E8_BC58(D_00515B40_BC58.f14, &D_00515D80_BC58, n * 4);
+        func_00416210_BC58(&D_00515D80_BC58, 0, n * 4);
+        return;
+    }
+    b0 = D_00515B40_BC58.fB0;
+    b4 = D_00515B40_BC58.fB4;
+    if (++D_00515D80_BC58.frames < 3000) {
+        size = n * 4;
+        if (func_003C72F8_BC58(&D_00515D40[D_00515D58 + 1], 4) != 0) {
+            func_003CF798_BC58(D_00515D44[D_00517600], &D_00515D80_BC58);
+            for (i = 0; i < D_00515B40_BC58.n; i++) {
+                if (done[i] != 0) continue;
+                v = D_00515D48[i + 1];
+                if (v == 0) continue;
+                v->fn(v, n, b0, b4, i + 1);
+                D_00515B40_BC58.send(n, b4, D_00515B40_BC58.out[i], 1.0f);
+                done[i] = 1;
+                q = D_0044E164_BC58 + D_00515D58 * 0xD8;
+                q += D_00515B40_BC58.n * 0x24;
+                p = q + i * 6;
+                for (j = 0; j < D_00515B40_BC58.n; j++, p++) {
+                    if (*p >= 0) {
+                        D_00515B40_BC58.send(n, b4, D_00515B40_BC58.out[*p], 1.0f);
+                        done[*p] = 1;
+                    }
+                }
+            }
+        }
+        func_00416210_BC58(&D_00515D80_BC58, 0, size);
+    }
+}
 
 INCLUDE_ASM("ealib/seg_2B4578", func_003CBEC8);
 
