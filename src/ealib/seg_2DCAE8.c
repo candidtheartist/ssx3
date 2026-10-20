@@ -3994,7 +3994,71 @@ void func_003E4A30(int a) {
 
 INCLUDE_ASM("ealib/seg_2DCAE8", func_003E4AA0);
 
-INCLUDE_ASM("ealib/seg_2DCAE8", func_003E4AF0);
+//100%
+// PORT: PS2-only (EE timer registers and INTC handlers); needs a PC replacement.
+// Starts the tick timer at hz ticks per second (100 if 0) on EE timer 2, and on first use measures one tick against timer 0 to pick the video rate.
+extern int D_00450DDC_4AF0 __asm__("D_00450DDC");
+extern int D_00450DC8_4AF0 __asm__("D_00450DC8");
+extern unsigned short D_00450DE0_4AF0 __asm__("D_00450DE0");
+extern int D_00450DA0_4AF0 __asm__("D_00450DA0");
+extern volatile int D_00450DCC_4AF0 __asm__("D_00450DCC");
+extern int func_00423A80_4AF0(int, void (*)(void), int) __asm__("func_00423A80");
+extern int func_004248E8_4AF0(int) __asm__("func_004248E8");
+extern void func_003E6690_4AF0(int) __asm__("func_003E6690");
+extern void func_003E4DB8_4AF0(void) __asm__("func_003E4DB8");
+extern void func_003E4D68_4AF0(void) __asm__("func_003E4D68");
+
+int func_003E4AF0(int hz) {
+    int mode;
+
+    if (D_00450DDC_4AF0 != 0) return D_00450DC8_4AF0;
+    if (hz == 0) hz = 100;
+    if (hz < 0xC4E) {
+        if (hz < 0xC4) {
+            D_00450DE0_4AF0 = (hz / 2 + 0x8CA00) / hz;
+            D_00450DC8_4AF0 = 0x8CA00 / D_00450DE0_4AF0;
+            mode = 2;
+        } else {
+            D_00450DE0_4AF0 = (hz / 2 + 0x8CA000) / hz;
+            D_00450DC8_4AF0 = 0x8CA000 / D_00450DE0_4AF0;
+            mode = 1;
+        }
+    } else {
+        D_00450DE0_4AF0 = (hz / 2 + 0x8CA0000) / hz;
+        D_00450DC8_4AF0 = 0x8CA0000 / D_00450DE0_4AF0;
+        mode = 0;
+    }
+    *(volatile int *)0x10000800 = 0;
+    *(volatile int *)0x10000820 = D_00450DE0_4AF0;
+    *(volatile int *)0x10000810 = mode | 0x180;
+    D_00450DDC_4AF0 = func_00423A80_4AF0(0xA, func_003E4DB8_4AF0, 0);
+    func_004248E8_4AF0(0xA);
+    if (D_00450DA0_4AF0 == 0) {
+        int count = *(volatile int *)0x10000000;
+        int tmode = *(volatile int *)0x10000010;
+        int end;
+        int d;
+        *(volatile int *)0x10000010 = 0x83;
+        end = D_00450DCC_4AF0 + D_00450DC8_4AF0;
+        for (;;) {
+            if (D_00450DCC_4AF0 >= end) break;
+        }
+        d = *(volatile int *)0x10000000;
+        *(volatile int *)0x10000000 = count;
+        *(volatile int *)0x10000000 = tmode;
+        d -= count;
+        if (d < 0) d += 0x10000;
+        if (d > 15700 && d < 15800) {
+            func_003E6690_4AF0(1);
+        } else if (d > 15575 && d < 15675) {
+            func_003E6690_4AF0(2);
+        } else if (d > 28800 && d < 32000) {
+            func_003E6690_4AF0(3);
+        }
+    }
+    func_003E4A30((int)func_003E4D68_4AF0);
+    return D_00450DC8_4AF0;
+}
 
 //100%
 // PORT: PS2-only inline asm; needs a C fallback off-PS2.
