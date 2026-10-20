@@ -367,7 +367,107 @@ void func_003B49B0(void) {
     func_003B4818();
 }
 
-INCLUDE_ASM("ealib/seg_2B4578", func_003B49D0);
+//100%
+// RefPack decoder: unpacks source into dest and returns the unpacked size from
+// the header; stores the packed size in *compsize when given.
+int func_003B49D0(unsigned char *dest, unsigned char *source, int *compsize) {
+    unsigned char *s;
+    unsigned char *ref;
+    unsigned char *d;
+    unsigned char first;
+    unsigned char second;
+    unsigned char third;
+    unsigned char forth;
+    unsigned int run;
+    unsigned int type;
+    int ulen;
+
+    s = source;
+    d = dest;
+    ulen = 0;
+
+    if (s) {
+        type = *s++;
+        type = (type << 8) + *s++;
+
+        if (type & 0x8000) {
+            if (type & 0x100)
+                s += 4;
+
+            ulen = *s++;
+            ulen = (ulen << 8) + *s++;
+            ulen = (ulen << 8) + *s++;
+            ulen = (ulen << 8) + *s++;
+        } else {
+            if (type & 0x100)
+                s += 3;
+
+            ulen = *s++;
+            ulen = (ulen << 8) + *s++;
+            ulen = (ulen << 8) + *s++;
+        }
+
+        for (;;) {
+            first = *s++;
+            if (!(first & 0x80)) {
+                second = *s++;
+                run = first & 3;
+                while (run--)
+                    *d++ = *s++;
+                ref = d - 1 - (((first & 0x60) << 3) | second);
+                run = ((first & 0x1c) >> 2) + 3 - 1;
+                do {
+                    *d++ = *ref++;
+                } while (run--);
+                continue;
+            }
+            if (!(first & 0x40)) {
+                second = *s++;
+                third = *s++;
+                run = second >> 6;
+                while (run--)
+                    *d++ = *s++;
+
+                ref = d - 1 - (((second & 0x3f) << 8) | third);
+
+                run = (first & 0x3f) + 4 - 1;
+                do {
+                    *d++ = *ref++;
+                } while (run--);
+                continue;
+            }
+            if (!(first & 0x20)) {
+                second = *s++;
+                third = *s++;
+                forth = *s++;
+                run = first & 3;
+                while (run--)
+                    *d++ = *s++;
+
+                ref = d - 1 - ((((first & 0x10) >> 4 << 16) + (second << 8)) | third);
+
+                run = ((first & 0x0c) >> 2 << 8) + forth + 5 - 1;
+                do {
+                    *d++ = *ref++;
+                } while (run--);
+                continue;
+            }
+            run = ((first & 0x1f) << 2) + 4;
+            if (run <= 112) {
+                while (run--)
+                    *d++ = *s++;
+                continue;
+            }
+            run = first & 3;
+            while (run--)
+                *d++ = *s++;
+            break;
+        }
+    }
+    if (compsize)
+        *compsize = (int)(s - source);
+    return ulen;
+}
 
 //100%
 int func_003B4D00(unsigned char *p, int *outlen) {
