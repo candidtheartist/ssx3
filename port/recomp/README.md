@@ -330,7 +330,7 @@ These debug switches print to stderr:
 | `PS2X_DUMP_RDRAM=file` with `PS2X_DUMP_RDRAM_TICK=n` | EE RAM, written to `file` at frame `n` |
 | `PS2X_DUMP_RDRAM_ON_FAULT=file` | EE RAM, written to `file` the first time guest code jumps to an unknown address |
 | `PS2X_VU1_LOG=1` | how often each VU1 microprogram runs, and VIF1 codes the interpreter skips |
-| `PS2X_FRAME_LOG=1` | how many passes of the game's main loop run per second, every 2 s |
+| `PS2X_FRAME_LOG=1` | every 2 s: passes of the game's main loop a second (two a vertical blank at full speed), the game's speed against a PS2 (1.00x is 60 vertical blanks a second) and the median, 95th-percentile and longest pass in ms |
 | `PS2X_GS_SAMPLE=flagfile` | once `flagfile` exists, 3000 non-sprite primitives drawn to the main framebuffer |
 
 `PS2X_VU1_BLOCK_LIST=file` appends each VU1 block the game compiles to `file`, as lines for `vu1_blocks.txt`. Add

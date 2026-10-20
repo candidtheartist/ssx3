@@ -4,13 +4,16 @@
 #include "ps2_guest_scratch.h"
 #include "ps2_runtime.h"
 #include "ps2_runtime_macros.h"
+#include "runtime/ee_scheduler.h"
 
+#include <algorithm>
 #include <cctype>
 #include <chrono>
 #include <cstdio>
 #include <cstdlib>
 #include <cstring>
 #include <string>
+#include <vector>
 
 void ssx3RegisterNative(PS2Runtime &runtime); // ssx3_native.cpp
 
@@ -170,20 +173,33 @@ namespace
 
     PS2Runtime::RecompiledFunction g_syncTaskOriginal = nullptr;
 
-    // PS2X_FRAME_LOG=1: SYNCTASK_run runs once per pass of the main loop; log the
-    // loop rate every 2 s of wall time.
+    // PS2X_FRAME_LOG=1: SYNCTASK_run runs once per pass of the main loop, two passes a
+    // vertical blank when the game keeps up. Every 2 s of wall time, log the pass rate,
+    // the game's speed (vertical blanks a second against the PS2's 60) and how long the
+    // passes took.
     void ssx3CountFrames(uint8_t *rdram, R5900Context *ctx, PS2Runtime *runtime)
     {
-        static uint32_t frames = 0;
-        static auto last = std::chrono::steady_clock::now();
-        ++frames;
-        const auto now = std::chrono::steady_clock::now();
+        using Clock = std::chrono::steady_clock;
+        static std::vector<float> passMs;
+        static Clock::time_point last = Clock::now();
+        static Clock::time_point lastPass = last;
+        static uint64_t lastTick = runtime->eeScheduler().currentVSyncTick();
+        const Clock::time_point now = Clock::now();
+        passMs.push_back(std::chrono::duration<float, std::milli>(now - lastPass).count());
+        lastPass = now;
         const double secs = std::chrono::duration<double>(now - last).count();
         if (secs >= 2.0)
         {
-            std::fprintf(stderr, "[frames] %.1f main-loop passes/s\n", frames / secs);
-            frames = 0;
+            const uint64_t tick = runtime->eeScheduler().currentVSyncTick();
+            std::sort(passMs.begin(), passMs.end());
+            const auto at = [&](double q)
+            { return passMs[static_cast<size_t>(q * static_cast<double>(passMs.size() - 1u))]; };
+            std::fprintf(stderr, "[frames] %.1f main-loop passes/s, speed %.2fx, pass ms median %.1f p95 %.1f max %.1f\n",
+                         passMs.size() / secs, static_cast<double>(tick - lastTick) / secs / 60.0,
+                         at(0.5), at(0.95), passMs.back());
+            passMs.clear();
             last = now;
+            lastTick = tick;
         }
         g_syncTaskOriginal(rdram, ctx, runtime);
     }
