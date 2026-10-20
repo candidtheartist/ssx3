@@ -198,6 +198,11 @@ or any disc file.
     round-toward-zero and on several workers, in 10% less time on one worker and 26% less on three. The same race on
     the old and new build ran at a median 13.2 and 16.1 frames a second over its last 5 minutes, and its race clock
     moved 16% faster;
+  - PS2 float results kept whole when a float helper returns them. The 32-bit x86 ABI returns a float on the x87
+    stack, and loading it there turns an exponent-255 value with the top mantissa bit clear (an ordinary large
+    number on the PS2) into a quiet NaN. The out-of-line helpers that handle such values now return the result's
+    bits, and the inline ones are always inlined. One of the FPU hardware-results tests failed at the game's
+    RelWithDebInfo build type before this, though it passed at Release;
   - debug switches.
 - `ssx3_overrides.cpp` holds the game-specific replacements: it skips the network and USB keyboard drivers,
   answers the module search, routes `isceSifSendCmd`, and keeps the runtime's scratch buffers in the
