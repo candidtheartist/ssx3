@@ -3548,7 +3548,100 @@ int func_003BECA0(int a, int b, int *o1, int *o2) {
     return 0;
 }
 
-INCLUDE_ASM("ealib/seg_2B4578", func_003BED30);
+// Sets up the video decoder state in buf: picks the block width from the
+// rate, the component count from the mode, carves the per-component
+// buffers out of buf and fills the quantizer scale tables.
+struct P_BED30 { int *data; };
+struct S_BED30 {
+    char mode;
+    unsigned char n;
+    char pad2[2];
+    unsigned short n4;
+    char pad6[2];
+    int f8;
+    float tbl[24];
+    int arr[6];
+    struct P_BED30 *ptrs[5];
+};
+extern struct S_BED30 *D_0050AC68_BED30 __asm__("D_0050AC68");
+extern float D_0044CA40[];
+extern float D_0044C700[];
+#define ALIGN16_BED30(x) ((((x) - 1) | 0xF) + 1)
+
+int func_003BED30_impl(int mode, int rate, int buf) __asm__("func_003BED30");
+int func_003BED30_impl(int mode, int rate, int buf) {
+    struct S_BED30 *s;
+    struct S_BED30 *t;
+    int p;
+    int a;
+    int i;
+    int j;
+
+    p = ALIGN16_BED30(buf);
+    D_0050AC68_BED30 = (struct S_BED30 *)p;
+    p += 0x98;
+    if (rate < 0) {
+        return -2;
+    }
+    if (rate < 0x22) {
+        D_0050AC68_BED30->n4 = 0xE0;
+    } else if (rate < 0x43) {
+        D_0050AC68_BED30->n4 = 0x160;
+    } else if (rate < 0x65) {
+        D_0050AC68_BED30->n4 = 0x1E0;
+    } else {
+        return -2;
+    }
+    if (mode == 1) {
+        D_0050AC68_BED30->n = 4;
+    } else if (mode == 2) {
+        D_0050AC68_BED30->n = 5;
+    } else {
+        return -1;
+    }
+    s = D_0050AC68_BED30;
+    s->mode = mode;
+    s->f8 = 0;
+    for (i = 0; i < D_0050AC68_BED30->n; i++) {
+        t = D_0050AC68_BED30;
+        p = ALIGN16_BED30(p);
+        t->ptrs[i] = (struct P_BED30 *)p;
+        p = ALIGN16_BED30(p + 0x1C);
+        t->ptrs[i]->data = (int *)p;
+        p += t->n4 * 4;
+        for (j = 0; j < D_0050AC68_BED30->n4; j++) {
+            D_0050AC68_BED30->ptrs[i]->data[j] = 0;
+        }
+    }
+    // Clears arr from the top down and leaves i at 0 for the table loops.
+    for (i = -6; i < 0; i++) {
+        D_0050AC68_BED30->arr[-1 - i] = 0;
+    }
+    if (mode == 1) {
+        for (; i < 14; i++) {
+            D_0050AC68_BED30->tbl[i] = 0.0019569471f;
+            D_0044CA40[i] = D_0044C700[i] / 0.010999918f;
+        }
+        for (; i < 24; i++) {
+            D_0050AC68_BED30->tbl[i] = 0.007874016f;
+            D_0044CA40[i] = D_0044C700[i] / 0.035000086f;
+        }
+    } else {
+        for (; i < 5; i++) {
+            D_0050AC68_BED30->tbl[i] = 0.0019569471f;
+            D_0044CA40[i] = D_0044C700[i] / 0.010999918f;
+        }
+        for (; i < 14; i++) {
+            D_0050AC68_BED30->tbl[i] = 0.007874016f;
+            D_0044CA40[i] = D_0044C700[i] / 0.035000086f;
+        }
+        for (; i < 24; i++) {
+            D_0050AC68_BED30->tbl[i] = 0.06666667f;
+            D_0044CA40[i] = D_0044C700[i] / 0.19000006f;
+        }
+    }
+    return 0;
+}
 
 //100% - objdiff report; single-function view differs only in a relocation name
 // PORT: PS2-only inline asm; needs a C fallback off-PS2.
