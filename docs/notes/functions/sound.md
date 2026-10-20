@@ -83,7 +83,7 @@ Segment `0x0028B588`-`0x0028FD00`.
 - **`0x0028D5A0`** - Radio mode 2 ambience playback path (Peak1/2/3Amb on the AMBIENT bus); listed together with `0x0028CF98` and `0x002899F8`. *[static]*
 - **`0x0028D630`** - MusicTrigger zone handler (A=1/2): sends event B on enter. *[static]*
 - **`0x0028D7D8`** - MusicTrigger zone handler (A=1/2): sends event B+1 on leave. *[static]*
-- **`0x0028D898`** - Returns whether no MusicTrigger zone is active (audio+0x623C == 0). *[static]*
+- **`0x0028D898`** - Returns the active MusicTrigger zone id (audio+0x623C; 0 = none). *[static]*
 - **`0x0028D8A0`** - CurrentCategory(): music category from course index and game mode. Modes 6-8 -> 0 Race; 9-11 -> 1 SlopeStyle; otherwise course 0-4 -> 0, 5-7 -> 1, 8-10 -> 2 BigAir, 11-13 -> 3 HalfPipe, else (backcountry 14-16, stations 17-21) -> 4 BackCountry. *[static]*
 - **`0x0028D960`** - Music mode check: returns radio mode != 2. *[static]*
 - **`0x0028D988`** - MusicTrigger painter state machine (A=0 course sections; B values 9/11/13/14-17/18/42). B=11 connectors into a hub: latch -> event 11, request kind 0 after 2000 ms, DJ kind 0/1 at 1500 ms; 13 hubs: event 13 + hub chatter; 14-17 DJ event-intro gates; 18 ChangeSong (free ride only; in a challenge it jumps into the B=18 code with latch 11). Ambience mode: 31/32 play Peak1Amb/Peak2Amb, 33 nothing. *[PS2]*
@@ -98,8 +98,8 @@ Segment `0x0028B588`-`0x0028FD00`.
 - **`0x0028F000`** - Race music intensity, every frame while in state 6: trunc(min(counter/N, 1) * 127), N = 800/1000/1200 by tier (`0x00289C18`). The counter is reset through `0x0028F108` at PlayMusic, falls (`0x002961F0`) and forced resets (`0x0029A220`). *[PS2]*
 - **`0x0028F108`** - Resets the race music intensity counter (used at PlayMusic, falls and forced resets). *[static]*
 - **`0x0028F140`** - FE music state: sends a charsel event per front-end screen from table `0x00482A70`, ignored if the state is unchanged: title 0 (9 if an event was already sent), main menu/character setup/rider details/online/lodge 1, equip 2, buy attributes 3, audio options 4, uber-trick button map 5, rewards room 6, trophy room 7, career stats 8; states >= 10 send nothing. *[static]*
-- **`0x0028F200`** - Restart/replay/quit menu audio step 1, called from `0x0026F8A0`. *[static]*
-- **`0x0028F2C0`** - Restart/replay/quit menu audio, called from `0x0026F980`: restores the playlist index and queues a playlist song (kind 3) after chartune, else event 36. *[static]*
+- **`0x0028F200`** - Restart/replay/quit menu audio step 1, called from `0x0026F8A0`: after chartune restores the playlist index and queues a playlist song (kind 3, 10 ms), else latches a pending event 36. *[static]*
+- **`0x0028F2C0`** - Restart/replay/quit menu audio step 2, called from `0x0026F980`: hard-stops the song if step 1 queued one, else sends the latched event 36. *[static]*
 - **`0x0028F328`** - Music listener SendEventForced (vtable `0x00483688` slot +0x18): bypasses the duplicate-event filter and forwards to `0x002B3B88`; used for the big-air loop events 7/8. *[static]*
 - **`0x0028F3C8`** - Music listener SendEvent (vtable `0x00483688` slot +0x20), the normal path for game music events. *[static]*
 - **`0x0028F478`** - Music listener PlaySong (vtable `0x00483688` slot +0x10); also pops the HUD Now Playing (EA RADIO BIG) popup by calling HUD vfunc +0xC0 with command 5 when the MUSIC channel is audible. *[static]*
@@ -292,9 +292,9 @@ Segment `0x002A99D8`-`0x002ACD08`.
 Segment `0x002ACD08`-`0x002B4B08`.
 
 - **`0x002AD2A8`** - SFX voice pause chain step (`0x0029CE28` -> `0x002AD2A8` -> `0x002ACAC8`). *[static]*
-- **`0x002AD5F0`** - Stops a voice with a fade: (queue, handle, fadeSeconds, 1). *[static]*
+- **`0x002AD5F0`** - Stops a voice with a fade: (monitor, handle, type, fadeSeconds); 0 seconds stops at once. *[static]*
 - **`0x002ADCA0`** - Posts a delayed member-function call / delayed sound play: (queue, delayMs, pmf, a3, arg1, arg2, ...); delayed sound requests allocate their voice when the timer fires. CTM uses it with 3000 ms, kind 3 for a forced PlayMusic 36. *[static]*
-- **`0x002ADDE0`** - Cancels queued timer callbacks / stops voices by callback key (queue, callbackKey). *[static]*
+- **`0x002ADDE0`** - Cancels queued timer callbacks by callback key (queue, callbackKey); stops no voices. *[static]*
 - **`0x002ADF60`** - Audio rand15 helper: calls rand `0x003177F0` on the visual (presentation) RNG and masks to 15 bits; used for random audio slot picks. Rare in a race (33 audio draws in 12440 ticks together with `0x002A4CA0`) but each shifts all later visual-RNG draws. *[PS2]*
   - `0x002ADF70`: Return address of the visual-RNG draw (call to `0x003177F0`). *[PS2]*
 - **`0x002AE048`** - Registers audio service callbacks (used with `0x003D54C8`, `0x003D54E8`). *[static]*
@@ -364,8 +364,8 @@ Segment `0x002ACD08`-`0x002B4B08`.
 - **`0x002B4740`** - Part of the dead game-side loop slice scheduler (entry `0x002B4470`). *[static]*
 - **`0x002B4878`** - Returns the current song's DUCKTOLOOPS value. *[static]*
 - **`0x002B4978`** - Request Line preview: sends the song's PREVIEW value (11..45) as an event on character select. *[static]*
-- **`0x002B49C0`** - Song id accessor for special songs (song+0x58); paired with `0x002B49E0`, which one is the getter or setter is not stated. *[unconfirmed]*
-- **`0x002B49E0`** - Song id accessor for special songs (song+0x58); paired with `0x002B49C0`, which one is the getter or setter is not stated. *[unconfirmed]*
+- **`0x002B49C0`** - Song id setter for special songs (song+0x58): (monitor, id); getter is `0x002B49E0`. *[static]*
+- **`0x002B49E0`** - Song id getter for special songs (song+0x58); setter is `0x002B49C0`. *[static]*
 - **`0x002B4AF0`** - Checks whether the current song is in the new playlist (used on a radio mode change). *[static]*
 
 ## `src/sound/icepick/worldtriggermanager.cpp`

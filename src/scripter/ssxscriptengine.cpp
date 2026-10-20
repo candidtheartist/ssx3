@@ -1530,7 +1530,7 @@ extern "C" void func_00278E50(void* self, int i, int a, int b, int c, int d, int
 extern "C" void func_00278F38(void* self, int i);
 extern "C" int func_00278F68(void* self, int i, int a, int b);
 extern "C" void* func_0028B180();
-extern "C" void func_0028E8C0(void* self, int id, int a2);
+extern "C" void cSSXAudio_onMusicCode(void* self, int id, int a2);
 extern char* D_004A28A8;
 struct sSseGame_A860 {
     char pad_0x0[0xF44];
@@ -1569,7 +1569,7 @@ extern "C" void func_0027A860(void* self, int online, int intro)
     }
     func_00278F38(self, 1);
     func_00278F68(self, 1, 0, 1);
-    func_0028E8C0(func_0028B180(), 0x14, 1);
+    cSSXAudio_onMusicCode(func_0028B180(), 0x14, 1);
 }
 
 //100%
@@ -2505,7 +2505,7 @@ extern "C" int func_0027BF50(void* self, int i)
 
 //100%
 extern "C" void* func_0028B180();
-extern "C" void func_0028E888(void*);
+extern "C" void cSSXAudio_playPendingArrivalMusic(void*);
 extern "C" void func_002EF368(int);
 
 extern "C" void func_0027BF90(void* self)
@@ -2513,7 +2513,7 @@ extern "C" void func_0027BF90(void* self)
     if (*(int*)((char*)self + 0x550) != 2) {
         *(int*)((char*)self + 0x550) = 2;
         *(int*)((char*)self + 0x554) = 0;
-        func_0028E888(func_0028B180());
+        cSSXAudio_playPendingArrivalMusic(func_0028B180());
         func_002EF368(0);
     }
 }
@@ -3669,9 +3669,9 @@ extern "C" void* func_002805B8(sScrObj05B8* self)
 
 //100%
 extern void* D_004A28A4;
-extern "C" void func_002AD5F0(void* bank, int id, int a, float f);
-extern "C" int func_002AD550(void* bank, int id, int a);
-extern "C" int func_002B0E28(void* p, int i);
+extern "C" void cBankMonitor_stopVoice(void* bank, int id, int a, float f);
+extern "C" int cBankMonitor_findVoice(void* bank, int id, int a);
+extern "C" int cSpeechManager_canPlay(void* p, int i);
 
 extern "C" void func_00280640(sScrObj05B8* self)
 {
@@ -3680,11 +3680,11 @@ extern "C" void func_00280640(sScrObj05B8* self)
         sScrTrig05B8* t = &self->trig[i];
         if (t->id >= 0) {
             if (t->count != 0) {
-                func_002AD5F0(**(char***)(snd + 0x118) + 0x1D8, t->id, 1, 0.0f);
+                cBankMonitor_stopVoice(**(char***)(snd + 0x118) + 0x1D8, t->id, 1, 0.0f);
                 t->target = -1;
                 t->id = -1;
                 t->count = 0;
-            } else if (func_002AD550(**(char***)(snd + 0x118) + 0x1D8, t->id, 1) == 0) {
+            } else if (cBankMonitor_findVoice(**(char***)(snd + 0x118) + 0x1D8, t->id, 1) == 0) {
                 t->target = -1;
                 t->id = -1;
                 t->count = 0;
@@ -3693,7 +3693,7 @@ extern "C" void func_00280640(sScrObj05B8* self)
     }
     if (self->field_0xF4 != 0) {
         self->field_0xF4 = 0;
-        if (func_002B0E28(snd + 0x5560, 0) != 0) {
+        if (cSpeechManager_canPlay(snd + 0x5560, 0) != 0) {
             func_00279070(D_004A28A4, *(int*)((char*)D_004A28A4 + 0x550), 1, 1);
         }
     }
@@ -3735,7 +3735,7 @@ extern "C" void func_00280730(void* self)
 void func_00283440(void*);
 extern "C" void* func_0028B180();
 void func_002A1BD0(void* p);
-extern "C" void func_002AD5F0(void* bank, int id, int a, float f);
+extern "C" void cBankMonitor_stopVoice(void* bank, int id, int a, float f);
 extern "C" void func_00309E50(void* mgr, int a, int b);
 extern "C" void func_0027CC28(void* self, void* out);
 extern void* D_004A3DD8;
@@ -3783,7 +3783,7 @@ extern "C" void func_002807B0(sSeEngine07B0* self)
     for (int i = 0; i < 4; i++) {
         int id = self->sounds[i].id;
         if (id >= 0) {
-            func_002AD5F0(*(char**)*(char**)((char*)func_0028B180() + 0x118) + 0x1D8, id, 1, 0.0f);
+            cBankMonitor_stopVoice(*(char**)*(char**)((char*)func_0028B180() + 0x118) + 0x1D8, id, 1, 0.0f);
         }
         sSeSound07B0* s = &self->sounds[i];
         s->field_0x8 = -1;
@@ -4078,7 +4078,7 @@ extern "C" void func_002814F8(void* self, void* obj, int a2, int flags, float t)
 
 //100%
 extern "C" void* func_0028B180();
-extern "C" float func_002B4920(void* self);
+extern "C" float cMusicManager_getTimeToNextBeat(void* self);
 extern "C" void func_00282D30(void* self, float dt);
 void func_0027D788(void* self, float val);
 extern "C" void* func_00281C40_p(void* self, int i) __asm__("func_00281C40");
@@ -4104,7 +4104,7 @@ extern "C" void func_002816A0(char* self, void* obj, float t, float dt)
         char* clk = snd + 0x118;
         if (*(int*)(snd + 0x530))
         {
-            float now = func_002B4920(clk);
+            float now = cMusicManager_getTimeToNextBeat(clk);
             if (*(float*)(self + 0xF4) < now)
             {
                 *(int*)(self + 0xF0) = 1;

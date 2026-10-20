@@ -2030,7 +2030,7 @@ void* func_0014BDB8_noarg() __asm__("func_0014BDB8__FPv");
 extern "C" void* func_0014AD50(void* iface, int id);
 int func_0014D988(void* tbl, int g);
 extern "C" void* func_0014D998(void* tbl, int g);
-extern "C" void func_002AD5F0(void* bank, int id, int a, float f);
+extern "C" void cBankMonitor_stopVoice(void* bank, int id, int a, float f);
 
 struct sItem_123B48 {
     short a;
@@ -2136,7 +2136,7 @@ extern "C" void cRider_stopNISActor(char* self)
     int j;
     for (j = 0; j < 4; j++) {
         if (ids[j] >= 0) {
-            func_002AD5F0(*(char**)*(char**)((char*)func_0028B180() + 0x118) + 0x1D8, ids[j], 1, 0.0f);
+            cBankMonitor_stopVoice(*(char**)*(char**)((char*)func_0028B180() + 0x118) + 0x1D8, ids[j], 1, 0.0f);
         }
         ids[j] = -1;
     }
@@ -2406,8 +2406,8 @@ extern "C" void* func_00416210(void* dst, int c, int n);
 extern "C" void* cSSXAudio_getBusVolumePtr(void* self, int a1, int a2);
 extern "C" int func_002906B8(void* self);
 extern "C" int cSSXAudio_getRiderListener(void* self, void* obj);
-extern "C" int func_002AD550(void* bank, int id, int a);
-extern "C" void func_002AD5F0(void* bank, int id, int a, float f);
+extern "C" int cBankMonitor_findVoice(void* bank, int id, int a);
+extern "C" void cBankMonitor_stopVoice(void* bank, int id, int a, float f);
 void func_00280548(void* self, int a1, void* a2, void* a3);
 
 struct sSnd5448Ch {
@@ -2510,7 +2510,7 @@ extern "C" void cRider_updateNISSounds(void* vself, void* vevt, float frame, flo
     sSnd5448Sys* snd = (sSnd5448Sys*)func_0028B180();
     int j;
     for (j = 0; j < 4; j++) {
-        if (rd->ids[j] >= 0 && func_002AD550(&(*snd->p118)->sub, rd->ids[j], 1) == 0) {
+        if (rd->ids[j] >= 0 && cBankMonitor_findVoice(&(*snd->p118)->sub, rd->ids[j], 1) == 0) {
             rd->ids[j] = -1;
         }
     }
@@ -2545,7 +2545,7 @@ extern "C" void cRider_updateNISSounds(void* vself, void* vevt, float frame, flo
         }
         for (j = 0; j < 4; j++) {
             if (stop[j] && rd->ids[j] >= 0) {
-                func_002AD5F0(&(*snd->p118)->sub, rd->ids[j], 1, 0.0f);
+                cBankMonitor_stopVoice(&(*snd->p118)->sub, rd->ids[j], 1, 0.0f);
                 rd->ids[j] = -1;
             }
         }

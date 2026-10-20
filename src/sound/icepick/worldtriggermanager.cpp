@@ -77,7 +77,7 @@ INCLUDE_ASM("sound/icepick/worldtriggermanager", func_002B4C38);
 //100%
 extern "C" void* func_0028B180();
 extern "C" void func_002A72D8(void* snd, int id, float t);
-extern "C" void func_002AD5F0(void* self, int idx, int a2, float v);
+extern "C" void cBankMonitor_stopVoice(void* self, int idx, int a2, float v);
 extern unsigned char D_004A35A8[];
 struct sWorldTrigger70;
 
@@ -89,7 +89,7 @@ extern "C" void func_002B5758(sWorldTrigger70* t)
             func_002A72D8(func_0028B180(), *(int*)((char*)self + 0x30), 0.25f);
         }
     } else if (*(int*)((char*)self + 0x30) != -9999) {
-        func_002AD5F0(**(char***)((char*)func_0028B180() + 0x118) + 0x1D8, *(int*)((char*)self + 0x30), 1, 0.25f);
+        cBankMonitor_stopVoice(**(char***)((char*)func_0028B180() + 0x118) + 0x1D8, *(int*)((char*)self + 0x30), 1, 0.25f);
     }
     *(int*)((char*)self + 0x30) = -1;
     *(unsigned char*)((char*)self + 0x40) = D_004A35A8[0];
@@ -506,7 +506,7 @@ extern "C" int func_002B5F60(char* self, void* evt, int id, char* rider, int vol
 
 //100%
 extern "C" void* func_0028B180();
-extern "C" int func_002ADF60(int a);
+extern "C" int cSoundManager_rand(int a);
 extern "C" int func_002B6550(void* self, int type, int* a, int* b, int* c, int arg);
 
 struct sWTMObj {
@@ -547,7 +547,7 @@ extern "C" int func_002B63D0(void* self, int idx, int* type, int* a, int* b, int
     } else if (t == 2) {
         *type = (*(sWTMEntry**)((char*)self + 0x33C))[idx].obj->f10;
         void* p = func_0028B180();
-        int rnd = func_002ADF60(*(int*)(*(char**)*(void**)((char*)p + 0x118) + 0x1D8));
+        int rnd = cSoundManager_rand(*(int*)(*(char**)*(void**)((char*)p + 0x118) + 0x1D8));
         sWTMObj* o = (*(sWTMEntry**)((char*)self + 0x33C))[idx].obj;
         int v = (unsigned)((rnd & 0x7FFF) * o->f34) / 0x7FFF;
         if (v < o->f24) *a = o->f14;

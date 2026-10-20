@@ -10203,7 +10203,7 @@ extern int D_0044F430_1038 __asm__("D_0044F430");
 extern struct G_1038 *D_0044F420_1038 __asm__("D_0044F420");
 extern struct T_1038 D_00517610_1038[] __asm__("D_00517610");
 extern int func_003D5450_1038(int) __asm__("func_003D5450");
-extern void func_002AF7A0_1038(int, int) __asm__("func_002AF7A0");
+extern void PATHX_setPaused_1038(int, int) __asm__("PATHX_setPaused");
 
 static inline unsigned int has_1038(unsigned int a, unsigned int b) { return a & b; }
 
@@ -10223,7 +10223,7 @@ void func_003D1038(unsigned int mask, unsigned char val) {
         for (j = 0; j < 24; j++) {
             struct E_1038 *e = D_0044F420_1038->list[j];
             if (e != 0 && (((mask >> j) ^ 1) & 1) == 0) {
-                func_002AF7A0_1038(e->f54, val);
+                PATHX_setPaused_1038(e->f54, val);
                 e->b3 = val;
             }
         }
@@ -10281,7 +10281,7 @@ extern char D_00495B10_11B8[] __asm__("D_00495B10");
 extern int f_5450_11B8(int) __asm__("func_003D5450");
 extern struct S_11B8 *f_5290_11B8(unsigned int) __asm__("func_003D5290");
 extern int f_4BB0_11B8(unsigned int) __asm__("func_003D4BB0");
-extern int f_F2F0_11B8(int, int *, int *, int) __asm__("func_002AF2F0");
+extern int f_F2F0_11B8(int, int *, int *, int) __asm__("PATHX_getPlayStatus");
 extern void f_1658_11B8(char *, char *, int) __asm__("func_003D1658");
 
 int func_003D11B8_impl(unsigned int id, struct Info_11B8 *info) __asm__("func_003D11B8");
@@ -10370,7 +10370,7 @@ extern struct G_1470 *D_0044F420_1470 __asm__("D_0044F420");
 struct T_1470 { char pad[0x30]; unsigned int f30; int f34; char pad2[0x928 - 0x38]; };
 extern struct T_1470 D_00517610_1470[] __asm__("D_00517610");
 extern int func_003D5450_1470(int) __asm__("func_003D5450");
-extern void func_002AF838_1470(int) __asm__("func_002AF838");
+extern void PATHX_flush_1470(int) __asm__("PATHX_flush");
 
 static inline unsigned int has_1470(unsigned int a, unsigned int b) { return a & b; }
 
@@ -10389,7 +10389,7 @@ void func_003D1470(unsigned int mask) {
         for (j = 0; j < 24; j++) {
             struct E_1470 *e = D_0044F420_1470->list[j];
             if (e != 0) {
-                func_002AF838_1470(e->f54);
+                PATHX_flush_1470(e->f54);
                 e->h36 = -1;
             }
         }
@@ -10461,7 +10461,7 @@ extern struct G_16F0 *D_0044F420_16F0 __asm__("D_0044F420");
 extern struct T_16F0 D_00517610_16F0[] __asm__("D_00517610");
 extern int func_003D5450_16F0(int) __asm__("func_003D5450");
 extern struct H_16F0 *func_003D2068_16F0(struct E_16F0 *) __asm__("func_003D2068");
-extern int func_002AF370_16F0(void) __asm__("func_002AF370");
+extern int PATHX_getTimeMs_16F0(void) __asm__("PATHX_getTimeMs");
 
 static inline unsigned int has_16F0(unsigned int a, unsigned int b) { return a & b; }
 
@@ -10503,7 +10503,7 @@ int func_003D16F0(unsigned int mask, short prog) {
             if (n >= 16) { r = -13; goto next; }
             err = 0;
             h = (struct H_16F0 *)e;
-            h->f0 = h->f8 = func_002AF370_16F0();
+            h->f0 = h->f8 = PATHX_getTimeMs_16F0();
             D_00517610_16F0[k].list[n] = h;
             n++;
             D_00517610_16F0[k].n = n;
@@ -10696,7 +10696,7 @@ int func_003D1E80_impl(void) {
 //100%
 // PORT: PS2-only inline asm; needs a C fallback off-PS2.
 struct P_1F80 { char pad[0x30]; unsigned int m_a; int m_b; char pad2[0xDC - 0x38]; char *ptrs[16]; char pad3[0x91C - 0x11C]; int count; char pad4[0x928 - 0x920]; };
-extern int f2AF370_1F80(void) __asm__("func_002AF370");
+extern int f2AF370_1F80(void) __asm__("PATHX_getTimeMs");
 extern struct P_1F80 D_7610_1F80[4] __asm__("D_00517610");
 
 int func_003D1F80(unsigned int a0, char *a1) {
@@ -10804,7 +10804,7 @@ INCLUDE_ASM("ealib/seg_2B4578", func_003D2350);
 INCLUDE_ASM("ealib/seg_2B4578", func_003D25F0);
 
 //100%
-// Same walk as func_003D1038: releases the first voice in mask (func_002AE690),
+// Same walk as func_003D1038: releases the first voice in mask (PATHX_destroyPlayer),
 // then shuts the bank down; returns the released voice (or the last one seen).
 struct E_2A68 { char pad[0x54]; int f54; };
 struct G_2A68 { char pad[0x34]; int f34; char pad2[0x58 - 0x38]; struct E_2A68 *list[24]; int fB8; };
@@ -10814,10 +10814,10 @@ extern int D_0044F430_2A68 __asm__("D_0044F430");
 extern struct G_2A68 *D_0044F420_2A68 __asm__("D_0044F420");
 extern struct T_2A68 D_00517610_2A68[] __asm__("D_00517610");
 extern int func_003D5450_2A68(int) __asm__("func_003D5450");
-extern void func_002AE690_2A68(int) __asm__("func_002AE690");
+extern void PATHX_destroyPlayer_2A68(int) __asm__("PATHX_destroyPlayer");
 extern int func_003D5330_2A68(unsigned int) __asm__("func_003D5330");
 extern void func_003D4C40_2A68(void) __asm__("func_003D4C40");
-extern void func_002AE100_2A68(void) __asm__("func_002AE100");
+extern void PATHX_shutdown_2A68(void) __asm__("PATHX_shutdown");
 
 static inline unsigned int has_2A68(unsigned int a, unsigned int b) { return a & b; }
 
@@ -10839,7 +10839,7 @@ struct E_2A68 *func_003D2A68(unsigned int mask) {
             if (e != 0 && (((mask >> j) ^ 1) & 1) == 0) {
                 int k = e->f54;
                 D_0044F420_2A68->list[j] = 0;
-                func_002AE690_2A68(k);
+                PATHX_destroyPlayer_2A68(k);
                 goto found;
             }
         }
@@ -10852,7 +10852,7 @@ found:
     }
     r = func_003D5330_2A68(0xF000000);
     if (D_0044F42C_2A68 != 0 && r == 0 && e != 0) {
-        func_002AE100_2A68();
+        PATHX_shutdown_2A68();
         D_0044F42C_2A68 = 0;
     }
     D_0044F430_2A68 = 0;
@@ -10924,8 +10924,8 @@ extern struct T_2DF8 *func_003D5290_2DF8(int) __asm__("func_003D5290");
 extern int func_003D5450_2DF8(int) __asm__("func_003D5450");
 extern struct R_2DF8 *func_003D4A50_2DF8(int) __asm__("func_003D4A50");
 extern int func_003D3140_2DF8(int, int) __asm__("func_003D3140");
-extern int func_002AE3A8_2DF8(int) __asm__("func_002AE3A8");
-extern int func_002AE298_2DF8(int, char *, int, int) __asm__("func_002AE298");
+extern int PATHX_detachOldestBank_2DF8(int) __asm__("PATHX_detachOldestBank");
+extern int PATHX_attachBank_2DF8(int, char *, int, int) __asm__("PATHX_attachBank");
 extern int D_0044F420_2DF8[] __asm__("D_0044F420");
 extern unsigned char D_0044F42C_2DF8[] __asm__("D_0044F42C");
 extern int D_0044F430_2DF8[] __asm__("D_0044F430");
@@ -10969,11 +10969,11 @@ ok:
                     }
                     func_003D3140_2DF8(h, sel);
                 } else if (r->type == 0) {
-                    func_002AE3A8_2DF8(h);
+                    PATHX_detachOldestBank_2DF8(h);
                 }
             }
         }
-        ret = func_002AE298_2DF8(t->f54, t->f5C, idx, arg2);
+        ret = PATHX_attachBank_2DF8(t->f54, t->f5C, idx, arg2);
     }
     D_0044F430_2DF8[0] = 0;
     D_0044F420_2DF8[0] = 0;
@@ -11029,10 +11029,10 @@ int func_003D3030(void) {
 
 //100%
 // PORT: PS2-only inline asm; needs a C fallback off-PS2.
-extern int func_002AE478_3058() __asm__("func_002AE478");
+extern int PATHX_getPlayerMemSize_3058() __asm__("PATHX_getPlayerMemSize");
 
 int func_003D3058(int n) {
-    int t = func_002AE478_3058() + 0x110;
+    int t = PATHX_getPlayerMemSize_3058() + 0x110;
     t += n * 0x10;
     return (t / 16) * 16 + 0x10;
 }
@@ -11064,7 +11064,7 @@ void func_003D30A8(int arg0, int arg1, int arg2) {
 
 //100%
 // PORT: PS2-only inline asm; needs a C fallback off-PS2.
-extern int func_002AE328_3140(int, int) __asm__("func_002AE328");
+extern int PATHX_detachBank_3140(int, int) __asm__("PATHX_detachBank");
 extern char *func_003D5290_3140(int) __asm__("func_003D5290");
 extern int func_003D5450_3140(int) __asm__("func_003D5450");
 extern int D_0044F420_3140[] __asm__("D_0044F420");
@@ -11088,7 +11088,7 @@ int func_003D3140_3140(int arg0, int arg1) {
 ok:
     t = func_003D5290_3140(arg0);
     if (t != 0) {
-        r = func_002AE328_3140(*(int *)(t + 0x54), arg1);
+        r = PATHX_detachBank_3140(*(int *)(t + 0x54), arg1);
     }
     D_0044F430_3140[0] = 0;
     D_0044F420_3140[0] = 0;
@@ -11444,7 +11444,7 @@ int func_003D4900(int a0, int *a1) {
 }
 
 //100%
-extern int func_002AEAA8(int, unsigned int);
+extern int PATHX_getItemPos(int, unsigned int);
 
 int func_003D4950(char *arg0) {
     int temp_2;
@@ -11452,7 +11452,7 @@ int func_003D4950(char *arg0) {
     unsigned int i;
 
     for (i = 0; i < ((*(unsigned int *)(arg0 + 0x20) >> 0xE) & 0x1F); i++) {
-        temp_2 = func_002AEAA8(*(int *)(arg0 + 0x54), i);
+        temp_2 = PATHX_getItemPos(*(int *)(arg0 + 0x54), i);
         if (temp_2 >= 0) {
             var_16 += temp_2;
         }
@@ -11600,8 +11600,8 @@ extern struct Mgr_4F10 *D_0044F420_4F10 __asm__("D_0044F420");
 extern unsigned char D_0044F434_4F10 __asm__("D_0044F434");
 extern unsigned int D_0044F438_4F10 __asm__("D_0044F438");
 extern void func_002AE9F8_4F10(int h, int a) __asm__("func_002AE9F8");
-extern int func_002AEBD0_4F10(int h) __asm__("func_002AEBD0");
-extern int func_002AF428_4F10(int h) __asm__("func_002AF428");
+extern int PATHX_canQueue_4F10(int h) __asm__("PATHX_canQueue");
+extern int PATHX_getVolume_4F10(int h) __asm__("PATHX_getVolume");
 extern int func_003D1E80_4F10(void) __asm__("func_003D1E80");
 extern void func_003D3D20_4F10(unsigned int i) __asm__("func_003D3D20");
 extern int func_003D4950_4F10(struct Str_4F10 *s) __asm__("func_003D4950");
@@ -11656,7 +11656,7 @@ void func_003D4F10(void) {
                 func_002AE9F8_4F10(s->f54, 0);
                 s->f4C = 0;
             }
-        } else if (func_002AEBD0_4F10(s->f54) != 0) {
+        } else if (PATHX_canQueue_4F10(s->f54) != 0) {
             r = func_003D4950_4F10(s);
             if (s->f48 != 0) {
                 end += step;
@@ -11665,7 +11665,7 @@ void func_003D4F10(void) {
                 skip = s->f24 < r;
             }
             if (!skip) {
-                if (s->fE == 0 && func_002AF428_4F10(s->f54) == 0) {
+                if (s->fE == 0 && PATHX_getVolume_4F10(s->f54) == 0) {
                     s->fE = -1;
                 }
                 func_003D3D20_4F10(i);
@@ -11685,8 +11685,8 @@ extern unsigned int D_0044F430_5128 __asm__("D_0044F430");
 extern int D_0044F438_5128 __asm__("D_0044F438");
 extern struct T_5128 *D_0044F420_5128 __asm__("D_0044F420");
 extern struct T_5128 D_00517610_5128[] __asm__("D_00517610");
-extern int func_002AF370_5128(void) __asm__("func_002AF370");
-extern void func_002AEFA8_5128(int) __asm__("func_002AEFA8");
+extern int PATHX_getTimeMs_5128(void) __asm__("PATHX_getTimeMs");
+extern void PATHX_updateAllPlayers_5128(int) __asm__("PATHX_updateAllPlayers");
 extern void func_003D4B00_5128(void) __asm__("func_003D4B00");
 extern void func_003D4F10_5128(void) __asm__("func_003D4F10");
 
@@ -11708,8 +11708,8 @@ void func_003D5128_5128(unsigned char k) {
     if (D_0044F430_5128 != 0) return;
     D_0044F434_5128 = k;
     D_0044F430_5128 = 0xFFFFFFFF;
-    D_0044F438_5128 = func_002AF370_5128();
-    func_002AEFA8_5128(0);
+    D_0044F438_5128 = PATHX_getTimeMs_5128();
+    PATHX_updateAllPlayers_5128(0);
     for (i = 0; i < 4; i++) {
         if (D_00517610_5128[i].f34 == 0) continue;
         if (D_0044F430_5128 == 0) D_0044F430_5128 = 0xFFFFFFFF;
@@ -11718,7 +11718,7 @@ void func_003D5128_5128(unsigned char k) {
             func_003D4F10_5128();
         }
     }
-    func_002AEFA8_5128(1);
+    PATHX_updateAllPlayers_5128(1);
     D_0044F430_5128 = 0;
     D_0044F420_5128 = 0;
 }
@@ -11911,9 +11911,9 @@ void func_003D5800(unsigned int mask, int a, int b) {
 
 //100%
 // PORT: PS2-only inline asm; needs a C fallback off-PS2.
-extern int func_002AF428_5968(int) __asm__("func_002AF428");
-extern void func_002AF6C0_5968(int, int) __asm__("func_002AF6C0");
-extern void func_002AF838_5968(int) __asm__("func_002AF838");
+extern int PATHX_getVolume_5968(int) __asm__("PATHX_getVolume");
+extern void PATHX_setVolume_5968(int, int) __asm__("PATHX_setVolume");
+extern void PATHX_flush_5968(int) __asm__("PATHX_flush");
 extern int D_0044F420_5968[] __asm__("D_0044F420");
 
 void func_003D5968(unsigned int mask) {
@@ -11925,9 +11925,9 @@ void func_003D5968(unsigned int mask) {
             signed char b = *(signed char *)(o + 0xE);
             if (b >= 0) {
                 int t16 = b * *(signed char *)(o + 4) / 100;
-                if (t16 == func_002AF428_5968(*(int *)(o + 0x54))) {
+                if (t16 == PATHX_getVolume_5968(*(int *)(o + 0x54))) {
                     if (*(signed char *)(o + 0xE) == 0) {
-                        func_002AF838_5968(*(int *)(o + 0x54));
+                        PATHX_flush_5968(*(int *)(o + 0x54));
                         *(short *)(o + 0x36) = -1;
                     } else {
                         goto b8;
@@ -11937,7 +11937,7 @@ void func_003D5968(unsigned int mask) {
             } else {
 b8:
                 if (t18 >= 0) {
-                    func_002AF6C0_5968(*(int *)(o + 0x54), t18);
+                    PATHX_setVolume_5968(*(int *)(o + 0x54), t18);
                 }
 b10:
                 *(signed char *)(o + 0xE) = -1;
@@ -12055,18 +12055,18 @@ void func_003D61E8(int a0, int a1) {
 }
 
 //100%
-extern void func_002AF6C0(int, int);
+extern void PATHX_setVolume(int, int);
 
 void func_003D62C8(void *arg0, signed char arg1) {
     (*(signed char *)((char*)(arg0) + (4))) = arg1;
     if ((*(signed char *)((char*)(arg0) + (0xE))) < 0) {
-        func_002AF6C0((*(int *)((char*)(arg0) + (0x54))), (int) ((*(signed char *)((char*)(arg0) + (0x34))) * arg1) / 100);
+        PATHX_setVolume((*(int *)((char*)(arg0) + (0x54))), (int) ((*(signed char *)((char*)(arg0) + (0x34))) * arg1) / 100);
     }
 }
 
 //100%
 // PORT: PS2-only inline asm; needs a C fallback off-PS2.
-extern int func_003D6318_cb(int, int, int, char) __asm__("func_002AF608");
+extern int func_003D6318_cb(int, int, int, char) __asm__("PATHX_fadeVolume");
 
 void func_003D6318(char *self, int v, int w) {
     int x;
@@ -12086,7 +12086,7 @@ void func_003D6360(void *arg0, int arg1, int arg2, int arg3) {
 
 //100%
 extern int D_0044F438_6378[] __asm__("D_0044F438");
-extern int f_6378_cb(int) __asm__("func_002AF428");
+extern int f_6378_cb(int) __asm__("PATHX_getVolume");
 
 void func_003D6378(char *self, int a, int b) {
     int t;

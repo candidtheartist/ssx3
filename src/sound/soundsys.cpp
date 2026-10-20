@@ -61,7 +61,7 @@ extern "C" char* cBankSys_cBankSys(char* self, int embedded, int count, int heap
 //100%
 void cMemMan_free(void*);
 void operator_delete(int*);
-extern "C" void func_0028BB10(void* self, int flags);
+extern "C" void cBankManager_destroy(void* self, int flags);
 extern "C" void func_002ADEE8(void* self, int flags);
 
 struct sSndDtVtEnt {
@@ -105,7 +105,7 @@ extern "C" void func_0028FEA0(char* self, int flags)
     if (*(void**)(self + 8)) cMemMan_free(*(void**)(self + 8));
     D_004A3664 = 0;
     if (flags & 2) {
-        func_0028BB10(*(void**)self, 0);
+        cBankManager_destroy(*(void**)self, 0);
         func_002ADEE8(*(void**)(*(char**)self + 0x1D8), 0);
     }
     if (flags & 1) operator_delete((int*)self);
@@ -739,7 +739,7 @@ static inline int snd1438AddVoice(void* vself, int a, int b, int type)
 extern "C" void func_003B58A0();
 extern "C" int func_003B8AB8(int id);
 extern "C" void func_003B58D8();
-extern "C" void func_002AD5F0(void* p, int idx, int a2, float v);
+extern "C" void cBankMonitor_stopVoice(void* p, int idx, int a2, float v);
 
 extern "C" void func_00291438(void* self)
 {
@@ -747,7 +747,7 @@ extern "C" void func_00291438(void* self)
     int busy = func_003B8AB8(*(int*)((char*)self + 0x5FCC)) != 0;
     func_003B58D8();
     if (!busy) {
-        func_002AD5F0(**(char***)((char*)self + 0x118) + 0x1D8, *(int*)((char*)self + 0x5FCC), 1, 0.0f);
+        cBankMonitor_stopVoice(**(char***)((char*)self + 0x118) + 0x1D8, *(int*)((char*)self + 0x5FCC), 1, 0.0f);
     }
     *(int*)((char*)self + 0x5FCC) = snd1438AddVoice(self, 8, 0x10, 5);
 }
@@ -1097,7 +1097,7 @@ extern "C" void func_00292A50(void* self, int id)
 }
 
 extern sSndKey8_10E0 D_004A36A8[];
-void func_002ADDE0_k(void* bm, long key) __asm__("func_002ADDE0");
+void cSndTimerSys_removeTimersByKey_k(void* bm, long key) __asm__("cSndTimerSys_removeTimersByKey");
 
 struct sSsVt2AE8 {
     short delta;
@@ -1111,11 +1111,11 @@ extern "C" void func_00292AE8(void* self, int a1)
     sSsVt2AE8* vt = *(sSsVt2AE8**)(m + 0xAB0);
     char* obj = m + 0x1D8;
     vt[4].fn(obj + vt[4].delta, a1);
-    func_002ADDE0_k(**(char***)((char*)self + 0x118) + 0x1D8, D_004A36A8[0].v);
+    cSndTimerSys_removeTimersByKey_k(**(char***)((char*)self + 0x118) + 0x1D8, D_004A36A8[0].v);
 }
 
 //100%
-extern "C" void func_002ADDE0(void* bank, long id);
+extern "C" void cSndTimerSys_removeTimersByKey(void* bank, long id);
 struct sSndId292AE8 {
     long v;
 } __attribute__((packed));
@@ -1136,7 +1136,7 @@ extern sSndId292AE8 D_004A3698_2B48[] __asm__("D_004A3698");
 extern sSndId292AE8 D_004A36A0_2B48[] __asm__("D_004A36A0");
 extern sSndId292AE8 D_004A36B0_2B48[] __asm__("D_004A36B0");
 extern sSndId292AE8 D_004A36B8_2B48[] __asm__("D_004A36B8");
-extern "C" void func_002AD5F0(void* p, int idx, int a2, float v);
+extern "C" void cBankMonitor_stopVoice(void* p, int idx, int a2, float v);
 
 // Stops one bank sound (vtable slot 3 of the bank).
 static inline void bankStop292B48(char* self, long id)
@@ -1157,9 +1157,9 @@ extern "C" void func_00292B48(void* vself)
     bankStop292B48(self, D_004A3690_2B48[0].v);
     bankStop292B48(self, D_004A3698_2B48[0].v);
     bankStop292B48(self, D_004A36A0_2B48[0].v);
-    func_002ADDE0(&(**(sSys292B48***)(self + 0x118))->bank, D_004A36A8[0].v);
+    cSndTimerSys_removeTimersByKey(&(**(sSys292B48***)(self + 0x118))->bank, D_004A36A8[0].v);
     if (*(int*)(self + 0x59E4) > 0) {
-        func_002AD5F0(&(**(sSys292B48***)(self + 0x118))->bank, *(int*)(self + 0x59E0), 1, 0.0f);
+        cBankMonitor_stopVoice(&(**(sSys292B48***)(self + 0x118))->bank, *(int*)(self + 0x59E0), 1, 0.0f);
         *(int*)(self + 0x59E4) = 0;
     }
     bankStop292B48(self, D_004A36B0_2B48[0].v);
@@ -2205,7 +2205,7 @@ extern "C" int cSSXAudio_getListenerRider(void* self, int which);
 extern "C" void func_003B58A0();
 extern "C" void func_003B58D8();
 extern "C" int func_003B8AB8(int id);
-extern "C" void func_002AD5F0(void* p, int idx, int a2, float v);
+extern "C" void cBankMonitor_stopVoice(void* p, int idx, int a2, float v);
 extern "C" int func_00291710(void* self, int id);
 extern "C" void* cBE_getBE();
 void* cBE_getInterface_Fv(void* be, int kind) __asm__("cBE_getInterface__Fv");
@@ -2353,7 +2353,7 @@ extern "C" void func_002948D0(void* vself, char* obj, float speed)
     bool playing = func_003B8AB8(self->handle) != 0;
     func_003B58D8();
     if (!playing) {
-        func_002AD5F0(&(*self->p118)->sub, self->handle, 1, 0.0f);
+        cBankMonitor_stopVoice(&(*self->p118)->sub, self->handle, 1, 0.0f);
     }
     int flag = 0;
     bool ok2 = *(int*)(obj + 0x874) && *(int*)(obj + 0x87C);
@@ -2457,7 +2457,7 @@ extern "C" void func_00294F78(void* self, int id)
 }
 
 //100%
-extern "C" void* func_002AD550(void* self, int idx, int a2);
+extern "C" void* cBankMonitor_findVoice(void* self, int idx, int a2);
 
 struct sSnd5028Ring {
     int cap;
@@ -2496,7 +2496,7 @@ extern "C" int func_00295028(void* vself, int a, int b)
         int y = ring5028Get(self, i + 4);
         if (a == x && b == y) {
             int v = ring5028Get(self, i + 1);
-            if (v != 0 && func_002AD550(*self->mgr + 0x1D8, v, 1) == 0) continue;
+            if (v != 0 && cBankMonitor_findVoice(*self->mgr + 0x1D8, v, 1) == 0) continue;
             return 1;
         }
     }
@@ -2538,7 +2538,7 @@ extern "C" void func_00295208(void* vself)
         int stop = ring5208Pop(self);
         int idx = ring5208Pop(self);
         if (h < 0) continue;
-        if (h != 0 && func_002AD550(*self->mgr + 0x1D8, h, 1) == 0) continue;
+        if (h != 0 && cBankMonitor_findVoice(*self->mgr + 0x1D8, h, 1) == 0) continue;
         char* mgr = *self->mgr;
         char* bank = mgr + 0x1D8;
         if (*(int*)(mgr + 0x260) < t) {
@@ -2554,7 +2554,7 @@ extern "C" void func_00295208(void* vself)
             ring5208Push(self, stop);
             ring5208Push(self, idx);
         } else if (stop != 0) {
-            func_002AD5F0(bank, h, 1, 0.0f);
+            cBankMonitor_stopVoice(bank, h, 1, 0.0f);
         }
     }
 }
@@ -2586,7 +2586,7 @@ extern "C" void func_00295628(void* vself, void* evt, int h, int t, int a, int i
     sSnd5028Sys* self = (sSnd5028Sys*)vself;
     if (ring5628Full(self)) {
         ring5628Pop(self);
-        func_002AD5F0(*self->mgr + 0x1D8, ring5628Pop(self), 1, 0.0f);
+        cBankMonitor_stopVoice(*self->mgr + 0x1D8, ring5628Pop(self), 1, 0.0f);
         ring5628Pop(self);
         ring5628Pop(self);
         ring5628Pop(self);
@@ -2673,7 +2673,7 @@ extern "C" void func_00295CC8(void* vself, int evt)
         int v4 = ring5CC8Pop(self);
         if (evt == e) {
             if (v3 != 0) {
-                func_002AD5F0(*self->mgr + 0x1D8, v1, 1, 0.0f);
+                cBankMonitor_stopVoice(*self->mgr + 0x1D8, v1, 1, 0.0f);
             }
         } else {
             ring5CC8Push(self, e);
@@ -2722,7 +2722,7 @@ extern "C" void func_00296088(void* self, char* rider, char* evt, int idx)
 extern "C" int cSSXAudio_isReplayPlaying(void* self);
 extern "C" void func_002A73D8(void* self, int a1, int i);
 extern "C" void func_002A7438(void* self, int i);
-extern "C" void func_0028F108(void* self, void* rider);
+extern "C" void cSSXAudio_resetRaceIntensity(void* self, void* rider);
 // cSSXAudio_getListenerRider returns a rider pointer here (the unit declares it int).
 void* cSSXAudio_getListenerRider_p(void* self, int which) __asm__("cSSXAudio_getListenerRider");
 
@@ -2758,7 +2758,7 @@ extern "C" void func_002961F0(void* self, char* rider, float v)
     } else {
         func_002A73D8(self, 2, idx);
     }
-    func_0028F108(self, rider);
+    cSSXAudio_resetRaceIntensity(self, rider);
 }
 
 extern "C" void func_00296308()
@@ -2775,7 +2775,7 @@ extern "C" int cSSXAudio_getRiderListener(void* self, void* obj);
 extern "C" int cSSXAudio_isReplayPlaying(void* self);
 extern "C" int cSSXAudio_findListenerInRange(void* self, int which, float f);
 extern "C" float func_00290B58(func_00290B58_sCurve* c, float v);
-extern "C" unsigned int func_002ADF60(void* rng);
+extern "C" unsigned int cSoundManager_rand(void* rng);
 extern "C" void* cBE_getBE();
 void* cBE_getInterface_Fv(void* be, int kind) __asm__("cBE_getInterface__Fv");
 extern signed char D_00535C11[];
@@ -2933,12 +2933,12 @@ extern "C" void func_00296E18()
 
 //100%
 extern "C" void* func_0028B180();
-extern "C" void func_002AD5F0(void* p, int idx, int a2, float v);
+extern "C" void cBankMonitor_stopVoice(void* p, int idx, int a2, float v);
 
 extern "C" void func_00296E20(void* self, void* obj)
 {
     if (*(int*)((char*)obj + 0x774) >= 0) {
-        func_002AD5F0((char*)**(void***)((char*)func_0028B180() + 0x118) + 0x1D8, *(int*)((char*)obj + 0x774), 1, 0.75f);
+        cBankMonitor_stopVoice((char*)**(void***)((char*)func_0028B180() + 0x118) + 0x1D8, *(int*)((char*)obj + 0x774), 1, 0.75f);
         *(int*)((char*)obj + 0x774) = -1;
     }
 }
@@ -2951,7 +2951,7 @@ extern "C" int cSSXAudio_getRiderListener(void* self, void* obj);
 extern "C" int cSSXAudio_isReplayPlaying(void* self);
 extern "C" int cSSXAudio_findListenerInRange(void* self, int which, float f);
 extern "C" float func_00290B58(func_00290B58_sCurve* c, float v);
-extern "C" unsigned int func_002ADF60(void* rng);
+extern "C" unsigned int cSoundManager_rand(void* rng);
 extern "C" void* cBE_getBE();
 void* cBE_getInterface_Fv(void* be, int kind) __asm__("cBE_getInterface__Fv");
 extern signed char D_00535C11[];
@@ -3109,12 +3109,12 @@ extern "C" void func_00297430()
 
 //100%
 extern "C" void* func_0028B180();
-extern "C" void func_002AD5F0(void* p, int idx, int a2, float v);
+extern "C" void cBankMonitor_stopVoice(void* p, int idx, int a2, float v);
 
 extern "C" void func_00297438(void* self, void* obj)
 {
     if (*(int*)((char*)obj + 0x778) >= 0) {
-        func_002AD5F0((char*)**(void***)((char*)func_0028B180() + 0x118) + 0x1D8, *(int*)((char*)obj + 0x778), 1, 0.75f);
+        cBankMonitor_stopVoice((char*)**(void***)((char*)func_0028B180() + 0x118) + 0x1D8, *(int*)((char*)obj + 0x778), 1, 0.75f);
         *(int*)((char*)obj + 0x778) = -1;
     }
 }
@@ -3266,7 +3266,7 @@ extern "C" void func_002974A0(void* self, char* evt, int n)
 INCLUDE_ASM("sound/soundsys", func_00297950);
 
 //100%
-extern "C" void func_002AD5F0(void* p, int idx, int a2, float v);
+extern "C" void cBankMonitor_stopVoice(void* p, int idx, int a2, float v);
 
 extern "C" void func_00297EB8(void* self, int a1, int a2)
 {
@@ -3274,7 +3274,7 @@ extern "C" void func_00297EB8(void* self, int a1, int a2)
         if (*(int*)((char*)self + i * 0x30 + 0x5A00) == 1 &&
             *(int*)((char*)self + i * 0x30 + 0x5A04) == a1 &&
             *(int*)((char*)self + i * 0x30 + 0x5A20) == a2) {
-            func_002AD5F0(**(char***)((char*)self + 0x118) + 0x1D8,
+            cBankMonitor_stopVoice(**(char***)((char*)self + 0x118) + 0x1D8,
                           *(int*)((char*)self + i * 0x30 + 0x5A24), 1, 0.0f);
             *(int*)((char*)self + i * 0x30 + 0x5A00) = 0;
         }
@@ -3305,7 +3305,7 @@ extern "C" void func_00297FA0(void* self)
         if (*(int*)(s + 0x5A00) != 1) continue;
         char* inner = *(char**)(*(char**)(s + 0x5A04) + 0xC);
         if (inner == 0) {
-            func_002AD5F0(**(char***)((char*)self + 0x118) + 0x1D8, *(int*)(s + 0x5A24), 1, 0.0f);
+            cBankMonitor_stopVoice(**(char***)((char*)self + 0x118) + 0x1D8, *(int*)(s + 0x5A24), 1, 0.0f);
             *(int*)(s + 0x5A00) = 0;
         } else if (*(int*)(s + 0x5A08) == -1) {
             sSsVtFA0* vt = *(sSsVtFA0**)(inner + 0xC);
@@ -3330,14 +3330,14 @@ extern "C" void func_00297FA0(void* self)
 }
 
 //100%
-extern "C" void func_002AD5F0(void* p, int idx, int a2, float v);
+extern "C" void cBankMonitor_stopVoice(void* p, int idx, int a2, float v);
 
 extern "C" void func_002980B0(void* self)
 {
     int i;
     for (i = 0; i < 30; i++) {
         if (*(int*)((char*)self + i * 0x30 + 0x5A00) == 1) {
-            func_002AD5F0((char*)**(void***)((char*)self + 0x118) + 0x1D8, *(int*)((char*)self + i * 0x30 + 0x5A24), 1, 0.0f);
+            cBankMonitor_stopVoice((char*)**(void***)((char*)self + 0x118) + 0x1D8, *(int*)((char*)self + i * 0x30 + 0x5A24), 1, 0.0f);
             *(int*)((char*)self + i * 0x30 + 0x5A00) = 0;
         }
     }
@@ -3563,7 +3563,7 @@ struct sSndKey8 {
 } __attribute__((packed));
 extern sSndKey8 D_004A3678[];
 extern "C" void* cSSXAudio_getBusVolumePtr(void* self, int a1, int a2);
-extern "C" void func_002ADCA0(void*, int, long, int, int, int, int, int);
+extern "C" void cSndTimerSys_addTimer(void*, int, long, int, int, int, int, int);
 
 // PORT: 64-bit long sound key
 extern "C" void func_00298D00(void* self, void* obj)
@@ -3573,7 +3573,7 @@ extern "C" void func_00298D00(void* self, void* obj)
         char* p = **(char***)((char*)self + 0x118) + 0x1D8;
         sSndKey8* key = D_004A3678;
         int r = (int)cSSXAudio_getBusVolumePtr(self, 9, 0);
-        func_002ADCA0(p, 0xFA, key->v, r, 0, 0x72, 0x7F, 0);
+        cSndTimerSys_addTimer(p, 0xFA, key->v, r, 0, 0x72, 0x7F, 0);
     }
 }
 
@@ -3587,7 +3587,7 @@ extern "C" void* func_00416210(void* dst, int c, int n);
 extern "C" void* cSSXAudio_getBusVolumePtr(void* self, int a1, int a2);
 extern "C" int func_002906B8(void* self);
 extern "C" int cSSXAudio_isReplayPlaying(void* self);
-extern "C" void func_002ADDE0(void* bank, long id);
+extern "C" void cSndTimerSys_removeTimersByKey(void* bank, long id);
 
 struct sSnd8D90Self {
     sSnd74A0Sys sys;
@@ -3635,7 +3635,7 @@ extern "C" void func_00298D90(sSnd8D90Self* self, char* obj, int extra)
     if (cSSXAudio_isReplayPlaying(self) == 0) {
         bool ok = *(int*)(obj + 0x874) && *(int*)(obj + 0x87C);
         if (ok) {
-            func_002ADDE0(&(*self->sys.p118)->sub, D_004A36A8[0].v);
+            cSndTimerSys_removeTimersByKey(&(*self->sys.p118)->sub, D_004A36A8[0].v);
             if (self->count == 0) {
                 snd8D90AddVoice(self, 0, b7);
                 self->handle = func_002906B8(self);
@@ -3651,7 +3651,7 @@ extern "C" void func_00298D90(sSnd8D90Self* self, char* obj, int extra)
 
 //100%
 extern "C" int cSSXAudio_isReplayPlaying(void* self);
-extern "C" void func_002AD5F0(void* p, int idx, int a2, float v);
+extern "C" void cBankMonitor_stopVoice(void* p, int idx, int a2, float v);
 
 extern "C" void func_002992D8(void* self, void* obj)
 {
@@ -3663,7 +3663,7 @@ extern "C" void func_002992D8(void* self, void* obj)
         int n = --*(int*)((char*)self + 0x59E4);
         if (n <= 0) {
             if (n == 0) {
-                func_002AD5F0((char*)**(void***)((char*)self + 0x118) + 0x1D8, *(int*)((char*)self + 0x59E0), 1, 0.0f);
+                cBankMonitor_stopVoice((char*)**(void***)((char*)self + 0x118) + 0x1D8, *(int*)((char*)self + 0x59E0), 1, 0.0f);
             }
             *(int*)((char*)self + 0x59E4) = 0;
         }
@@ -3722,7 +3722,7 @@ struct sSndId299368 {
     long v;
 } __attribute__((packed));
 extern sSndId299368 D_004A36A8_9368[] __asm__("D_004A36A8");
-extern "C" void func_002ADDE0(void* bank, long id);
+extern "C" void cSndTimerSys_removeTimersByKey(void* bank, long id);
 extern "C" int cSSXAudio_isReplayPlaying(void* self);
 
 static inline int IsReady299368(char* obj)
@@ -3771,15 +3771,15 @@ extern "C" void func_00299368(sSnd9368Sys* self, char* obj)
     if (!IsReady299368(obj)) {
         return;
     }
-    func_002ADDE0(&(*self->p118)->sub, D_004A36A8_9368[0].v);
+    cSndTimerSys_removeTimersByKey(&(*self->p118)->sub, D_004A36A8_9368[0].v);
     AddVoice299368(self, 0, 0x6C, 9);
     func_002906B8(self);
 }
 
 //100%
 extern "C" void func_002A3C00(void* self, void* obj, int flags);
-// PORT: func_002ADCA0 returns int; the unit declares it void elsewhere.
-extern "C" int func_002ADCA0_9638(void*, int, long, int, int, int, int, int) __asm__("func_002ADCA0");
+// PORT: cSndTimerSys_addTimer returns int; the unit declares it void elsewhere.
+extern "C" int cSndTimerSys_addTimer_9638(void*, int, long, int, int, int, int, int) __asm__("cSndTimerSys_addTimer");
 
 // PORT: 64-bit long sound keys
 // Plays the landing thud for a rider that is airborne-and-dropping, sets its board effect and restarts the ambient loop.
@@ -3799,7 +3799,7 @@ extern "C" void func_00299638(void* self, char* obj)
     char* p = **(char***)((char*)self + 0x118) + 0x1D8;
     sSndKey8* key = D_004A3678;
     int r = (int)cSSXAudio_getBusVolumePtr(self, 9, 0);
-    func_002ADCA0_9638(p, 400, key->v, r, 0, 0x6B, 0x7F, 0);
+    cSndTimerSys_addTimer_9638(p, 400, key->v, r, 0, 0x6B, 0x7F, 0);
     int m = *(int*)(obj + 0x2F4);
     if (m == 10) {
         func_002A3C00(self, obj, 0x10);
@@ -3809,11 +3809,11 @@ extern "C" void func_00299638(void* self, char* obj)
         func_002A3C00(self, obj, 0x4);
     }
     long id = D_004A36A8[0].v;
-    func_002ADDE0(**(char***)((char*)self + 0x118) + 0x1D8, id);
+    cSndTimerSys_removeTimersByKey(**(char***)((char*)self + 0x118) + 0x1D8, id);
     if (*(int*)((char*)self + 0x59E4) != 0) {
         return;
     }
-    func_002ADCA0_9638(**(char***)((char*)self + 0x118) + 0x1D8, 3000, id, (int)obj, 0, 0, 0, 0);
+    cSndTimerSys_addTimer_9638(**(char***)((char*)self + 0x118) + 0x1D8, 3000, id, (int)obj, 0, 0, 0, 0);
 }
 
 //100% - objdiff report; single-function view differs only in a relocation name
@@ -4237,7 +4237,7 @@ extern "C" int cSSXAudio_isReplayPlaying(void* self);
 extern "C" void func_00296E20(void* self, void* obj);
 extern "C" void func_00297438(void* self, void* obj);
 extern "C" void func_002992D8(void* self, void* obj);
-extern "C" void func_0028F108(void* self, void* rider);
+extern "C" void cSSXAudio_resetRaceIntensity(void* self, void* rider);
 // cSSXAudio_getListenerRider returns a rider pointer here (the unit declares it int).
 void* cSSXAudio_getListenerRider_p(void* self, int which) __asm__("cSSXAudio_getListenerRider");
 
@@ -4253,7 +4253,7 @@ extern "C" void func_0029A220(void* self, void* obj)
         func_002992D8(self, obj);
     }
     if (obj == cSSXAudio_getListenerRider_p(self, -1)) {
-        func_0028F108(self, obj);
+        cSSXAudio_resetRaceIntensity(self, obj);
     }
 }
 
@@ -4431,7 +4431,7 @@ extern "C" int cSSXAudio_isReplayPlaying(void* self);
 extern "C" void func_003B58A0();
 extern "C" int func_003B8AB8(int id);
 extern "C" void func_003B58D8();
-extern "C" void func_002AD5F0(void* p, int idx, int a2, float v);
+extern "C" void cBankMonitor_stopVoice(void* p, int idx, int a2, float v);
 
 extern "C" void func_0029A7D8(void* self, void* obj, int n)
 {
@@ -4446,7 +4446,7 @@ extern "C" void func_0029A7D8(void* self, void* obj, int n)
             int busy = func_003B8AB8(*(int*)((char*)self + 0x5FAC)) != 0;
             func_003B58D8();
             if (!busy) {
-                func_002AD5F0(**(char***)((char*)self + 0x118) + 0x1D8, *(int*)((char*)self + 0x5FAC), 1, 0.0f);
+                cBankMonitor_stopVoice(**(char***)((char*)self + 0x118) + 0x1D8, *(int*)((char*)self + 0x5FAC), 1, 0.0f);
             }
             *(int*)((char*)self + 0x5FAC) = sndA7D8AddVoice(self, 0, 0x4D, 9);
         }
@@ -4547,7 +4547,7 @@ static inline int sndB0E0AddVoice(void* vself, int a, int b, int type)
 }
 
 extern "C" int cSSXAudio_isReplayPlaying(void* self);
-extern "C" void func_002AD5F0(void* p, int idx, int a2, float v);
+extern "C" void cBankMonitor_stopVoice(void* p, int idx, int a2, float v);
 
 extern "C" void func_0029B0E0(void* self, void* obj)
 {
@@ -4557,14 +4557,14 @@ extern "C" void func_0029B0E0(void* self, void* obj)
     bool ok = *(int*)((char*)obj + 0x874) && *(int*)((char*)obj + 0x87C);
     if (ok) {
         if (*(int*)((char*)self + 0x5FDC) != -1) {
-            func_002AD5F0(**(char***)((char*)self + 0x118) + 0x1D8, *(int*)((char*)self + 0x5FDC), 1, 0.0f);
+            cBankMonitor_stopVoice(**(char***)((char*)self + 0x118) + 0x1D8, *(int*)((char*)self + 0x5FDC), 1, 0.0f);
         }
         *(int*)((char*)self + 0x5FDC) = sndB0E0AddVoice(self, 0, 0x66, 9);
     }
 }
 
 //100%
-extern "C" void func_002AD5F0(void* p, int idx, int a2, float v);
+extern "C" void cBankMonitor_stopVoice(void* p, int idx, int a2, float v);
 
 extern "C" void func_0029B3C0(void* self, void* obj)
 {
@@ -4578,7 +4578,7 @@ extern "C" void func_0029B3C0(void* self, void* obj)
         }
     }
     if (*(int*)((char*)self + 0x5FDC) != -1) {
-        func_002AD5F0(**(char***)((char*)self + 0x118) + 0x1D8, *(int*)((char*)self + 0x5FDC), 1, 0.0f);
+        cBankMonitor_stopVoice(**(char***)((char*)self + 0x118) + 0x1D8, *(int*)((char*)self + 0x5FDC), 1, 0.0f);
         *(int*)((char*)self + 0x5FDC) = -1;
     }
 }
@@ -5125,10 +5125,10 @@ static inline int sndC420AddVoice(void* vself, char* mon, int a, int b, int type
 }
 
 extern "C" int cSSXAudio_isReplayPlaying(void* self);
-extern "C" int func_002B49E0(void*);
-extern "C" void func_002B3D48(void*, float);
-extern "C" void func_0028D488(void* self);
-extern "C" void func_0028CF98(void* self, int a1, int a2, int a3, int a4);
+extern "C" int cMusicManager_getSongId(void*);
+extern "C" void cMusicManager_fadeOut(void*, float);
+extern "C" void cSSXAudio_pickNextSong(void* self);
+extern "C" void cSSXAudio_playMusic(void* self, int a1, int a2, int a3, int a4);
 extern "C" void func_002B3A70(void*);
 
 extern "C" void func_0029C420(void* self, int mode)
@@ -5139,19 +5139,19 @@ extern "C" void func_0029C420(void* self, int mode)
     char* mon = (char*)self + 0x118;
     sndC420AddVoice(self, mon, 0, 0x4E, 5);
     if (mode == 3) {
-        int st = func_002B49E0((char*)self + 0x118);
+        int st = cMusicManager_getSongId((char*)self + 0x118);
         if (st == 0xC9 || st == 1 || st == 2 || st == 3) {
             if (*(int*)((char*)self + 0x627C) != 0) {
-                func_002B3D48((char*)self + 0x118, 2.0f);
+                cMusicManager_fadeOut((char*)self + 0x118, 2.0f);
             }
         }
     }
     if (mode == 1) {
-        int st = func_002B49E0((char*)self + 0x118);
+        int st = cMusicManager_getSongId((char*)self + 0x118);
         if (*(int*)((char*)self + 0x530) == 0 || st == 0xC9 || st == 1 || st == 2 || st == 3) {
             if (*(int*)((char*)self + 0x627C) != 0) {
-                func_0028D488(self);
-                func_0028CF98(self, 0, 0, -1, 0);
+                cSSXAudio_pickNextSong(self);
+                cSSXAudio_playMusic(self, 0, 0, -1, 0);
                 func_002B3A70((char*)self + 0x118);
             }
         }
@@ -5169,9 +5169,9 @@ extern "C" void* cBE_getBE();
 void* cBE_getInterface_Fv(void* be, int kind) __asm__("cBE_getInterface__Fv");
 extern "C" int func_00295028(void* self, int a, int b);
 void func_002B3A98_C7B0(void* p) __asm__("func_002B3A98");
-void func_0028DF08_C7B0(void* p) __asm__("func_0028DF08__FPv");
-void func_002B1758(void* self, int a1);
-int func_002B4908(void* self);
+void cSSXAudio_clearMusicTriggerLatch_C7B0(void* p) __asm__("cSSXAudio_clearMusicTriggerLatch__FPv");
+void cSpeechManager_flush(void* self, int a1);
+int cMusicManager_getSelectedSedValue(void* self);
 extern "C" void func_002A3170(void* self);
 extern "C" void func_002A3400(void* self);
 extern "C" int func_002A4078(void* self);
@@ -5278,7 +5278,7 @@ extern "C" void func_0029C7B0(void* vself)
     sSnd7B0Sys* self = (sSnd7B0Sys*)vself;
     char* base = (char*)vself;
     func_002B3A98_C7B0(base + 0x118);
-    func_0028DF08_C7B0(vself);
+    cSSXAudio_clearMusicTriggerLatch_C7B0(vself);
     *(int*)(base + 0x582C) = *(int*)(*(int*)((char*)func_0028B1C8() + 0xC) + 8);
     ((sSs7B0Self*)vself)->v01(0, 0x62);
     if (cSSXAudio_isReplayPlaying(vself) == 0) {
@@ -5298,20 +5298,20 @@ extern "C" void func_0029C7B0(void* vself)
             int* p = *(int**)(D_004A28A8 + 0xC0);
             if (p[0x98 / 4] != 0) {
                 func_002A3400(vself);
-                func_002B1758(base + 0x5560, 0);
+                cSpeechManager_flush(base + 0x5560, 0);
                 if (func_002A4078(vself) != 0 || func_002A40E8(vself) != 0) {
                     *(int*)(base + 0x5774) = 1;
-                    *(int*)(base + 0x5778) = func_002B4908(base + 0x118);
+                    *(int*)(base + 0x5778) = cMusicManager_getSelectedSedValue(base + 0x118);
                 }
             } else {
                 int v = p[0];
                 if (v == 1) {
                     *(int*)(base + 0x5774) = 1;
-                    *(int*)(base + 0x5778) = func_002B4908(base + 0x118);
+                    *(int*)(base + 0x5778) = cMusicManager_getSelectedSedValue(base + 0x118);
                 } else if (v == 2) {
                     if (func_002A4078(vself) != 0 || func_002A40E8(vself) != 0) {
                         *(int*)(base + 0x5774) = 1;
-                        *(int*)(base + 0x5778) = func_002B4908(base + 0x118);
+                        *(int*)(base + 0x5778) = cMusicManager_getSelectedSedValue(base + 0x118);
                     }
                 }
             }
@@ -5333,7 +5333,7 @@ extern "C" void func_0029C7B0(void* vself)
 extern "C" int cSSXAudio_isReplayPlaying(void* self);
 extern "C" void* func_0028B1D8();
 extern "C" void* cSSXAudio_getBusVolumePtr(void* self, int a1, int a2);
-extern "C" void func_002ADCA0(void*, int, long, int, int, int, int, int);
+extern "C" void cSndTimerSys_addTimer(void*, int, long, int, int, int, int, int);
 // PORT: func_004139F8 is libgcc's float -> unsigned conversion (__fixunssfsi).
 extern "C" int func_004139F8(float f);
 extern char* D_004A28A8;
@@ -5366,26 +5366,26 @@ extern "C" void func_0029CCA8(char* self)
         char* p = **(char***)(self + 0x118) + 0x1D8;
         sSndKey8* key = D_004A3678;
         int r = (int)cSSXAudio_getBusVolumePtr(self, 9, 0);
-        func_002ADCA0(p, 0x1C2, key->v, r, 0, 0x4E, 0x7F, 0);
+        cSndTimerSys_addTimer(p, 0x1C2, key->v, r, 0, 0x4E, 0x7F, 0);
     }
     *(int*)(self + 0x607C) = m;
 }
 
 //100%
-extern "C" void func_002AD2A8(void*);
+extern "C" void cBankMonitor_pauseVoices(void*);
 
 extern "C" void func_0029CE28(void* self)
 {
     if (*(int*)((char*)self + 0x5FB0) == 0) {
         *(int*)((char*)self + 0x5FB0) = 1;
         *(int*)((char*)**(void***)((char*)self + 0x118) + 0x26C) = 1;
-        func_002AD2A8((char*)**(void***)((char*)self + 0x118) + 0x1D8);
+        cBankMonitor_pauseVoices((char*)**(void***)((char*)self + 0x118) + 0x1D8);
     }
 }
 
 //100%
-extern "C" void func_002AD300(void* self);
-extern "C" void func_002AD810(void* self);
+extern "C" void cBankMonitor_resumeVoices(void* self);
+extern "C" void cBankMonitor_resetVoiceDistances(void* self);
 extern "C" void func_002B6A68(void* self);
 extern void* D_004A52D4;
 
@@ -5393,9 +5393,9 @@ extern "C" void func_0029CE70(void* self)
 {
     if (*(int*)((char*)self + 0x5FB0) != 0) {
         *(int*)((char*)self + 0x5FB0) = 0;
-        func_002AD300(**(char***)((char*)self + 0x118) + 0x1D8);
+        cBankMonitor_resumeVoices(**(char***)((char*)self + 0x118) + 0x1D8);
         *(int*)(**(char***)((char*)self + 0x118) + 0x26C) = 0;
-        func_002AD810(**(char***)((char*)self + 0x118) + 0x1D8);
+        cBankMonitor_resetVoiceDistances(**(char***)((char*)self + 0x118) + 0x1D8);
         func_002B6A68(D_004A52D4);
     }
 }
@@ -5519,7 +5519,7 @@ extern "C" void func_0029CED8(void* self, int kind, void* obj, float x)
 extern "C" void* func_0028B1D8();
 extern "C" void func_0029D370(void* self);
 extern "C" void func_0029D678(void* self, float v);
-extern "C" void func_002AD650(void* self, int id, float v);
+extern "C" void cBankMonitor_stopBankVoices(void* self, int id, float v);
 
 static inline int sndIsOn(char* t)
 {
@@ -5544,14 +5544,14 @@ extern "C" void func_0029D290(void* self)
                 char* e = *(char**)(o + 0xACC);
                 int id = sndIsOn(e + 0x300);
                 if (id) id = *(int*)(e + 0x304); else id = -1;
-                func_002AD650(bm, id, 5.029983997344971f);
+                cBankMonitor_stopBankVoices(bm, id, 5.029983997344971f);
 
                 char* o2 = **(char***)((char*)self + 0x118);
                 char* bm2 = o2 + 0x1D8;
                 char* e2 = *(char**)(o2 + 0xACC);
                 int id2 = sndIsOn(e2 + 0x360);
                 if (id2) id2 = *(int*)(e2 + 0x364); else id2 = -1;
-                func_002AD650(bm2, id2, 5.029983997344971f);
+                cBankMonitor_stopBankVoices(bm2, id2, 5.029983997344971f);
             }
         }
     }
@@ -5667,14 +5667,14 @@ extern "C" void func_0029D610(void* self)
 }
 
 //100%
-extern "C" void func_002AD5F0(void* p, int idx, int a2, float v);
+extern "C" void cBankMonitor_stopVoice(void* p, int idx, int a2, float v);
 
 extern "C" void func_0029D678(void* self, float v)
 {
     if (*(int*)((char*)self + 0x5FC4) != 0) {
         int idx = *(int*)((char*)self + 0x5FC8);
         if (idx >= 0) {
-            func_002AD5F0((char*)**(void***)((char*)self + 0x118) + 0x1D8, idx, 1, v);
+            cBankMonitor_stopVoice((char*)**(void***)((char*)self + 0x118) + 0x1D8, idx, 1, v);
             *(int*)((char*)self + 0x5FC8) = -1;
         }
         *(int*)((char*)self + 0x5FC4) = 0;
@@ -5691,15 +5691,15 @@ void func_0029D6D0(void* self)
 extern "C" void func_00296E20(void* self, void* obj);
 extern "C" void func_00297438(void* self, void* obj);
 extern "C" void func_0029B3C0(void* self, void* obj);
-extern "C" int func_002B46E8(void* monitor);
-extern "C" void func_002B4708(void* monitor);
-extern "C" int func_002B4620(void* monitor);
+extern "C" int cMusicManager_areLoopsEngaged(void* monitor);
+extern "C" void cMusicManager_clearLoopsEngaged(void* monitor);
+extern "C" int cMusicManager_attachLoopBank(void* monitor);
 extern "C" int func_001547A0(void* iface, int mission);
-extern "C" int func_0028D960(void* self);
-extern "C" void func_0028CF98(void* self, int a1, int a2, int a3, int a4);
-extern "C" void func_0028D488(void* self);
-extern "C" int func_002B49E0(void*);
-extern "C" int func_0028DEF0_D6E0(void* self, int a1) __asm__("func_0028DEF0");
+extern "C" int cSSXAudio_isMusicMode(void* self);
+extern "C" void cSSXAudio_playMusic(void* self, int a1, int a2, int a3, int a4);
+extern "C" void cSSXAudio_pickNextSong(void* self);
+extern "C" int cMusicManager_getSongId(void*);
+extern "C" int cSSXAudio_setMusicTriggerLatch_D6E0(void* self, int a1) __asm__("cSSXAudio_setMusicTriggerLatch");
 extern sSndKey8 D_004A3648_D6E0[] __asm__("D_004A3648");
 extern sSndKey8 D_004A3650_D6E0[] __asm__("D_004A3650");
 extern sSndKey8 D_004A3658_D6E0[] __asm__("D_004A3658");
@@ -5719,24 +5719,24 @@ extern "C" void func_0029D6E0(char* self, int mission)
     func_00296E20(self, *(void**)((char*)func_0028B1D8() + 0x28));
     func_00297438(self, *(void**)((char*)func_0028B1D8() + 0x28));
     func_0029B3C0(self, 0);
-    if (func_002B46E8(bank) != 0) {
-        if (func_0028D960(self) != 0) {
+    if (cMusicManager_areLoopsEngaged(bank) != 0) {
+        if (cSSXAudio_isMusicMode(self) != 0) {
             sSndVE_D6E0* vt = *(sSndVE_D6E0**)(self + 0x5558);
             vt[3].fn(bank + vt[3].delta, 8);
         }
-        func_002B4708(bank);
+        cMusicManager_clearLoopsEngaged(bank);
     }
     if (*(int*)(self + 0x608C) == 2) {
         return;
     }
     char*** mgr = (char***)(self + 0x118);
-    if ((unsigned int)(func_002B49E0(self + 0x118) - 1) < 3) {
-        func_002ADDE0(**mgr + 0x1D8, D_004A3648_D6E0[0].v);
-        func_002ADDE0(**mgr + 0x1D8, D_004A3650_D6E0[0].v);
-        func_002ADDE0(**mgr + 0x1D8, D_004A3658_D6E0[0].v);
-        func_0028DEF0_D6E0(self, 0x12);
-        func_0028D488(self);
-        func_0028CF98(self, 0, 0, -1, 0);
+    if ((unsigned int)(cMusicManager_getSongId(self + 0x118) - 1) < 3) {
+        cSndTimerSys_removeTimersByKey(**mgr + 0x1D8, D_004A3648_D6E0[0].v);
+        cSndTimerSys_removeTimersByKey(**mgr + 0x1D8, D_004A3650_D6E0[0].v);
+        cSndTimerSys_removeTimersByKey(**mgr + 0x1D8, D_004A3658_D6E0[0].v);
+        cSSXAudio_setMusicTriggerLatch_D6E0(self, 0x12);
+        cSSXAudio_pickNextSong(self);
+        cSSXAudio_playMusic(self, 0, 0, -1, 0);
         return;
     }
     int track = -1;
@@ -5750,13 +5750,13 @@ extern "C" void func_0029D6E0(char* self, int mission)
     case 4: track = -1; break;
     }
     do {
-        if (func_002B4620(self + 0x118) != 0) {
+        if (cMusicManager_attachLoopBank(self + 0x118) != 0) {
             sSndVE_D6E0* vt = *(sSndVE_D6E0**)(self + 0x5558);
             char* mon = self + 0x118;
             ((int (*)(void*, int))vt[4].fn)(mon + vt[4].delta, track);
             *(int*)(self + 0x5FD4) = 1;
         }
-        func_002B4708(self + 0x118);
+        cMusicManager_clearLoopsEngaged(self + 0x118);
     } while (0);
 }
 
@@ -5980,7 +5980,7 @@ extern "C" int func_002906B8(void* self);
 extern "C" int cSSXAudio_getRiderListener(void* self, void* obj);
 extern "C" int cSSXAudio_isReplayPlaying(void* self);
 extern "C" int cSSXAudio_getListenerRider(void* self, int which);
-extern "C" void func_002AD5F0(void* p, int idx, int a2, float v);
+extern "C" void cBankMonitor_stopVoice(void* p, int idx, int a2, float v);
 extern "C" void func_002A9988(void* self, float a, float b);
 extern "C" int func_0029E438(void* self, char* blk);
 struct sQDEF0 {
@@ -6137,7 +6137,7 @@ extern "C" void func_0029DEF0(void* vself, int on)
         }
     } else {
         if (--self->users == 0) {
-            func_002AD5F0(&(*self->p118)->sub, self->handle, 1, 2.0f);
+            cBankMonitor_stopVoice(&(*self->p118)->sub, self->handle, 1, 2.0f);
             sSndDEF0Mgr* mg = *self->p118;
             sVEk_DEF0* vt = *(sVEk_DEF0**)((char*)mg + 0xAB0);
             char* sub = (char*)&mg->sub;
@@ -6460,7 +6460,7 @@ extern "C" void func_0029E970(void* self, void* obj)
 //100% - objdiff report; single-function view differs only in a relocation name
 extern "C" void* func_0028B1D8();
 extern "C" void func_0029B3C0(void* self, void* obj);
-extern "C" void func_002AD5F0(void* p, int idx, int a2, float v);
+extern "C" void cBankMonitor_stopVoice(void* p, int idx, int a2, float v);
 
 extern "C" void func_0029ED18(void* self)
 {
@@ -6468,7 +6468,7 @@ extern "C" void func_0029ED18(void* self)
     func_00297438(self, *(void**)((char*)func_0028B1D8() + 0x28));
     func_0029B3C0(self, 0);
     if (*(int*)((char*)self + 0x59E4) > 0) {
-        func_002AD5F0(**(char***)((char*)self + 0x118) + 0x1D8, *(int*)((char*)self + 0x59E0), 1, 0.0f);
+        cBankMonitor_stopVoice(**(char***)((char*)self + 0x118) + 0x1D8, *(int*)((char*)self + 0x59E0), 1, 0.0f);
         *(int*)((char*)self + 0x59E4) = 0;
     }
 }
@@ -6477,9 +6477,9 @@ extern "C" void func_0029ED18(void* self)
 extern "C" int func_0029F198(void* self);
 extern "C" void* cSSXAudio_getBusVolumePtr(void* self, int a1, int a2);
 extern "C" int BXFILE_exists(const char* name);
-extern "C" void func_002B0CE0(void* self);
-extern "C" void func_002B0DA0(void* self);
-extern "C" void func_002B0E60(void* self, int a, int b, char* name, int c, int d, int e);
+extern "C" void cSpeechManager_init(void* self);
+extern "C" void cSpeechManager_shutdown(void* self);
+extern "C" void cSpeechManager_createInstance(void* self, int a, int b, char* name, int c, int d, int e);
 extern "C" void func_003DED50(const char* name, int a, int b, void** h);
 extern "C" void func_003DEDC0(void* h, int a);
 extern char D_00482DF8[];
@@ -6502,7 +6502,7 @@ extern "C" void func_0029ED90(char* self, int restart)
         return;
     }
     if (restart) {
-        func_002B0DA0(self + 0x5560);
+        cSpeechManager_shutdown(self + 0x5560);
     }
     void** h = (void**)(self + 0x5728);
     if (*h) {
@@ -6519,8 +6519,8 @@ extern "C" void func_0029ED90(char* self, int restart)
     }
     *(int*)(self + 0x572C) = mode;
     if (restart) {
-        func_002B0CE0(self + 0x5560);
-        func_002B0E60(self + 0x5560, 0, 0, D_004A3568, (int)cSSXAudio_getBusVolumePtr(self, 4, 0), 1, -1);
+        cSpeechManager_init(self + 0x5560);
+        cSpeechManager_createInstance(self + 0x5560, 0, 0, D_004A3568, (int)cSSXAudio_getBusVolumePtr(self, 4, 0), 1, -1);
     }
 }
 
@@ -6701,7 +6701,7 @@ extern "C" int func_0029F378(void* self, void* obj)
 //100%
 extern "C" void* func_0028B1D8();
 extern "C" int func_0029F378(void* self, void* obj);
-extern "C" void func_0028BC58(void* p, int a1, char* msg, int a3);
+extern "C" void cBankManager_loadBank(void* p, int a1, char* msg, int a3);
 extern "C" int sprintf(char* buf, const char* fmt, ...);
 extern char D_004A36E0[];
 extern char D_00482E88[];
@@ -6756,18 +6756,18 @@ extern "C" void func_0029F3F8(char* self)
         sprintf(buf, D_004A36E0, D_00482E88, D_00482F38);
         break;
     }
-    func_0028BC58(**(void***)(self + 0x118), 0xE, buf, 0);
+    cBankManager_loadBank(**(void***)(self + 0x118), 0xE, buf, 0);
     sprintf(buf, D_004A36E0, D_00482E88, D_00482F48);
-    func_0028BC58(**(void***)(self + 0x118), 0xF, buf, 0);
+    cBankManager_loadBank(**(void***)(self + 0x118), 0xF, buf, 0);
 }
 
 //100%
-extern "C" void func_0028BCE8(void* self, int i);
+extern "C" void cBankManager_unloadBank(void* self, int i);
 
 extern "C" void func_0029F5E0(void* self)
 {
-    func_0028BCE8(**(void***)((char*)self + 0x118), 0xE);
-    func_0028BCE8(**(void***)((char*)self + 0x118), 0xF);
+    cBankManager_unloadBank(**(void***)((char*)self + 0x118), 0xE);
+    cBankManager_unloadBank(**(void***)((char*)self + 0x118), 0xF);
 }
 
 //100%
@@ -6808,7 +6808,7 @@ struct cRiderHandler;
 
 extern "C" int func_002A10C0(void* self, int id);
 extern "C" int func_002A1028(void* self, int id);
-extern "C" unsigned int func_002ADF60(void* mon);
+extern "C" unsigned int cSoundManager_rand(void* mon);
 extern "C" void func_00295628(void* self, void* evt, int h, int t, int a, int idx);
 extern "C" int func_00295028(void* self, int a, int b);
 extern "C" int func_002906B8(void* self);
@@ -6834,9 +6834,9 @@ extern "C" void func_0029F660(void* vself, void* vrider, int a, int b)
     int prio;
     if (kind == 0xE) {
         if (a == 1) {
-            prio = (func_002ADF60(*(void**)((char*)*self->p118 + 0x1D8)) & 0x7FFF) * 3 / 0x7FFF;
+            prio = (cSoundManager_rand(*(void**)((char*)*self->p118 + 0x1D8)) & 0x7FFF) * 3 / 0x7FFF;
         } else if (a == 0) {
-            prio = (func_002ADF60(*(void**)((char*)*self->p118 + 0x1D8)) & 0x7FFF) * 3 / 0x7FFF + 3;
+            prio = (cSoundManager_rand(*(void**)((char*)*self->p118 + 0x1D8)) & 0x7FFF) * 3 / 0x7FFF + 3;
         } else {
             prio = *(int*)((char*)self + 0x5734);
             *(int*)((char*)self + 0x5734) = prio + 1;
@@ -6923,8 +6923,8 @@ extern "C" int func_002A1E20(void* self, unsigned int a1);
 extern "C" int* func_00144BC0(void*);
 extern "C" void* func_0028B1E8();
 extern "C" int cSSXAudio_findListenerInRange(void* self, int which, float f);
-extern "C" int func_002B0E28(void* self, int i);
-extern "C" int func_002B1458(void* self, int a, int b, int c, int d, int e, int refresh, float f);
+extern "C" int cSpeechManager_canPlay(void* self, int i);
+extern "C" int cSpeechManager_addRequest(void* self, int a, int b, int c, int d, int e, int refresh, float f);
 extern "C" void* func_003D8008(int a, int b, int c);
 extern "C" int cRider_getCharacterID(void*);
 // PORT: the unit defines func_0029F330 as void; it returns its tail call's result.
@@ -6976,20 +6976,20 @@ extern "C" void func_0029FCC8(void* self, void* vrider)
     int pos2 = v >= zero;
     if (pos2) return;
     char* snd = (char*)self + 0x5560;
-    if (func_002B0E28(snd, 0) == 0) return;
+    if (cSpeechManager_canPlay(snd, 0) == 0) return;
     int r = func_0029F330_i(rider);
     if (cSSXAudio_findListenerInRange(self, rider->v05(), D_004A36D8) < 0) return;
     int sel = func_002A1E20(self, *func_00144BC0(cBE_getInterface_Fv(func_0028B1E8(), 0)));
     if (sel == 1) {
-        if (func_002B1458(snd, 0, 0x2084, (int)rider, cRider_getCharacterID(rider), 0, 0, zero) != 0) {
+        if (cSpeechManager_addRequest(snd, 0, 0x2084, (int)rider, cRider_getCharacterID(rider), 0, 0, zero) != 0) {
             D_004A482C_4(func_003D8008(1, 0, 0x2084), 2, r, 3);
         }
     } else if (sel == 2) {
-        if (func_002B1458(snd, 0, 0x2083, (int)rider, cRider_getCharacterID(rider), 0, 0, zero) != 0) {
+        if (cSpeechManager_addRequest(snd, 0, 0x2083, (int)rider, cRider_getCharacterID(rider), 0, 0, zero) != 0) {
             D_004A482C_4(func_003D8008(1, 0, 0x2083), 2, r, 3);
         }
     } else {
-        if (func_002B1458(snd, 0, 0x2091, (int)rider, cRider_getCharacterID(rider), 0, 0, zero) != 0) {
+        if (cSpeechManager_addRequest(snd, 0, 0x2091, (int)rider, cRider_getCharacterID(rider), 0, 0, zero) != 0) {
             D_004A482C_4(func_003D8008(1, 0, 0x2091), 2, r, 3);
         }
     }
@@ -7002,7 +7002,7 @@ extern "C" int func_002A1E20(void* self, unsigned int a1);
 extern "C" int* func_00144BC0(void*);
 extern "C" void* func_0028B1E8();
 extern "C" int cSSXAudio_findListenerInRange(void* self, int which, float f);
-extern "C" int func_002B1458(void* self, int a, int b, int c, int d, int e, int refresh, float f);
+extern "C" int cSpeechManager_addRequest(void* self, int a, int b, int c, int d, int e, int refresh, float f);
 extern "C" void* func_003D8008(int a, int b, int c);
 extern "C" int cRider_getCharacterID(void*);
 // PORT: the unit defines func_0029F330 as void; it returns its tail call's result.
@@ -7048,30 +7048,30 @@ extern "C" void func_0029FF80(void* self, sSsFF80Rider* rider, int alt)
     if (alt != 0) {
         int sel = func_002A1E20(self, *func_00144BC0(cBE_getInterface_Fv(func_0028B1E8(), 0)));
         if (sel == 1) {
-            if (func_002B1458((char*)self + 0x5560, 0, 0x2090, (int)rider, cRider_getCharacterID(rider), 0, 0, 0.0f) != 0) {
+            if (cSpeechManager_addRequest((char*)self + 0x5560, 0, 0x2090, (int)rider, cRider_getCharacterID(rider), 0, 0, 0.0f) != 0) {
                 D_004A482C(func_003D8008(1, 0, 0x2090), 1, r);
             }
         } else if (sel == 2) {
-            if (func_002B1458((char*)self + 0x5560, 0, 0x209B, (int)rider, cRider_getCharacterID(rider), 0, 0, 0.0f) != 0) {
+            if (cSpeechManager_addRequest((char*)self + 0x5560, 0, 0x209B, (int)rider, cRider_getCharacterID(rider), 0, 0, 0.0f) != 0) {
                 D_004A482C(func_003D8008(1, 0, 0x209B), 1, r);
             }
         } else {
-            if (func_002B1458((char*)self + 0x5560, 0, 0x209D, (int)rider, cRider_getCharacterID(rider), 0, 0, 0.0f) != 0) {
+            if (cSpeechManager_addRequest((char*)self + 0x5560, 0, 0x209D, (int)rider, cRider_getCharacterID(rider), 0, 0, 0.0f) != 0) {
                 D_004A482C(func_003D8008(1, 0, 0x209D), 1, r);
             }
         }
     } else {
         int sel = func_002A1E20(self, *func_00144BC0(cBE_getInterface_Fv(func_0028B1E8(), 0)));
         if (sel == 1) {
-            if (func_002B1458((char*)self + 0x5560, 0, 0x2082, (int)rider, cRider_getCharacterID(rider), 0, 0, 0.0f) != 0) {
+            if (cSpeechManager_addRequest((char*)self + 0x5560, 0, 0x2082, (int)rider, cRider_getCharacterID(rider), 0, 0, 0.0f) != 0) {
                 D_004A482C(func_003D8008(1, 0, 0x2082), 1, r);
             }
         } else if (sel == 2) {
-            if (func_002B1458((char*)self + 0x5560, 0, 0x209A, (int)rider, cRider_getCharacterID(rider), 0, 0, 0.0f) != 0) {
+            if (cSpeechManager_addRequest((char*)self + 0x5560, 0, 0x209A, (int)rider, cRider_getCharacterID(rider), 0, 0, 0.0f) != 0) {
                 D_004A482C(func_003D8008(1, 0, 0x209A), 1, r);
             }
         } else {
-            if (func_002B1458((char*)self + 0x5560, 0, 0x209C, (int)rider, cRider_getCharacterID(rider), 0, 0, 0.0f) != 0) {
+            if (cSpeechManager_addRequest((char*)self + 0x5560, 0, 0x209C, (int)rider, cRider_getCharacterID(rider), 0, 0, 0.0f) != 0) {
                 D_004A482C(func_003D8008(1, 0, 0x209C), 1, r);
             }
         }
@@ -7085,8 +7085,8 @@ extern "C" int func_002A1E20(void* self, unsigned int a1);
 extern "C" int* func_00144BC0(void*);
 extern "C" void* func_0028B1E8();
 extern "C" int cSSXAudio_findListenerInRange(void* self, int which, float f);
-extern "C" int func_002B0E28(void* self, int i);
-extern "C" int func_002B1458(void* self, int a, int b, int c, int d, int e, int refresh, float f);
+extern "C" int cSpeechManager_canPlay(void* self, int i);
+extern "C" int cSpeechManager_addRequest(void* self, int a, int b, int c, int d, int e, int refresh, float f);
 extern "C" void* func_003D8008(int a, int b, int c);
 extern "C" int cRider_getCharacterID(void*);
 // PORT: the unit defines func_0029F330 as void; it returns its tail call's result.
@@ -7128,7 +7128,7 @@ extern "C" void func_002A02D8(void* self, sSs02D8Rider* rider)
     int chk = 0;
     if (rider->v09() != 0 || rider->f87C == 0) chk = 1;
     if (chk && cSSXAudio_getListenerRider_p(self, -1) != rider) return;
-    if (func_002B0E28((char*)self + 0x5560, 0) == 0) return;
+    if (cSpeechManager_canPlay((char*)self + 0x5560, 0) == 0) return;
     int r = func_0029F330_i(rider);
     int mode;
     if (func_002A3F90(self) != 0 || func_002A4040(self) != 0) {
@@ -7139,15 +7139,15 @@ extern "C" void func_002A02D8(void* self, sSs02D8Rider* rider)
     if (cSSXAudio_findListenerInRange(self, rider->v05(), D_004A36D8) < 0) return;
     int sel = func_002A1E20(self, *func_00144BC0(cBE_getInterface_Fv(func_0028B1E8(), 0)));
     if (sel == 1) {
-        if (func_002B1458((char*)self + 0x5560, 0, 0x2088, (int)rider, cRider_getCharacterID(rider), 0, 0, 0.0f) != 0) {
+        if (cSpeechManager_addRequest((char*)self + 0x5560, 0, 0x2088, (int)rider, cRider_getCharacterID(rider), 0, 0, 0.0f) != 0) {
             D_004A482C_4(func_003D8008(1, 0, 0x2088), 2, r, mode);
         }
     } else if (sel == 2) {
-        if (func_002B1458((char*)self + 0x5560, 0, 0x20A0, (int)rider, cRider_getCharacterID(rider), 0, 0, 0.0f) != 0) {
+        if (cSpeechManager_addRequest((char*)self + 0x5560, 0, 0x20A0, (int)rider, cRider_getCharacterID(rider), 0, 0, 0.0f) != 0) {
             D_004A482C_4(func_003D8008(1, 0, 0x20A0), 2, r, mode);
         }
     } else {
-        if (func_002B1458((char*)self + 0x5560, 0, 0x20A1, (int)rider, cRider_getCharacterID(rider), 0, 0, 0.0f) != 0) {
+        if (cSpeechManager_addRequest((char*)self + 0x5560, 0, 0x20A1, (int)rider, cRider_getCharacterID(rider), 0, 0, 0.0f) != 0) {
             D_004A482C_4(func_003D8008(1, 0, 0x20A1), 2, r, mode);
         }
     }
@@ -7158,8 +7158,8 @@ extern "C" int func_0029F0A0(void* self);
 extern "C" int cSSXAudio_isReplayPlaying(void* self);
 extern "C" int func_00123168(void*);
 extern "C" int cSSXAudio_findListenerInRange(void* self, int which, float f);
-extern "C" int func_002B0E28(void* self, int i);
-int func_002B1458_f(void* self, int a, int b, int c, int d, float f, int e, int refresh) __asm__("func_002B1458");
+extern "C" int cSpeechManager_canPlay(void* self, int i);
+int cSpeechManager_addRequest_f(void* self, int a, int b, int c, int d, float f, int e, int refresh) __asm__("cSpeechManager_addRequest");
 extern "C" void* func_003D8008(int a, int b, int c);
 extern "C" int cRider_getCharacterID(void*);
 extern "C" void* func_0028B1C8();
@@ -7247,7 +7247,7 @@ void func_002A0560_0560(void* self, sSs0560Rider* a, sSs0560Rider* b)
     void* pl = cSSXAudio_getListenerRider_p(self, -1);
     if (chkA && chkB && a != pl && b != pl) return;
     char* snd = (char*)self + 0x5560;
-    if (func_002B0E28(snd, 0) == 0) return;
+    if (cSpeechManager_canPlay(snd, 0) == 0) return;
     int okA = cSSXAudio_findListenerInRange(self, a->v05(), D_004A36D8);
     if (okA < 0) return;
     int okB = cSSXAudio_findListenerInRange(self, b->v05(), D_004A36D8);
@@ -7271,19 +7271,19 @@ void func_002A0560_0560(void* self, sSs0560Rider* a, sSs0560Rider* b)
     unsigned sel = func_002A1820_0560(self, a, b);
     if (sel == 2) {
         d = 0.0f;
-        if (func_002B1458_f(snd, 0, 0x2081, (int)a, cRider_getCharacterID(a), d, 0, 0) != 0) {
+        if (cSpeechManager_addRequest_f(snd, 0, 0x2081, (int)a, cRider_getCharacterID(a), d, 0, 0) != 0) {
             D_004A482C_4(func_003D8008(1, 0, 0x2081), 2, rA, mode);
         }
-        if (func_002B1458_f(snd, 0, 0x207F, (int)b, cRider_getCharacterID(b), d, 0, 0) != 0) {
+        if (cSpeechManager_addRequest_f(snd, 0, 0x207F, (int)b, cRider_getCharacterID(b), d, 0, 0) != 0) {
             D_004A482C_4(func_003D8008(1, 0, 0x207F), 2, rB, mode);
         }
     } else if (sel < 2) {
         d = 0.0f;
-        if (func_002B1458_f(snd, 0, 0x2080, (int)a, cRider_getCharacterID(a), d, 0, 0) != 0) {
+        if (cSpeechManager_addRequest_f(snd, 0, 0x2080, (int)a, cRider_getCharacterID(a), d, 0, 0) != 0) {
             s |= 0x1000;
             D_004A482C_5(func_003D8008(1, 0, 0x2080), 3, rA, mode, s);
         }
-        if (func_002B1458_f(snd, 0, 0x207D, (int)b, cRider_getCharacterID(b), d, 0, 0) != 0) {
+        if (cSpeechManager_addRequest_f(snd, 0, 0x207D, (int)b, cRider_getCharacterID(b), d, 0, 0) != 0) {
             D_004A482C_4(func_003D8008(1, 0, 0x207D), 2, rB, mode);
         }
     }
@@ -7294,9 +7294,9 @@ extern "C" int func_0029F0A0(void* self);
 extern "C" int cSSXAudio_isReplayPlaying(void* self);
 extern "C" int func_00123168(void*);
 extern "C" int cSSXAudio_findListenerInRange(void* self, int which, float f);
-extern "C" int func_002B0E28(void* self, int i);
-// func_002B1458 with the float argument in its real position (same registers).
-int func_002B1458_f(void* self, int a, int b, int c, int d, float f, int e, int refresh) __asm__("func_002B1458");
+extern "C" int cSpeechManager_canPlay(void* self, int i);
+// cSpeechManager_addRequest with the float argument in its real position (same registers).
+int cSpeechManager_addRequest_f(void* self, int a, int b, int c, int d, float f, int e, int refresh) __asm__("cSpeechManager_addRequest");
 extern "C" void* func_003D8008(int a, int b, int c);
 extern "C" int cRider_getCharacterID(void*);
 extern "C" void func_0029F660(void* self, void* rider, int a, int b);
@@ -7355,7 +7355,7 @@ extern "C" void func_002A0A30(void* self, sSs0A30Rider* a, sSs0A30Rider* b, int 
     if (chkA && chkB && a != pl && b != pl) return;
     func_0029F660(self, b, 0, 1);
     char* snd = (char*)self + 0x5560;
-    if (func_002B0E28(snd, 0) == 0) return;
+    if (cSpeechManager_canPlay(snd, 0) == 0) return;
     int okB = cSSXAudio_findListenerInRange(self, b->v05(), D_004A36D8) >= 0;
     int okA = cSSXAudio_findListenerInRange(self, a->v05(), D_004A36D8) >= 0;
     if (!okB && !okA) return;
@@ -7365,24 +7365,24 @@ extern "C" void func_002A0A30(void* self, sSs0A30Rider* a, sSs0A30Rider* b, int 
     if (p7 != 0) return;
     int sel = func_002A1820(self, (sSs1820Rider*)a, (sSs1820Rider*)b);
     if (sel == 2) {
-        if (func_002B1458_f(snd, 0, 0x208F, (int)b, cRider_getCharacterID(b), 0.0f, 0, 0) != 0) {
+        if (cSpeechManager_addRequest_f(snd, 0, 0x208F, (int)b, cRider_getCharacterID(b), 0.0f, 0, 0) != 0) {
             D_004A482C_4(func_003D8008(1, 0, 0x208F), 2, rB, 3);
         }
-        if (func_002B1458_f(snd, 0, 0x208A, (int)a, cRider_getCharacterID(a), 0.0f, 0, 0) != 0) {
+        if (cSpeechManager_addRequest_f(snd, 0, 0x208A, (int)a, cRider_getCharacterID(a), 0.0f, 0, 0) != 0) {
             D_004A482C_4(func_003D8008(1, 0, 0x208A), 2, rA, 3);
         }
     } else if (sel == 1) {
-        if (func_002B1458_f(snd, 0, 0x207E, (int)b, cRider_getCharacterID(b), 0.0f, 0, 0) != 0) {
+        if (cSpeechManager_addRequest_f(snd, 0, 0x207E, (int)b, cRider_getCharacterID(b), 0.0f, 0, 0) != 0) {
             D_004A482C_4(func_003D8008(1, 0, 0x207E), 2, rB, 3);
         }
-        if (func_002B1458_f(snd, 0, 0x208A, (int)a, cRider_getCharacterID(a), 0.0f, 0, 0) != 0) {
+        if (cSpeechManager_addRequest_f(snd, 0, 0x208A, (int)a, cRider_getCharacterID(a), 0.0f, 0, 0) != 0) {
             D_004A482C_4(func_003D8008(1, 0, 0x208A), 2, rA, 3);
         }
     } else if (sel == 0) {
-        if (func_002B1458_f(snd, 0, 0x2078, (int)b, cRider_getCharacterID(b), 0.0f, 0, 0) != 0) {
+        if (cSpeechManager_addRequest_f(snd, 0, 0x2078, (int)b, cRider_getCharacterID(b), 0.0f, 0, 0) != 0) {
             D_004A482C_4(func_003D8008(1, 0, 0x2078), 2, rB, 3);
         }
-        if (func_002B1458_f(snd, 0, 0x208E, (int)a, cRider_getCharacterID(a), 0.0f, 0, 0) != 0) {
+        if (cSpeechManager_addRequest_f(snd, 0, 0x208E, (int)a, cRider_getCharacterID(a), 0.0f, 0, 0) != 0) {
             D_004A482C_4(func_003D8008(1, 0, 0x208E), 2, rA, 3);
         }
     }
@@ -7390,8 +7390,8 @@ extern "C" void func_002A0A30(void* self, sSs0A30Rider* a, sSs0A30Rider* b, int 
 
 //100% - objdiff report; single-function view differs only in a relocation name
 extern "C" int cSSXAudio_findListenerInRange(void* self, int which, float f);
-extern "C" int func_002B0E28(void* self, int i);
-extern "C" int func_002B1458(void* self, int a, int b, int c, int d, int e, int refresh, float f);
+extern "C" int cSpeechManager_canPlay(void* self, int i);
+extern "C" int cSpeechManager_addRequest(void* self, int a, int b, int c, int d, int e, int refresh, float f);
 extern "C" void* func_003D8008(int a, int b, int c);
 extern "C" int cRider_getCharacterID(void*);
 extern "C" void func_0029F660(void* self, void* rider, int a, int b);
@@ -7437,52 +7437,52 @@ extern "C" void func_002A0E70(void* self, sSs0E70Rider* rider, int play)
     int pos = v >= zero;
     if (pos) return;
     char* snd = (char*)self + 0x5560;
-    if (func_002B0E28(snd, 0) == 0) return;
+    if (cSpeechManager_canPlay(snd, 0) == 0) return;
     if (cSSXAudio_findListenerInRange(self, rider->v05(), D_004A36D8) < 0) return;
     func_0029F660(self, rider, 2, 0);
     if (play == 0) return;
     int ok = rider->f874 != 0 && rider->f87C != 0;
     if (!ok) return;
     int r = func_0029F330_i(rider);
-    if (func_002B1458(snd, 0, 0x2077, (int)rider, cRider_getCharacterID(rider), 0, 0, zero) == 0) return;
+    if (cSpeechManager_addRequest(snd, 0, 0x2077, (int)rider, cRider_getCharacterID(rider), 0, 0, zero) == 0) return;
     D_004A482C(func_003D8008(1, 0, 0x2077), 1, r);
 }
 
 //100%
-extern "C" int func_002B1220(void* self, int i);
+extern "C" int cSpeechManager_getStreamId(void* self, int i);
 extern "C" int cStreamSys_getCurrentItem(void* self, int i);
-extern "C" void* func_002AD550(void* self, int idx, int a2);
-extern "C" void func_002B11B0(void*, int);
+extern "C" void* cBankMonitor_findVoice(void* self, int idx, int a2);
+extern "C" void cSpeechManager_stop(void*, int);
 
 extern "C" int func_002A1028(void* self, int id)
 {
-    int idx = cStreamSys_getCurrentItem(*(void**)((char*)self + 0x118), func_002B1220((char*)self + 0x5560, 0));
+    int idx = cStreamSys_getCurrentItem(*(void**)((char*)self + 0x118), cSpeechManager_getStreamId((char*)self + 0x5560, 0));
     if (idx < 0) {
         return 1;
     }
-    void* voice = func_002AD550(**(char***)((char*)self + 0x118) + 0x1D8, idx, 3);
+    void* voice = cBankMonitor_findVoice(**(char***)((char*)self + 0x118) + 0x1D8, idx, 3);
     if (voice == 0) {
         return 0;
     }
     if (*(int*)((char*)voice + 0x80) == id) {
-        func_002B11B0((char*)self + 0x5560, 0);
+        cSpeechManager_stop((char*)self + 0x5560, 0);
         return 1;
     }
     return 0;
 }
 
 //100%
-extern "C" int func_002B1220(void* self, int i);
+extern "C" int cSpeechManager_getStreamId(void* self, int i);
 extern "C" int cStreamSys_getCurrentItem(void* self, int i);
-extern "C" void* func_002AD550(void* self, int idx, int a2);
+extern "C" void* cBankMonitor_findVoice(void* self, int idx, int a2);
 
 extern "C" int func_002A10C0(void* self, int id)
 {
-    int idx = cStreamSys_getCurrentItem(*(void**)((char*)self + 0x118), func_002B1220((char*)self + 0x5560, 0));
+    int idx = cStreamSys_getCurrentItem(*(void**)((char*)self + 0x118), cSpeechManager_getStreamId((char*)self + 0x5560, 0));
     if (idx < 0) {
         return 0;
     }
-    void* voice = func_002AD550(**(char***)((char*)self + 0x118) + 0x1D8, idx, 3);
+    void* voice = cBankMonitor_findVoice(**(char***)((char*)self + 0x118) + 0x1D8, idx, 3);
     if (voice == 0) {
         return 0;
     }
@@ -7491,7 +7491,7 @@ extern "C" int func_002A10C0(void* self, int id)
 
 //100%
 extern "C" int cSSXAudio_findListenerInRange(void* self, int which, float f);
-extern "C" int func_002B1458(void* self, int a, int b, int c, int d, int e, int refresh, float f);
+extern "C" int cSpeechManager_addRequest(void* self, int a, int b, int c, int d, int e, int refresh, float f);
 extern "C" void* func_003D8008(int a, int b, int c);
 // PORT: the unit defines func_0029F330/func_002A1D48 as void; they return their tail call's result.
 int func_0029F330_i(void* self) __asm__("func_0029F330");
@@ -7515,14 +7515,14 @@ void func_002A1138_impl(void* self, char* rider, void* obj)
     char* o = rider + 0x6C0;
     sSsVt1138* e = &(*(sSsVt1138**)o)[5];
     if (cSSXAudio_findListenerInRange(self, e->fn(o + e->delta), D_004A36D8) < 0) return;
-    if (func_002B1458((char*)self + 0x5560, 0, 0x20D3, (int)rider, cRider_getCharacterID(rider), 0, 0, 0.0f) == 0) return;
+    if (cSpeechManager_addRequest((char*)self + 0x5560, 0, 0x20D3, (int)rider, cRider_getCharacterID(rider), 0, 0, 0.0f) == 0) return;
     int r = func_0029F330_i(rider);
     int s = func_002A1D48_i(self, obj);
     D_004A482C_5(func_003D8008(1, 0, 0x20D3), 3, r, s, 4);
 }
 
 //100%
-extern "C" int func_002B1458(void* self, int a, int b, int c, int d, int e, int refresh, float f);
+extern "C" int cSpeechManager_addRequest(void* self, int a, int b, int c, int d, int e, int refresh, float f);
 extern "C" void* func_003D8008(int a, int b, int c);
 extern "C" int cSSXAudio_findListenerInRange(void* self, int which, float f);
 // PORT: the unit defines func_0029F330/func_002A1D48 as void; they return their tail call's result.
@@ -7544,7 +7544,7 @@ void func_002A1280_impl(void* self, char* rider, void* obj)
     char* o = rider + 0x6C0;
     sSsVt1280* e = &(*(sSsVt1280**)o)[5];
     if (cSSXAudio_findListenerInRange(self, e->fn(o + e->delta), D_004A36D8) < 0) return;
-    if (func_002B1458((char*)self + 0x5560, 0, 0x20D4, (int)rider, cRider_getCharacterID(rider), 0, 0, 0.0f) == 0) return;
+    if (cSpeechManager_addRequest((char*)self + 0x5560, 0, 0x20D4, (int)rider, cRider_getCharacterID(rider), 0, 0, 0.0f) == 0) return;
     int r = func_0029F330_i(rider);
     int s = func_002A1D48_i(self, obj);
     D_004A482C_4(func_003D8008(1, 0, 0x20D4), 2, r, s);
@@ -7583,7 +7583,7 @@ void func_002A1400_impl(void* self, char* rider)
     char* o = rider + 0x6C0;
     sSsVt1280* e = &(*(sSsVt1280**)o)[5];
     if (cSSXAudio_findListenerInRange(self, e->fn(o + e->delta), D_004A36D8) < 0) return;
-    if (func_002B1458((char*)self + 0x5560, 0, 0x20B9, (int)rider, cRider_getCharacterID(rider), 0, 0, 0.0f) == 0) return;
+    if (cSpeechManager_addRequest((char*)self + 0x5560, 0, 0x20B9, (int)rider, cRider_getCharacterID(rider), 0, 0, 0.0f) == 0) return;
     int r = func_0029F330_i(rider);
     int k = func_002A1E68(self, rider);
     cBE_getInterface_Fv(cBE_getBE(), 0);
@@ -7603,7 +7603,7 @@ void func_002A1400_impl(void* self, char* rider)
 }
 
 //100%
-extern "C" int func_002B0E28(void* self, int i);
+extern "C" int cSpeechManager_canPlay(void* self, int i);
 extern void (*D_004A482C)(void*, int, int);
 
 extern "C" void func_002A1560(void* self, char* rider)
@@ -7616,11 +7616,11 @@ extern "C" void func_002A1560(void* self, char* rider)
     if (e9->fn(o + e9->delta) != 0 || *(int*)(rider + 0x87C) == 0) check = 1;
     if (check && cSSXAudio_getListenerRider_p(self, -1) != rider) return;
     char* bm = (char*)self + 0x5560;
-    if (func_002B0E28(bm, 0) == 0) return;
+    if (cSpeechManager_canPlay(bm, 0) == 0) return;
     char* o2 = rider + 0x6C0;
     sSsVt1280* e = &(*(sSsVt1280**)o2)[5];
     if (cSSXAudio_findListenerInRange(self, e->fn(o2 + e->delta), D_004A36D8) < 0) return;
-    if (func_002B1458(bm, 0, 0x20B8, (int)rider, cRider_getCharacterID(rider), 0, 0, 0.0f) == 0) return;
+    if (cSpeechManager_addRequest(bm, 0, 0x20B8, (int)rider, cRider_getCharacterID(rider), 0, 0, 0.0f) == 0) return;
     int r = func_0029F330_i(rider);
     D_004A482C(func_003D8008(1, 0, 0x20B8), 1, r);
 }
@@ -7630,8 +7630,8 @@ extern "C" void* cBE_getBE();
 // PORT: cBE_getInterface__Fv is called with (be, kind) here; bind the 2-arg form to that symbol.
 void* cBE_getInterface_Fv(void* be, int kind) __asm__("cBE_getInterface__Fv");
 extern "C" int func_0029F0A0(void* self);
-extern "C" int func_002B0E28(void* self, int i);
-extern "C" int func_002B1458(void* self, int a, int b, int c, int d, int e, int refresh, float f);
+extern "C" int cSpeechManager_canPlay(void* self, int i);
+extern "C" int cSpeechManager_addRequest(void* self, int a, int b, int c, int d, int e, int refresh, float f);
 // func_0029F2B0 returns a value (the unit's earlier declaration says void).
 int func_0029F2B0_r(int a, int b) __asm__("func_0029F2B0");
 extern "C" void* func_003D8008(int a, int b, int c);
@@ -7642,10 +7642,10 @@ extern "C" void func_002A16B0(void* self, int a1)
 {
     if (func_0029F0A0(self) != 0) {
         char* bm = (char*)self + 0x5560;
-        if (func_002B0E28(bm, 0) != 0) {
+        if (cSpeechManager_canPlay(bm, 0) != 0) {
             cBE_getInterface_Fv(cBE_getBE(), 0);
             if (D_00535C11[0] != 0) {
-                if (func_002B1458(bm, 0, 0x20BC, 0, a1, 0, 1, 0.0f) != 0) {
+                if (cSpeechManager_addRequest(bm, 0, 0x20BC, 0, a1, 0, 1, 0.0f) != 0) {
                     int r = func_0029F2B0_r(a1, 0);
                     D_004A482C(func_003D8008(1, 0, 0x20BC), 1, r);
                 }
@@ -7657,8 +7657,8 @@ extern "C" void func_002A16B0(void* self, int a1)
 //100% - objdiff report; single-function view differs only in a relocation name
 // PORT: PS2-only inline asm; needs a C fallback off-PS2.
 extern "C" int func_0029F0A0(void* self);
-extern "C" int func_002B0E28(void* self, int i);
-extern "C" int func_002B1458(void* self, int a, int b, int c, int d, int e, int refresh, float f);
+extern "C" int cSpeechManager_canPlay(void* self, int i);
+extern "C" int cSpeechManager_addRequest(void* self, int a, int b, int c, int d, int e, int refresh, float f);
 // func_0029F2B0 returns a value (the unit's earlier declaration says void).
 int func_0029F2B0_r(int a, int b) __asm__("func_0029F2B0");
 extern "C" void* func_003D8008(int a, int b, int c);
@@ -7668,8 +7668,8 @@ extern "C" void func_002A1778(void* self, int a1)
 {
     if (func_0029F0A0(self) != 0) {
         char* bm = (char*)self + 0x5560;
-        if (func_002B0E28(bm, 0) != 0) {
-            if (func_002B1458(bm, 0, 0x20BD, 0, a1, 0, 1, 0.0f) != 0) {
+        if (cSpeechManager_canPlay(bm, 0) != 0) {
+            if (cSpeechManager_addRequest(bm, 0, 0x20BD, 0, a1, 0, 1, 0.0f) != 0) {
                 int r = func_0029F2B0_r(a1, 0);
                 D_004A482C(func_003D8008(1, 0, 0x20BD), 1, r);
             }
@@ -7742,8 +7742,8 @@ extern "C" int func_002A19D8(void* self, int ev)
     if (ev == 0) {
         func_002A31C0(self);
         if (*(int*)((char*)self + 0x530) == 0) {
-            func_0028D488(self);
-            func_002ADCA0(**(char***)((char*)self + 0x118) + 0x1D8, 10, D_004A3648_19D8[0].v, 0, 3, 1, 0, 0);
+            cSSXAudio_pickNextSong(self);
+            cSndTimerSys_addTimer(**(char***)((char*)self + 0x118) + 0x1D8, 10, D_004A3648_19D8[0].v, 0, 3, 1, 0, 0);
         }
     } else if (ev == 1) {
         func_002A32B0(self);
@@ -7933,7 +7933,7 @@ extern "C" int func_002A1FA0(void* self, void* obj)
 
 //100%
 extern "C" int func_0029F0D8(void* self);
-extern "C" int func_002B1458(void* self, int a, int b, int c, int d, int e, int refresh, float f);
+extern "C" int cSpeechManager_addRequest(void* self, int a, int b, int c, int d, int e, int refresh, float f);
 extern "C" int func_0029F198(void* self);
 extern "C" void* func_0028B1E8();
 // PORT: cBE_getInterface__Fv is called with (be, kind) here; bind the 2-arg form to that symbol.
@@ -7947,7 +7947,7 @@ extern void (*D_004A482C_4)(void*, int, int, int) __asm__("D_004A482C");
 extern "C" void func_002A2018(void* self)
 {
     if (func_0029F0D8(self) != 0) {
-        if (func_002B1458((char*)self + 0x5560, 0, 0x20C8, 0, 0xA, 0, 0, 0.0f) != 0) {
+        if (cSpeechManager_addRequest((char*)self + 0x5560, 0, 0x20C8, 0, 0xA, 0, 0, 0.0f) != 0) {
             int r = func_0029F198(self);
             int m = func_002A1E20(self, *func_00144BC0(cBE_getInterface_Fv(func_0028B1E8(), 0)));
             D_004A482C_4(func_003D8008(1, 0, 0x20C8), 2, r, m);
@@ -7957,7 +7957,7 @@ extern "C" void func_002A2018(void* self)
 
 //100%
 extern "C" int func_0029F0D8(void* self);
-extern "C" int func_002B1458(void* self, int a, int b, int c, int d, int e, int refresh, float f);
+extern "C" int cSpeechManager_addRequest(void* self, int a, int b, int c, int d, int e, int refresh, float f);
 extern "C" int func_0029F198(void* self);
 extern "C" void* func_0028B1E8();
 // PORT: cBE_getInterface__Fv is called with (be, kind) here; bind the 2-arg form to that symbol.
@@ -7971,7 +7971,7 @@ extern void (*D_004A482C_4)(void*, int, int, int) __asm__("D_004A482C");
 extern "C" void func_002A20D0(void* self)
 {
     if (func_0029F0D8(self) != 0) {
-        if (func_002B1458((char*)self + 0x5560, 0, 0x20C9, 0, 0xA, 0, 0, 0.0f) != 0) {
+        if (cSpeechManager_addRequest((char*)self + 0x5560, 0, 0x20C9, 0, 0xA, 0, 0, 0.0f) != 0) {
             int r = func_0029F198(self);
             int m = func_002A1E20(self, *func_00144BC0(cBE_getInterface_Fv(func_0028B1E8(), 0)));
             D_004A482C_4(func_003D8008(1, 0, 0x20C9), 2, r, m);
@@ -7981,7 +7981,7 @@ extern "C" void func_002A20D0(void* self)
 
 //100%
 extern "C" int func_0029F0D8(void* self);
-extern "C" int func_002B1458(void* self, int a, int b, int c, int d, int e, int refresh, float f);
+extern "C" int cSpeechManager_addRequest(void* self, int a, int b, int c, int d, int e, int refresh, float f);
 extern "C" int func_0029F198(void* self);
 extern "C" void* func_0028B1D8();
 // func_002A1D48 returns its tail call's value (the unit defines it as void).
@@ -7998,7 +7998,7 @@ extern void (*D_004A482C_5)(void*, int, int, int, int) __asm__("D_004A482C");
 extern "C" void func_002A2188(void* self)
 {
     if (func_0029F0D8(self) != 0) {
-        if (func_002B1458((char*)self + 0x5560, 0, 0x20CA, 0, 0xA, 0, 0, 0.0f) != 0) {
+        if (cSpeechManager_addRequest((char*)self + 0x5560, 0, 0x20CA, 0, 0xA, 0, 0, 0.0f) != 0) {
             int r = func_0029F198(self);
             int a = func_002A1D48_r(self, *(void**)((char*)func_0028B1D8() + 0x28));
             int m = func_002A1E20(self, *func_00144BC0(cBE_getInterface_Fv(func_0028B1E8(), 0)));
@@ -8009,7 +8009,7 @@ extern "C" void func_002A2188(void* self)
 
 //100%
 extern "C" int func_0029F0D8(void* self);
-extern "C" int func_002B1458(void* self, int a, int b, int c, int d, int e, int refresh, float f);
+extern "C" int cSpeechManager_addRequest(void* self, int a, int b, int c, int d, int e, int refresh, float f);
 extern "C" int func_0029F198(void* self);
 extern "C" void* func_0028B1E8();
 // PORT: cBE_getInterface__Fv is called with (be, kind) here; bind the 2-arg form to that symbol.
@@ -8023,7 +8023,7 @@ extern void (*D_004A482C_4)(void*, int, int, int) __asm__("D_004A482C");
 extern "C" void func_002A2260(void* self)
 {
     if (func_0029F0D8(self) != 0) {
-        if (func_002B1458((char*)self + 0x5560, 0, 0x20E7, 0, 0xA, 0, 0, 0.0f) != 0) {
+        if (cSpeechManager_addRequest((char*)self + 0x5560, 0, 0x20E7, 0, 0xA, 0, 0, 0.0f) != 0) {
             int r = func_0029F198(self);
             int m = func_002A1E20(self, *func_00144BC0(cBE_getInterface_Fv(func_0028B1E8(), 0)));
             D_004A482C_4(func_003D8008(1, 0, 0x20E7), 2, r, m);
@@ -8033,7 +8033,7 @@ extern "C" void func_002A2260(void* self)
 
 //100%
 extern "C" int func_0029F0D8(void* self);
-extern "C" int func_002B1458(void* self, int a, int b, int c, int d, int e, int refresh, float f);
+extern "C" int cSpeechManager_addRequest(void* self, int a, int b, int c, int d, int e, int refresh, float f);
 extern "C" int func_0029F198(void* self);
 extern "C" void* func_0028B1E8();
 // PORT: cBE_getInterface__Fv is called with (be, kind) here; bind the 2-arg form to that symbol.
@@ -8047,7 +8047,7 @@ extern void (*D_004A482C_4)(void*, int, int, int) __asm__("D_004A482C");
 extern "C" void func_002A2318(void* self)
 {
     if (func_0029F0D8(self) != 0) {
-        if (func_002B1458((char*)self + 0x5560, 0, 0x20E8, 0, 0xA, 0, 0, 0.0f) != 0) {
+        if (cSpeechManager_addRequest((char*)self + 0x5560, 0, 0x20E8, 0, 0xA, 0, 0, 0.0f) != 0) {
             int r = func_0029F198(self);
             int m = func_002A1E20(self, *func_00144BC0(cBE_getInterface_Fv(func_0028B1E8(), 0)));
             D_004A482C_4(func_003D8008(1, 0, 0x20E8), 2, r, m);
@@ -8057,7 +8057,7 @@ extern "C" void func_002A2318(void* self)
 
 //100%
 extern "C" int func_0029F0D8(void* self);
-extern "C" int func_002B1458(void* self, int a, int b, int c, int d, int e, int refresh, float f);
+extern "C" int cSpeechManager_addRequest(void* self, int a, int b, int c, int d, int e, int refresh, float f);
 extern "C" int func_0029F198(void* self);
 extern "C" void* func_0028B1E8();
 // PORT: cBE_getInterface__Fv is called with (be, kind) here; bind the 2-arg form to that symbol.
@@ -8071,7 +8071,7 @@ extern void (*D_004A482C_4)(void*, int, int, int) __asm__("D_004A482C");
 extern "C" void func_002A23D0(void* self, int mode)
 {
     if (func_0029F0D8(self) != 0) {
-        if (func_002B1458((char*)self + 0x5560, 0, 0x20E9, 0, 0xA, 0, 0, 0.0f) != 0) {
+        if (cSpeechManager_addRequest((char*)self + 0x5560, 0, 0x20E9, 0, 0xA, 0, 0, 0.0f) != 0) {
             int r = func_0029F198(self);
             int m;
             if (mode == -1) {
@@ -8087,7 +8087,7 @@ extern "C" void func_002A23D0(void* self, int mode)
 //100% - objdiff report; single-function view differs only in a relocation name
 // PORT: PS2-only inline asm; needs a C fallback off-PS2.
 extern "C" int func_0029F0D8(void* self);
-extern "C" int func_002B1458(void* self, int a, int b, int c, int d, int e, int refresh, float f);
+extern "C" int cSpeechManager_addRequest(void* self, int a, int b, int c, int d, int e, int refresh, float f);
 extern "C" int func_0029F198(void* self);
 extern "C" int func_002A1BD8(void* self, int a, int b);
 extern "C" void* func_003D8008(int a, int b, int c);
@@ -8097,7 +8097,7 @@ extern void (*D_004A482C_5)(void*, int, int, int, int) __asm__("D_004A482C");
 extern "C" void func_002A24B0(void* self, int a1)
 {
     if (func_0029F0D8(self) != 0) {
-        if (func_002B1458((char*)self + 0x5560, 0, 0x20CC, 0, 0xA, 0, 0, 0.0f) != 0) {
+        if (cSpeechManager_addRequest((char*)self + 0x5560, 0, 0x20CC, 0, 0xA, 0, 0, 0.0f) != 0) {
             int r = func_0029F198(self);
             int m = func_002A1BD8(self, a1, -1);
             D_004A482C_5(func_003D8008(1, 0, 0x20CC), 3, r, m, 3);
@@ -8107,7 +8107,7 @@ extern "C" void func_002A24B0(void* self, int a1)
 
 //100% - objdiff report; single-function view differs only in a relocation name
 extern "C" int func_0029F0D8(void* self);
-extern "C" int func_002B1458(void* self, int a, int b, int c, int d, int e, int refresh, float f);
+extern "C" int cSpeechManager_addRequest(void* self, int a, int b, int c, int d, int e, int refresh, float f);
 extern "C" int func_0029F198(void* self);
 extern "C" void* func_0028B1E8();
 // PORT: cBE_getInterface__Fv is called with (be, kind) here; bind the 2-arg form to that symbol.
@@ -8121,7 +8121,7 @@ extern void (*D_004A482C_5)(void*, int, int, int, int) __asm__("D_004A482C");
 extern "C" void func_002A2568(void* self, int a1)
 {
     if (func_0029F0D8(self) != 0) {
-        if (func_002B1458((char*)self + 0x5560, 0, 0x20CC, 0, 0xA, 0, 0, 0.0f) != 0) {
+        if (cSpeechManager_addRequest((char*)self + 0x5560, 0, 0x20CC, 0, 0xA, 0, 0, 0.0f) != 0) {
             int r = func_0029F198(self);
             int m = func_002A1BD8(self, *func_00144BC0(cBE_getInterface_Fv(func_0028B1E8(), 0)), a1);
             D_004A482C_5(func_003D8008(1, 0, 0x20CC), 3, r, m, 3);
@@ -8131,7 +8131,7 @@ extern "C" void func_002A2568(void* self, int a1)
 
 //100%
 extern "C" int func_0029F0D8(void* self);
-extern "C" int func_002B1458(void* self, int a, int b, int c, int d, int e, int refresh, float f);
+extern "C" int cSpeechManager_addRequest(void* self, int a, int b, int c, int d, int e, int refresh, float f);
 extern "C" int func_0029F198(void* self);
 extern "C" void* func_0028B1E8();
 // PORT: cBE_getInterface__Fv is called with (be, kind) here; bind the 2-arg form to that symbol.
@@ -8145,7 +8145,7 @@ extern void (*D_004A482C_4)(void*, int, int, int) __asm__("D_004A482C");
 extern "C" void func_002A2638(void* self)
 {
     if (func_0029F0D8(self) != 0) {
-        if (func_002B1458((char*)self + 0x5560, 0, 0x20BA, 0, 0xA, 0, 0, 0.0f) != 0) {
+        if (cSpeechManager_addRequest((char*)self + 0x5560, 0, 0x20BA, 0, 0xA, 0, 0, 0.0f) != 0) {
             int r = func_0029F198(self);
             int m = func_002A1E20(self, *func_00144BC0(cBE_getInterface_Fv(func_0028B1E8(), 0)));
             D_004A482C_4(func_003D8008(1, 0, 0x20BA), 2, r, m);
@@ -8156,8 +8156,8 @@ extern "C" void func_002A2638(void* self)
 //100%
 // PORT: PS2-only inline asm; needs a C fallback off-PS2.
 extern "C" int func_0029F0D8(void* self);
-extern "C" void func_002B11B0(void*, int);
-extern "C" int func_002B1458(void* self, int a, int b, int c, int d, int e, int refresh, float f);
+extern "C" void cSpeechManager_stop(void*, int);
+extern "C" int cSpeechManager_addRequest(void* self, int a, int b, int c, int d, int e, int refresh, float f);
 extern "C" int func_0029F198(void* self);
 extern "C" void* func_003D8008(int a, int b, int c);
 // 5-argument view of the D_004A482C callback (the unit declares a 3-argument one).
@@ -8167,8 +8167,8 @@ extern "C" void func_002A26F0(void* self, int a, int b)
 {
     if (func_0029F0D8(self) != 0) {
         char* bm = (char*)self + 0x5560;
-        func_002B11B0(bm, 0);
-        if (func_002B1458(bm, 0, 0x20E5, 0, 0xA, 0, 0, 0.0f) != 0) {
+        cSpeechManager_stop(bm, 0);
+        if (cSpeechManager_addRequest(bm, 0, 0x20E5, 0, 0xA, 0, 0, 0.0f) != 0) {
             int r = func_0029F198(self);
             int x = 2;
             if (a) x = 1;
@@ -8184,7 +8184,7 @@ extern "C" void func_002A26F0(void* self, int a, int b)
 
 //100%
 extern "C" int func_0029F0D8(void* self);
-extern "C" int func_002B1458(void* self, int a, int b, int c, int d, int e, int refresh, float f);
+extern "C" int cSpeechManager_addRequest(void* self, int a, int b, int c, int d, int e, int refresh, float f);
 extern "C" int func_0029F198(void* self);
 extern "C" void* func_003D8008(int a, int b, int c);
 extern void (*D_004A482C)(void*, int, int);
@@ -8192,7 +8192,7 @@ extern void (*D_004A482C)(void*, int, int);
 extern "C" void func_002A27D8(void* self)
 {
     if (func_0029F0D8(self) != 0) {
-        if (func_002B1458((char*)self + 0x5560, 0, 0x20E6, 0, 0xA, 0, 0, 0.0f) != 0) {
+        if (cSpeechManager_addRequest((char*)self + 0x5560, 0, 0x20E6, 0, 0xA, 0, 0, 0.0f) != 0) {
             int r = func_0029F198(self);
             D_004A482C(func_003D8008(1, 0, 0x20E6), 1, r);
         }
@@ -8202,7 +8202,7 @@ extern "C" void func_002A27D8(void* self)
 //100%
 // PORT: PS2-only inline asm; needs a C fallback off-PS2.
 extern "C" int func_0029F0D8(void* self);
-extern "C" int func_002B1458(void* self, int a, int b, int c, int d, int e, int refresh, float f);
+extern "C" int cSpeechManager_addRequest(void* self, int a, int b, int c, int d, int e, int refresh, float f);
 extern "C" int func_0029F198(void* self);
 extern "C" void* func_003D8008(int a, int b, int c);
 // 6-argument view of the D_004A482C callback (the unit declares a 3-argument one).
@@ -8211,7 +8211,7 @@ extern void (*D_004A482C_6)(void*, int, int, int, int, int) __asm__("D_004A482C"
 extern "C" void func_002A2860(void* self, int n)
 {
     if (func_0029F0D8(self) != 0) {
-        if (func_002B1458((char*)self + 0x5560, 0, 0x20CF, 0, 0xA, 0, 0, 0.0f) != 0) {
+        if (cSpeechManager_addRequest((char*)self + 0x5560, 0, 0x20CF, 0, 0xA, 0, 0, 0.0f) != 0) {
             int r = func_0029F198(self);
             int lo = 0;
             int hi = 0;
@@ -8230,7 +8230,7 @@ extern "C" void func_002A2860(void* self, int n)
 
 //100%
 extern "C" int func_0029F0D8(void* self);
-extern "C" int func_002B1458(void* self, int a, int b, int c, int d, int e, int refresh, float f);
+extern "C" int cSpeechManager_addRequest(void* self, int a, int b, int c, int d, int e, int refresh, float f);
 extern "C" int func_0029F198(void* self);
 extern "C" void* func_0028B1D8();
 // func_002A1D48 returns its tail call's value (the unit defines it as void).
@@ -8247,7 +8247,7 @@ extern void (*D_004A482C_5)(void*, int, int, int, int) __asm__("D_004A482C");
 extern "C" void func_002A2938(void* self)
 {
     if (func_0029F0D8(self) != 0) {
-        if (func_002B1458((char*)self + 0x5560, 0, 0x2102, 0, 0xA, 0, 0, 0.0f) != 0) {
+        if (cSpeechManager_addRequest((char*)self + 0x5560, 0, 0x2102, 0, 0xA, 0, 0, 0.0f) != 0) {
             int r = func_0029F198(self);
             int a = func_002A1D48_r(self, *(void**)((char*)func_0028B1D8() + 0x28));
             int m = func_002A1E20(self, *func_00144BC0(cBE_getInterface_Fv(func_0028B1E8(), 0)));
@@ -8258,7 +8258,7 @@ extern "C" void func_002A2938(void* self)
 
 //100%
 extern "C" int func_0029F0D8(void* self);
-extern "C" int func_002B1458(void* self, int a, int b, int c, int d, int e, int refresh, float f);
+extern "C" int cSpeechManager_addRequest(void* self, int a, int b, int c, int d, int e, int refresh, float f);
 extern "C" int func_0029F198(void* self);
 extern "C" void* func_0028B1E8();
 // PORT: cBE_getInterface__Fv is called with (be, kind) here; bind the 2-arg form to that symbol.
@@ -8273,7 +8273,7 @@ extern void (*D_004A482C_4)(void*, int, int, int) __asm__("D_004A482C");
 extern "C" void func_002A2A10(void* self)
 {
     if (func_0029F0D8(self) != 0) {
-        if (func_002B1458((char*)self + 0x5560, 0, 0x210B, 0, 0xA, 0, 0, 0.0f) != 0) {
+        if (cSpeechManager_addRequest((char*)self + 0x5560, 0, 0x210B, 0, 0xA, 0, 0, 0.0f) != 0) {
             int r = func_0029F198(self);
             int m = func_002A1DA0_r(self, func_00145750(cBE_getInterface_Fv(func_0028B1E8(), 0)), 0);
             D_004A482C_4(func_003D8008(1, 0, 0x210B), 2, r, m);
@@ -8283,7 +8283,7 @@ extern "C" void func_002A2A10(void* self)
 
 //100%
 extern "C" int func_0029F0D8(void* self);
-extern "C" int func_002B1458(void* self, int a, int b, int c, int d, int e, int refresh, float f);
+extern "C" int cSpeechManager_addRequest(void* self, int a, int b, int c, int d, int e, int refresh, float f);
 extern "C" int func_0029F198(void* self);
 extern "C" void* func_0028B1E8();
 // PORT: cBE_getInterface__Fv is called with (be, kind) here; bind the 2-arg form to that symbol.
@@ -8297,7 +8297,7 @@ extern void (*D_004A482C_4)(void*, int, int, int) __asm__("D_004A482C");
 extern "C" void func_002A2AD0(void* self)
 {
     if (func_0029F0D8(self) != 0) {
-        if (func_002B1458((char*)self + 0x5560, 0, 0x212B, 0, 0xA, 0, 0, 0.0f) != 0) {
+        if (cSpeechManager_addRequest((char*)self + 0x5560, 0, 0x212B, 0, 0xA, 0, 0, 0.0f) != 0) {
             int r = func_0029F198(self);
             int m = func_002A1E20(self, *func_00144BC0(cBE_getInterface_Fv(func_0028B1E8(), 0)));
             D_004A482C_4(func_003D8008(1, 0, 0x212B), 2, r, m);
@@ -8308,7 +8308,7 @@ extern "C" void func_002A2AD0(void* self)
 //100%
 // PORT: PS2-only inline asm; needs a C fallback off-PS2.
 extern "C" int func_0029F0D8(void* self);
-extern "C" int func_002B1458(void* self, int a, int b, int c, int d, int e, int refresh, float f);
+extern "C" int cSpeechManager_addRequest(void* self, int a, int b, int c, int d, int e, int refresh, float f);
 extern "C" int func_0029F198(void* self);
 extern "C" void* func_003D8008(int a, int b, int c);
 // 4-argument view of the D_004A482C callback (the unit declares a 3-argument one).
@@ -8317,7 +8317,7 @@ extern void (*D_004A482C_4)(void*, int, int, int) __asm__("D_004A482C");
 extern "C" void func_002A2B88(void* self)
 {
     if (func_0029F0D8(self) != 0) {
-        if (func_002B1458((char*)self + 0x5560, 0, 0x212C, 0, 0xA, 0, 0, 0.0f) != 0) {
+        if (cSpeechManager_addRequest((char*)self + 0x5560, 0, 0x212C, 0, 0xA, 0, 0, 0.0f) != 0) {
             int r = func_0029F198(self);
             int v = *(int*)((char*)self + 0x5780);
             D_004A482C_4(func_003D8008(1, 0, 0x212C), 2, r, v);
@@ -8328,7 +8328,7 @@ extern "C" void func_002A2B88(void* self)
 
 //100% - objdiff report; single-function view differs only in a relocation name
 extern "C" int func_0029F0D8(void* self);
-extern "C" int func_002B1458(void* self, int a, int b, int c, int d, int e, int refresh, float f);
+extern "C" int cSpeechManager_addRequest(void* self, int a, int b, int c, int d, int e, int refresh, float f);
 extern "C" int func_0029F198(void* self);
 extern "C" void* func_0028B1E8();
 // PORT: cBE_getInterface__Fv is called with (be, kind) here; bind the 2-arg form to that symbol.
@@ -8342,7 +8342,7 @@ extern void (*D_004A482C_4)(void*, int, int, int) __asm__("D_004A482C");
 extern "C" void func_002A2C30(void* self)
 {
     if (func_0029F0D8(self) != 0) {
-        if (func_002B1458((char*)self + 0x5560, 0, 0x212D, 0, 0xA, 0, 0, 0.0f) != 0) {
+        if (cSpeechManager_addRequest((char*)self + 0x5560, 0, 0x212D, 0, 0xA, 0, 0, 0.0f) != 0) {
             int r = func_0029F198(self);
             int m = func_002A1BD8(self, *func_00144BC0(cBE_getInterface_Fv(func_0028B1E8(), 0)), -1);
             D_004A482C_4(func_003D8008(1, 0, 0x212D), 2, r, m);
@@ -8353,7 +8353,7 @@ extern "C" void func_002A2C30(void* self)
 //100% - objdiff report; single-function view differs only in a relocation name
 // PORT: PS2-only inline asm; needs a C fallback off-PS2.
 extern "C" int func_0029F0D8(void* self);
-extern "C" int func_002B1458(void* self, int a, int b, int c, int d, int e, int refresh, float f);
+extern "C" int cSpeechManager_addRequest(void* self, int a, int b, int c, int d, int e, int refresh, float f);
 extern "C" int func_0029F198(void* self);
 extern "C" int func_002A1BD8(void* self, int a, int b);
 extern "C" void* func_003D8008(int a, int b, int c);
@@ -8363,7 +8363,7 @@ extern void (*D_004A482C_4)(void*, int, int, int) __asm__("D_004A482C");
 extern "C" void func_002A2CF0(void* self, int a1)
 {
     if (func_0029F0D8(self) != 0) {
-        if (func_002B1458((char*)self + 0x5560, 0, 0x212E, 0, 0xA, 0, 0, 0.0f) != 0) {
+        if (cSpeechManager_addRequest((char*)self + 0x5560, 0, 0x212E, 0, 0xA, 0, 0, 0.0f) != 0) {
             int r = func_0029F198(self);
             int m = func_002A1BD8(self, a1, -1);
             D_004A482C_4(func_003D8008(1, 0, 0x212E), 2, r, m);
@@ -8374,7 +8374,7 @@ extern "C" void func_002A2CF0(void* self, int a1)
 //100% - objdiff report; single-function view differs only in a relocation name
 // PORT: PS2-only inline asm; needs a C fallback off-PS2.
 extern "C" int func_0029F0D8(void* self);
-extern "C" int func_002B1458(void* self, int a, int b, int c, int d, int e, int refresh, float f);
+extern "C" int cSpeechManager_addRequest(void* self, int a, int b, int c, int d, int e, int refresh, float f);
 extern "C" int func_0029F198(void* self);
 extern "C" int func_002A1BD8(void* self, int a, int b);
 extern "C" void* func_003D8008(int a, int b, int c);
@@ -8384,7 +8384,7 @@ extern void (*D_004A482C_4)(void*, int, int, int) __asm__("D_004A482C");
 extern "C" void func_002A2DA0(void* self, int a1)
 {
     if (func_0029F0D8(self) != 0) {
-        if (func_002B1458((char*)self + 0x5560, 0, 0x212F, 0, 0xA, 0, 0, 0.0f) != 0) {
+        if (cSpeechManager_addRequest((char*)self + 0x5560, 0, 0x212F, 0, 0xA, 0, 0, 0.0f) != 0) {
             int r = func_0029F198(self);
             int m = func_002A1BD8(self, a1, -1);
             D_004A482C_4(func_003D8008(1, 0, 0x212F), 2, r, m);
@@ -8399,7 +8399,7 @@ int cBERewardInterface_getTrackMedal(void* iface, int a1, int rider, int medal, 
 extern "C" void* func_0028B1E8();
 extern "C" int* func_00144BC0(void*);
 extern "C" int func_002A1E20(void* self, unsigned int a1);
-extern "C" unsigned int func_002ADF60(void* mon);
+extern "C" unsigned int cSoundManager_rand(void* mon);
 extern "C" void func_002A2188(void* self);
 extern "C" void func_002A23D0(void* self, int mode);
 extern "C" void func_002A2018(void* self);
@@ -8408,7 +8408,7 @@ extern "C" void func_002A2B88(void* self);
 extern "C" void func_002A2260(void* self);
 extern "C" void func_002A2318(void* self);
 extern "C" void func_002A20D0(void* self);
-void func_002B1758(void* self, int a1);
+void cSpeechManager_flush(void* self, int a1);
 
 // Pick the next front-end music track: a pending request wins, otherwise a random unplayed one.
 extern "C" void func_002A2E50(void* self_, int flag)
@@ -8456,7 +8456,7 @@ extern "C" void func_002A2E50(void* self_, int flag)
                 if (gold && plat)
                     *(int*)(self + 0x573C) |= 8;
             }
-            int k = (func_002ADF60(*(void**)(**(char***)(self + 0x118) + 0x1D8)) & 0x7FFF) * avail / 0x7FFF + 1;
+            int k = (cSoundManager_rand(*(void**)(**(char***)(self + 0x118) + 0x1D8)) & 0x7FFF) * avail / 0x7FFF + 1;
             for (int c = 0; c < k;) {
                 c += ((*(int*)(self + 0x573C) >> track) ^ 1) & 1;
                 track += c < k;
@@ -8490,20 +8490,20 @@ extern "C" void func_002A2E50(void* self_, int flag)
         func_002A20D0(self);
         break;
     }
-    func_002B1758(stream, 0);
+    cSpeechManager_flush(stream, 0);
 }
 
 //100% - objdiff report; single-function view differs only in a relocation name
 extern "C" void func_002A26F0(void* self, int a, int b);
-void func_002B1758(void* self, int a1);
-int func_002B4908(void* self);
+void cSpeechManager_flush(void* self, int a1);
+int cMusicManager_getSelectedSedValue(void* self);
 
 extern "C" void func_002A3170(void* self)
 {
     func_002A26F0(self, 0, 0);
-    func_002B1758((char*)self + 0x5560, 0);
+    cSpeechManager_flush((char*)self + 0x5560, 0);
     *(int*)((char*)self + 0x5774) = 1;
-    *(int*)((char*)self + 0x5778) = func_002B4908((char*)self + 0x118);
+    *(int*)((char*)self + 0x5778) = cMusicManager_getSelectedSedValue((char*)self + 0x118);
 }
 
 //100% - objdiff report; single-function view differs only in a relocation name
@@ -8515,7 +8515,7 @@ void* cBE_getInterface_Fv(void* be, int kind) __asm__("cBE_getInterface__Fv");
 extern signed char D_00535C11[];
 extern char* D_004A28A8;
 extern "C" int func_00295028(void* self, int a, int b);
-extern "C" int func_002B1458(void* self, int a, int b, int c, int d, int e, int refresh, float f);
+extern "C" int cSpeechManager_addRequest(void* self, int a, int b, int c, int d, int e, int refresh, float f);
 extern "C" int func_0029F198(void* self);
 extern "C" void* func_003D8008(int a, int b, int c);
 // 4-argument view of the D_004A482C callback (the unit declares a 3-argument one).
@@ -8529,7 +8529,7 @@ extern "C" void func_002A31C0(void* self)
     if (D_00535C11[0] != 0) return;
     if (**(int**)(D_004A28A8 + 0xC0) < 2) {
         if (func_00295028(self, 0, 0) != 0) return;
-        if (func_002B1458((char*)self + 0x5560, 0, 0x20C0, 0, 0xB, 0, 0, 0.0f) == 0) return;
+        if (cSpeechManager_addRequest((char*)self + 0x5560, 0, 0x20C0, 0, 0xB, 0, 0, 0.0f) == 0) return;
         int r = func_0029F198(self);
         D_004A482C_4(func_003D8008(1, 0, 0x20C0), 2, r, 1);
     }
@@ -8538,7 +8538,7 @@ extern "C" void func_002A31C0(void* self)
 //100%
 // PORT: PS2-only inline asm; needs a C fallback off-PS2.
 extern "C" int func_0029F128(void* self);
-extern "C" int func_002B1458(void* self, int a, int b, int c, int d, int e, int refresh, float f);
+extern "C" int cSpeechManager_addRequest(void* self, int a, int b, int c, int d, int e, int refresh, float f);
 extern "C" int func_0029F198(void* self);
 extern "C" void* func_0028B1D8();
 // func_002A1D48 returns its tail call's value (the unit defines it as void).
@@ -8550,7 +8550,7 @@ extern void (*D_004A482C_4)(void*, int, int, int) __asm__("D_004A482C");
 extern "C" void func_002A32B0(void* self)
 {
     if (func_0029F128(self) != 0) {
-        if (func_002B1458((char*)self + 0x5560, 0, 0x20C1, 0, 0xB, 0, 0, 0.0f) != 0) {
+        if (cSpeechManager_addRequest((char*)self + 0x5560, 0, 0x20C1, 0, 0xB, 0, 0, 0.0f) != 0) {
             int r = func_0029F198(self);
             int a = func_002A1D48_r(self, *(void**)((char*)func_0028B1D8() + 0x28));
             D_004A482C_4(func_003D8008(1, 0, 0x20C1), 2, r, a);
@@ -8561,7 +8561,7 @@ extern "C" void func_002A32B0(void* self)
 //100%
 // PORT: PS2-only inline asm; needs a C fallback off-PS2.
 extern "C" int func_0029F128(void* self);
-extern "C" int func_002B1458(void* self, int a, int b, int c, int d, int e, int refresh, float f);
+extern "C" int cSpeechManager_addRequest(void* self, int a, int b, int c, int d, int e, int refresh, float f);
 extern "C" int func_0029F198(void* self);
 extern "C" void* func_0028B1D8();
 // func_002A1D48 returns its tail call's value (the unit defines it as void).
@@ -8573,7 +8573,7 @@ extern void (*D_004A482C_4)(void*, int, int, int) __asm__("D_004A482C");
 extern "C" void func_002A3358(void* self)
 {
     if (func_0029F128(self) != 0) {
-        if (func_002B1458((char*)self + 0x5560, 0, 0x20C2, 0, 0xB, 0, 0, 0.0f) != 0) {
+        if (cSpeechManager_addRequest((char*)self + 0x5560, 0, 0x20C2, 0, 0xB, 0, 0, 0.0f) != 0) {
             int r = func_0029F198(self);
             int a = func_002A1D48_r(self, *(void**)((char*)func_0028B1D8() + 0x28));
             D_004A482C_4(func_003D8008(1, 0, 0x20C2), 2, r, a);
@@ -8584,7 +8584,7 @@ extern "C" void func_002A3358(void* self)
 //100% - objdiff report; single-function view differs only in a relocation name
 extern "C" int func_0029F128(void* self);
 extern "C" int cSSXAudio_isReplayPlaying(void* self);
-extern "C" int func_002B1458(void* self, int a, int b, int c, int d, int e, int refresh, float f);
+extern "C" int cSpeechManager_addRequest(void* self, int a, int b, int c, int d, int e, int refresh, float f);
 extern "C" int func_0029F198(void* self);
 extern "C" void* func_0028B1E8();
 // PORT: cBE_getInterface__Fv is called with (be, kind) here; bind the 2-arg form to that symbol.
@@ -8599,7 +8599,7 @@ extern "C" void func_002A3400(void* self)
 {
     if (func_0029F128(self) == 0) return;
     if (cSSXAudio_isReplayPlaying(self) != 0) return;
-    if (func_002B1458((char*)self + 0x5560, 0, 0x20C3, 0, 0xB, 0, 0, 0.0f) == 0) return;
+    if (cSpeechManager_addRequest((char*)self + 0x5560, 0, 0x20C3, 0, 0xB, 0, 0, 0.0f) == 0) return;
     int r = func_0029F198(self);
     int m = func_002A1BD8(self, *func_00144BC0(cBE_getInterface_Fv(func_0028B1E8(), 0)), -1);
     D_004A482C_4(func_003D8008(1, 0, 0x20C3), 2, r, m);
@@ -8608,13 +8608,13 @@ extern "C" void func_002A3400(void* self)
 // PORT: the unit defines func_002A4248/func_002A42C8 with no params; self is passed here.
 int func_002A4248_s(void* self) __asm__("func_002A4248");
 int func_002A42C8_s(void* self) __asm__("func_002A42C8");
-extern "C" int func_002B0E28(void* self, int i);
+extern "C" int cSpeechManager_canPlay(void* self, int i);
 extern "C" int func_002A4078(void* self);
 extern "C" int func_002A4040(void* self);
 // cSSXAudio_getListenerRider returns a rider pointer here (the unit declares it int).
 void* cSSXAudio_getListenerRider_p(void* self, int which) __asm__("cSSXAudio_getListenerRider");
 extern "C" int func_00123168(void*);
-extern "C" void func_002ADCA0(void*, int, long, int, int, int, int, int);
+extern "C" void cSndTimerSys_addTimer(void*, int, long, int, int, int, int, int);
 // PORT: func_002A1E68 returns the rider's sound mask here.
 int func_002A1E68_i(void* self, void* rider) __asm__("func_002A1E68");
 // PORT: D_004A482C is called with 5 args here.
@@ -8641,12 +8641,12 @@ extern "C" int func_002A34D0(void* self, char* rider, int flag, int which)
         char* o = rider + 0x6C0;
         sSsVt34D0* vt = *(sSsVt34D0**)o;
         int r = vt[7].fn(o + vt[7].delta);
-        func_002ADCA0(p, 0x3E8, key->v, 0, r, 0, 0, 0);
+        cSndTimerSys_addTimer(p, 0x3E8, key->v, 0, r, 0, 0, 0);
         goto done;
     }
     if (func_002A42C8_s(self) != 0)
         return 1;
-    if (flag != 0 && func_002B0E28((char*)self + 0x5560, 0) == 0)
+    if (flag != 0 && cSpeechManager_canPlay((char*)self + 0x5560, 0) == 0)
         return 0;
     flag = 1;
     if (rider == 0) {
@@ -8659,7 +8659,7 @@ extern "C" int func_002A34D0(void* self, char* rider, int flag, int which)
     }
     if (func_00123168(rider) != 0)
         return 1;
-    if (func_002B1458((char*)self + 0x5560, 0, 0x20C4, 0, 0xB, 0, 0, 0.0f) == 0)
+    if (cSpeechManager_addRequest((char*)self + 0x5560, 0, 0x20C4, 0, 0xB, 0, 0, 0.0f) == 0)
         return 1;
     a = func_0029F198(self);
     b = func_002A1D48_r(self, rider);
@@ -8704,10 +8704,10 @@ extern "C" void func_002A3708(void* self, char* rider)
         sSndKey8* key = D_004A36E8;
         sSsVt1280* e = &(*(sSsVt1280**)o)[7];
         int v = e->fn(o + e->delta);
-        func_002ADCA0(p, 1000, key->v, 0, v, 0, 0, 0);
+        cSndTimerSys_addTimer(p, 1000, key->v, 0, v, 0, 0, 0);
         return;
     }
-    if (func_002B1458((char*)self + 0x5560, 0, 0x20C5, 0, 0xB, 0, 0, 0.0f) == 0) return;
+    if (cSpeechManager_addRequest((char*)self + 0x5560, 0, 0x20C5, 0, 0xB, 0, 0, 0.0f) == 0) return;
     int a = func_0029F198(self);
     int b = func_002A1D48_i(self, rider);
     int c = func_002A1E68(self, rider);
@@ -8718,7 +8718,7 @@ INCLUDE_ASM("sound/soundsys", func_002A3860);
 
 //100% - objdiff report; single-function view differs only in a relocation name
 extern "C" int func_0029F128(void* self);
-extern "C" int func_002B1458(void* self, int a, int b, int c, int d, int e, int refresh, float f);
+extern "C" int cSpeechManager_addRequest(void* self, int a, int b, int c, int d, int e, int refresh, float f);
 extern "C" int func_0029F198(void* self);
 extern "C" void* func_0028B1E8();
 // PORT: cBE_getInterface__Fv is called with (be, kind) here; bind the 2-arg form to that symbol.
@@ -8732,7 +8732,7 @@ extern void (*D_004A482C_4)(void*, int, int, int) __asm__("D_004A482C");
 extern "C" void func_002A39E0(void* self)
 {
     if (func_0029F128(self) != 0) {
-        if (func_002B1458((char*)self + 0x5560, 0, 0x20BB, 0, 0xB, 0, 0, 0.0f) != 0) {
+        if (cSpeechManager_addRequest((char*)self + 0x5560, 0, 0x20BB, 0, 0xB, 0, 0, 0.0f) != 0) {
             int r = func_0029F198(self);
             int m = func_002A1BD8(self, *func_00144BC0(cBE_getInterface_Fv(func_0028B1E8(), 0)), -1);
             D_004A482C_4(func_003D8008(1, 0, 0x20BB), 2, r, m);
@@ -8766,7 +8766,7 @@ extern "C" int func_0029F160(void* self);
 // cSSXAudio_getListenerRider returns an object pointer here (the unit declares it int).
 void* cSSXAudio_getListenerRider_p(void* self, int which) __asm__("cSSXAudio_getListenerRider");
 extern "C" int cSSXAudio_isReplayPlaying(void* self);
-extern "C" int func_002B1458(void* self, int a, int b, int c, int d, int e, int refresh, float f);
+extern "C" int cSpeechManager_addRequest(void* self, int a, int b, int c, int d, int e, int refresh, float f);
 extern "C" void* func_003D8008(int a, int b, int c);
 extern void (*D_004A482C)(void*, int, int);
 
@@ -8778,7 +8778,7 @@ extern "C" void func_002A3B18(void* self, void* obj, int a2)
     if (done) return;
     if (obj != cSSXAudio_getListenerRider_p(self, -1)) return;
     if (cSSXAudio_isReplayPlaying(self) != 0) return;
-    if (func_002B1458((char*)self + 0x5560, 0, 0x20A7, 0, 0xC, 0, 0, 0.0f) != 0) {
+    if (cSpeechManager_addRequest((char*)self + 0x5560, 0, 0x20A7, 0, 0xC, 0, 0, 0.0f) != 0) {
         D_004A482C(func_003D8008(1, 0, 0x20A7), 1, a2);
     }
 }
@@ -8789,7 +8789,7 @@ extern "C" int func_0029F160(void* self);
 // cSSXAudio_getListenerRider returns an object pointer here (the unit declares it int).
 void* cSSXAudio_getListenerRider_p(void* self, int which) __asm__("cSSXAudio_getListenerRider");
 extern "C" int cSSXAudio_isReplayPlaying(void* self);
-extern "C" int func_002B1458(void* self, int a, int b, int c, int d, int e, int refresh, float f);
+extern "C" int cSpeechManager_addRequest(void* self, int a, int b, int c, int d, int e, int refresh, float f);
 extern "C" void* func_003D8008(int a, int b, int c);
 extern void (*D_004A482C)(void*, int, int);
 
@@ -8803,7 +8803,7 @@ extern "C" void func_002A3C00(void* self, void* obj, int a2)
     }
     if (obj != cSSXAudio_getListenerRider_p(self, -1)) return;
     if (cSSXAudio_isReplayPlaying(self) != 0) return;
-    if (func_002B1458((char*)self + 0x5560, 0, 0x20A8, 0, 0xC, 0, 0, 0.0f) != 0) {
+    if (cSpeechManager_addRequest((char*)self + 0x5560, 0, 0x20A8, 0, 0xC, 0, 0, 0.0f) != 0) {
         D_004A482C(func_003D8008(1, 0, 0x20A8), 1, a2);
     }
 }
@@ -8826,7 +8826,7 @@ extern "C" void func_002A3CE8(void* self, char* rider, int n)
     if (n != 1 && rider != cSSXAudio_getListenerRider_p(self, -1)) return;
     if (cSSXAudio_isReplayPlaying(self) != 0) return;
     if (n == 0) return;
-    if (func_002B1458((char*)self + 0x5560, 0, 0x20A9, 0, 0xC, 0, 0, zero) != 0) {
+    if (cSpeechManager_addRequest((char*)self + 0x5560, 0, 0x20A9, 0, 0xC, 0, 0, zero) != 0) {
         D_004A482C(func_003D8008(1, 0, 0x20A9), 1, n);
     }
 }
@@ -8834,7 +8834,7 @@ extern "C" void func_002A3CE8(void* self, char* rider, int n)
 //100%
 extern "C" int func_0029F160(void* self);
 extern "C" int cSSXAudio_isReplayPlaying(void* self);
-extern "C" int func_002B1458(void* self, int a, int b, int c, int d, int e, int refresh, float f);
+extern "C" int cSpeechManager_addRequest(void* self, int a, int b, int c, int d, int e, int refresh, float f);
 extern "C" void* func_003D8008(int a, int b, int c);
 extern void (*D_004A482C)(void*, int, int);
 
@@ -8845,7 +8845,7 @@ extern "C" void func_002A3DE0(void* self, void* obj, int ev)
     int done = *(float*)((char*)obj + 0x470) >= 0.0f;
     if (done) return;
     if (cSSXAudio_isReplayPlaying(self) != 0) return;
-    if (func_002B1458((char*)self + 0x5560, 0, 0x2133, 0, 0xC, 0, 0, 0.0f) != 0) {
+    if (cSpeechManager_addRequest((char*)self + 0x5560, 0, 0x2133, 0, 0xC, 0, 0, 0.0f) != 0) {
         D_004A482C(func_003D8008(1, 0, 0x2133), 1, ev);
     }
 }
@@ -8853,7 +8853,7 @@ extern "C" void func_002A3DE0(void* self, void* obj, int ev)
 //100%
 extern "C" int func_0029F160(void* self);
 extern "C" int cSSXAudio_isReplayPlaying(void* self);
-extern "C" int func_002B1458(void* self, int a, int b, int c, int d, int e, int refresh, float f);
+extern "C" int cSpeechManager_addRequest(void* self, int a, int b, int c, int d, int e, int refresh, float f);
 extern "C" void* func_003D8008(int a, int b, int c);
 extern void (*D_004A482C)(void*, int, int);
 
@@ -8864,7 +8864,7 @@ extern "C" void func_002A3EB8(void* self, void* obj, int ev)
     int done = *(float*)((char*)obj + 0x470) >= 0.0f;
     if (done) return;
     if (cSSXAudio_isReplayPlaying(self) != 0) return;
-    if (func_002B1458((char*)self + 0x5560, 0, 0x2145, 0, 0xC, 0, 0, 0.0f) != 0) {
+    if (cSpeechManager_addRequest((char*)self + 0x5560, 0, 0x2145, 0, 0xC, 0, 0, 0.0f) != 0) {
         D_004A482C(func_003D8008(1, 0, 0x2145), 1, ev);
     }
 }
@@ -9264,7 +9264,7 @@ extern "C" int func_002A4030(void* self, unsigned int a1);
 extern "C" int func_002A3FD8(void* self, unsigned int a1);
 extern "C" void func_002A2E50(void* self, int a);
 // bank-monitor method: returns BXrand()
-extern "C" unsigned int func_002ADF60(void* mon);
+extern "C" unsigned int cSoundManager_rand(void* mon);
 
 extern "C" int func_002A4770(void* self)
 {
@@ -9326,7 +9326,7 @@ extern "C" int func_002A4770(void* self)
             }
         }
         int pick = -1;
-        int k = (func_002ADF60(*(void**)(**(char***)(s + 0x118) + 0x1D8)) & 0x7FFF) * n / 0x7FFF + 1;
+        int k = (cSoundManager_rand(*(void**)(**(char***)(s + 0x118) + 0x1D8)) & 0x7FFF) * n / 0x7FFF + 1;
         while (k > 0) {
             pick++;
             if (flags[pick]) {
@@ -9355,7 +9355,7 @@ extern sSndKey8 D_004A36F0[];
 extern "C" void func_002A49E8(void* self)
 {
     *(int*)((char*)self + 0x5818) = 1;
-    func_002ADCA0(**(char***)((char*)self + 0x118) + 0x1D8, 30000, D_004A36F0[0].v, 0, 0, 0, 0, 0);
+    cSndTimerSys_addTimer(**(char***)((char*)self + 0x118) + 0x1D8, 30000, D_004A36F0[0].v, 0, 0, 0, 0, 0);
 }
 
 //100%
@@ -9380,8 +9380,8 @@ struct sSndKey8_4A78 {
     long v;
 } __attribute__((packed));
 extern sSndKey8_4A78 D_004A3650[];
-extern "C" void func_002ADCA0(void*, int, long, int, int, int, int, int);
-extern "C" int func_0028DEF0(void* self, int a1);
+extern "C" void cSndTimerSys_addTimer(void*, int, long, int, int, int, int, int);
+extern "C" int cSSXAudio_setMusicTriggerLatch(void* self, int a1);
 
 // PORT: 64-bit long sound key
 extern "C" void func_002A4A78(void* self)
@@ -9389,25 +9389,25 @@ extern "C" void func_002A4A78(void* self)
     cBE_getInterface_Fv(cBE_getBE(), 0);
     if (*(int*)((char*)self + 0x578C) == 0 && D_00535C11[0] == 0) {
         if (func_002A3F90(self) != 0) {
-            func_0028DEF0(self, 0xD);
-            func_002ADCA0(**(char***)((char*)self + 0x118) + 0x1D8, 2, D_004A3650->v, 0, 2, 0, 0, 0);
+            cSSXAudio_setMusicTriggerLatch(self, 0xD);
+            cSndTimerSys_addTimer(**(char***)((char*)self + 0x118) + 0x1D8, 2, D_004A3650->v, 0, 2, 0, 0, 0);
         } else {
             char* p = **(char***)((char*)self + 0x118) + 0x1D8;
             sSndKey8_4A78* key = D_004A3650;
-            int r = func_002B4908((char*)self + 0x118);
-            func_002ADCA0(p, 2, key->v, 0, 4, r, 0, 0);
+            int r = cMusicManager_getSelectedSedValue((char*)self + 0x118);
+            cSndTimerSys_addTimer(p, 2, key->v, 0, 4, r, 0, 0);
         }
     }
 }
 
 //100%
-extern "C" int func_002B49E0(void*);
-extern "C" void func_002B11B0(void*, int);
+extern "C" int cMusicManager_getSongId(void*);
+extern "C" void cSpeechManager_stop(void*, int);
 
 extern "C" void func_002A4B68(void* self)
 {
-    if (func_002B49E0((char*)self + 0x118) == 0x191) {
-        func_002B11B0((char*)self + 0x5560, 0);
+    if (cMusicManager_getSongId((char*)self + 0x118) == 0x191) {
+        cSpeechManager_stop((char*)self + 0x5560, 0);
     }
 }
 
@@ -9792,7 +9792,7 @@ extern "C" void func_002A62F0(void* vself, int idx, float fade)
     self->ent[idx].v = 0;
     if (--v->refs == 0) {
         if (v->id >= 0) {
-            func_002AD5F0(*D_004A36F8 + 0x1D8, v->id, 1, fade);
+            cBankMonitor_stopVoice(*D_004A36F8 + 0x1D8, v->id, 1, fade);
         }
         v->id = -1;
         v->f0 = -1;
@@ -9803,7 +9803,7 @@ extern "C" void func_002A62F0(void* vself, int idx, float fade)
     if (self->vol > 0.25f) self->vol = 0.25f;
     if (self->id >= 0) {
         if (fade == 0.0f) {
-            func_002AD5F0(*D_004A36F8 + 0x1D8, self->id, 2, fade);
+            cBankMonitor_stopVoice(*D_004A36F8 + 0x1D8, self->id, 2, fade);
         }
         self->id = -1;
         if (self->state == 2) self->state = 1;
@@ -9992,7 +9992,7 @@ extern "C" void func_002A6808(void* self)
 }
 
 //100%
-extern "C" void func_002AD5F0(void* p, int idx, int a2, float v);
+extern "C" void cBankMonitor_stopVoice(void* p, int idx, int a2, float v);
 extern char** D_004A36F8;
 
 extern "C" void func_002A6848(void* self)
@@ -10003,7 +10003,7 @@ extern "C" void func_002A6848(void* self)
     }
     *(int*)((char*)self + 0x180) = 0;
     if (*(int*)((char*)self + 0x174) >= 0) {
-        func_002AD5F0(*D_004A36F8 + 0x1D8, *(int*)((char*)self + 0x174), 2, 0.0f);
+        cBankMonitor_stopVoice(*D_004A36F8 + 0x1D8, *(int*)((char*)self + 0x174), 2, 0.0f);
         *(int*)((char*)self + 0x174) = -1;
     }
 }
@@ -10113,7 +10113,7 @@ extern "C" char* func_002A69A0(char* self, int embedded, int count, int unused, 
 }
 
 //100%
-extern "C" void func_0028BB10(void* self, int flags);
+extern "C" void cBankManager_destroy(void* self, int flags);
 extern "C" void func_002ADEE8(void* self, int flags);
 void operator_delete(int*);
 extern "C" void func_002A4BE0(void* self, int flags);
@@ -10170,7 +10170,7 @@ extern "C" void func_002A6B50(char* self, int flags)
     }
     func_002A82D8(self, 0);
     if (flags & 2) {
-        func_0028BB10(*(void**)self, 0);
+        cBankManager_destroy(*(void**)self, 0);
         func_002ADEE8(*(void**)(*(char**)self + 0x1D8), 0);
     }
     if (flags & 1) operator_delete((int*)self);
@@ -10968,7 +10968,7 @@ extern "C" char* func_002A8140(char* self, int embedded, int count, int heap)
 //100%
 void cMemMan_free(void*);
 void operator_delete(int*);
-extern "C" void func_0028BB10(void* self, int flags);
+extern "C" void cBankManager_destroy(void* self, int flags);
 extern "C" void func_002ADEE8(void* self, int flags);
 extern "C" void func_0028FEA0(char* self, int flags);
 extern "C" void func_003B9880();
@@ -11015,7 +11015,7 @@ extern "C" void func_002A82D8(char* self, int flags)
     func_003B9880();
     func_0028FEA0(self, 0);
     if (flags & 2) {
-        func_0028BB10(*(void**)self, 0);
+        cBankManager_destroy(*(void**)self, 0);
         func_002ADEE8(*(void**)(*(char**)self + 0x1D8), 0);
     }
     if (flags & 1) operator_delete((int*)self);

@@ -441,7 +441,7 @@ extern "C" sStreamSysA490* cStreamSys_cStreamSys(sStreamSysA490* self, int inchr
 //100%
 void cMemMan_free(void*);
 void operator_delete(int* ptr);
-extern "C" void func_0028BB10(void* self, int flags);
+extern "C" void cBankManager_destroy(void* self, int flags);
 extern "C" void cStreamInstance_destroy(void* e, int a1);
 extern "C" void func_002ADEE8(void* self, int flags);
 extern void* D_00483B48[];
@@ -490,7 +490,7 @@ extern "C" void cStreamSys_destroy(void* p, int flags)
         cMemMan_free(*(void**)(self + 8));
     }
     if (flags & 2) {
-        func_0028BB10(*(void**)self, 0);
+        cBankManager_destroy(*(void**)self, 0);
         func_002ADEE8(*(void**)(*(char**)self + 0x1D8), 0);
     }
     if (flags & 1) {
@@ -842,8 +842,8 @@ extern "C" int func_002AB1C8(sStreamSysA490* self, int i, int a2)
 extern "C" void* func_002ADE88(void* self, int heap);
 extern "C" void* cBankManager_cBankManager(void* self, int embedded, int count, int heap);
 extern "C" void* func_002A69A0(void* self, int embedded, int a2, int a3, int heap);
-extern "C" void* func_002B28C0(void* self, int embedded, int a2, int a3, int heap);
-extern "C" void* func_002B07F8(void* self, int embedded, int a2, int a3, int heap);
+extern "C" void* cMusicManager_cMusicManager(void* self, int embedded, int a2, int a3, int heap);
+extern "C" void* cSpeechManager_cSpeechManager(void* self, int embedded, int a2, int a3, int heap);
 extern void* D_004838F8[];
 extern void* D_004837F8[];
 extern void* D_00483870[];
@@ -880,8 +880,8 @@ extern "C" char* cAudioSys_cAudioSys(char* self, int embedded, int a2, int a3, i
         cStreamSys_cStreamSys(*(sStreamSysA490**)(self + 0x5560), 0, a2, a3, heap);
     }
     func_002A69A0(self, 0, a2, a3, heap);
-    func_002B28C0(self + 0x118, 0, a2, a3, heap);
-    func_002B07F8(self + 0x5560, 0, a2, a3, heap);
+    cMusicManager_cMusicManager(self + 0x118, 0, a2, a3, heap);
+    cSpeechManager_cSpeechManager(self + 0x5560, 0, a2, a3, heap);
     *(const sSsVtblAB200**)(*(char**)(**(char***)(self + 0x118) + 0x1D8) + 4) = &D_004837D8_B200;
     *(const sSsVtblBB200**)(**(char***)(self + 0x118) + 0xAB0) = &D_00483760_B200;
     *(const sSsVtblCB200**)(**(char***)(self + 0x118) + 0x1D4) = &D_004837A0_B200;
@@ -910,12 +910,12 @@ extern "C" char* cAudioSys_cAudioSys(char* self, int embedded, int a2, int a3, i
 
 //100%
 void operator_delete(int* ptr);
-extern "C" void func_0028BB10(void* self, int flags);
+extern "C" void cBankManager_destroy(void* self, int flags);
 extern "C" void func_002A6B50(void* self, int flags);
 extern "C" void cStreamSys_destroy(void* self, int flags);
 extern "C" void func_002ADEE8(void* self, int flags);
-extern "C" void func_002B0AE8(char* self, int flags);
-extern "C" void func_002B3398(char* self, int flags);
+extern "C" void cSpeechManager_destroy(char* self, int flags);
+extern "C" void cMusicManager_destroy(char* self, int flags);
 extern void* D_004838F8[];
 extern void* D_004837F8[];
 extern void* D_00483870[];
@@ -965,12 +965,12 @@ extern "C" void cAudioSys_destroy(char* self, int flags)
         *(sSsVtblCB478**)(**(char***)(self + 0x118) + 0x1D4) = &t3;
         t3.e[1].delta = D_004837A0.e[1].delta + d2;
     }
-    func_002B0AE8(bank, 0);
-    func_002B3398(mon, 0);
+    cSpeechManager_destroy(bank, 0);
+    cMusicManager_destroy(mon, 0);
     func_002A6B50(self, 0);
     if (flags & 2) {
         cStreamSys_destroy(*(void**)(self + 0x118), 0);
-        func_0028BB10(**(void***)(self + 0x118), 0);
+        cBankManager_destroy(**(void***)(self + 0x118), 0);
         func_002ADEE8(*(void**)(**(char***)(self + 0x118) + 0x1D8), 0);
     }
     if (flags & 1) {
@@ -1025,7 +1025,7 @@ extern "C" void cAudioSys_updateVoices(void* self, float v)
 }
 
 //100%
-extern "C" void func_002AD940(void* e);
+extern "C" void cSndTimer_clear(void* e);
 
 class cStrmTickOwner {
 public:
@@ -1045,7 +1045,7 @@ extern "C" void cAudioSys_tickTimer(void* e, void* self)
     if (t->active) {
         if ((t->count -= 10) < 5) {
             if ((((cStrmTickOwner*)self)->*(t->cb))(t)) {
-                func_002AD940(t);
+                cSndTimer_clear(t);
             } else {
                 t->count += t->period;
             }
@@ -1054,7 +1054,7 @@ extern "C" void cAudioSys_tickTimer(void* e, void* self)
 }
 
 //100% - objdiff report; single-function view differs only in a relocation name
-extern "C" void func_002ADC10(void* bm);
+extern "C" void cSndTimerSys_update(void* bm);
 extern "C" void cAudioSys_tickTimer(void* e, void* self);
 
 extern "C" void cAudioSys_updateTimers(void* self)
@@ -1062,7 +1062,7 @@ extern "C" void cAudioSys_updateTimers(void* self)
     char* snd = **(char***)((char*)self + 0x118);
     char* bm = snd + 0x1D8;
     if (*(int*)(snd + 0x26C) == 0) {
-        func_002ADC10(bm);
+        cSndTimerSys_update(bm);
         for (int i = 0; i < 48; i++) {
             cAudioSys_tickTimer(**(char***)((char*)self + 0x118) + 0x270 + i * 0x2C, self);
         }
@@ -1073,8 +1073,8 @@ extern "C" void cAudioSys_updateTimers(void* self)
 extern "C" void cAsyncSys_update(void* snd);
 extern "C" void func_002A6D18(void* self);
 extern "C" void cStreamSys_update(void* self);
-extern "C" void func_002B0C78(void* self);
-extern "C" void func_002B4388(void* self);
+extern "C" void cSpeechManager_update(void* self);
+extern "C" void cMusicManager_update(void* self);
 
 struct sStrmVtEntF { short delta; short index; void (*fn)(void*, float); };
 
@@ -1087,8 +1087,8 @@ extern "C" void cAudioSys_update(void* self, float v)
     char* o = b + 0x1D8;
     sStrmVtEntF* e = &(*(sStrmVtEntF**)(b + 0xAB0))[5];
     e->fn(o + e->delta, v);
-    func_002B4388(sys);
-    func_002B0C78((char*)self + 0x5560);
+    cMusicManager_update(sys);
+    cSpeechManager_update((char*)self + 0x5560);
     cStreamSys_update(*sys);
 }
 
