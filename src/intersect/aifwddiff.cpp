@@ -2,6 +2,7 @@
 #include "intersect/aifwddiff.h"
 #include "intersect/spheretree.h"
 #include "intersect/riderspheretree.h"
+#include "intersect/spacehash.h"
 
 //100%
 // PORT: operator_new__FUi really takes (size, tag, flags, d); bound by asm label
@@ -312,63 +313,54 @@ extern "C" void cSphereTree_debugDraw(void* self)
 INCLUDE_ASM("intersect/aifwddiff", cSphereTree_debugDrawNode);
 
 //100%
-struct sCell_00328360 {
-    int level;
-    int x, y, z;
-};
-struct sBox_00328360 {
-    float minx, miny, minz, pad;
-    float maxx, maxy, maxz;
-};
-
-extern "C" int cSpaceHash_classifyCell(sCell_00328360* c, sBox_00328360* b)
+extern "C" int cSpaceHash_classifyCell(sSpaceHashCell* c, sSpaceHashBox* b)
 {
     union {
         int i;
         float f;
     } s;
-    s.i = (c->level + 0x7F) << 23;
+    s.i = (c->mLevel + 0x7F) << 23;
     float scale = s.f;
-    float x0 = ((float)c->x - 0.2f) * scale;
-    if (b->maxx < x0) {
+    float x0 = ((float)c->mX - 0.2f) * scale;
+    if (b->mMax.x < x0) {
         return 1;
     }
-    float y0 = ((float)c->y - 0.2f) * scale;
-    if (b->maxy < y0) {
+    float y0 = ((float)c->mY - 0.2f) * scale;
+    if (b->mMax.y < y0) {
         return 1;
     }
-    float z0 = ((float)c->z - 0.2f) * scale;
-    if (b->maxz < z0) {
+    float z0 = ((float)c->mZ - 0.2f) * scale;
+    if (b->mMax.z < z0) {
         return 1;
     }
-    float x1 = ((float)(c->x + 1) + 0.2f) * scale;
-    if (x1 < b->minx) {
+    float x1 = ((float)(c->mX + 1) + 0.2f) * scale;
+    if (x1 < b->mMin.x) {
         return 1;
     }
-    float y1 = ((float)(c->y + 1) + 0.2f) * scale;
-    if (y1 < b->miny) {
+    float y1 = ((float)(c->mY + 1) + 0.2f) * scale;
+    if (y1 < b->mMin.y) {
         return 1;
     }
-    float z1 = ((float)(c->z + 1) + 0.2f) * scale;
-    if (z1 < b->minz) {
+    float z1 = ((float)(c->mZ + 1) + 0.2f) * scale;
+    if (z1 < b->mMin.z) {
         return 1;
     }
-    if (x1 < b->maxx) {
+    if (x1 < b->mMax.x) {
         return 2;
     }
-    if (y1 < b->maxy) {
+    if (y1 < b->mMax.y) {
         return 2;
     }
-    if (z1 < b->maxz) {
+    if (z1 < b->mMax.z) {
         return 2;
     }
-    if (b->minx < x1) {
+    if (b->mMin.x < x1) {
         return 2;
     }
-    if (b->miny < y1) {
+    if (b->mMin.y < y1) {
         return 2;
     }
-    if (b->miny < y1) {
+    if (b->mMin.y < y1) {
         return 2;
     }
     return 0;
@@ -377,60 +369,24 @@ extern "C" int cSpaceHash_classifyCell(sCell_00328360* c, sBox_00328360* b)
 //100%
 void operator_delete(int* p);
 
-struct sItem_003284B8 {
-    sItem_003284B8* next;   // 0x0
-    sItem_003284B8* prev;   // 0x4
-};
-struct sList_003284B8 {
-    sItem_003284B8* head;
-    void remove(sItem_003284B8* it)
-    {
-        if (it->next) it->next->prev = it->prev;
-        if (it->prev) {
-            it->prev->next = it->next;
-        } else {
-            head = it->next;
-        }
-    }
-};
-struct sNode_003284B8 {
-    sNode_003284B8* child[2][2][2];     // 0x00
-    sList_003284B8 lists[3];            // 0x20
-    int empty()
-    {
-        if (child[0][0][0] || child[0][0][1] || child[0][1][0] || child[0][1][1] || child[1][0][0] ||
-            child[1][0][1] || child[1][1][0] || child[1][1][1]) {
-            return 0;
-        }
-        for (int i = 0; i < 3; i++) {
-            if (lists[i].head) return 0;
-        }
-        return 1;
-    }
-};
-struct sCell_003284B8 {
-    int level;
-    int x, y, z;
-};
-
-extern "C" void func_003284B8(sNode_003284B8* node, int idx, sItem_003284B8* item, const sCell_003284B8* target,
-                              const sCell_003284B8* cur)
+extern "C" void func_003284B8(cSpaceHashNode* node, int idx, sSpaceHashItem* item, const sSpaceHashCell* target,
+                              const sSpaceHashCell* cur)
 {
-    int lv = cur->level;
-    if (target->level == lv) {
-        node->lists[idx].remove(item);
+    int lv = cur->mLevel;
+    if (target->mLevel == lv) {
+        node->mLists[idx].remove(item);
         return;
     }
-    int sh = lv - target->level - 1;
-    int dx = (target->x >> sh) - cur->x * 2;
-    int dy = (target->y >> sh) - cur->y * 2;
-    int dz = (target->z >> sh) - cur->z * 2;
-    sCell_003284B8 c;
-    c.x = cur->x * 2 + dx;
-    c.level = --lv;
-    c.y = cur->y * 2 + dy;
-    c.z = cur->z * 2 + dz;
-    sNode_003284B8** ch = &node->child[dx][dy][dz];
+    int sh = lv - target->mLevel - 1;
+    int dx = (target->mX >> sh) - cur->mX * 2;
+    int dy = (target->mY >> sh) - cur->mY * 2;
+    int dz = (target->mZ >> sh) - cur->mZ * 2;
+    sSpaceHashCell c;
+    c.mX = cur->mX * 2 + dx;
+    c.mLevel = --lv;
+    c.mY = cur->mY * 2 + dy;
+    c.mZ = cur->mZ * 2 + dz;
+    cSpaceHashNode** ch = &node->mChild[dx][dy][dz];
     func_003284B8(*ch, idx, item, target, &c);
     if ((*ch)->empty()) {
         operator_delete((int*)*ch);
@@ -444,135 +400,96 @@ void* operator new(unsigned int size, const char* tag, unsigned int flags, int d
 extern "C" void func_003E6448(void* p, int v, int n);
 extern char D_004A3FC0[];
 
-struct sItem_00328660 {
-    sItem_00328660* next;   // 0x0
-    sItem_00328660* prev;   // 0x4
-};
-struct sList_00328660 {
-    sItem_00328660* head;
-    sList_00328660() : head(0) {}
-    void push(sItem_00328660* it)
-    {
-        if (head) head->prev = it;
-        it->next = head;
-        it->prev = 0;
-        head = it;
-    }
-};
-struct sNode_00328660 {
-    sNode_00328660* child[2][2][2];     // 0x00
-    sList_00328660 lists[3];            // 0x20
-    sNode_00328660() { func_003E6448(child, 0, sizeof(child)); }
-};
-struct sCell_00328660 {
-    int level;
-    int x, y, z;
+// cSpaceHashNode with the constructor cSpaceHash_insertItemAt inlines.
+struct sNewNode_00328660 : cSpaceHashNode {
+    sNewNode_00328660() { func_003E6448(mChild, 0, sizeof(mChild)); }
 };
 
-extern "C" void cSpaceHash_insertItemAt(sNode_00328660* node, int idx, sItem_00328660* item, sCell_00328660* target, const sCell_00328660* at)
+extern "C" void cSpaceHash_insertItemAt(cSpaceHashNode* node, int idx, sSpaceHashItem* item, sSpaceHashCell* target, const sSpaceHashCell* at)
 {
-    sCell_00328660 cur = *at;
-    while (cur.level != target->level) {
-        int sh = cur.level - target->level - 1;
-        cur.level--;
-        int dx = (target->x >> sh) - cur.x * 2;
-        int dy = (target->y >> sh) - cur.y * 2;
-        int dz = (target->z >> sh) - cur.z * 2;
-        cur.x = cur.x * 2 + dx;
-        cur.y = cur.y * 2 + dy;
-        cur.z = cur.z * 2 + dz;
-        sNode_00328660** c = &node->child[dx][dy][dz];
+    sSpaceHashCell cur = *at;
+    while (cur.mLevel != target->mLevel) {
+        int sh = cur.mLevel - target->mLevel - 1;
+        cur.mLevel--;
+        int dx = (target->mX >> sh) - cur.mX * 2;
+        int dy = (target->mY >> sh) - cur.mY * 2;
+        int dz = (target->mZ >> sh) - cur.mZ * 2;
+        cur.mX = cur.mX * 2 + dx;
+        cur.mY = cur.mY * 2 + dy;
+        cur.mZ = cur.mZ * 2 + dz;
+        cSpaceHashNode** c = &node->mChild[dx][dy][dz];
         if (*c == 0) {
-            *c = new (D_004A3FC0, 0x20000000, 0) sNode_00328660;
+            *c = new (D_004A3FC0, 0x20000000, 0) sNewNode_00328660;
         }
         node = *c;
     }
-    node->lists[idx].push(item);
+    node->mLists[idx].push(item);
 }
 
 INCLUDE_ASM("intersect/aifwddiff", cSpaceHash_moveItemInNode);
 
 //100%
-struct sNode_8C20 {
-    sNode_8C20* child[2][2][2];         // 0x00
-    sList_00328660 lists[3];            // 0x20
-    sNode_8C20() {}
-    sNode_8C20(sNode_8C20* c, const sCell_00328660& cc, const sCell_00328660& pc)
+// cSpaceHashNode with the constructors func_00328C20 inlines (a new root, and
+// a parent wrapping the old root).
+struct sNewNode_8C20 : cSpaceHashNode {
+    sNewNode_8C20() {}
+    sNewNode_8C20(cSpaceHashNode* c, const sSpaceHashCell& cc, const sSpaceHashCell& pc)
     {
-        int dx = cc.x - pc.x * 2;
-        int dy = cc.y - pc.y * 2;
-        int dz = cc.z - pc.z * 2;
-        func_003E6448(child, 0, sizeof(child));
-        child[dx][dy][dz] = c;
+        int dx = cc.mX - pc.mX * 2;
+        int dy = cc.mY - pc.mY * 2;
+        int dz = cc.mZ - pc.mZ * 2;
+        func_003E6448(mChild, 0, sizeof(mChild));
+        mChild[dx][dy][dz] = c;
     }
 };
 
-struct sRoot_8C20 {
-    sCell_00328660 cell;            // 0x00
-    sNode_8C20* node;               // 0x10
-};
-
-static inline int Contains_8C20(const sCell_00328660& a, const sCell_00328660& b)
+static inline int Contains_8C20(const sSpaceHashCell& a, const sSpaceHashCell& b)
 {
-    int d = a.level - b.level;
+    int d = a.mLevel - b.mLevel;
     if (d < 0) {
         return 0;
     }
     if (d == 0) {
-        return b.x == a.x && b.y == a.y && b.z == a.z;
+        return b.mX == a.mX && b.mY == a.mY && b.mZ == a.mZ;
     }
-    return (b.x >> d) == a.x && (b.y >> d) == a.y && (b.z >> d) == a.z;
+    return (b.mX >> d) == a.mX && (b.mY >> d) == a.mY && (b.mZ >> d) == a.mZ;
 }
 
-static inline sCell_00328660 Parent_8C20(const sCell_00328660& c)
+static inline sSpaceHashCell Parent_8C20(const sSpaceHashCell& c)
 {
-    sCell_00328660 r;
-    r.level = c.level + 1;
-    r.x = c.x >> 1;
-    r.y = c.y >> 1;
-    r.z = c.z >> 1;
+    sSpaceHashCell r;
+    r.mLevel = c.mLevel + 1;
+    r.mX = c.mX >> 1;
+    r.mY = c.mY >> 1;
+    r.mZ = c.mZ >> 1;
     return r;
 }
 
-extern "C" void func_00328C20(sRoot_8C20* root, int idx, sItem_00328660* item, sCell_00328660* cell)
+extern "C" void func_00328C20(sSpaceHashRoot* root, int idx, sSpaceHashItem* item, sSpaceHashCell* cell)
 {
-    sNode_8C20** pn = &root->node;
-    if (root->node == 0) {
-        root->cell = *cell;
-        sNode_8C20* n = new (D_004A3FC0, 0x20000000, 0) sNode_8C20;
-        func_003E6448(n->child, 0, sizeof(n->child));
+    cSpaceHashNode** pn = &root->mNode;
+    if (root->mNode == 0) {
+        root->mCell = *cell;
+        sNewNode_8C20* n = new (D_004A3FC0, 0x20000000, 0) sNewNode_8C20;
+        func_003E6448(n->mChild, 0, sizeof(n->mChild));
         *pn = n;
-        root->node->lists[idx].push(item);
+        root->mNode->mLists[idx].push(item);
         return;
     }
-    while (!Contains_8C20(root->cell, *cell)) {
-        sCell_00328660 nc = Parent_8C20(root->cell);
-        sNode_8C20* n = new (D_004A3FC0, 0x20000000, 0) sNode_8C20(root->node, root->cell, nc);
-        root->cell = nc;
-        root->node = n;
+    while (!Contains_8C20(root->mCell, *cell)) {
+        sSpaceHashCell nc = Parent_8C20(root->mCell);
+        sNewNode_8C20* n = new (D_004A3FC0, 0x20000000, 0) sNewNode_8C20(root->mNode, root->mCell, nc);
+        root->mCell = nc;
+        root->mNode = n;
     }
-    cSpaceHash_insertItemAt((sNode_00328660*)root->node, idx, item, cell, &root->cell);
+    cSpaceHash_insertItemAt(root->mNode, idx, item, cell, &root->mCell);
 }
 
 //100%
-struct sVec4_8F28 {
-    float x, y, z, w;
-} __attribute__((aligned(16)));
-
-struct sBox_8F28 {
-    sVec4_8F28 min;
-    sVec4_8F28 max;
-};
-
-struct sCell_8F28 {
-    int level;
-    int x, y, z;
-};
-
 // PORT: PS2-only VU0 inline asm (vector subtract).
-static inline sVec4_8F28 vu0Sub_8F28(const sVec4_8F28& a, const sVec4_8F28& b)
+static inline sSphereVec4 vu0Sub_8F28(const sSphereVec4& a, const sSphereVec4& b)
 {
-    sVec4_8F28 r;
+    sSphereVec4 r;
     __asm__(
         "lqc2      $vf3, %1\n"
         "lqc2      $vf4, %2\n"
@@ -584,9 +501,9 @@ static inline sVec4_8F28 vu0Sub_8F28(const sVec4_8F28& a, const sVec4_8F28& b)
 }
 
 // PORT: PS2-only VU0 inline asm (vector add).
-static inline sVec4_8F28 vu0Add_8F28(const sVec4_8F28& a, const sVec4_8F28& b)
+static inline sSphereVec4 vu0Add_8F28(const sSphereVec4& a, const sSphereVec4& b)
 {
-    sVec4_8F28 r;
+    sSphereVec4 r;
     __asm__(
         "lqc2      $vf3, %1\n"
         "lqc2      $vf4, %2\n"
@@ -598,9 +515,9 @@ static inline sVec4_8F28 vu0Add_8F28(const sVec4_8F28& a, const sVec4_8F28& b)
 }
 
 // PORT: PS2-only VU0 inline asm (vector times scalar).
-static inline sVec4_8F28 vu0Scale_8F28(const sVec4_8F28& v, float s)
+static inline sSphereVec4 vu0Scale_8F28(const sSphereVec4& v, float s)
 {
-    sVec4_8F28 r;
+    sSphereVec4 r;
     int t;
     __asm__(
         "mfc1      %1, %3\n"
@@ -625,20 +542,20 @@ static inline int Floor_8F28(float f)
     return q;
 }
 
-static inline sCell_8F28 Parent_8F28(const sCell_8F28& c)
+static inline sSpaceHashCell Parent_8F28(const sSpaceHashCell& c)
 {
-    sCell_8F28 r;
-    r.level = c.level + 1;
-    r.x = c.x >> 1;
-    r.y = c.y >> 1;
-    r.z = c.z >> 1;
+    sSpaceHashCell r;
+    r.mLevel = c.mLevel + 1;
+    r.mX = c.mX >> 1;
+    r.mY = c.mY >> 1;
+    r.mZ = c.mZ >> 1;
     return r;
 }
 
-extern "C" void func_00328F28(sCell_8F28* c, sBox_8F28* b)
+extern "C" void func_00328F28(sSpaceHashCell* c, sSpaceHashBox* b)
 {
-    sVec4_8F28 size = vu0Sub_8F28(b->max, b->min);
-    sVec4_8F28 center = vu0Add_8F28(b->min, vu0Scale_8F28(size, 0.5f));
+    sSphereVec4 size = vu0Sub_8F28(b->mMax, b->mMin);
+    sSphereVec4 center = vu0Add_8F28(b->mMin, vu0Scale_8F28(size, 0.5f));
     float m = size.x;
     if (m < size.y) {
         m = size.y;
@@ -651,25 +568,25 @@ extern "C" void func_00328F28(sCell_8F28* c, sBox_8F28* b)
         int i;
     } u;
     u.f = m * 0.7142857313156128f;
-    c->level = ((u.i >> 23) & 0xFF) - 0x7F;
-    if (c->level < 11) {
-        c->level = 11;
+    c->mLevel = ((u.i >> 23) & 0xFF) - 0x7F;
+    if (c->mLevel < 11) {
+        c->mLevel = 11;
     }
     union {
         int i;
         float f;
     } s;
-    s.i = (c->level + 0x7F) << 23;
+    s.i = (c->mLevel + 0x7F) << 23;
     float scale = s.f;
-    c->x = Floor_8F28(center.x / scale);
-    c->y = Floor_8F28(center.y / scale);
-    c->z = Floor_8F28(center.z / scale);
+    c->mX = Floor_8F28(center.x / scale);
+    c->mY = Floor_8F28(center.y / scale);
+    c->mZ = Floor_8F28(center.z / scale);
     for (;;) {
-        s.i = (c->level + 0x7F) << 23;
+        s.i = (c->mLevel + 0x7F) << 23;
         scale = s.f;
         int ok = 0;
-        if (((float)c->x - 0.2f) * scale <= b->min.x && ((float)c->y - 0.2f) * scale <= b->min.y && ((float)c->z - 0.2f) * scale <= b->min.z
-            && b->max.x <= ((float)(c->x + 1) + 0.2f) * scale && b->max.y <= ((float)(c->y + 1) + 0.2f) * scale && b->max.z <= ((float)(c->z + 1) + 0.2f) * scale) {
+        if (((float)c->mX - 0.2f) * scale <= b->mMin.x && ((float)c->mY - 0.2f) * scale <= b->mMin.y && ((float)c->mZ - 0.2f) * scale <= b->mMin.z
+            && b->mMax.x <= ((float)(c->mX + 1) + 0.2f) * scale && b->mMax.y <= ((float)(c->mY + 1) + 0.2f) * scale && b->mMax.z <= ((float)(c->mZ + 1) + 0.2f) * scale) {
             ok = 1;
         }
         if (ok) {

@@ -1,4 +1,5 @@
 #include "common.h"
+#include "intersect/overlaplist.h"
 
 //100%
 // PORT: PS2-only inline asm; needs a C fallback off-PS2.
@@ -10,17 +11,6 @@ struct sWLCVec4 {
 } __attribute__((aligned(16)));
 
 extern sWLCVec4 D_004FF120;
-
-struct sWLCList {
-    unsigned int head;
-    char pad04[0x100];
-};
-
-struct sWLCBuf {
-    int owner;
-    int count;
-    sWLCList lists[3];
-};
 
 struct sWLCNode {
     unsigned int id;
@@ -61,13 +51,13 @@ extern "C" void cWorldLightMan_initLightCache(sWLCMan* self)
         sWLCLightHdr* l = &self->hdr[i];
         l->id = 0xFFFFFFFF;
         l->f14 = 0;
-        sWLCBuf* buf = (sWLCBuf*)operator new(0xA14, D_00487CD8, 0x20000000, 0);
-        buf->owner = self->f00;
-        buf->count = 0;
-        buf->lists[0].head = 0xFFFFFFFF;
-        buf->lists[1].head = 0xFFFFFFFF;
-        buf->lists[2].head = 0xFFFFFFFF;
-        *(sWLCBuf**)((char*)l + 0x40) = buf;
+        cOverlapList* buf = (cOverlapList*)operator new(sizeof(cOverlapList), D_00487CD8, 0x20000000, 0);
+        *(int*)&buf->mHash = self->f00;
+        buf->mVersion = 0;
+        buf->mInstanceCount = 0xFFFFFFFF;
+        buf->mPatchCount = 0xFFFFFFFF;
+        buf->mObjectCount = 0xFFFFFFFF;
+        *(cOverlapList**)((char*)l + 0x40) = buf;
     }
     for (i = 0; i < 32; i++) {
         self->nodes[i].priority = 0;
@@ -187,22 +177,11 @@ extern "C" void func_002F5AF0(void* self, void* a1, void* a2, void* a3, int coun
 //100%
 extern "C" float func_002F5D30(void* a, void* b, void* light);
 
-struct sLight_5B68 {
-    char pad_0x0[0x8];
-    int type;           // 0x8
-};
-
-struct sLightMgr_5B68 {
-    char pad_0x0[0x210];
-    unsigned int count;         // 0x210
-    sLight_5B68* lights[1];     // 0x214
-};
-
 // Keeps the `max` best-scoring type-6 lights in out[], sorted by descending score.
 extern "C" void func_002F5B68(void* a, void* b, void* mgrp, void** outp, int max)
 {
-    sLightMgr_5B68* mgr = (sLightMgr_5B68*)mgrp;
-    sLight_5B68** out = (sLight_5B68**)outp;
+    cOverlapList* mgr = (cOverlapList*)mgrp;
+    sSpaceHashObject** out = (sSpaceHashObject**)outp;
     float score[32];
     int count = 0;
     int i;
@@ -211,10 +190,10 @@ extern "C" void func_002F5B68(void* a, void* b, void* mgrp, void** outp, int max
         score[i] = 0.0f;
     }
     float minScore = 0.0f;
-    unsigned int n = mgr->count;
+    unsigned int n = mgr->mObjectCount;
     for (unsigned int j = 0; j < n; j++) {
-        sLight_5B68* l = mgr->lights[j];
-        if (l->type == 6) {
+        sSpaceHashObject* l = mgr->mObjects[j];
+        if (l->mType == 6) {
             float s = func_002F5D30(a, b, l);
             if (minScore < s) {
                 int k;
