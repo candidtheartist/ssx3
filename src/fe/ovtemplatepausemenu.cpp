@@ -14,7 +14,7 @@ struct sVec3_001F8448 {
 };
 struct sVEnt_001F8448 { short delta; short index; void (*fn)(void*, int); };
 
-extern "C" int func_001F8448(void* self)
+extern "C" int OVScreenPauseFreeride_TransitionIn(void* self)
 {
     char buf[64];
     if (*(int*)((char*)self + 0xD4) != 0) {
@@ -66,7 +66,7 @@ static inline void setColor_001F85C0(char* obj, void* c)
     vt[11].fn(obj + vt[11].delta, c);
 }
 
-extern "C" void func_001F85C0(void* self, int a1)
+extern "C" void OVScreenPauseFreeride_OnActivate(void* self, int a1)
 {
     char buf[32];
     char* obj;
@@ -126,7 +126,7 @@ extern char D_0046F850[];
 struct sColor_1F8728 { float r, g, b, a; };
 struct sVEnt_1F8728 { short delta; short index; void (*fn)(void*, void*); };
 
-extern "C" void func_001F8728(void* self)
+extern "C" void OVScreenPauseFreeride_Update(void* self)
 {
     int st = *(int*)((char*)self + 0x110);
     if ((st == 1 || st == 2 || st == 4) && func_001E3408() > 0)
@@ -176,7 +176,7 @@ extern "C" void func_001F8728(void* self)
 extern "C" void* func_0020A430(void*);
 
 //100%
-void* func_001F88E8(void* self)
+void* OVScreenPauseFreeride_Shutdown(void* self)
 {
     *(int*)((char*)self + 0xc4) = 0;
     return func_0020A430(self);
@@ -204,7 +204,7 @@ extern "C" void* cMemMan_alloc(int size, const char* tag, unsigned int flags, in
 extern "C" void cUIStateStack_pushSpecial(void* stack, void* st, int a2, int a3);
 extern "C" void* func_0028B180_8960() __asm__("func_0028B180");
 extern "C" void func_00289BB8(void* self);
-extern "C" void func_001F8DF8(void* self, int idx, int on);
+extern "C" void OVScreenPauseFreeride_PlayIconAnim(void* self, int idx, int on);
 extern void* D_004A28A8;
 extern char D_004A5A58;
 extern char D_004A2470[];
@@ -328,7 +328,7 @@ extern "C" void cOVTemplate_PauseMenu_onWidgetEvent(char* self, char* w, int ev)
                 vt[11].fn(w + vt[11].delta, D_004C8AE8);
             }
             if (*(int*)(self + 0xD0) == 0) {
-                func_001F8DF8(self, *(int*)(w + 0x18), 1);
+                OVScreenPauseFreeride_PlayIconAnim(self, *(int*)(w + 0x18), 1);
             }
         }
         cUIText* t = (cUIText*)cUIScreen_getObjectByHashName(*(void**)(self + 0xC0), GetHashValue32(D_004A2480));
@@ -347,7 +347,7 @@ extern "C" void cOVTemplate_PauseMenu_onWidgetEvent(char* self, char* w, int ev)
                 vt[11].fn(w + vt[11].delta, D_004C8B08);
             }
             if (*(int*)(self + 0xD0) == 0) {
-                func_001F8DF8(self, *(int*)(w + 0x18), 0);
+                OVScreenPauseFreeride_PlayIconAnim(self, *(int*)(w + 0x18), 0);
             }
         }
         break;
@@ -376,7 +376,7 @@ extern char* D_00441C30[];
 extern char D_004A2488[];
 extern char D_004A2490[];
 
-extern "C" void func_001F8DF8(void* self, int idx, int on)
+extern "C" void OVScreenPauseFreeride_PlayIconAnim(void* self, int idx, int on)
 {
     char buf[64];
     if (on) {
@@ -400,7 +400,7 @@ extern "C" void func_001F8DF8(void* self, int idx, int on)
 extern "C" void cOVTemplate_PauseMenu_onCreateScreen(void* self);
 extern int D_00478160[];
 
-extern "C" void func_001F8EE0(void* self)
+extern "C" void OVScreenPauseMode1_Init(void* self)
 {
     int i;
     *(int*)((char*)self + 0xBC) = 6;
@@ -415,7 +415,7 @@ extern "C" void func_001F8EE0(void* self)
 extern "C" void cOVTemplate_PauseMenu_onCreateScreen(void* self);
 extern int D_00478178[];
 
-extern "C" void func_001F8F48(void* self)
+extern "C" void OVScreenPauseMode2_Init(void* self)
 {
     int i;
     *(int*)((char*)self + 0xBC) = 6;
@@ -430,7 +430,7 @@ extern "C" void func_001F8F48(void* self)
 extern "C" void cOVTemplate_PauseMenu_onCreateScreen(void* self);
 extern int D_00478140[];
 
-extern "C" void func_001F8FB0(void* self)
+extern "C" void OVScreenPauseMode3_Init(void* self)
 {
     int i;
     *(int*)((char*)self + 0xBC) = 7;
@@ -445,7 +445,7 @@ extern "C" void func_001F8FB0(void* self)
 extern "C" void cOVTemplate_PauseMenu_onCreateScreen(void* self);
 extern int D_00478190[];
 
-extern "C" void func_001F9018(void* self)
+extern "C" void OVScreenPauseMode4_Init(void* self)
 {
     int i;
     *(int*)((char*)self + 0xBC) = 5;
@@ -460,7 +460,7 @@ extern "C" void func_001F9018(void* self)
 extern "C" void cOVTemplate_PauseMenu_onCreateScreen(void* self);
 extern int D_004781A8[];
 
-extern "C" void func_001F9080(void* self)
+extern "C" void OVScreenPauseMode5_Init(void* self)
 {
     int i;
     *(int*)((char*)self + 0xBC) = 5;
@@ -478,7 +478,7 @@ extern void* D_004A28A8;
 extern int D_004781C0[];
 extern int D_004A2868[2];
 
-extern "C" void func_001F90E8(void* self)
+extern "C" void OVScreenPauseMode6_Init(void* self)
 {
     int* items = D_004781C0;
     *(int*)((char*)self + 0xBC) = 3;

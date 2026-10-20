@@ -6,7 +6,7 @@ INCLUDE_ASM("fe/ovstatemission2", OVScreenProfileSavePDA_v26);
 
 INCLUDE_ASM("fe/ovstatemission2", OVScreenProfileSavePDA_ResetSlotList);
 
-INCLUDE_ASM("fe/ovstatemission2", func_00211380);
+INCLUDE_ASM("fe/ovstatemission2", OVScreenProfileSavePDA_RefreshCardInfo);
 
 INCLUDE_ASM("fe/ovstatemission2", OVScreenProfileSavePDA_v37);
 
@@ -22,7 +22,7 @@ INCLUDE_ASM("fe/ovstatemission2", func_00211B38);
 
 INCLUDE_ASM("fe/ovstatemission2", func_00211BC8);
 
-INCLUDE_ASM("fe/ovstatemission2", func_00212080);
+INCLUDE_ASM("fe/ovstatemission2", OVScreenProfileSavePDA_InitSlotLabels);
 
 INCLUDE_ASM("fe/ovstatemission2", OVScreenAutosave_ctor);
 

@@ -6,7 +6,7 @@ extern "C" void* cUIEngine_addScreenByHashName(void* engine, void* owner, int ha
 extern "C" void cUIScreen_playFrame(void* screen, int a1, int a2);
 extern "C" void cOVStateManager_addPDATemplate();
 extern "C" void func_0020A380(void* self);
-extern "C" void func_00212080(void* self);
+extern "C" void OVScreenProfileSavePDA_InitSlotLabels(void* self);
 extern char D_00471D50[];
 
 extern "C" void cOVState_PROFILE_onCreateScreen(void* self)
@@ -18,12 +18,12 @@ extern "C" void cOVState_PROFILE_onCreateScreen(void* self)
         cUIScreen_playFrame(screen, 0, 0);
     }
     cOVStateManager_addPDATemplate();
-    func_00212080(self);
+    OVScreenProfileSavePDA_InitSlotLabels(self);
     func_0020A380(self);
 }
 
 //100%
-extern "C" void func_00211380(void* self);
+extern "C" void OVScreenProfileSavePDA_RefreshCardInfo(void* self);
 extern "C" void OVScreenProfileSavePDA_ResetSlotList(void* self);
 
 extern "C" void OVScreenProfileSavePDA_v26(void* self)
@@ -32,7 +32,7 @@ extern "C" void OVScreenProfileSavePDA_v26(void* self)
         *(int*)((char*)self + 0x22C) = 1;
     }
     if (*(int*)((char*)self + 0x214) == 3) {
-        func_00211380(self);
+        OVScreenProfileSavePDA_RefreshCardInfo(self);
     } else {
         OVScreenProfileSavePDA_ResetSlotList(self);
     }
@@ -41,7 +41,7 @@ extern "C" void OVScreenProfileSavePDA_v26(void* self)
 //100%
 int GetHashValue32(char* str);
 extern "C" void* cUIScreen_getObjectByHashName(void* self, int hash);
-extern "C" void func_00211380(void* self);
+extern "C" void OVScreenProfileSavePDA_RefreshCardInfo(void* self);
 extern "C" void* func_00227F80(void* app);
 extern "C" int sprintf(char* buf, const char* fmt, ...);
 extern void* D_004A28A8;
@@ -184,7 +184,7 @@ extern "C" void OVScreenProfileSavePDA_ResetSlotList(void* p)
     if (self->isReady() != 0) {
         if ((*(cCard_11270**)((char*)func_00227F80(D_004A28A8) + 0x434))->isPresent() != 0) {
             self->setState(3);
-            func_00211380(self);
+            OVScreenProfileSavePDA_RefreshCardInfo(self);
             return;
         }
     }
@@ -391,7 +391,7 @@ static inline cUIObj_1380* getObj_1380(cState_1380* self, char* name)
 }
 
 // Refreshes the memory-card profile list: device name, then the six profile slots and the arrow hints.
-extern "C" void func_00211380(void* p)
+extern "C" void OVScreenProfileSavePDA_RefreshCardInfo(void* p)
 {
     cState_1380* self = (cState_1380*)p;
     unsigned short buf[0x320];
@@ -823,7 +823,7 @@ extern "C" int sprintf(char* buf, const char* fmt, ...);
 extern char D_004A2138[];
 extern char D_00471D68[];
 
-extern "C" void func_00212080(void* self)
+extern "C" void OVScreenProfileSavePDA_InitSlotLabels(void* self)
 {
     char buf[16];
     int i;

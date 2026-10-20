@@ -582,8 +582,8 @@ extern void* D_004A28A0;
 extern char D_004A1108[];
 extern "C" int func_00147290(void* iface, int i);
 extern "C" int func_00147618(void* iface, int i);
-extern "C" int func_00237140(void* a, void* b);
-extern "C" int func_00237280(void* a, void* b);
+extern "C" int InputSync_AddLocalPad(void* a, void* b);
+extern "C" int InputSync_AddRemotePad(void* a, void* b);
 extern "C" void cAI_applyPlayerSettings(void* self, void* obj, int i);
 // PORT: cPlayer_cPlayer returns self here (declared void elsewhere in this unit); bound by asm label.
 extern "C" char* cPlayer_cPlayer_IP(void* self, int inChrg) __asm__("cPlayer_cPlayer");
@@ -656,13 +656,13 @@ extern "C" void cAI_InitPlayers(void* p)
                 int* c = (int*)d;
                 c += ctrl;
                 *(int*)(*box + 4) = c[46];
-                SetHud_IP(obj, func_00237140(*(void**)(*(char**)(d + 0x84) + 0x7C), *box), HudTab_IP(ch));
+                SetHud_IP(obj, InputSync_AddLocalPad(*(void**)(*(char**)(d + 0x84) + 0x7C), *box), HudTab_IP(ch));
             } else {
                 char* d = (char*)D_004A28A8;
                 (*(sRiderIP**)(obj + 0x18))->f87C = 0;
                 int* c = (int*)d;
                 c += ctrl;
-                SetHud_IP(obj, func_00237280(*(void**)(*(char**)(d + 0x84) + 0x7C), (void*)c[46]), 0);
+                SetHud_IP(obj, InputSync_AddRemotePad(*(void**)(*(char**)(d + 0x84) + 0x7C), (void*)c[46]), 0);
             }
         } else {
             char* d = (char*)D_004A28A8;
@@ -1567,7 +1567,7 @@ extern "C" void cAI_loadAnims(void)
 extern char* D_004A2EEC;
 extern void* D_004A28A8;
 extern "C" void func_00258950(void* self);
-extern "C" void func_0026FA50(void* self);
+extern "C" void Replay_StopRecording(void* self);
 extern "C" void cRider_finish(void* self);
 
 static inline bool aiRiderFar12B340(char* r)
@@ -1591,7 +1591,7 @@ extern "C" void func_0012B340(sAiObj12A250* self)
                 {
                     return;
                 }
-                func_0026FA50(*(void**)(*(char**)((char*)D_004A28A8 + 0x84) + 0x28));
+                Replay_StopRecording(*(void**)(*(char**)((char*)D_004A28A8 + 0x84) + 0x28));
                 *(int*)(*(char**)(rider + 0x18) + 0x480) = 1;
                 cRider_finish(*(void**)(rider + 0x18));
             }
@@ -1864,7 +1864,7 @@ extern "C" void cAI_getActorCharIDs(void* self, int* dst)
 
 //100%
 extern signed char D_00535C12[];
-extern "C" void func_00258F20(void* self, int t, int seed);
+extern "C" void cGameComm_SendSyncCheck(void* self, int t, int seed);
 
 struct sAi_12BB20
 {
@@ -1914,7 +1914,7 @@ extern "C" void cAI_updateRaceTimeLimit(sAi_12BB20* self)
                             cRider_finish(*(void**)(self->riders[i] + 0x18));
                         }
                     }
-                    func_0026FA50(*(void**)(*(char**)((char*)D_004A28A8 + 0x84) + 0x28));
+                    Replay_StopRecording(*(void**)(*(char**)((char*)D_004A28A8 + 0x84) + 0x28));
                     self->countdown = -1;
                 }
             }
@@ -1938,7 +1938,7 @@ extern "C" void cAI_updateRaceTimeLimit(sAi_12BB20* self)
                         cRider_finish(*(void**)(self->riders[i] + 0x18));
                     }
                 }
-                func_0026FA50(*(void**)(*(char**)((char*)D_004A28A8 + 0x84) + 0x28));
+                Replay_StopRecording(*(void**)(*(char**)((char*)D_004A28A8 + 0x84) + 0x28));
                 self->countdown = -1;
             }
         }
@@ -1948,7 +1948,7 @@ extern "C" void cAI_updateRaceTimeLimit(sAi_12BB20* self)
     if (busy)
         return;
     if (self->timer % 60 == 0)
-        func_00258F20(D_004A2EEC, self->timer, seed);
+        cGameComm_SendSyncCheck(D_004A2EEC, self->timer, seed);
 }
 
 //100%
@@ -2511,9 +2511,9 @@ extern "C" void cFinishLineControl_readFromReplayFrame(void* self, void* obj)
 
 //100%
 extern "C" void* func_0028B180();
-extern "C" void func_0029E578(void* self, void* a1);
+extern "C" void cSSXAudio_ResetWipeoutSfx(void* self, void* a1);
 extern "C" int cRiderAnimBase_getChannelAnimClass(void*, int);
-extern "C" void func_002708F0(void* self, int key, int id);
+extern "C" void Replay_OnRiderWipeout(void* self, int key, int id);
 extern "C" void func_00309990(void* self);
 extern void* D_004A28A8;
 extern void* D_004A3DD8;
@@ -2565,7 +2565,7 @@ extern "C" void cWipeoutControl_gainFocus(sAiObj12CA30* self)
     *(int*)(self->mRider + 0x2E8) = 0;
     self->f54 = 0;
     self->f70 = 0;
-    func_0029E578(func_0028B180(), self->mRider);
+    cSSXAudio_ResetWipeoutSfx(func_0028B180(), self->mRider);
     char* r = self->mRider;
     self->m10 = (*(sVecPair_12CA30**)(*(char**)(r + 0x780) + 0x2C))[*(int*)(r + 0x89C)];
     self->m30 = (*(sVecPair_12CA30**)(*(char**)(r + 0x780) + 0x2C))[*(int*)(r + 0x8A4)];
@@ -2577,14 +2577,14 @@ extern "C" void cWipeoutControl_gainFocus(sAiObj12CA30* self)
         cWipeoutMotion_detachBoard(*(char**)(self->mRider + 0x77C) + 0x30, (sVec4_12CA30*)(self->mRider + 0x1E0), (sVec4_12CA30*)D_004FF120, p30);
         *(int*)(self->mRider + 0x318) = 0;
     }
-    func_002708F0(*(void**)(*(char**)((char*)D_004A28A8 + 0x84) + 0x28), *(int*)(self->mRider + 0x86C), *(int*)(self->mRider + 0x790) + 0xFC);
+    Replay_OnRiderWipeout(*(void**)(*(char**)((char*)D_004A28A8 + 0x84) + 0x28), *(int*)(self->mRider + 0x86C), *(int*)(self->mRider + 0x790) + 0xFC);
     func_00309990(D_004A3DD8);
 }
 
 //100%
 extern "C" int func_00116120_CB68(void* rider, int a, int b) __asm__("func_00116120");
-extern "C" void func_0029E970(void* snd, void* rider);
-extern "C" void func_0029E590(void* snd, void* rider, float t);
+extern "C" void cSSXAudio_PlayWipeoutSlideSfx(void* snd, void* rider);
+extern "C" void cSSXAudio_PlayWipeoutImpactSfx(void* snd, void* rider, float t);
 extern "C" void cWipeoutControl_updateStart_CB68(void* self) __asm__("cWipeoutControl_updateStart");
 extern "C" void cWipeoutControl_updateAirborne_CB68(void* self) __asm__("cWipeoutControl_updateAirborne");
 extern "C" void cWipeoutControl_updateSliding_CB68(void* self) __asm__("cWipeoutControl_updateSliding");
@@ -2631,9 +2631,9 @@ extern "C" void cWipeoutControl_update(sAiObj_CB68* self, int* input)
             }
             self->charge += rate * 0.01666666753590107f;
             if (self->charge >= 1.0f) {
-                func_0029E970(func_0028B180(), self->rider);
+                cSSXAudio_PlayWipeoutSlideSfx(func_0028B180(), self->rider);
             } else {
-                func_0029E590(func_0028B180(), self->rider, self->charge);
+                cSSXAudio_PlayWipeoutImpactSfx(func_0028B180(), self->rider, self->charge);
             }
         }
     }
@@ -2657,8 +2657,8 @@ extern "C" float cRiderAnimBase_getChannelProgress(void* self, int i);
 extern "C" int cRiderAnimBase_getChannelAnimClass(void*, int);
 extern "C" void cWipeoutControl_playCrashLoop(void* self);
 extern "C" void cWipeoutMotion_setVelocity(char* self, void* vel, void* angvel);
-extern "C" void func_00296868(void* mgr, void* self);
-extern "C" void func_00296E80(void* mgr, void* self);
+extern "C" void cSSXAudio_StartWipeoutLoop(void* mgr, void* self);
+extern "C" void cSSXAudio_StartWipeoutLoop2(void* mgr, void* self);
 
 struct sV_12CD20
 {
@@ -2789,9 +2789,9 @@ extern "C" void cWipeoutControl_updateStart(sAiObj12CD20* self)
             cWipeoutControl_playCrashLoop(self);
             if (cRiderAnimBase_getChannelAnimClass(*(void**)(self->mRider + 0x784), 2) == 0x1D ||
                 cRiderAnimBase_getChannelAnimClass(*(void**)(self->mRider + 0x784), 2) == 0x19)
-                func_00296868(func_0028B180(), self);
+                cSSXAudio_StartWipeoutLoop(func_0028B180(), self);
             else
-                func_00296E80(func_0028B180(), self);
+                cSSXAudio_StartWipeoutLoop2(func_0028B180(), self);
         }
         return;
     }
@@ -2813,9 +2813,9 @@ extern "C" void cWipeoutControl_playResetClip(void* self);
 extern "C" float cWipeoutControl_updateClipRate(void* self);
 extern "C" void func_0015E360(void* obj, int mode, float a, float b);
 extern "C" void* func_0028B180();
-extern "C" void func_00296E20(void* mgr, void* rider);
-extern "C" void func_00297438(void* mgr, void* rider);
-extern "C" void func_0029F660(void* mgr, void* rider, int a, int b);
+extern "C" void cSSXAudio_StopWipeoutLoop(void* mgr, void* rider);
+extern "C" void cSSXAudio_StopWipeoutLoop2(void* mgr, void* rider);
+extern "C" void cSSXAudio_PlayRiderGrunt(void* mgr, void* rider, int a, int b);
 extern "C" int cRiderAnimBase_getChannelAnimClass(void*, int);
 extern "C" int cRiderAnimBase_isChannelComplete(void* self, int i);
 extern void* D_004A28A8;
@@ -2846,8 +2846,8 @@ static inline float aiRatio_12D160(float v, float hi)
 
 static inline void aiTail_12D160(void* self)
 {
-    func_00296E20(func_0028B180(), *(char**)((char*)self + 0x80));
-    func_00297438(func_0028B180(), *(char**)((char*)self + 0x80));
+    cSSXAudio_StopWipeoutLoop(func_0028B180(), *(char**)((char*)self + 0x80));
+    cSSXAudio_StopWipeoutLoop2(func_0028B180(), *(char**)((char*)self + 0x80));
 }
 
 extern "C" void cWipeoutControl_updateSliding(void* self)
@@ -2912,7 +2912,7 @@ extern "C" void cWipeoutControl_updateSliding(void* self)
         {
             cRider_awardQuickRecovery(*(char**)((char*)self + 0x80), fast);
             if (cRiderAnimBase_getChannelAnimClass(*(void**)(*(char**)((char*)self + 0x80) + 0x784), 2) == 0x1C)
-                func_0029F660(func_0028B180(), *(char**)((char*)self + 0x80), 1, 0);
+                cSSXAudio_PlayRiderGrunt(func_0028B180(), *(char**)((char*)self + 0x80), 1, 0);
             cWipeoutControl_playSlideGetUp(self);
             *(int*)self = 3;
         }
@@ -2941,9 +2941,9 @@ extern "C" void cWipeoutControl_playResetClip(void* self);
 extern "C" void func_0012E468(void* self);
 extern "C" float cWipeoutControl_updateClipRate(void* self);
 extern "C" void* func_0028B180();
-extern "C" void func_00296310(void* mgr, void* rider);
-extern "C" void func_00296868(void* mgr, void* self);
-extern "C" void func_00296E80(void* mgr, void* self);
+extern "C" void cSSXAudio_PlayWipeoutImpact(void* mgr, void* rider);
+extern "C" void cSSXAudio_StartWipeoutLoop(void* mgr, void* self);
+extern "C" void cSSXAudio_StartWipeoutLoop2(void* mgr, void* self);
 extern "C" int cRiderAnimBase_getChannelAnimClass(void*, int);
 extern "C" char* cRiderAnimBase_getChannelSequence(void*, int);
 extern "C" float cRiderAnimBase_getChannelProgress(void* self, int i);
@@ -3027,7 +3027,7 @@ extern "C" void cWipeoutControl_updateAirborne(void* self)
                     cRiderAnimBase_getChannelAnimClass(*(void**)(*(char**)((char*)self + 0x80) + 0x784), 2) == 0x19)
                 {
                     func_0012E468(self);
-                    func_00296868(func_0028B180(), self);
+                    cSSXAudio_StartWipeoutLoop(func_0028B180(), self);
                 }
                 else
                 {
@@ -3035,11 +3035,11 @@ extern "C" void cWipeoutControl_updateAirborne(void* self)
                     cWipeoutControl_playSlideLoop(self);
                     float a = *(float*)(cRiderAnimBase_getChannelSequence(*(void**)(*(char**)((char*)self + 0x80) + 0x784), 2) + 0x10);
                     cAnimSequence_setSlotTime(cRiderAnimBase_getChannelSequence(*(void**)(*(char**)((char*)self + 0x80) + 0x784), 2), 0, a * t);
-                    func_00296E80(func_0028B180(), self);
+                    cSSXAudio_StartWipeoutLoop2(func_0028B180(), self);
                 }
                 *(int*)self = 2;
             }
-            func_00296310(func_0028B180(), *(void**)((char*)self + 0x80));
+            cSSXAudio_PlayWipeoutImpact(func_0028B180(), *(void**)((char*)self + 0x80));
         }
         *(int*)((char*)self + 0x54) = 0;
         char* r3 = *(char**)((char*)self + 0x80);
@@ -3080,7 +3080,7 @@ extern "C" void cWipeoutControl_updateAirborne(void* self)
 
 //100%
 extern "C" int cRiderAnimBase_isChannelComplete(void* self, int i);
-extern "C" void func_002948D0(void* mgr, void* rider, float v);
+extern "C" void cSSXAudio_PlayLandingSound(void* mgr, void* rider, float v);
 extern "C" void cRiderMetrix_onTakeoff(void* p, int flip, int c);
 extern "C" void cRiderAnimBase_play(void* self, int anim, int flags, float blend);
 
@@ -3094,7 +3094,7 @@ extern "C" void cWipeoutControl_updateGetUp(void* self)
         char* r = *(char**)((char*)self + 0x80);
         sVEntry12D848* vt = *(sVEntry12D848**)(r + 0x6C0);
         vt[17].fn(r + vt[17].delta, aiLength_12C5C8(*(sAiVec4_12C5C8*)((char*)self + 0x60)));
-        func_002948D0(func_0028B180(), *(void**)((char*)self + 0x80), 0.0f);
+        cSSXAudio_PlayLandingSound(func_0028B180(), *(void**)((char*)self + 0x80), 0.0f);
     }
     char* r = *(char**)((char*)self + 0x80);
     if (*(int*)(*(char**)(r + 0x77C) + 0x30) == 0)
@@ -3622,7 +3622,7 @@ struct sVEntry0012E690 {
 extern "C" int getGameTick();
 extern "C" void cRider_requestReaction(void* self, int mode, float t);
 extern "C" void* func_0028B180();
-extern "C" void func_002A02D8(void*, void*);
+extern "C" void cSSXAudio_SpeechWipeoutRecover(void*, void*);
 
 extern "C" void cWipeoutControl_loseFocus(void* self)
 {
@@ -3634,7 +3634,7 @@ extern "C" void cWipeoutControl_loseFocus(void* self)
         {
             cRider_requestReaction(*(void**)((char*)self + 0x80), 4, 0.0f);
         }
-        func_002A02D8(func_0028B180(), *(void**)((char*)self + 0x80));
+        cSSXAudio_SpeechWipeoutRecover(func_0028B180(), *(void**)((char*)self + 0x80));
     }
 }
 
@@ -3802,7 +3802,7 @@ void cRider_setMotionMode_impl(void* self, int v) __asm__("cRider_setMotionMode_
 int cRider_getMotionMode(void* self);
 void cRider_setControlState_impl(void* self, int v) __asm__("cRider_setControlState__FPv");
 extern "C" void cPrewindControl_playDirectionalClip(void*, void*);
-extern "C" void func_00294170(void* self, void* rider);
+extern "C" void cSSXAudio_PlayTakeoffSound(void* self, void* rider);
 extern "C" int cRiderAnimBase_getChannelAnimClass(void*, int);
 int cRiderAnimBase_getChannelAnim(void* self, int i);
 extern void* D_004A3500;
@@ -3864,7 +3864,7 @@ extern "C" void cPrewindControl_update(void* self, void* in)
         {
             func_00114298(*(void**)self, *(float*)(*(char**)self + 0x220));
             cRider_setMotionMode_impl(*(void**)self, 1);
-            func_00294170(D_004A3500, *(void**)self);
+            cSSXAudio_PlayTakeoffSound(D_004A3500, *(void**)self);
         }
         float z = 0.0f;
         func_00113E80(*(void**)self, z);
@@ -4136,7 +4136,7 @@ struct sVec4_12F398
     float x, y, z, w;
 };
 
-extern "C" sVec4_12F398 func_0026A8B8(void* self, float t);
+extern "C" sVec4_12F398 Path_GetDirAtDistance(void* self, float t);
 extern "C" void cRider_placeAt_12F398(void* self, void* a, sVec4_12F398* b, int n, float t) __asm__("cRider_placeAt");
 
 extern "C" void cResetControl_update(void* self)
@@ -4156,7 +4156,7 @@ extern "C" void cResetControl_update(void* self)
         float range = 200.0f;
         cRider_selectResetRoute(*(void**)((char*)self + 0x8));
         char* r = *(char**)((char*)self + 0x8);
-        const sVec4_12F398& dir = func_0026A8B8(*(void**)(r + 0xAB8), *(float*)(r + 0x4C4));
+        const sVec4_12F398& dir = Path_GetDirAtDistance(*(void**)(r + 0xAB8), *(float*)(r + 0x4C4));
         if (cBE_getInterface_Fv(cBE_getBE(), 0) != 0 && D_00535C12[0] == 2)
             range = 1000.0f;
         cRider_placeAt_12F398(*(void**)((char*)self + 0x8), *(char**)((char*)self + 0x8) + 0x490, (sVec4_12F398*)&dir, 0x11F, range);
@@ -4911,7 +4911,7 @@ extern "C" int cBoardPressControl_updateReverse(void* self)
 extern "C" void cBoardPressControl_finishPivot(void*);
 extern "C" void func_00116930(void* rider);
 extern "C" void func_00114298(void* rider, float v);
-extern "C" void func_00294170(void* self, void* rider);
+extern "C" void cSSXAudio_PlayTakeoffSound(void* self, void* rider);
 // PORT: prototype mismatch. cRider_setControlState/cRider_setMotionMode are defined with one param, but callers pass a mode in $a1.
 void cRider_setControlState_impl(void* self, int v) __asm__("cRider_setControlState__FPv");
 void cRider_setMotionMode_impl(void* self, int v) __asm__("cRider_setMotionMode__FPv");
@@ -4950,7 +4950,7 @@ extern "C" int cBoardPressControl_updateOllie(void* self, void* a1)
     func_00114298(*(void**)((char*)self + 0x14), 1.0f);
     cRider_setMotionMode_impl(*(void**)((char*)self + 0x14), 1);
     cRider_setControlState_impl(*(void**)((char*)self + 0x14), 5);
-    func_00294170(D_004A3500, *(void**)((char*)self + 0x14));
+    cSSXAudio_PlayTakeoffSound(D_004A3500, *(void**)((char*)self + 0x14));
     return 1;
 }
 
@@ -5137,7 +5137,7 @@ extern "C" int cBoardPressControl_updatePivot(void* vself, void* in)
 
 //100%
 extern "C" void* func_0028B180();
-extern "C" void func_002A1560(void* mgr, void* rider);
+extern "C" void cSSXAudio_RiderSay20B8(void* mgr, void* rider);
 extern "C" void cRider_enterCrash(void* rider, int id, int a, int b, void* info);
 
 struct sAiBitsA_130DD0
@@ -5276,7 +5276,7 @@ extern "C" int cBoardPressControl_updateDepth(void* self, void* in)
         float mix = *(float*)((char*)self + 0x4) * 0.20000895857810974f <? 1.0f;
         s = s1 * (1.0f - mix) + s2 * mix;
         if (*(float*)(*(char**)((char*)self + 0x14) + 0x274) > 0.800000011920929f)
-            func_002A1560(func_0028B180(), *(void**)((char*)self + 0x14));
+            cSSXAudio_RiderSay20B8(func_0028B180(), *(void**)((char*)self + 0x14));
     }
     char* r3 = *(char**)((char*)self + 0x14);
     *(float*)(r3 + 0x27C) = a;
@@ -6105,7 +6105,7 @@ extern "C" void cRailSlideControl_readFromReplayFrame(void* self, void* obj)
 
 //100%
 extern "C" void* func_0028B180();
-extern "C" void func_0029DC48(void* self, void* rider);
+extern "C" void cSSXAudio_PlayHandplantSfx(void* self, void* rider);
 extern "C" float cRiderAnimBase_getAnimDuration(char* self, int a1);
 extern "C" void cHandplantControl_playClip(void* self, int a1, int a2);
 extern "C" void cRiderAnimBase_fadeOutChannel(void*, int, float);
@@ -6122,7 +6122,7 @@ extern "C" void cHandplantControl_gainFocus(void* self)
     *(float*)(r2 + 0x1F4) = k;
     *(int*)(r2 + 0x1F8) = 0;
     *(int*)(*(char**)((char*)self + 0x14) + 0x32C) = 1;
-    func_0029DC48(func_0028B180(), *(void**)((char*)self + 0x14));
+    cSSXAudio_PlayHandplantSfx(func_0028B180(), *(void**)((char*)self + 0x14));
     char* r3 = *(char**)((char*)self + 0x14);
     float d = cRiderAnimBase_getAnimDuration(*(char**)(r3 + 0x784), *(int*)(D_00459FC8 + *(int*)((char*)self + 0x10) * 8 + *(int*)(r3 + 0x32C) * 16));
     *(float*)(*(char**)(*(char**)((char*)self + 0x14) + 0x784) + 0x1C) = d / *(float*)self;

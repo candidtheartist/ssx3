@@ -20,7 +20,7 @@ INCLUDE_ASM("fe/ovstates5", cUITemplate_MAP_setupEventUnlock__FP15cUITemplate_MA
 
 INCLUDE_ASM("fe/ovstates5", cUITemplate_MAP_setupPeakUnlock);
 
-INCLUDE_ASM("fe/ovstates5", func_00201868);
+INCLUDE_ASM("fe/ovstates5", cUITemplate_MAP_HideMapPic);
 
 INCLUDE_ASM("fe/ovstates5", func_002018A8);
 
@@ -44,17 +44,17 @@ INCLUDE_ASM("fe/ovstates5", cUITemplate_MAP_setShowInfo);
 
 INCLUDE_ASM("fe/ovstates5", cUITemplate_MAP_setupPeakInfo);
 
-INCLUDE_ASM("fe/ovstates5", func_00204FF0);
+INCLUDE_ASM("fe/ovstates5", cUITemplate_MAP_GetMedalText);
 
 INCLUDE_ASM("fe/ovstates5", cUITemplate_MAP_setupPeakGoals);
 
 INCLUDE_ASM("fe/ovstates5", cUITemplate_MAP_showEventPath);
 
-INCLUDE_ASM("fe/ovstates5", func_00207430);
+INCLUDE_ASM("fe/ovstates5", cUITemplate_MAP_RefreshEventList);
 
-INCLUDE_ASM("fe/ovstates5", func_002083D8);
+INCLUDE_ASM("fe/ovstates5", cUITemplate_MAP_SetHighlightColor);
 
-INCLUDE_ASM("fe/ovstates5", func_00208438);
+INCLUDE_ASM("fe/ovstates5", cUITemplate_MAP_SetUnlockedColor);
 
 INCLUDE_ASM("fe/ovstates5", func_00208498);
 

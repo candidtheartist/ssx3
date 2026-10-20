@@ -408,13 +408,13 @@ extern "C" int cOVStateHUD1P_v24(char* self, unsigned int cmd, unsigned short* s
 INCLUDE_ASM("fe/ovstatehud", cOVStateHUD1P_onRender2D);
 
 //100%
-extern "C" float func_0021E750(void* self, int align, int flags, float pos, float size, float scale);
-extern "C" float func_0021E7A8(void* self, int align, float pos, float size, float scale);
+extern "C" float HUD_AlignX(void* self, int align, int flags, float pos, float size, float scale);
+extern "C" float HUD_AlignY(void* self, int align, float pos, float size, float scale);
 
 extern "C" void func_001F10F8(void* self, float* out, float* pos, float* size, float* scale, int alignX, int alignY, int flags)
 {
-    out[0] = func_0021E750(self, alignX, flags, pos[0], size[0], scale[0]);
-    out[1] = func_0021E7A8(self, alignY, pos[1], size[1], scale[1]);
+    out[0] = HUD_AlignX(self, alignX, flags, pos[0], size[0], scale[0]);
+    out[1] = HUD_AlignY(self, alignY, pos[1], size[1], scale[1]);
 }
 
 //100%

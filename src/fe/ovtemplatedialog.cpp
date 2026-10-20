@@ -89,7 +89,7 @@ static inline bool isKind_A8F8(int k, int v)
     return k == v;
 }
 
-extern "C" void func_0020A8F8(int mode)
+extern "C" void GameUI_OpenScreenForState(int mode)
 {
     int v = **(int**)(*(char**)((char*)D_004A28A8 + 0x84) + 0x28);
     int busy = v != 0 && v < 10;
@@ -182,7 +182,7 @@ static inline bool notMode4_0020CA10(signed char* g)
     return g[0x48] != 4;
 }
 
-extern "C" void func_0020CA10(void)
+extern "C" void GameUI_OpenPauseMenu(void)
 {
     cBE_getInterface_Fv(cBE_getBE(), 0);
     cBE_getInterface_Fv(*(void**)((char*)D_004A28A8 + 0x78), 7);
@@ -276,7 +276,7 @@ extern "C" void* cUIStateStack_getCurrentState(void* stack);
 extern "C" int GameUI_IsPauseMenuOpen(void);
 extern void* D_004A28A8;
 
-extern "C" int func_0020CBE8(void)
+extern "C" int GameUI_CanOpenPauseMenu(void)
 {
     char* mgr = *(char**)(*(char**)((char*)D_004A28A8 + 0x84) + 0x48);
     if (GameUI_IsPauseMenuOpen() == 0) {
@@ -300,7 +300,7 @@ extern "C" void func_0020AB50(int state);
 extern char D_00535BC8[];
 extern int D_004A26FC;
 
-extern "C" void func_0020CC60(void)
+extern "C" void GameUI_OpenFinishScreen(void)
 {
     cBE_getInterface_Fv(cBE_getBE(), 0);
     signed char* g = (signed char*)D_00535BC8;
@@ -352,7 +352,7 @@ static inline void* Replay_20CCF8()
     return *(void**)(*(char**)((char*)D_004A28A8 + 0x84) + 0x28);
 }
 
-extern "C" void func_0020CCF8(void)
+extern "C" void GameUI_HandleMenuResult(void)
 {
     D_004A26FC = 0;
     char* s = (char*)cUIStateStack_getCurrentState(((sGM_20CCF8*)D_004A28A8)->game->ui + 0x18);
@@ -449,7 +449,7 @@ extern "C" void func_0020CCF8(void)
 extern "C" void* cUIStateStack_getCurrentState(void* self);
 extern "C" void func_0039F840(void* list);
 extern "C" void func_00231250(void* game, int a, int b, int c);
-extern "C" void func_0020CCF8();
+extern "C" void GameUI_HandleMenuResult();
 extern "C" void func_0020D190();
 void cReplay_stopAutoReplay(void* self);
 
@@ -462,7 +462,7 @@ struct sGM_20CFD0 {
     sGame_20CFD0* game;
 };
 
-extern "C" void func_0020CFD0()
+extern "C" void GameUI_Update()
 {
     char* ui = *(char**)(*(char**)((char*)D_004A28A8 + 0x84) + 0x48);
     char* state = 0;
@@ -473,7 +473,7 @@ extern "C" void func_0020CFD0()
     case 0:
         break;
     case 1:
-        func_0020CCF8();
+        GameUI_HandleMenuResult();
         break;
     case 2: {
         D_004A26FC = 0;
@@ -685,7 +685,7 @@ int GetHashValue32(char* str);
 extern "C" void cUIMenu_setSelectedByIndex(void* menu, int idx);
 extern char D_0046E818[];
 
-extern "C" void func_0020D4F0(void* self, void* item)
+extern "C" void cOVTemplate_Dialog_OnWidgetCreated(void* self, void* item)
 {
     int id = *(int*)((char*)item + 0x38);
     if (id == GetHashValue32(D_0046E818)) {
@@ -851,7 +851,7 @@ extern "C" void cOVTemplate_Dialog_onWidgetEvent(char* self, char* w, int ev)
                 }
                 // The dead `goto chk` (folded only at combine) keeps `any = 0` from
                 // being propagated by gcse, so the zero flag and its test survive
-                // as in the original (same trick as gamestate func_00235080).
+                // as in the original (same trick as gamestate GameStateReset_OverlayUpdate).
                 { int t = z + 1; if (t != 1) { any = 1; goto chk; } }
                 break;
             }
@@ -924,7 +924,7 @@ extern "C" void func_0039F190(void* self, int a1);
 extern char* D_004A2EEC;
 extern char D_0046E050[];
 
-extern "C" void func_0020DBD0(void* self)
+extern "C" void OVScreenYNDialogQuitGame_Update(void* self)
 {
     func_0020E900(self);
     char* p = D_004A2EEC;

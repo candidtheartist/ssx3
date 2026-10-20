@@ -27,7 +27,7 @@ extern "C" void func_00357D28(void* self, void* stream);
 extern "C" void cReplay_restoreBucket(void* self, void* bucket, cStreamRB* stream);
 extern "C" void cReplay_restoreDeadBucket(void* self, cStreamRDB* stream);
 extern "C" void func_00103578(void* self, void* stream);
-extern "C" void func_0026DE58(void* self, int a);
+extern "C" void cReplay_NotifyObjectsRestored(void* self, int a);
 extern "C" void cAI_refreshRiderLights(void* self);
 extern "C" void cGameViewMan_updateAll(void* self);
 extern char D_004A5988;
@@ -74,7 +74,7 @@ extern "C" void cReplay_restoreFrame(void* self, cStreamRF* stream)
     cReplay_restoreBucket(self, (void*)1, (cStreamRB*)stream);
     cReplay_restoreDeadBucket(self, (cStreamRDB*)stream);
     func_00103578(*(void**)(*(char**)(*(char**)((char*)D_004A28A8 + 0x84) + 0xC) + 0xA4), stream);
-    func_0026DE58(self, 1);
+    cReplay_NotifyObjectsRestored(self, 1);
     cAI_refreshRiderLights(*(void**)(*(char**)((char*)D_004A28A8 + 0x84) + 0xC));
     cGameViewMan_updateAll(*(void**)(*(char**)((char*)D_004A28A8 + 0x84) + 0x84));
 }
@@ -108,7 +108,7 @@ extern "C" void cReplay_restoreBucket(void* self, void* bucket, cStreamRB* strea
 struct cBucketMan;
 void* cBucketMan_first(cBucketMan* self, int index);
 void* cBucketMan_next(cBucketMan* self, void* node, int index);
-extern "C" void func_0026DE58(void* self, int bucket)
+extern "C" void cReplay_NotifyObjectsRestored(void* self, int bucket)
 {
     char* p = (char*)cBucketMan_first((cBucketMan*)&D_004A5988, bucket);
     cBucketMan* bm = (cBucketMan*)&D_004A5988;
@@ -345,7 +345,7 @@ struct sReplay0026E4B8 {
     void* streams[2];
 };
 
-extern "C" void func_0026E4B8(void* self_)
+extern "C" void Replay_SnapToSnapshot(void* self_)
 {
     sReplay0026E4B8* self = (sReplay0026E4B8*)self_;
     int i;
@@ -362,27 +362,27 @@ extern "C" void func_0026E4B8(void* self_)
 //100% - objdiff report; single-function view differs only in a relocation name
 // PORT: func_0026E468 really takes (self, index); the unit declares it with 1 arg
 void* func_0026E468_2(void* self, int idx) __asm__("func_0026E468");
-extern "C" void func_0026E4B8(void* self);
+extern "C" void Replay_SnapToSnapshot(void* self);
 
-extern "C" void func_0026E528(void* self)
+extern "C" void Replay_SeekNextSnapshot(void* self)
 {
     void* p = func_0026E468_2(self, *(int*)((char*)self + 0x484));
     *(void**)((char*)self + 0x488) = p;
     *(int*)((char*)self + 0x484) = *(int*)((char*)p + 0x30);
-    func_0026E4B8(self);
+    Replay_SnapToSnapshot(self);
 }
 
 //100% - objdiff report; single-function view differs only in a relocation name
 // PORT: func_0026E490 really takes (self, index); the unit declares it with 1 arg
 void* func_0026E490_2(void* self, int idx) __asm__("func_0026E490");
-extern "C" void func_0026E4B8(void* self);
+extern "C" void Replay_SnapToSnapshot(void* self);
 
-extern "C" void func_0026E568(void* self)
+extern "C" void Replay_SeekPrevSnapshot(void* self)
 {
     void* p = func_0026E490_2(self, *(int*)((char*)self + 0x484));
     *(void**)((char*)self + 0x488) = p;
     *(int*)((char*)self + 0x484) = *(int*)((char*)p + 0x30);
-    func_0026E4B8(self);
+    Replay_SnapToSnapshot(self);
 }
 
 //100%

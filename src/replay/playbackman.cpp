@@ -765,7 +765,7 @@ extern "C" int func_0026D4D8(sPlaybackStream* self, unsigned int pos)
 extern "C" void func_003E6574(void* dst, void* src, int size);
 extern "C" int func_002C85A0(void* src, int a, int dst);
 
-extern "C" int func_0026D558(void* self, char** pp)
+extern "C" int ReplayCache_Deserialize(void* self, char** pp)
 {
     struct {
         int tag;
@@ -857,7 +857,7 @@ extern "C" int func_0026EAB8(void* self, char** pp, void* src);
 // argument; bind the 2-arg form to the symbol.
 void func_0026ED88_2(void* self, int a) __asm__("func_0026ED88__FPv");
 
-extern "C" int func_0026D678(sPbFrame_D678* self, char** pp)
+extern "C" int Replay_DeserializeSnapshot(sPbFrame_D678* self, char** pp)
 {
     sPbHeader_D678 h;
     char* p = *pp;
@@ -885,7 +885,7 @@ void func_0026D730(void* self, int i, int value)
 extern "C" void* func_0026E5D0(void*);
 
 //100%
-void* func_0026D740(void* self)
+void* Replay_AddSnapshot(void* self)
 {
     return func_0026E5D0((char*)self + 0x3b0);
 }

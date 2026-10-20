@@ -2292,7 +2292,7 @@ int AIrand();
 extern "C" void cBoardPressControl_endPress(void*);
 extern "C" void cRiderAnimBase_play(void*, int, int, float);
 extern "C" void* func_0028B180();
-extern "C" void func_002A0E70(void*, void*, int);
+extern "C" void cSSXAudio_RiderSay2077(void*, void*, int);
 
 // PORT: PS2-only VU0 inline asm (4-component vector length).
 static inline float Len_8388(const sV4_8388& v)
@@ -2382,7 +2382,7 @@ extern "C" void func_00108388(char* self, char* info, int flag)
         }
     }
     if (flag)
-        func_002A0E70(func_0028B180(), self, played);
+        cSSXAudio_RiderSay2077(func_0028B180(), self, played);
     cRider_setControlState_8388(self, 3);
 }
 
@@ -2911,7 +2911,7 @@ struct sPad_AA70 {
     int w0 : 6;
 };
 
-extern "C" sV4_AA70 func_0026AB20_AA70(cTrack_AA70*, int, float) __asm__("func_0026AB20");
+extern "C" sV4_AA70 Path_GetPointAtDistance_AA70(cTrack_AA70*, int, float) __asm__("Path_GetPointAtDistance");
 extern "C" float func_00100348_AA70(void*, sV4_AA70*) __asm__("func_00100348");
 
 // PORT: PS2-only VU0 inline asm (vector length via vsqrt).
@@ -2993,7 +2993,7 @@ extern "C" void cComputer_ThinkPrewind(char* self, sPad_AA70* pad)
         char* r = *(char**)(self + 0x18);
         sV4_AA70 half = Sub_AA70(*(sV4_AA70*)(r + 0x490), *(sV4_AA70*)(r + 0x110));
         half = Scale_AA70(half, 0.5f);
-        sV4_AA70 pos = func_0026AB20_AA70(trk, 0, buf[sel].b);
+        sV4_AA70 pos = Path_GetPointAtDistance_AA70(trk, 0, buf[sel].b);
         sV4_AA70 d = Sub_AA70(pos, half);
         pad->w0 = (int)(func_00100348_AA70(self, &d) * 31.0f);
     }
@@ -3306,7 +3306,7 @@ public:
     virtual int Query(sRec_B980* buf, int max, float x, float y);
 };
 
-extern "C" sVec4_B980 func_0026AB20(cTrack_B980*, int, float);
+extern "C" sVec4_B980 Path_GetPointAtDistance(cTrack_B980*, int, float);
 
 extern "C" int func_0010B980(char* self, float* speed, int* below, int* o3, int* o4, int* o5, int* o6)
 {
@@ -3323,8 +3323,8 @@ extern "C" int func_0010B980(char* self, float* speed, int* below, int* o3, int*
             *o5 = (fl >> 1) & 1;
             *o6 = fl & 1;
             *below = (buf[i].a <= *(float*)(*(char**)(self + 0x18) + 0x4C4)) ? 1 : 0;
-            *(sVec4_B980*)(self + 0xE50) = func_0026AB20(trk, 0, buf[i].a);
-            *(sVec4_B980*)(self + 0xE60) = func_0026AB20(trk, 0, buf[i].b);
+            *(sVec4_B980*)(self + 0xE50) = Path_GetPointAtDistance(trk, 0, buf[i].a);
+            *(sVec4_B980*)(self + 0xE60) = Path_GetPointAtDistance(trk, 0, buf[i].b);
             return 1;
         }
     }

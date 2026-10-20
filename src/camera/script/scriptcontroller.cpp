@@ -283,7 +283,7 @@ extern "C" void func_00169540(cScriptCtlVirt2* self)
 //100%
 // PORT: PS2-only VU0 inline asm; needs a C fallback off-PS2.
 float* func_0027C098(void* cam);
-extern "C" void func_0027C0F0(void* cam, void* out);
+extern "C" void ScriptCam_ReadManualFields(void* cam, void* out);
 extern "C" float func_0031C228(float x);
 extern "C" void func_00160028(void* self, float v);
 extern "C" void func_00160130(void* self, float v);
@@ -394,7 +394,7 @@ extern "C" void func_00169570(char* p)
     char* m = *(char**)(p + 0x14) + 0x30;
     self->x4 = f[0];
     self->x8 = f[1];
-    func_0027C0F0(cam, &self->ox);
+    ScriptCam_ReadManualFields(cam, &self->ox);
     self->roll = self->r68 * 0.01745329424738884f;
     self->target = sVec4_169570(self->ox, self->oy, self->oz, 1.0f);
     self->target = mtxMulVec_169570(m, self->target);
@@ -611,7 +611,7 @@ extern "C" void func_00169D80(cScriptCtlVirt2* self)
 //100%
 // PORT: PS2-only VU0 inline asm; needs a C fallback off-PS2.
 float* func_0027C2A8(void* cam);
-extern "C" void func_0027C300(void* cam, void* out);
+extern "C" void ScriptCam_ReadTargetFields(void* cam, void* out);
 extern "C" void func_0031BE50(float* s, float* c, float angle);
 extern "C" void func_00160028(void* self, float v);
 extern "C" void func_00160130(void* self, float v);
@@ -703,7 +703,7 @@ extern "C" void func_00169DB0(char* p)
     char* m = *(char**)(p + 0x14) + 0x30;
     self->x4 = f[0];
     self->x8 = f[1];
-    func_0027C300(cam, &self->ox);
+    ScriptCam_ReadTargetFields(cam, &self->ox);
     self->x4 = f[0];
     self->x8 = f[1];
     self->roll = self->r68 * 0.01745329424738884f;
@@ -924,8 +924,8 @@ extern "C" void func_0016A4E0(cScriptCtlVirt2* self)
 //100%
 // PORT: PS2-only VU0 inline asm; needs a C fallback off-PS2.
 float* func_0027C4B8(void* cam);
-extern "C" char* func_00279F18(void* self, int a1, int a2);
-extern "C" void func_0027C510(void* cam, void* out);
+extern "C" char* ScriptEngine_GetTargetObject(void* self, int a1, int a2);
+extern "C" void ScriptCam_ReadSubjectFields(void* cam, void* out);
 extern "C" float func_0031C228(float x);
 extern "C" void func_00160028(void* self, float v);
 extern "C" void func_00160130(void* self, float v);
@@ -1076,13 +1076,13 @@ extern "C" void func_0016A510(char* p)
     char* cam = *(char**)(*(char**)(*(char**)(p + 0x14) + 0x14) + 0x8);
     float* f = func_0027C4B8(cam);
     char* m = *(char**)(p + 0x14) + 0x30;
-    char* rider = func_00279F18(D_004A28A4, ((signed char*)f)[0x22], *(int*)(cam + 8));
+    char* rider = ScriptEngine_GetTargetObject(D_004A28A4, ((signed char*)f)[0x22], *(int*)(cam + 8));
     if (rider == 0) {
         rider = *(char**)(*(char**)(*(char**)((char*)D_004A28A8 + 0x84) + 0xC) + 0x28);
     }
     self->x4 = f[0];
     self->x8 = f[1];
-    func_0027C510(cam, &self->ox);
+    ScriptCam_ReadSubjectFields(cam, &self->ox);
     char* obj = rider + 0x6C0;
     sVec4_16A510 rot = *(sVec4_16A510*)(*(char**)(rider + 0x780) + 0x140);
     self->roll = self->r64 * 0.01745329424738884f;
@@ -1292,8 +1292,8 @@ extern "C" void* AlgorithmicScriptCameraAlgo_ctor(void* self)
 //100%
 // PORT: PS2-only VU0 inline asm; needs a C fallback off-PS2.
 float* func_0027C6A0(void* cam);
-extern "C" char* func_00279F18(void* self, int a1, int a2);
-extern "C" void func_0027C6F8(void* cam, void* out);
+extern "C" char* ScriptEngine_GetTargetObject(void* self, int a1, int a2);
+extern "C" void ScriptCam_ReadAlgorithmicFields(void* cam, void* out);
 extern "C" void func_0031BE50(float* s, float* c, float angle);
 extern "C" float func_0031C228(float x);
 extern "C" void func_00160028(void* self, float v);
@@ -1444,12 +1444,12 @@ extern "C" void func_0016AD98(char* p)
     sScrCam_16AD98* self = (sScrCam_16AD98*)p;
     char* cam = *(char**)(*(char**)(*(char**)(p + 0x14) + 0x14) + 0x8);
     float* f = func_0027C6A0(cam);
-    func_0027C6F8(cam, &self->ox);
+    ScriptCam_ReadAlgorithmicFields(cam, &self->ox);
     self->x4 = f[0];
     self->x8 = f[1];
     self->roll = self->r64 * 0.01745329424738884f;
     self->pitch = self->r60 * 0.01745329424738884f + *(float*)(*(char**)(p + 0x14) + 0x70);
-    char* rider = func_00279F18(D_004A28A4, ((signed char*)f)[0x1D], *(int*)(cam + 8));
+    char* rider = ScriptEngine_GetTargetObject(D_004A28A4, ((signed char*)f)[0x1D], *(int*)(cam + 8));
     if (rider == 0) {
         rider = *(char**)(*(char**)(*(char**)((char*)D_004A28A8 + 0x84) + 0xC) + 0x28);
     }
@@ -1679,13 +1679,13 @@ extern "C" void func_0016B180(char* p)
     sScrCam_B180* self = (sScrCam_B180*)p;
     char* cam = *(char**)(*(char**)(*(char**)(p + 0x14) + 0x14) + 0x8);
     float* f = func_0027C6A0(cam);
-    char* rider = func_00279F18(D_004A28A4, ((signed char*)f)[0x1D], *(int*)(cam + 8));
+    char* rider = ScriptEngine_GetTargetObject(D_004A28A4, ((signed char*)f)[0x1D], *(int*)(cam + 8));
     if (rider == 0) {
         rider = *(char**)(*(char**)(*(char**)((char*)D_004A28A8 + 0x84) + 0xC) + 0x28);
     }
     self->x4 = f[0];
     self->x8 = f[1];
-    func_0027C6F8(cam, &self->ox);
+    ScriptCam_ReadAlgorithmicFields(cam, &self->ox);
     self->roll = self->r64 * 0.01745329424738884f;
     self->pitch = self->r60 * 0.01745329424738884f + *(float*)(*(char**)(p + 0x14) + 0x70);
     float yaw;

@@ -562,7 +562,7 @@ extern "C" int func_002B63D0(void* self, int idx, int* type, int* a, int* b, int
 
 //100%
 extern "C" void* func_0028B180();
-extern "C" int func_002A34D0(void* mgr, int a1, int a2, int a3);
+extern "C" int cSSXAudio_PASay20C4(void* mgr, int a1, int a2, int a3);
 
 extern "C" int func_002B6550(void* self, int type, int* a, int* b, int* c, int arg)
 {
@@ -572,7 +572,7 @@ extern "C" int func_002B6550(void* self, int type, int* a, int* b, int* c, int a
     *c = 0;
     if (type == 0x4D) {
         *c = 1;
-        r = func_002A34D0(func_0028B180(), 0, 1, arg);
+        r = cSSXAudio_PASay20C4(func_0028B180(), 0, 1, arg);
     }
     return r;
 }

@@ -271,12 +271,12 @@ extern "C" void* func_00275D10(void* self)
 }
 
 //100%
-extern "C" void func_00276868(void* self, int a1);
+extern "C" void ScriptList_Stop(void* self, int a1);
 void operator_delete(int* ptr);
 
-extern "C" void func_00275D90(int* self, int flags)
+extern "C" void ScriptList_dtor(int* self, int flags)
 {
-    func_00276868(self, 1);
+    ScriptList_Stop(self, 1);
     *self = 0;
     if (flags & 1) {
         operator_delete(self);
@@ -284,7 +284,7 @@ extern "C" void func_00275D90(int* self, int flags)
 }
 
 extern "C" int func_00277450(void* self, int index, int a2);
-extern "C" void func_002776E0(void* self);
+extern "C" void ScriptList_CheckNextReady(void* self);
 extern "C" int func_00277DD8(void* self, void* a1);
 extern "C" int func_002797A0(void* eng, int a1, int a2, int a3, int a4);
 extern "C" void* func_00282BF0(void* self, int a1);
@@ -306,7 +306,7 @@ struct sDmCmd5ED0 {
 };
 
 //100%
-extern "C" int func_00275DD8(char* self, int a1, int a2)
+extern "C" int ScriptList_Add(char* self, int a1, int a2)
 {
     if (func_00283C58(self + 0xC) == 0) {
         sDmCmd5ED0 cmd;
@@ -324,7 +324,7 @@ extern "C" int func_00275DD8(char* self, int a1, int a2)
             if (*(int*)(self + 0xA4) == 3) {
                 int ok = *(int*)((char*)func_00282BF0(*(void**)self, *(int*)((char*)func_00283D70(list, 0) + 0xC)) + 0x20) == 4;
                 if (ok) {
-                    func_002776E0(self);
+                    ScriptList_CheckNextReady(self);
                 }
             }
         }
@@ -335,7 +335,7 @@ extern "C" int func_00275DD8(char* self, int a1, int a2)
 
 //100%
 // PORT: PS2-only inline asm; needs a C fallback off-PS2.
-extern "C" int func_00275ED0(char* self, int a1, int a2, int lookup, int a4, int a5, int a6)
+extern "C" int ScriptList_AddChoice(char* self, int a1, int a2, int lookup, int a4, int a5, int a6)
 {
     if (func_00283C58(self + 0xC) != 0) {
         return 0;
@@ -372,7 +372,7 @@ extern "C" int func_00275ED0(char* self, int a1, int a2, int lookup, int a4, int
             ok = func_00283BB8((char*)*(void**)self + 0x500);
         }
         if (ok) {
-            func_002776E0(self);
+            ScriptList_CheckNextReady(self);
         }
     }
     return 1;
@@ -381,7 +381,7 @@ extern "C" int func_00275ED0(char* self, int a1, int a2, int lookup, int a4, int
 //100%
 // PORT: PS2-only inline asm; needs a C fallback off-PS2.
 extern "C" int func_00277450(void* self, int index, int a2);
-extern "C" void func_002776E0(void* self);
+extern "C" void ScriptList_CheckNextReady(void* self);
 extern "C" int func_00277DD8(void* self, void* a1);
 extern "C" void* func_00282BF0(void* self, int a1);
 extern "C" int func_00283BB8(void* self);
@@ -401,7 +401,7 @@ struct sDmCmd6048 {
     int a5;         // 0x18
 };
 
-extern "C" int func_00276048(char* self, int a1, int a2, int a3, int a4, int a5)
+extern "C" int ScriptList_AddMovie(char* self, int a1, int a2, int a3, int a4, int a5)
 {
     if (func_00283C58(self + 0xC) == 0) {
         void* list = self + 0xC;
@@ -424,7 +424,7 @@ extern "C" int func_00276048(char* self, int a1, int a2, int a3, int a4, int a5)
                 ok = func_00283BB8((char*)*(void**)self + 0x500);
             }
             if (ok) {
-                func_002776E0(self);
+                ScriptList_CheckNextReady(self);
             }
         }
         }
@@ -436,7 +436,7 @@ extern "C" int func_00276048(char* self, int a1, int a2, int a3, int a4, int a5)
 //100%
 extern "C" int func_00283DC0(void* self, void* out);
 
-extern "C" int func_00276198(char* self, char* other)
+extern "C" int ScriptList_TakeFrom(char* self, char* other)
 {
     int n = func_00283D28_count(self + 0xC);
     if (*(int*)(other + 0xA4) == 3) {
@@ -447,7 +447,7 @@ extern "C" int func_00276198(char* self, char* other)
         while (func_00283DC0(other + 0xC, &cmd) != 0) {
             func_00283C80(self + 0xC, &cmd);
         }
-        func_00276868(other, 1);
+        ScriptList_Stop(other, 1);
         if (*(int*)(self + 0xA4) == 0) {
             return 1;
         }
@@ -460,19 +460,19 @@ extern "C" int func_00276198(char* self, char* other)
 }
 
 //100%
-extern "C" void func_00276868(void* self, int a1);
+extern "C" void ScriptList_Stop(void* self, int a1);
 extern "C" int func_00277450(void* self, int index, int a2);
-extern "C" void func_00277598(void* self, int index);
-extern "C" void func_00277778(void* self);
+extern "C" void ScriptList_PopEntries(void* self, int index);
+extern "C" void ScriptList_PollLoading(void* self);
 extern "C" int func_00277DD8(void* self, void* a1);
 extern "C" int func_00282798(void* self, int a1);
 extern "C" void* func_00283D28(void*);
 extern "C" void* func_00283D70(void* list, int i);
 
-extern "C" int func_00276270(char* self, int a1)
+extern "C" int ScriptList_Prepare(char* self, int a1)
 {
     if (*(int*)(self + 0xA4) == 1) {
-        func_00277778(self);
+        ScriptList_PollLoading(self);
     }
     if (*(int*)(self + 0xA4) != 0) {
         return *(int*)(self + 0xA4);
@@ -484,10 +484,10 @@ extern "C" int func_00276270(char* self, int a1)
     }
     int idx = func_00277450(self, 0, 0);
     if (idx < 0) {
-        func_00276868(self, 1);
+        ScriptList_Stop(self, 1);
         return *(int*)(self + 0xA4);
     }
-    func_00277598(self, idx);
+    ScriptList_PopEntries(self, idx);
     char* e = (char*)func_00283D70(list, 0);
     if (func_00277DD8(self, e) == 0) {
         if (func_00282798(*(void**)self, *(int*)(e + 0xC)) == 1) {
@@ -513,7 +513,7 @@ extern char D_004A34A0[];
 int GetHashValue32(char* s);
 void* func_00230698(void* self, int a1);
 char* func_0027C070(void* obj);
-extern "C" void func_00277778(void* self);
+extern "C" void ScriptList_PollLoading(void* self);
 extern "C" int func_00277DD8(void* self, void* a1);
 // The unit declares func_00279720 as void; it returns func_002822A0's result.
 int func_00279720_i(void* self, int val, int key, int b, int c) __asm__("func_00279720");
@@ -573,14 +573,14 @@ struct sDmItem_6388 {
     int id;                 // 0xC
 };
 
-// The unit declares func_00276388 as void; it returns the state at 0xA4.
-int func_00276388_impl(char* self, int fade, int notify) __asm__("func_00276388");
+// The unit declares ScriptList_Start as void; it returns the state at 0xA4.
+int ScriptList_Start_impl(char* self, int fade, int notify) __asm__("ScriptList_Start");
 
-int func_00276388_impl(char* self, int fade, int notify)
+int ScriptList_Start_impl(char* self, int fade, int notify)
 {
     sDm_6388* dm = (sDm_6388*)self;
     if (*(int*)(self + 0xA4) == 1) {
-        func_00277778(self);
+        ScriptList_PollLoading(self);
     }
     if (*(int*)(self + 0xA4) != 2) {
         return *(int*)(self + 0xA4);
@@ -654,24 +654,24 @@ int func_00276388_impl(char* self, int fade, int notify)
     return *(int*)(self + 0xA4);
 }
 
-extern "C" void* func_00277C08(void*, int, int);
+extern "C" void* ScriptList_SetPaused(void*, int, int);
 
 //100%
 void* func_002766B0(void* self, int a1)
 {
-    return func_00277C08(self, a1, 0);
+    return ScriptList_SetPaused(self, a1, 0);
 }
 
 //100%
 // PORT: PS2-only inline asm; needs a C fallback off-PS2.
-extern "C" int func_00276270(char* self, int a1);
-extern "C" void func_00276868(void* self, int a1);
+extern "C" int ScriptList_Prepare(char* self, int a1);
+extern "C" void ScriptList_Stop(void* self, int a1);
 extern "C" int func_00277450(void* self, int index, int a2);
-extern "C" void func_00277598(void* self, int index);
-extern "C" void func_00277800(void* self);
-// The unit declares func_00277980 as void; it returns whether it handled the update.
-extern "C" int func_00277980_r(void* self) __asm__("func_00277980");
-extern "C" void* func_00277C08(void*, int, int);
+extern "C" void ScriptList_PopEntries(void* self, int index);
+extern "C" void ScriptList_TryAdvance(void* self);
+// The unit declares ScriptList_StartTransition as void; it returns whether it handled the update.
+extern "C" int ScriptList_StartTransition_r(void* self) __asm__("ScriptList_StartTransition");
+extern "C" void* ScriptList_SetPaused(void*, int, int);
 extern "C" int func_00277DD8(void* self, void* a1);
 extern "C" int func_00282540(void* self, int id);
 extern "C" void func_00283818(void* p);
@@ -697,7 +697,7 @@ struct sSeq_66D0 {
     int pos;            // 0xC0
 };
 
-extern "C" int func_002766D0(sSeq_66D0* self, int delta, int force)
+extern "C" int ScriptList_Skip(sSeq_66D0* self, int delta, int force)
 {
     int pos = delta + self->pos;
     if (pos == self->pos) {
@@ -710,12 +710,12 @@ extern "C" int func_002766D0(sSeq_66D0* self, int delta, int force)
     if (self->state != 3) {
         self->pos = 0;
         if (pos < n) {
-            func_00277598(self, pos);
+            ScriptList_PopEntries(self, pos);
             int st = self->state;
             self->cur = -1;
             self->state = 0;
             if (st != 0) {
-                func_00276270((char*)self, self->fB4);
+                ScriptList_Prepare((char*)self, self->fB4);
             }
             return self->state;
         }
@@ -732,21 +732,21 @@ extern "C" int func_002766D0(sSeq_66D0* self, int delta, int force)
         it->handle = -1;
         self->cur = -1;
         if (self->fA8) {
-            func_00277C08(self, 0, 1);
+            ScriptList_SetPaused(self, 0, 1);
         }
         self->cur = func_00277450(self, pos, 0);
     }
     if (self->fA8 == 0) {
-        if (force == 0 || func_00277980_r(self) == 0) {
+        if (force == 0 || ScriptList_StartTransition_r(self) == 0) {
             if (self->cur < 0) {
                 goto reset;
             }
-            func_00277800(self);
+            ScriptList_TryAdvance(self);
         }
     }
     return self->state;
 reset:
-    func_00276868(self, 1);
+    ScriptList_Stop(self, 1);
     return self->state;
 }
 
@@ -758,8 +758,8 @@ void* func_00230698(void* self, int a1);
 extern "C" void func_002E4578(void* p);
 extern "C" void func_002EA820(void* p);
 extern "C" void* func_0039F9D8(void* table, int hash);
-extern "C" void func_00277598(void* self, int index);
-extern "C" void* func_00277C08(void*, int, int);
+extern "C" void ScriptList_PopEntries(void* self, int index);
+extern "C" void* ScriptList_SetPaused(void*, int, int);
 
 struct sDmVEntry6868 {
     short delta;
@@ -767,15 +767,15 @@ struct sDmVEntry6868 {
     int (*fn)(void*, int, int);
 };
 
-extern "C" void func_00276868(void* p, int a1)
+extern "C" void ScriptList_Stop(void* p, int a1)
 {
     char* self = (char*)p;
     if (*(int*)(self + 0xA8) != 0) {
-        func_00277C08(self, 0, 1);
+        ScriptList_SetPaused(self, 0, 1);
     }
     if (*(int*)(self + 0xC4) != 0) {
         *(int*)(self + 0xC4) = 1;
-        func_00277C08(self, 0, 0);
+        ScriptList_SetPaused(self, 0, 0);
     }
     if (*(int*)(self + 0x4) != 0 && *(int*)(self + 0xA4) == 3) {
         void* gm = *(void**)(*(char**)(D_004A28A8 + 0x84) + 0x64);
@@ -792,7 +792,7 @@ extern "C" void func_00276868(void* p, int a1)
             e->fn(o + e->delta, 1, 0);
         }
     }
-    func_00277598(self, 5);
+    ScriptList_PopEntries(self, 5);
     *(int*)(self + 0xBC) = -1;
     *(int*)(self + 0xA4) = 0;
     *(int*)(self + 0xC8) = 0;
@@ -871,12 +871,12 @@ extern "C" void* func_00276B08(char* self, int i)
 }
 
 //100%
-extern "C" void func_00277778(void* self);
+extern "C" void ScriptList_PollLoading(void* self);
 
-extern "C" int func_00276B98(void* self)
+extern "C" int ScriptList_GetState(void* self)
 {
     if (*(int*)((char*)self + 0xA4) == 1) {
-        func_00277778(self);
+        ScriptList_PollLoading(self);
     }
     return *(int*)((char*)self + 0xA4);
 }
@@ -885,7 +885,7 @@ extern "C" int func_00276B98(void* self)
 extern "C" void* func_00283D70(void* list, int i);
 extern "C" int func_00282838(void* self, int a1);
 
-extern "C" int func_00276BD8(void* self)
+extern "C" int ScriptList_GetPlayStatus(void* self)
 {
     if (*(int*)((char*)self + 0xA4) != 3) return 0;
     if (*(int*)((char*)self + 0xC4) != 0) return 3;
@@ -911,11 +911,11 @@ void* func_00276CA8(void* self)
 
 //100% - objdiff report; single-function view differs only in a relocation name
 void* func_00230698(void* self, int a1);
-extern "C" void func_00276388(void* self, int a1, int a2);
-extern "C" void func_00277778(void* self);
-extern "C" void func_00277800(void* self);
-extern "C" void func_00277838(void* self);
-extern "C" void func_00277980(void* self);
+extern "C" void ScriptList_Start(void* self, int a1, int a2);
+extern "C" void ScriptList_PollLoading(void* self);
+extern "C" void ScriptList_TryAdvance(void* self);
+extern "C" void ScriptList_NextEntry(void* self);
+extern "C" void ScriptList_StartTransition(void* self);
 extern "C" int func_00277DD8(void* self, void* a1);
 extern "C" void func_00282720(void* self, int a1);
 extern "C" int func_00282798(void* self, int a1);
@@ -926,16 +926,16 @@ extern "C" void* func_00283D70(void* list, int i);
 extern "C" void func_002E4578(void* p);
 extern char* D_004A28A8;
 
-extern "C" void func_00276CC8(char* self)
+extern "C" void ScriptList_Update(char* self)
 {
     if (*(int*)(self + 0xA4) == 1) {
-        func_00277778(self);
+        ScriptList_PollLoading(self);
         return;
     }
     if (*(int*)(self + 0xA4) == 2) {
         int v = *(int*)(self + 0xB4);
         if (v != 0) {
-            func_00276388(self, v == 1, 0);
+            ScriptList_Start(self, v == 1, 0);
             *(int*)(self + 0xB4) = 0;
         }
     }
@@ -951,7 +951,7 @@ extern "C" void func_00276CC8(char* self)
         if (*(int*)(self + 0xB8) != 0) {
             if (--*(int*)(self + 0xB8) == 0) {
                 if (*(int*)(self + 0xAC) == 0) {
-                    func_00277800(self);
+                    ScriptList_TryAdvance(self);
                     return;
                 }
                 if (func_00277DD8(self, item) == 0) {
@@ -976,8 +976,8 @@ extern "C" void func_00276CC8(char* self)
             ok = *(int*)(item + 0xC) >= 0;
         }
         if (ok) {
-            func_00277C08(self, 0, 1);
-            func_00277838(self);
+            ScriptList_SetPaused(self, 0, 1);
+            ScriptList_NextEntry(self);
         }
         return;
     }
@@ -989,7 +989,7 @@ extern "C" void func_00276CC8(char* self)
                 *(int*)(self + 0xB0) = 0;
                 *(int*)(self + 0xB8) = 0;
             }
-            func_00277800(self);
+            ScriptList_TryAdvance(self);
             return;
         }
     }
@@ -1000,23 +1000,23 @@ extern "C" void func_00276CC8(char* self)
             done = 1;
         }
     } else if (func_00283BB8(*(char**)self + 0x500) != 0) {
-        func_00277980(self);
+        ScriptList_StartTransition(self);
         done = 1;
     }
     if (done) {
-        func_00277800(self);
+        ScriptList_TryAdvance(self);
     }
 }
 
 //100%
 extern "C" int func_00277450(void* self, int index, int a2);
-extern "C" void func_00277800(void* self);
+extern "C" void ScriptList_TryAdvance(void* self);
 extern "C" int func_00277DD8(void* self, void* a1);
 extern "C" int func_00282540(void* self, int id);
 extern "C" void func_00283818(void* p);
 extern "C" void* func_00283D70(void* list, int i);
 
-extern "C" void func_00276F48(char* self)
+extern "C" void ScriptList_SkipCurrent(char* self)
 {
     if (*(int*)(self + 0xA4) != 3) {
         return;
@@ -1046,7 +1046,7 @@ extern "C" void func_00276F48(char* self)
         *(int*)(self + 0xBC) = idx;
     }
     if (idx >= 0) {
-        func_00277800(self);
+        ScriptList_TryAdvance(self);
     }
 }
 
@@ -1080,7 +1080,7 @@ extern "C" int func_002770C0(void* self)
 
 extern "C" int func_00282798(void* p, int a);
 
-extern "C" int func_00277100(char* self)
+extern "C" int ScriptList_IsNextReady(char* self)
 {
     if (*(int*)(self + 0xA4) == 1) {
         return 0;
@@ -1106,7 +1106,7 @@ extern "C" int func_00277DD8(void* self, void* a1);
 extern "C" void* func_00282BF0(void* self, int a1);
 extern void* D_004A28A4;
 
-extern "C" int func_002771C8(void* self, void* obj)
+extern "C" int ScriptList_IsPlayingScript(void* self, void* obj)
 {
     if (*(int*)((char*)self + 0xA4) != 3) {
         return 0;
@@ -1143,14 +1143,14 @@ int func_002772B8(void* self)
 }
 
 //100% - objdiff report; single-function view differs only in a relocation name
-extern "C" int func_002771C8(void* self, void* obj);
+extern "C" int ScriptList_IsPlayingScript(void* self, void* obj);
 char* func_0027C070(void* obj);
 extern "C" void func_002EF378(int a0);
 extern char D_004A34A8[];
 
-extern "C" void func_002772C0(void* self, int a1, void* obj)
+extern "C" void ScriptList_OnSeqStart(void* self, int a1, void* obj)
 {
-    if (func_002771C8(self, obj) != 0) {
+    if (ScriptList_IsPlayingScript(self, obj) != 0) {
         char* name = func_0027C070(obj);
         char* msg = D_004A34A8;
         if (*name != 0) {
@@ -1160,45 +1160,45 @@ extern "C" void func_002772C0(void* self, int a1, void* obj)
 }
 
 //100% - objdiff report; single-function view differs only in a relocation name
-extern "C" int func_002771C8(void* self, void* obj);
+extern "C" int ScriptList_IsPlayingScript(void* self, void* obj);
 char* func_0027C070(void* obj);
 extern "C" int func_00274D08(void* obj);
-extern "C" void func_00277980(void* self);
+extern "C" void ScriptList_StartTransition(void* self);
 
-extern "C" void func_00277310(void* self, int a1, void* obj)
+extern "C" void ScriptList_OnSeqAdvance(void* self, int a1, void* obj)
 {
-    if (func_002771C8(self, obj) != 0 && *(int*)((char*)self + 0x4) != 0 &&
+    if (ScriptList_IsPlayingScript(self, obj) != 0 && *(int*)((char*)self + 0x4) != 0 &&
         *(int*)((char*)obj + 0x1C) == 0) {
         char* name = func_0027C070(obj);
         if (func_00274D08(obj) + 1 <= *(short*)(name + 0x12)) {
-            func_00277980(self);
+            ScriptList_StartTransition(self);
         }
     }
 }
 
 //100% - objdiff report; single-function view differs only in a relocation name
-extern "C" int func_002771C8(void* self, void* obj);
-extern "C" void func_002776E0(void* self);
+extern "C" int ScriptList_IsPlayingScript(void* self, void* obj);
+extern "C" void ScriptList_CheckNextReady(void* self);
 extern "C" void func_002826D8(void* self, int a1);
 
-extern "C" void func_002773A0(void* self, int a1, void* obj)
+extern "C" void ScriptList_OnSeqEnd(void* self, int a1, void* obj)
 {
-    if (func_002771C8(self, obj) != 0) {
+    if (ScriptList_IsPlayingScript(self, obj) != 0) {
         if (*(int*)((char*)self + 0xB8) != 0) {
             func_002826D8(*(void**)self, a1);
         }
-        func_002776E0(self);
+        ScriptList_CheckNextReady(self);
     }
 }
 
 //100% - objdiff report; single-function view differs only in a relocation name
-extern "C" int func_002771C8(void* self, void* obj);
+extern "C" int ScriptList_IsPlayingScript(void* self, void* obj);
 char* func_0027C070(void* obj);
 extern "C" void func_002EF378(int a0);
 
-extern "C" void func_00277400(void* self, int a1, void* obj)
+extern "C" void ScriptList_OnSeqStopped(void* self, int a1, void* obj)
 {
-    if (func_002771C8(self, obj) != 0) {
+    if (ScriptList_IsPlayingScript(self, obj) != 0) {
         if (*func_0027C070(obj) != 0) {
             func_002EF378(0);
         }
@@ -1210,7 +1210,7 @@ INCLUDE_ASM("scripter/datamanager", func_00277450);
 //100%
 struct sDmEnt7DE8;
 extern "C" int func_00277DD8(void* self, void* a1);
-extern "C" sDmEnt7DE8* func_00277DE8(void* self, int* key);
+extern "C" sDmEnt7DE8* ScriptList_GetMovieInfo(void* self, int* key);
 extern "C" int func_00282540(void* self, int id);
 extern "C" void func_00283818(void* p);
 extern "C" int func_00283BB8(void* self);
@@ -1235,7 +1235,7 @@ struct sDmSndVEntry7598 {
     void (*fn)(void*, int);
 };
 
-extern "C" void func_00277598(void* selfp, int n)
+extern "C" void ScriptList_PopEntries(void* selfp, int n)
 {
     char* self = (char*)selfp;
     while (n != 0) {
@@ -1248,7 +1248,7 @@ extern "C" void func_00277598(void* selfp, int n)
                 func_00282540(*(void**)self, cmd.id);
             } else {
                 if (*(int*)(*(char**)self + 0x504) != 0) {
-                    int* ent = (int*)func_00277DE8(self, (int*)&cmd);
+                    int* ent = (int*)ScriptList_GetMovieInfo(self, (int*)&cmd);
                     int snd;
                     if (func_00283BB8(*(char**)self + 0x500) != 0) {
                         snd = ent[6];
@@ -1275,7 +1275,7 @@ extern "C" void* func_00283D70(void* list, int i);
 extern "C" int func_00277DD8(void* self, void* a1);
 extern "C" int func_00282798(void* self, int a1);
 
-extern "C" void func_002776E0(void* self)
+extern "C" void ScriptList_CheckNextReady(void* self)
 {
     int idx = *(int*)((char*)self + 0xBC);
     if (idx >= 0) {
@@ -1289,7 +1289,7 @@ extern "C" void func_002776E0(void* self)
             ok = *(int*)(e + 0xC) < 0;
         }
         if (ok) {
-            func_00277C08(self, 1, 1);
+            ScriptList_SetPaused(self, 1, 1);
         }
     }
 }
@@ -1299,7 +1299,7 @@ extern "C" void* func_00283D70(void* list, int i);
 extern "C" int func_00277DD8(void* self, void* a1);
 extern "C" int func_00282798(void* self, int a1);
 
-extern "C" void func_00277778(void* self)
+extern "C" void ScriptList_PollLoading(void* self)
 {
     if (*(int*)((char*)self + 0xA4) == 1) {
         char* e = (char*)func_00283D70((char*)self + 0xC, 0);
@@ -1315,22 +1315,22 @@ extern "C" void func_00277778(void* self)
 }
 
 //100%
-extern "C" void func_002776E0(void* self);
-extern "C" void func_00277838(void* self);
+extern "C" void ScriptList_CheckNextReady(void* self);
+extern "C" void ScriptList_NextEntry(void* self);
 
-extern "C" void func_00277800(void* self)
+extern "C" void ScriptList_TryAdvance(void* self)
 {
-    func_002776E0(self);
+    ScriptList_CheckNextReady(self);
     if (*(int*)((char*)self + 0xA8) == 0) {
-        func_00277838(self);
+        ScriptList_NextEntry(self);
     }
 }
 
 //100%
 void* func_00230698(void* self, int a1);
-extern "C" void func_00276868(void* self, int a1);
+extern "C" void ScriptList_Stop(void* self, int a1);
 extern "C" int func_00277450(void* self, int index, int a2);
-extern "C" void func_00277598(void* self, int index);
+extern "C" void ScriptList_PopEntries(void* self, int index);
 extern "C" int func_00277DD8(void* self, void* a1);
 extern "C" void func_00279720(void* self, int val, int key, int b, int c);
 extern "C" int func_002839A8(void* self);
@@ -1352,12 +1352,12 @@ struct sDmEngVEntry7838 {
     int (*fn)(void*, int);
 };
 
-extern "C" void func_00277838(void* selfp)
+extern "C" void ScriptList_NextEntry(void* selfp)
 {
     char* self = (char*)selfp;
     if (*(int*)(self + 0xBC) > 0) {
         *(int*)(self + 0xC8) = 0;
-        func_00277598(self, *(int*)(self + 0xBC));
+        ScriptList_PopEntries(self, *(int*)(self + 0xBC));
         *(int*)(self + 0xC0) = 0;
         *(int*)(self + 0xBC) = -1;
         sDmCmd7838* cmd = (sDmCmd7838*)func_00283D70(self + 0xC, 0);
@@ -1375,7 +1375,7 @@ extern "C" void func_00277838(void* selfp)
         *(int*)(self + 0xBC) = func_00277450(self, 1, 0);
     } else {
         int wasOn = *(int*)(self + 0xB0);
-        func_00276868(self, 0);
+        ScriptList_Stop(self, 0);
         if (*(int*)(self + 0x4) != 0) {
             void* app = *(void**)(D_004A28A8 + 0x84);
             void* fade = *(void**)((char*)app + 0x64);
@@ -1395,7 +1395,7 @@ void* func_00230698(void* self, int a1);
 char* func_0027C070(void* obj);
 extern "C" int func_00277DD8(void* self, void* a1);
 struct sDmEnt7DE8;
-extern "C" sDmEnt7DE8* func_00277DE8(void* self, int* key);
+extern "C" sDmEnt7DE8* ScriptList_GetMovieInfo(void* self, int* key);
 extern "C" void* func_00282BF0(void* self, int a1);
 extern "C" void* func_00283D70(void* list, int i);
 extern "C" void func_002E4578(void* p);
@@ -1422,10 +1422,10 @@ struct sDmEnt_7980 {
     float t;                // 0xC
 };
 
-// The unit declares func_00277980 as void; it returns whether it handled the update.
-int func_00277980_impl(char* self) __asm__("func_00277980");
+// The unit declares ScriptList_StartTransition as void; it returns whether it handled the update.
+int ScriptList_StartTransition_impl(char* self) __asm__("ScriptList_StartTransition");
 
-int func_00277980_impl(char* self)
+int ScriptList_StartTransition_impl(char* self)
 {
     if (*(int*)(self + 0xB0) != 0) {
         if (*(int*)(self + 0xAC) != 0) {
@@ -1461,7 +1461,7 @@ int func_00277980_impl(char* self)
             }
         }
     } else {
-        sDmEnt_7980* e = (sDmEnt_7980*)func_00277DE8(self, (int*)item);
+        sDmEnt_7980* e = (sDmEnt_7980*)ScriptList_GetMovieInfo(self, (int*)item);
         void* snd = func_00230698(*(void**)(D_004A28A8 + 0x84), 0);
         if (*(int*)((char*)snd + 0x44) != 0) {
             func_002E4578(snd);
@@ -1510,10 +1510,10 @@ struct sSeq_7C08 {
     int pauseCount;     // 0xC4
 };
 
-// The unit declares func_00277C08 as returning void*; the body returns nothing. Bind by asm label.
-extern "C" void func_00277C08_impl(sSeq_7C08* self, int on, int hard) __asm__("func_00277C08");
+// The unit declares ScriptList_SetPaused as returning void*; the body returns nothing. Bind by asm label.
+extern "C" void ScriptList_SetPaused_impl(sSeq_7C08* self, int on, int hard) __asm__("ScriptList_SetPaused");
 
-extern "C" void func_00277C08_impl(sSeq_7C08* self, int on, int hard)
+extern "C" void ScriptList_SetPaused_impl(sSeq_7C08* self, int on, int hard)
 {
     if (self->state != 3) {
         return;
@@ -1607,7 +1607,7 @@ extern sDmCfg7DE8 D_00535610;
 extern sDmEnt7DE8 D_004823DC[];
 extern sDmEnt7DE8 D_0048247C[];
 
-extern "C" sDmEnt7DE8* func_00277DE8(void* self, int* key)
+extern "C" sDmEnt7DE8* ScriptList_GetMovieInfo(void* self, int* key)
 {
     cBE_getInterface_Fv(cBE_getBE(), 4);
     sDmCfg7DE8 cfg = D_00535610;

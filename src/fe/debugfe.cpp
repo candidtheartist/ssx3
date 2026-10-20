@@ -46,13 +46,13 @@ extern long D_0045D018[];
 extern long D_0045D028[];
 extern "C" void func_00256038(void* comm, int* out);
 extern "C" int cCommSystem_openDSockChannel(void* comm, const char* addr, int port, int a3);
-extern "C" int func_00255D50(void* comm, int chan);
+extern "C" int cCommSystem_IsChannelConnected(void* comm, int chan);
 extern "C" void func_00255A20(void* comm);
 extern "C" void SYNCTASK_run(int a);
 extern "C" void THREAD_yieldticks(int ticks);
 extern "C" void cGameComm_construct(int a, int b);
-extern "C" void func_00266D58(void* p, void* id);
-extern "C" void func_00266E30(void* p);
+extern "C" void cVoipMan_Start(void* p, void* id);
+extern "C" void cVoipMan_Activate(void* p);
 
 //100%
 extern "C" void func_0017D0A8(void* self)
@@ -73,14 +73,14 @@ extern "C" void func_0017D0A8(void* self)
         } else {
             chan = cCommSystem_openDSockChannel(D_004A2EB8, (const char*)addr, D_00534B30.port, 0);
         }
-        while (func_00255D50(D_004A2EB8, chan) == 0) {
+        while (cCommSystem_IsChannelConnected(D_004A2EB8, chan) == 0) {
             func_00255A20(D_004A2EB8);
             SYNCTASK_run(0);
             THREAD_yieldticks(1);
         }
         cGameComm_construct(chan, D_00534B30.server);
-        func_00266D58(D_004A33F4, (void*)id[0]);
-        func_00266E30(D_004A33F4);
+        cVoipMan_Start(D_004A33F4, (void*)id[0]);
+        cVoipMan_Activate(D_004A33F4);
     }
 }
 
@@ -120,13 +120,13 @@ extern "C" void* func_0017D200(void* self)
 //100%
 extern void* D_004A4E90;
 extern "C" void func_0017D6F0(void* self, void* ev);
-extern "C" void func_00259230(void* ev);
+extern "C" void LobbyMan_ForwardEventToUI(void* ev);
 
 extern "C" void func_0017D260(void* self, void* ev)
 {
     if (D_004A4E90 != 0)
         func_0017D6F0(D_004A4E90, ev);
-    func_00259230(ev);
+    LobbyMan_ForwardEventToUI(ev);
 }
 
 //100%
@@ -341,7 +341,7 @@ extern "C" const char* func_0025F150_D6F0(void* self, int i) __asm__("func_0025F
 extern "C" int func_0025F120(void* self);
 extern "C" void func_0025D800(void* self, int idx, int a2);
 extern "C" void func_001DB418_D6F0(void* menu, void* src) __asm__("func_001DB418");
-extern "C" bool func_0025F430(void* self);
+extern "C" bool LobbyMan_IsInRoom(void* self);
 void LobbyMan_SendDecline_D6F0(void* self, int a1) __asm__("LobbyMan_SendDecline__FPvi");
 void func_0025CD28(void* self, int a1);
 extern char D_004A1320[];
@@ -417,7 +417,7 @@ extern "C" void func_0017D6F0(void* self_, void* msg_)
         *(int*)(self + 0x4) = 6;
         break;
     case 220:
-        if (func_0025F430(D_004A3028)) {
+        if (LobbyMan_IsInRoom(D_004A3028)) {
             func_002CC3B8(self + 0x8, self + 0x1044);
             *(int*)(self + 0x4) = 12;
             break;
@@ -519,14 +519,14 @@ extern "C" void func_001DB418(void* self, void* a1);
 extern "C" void func_001DB528(void* self, void* a1);
 extern "C" void func_001DB620(void* self, void* a1);
 extern "C" void func_0025D800(void* a, int b, int c);
-extern "C" int func_00255D50(void* comm, int chan);
+extern "C" int cCommSystem_IsChannelConnected(void* comm, int chan);
 extern "C" void cGameComm_construct(int a, int b);
 extern "C" void* cMemMan_alloc(int size, const char* tag, unsigned int flags, int d);
 void* func_00232720(void* self);
 void cAppMan_setNextModule(cAppMan* self, unsigned int module);
 extern "C" void func_00256038(void* self, int* out);
-extern "C" void func_00266D58(void* self, void* ip);
-extern "C" void func_00266E30(void* self);
+extern "C" void cVoipMan_Start(void* self, void* ip);
+extern "C" void cVoipMan_Activate(void* self);
 
 static inline int StackEmpty_17DB18(char* s) { return *(int*)s == 0; }
 
@@ -628,14 +628,14 @@ extern "C" void func_0017DB18(void* self_)
             }
             break;
         case 16:
-            if (func_00255D50(D_004A2EB8, *(int*)(self + 0x1C10))) {
+            if (cCommSystem_IsChannelConnected(D_004A2EB8, *(int*)(self + 0x1C10))) {
                 int ip;
                 cGameComm_construct(*(int*)(self + 0x1C10), *(int*)((char*)D_004A3028 + 0xB4));
                 cAppMan_setNextModule((cAppMan*)D_004A28A8,
                                       (unsigned int)func_00232720(cMemMan_alloc(8, D_0045CE60, 0x100, 0)));
                 func_00256038(D_004A2EB8, &ip);
-                func_00266D58(D_004A33F4, (void*)ip);
-                func_00266E30(D_004A33F4);
+                cVoipMan_Start(D_004A33F4, (void*)ip);
+                cVoipMan_Activate(D_004A33F4);
             }
             break;
         }
@@ -1044,7 +1044,7 @@ struct sBXStr17E5C8 {
     sBXStr17E5C8(const sBXStr17E5C8&);
     ~sBXStr17E5C8() { cBXString__cBXString(this, 2); }
 };
-sBXStr17E5C8 getStr17E5C8(void* self, unsigned int tag) __asm__("func_00260E50");
+sBXStr17E5C8 getStr17E5C8(void* self, unsigned int tag) __asm__("LobbyMan_GetErrorString");
 
 struct sDebugFE17E5C8 {
     int f0;
@@ -1886,7 +1886,7 @@ extern "C" int func_00180498(void* self)
 
 //100%
 extern void* D_004A33F0;
-extern "C" int func_00266BA8(void* mgr, int a1, int* out0, int* out1);
+extern "C" int cUsbKeyboard_GetKey(void* mgr, int a1, int* out0, int* out1);
 
 struct sDebugFE1804B8 {
     char pad_0x00[0xC];
@@ -1901,7 +1901,7 @@ extern "C" void func_001804B8(sDebugFE1804B8* self)
     if (D_004A33F0 != 0) {
         self->b = 0;
         self->a = 0;
-        if (func_00266BA8(D_004A33F0, 0, &self->a, &self->b) != 0)
+        if (cUsbKeyboard_GetKey(D_004A33F0, 0, &self->a, &self->b) != 0)
             self->found = 1;
     }
 }

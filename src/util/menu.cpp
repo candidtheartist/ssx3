@@ -1216,7 +1216,7 @@ void func_002CC0B8(void* self, int val)
 
 //100%
 float func_00320BF0_C0C0(int, int) __asm__("func_00320BF0");
-extern "C" int func_00266BA8(void* self, int a1, int* a2, int* a3);
+extern "C" int cUsbKeyboard_GetKey(void* self, int a1, int* a2, int* a3);
 extern void* D_004A33F0;
 extern "C" void func_002CC460(void* p);
 
@@ -1257,7 +1257,7 @@ extern "C" void func_002CC0C0(void* p)
     *key = -1;
     *mod = -1;
     self->action = btn;
-    if (btn == -1 && D_004A33F0 != 0 && func_00266BA8(D_004A33F0, 0, key, mod)) {
+    if (btn == -1 && D_004A33F0 != 0 && cUsbKeyboard_GetKey(D_004A33F0, 0, key, mod)) {
         if (self->mod < 0x20) {
             self->mod = -1;
         }

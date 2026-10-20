@@ -314,7 +314,7 @@ struct cUIScreen;
 int cUIScreen_getFrameByLabel(cUIScreen* screen, int hash);
 extern char D_0046E050[];
 
-extern "C" void func_001F7800(void* self, void* item, int msg)
+extern "C" void OVScreenBCFail_OnWidgetAction(void* self, void* item, int msg)
 {
     if (item == 0) {
         return;

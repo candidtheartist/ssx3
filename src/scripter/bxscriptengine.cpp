@@ -31,8 +31,8 @@ extern "C" void cBXScriptEngine_SetupBXEngine(void* self, int count, int a2, int
 struct sScriptEngine282390;
 struct sScriptEngine2823F0;
 struct sScriptEngine2B8;
-extern "C" void func_00282390(sScriptEngine282390* self);
-extern "C" void func_002823F0(sScriptEngine2823F0* self);
+extern "C" void ScriptEngine_StopAllProcessSeqs(sScriptEngine282390* self);
+extern "C" void ScriptEngine_KillAllProcesses(sScriptEngine2823F0* self);
 extern "C" void func_002828B8(sScriptEngine2B8* self);
 extern "C" void func_0027D050(void* self);
 extern "C" void func_002728D0(void* obj, int flags);
@@ -41,8 +41,8 @@ void cMemMan_free(void*);
 extern "C" void func_00282020(void* self)
 {
     if (*(void**)((char*)self + 0x2B0) != 0) {
-        func_00282390((sScriptEngine282390*)self);
-        func_002823F0((sScriptEngine2823F0*)self);
+        ScriptEngine_StopAllProcessSeqs((sScriptEngine282390*)self);
+        ScriptEngine_KillAllProcesses((sScriptEngine2823F0*)self);
         func_0027D050(self);
         if (*(void**)((char*)self + 0x2B0) != 0) {
             cMemMan_free(*(void**)((char*)self + 0x2B0));
@@ -63,9 +63,9 @@ extern "C" void func_00282020(void* self)
 
 //100%
 extern "C" void func_002728F8(void*);
-extern "C" void func_00282908(void* self, void* script);
+extern "C" void ScriptEngine_LaunchPendingProcess(void* self, void* script);
 
-extern "C" void func_002820B0(char* self)
+extern "C" void ScriptEngine_UpdateProcesses(char* self)
 {
     int i;
     func_002728F8(*(void**)(self + 0x2B8));
@@ -77,7 +77,7 @@ extern "C" void func_002820B0(char* self)
         case 1:
             switch (*(int*)(e + 0x4)) {
             case 0: continue;
-            case 1: func_00282908(self, e); break;
+            case 1: ScriptEngine_LaunchPendingProcess(self, e); break;
             case 2: break;
             case 3: continue;
             case 4: break;
@@ -145,7 +145,7 @@ struct sBXThread21A0 {
     int result;     // 0x1C
 };
 
-extern "C" int func_002821A0(void* self, int idx, int arg)
+extern "C" int ScriptEngine_StartScript(void* self, int idx, int arg)
 {
     sBXSlot21A0* s = &(*(sBXSlot21A0**)((char*)self + 0x2B0))[idx];
     sBXThread21A0* t = (sBXThread21A0*)func_00282C38(self, 1);
@@ -199,7 +199,7 @@ extern "C" int func_002822A0(void* self, int id, int value, int arg)
 extern "C" void* func_00282CB0(void* self, int a1);
 extern "C" void func_00272B58(void* cache, void* data);
 
-extern "C" void func_00282338(void* self, int a1)
+extern "C" void ScriptEngine_StopProcessSeq(void* self, int a1)
 {
     char* e = (char*)func_00282CB0(self, a1);
     char* obj = *(char**)e;
@@ -209,7 +209,7 @@ extern "C" void func_00282338(void* self, int a1)
 }
 
 //100% - objdiff report; single-function view differs only in a relocation name
-extern "C" void func_00282338(void* self, int id);
+extern "C" void ScriptEngine_StopProcessSeq(void* self, int id);
 
 struct sScriptSlot282390 {
     int active;
@@ -223,12 +223,12 @@ struct sScriptEngine282390 {
     sScriptSlot282390 slots[16];
 };
 
-extern "C" void func_00282390(sScriptEngine282390* self)
+extern "C" void ScriptEngine_StopAllProcessSeqs(sScriptEngine282390* self)
 {
     for (int i = 0; i < 16; i++) {
         sScriptSlot282390* s = &self->slots[i];
         if (s->active != 0) {
-            func_00282338(self, s->id);
+            ScriptEngine_StopProcessSeq(self, s->id);
         }
     }
 }
@@ -248,7 +248,7 @@ struct sScriptEngine2823F0 {
     sScriptSlot2823F0 slots[16];
 };
 
-extern "C" void func_002823F0(sScriptEngine2823F0* self)
+extern "C" void ScriptEngine_KillAllProcesses(sScriptEngine2823F0* self)
 {
     for (int i = 0; i < 16; i++) {
         sScriptSlot2823F0* s = &self->slots[i];
@@ -262,7 +262,7 @@ extern "C" void func_002823F0(sScriptEngine2823F0* self)
 extern "C" void* func_00282CB0(void* self, int a1);
 extern "C" void func_00274A30(void* p);
 
-extern "C" int func_00282450(void* self, int a1)
+extern "C" int ScriptEngine_TickProcess(void* self, int a1)
 {
     void* t = func_00282CB0(self, a1);
     if (t == 0) {
@@ -277,7 +277,7 @@ extern "C" int func_00282450(void* self, int a1)
 }
 
 void func_00274808(void* self, float t);
-extern "C" int func_00282498(void* self, int id, float t)
+extern "C" int ScriptEngine_SetProcessSpeed(void* self, int id, float t)
 {
     if (t < 0.01f) {
         return 0;
@@ -365,7 +365,7 @@ extern "C" int func_00282540_r(void* self, int id)
     case 3:
     case 4:
     case 5:
-        func_00282338(self, id);
+        ScriptEngine_StopProcessSeq(self, id);
         break;
     case 0:
     case 2:
@@ -445,7 +445,7 @@ extern "C" int func_00282790()
 
 //100%
 extern "C" void* func_00282CB0(void* self, int a1);
-extern "C" void func_00282908(void* self, void* script);
+extern "C" void ScriptEngine_LaunchPendingProcess(void* self, void* script);
 
 extern "C" int func_00282798(void* self, int a1)
 {
@@ -454,7 +454,7 @@ extern "C" int func_00282798(void* self, int a1)
         return 0;
     }
     if (*(int*)(s + 0x4) == 1) {
-        func_00282908(self, s);
+        ScriptEngine_LaunchPendingProcess(self, s);
     }
     return *(int*)(s + 0x4);
 }
@@ -473,7 +473,7 @@ extern "C" int func_002827F8(void* self, int a1)
 
 //100%
 extern "C" void* func_00282CB0(void* self, int a1);
-extern "C" void func_00282908(void* self, void* script);
+extern "C" void ScriptEngine_LaunchPendingProcess(void* self, void* script);
 
 extern "C" int func_00282838(void* self, int a1)
 {
@@ -482,7 +482,7 @@ extern "C" int func_00282838(void* self, int a1)
         return 0;
     }
     if (*(int*)(s + 0x4) == 1) {
-        func_00282908(self, s);
+        ScriptEngine_LaunchPendingProcess(self, s);
     }
     if (*(int*)(s + 0x4) != 4 && *(int*)(s + 0x4) != 5) {
         return 0;
@@ -550,7 +550,7 @@ struct sBXThread282908 {
     float time;     // 0x18
 };
 
-extern "C" void func_00282908(void* self, void* script)
+extern "C" void ScriptEngine_LaunchPendingProcess(void* self, void* script)
 {
     sBXThread282908* t = (sBXThread282908*)script;
     int idx = t->pending;
@@ -578,7 +578,7 @@ struct sBxsVEntry10 {
     void (*fn)(void*, void*, int, int);
 };
 
-extern "C" void func_002829D0(void* self, void* a1)
+extern "C" void ScriptEngine_SeqListenerOnStart(void* self, void* a1)
 {
     char* t = *(char**)((char*)a1 + 0xC);
     sBxsVEntry10* vt = *(sBxsVEntry10**)((char*)self + 0x2A8);
@@ -595,7 +595,7 @@ struct sVEntry282A18 {
 
 extern "C" void func_00282540(void* self, int id);
 
-extern "C" void func_00282A18(void* self, void* msg)
+extern "C" void ScriptEngine_SeqListenerOnStop(void* self, void* msg)
 {
     char* s = *(char**)((char*)msg + 0xC);
     sVEntry282A18* vt = *(sVEntry282A18**)((char*)self + 0x2A8);
@@ -697,7 +697,7 @@ extern "C" int func_00282BF0(void* self, int a1)
 extern "C" void* func_00272CC0(int);
 
 //100%
-void* func_00282C18(void* self)
+void* ScriptEngine_GetSeqInstance(void* self)
 {
     return func_00272CC0(*(int*)((char*)self + 0x2b8));
 }
@@ -799,12 +799,12 @@ void func_00282DA8(void* self, int val)
     *(int*)((char*)self + 0x10) = val;
 }
 
-extern "C" void* func_00282DD0(void*, int, int, int);
+extern "C" void* cTransitionMan_StartTransition(void*, int, int, int);
 
 //100%
 void* func_00282DB0(void* self, int a1, int a2)
 {
-    return func_00282DD0(self, a1, a2, *(int*)((char*)self + 0x28));
+    return cTransitionMan_StartTransition(self, a1, a2, *(int*)((char*)self + 0x28));
 }
 
 //100%
@@ -827,9 +827,9 @@ struct sBxsFade2DD0 {
     int time;                   // 0x2C
 };
 
-// PORT: the unit declares func_00282DD0(void*, int, int, int) returning void*; the body also takes four floats and returns nothing.
-extern "C" void func_00282DD0_impl(sBxsFade2DD0* self, int id, int kind, int arg, float t, float c, float a, float b) __asm__("func_00282DD0");
-extern "C" void func_00282DD0_impl(sBxsFade2DD0* self, int id, int kind, int arg, float t, float c, float a, float b)
+// PORT: the unit declares cTransitionMan_StartTransition(void*, int, int, int) returning void*; the body also takes four floats and returns nothing.
+extern "C" void cTransitionMan_StartTransition_impl(sBxsFade2DD0* self, int id, int kind, int arg, float t, float c, float a, float b) __asm__("cTransitionMan_StartTransition");
+extern "C" void cTransitionMan_StartTransition_impl(sBxsFade2DD0* self, int id, int kind, int arg, float t, float c, float a, float b)
 {
     if (self->kind != 9) {
         sBxsVEntry2DD0* vt = self->vtable;
@@ -872,13 +872,13 @@ public:
     virtual void v03();
 };
 
-extern "C" void func_00282F00(void* self)
+extern "C" void cTransitionMan_ScriptPause(void* self)
 {
     (*(cBxScriptVirt**)((char*)self + 0x10))->v02();
 }
 
 //100%
-extern "C" void func_00282F30(void* self)
+extern "C" void cTransitionMan_ScriptResume(void* self)
 {
     (*(cBxScriptVirt**)((char*)self + 0x10))->v03();
 }
@@ -903,7 +903,7 @@ int func_00282F80(void* self)
 //100%
 extern "C" void func_00274240(void* p, int a1);
 
-extern "C" void func_00282F90(void* self)
+extern "C" void ScriptBinding_ClearListener(void* self)
 {
     void* p = *(void**)((char*)self + 0x8);
     if (p != 0) {
@@ -974,7 +974,7 @@ char* func_0027C2A8(void* self);
 char* func_0027C4B8(void* self);
 char* func_0027C6A0(void* self);
 
-extern "C" void func_002830C8(void* self, void* obj)
+extern "C" void ScriptCamBinding_Bind(void* self, void* obj)
 {
     func_00282FB8(self, obj);
     switch (func_002743C8(obj)) {
@@ -996,7 +996,7 @@ extern "C" void func_002830C8(void* self, void* obj)
 //100% - objdiff report; single-function view differs only in a relocation name
 extern "C" void func_00283000(void* self);
 
-extern "C" void func_00283180(void* self)
+extern "C" void ScriptCamBinding_Unbind(void* self)
 {
     func_00283000(self);
     *(int*)((char*)self + 0xC) = 9;
@@ -1089,7 +1089,7 @@ public:
     virtual void* v07(int i);
 };
 
-extern "C" void func_00283320(cScriptOwner3320* self)
+extern "C" void ScriptObj_Pause(cScriptOwner3320* self)
 {
     int i = 0;
     int n = self->v06();
@@ -1114,7 +1114,7 @@ public:
     virtual void* v07(int i);
 };
 
-extern "C" void func_002833A8(cScriptOwner33A8* self)
+extern "C" void ScriptObj_Resume(cScriptOwner33A8* self)
 {
     int i = 0;
     int n = self->v06();

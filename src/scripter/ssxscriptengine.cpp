@@ -84,12 +84,12 @@ extern "C" void cSSXScriptEngine_Load(sSse278358* self)
 //100%
 void cMemMan_free(void*);
 extern "C" void func_00275B08(void* self);
-extern "C" void func_00275D90(int* self, int flags);
-extern "C" void func_00278A98(void* self);
+extern "C" void ScriptList_dtor(int* self, int flags);
+extern "C" void ScriptEngine_StopAll(void* self);
 extern "C" void func_00278CD8(void* self);
 extern "C" void func_0027B410(void* self, int idx);
 extern "C" void func_0027BF90(void* self);
-extern "C" void func_002823F0(void* self);
+extern "C" void ScriptEngine_KillAllProcesses(void* self);
 extern "C" void func_002832D8(void* self);
 extern "C" void func_00283818(void* p);
 extern "C" void func_002EF368(int);
@@ -114,10 +114,10 @@ struct sSseEngine8590 {
     char rigD[0x1C];                // 0x938
 };
 
-extern "C" void func_00278590(sSseEngine8590* self)
+extern "C" void ScriptEngine_Shutdown(sSseEngine8590* self)
 {
-    func_00278A98(self);
-    func_002823F0(self);
+    ScriptEngine_StopAll(self);
+    ScriptEngine_KillAllProcesses(self);
     for (int i = 0; i < 2; i++) {
         func_002832D8(self->rigs[i]);
     }
@@ -133,7 +133,7 @@ extern "C" void func_00278590(sSseEngine8590* self)
         sSseObj8590* q = self->objsA + ((int*)self->objsA)[-4];
         while (self->objsA != q) {
             q--;
-            func_00275D90((int*)q, 0);
+            ScriptList_dtor((int*)q, 0);
         }
         cMemMan_free((char*)self->objsA - 0x10);
     }
@@ -144,7 +144,7 @@ extern "C" void func_00278590(sSseEngine8590* self)
         sSseObj8590* q = self->objsB + ((int*)self->objsB)[-4];
         while (self->objsB != q) {
             q--;
-            func_00275D90((int*)q, 0);
+            ScriptList_dtor((int*)q, 0);
         }
         cMemMan_free((char*)self->objsB - 0x10);
     }
@@ -174,15 +174,15 @@ extern char* D_004A28A8;
 extern char D_004A34A0[];
 struct sSsxScriptRider;
 struct sScrObj05B8;
-extern "C" void func_00276CC8(void* r);
-extern "C" void func_002820B0(void* self);
+extern "C" void ScriptList_Update(void* r);
+extern "C" void ScriptEngine_UpdateProcesses(void* self);
 extern "C" void func_00283AA0(void* snd);
-extern "C" void func_00281100(void* slot);
-extern "C" void func_00280640(sScrObj05B8* self);
+extern "C" void ScriptViewObj_Update(void* slot);
+extern "C" void ScriptAudioObj_UpdateSounds(sScrObj05B8* self);
 extern "C" int func_00277060(sSsxScriptRider* r);
-// The unit declares func_00276B98 as void, but this caller tests its result: bind an int view by asm label.
-extern "C" int func_00276B98_i(void* r) __asm__("func_00276B98");
-extern "C" void func_00276F48(void* r);
+// The unit declares ScriptList_GetState as void, but this caller tests its result: bind an int view by asm label.
+extern "C" int ScriptList_GetState_i(void* r) __asm__("ScriptList_GetState");
+extern "C" void ScriptList_SkipCurrent(void* r);
 extern "C" int func_00277298(void* r);
 extern "C" void func_0027BF90(void* self);
 void* func_00320C48(void* self, int a1);
@@ -218,14 +218,14 @@ struct sSse8720 {
 extern "C" void func_00278720(sSse8720* self)
 {
     for (int i = 0; i < 2; i++)
-        func_00276CC8(&self->objsA[i]);
+        ScriptList_Update(&self->objsA[i]);
     for (int i = 0; i < 2; i++)
-        func_00276CC8(&self->objsB[i]);
-    func_002820B0(self);
+        ScriptList_Update(&self->objsB[i]);
+    ScriptEngine_UpdateProcesses(self);
     func_00283AA0(self->snd);
     for (int i = 0; i < 2; i++)
-        func_00281100(self->rigs[i]);
-    func_00280640((sScrObj05B8*)self->fx);
+        ScriptViewObj_Update(self->rigs[i]);
+    ScriptAudioObj_UpdateSounds((sScrObj05B8*)self->fx);
     if (self->state != 2)
     {
         sSseObj8720* r = &self->objsA[self->state];
@@ -238,13 +238,13 @@ extern "C" void func_00278720(sSse8720* self)
                 void* obj = *(void**)(lvl->riders[j] + 0xDF0);
                 if (**(int**)obj != 0 && self->delay == 0 && func_00320C48(obj, 0x6F))
                 {
-                    func_00276F48(r);
+                    ScriptList_SkipCurrent(r);
                     goto done;
                 }
             }
         }
     done:
-        if (func_00276B98_i(r) != 3)
+        if (ScriptList_GetState_i(r) != 3)
             func_0027BF90(self);
         if (func_0039F9D8(*(char**)(*(char**)(D_004A28A8 + 0x84) + 0x48) + 0x18, GetHashValue32(D_004A34A0)))
         {
@@ -288,19 +288,19 @@ extern "C" void func_00278918(void* self)
 extern "C" void* func_00283AF8(void*);
 
 //100%
-void* func_002789C0(void* self)
+void* ScriptEngine_ToggleMoviePause(void* self)
 {
     return func_00283AF8((char*)self + 0x500);
 }
 
 //100%
-extern "C" void func_002790F8(void* self);
-extern "C" void func_00279488(void* self);
+extern "C" void ScriptEngine_StopMainLists(void* self);
+extern "C" void ScriptEngine_StopAuxLists(void* self);
 
-extern "C" void func_002789E0(void* self)
+extern "C" void ScriptEngine_StopLists(void* self)
 {
-    func_002790F8(self);
-    func_00279488(self);
+    ScriptEngine_StopMainLists(self);
+    ScriptEngine_StopAuxLists(self);
 }
 
 //100%
@@ -322,21 +322,21 @@ extern "C" void func_00278A58(void* self, int key)
 }
 
 //100%
-extern "C" void func_002790F8(void* self);
-extern "C" void func_00279488(void* self);
-extern "C" void func_00282390(void* self);
+extern "C" void ScriptEngine_StopMainLists(void* self);
+extern "C" void ScriptEngine_StopAuxLists(void* self);
+extern "C" void ScriptEngine_StopAllProcessSeqs(void* self);
 
-extern "C" void func_00278A98(void* self)
+extern "C" void ScriptEngine_StopAll(void* self)
 {
-    func_002790F8(self);
-    func_00279488(self);
-    func_00282390(self);
+    ScriptEngine_StopMainLists(self);
+    ScriptEngine_StopAuxLists(self);
+    ScriptEngine_StopAllProcessSeqs(self);
 }
 
 //100%
-extern "C" int func_00282450(void* self, int key);
+extern "C" int ScriptEngine_TickProcess(void* self, int key);
 extern "C" int func_00282BF0(void* self, int a1);
-extern "C" void func_00281100(void* slot);
+extern "C" void ScriptViewObj_Update(void* slot);
 
 struct sSsxVEntry8AD0 {
     short delta;
@@ -352,7 +352,7 @@ struct sScrSlot8AD0 {
 
 extern "C" int ScriptEngine_v06(void* self, int key)
 {
-    int r = func_00282450(self, key);
+    int r = ScriptEngine_TickProcess(self, key);
     if (r != 0) {
         sScrSlot8AD0* p = (sScrSlot8AD0*)((char*)self + 0x6D0);
         for (int i = 0; i < 2; i++, p++) {
@@ -361,7 +361,7 @@ extern "C" int ScriptEngine_v06(void* self, int key)
             void* obj = (char*)self + vt[4].delta;
             // PORT: func_00282BF0 returns a pointer as int
             if (vt[4].fn(obj, id, *(int*)func_00282BF0(self, key))) {
-                func_00281100(p);
+                ScriptViewObj_Update(p);
             }
         }
     }
@@ -433,15 +433,15 @@ extern "C" void func_00278CD8(void* self)
 
 //100% - objdiff report; single-function view differs only in a relocation name
 extern "C" void func_00278918(void*);
-extern "C" int func_0027BF50(void*, int);
+extern "C" int ScriptEngine_IsBankSlotLoading(void*, int);
 
-extern "C" int func_00278D58(void* self)
+extern "C" int ScriptEngine_IsLoadDone(void* self)
 {
     int r;
     func_00278918(self);
     r = 0;
     if (*(int*)((char*)self + 0x538) == 0) {
-        r = func_0027BF50(self, 1) == 0;
+        r = ScriptEngine_IsBankSlotLoading(self, 1) == 0;
     }
     return r;
 }
@@ -459,7 +459,7 @@ extern "C" int func_00278DA0(void* self)
 }
 
 //100%
-void func_00278DE8(void* self, int val)
+void ScriptEngine_SetSkipDelay(void* self, int val)
 {
     *(int*)((char*)self + 0x554) = val;
 }
@@ -477,27 +477,27 @@ struct sSsxScriptRider {
     char pad[0xCC];
 };
 
-extern "C" void func_00275DD8(sSsxScriptRider* r, int a, int b);
+extern "C" void ScriptList_Add(sSsxScriptRider* r, int a, int b);
 
-extern "C" void func_00278E20(void* self, int i, int a, int b)
+extern "C" void ScriptEngine_ListAdd(void* self, int i, int a, int b)
 {
-    func_00275DD8(&(*(sSsxScriptRider**)((char*)self + 0x54C))[i], a, b);
+    ScriptList_Add(&(*(sSsxScriptRider**)((char*)self + 0x54C))[i], a, b);
 }
 
 //100%
-extern "C" void func_00275ED0(void* e, int a, int b, int c, int d, int f, int g);
+extern "C" void ScriptList_AddChoice(void* e, int a, int b, int c, int d, int f, int g);
 
-extern "C" void func_00278E50(void* self, int i, int a, int b, int c, int d, int f, int g)
+extern "C" void ScriptEngine_ListAddChoice(void* self, int i, int a, int b, int c, int d, int f, int g)
 {
-    func_00275ED0(*(char**)((char*)self + 0x54C) + i * 0xCC, a, b, c, d, f, g);
+    ScriptList_AddChoice(*(char**)((char*)self + 0x54C) + i * 0xCC, a, b, c, d, f, g);
 }
 
 //100%
-extern "C" void func_00276048(void* e, int a, int b, int c, int d, int f);
+extern "C" void ScriptList_AddMovie(void* e, int a, int b, int c, int d, int f);
 
-extern "C" void func_00278E90(void* self, int i, int a, int b, int c, int d, int f)
+extern "C" void ScriptEngine_ListAddMovie(void* self, int i, int a, int b, int c, int d, int f)
 {
-    func_00276048(*(char**)((char*)self + 0x54C) + i * 0xCC, a, b, c, d, f);
+    ScriptList_AddMovie(*(char**)((char*)self + 0x54C) + i * 0xCC, a, b, c, d, f);
 }
 
 //100% - objdiff report; single-function view differs only in a relocation name
@@ -507,33 +507,33 @@ struct sScriptKeyEntry {
     int unk8;
 };
 
-extern "C" void func_00278ED0(void* self, int a1, int key, int b, int c, int d, int f)
+extern "C" void ScriptEngine_ListAddMovieById(void* self, int a1, int key, int b, int c, int d, int f)
 {
     for (int i = 0; i < **(int**)((char*)self + 0x52C); i++) {
         if ((*(sScriptKeyEntry**)((char*)self + 0x530))[i].key == key) {
-            func_00278E90(self, a1, i, b, c, d, f);
+            ScriptEngine_ListAddMovie(self, a1, i, b, c, d, f);
             return;
         }
     }
 }
 
 //100%
-extern "C" void func_00276270(sSsxScriptRider* r, int a);
+extern "C" void ScriptList_Prepare(sSsxScriptRider* r, int a);
 
-extern "C" void func_00278F38(void* self, int i)
+extern "C" void ScriptEngine_ListPrepare(void* self, int i)
 {
-    func_00276270(&(*(sSsxScriptRider**)((char*)self + 0x54C))[i], 0);
+    ScriptList_Prepare(&(*(sSsxScriptRider**)((char*)self + 0x54C))[i], 0);
 }
 
 //100%
 extern "C" void func_002EF368(int);
-extern "C" int func_00276388(sSsxScriptRider* r, int a, int b);
+extern "C" int ScriptList_Start(sSsxScriptRider* r, int a, int b);
 
-extern "C" int func_00278F68(void* self, int i, int a, int b)
+extern "C" int ScriptEngine_ListStart(void* self, int i, int a, int b)
 {
     *(int*)((char*)self + 0x550) = i;
     func_002EF368(1);
-    int r = func_00276388(&(*(sSsxScriptRider**)((char*)self + 0x54C))[i], a, b);
+    int r = ScriptList_Start(&(*(sSsxScriptRider**)((char*)self + 0x54C))[i], a, b);
     if (r != 3) {
         *(int*)((char*)self + 0x550) = 2;
         func_002EF368(0);
@@ -541,58 +541,58 @@ extern "C" int func_00278F68(void* self, int i, int a, int b)
     return r;
 }
 
-extern "C" int func_00276198(void* a, void* b);
+extern "C" int ScriptList_TakeFrom(void* a, void* b);
 
-extern "C" int func_00278FF8(void* self, int i, int j)
+extern "C" int ScriptEngine_ListTransfer(void* self, int i, int j)
 {
     if (i == j)
         return 1;
-    return func_00276198(*(char**)((char*)self + 0x54C) + i * 0xCC, *(char**)((char*)self + 0x54C) + j * 0xCC);
+    return ScriptList_TakeFrom(*(char**)((char*)self + 0x54C) + i * 0xCC, *(char**)((char*)self + 0x54C) + j * 0xCC);
 }
 
 //100%
 void func_002766B0(void* r, int a);
 
-extern "C" void func_00279040(void* self, int i, int a)
+extern "C" void ScriptEngine_ListSetPaused(void* self, int i, int a)
 {
     func_002766B0(&(*(sSsxScriptRider**)((char*)self + 0x54C))[i], a);
 }
 
 //100%
-extern "C" void func_002766D0(sSsxScriptRider* r, int a, int b);
+extern "C" void ScriptList_Skip(sSsxScriptRider* r, int a, int b);
 
-extern "C" void func_00279070(void* self, int i, int a, int b)
+extern "C" void ScriptEngine_ListSkip(void* self, int i, int a, int b)
 {
-    func_002766D0(&(*(sSsxScriptRider**)((char*)self + 0x54C))[i], a, b);
+    ScriptList_Skip(&(*(sSsxScriptRider**)((char*)self + 0x54C))[i], a, b);
 }
 
 //100%
-extern "C" void func_00276868(void* self, int a1);
+extern "C" void ScriptList_Stop(void* self, int a1);
 extern "C" void func_0027BF90(void* self);
 
-extern "C" void func_002790A0(void* self, int i)
+extern "C" void ScriptEngine_ListStop(void* self, int i)
 {
-    func_00276868(*(char**)((char*)self + 0x54C) + i * 0xCC, 1);
+    ScriptList_Stop(*(char**)((char*)self + 0x54C) + i * 0xCC, 1);
     if (*(int*)((char*)self + 0x550) == i) {
         func_0027BF90(self);
     }
 }
 
 //100% - objdiff report; single-function view differs only in a relocation name
-extern "C" void func_002790A0(void*, int);
+extern "C" void ScriptEngine_ListStop(void*, int);
 
-extern "C" void func_002790F8(void* self)
+extern "C" void ScriptEngine_StopMainLists(void* self)
 {
     int i;
     for (i = 0; i < 2; i++) {
-        func_002790A0(self, i);
+        ScriptEngine_ListStop(self, i);
     }
 }
 
 //100%
 extern "C" void func_00276998(sSsxScriptRider* r, int a);
 
-extern "C" void func_00279148(void* self, int i, int a)
+extern "C" void ScriptEngine_ListGetEntryType(void* self, int i, int a)
 {
     func_00276998(&(*(sSsxScriptRider**)((char*)self + 0x54C))[i], a);
 }
@@ -613,35 +613,35 @@ extern "C" void func_002791A8(void* self, int i, int a)
 
 //100% - objdiff report; single-function view differs only in a relocation name
 extern "C" void func_00278918(void*);
-extern "C" void func_00276B98(void*);
+extern "C" void ScriptList_GetState(void*);
 
-extern "C" void func_002791D8(void* self, int i)
+extern "C" void ScriptEngine_ListGetState(void* self, int i)
 {
     func_00278918(self);
-    func_00276B98(*(char**)((char*)self + 0x54C) + i * 0xCC);
+    ScriptList_GetState(*(char**)((char*)self + 0x54C) + i * 0xCC);
 }
 
 //100%
-extern "C" void func_00276BD8(void*);
+extern "C" void ScriptList_GetPlayStatus(void*);
 
-extern "C" void func_00279220(void* self, int i)
+extern "C" void ScriptEngine_ListGetPlayStatus(void* self, int i)
 {
-    func_00276BD8((char*)*(void**)((char*)self + 0x54C) + i * 0xCC);
+    ScriptList_GetPlayStatus((char*)*(void**)((char*)self + 0x54C) + i * 0xCC);
 }
 
 //100%
 void func_00276CA8(void*);
 
-extern "C" void func_00279248(void* self, int i)
+extern "C" void ScriptEngine_ListCount(void* self, int i)
 {
     func_00276CA8((char*)*(void**)((char*)self + 0x54C) + i * 0xCC);
 }
 
-extern "C" void func_00277100(void* rider);
+extern "C" void ScriptList_IsNextReady(void* rider);
 
 extern "C" void func_00279270(void* self, int i)
 {
-    func_00277100(*(char**)((char*)self + 0x54C) + i * 0xCC);
+    ScriptList_IsNextReady(*(char**)((char*)self + 0x54C) + i * 0xCC);
 }
 
 //100%
@@ -658,11 +658,11 @@ extern "C" int func_00279298(void* self)
 
 //100%
 extern "C" int func_00277060(sSsxScriptRider* r);
-// PORT: the unit declares func_00276BD8 as returning void, but this caller uses
+// PORT: the unit declares ScriptList_GetPlayStatus as returning void, but this caller uses
 // its int result; bind an int-returning alias by asm label.
-extern "C" int func_00276BD8_i(sSsxScriptRider* r) __asm__("func_00276BD8");
+extern "C" int ScriptList_GetPlayStatus_i(sSsxScriptRider* r) __asm__("ScriptList_GetPlayStatus");
 
-extern "C" int func_002792E0(void* self)
+extern "C" int ScriptEngine_IsHUDAllowed(void* self)
 {
     int idx = *(int*)((char*)self + 0x550);
     if (idx == 2) {
@@ -671,92 +671,92 @@ extern "C" int func_002792E0(void* self)
     int r = 0;
     if (*(int*)((char*)self + 0x554) == 0) {
         if (func_00277060(&(*(sSsxScriptRider**)((char*)self + 0x54C))[idx]) != 0) {
-            r = func_00276BD8_i(&(*(sSsxScriptRider**)((char*)self + 0x54C))[*(int*)((char*)self + 0x550)]) != 3;
+            r = ScriptList_GetPlayStatus_i(&(*(sSsxScriptRider**)((char*)self + 0x54C))[*(int*)((char*)self + 0x550)]) != 3;
         }
     }
     return r;
 }
 
 //100%
-extern "C" int func_002771C8(void*, int);
+extern "C" int ScriptList_IsPlayingScript(void*, int);
 
-extern "C" int func_00279370(void* self, int a)
+extern "C" int ScriptEngine_IsPlayingScript(void* self, int a)
 {
     int i = *(int*)((char*)self + 0x550);
     if (i == 2) {
         return 0;
     }
-    return func_002771C8(*(char**)((char*)self + 0x54C) + i * 0xCC, a);
+    return ScriptList_IsPlayingScript(*(char**)((char*)self + 0x54C) + i * 0xCC, a);
 }
 
-extern "C" void func_002793B8(void* self, int i, int a, int flag, int d, int f, int g)
+extern "C" void ScriptEngine_AuxListAdd(void* self, int i, int a, int flag, int d, int f, int g)
 {
-    func_00275ED0(*(char**)((char*)self + 0x624) + i * 0xCC, a, flag ? 8 : 0, 0, d, f, g);
+    ScriptList_AddChoice(*(char**)((char*)self + 0x624) + i * 0xCC, a, flag ? 8 : 0, 0, d, f, g);
 }
 
-extern "C" void func_002793F8(void* self, int i, int on)
+extern "C" void ScriptEngine_AuxListPrepare(void* self, int i, int on)
 {
-    func_00276270(&(*(sSsxScriptRider**)((char*)self + 0x624))[i], on ? 2 : 0);
+    ScriptList_Prepare(&(*(sSsxScriptRider**)((char*)self + 0x624))[i], on ? 2 : 0);
 }
 
-extern "C" void func_00279428(void* self, int i)
+extern "C" void ScriptEngine_AuxListStart(void* self, int i)
 {
-    func_00276388(&(*(sSsxScriptRider**)((char*)self + 0x624))[i], 0, 0);
+    ScriptList_Start(&(*(sSsxScriptRider**)((char*)self + 0x624))[i], 0, 0);
 }
 
-extern "C" void func_00279458(void* self, int i)
+extern "C" void ScriptEngine_AuxListStop(void* self, int i)
 {
-    func_00276868(*(char**)((char*)self + 0x624) + i * 0xCC, 1);
+    ScriptList_Stop(*(char**)((char*)self + 0x624) + i * 0xCC, 1);
 }
 
 //100%
-extern "C" void func_00276868(void* self, int a1);
+extern "C" void ScriptList_Stop(void* self, int a1);
 
-extern "C" void func_00279488(void* self)
+extern "C" void ScriptEngine_StopAuxLists(void* self)
 {
     for (int i = 0; i < 2; i++) {
-        func_00276868(&(*(sSsxScriptRider**)((char*)self + 0x624))[i], 1);
+        ScriptList_Stop(&(*(sSsxScriptRider**)((char*)self + 0x624))[i], 1);
     }
 }
 
 extern "C" void func_00278918(void*);
-extern "C" void func_00276B98(void*);
+extern "C" void ScriptList_GetState(void*);
 
-extern "C" void func_002794E0(char* self, int i)
+extern "C" void ScriptEngine_AuxListGetState(char* self, int i)
 {
     func_00278918(self);
-    func_00276B98(*(char**)(self + 0x624) + i * 0xCC);
+    ScriptList_GetState(*(char**)(self + 0x624) + i * 0xCC);
 }
 
 //100%
 extern "C" int* cSSXScriptEngine_GetScriptFromCategory(void*, int);
-void* func_0027BD78(void* self);
-void func_0027BD90(void*, void*);
-extern "C" int func_002821A0(void* self, int key, void* node);
+void* ScriptEngine_PopFreeNode(void* self);
+void ScriptEngine_PushFreeNode(void*, void*);
+extern "C" int ScriptEngine_StartScript(void* self, int key, void* node);
 
-extern "C" int func_00279528(void* self, int category, int a, int b, int c)
+extern "C" int ScriptEngine_SpawnChosenScript(void* self, int category, int a, int b, int c)
 {
     // PORT: one variable holds the script pointer and then the result
     int r = (int)cSSXScriptEngine_GetScriptFromCategory(self, category);
     if (r == 0) return -1;
-    int* node = (int*)func_0027BD78(self);
+    int* node = (int*)ScriptEngine_PopFreeNode(self);
     node[0] = a;
     node[1] = b;
     node[2] = c;
-    r = func_002821A0(self, *(int*)r, node);
+    r = ScriptEngine_StartScript(self, *(int*)r, node);
     if (r < 0) {
-        func_0027BD90(self, node);
+        ScriptEngine_PushFreeNode(self, node);
     }
     return r;
 }
 
 //100%
-void* func_0027BD78(void* self);
-void func_0027BD90(void*, void*);
-extern "C" int func_002821A0(void* self, int key, void* node);
+void* ScriptEngine_PopFreeNode(void* self);
+void ScriptEngine_PushFreeNode(void*, void*);
+extern "C" int ScriptEngine_StartScript(void* self, int key, void* node);
 extern char* D_004A28A8;
 
-extern "C" int func_002795D0(void* self, int key, int a, int b, int c)
+extern "C" int ScriptEngine_SpawnScript(void* self, int key, int a, int b, int c)
 {
     int n = *(int*)(*(char**)(*(char**)(D_004A28A8 + 0x84) + 0xC) + 0x78);
     if (a < 0 || a >= n) {
@@ -768,13 +768,13 @@ extern "C" int func_002795D0(void* self, int key, int a, int b, int c)
     if (c < 0 || c >= n) {
         c = -1;
     }
-    int* node = (int*)func_0027BD78(self);
+    int* node = (int*)ScriptEngine_PopFreeNode(self);
     node[0] = a;
     node[1] = b;
     node[2] = c;
-    int r = func_002821A0(self, key, node);
+    int r = ScriptEngine_StartScript(self, key, node);
     if (r < 0) {
-        func_0027BD90(self, node);
+        ScriptEngine_PushFreeNode(self, node);
     }
     return r;
 }
@@ -783,7 +783,7 @@ extern "C" int func_002796B8(void* self, int key, int a, int b, int c)
 {
     for (int i = 0; i < **(int**)((char*)self + 0x52C); i++) {
         if (*(int*)(*(char**)((char*)self + 0x530) + i * 0xC + 4) == key) {
-            return func_002795D0(self, i, a, b, c);
+            return ScriptEngine_SpawnScript(self, i, a, b, c);
         }
     }
     return -1;
@@ -908,7 +908,7 @@ int func_0027C958(void* self);
 void* func_0027C960_9A70(void* self, int i) __asm__("func_0027C960__FPv");
 // PORT: callers elsewhere declare func_0027BDB8 with two args; it takes the three player slots too.
 extern "C" void func_0027BDB8_9A70(void* self, int* flags, int p0, int p1, int p2) __asm__("func_0027BDB8");
-extern "C" void* func_00274C20(void* self, int i);
+extern "C" void* InSeq_InstanceGetChannel(void* self, int i);
 extern "C" void func_00273A60(void* self, int idx);
 extern int D_00482608[];
 
@@ -947,7 +947,7 @@ extern "C" void ScriptEngine_v10(void* self, sScript_9A70* script, int idx, int*
             all |= flags[j];
     }
     for (i = 0; i < script->hdr->numEvents; i++) {
-        void* ev = func_00274C20(script, i);
+        void* ev = InSeq_InstanceGetChannel(script, i);
         if (func_002743C8(ev) == 5) {
             int cnt = func_00274388(ev);
             if (cnt >= 2) {
@@ -984,17 +984,17 @@ extern "C" void ScriptEngine_v10(void* self, sScript_9A70* script, int idx, int*
 }
 
 //100%
-void func_0027BD90(void*, void*);
+void ScriptEngine_PushFreeNode(void*, void*);
 
 extern "C" void ScriptEngine_v12(void* self, int unused, void* arg)
 {
-    func_0027BD90(self, arg);
+    ScriptEngine_PushFreeNode(self, arg);
 }
 
 //100%
-extern "C" int func_0027CEA8(void* self, void* obj);
-extern "C" int func_00281190(void* self, void* obj);
-extern "C" int func_002812E0(void* self, void* obj);
+extern "C" int ScriptEngine_AddScriptObj(void* self, void* obj);
+extern "C" int ScriptViewObj_AddCam(void* self, void* obj);
+extern "C" int ScriptViewObj_SetTransition(void* self, void* obj);
 
 class cScriptOwner9D00 {
 public:
@@ -1024,20 +1024,20 @@ struct sSsxEngine9D00 {
 
 extern "C" int ScriptEngine_v02(sSsxEngine9D00* self, cScriptOwner9D00* obj)
 {
-    int r = func_0027CEA8(self, obj);
+    int r = ScriptEngine_AddScriptObj(self, obj);
     if (obj->state == 1) {
-        func_00281190(&self->slots[*(int*)((char*)obj + 0x7C)], obj);
+        ScriptViewObj_AddCam(&self->slots[*(int*)((char*)obj + 0x7C)], obj);
     } else if (obj->state == 2) {
-        func_002812E0(&self->slots[obj->v09()], obj);
+        ScriptViewObj_SetTransition(&self->slots[obj->v09()], obj);
     }
     return r;
 }
 
 //100%
-int func_0027D320(void* self, int i);
-extern "C" void func_002811E8(void* slot, void* obj);
-extern "C" int func_002812E0(void* self, void* obj);
-extern "C" int func_0027CF88(void* self, int idx);
+int ScriptEngine_GetScriptObj(void* self, int i);
+extern "C" void ScriptViewObj_RemoveCam(void* slot, void* obj);
+extern "C" int ScriptViewObj_SetTransition(void* self, void* obj);
+extern "C" int ScriptEngine_RemoveScriptObj(void* self, int idx);
 
 class cScriptOwner9DA8 {
 public:
@@ -1067,31 +1067,31 @@ struct sSsxEngine9DA8 {
 
 extern "C" void ScriptEngine_v03(sSsxEngine9DA8* self, int idx)
 {
-    // PORT: func_0027D320 returns a table pointer as int
-    cScriptOwner9DA8* obj = (cScriptOwner9DA8*)func_0027D320(self, idx);
+    // PORT: ScriptEngine_GetScriptObj returns a table pointer as int
+    cScriptOwner9DA8* obj = (cScriptOwner9DA8*)ScriptEngine_GetScriptObj(self, idx);
     if (obj->state == 1) {
-        func_002811E8(&self->slots[*(int*)((char*)obj + 0x7C)], obj);
+        ScriptViewObj_RemoveCam(&self->slots[*(int*)((char*)obj + 0x7C)], obj);
     } else if (obj->state == 2) {
-        func_002812E0(&self->slots[obj->v09()], 0);
+        ScriptViewObj_SetTransition(&self->slots[obj->v09()], 0);
     }
-    func_0027CF88(self, idx);
+    ScriptEngine_RemoveScriptObj(self, idx);
 }
 
 //100%
-int func_0027D320(void* self, int i);
+int ScriptEngine_GetScriptObj(void* self, int i);
 extern "C" int func_0027D790(void* self, int val);
-extern "C" void func_0027D210(void* self, int i, int val);
+extern "C" void ScriptEngine_IsObjBoundToProcess(void* self, int i, int val);
 extern "C" void func_00282EF0(void* obj, int val);
 
 extern "C" void ScriptEngine_v04(void* self, int i, int val)
 {
-    // PORT: func_0027D320 returns a table pointer as int
-    int* obj = (int*)func_0027D320(self, i);
+    // PORT: ScriptEngine_GetScriptObj returns a table pointer as int
+    int* obj = (int*)ScriptEngine_GetScriptObj(self, i);
     int type = *obj;
     if (type == 1) {
         func_0027D790(obj, val);
     } else if (type != 2) {
-        func_0027D210(self, i, val);
+        ScriptEngine_IsObjBoundToProcess(self, i, val);
     } else {
         func_00282EF0(obj, val);
     }
@@ -1144,7 +1144,7 @@ static inline void* RiderOf_9F18(sRider_9F18* r)
     return r ? r->rider : 0;
 }
 
-extern "C" void* func_00279F18(void* self, int i, int a2)
+extern "C" void* ScriptEngine_GetTargetObject(void* self, int i, int a2)
 {
     switch (i) {
     case 0: {
@@ -1222,10 +1222,10 @@ extern int D_004A51D8;
 extern sV3_27A0D8 D_004D3770[3];
 // D_004D3680[20..22] is D_004D3770[0..2]; the lookup indexes by the raw id.
 extern sV3_27A0D8 D_004D3680[];
-extern "C" void func_0027B750_v(void* self, void* obj, sVec_27A0D8* pos, int* flag, float* pitch, float* yaw)
-    __asm__("func_0027B750");
-extern "C" void func_0027B948_v(void* self, void* obj, sVec_27A0D8* pos, int* flag, float* pitch, float* yaw)
-    __asm__("func_0027B948");
+extern "C" void ScriptEngine_GetRiderPathPose_v(void* self, void* obj, sVec_27A0D8* pos, int* flag, float* pitch, float* yaw)
+    __asm__("ScriptEngine_GetRiderPathPose");
+extern "C" void ScriptEngine_GetRiderPose_v(void* self, void* obj, sVec_27A0D8* pos, int* flag, float* pitch, float* yaw)
+    __asm__("ScriptEngine_GetRiderPose");
 extern "C" void func_0027BB08_v(char* self, int slot, sVec_27A0D8* pos, int* flag, float* pitch, float* yaw, int cat,
                                 const sVec_27A0D8* off) __asm__("func_0027BB08");
 // PORT: func_0027C070 is defined returning int, but it returns a pointer here; bound by asm label.
@@ -1233,7 +1233,7 @@ signed char* func_0027C070_p(void* self) __asm__("func_0027C070__FPv");
 extern "C" int cSpaceHash_queryGround_v(void* cell, sVec_27A0D8* pos, sVec_27A0D8* outP, sVec_27A0D8* outN)
     __asm__("cSpaceHash_queryGround");
 
-extern "C" void func_0027A0D8(char* self, int id, void* obj, sVec_27A0D8* pos, int* flag, float* pitch, float* yaw)
+extern "C" void ScriptEngine_GetTargetPose(char* self, int id, void* obj, sVec_27A0D8* pos, int* flag, float* pitch, float* yaw)
 {
     *flag = 0;
     *pitch = 0;
@@ -1242,16 +1242,16 @@ extern "C" void func_0027A0D8(char* self, int id, void* obj, sVec_27A0D8* pos, i
     switch (id) {
     case 40: case 41: case 42: case 43: case 44: case 45: case 46: case 47: case 48: case 49: case 50:
     case 51: case 52: case 53: case 54: case 55: case 56: case 57: case 58: case 59: case 60: {
-        void* o = func_00279F18(self, id - 40, (int)obj);
+        void* o = ScriptEngine_GetTargetObject(self, id - 40, (int)obj);
         if (o != 0)
-            func_0027B948_v(self, o, pos, flag, pitch, yaw);
+            ScriptEngine_GetRiderPose_v(self, o, pos, flag, pitch, yaw);
         break;
     }
     case 1: case 2: case 3: case 4: case 5: case 6: case 7: case 8: case 9: case 10: case 11: case 12:
     case 13: case 14: case 15: case 16: case 17: case 18: {
-        void* o = func_00279F18(self, id + 2, (int)obj);
+        void* o = ScriptEngine_GetTargetObject(self, id + 2, (int)obj);
         if (o != 0)
-            func_0027B750_v(self, o, pos, flag, pitch, yaw);
+            ScriptEngine_GetRiderPathPose_v(self, o, pos, flag, pitch, yaw);
         break;
     }
     case 25:
@@ -1464,71 +1464,71 @@ void* func_0027A668(void* self)
 }
 
 //100%
-extern "C" int func_0022E0C8(void* self, int a1);
+extern "C" int SectionMan_GetWorldSectionIndex(void* self, int a1);
 extern char* D_004A28A8;
 
 extern "C" int func_0027A688()
 {
-    return func_0022E0C8(*(void**)(*(char**)(D_004A28A8 + 0x84) + 0x78), 0x2B);
+    return SectionMan_GetWorldSectionIndex(*(void**)(*(char**)(D_004A28A8 + 0x84) + 0x78), 0x2B);
 }
 
 //100%
-extern "C" void func_002829D0(void* self, void* a1);
-extern "C" void func_002772C0(void* self, int a1, void* obj);
+extern "C" void ScriptEngine_SeqListenerOnStart(void* self, void* a1);
+extern "C" void ScriptList_OnSeqStart(void* self, int a1, void* obj);
 int func_00282BE0(void* self, void* a1);
 
-extern "C" void func_0027A6B0(void* self, void* a1)
+extern "C" void ScriptEngine_OnSeqStart(void* self, void* a1)
 {
-    func_002829D0(self, a1);
+    ScriptEngine_SeqListenerOnStart(self, a1);
     int r = *(int*)((char*)self + 0x550);
     if (r != 2) {
-        func_002772C0(*(char**)((char*)self + 0x54C) + r * 0xCC, func_00282BE0(self, a1), a1);
+        ScriptList_OnSeqStart(*(char**)((char*)self + 0x54C) + r * 0xCC, func_00282BE0(self, a1), a1);
     }
 }
 
 //100%
-extern "C" void func_00277310(void* self, int a1, void* obj, float x, float y);
+extern "C" void ScriptList_OnSeqAdvance(void* self, int a1, void* obj, float x, float y);
 int func_00282BE0(void* self, void* a1);
 
-extern "C" void func_0027A720(void* self, void* a1, float x, float y)
+extern "C" void ScriptEngine_OnSeqAdvance(void* self, void* a1, float x, float y)
 {
     int r = *(int*)((char*)self + 0x550);
     if (r != 2) {
-        func_00277310(*(char**)((char*)self + 0x54C) + r * 0xCC, func_00282BE0(self, a1), a1, x, y);
+        ScriptList_OnSeqAdvance(*(char**)((char*)self + 0x54C) + r * 0xCC, func_00282BE0(self, a1), a1, x, y);
     }
 }
 
 //100%
-extern "C" void func_002773A0(void* self, int a1, void* obj);
+extern "C" void ScriptList_OnSeqEnd(void* self, int a1, void* obj);
 int func_00282BE0(void* self, void* a1);
 
-extern "C" void func_0027A798(void* self, void* a1)
+extern "C" void ScriptEngine_OnSeqEnd(void* self, void* a1)
 {
     int r = *(int*)((char*)self + 0x550);
     if (r != 2) {
-        func_002773A0(*(char**)((char*)self + 0x54C) + r * 0xCC, func_00282BE0(self, a1), a1);
+        ScriptList_OnSeqEnd(*(char**)((char*)self + 0x54C) + r * 0xCC, func_00282BE0(self, a1), a1);
     }
 }
 
 //100%
-extern "C" void func_00277400(void* self, int a1, void* obj);
-extern "C" void func_00282A18(void* self, void* a1);
+extern "C" void ScriptList_OnSeqStopped(void* self, int a1, void* obj);
+extern "C" void ScriptEngine_SeqListenerOnStop(void* self, void* a1);
 int func_00282BE0(void* self, void* a1);
 
-extern "C" void func_0027A7F0(void* self, void* a1)
+extern "C" void ScriptEngine_OnSeqStopped(void* self, void* a1)
 {
     int r = *(int*)((char*)self + 0x550);
     if (r != 2) {
-        func_00277400(*(char**)((char*)self + 0x54C) + r * 0xCC, func_00282BE0(self, a1), a1);
+        ScriptList_OnSeqStopped(*(char**)((char*)self + 0x54C) + r * 0xCC, func_00282BE0(self, a1), a1);
     }
-    func_00282A18(self, a1);
+    ScriptEngine_SeqListenerOnStop(self, a1);
 }
 
 //100%
 // PORT: PS2-only inline asm; needs a C fallback off-PS2.
-extern "C" void func_00278E50(void* self, int i, int a, int b, int c, int d, int f, int g);
-extern "C" void func_00278F38(void* self, int i);
-extern "C" int func_00278F68(void* self, int i, int a, int b);
+extern "C" void ScriptEngine_ListAddChoice(void* self, int i, int a, int b, int c, int d, int f, int g);
+extern "C" void ScriptEngine_ListPrepare(void* self, int i);
+extern "C" int ScriptEngine_ListStart(void* self, int i, int a, int b);
 extern "C" void* func_0028B180();
 extern "C" void cSSXAudio_onMusicCode(void* self, int id, int a2);
 extern char* D_004A28A8;
@@ -1543,43 +1543,43 @@ static inline int sseWorldMode_A860()
     return *(int*)(*(char**)(*(char**)(D_004A28A8 + 0x84) + 0xC) + 0x7C);
 }
 
-extern "C" void func_0027A860(void* self, int online, int intro)
+extern "C" void ScriptEngine_QueueFinishScripts(void* self, int online, int intro)
 {
     if (online) {
         if (intro) {
-            func_00278E50(self, 1, 0x12, 1, 1, -1, -1, -1);
+            ScriptEngine_ListAddChoice(self, 1, 0x12, 1, 1, -1, -1, -1);
         }
-        func_00278E50(self, 1, 0x13, 0, 0, -1, -1, -1);
+        ScriptEngine_ListAddChoice(self, 1, 0x13, 0, 0, -1, -1, -1);
         if (sseWorldMode_A860() == 1) {
-            func_00278E50(self, 1, 0x14, 8, 0, -1, -1, -1);
+            ScriptEngine_ListAddChoice(self, 1, 0x14, 8, 0, -1, -1, -1);
         } else {
-            func_00278E50(self, 1, 0x15, 8, 0, -1, -1, -1);
+            ScriptEngine_ListAddChoice(self, 1, 0x15, 8, 0, -1, -1, -1);
         }
     } else {
         if (intro) {
-            func_00278E50(self, 1, 0xC, 1, 1, -1, -1, -1);
+            ScriptEngine_ListAddChoice(self, 1, 0xC, 1, 1, -1, -1, -1);
         }
-        func_00278E50(self, 1, 0xD, 0, 1, -1, -1, -1);
+        ScriptEngine_ListAddChoice(self, 1, 0xD, 0, 1, -1, -1, -1);
         D_004A289C_A860->field_0xF44 = 1;
         if (sseWorldMode_A860() == 1) {
-            func_00278E50(self, 1, 0xE, 8, 1, -1, -1, -1);
+            ScriptEngine_ListAddChoice(self, 1, 0xE, 8, 1, -1, -1, -1);
         } else {
-            func_00278E50(self, 1, 0xF, 8, 0, -1, -1, -1);
+            ScriptEngine_ListAddChoice(self, 1, 0xF, 8, 0, -1, -1, -1);
         }
     }
-    func_00278F38(self, 1);
-    func_00278F68(self, 1, 0, 1);
+    ScriptEngine_ListPrepare(self, 1);
+    ScriptEngine_ListStart(self, 1, 0, 1);
     cSSXAudio_onMusicCode(func_0028B180(), 0x14, 1);
 }
 
 //100%
-int func_00279148_jt(void* self, int i, int a) __asm__("func_00279148");
-void func_00279070_jt(void* self, int i, int a, int b) __asm__("func_00279070");
+int ScriptEngine_ListGetEntryType_jt(void* self, int i, int a) __asm__("ScriptEngine_ListGetEntryType");
+void ScriptEngine_ListSkip_jt(void* self, int i, int a, int b) __asm__("ScriptEngine_ListSkip");
 
-extern "C" int func_0027A9F0(void* self)
+extern "C" int ScriptEngine_SkipFinishScript(void* self)
 {
     int r = 0;
-    switch (func_00279148_jt(self, 1, 0)) {
+    switch (ScriptEngine_ListGetEntryType_jt(self, 1, 0)) {
     case 12: case 18:
         r = 3;
         break;
@@ -1592,21 +1592,21 @@ extern "C" int func_0027A9F0(void* self)
     case 15: case 16: case 17:
         break;
     }
-    func_00279070_jt(self, 1, r, 1);
+    ScriptEngine_ListSkip_jt(self, 1, r, 1);
     return r != 0;
 }
 
 //100% - objdiff report; single-function view differs only in a relocation name
-// PORT: the unit defines func_00279148 as void, but it returns func_00276998's
+// PORT: the unit defines ScriptEngine_ListGetEntryType as void, but it returns func_00276998's
 // int result (a tail call); bind an int-returning form to the symbol.
-int func_00279148_int(void* self, int i, int a) __asm__("func_00279148");
+int ScriptEngine_ListGetEntryType_int(void* self, int i, int a) __asm__("ScriptEngine_ListGetEntryType");
 
-extern "C" int func_0027AA80(void* self)
+extern "C" int ScriptEngine_IsFinishScriptActive(void* self)
 {
     if (*(int*)((char*)self + 0x550) != 1) {
         return 0;
     }
-    int s = func_00279148_int(self, 1, 0);
+    int s = ScriptEngine_ListGetEntryType_int(self, 1, 0);
     int r = 0;
     if (s == 0x12 || s == 0xC || s == 0x13 || s == 0xD || s == 0x14 || s == 0xE) {
         r = 1;
@@ -1615,7 +1615,7 @@ extern "C" int func_0027AA80(void* self)
 }
 
 //100%
-extern "C" void func_00278E50(void* self, int i, int a, int b, int c, int d, int f, int g);
+extern "C" void ScriptEngine_ListAddChoice(void* self, int i, int a, int b, int c, int d, int f, int g);
 extern "C" void* cBE_getBE();
 // PORT: cBE_getInterface__Fv is called with (be, kind) here; bind the 2-arg form to that symbol.
 void* cBE_getInterface_Fv(void* be, int kind) __asm__("cBE_getInterface__Fv");
@@ -1626,7 +1626,7 @@ extern int* D_00445488[];
 extern int D_00534B30[];
 extern int D_00481E80[];
 
-extern "C" void func_0027AAF8(void* self, int state)
+extern "C" void ScriptEngine_QueueIntroScripts(void* self, int state)
 {
     switch (state) {
     case 0: {
@@ -1638,7 +1638,7 @@ extern "C" void func_0027AAF8(void* self, int state)
         }
         if (tbl != 0 && tbl[0] >= 0) {
             do {
-                func_00278E50(D_004A28A4, 0, tbl[0], tbl[1], 0, -1, -1, -1);
+                ScriptEngine_ListAddChoice(D_004A28A4, 0, tbl[0], tbl[1], 0, -1, -1, -1);
                 tbl += 2;
             } while (tbl[0] >= 0);
         }
@@ -1646,11 +1646,11 @@ extern "C" void func_0027AAF8(void* self, int state)
     }
     case 1:
     case 2:
-        func_00278E50(D_004A28A4, 0, 5, 0, 0, -1, -1, -1);
+        ScriptEngine_ListAddChoice(D_004A28A4, 0, 5, 0, 0, -1, -1, -1);
         break;
     case 3:
-        func_00278E50(D_004A28A4, 0, 4, 3, 0, -1, -1, -1);
-        func_00278E50(D_004A28A4, 0, 5, 0, 0, -1, -1, -1);
+        ScriptEngine_ListAddChoice(D_004A28A4, 0, 4, 3, 0, -1, -1, -1);
+        ScriptEngine_ListAddChoice(D_004A28A4, 0, 5, 0, 0, -1, -1, -1);
         break;
     }
 }
@@ -1725,7 +1725,7 @@ static inline int Call_AC60(sScRider_AC60* r, int slot)
     return s->vt[slot].fn((char*)s + s->vt[slot].delta);
 }
 
-extern "C" void func_0027AC60(void* self)
+extern "C" void ScriptEngine_QueueRaceCutscene(void* self)
 {
     void* econ = cBE_getInterface_Fv(cBE_getBE(), 0);
     sScGame_AC60* g = &D_00535BC8;
@@ -1772,7 +1772,7 @@ done:
                 k = 10;
             }
         }
-        func_00278E50(D_004A28A4, 0, k, 1, 0, ids[0], ids[1], ids[2]);
+        ScriptEngine_ListAddChoice(D_004A28A4, 0, k, 1, 0, ids[0], ids[1], ids[2]);
     }
     if (D_00535BC8.lock != 0) {
         return;
@@ -1801,8 +1801,8 @@ done:
     } else if (list->nother > 0) {
         v = Call_AC60(list->other->rider, 7);
     }
-    func_00278E50(D_004A28A4, 0, 0x18, 1, 0, v, -1, -1);
-    func_00278E50(D_004A28A4, 0, 0x19, 3, 0, v, -1, -1);
+    ScriptEngine_ListAddChoice(D_004A28A4, 0, 0x18, 1, 0, v, -1, -1);
+    ScriptEngine_ListAddChoice(D_004A28A4, 0, 0x19, 3, 0, v, -1, -1);
     func_00146320(players, idx, blk.kind, first, 1);
 }
 
@@ -2134,7 +2134,7 @@ extern "C" void func_0027B6B0(sScrRelocOwner6B0* self, void* file)
 
 //100%
 extern "C" float func_0031C228(float x);
-extern "C" void* func_0026B5E0(void*, int, int);
+extern "C" void* cPathSys_FindMarker(void*, int, int);
 extern char D_004D33A0[];
 
 struct sVec4_27B750
@@ -2192,11 +2192,11 @@ static inline float Atan2_27B750(float y, float x)
     return a;
 }
 
-extern "C" void func_0027B750(void* self, char* obj, sVec4_27B750* pos, int* roll, float* pitch, float* yaw)
+extern "C" void ScriptEngine_GetRiderPathPose(void* self, char* obj, sVec4_27B750* pos, int* roll, float* pitch, float* yaw)
 {
     char* sub = obj + 0x6C0;
     sVEntry_27B750* e = &(*(sVEntry_27B750**)sub)[7];
-    sNode_27B750* p = (sNode_27B750*)func_0026B5E0(D_004D33A0, 1, e->fn(sub + e->delta));
+    sNode_27B750* p = (sNode_27B750*)cPathSys_FindMarker(D_004D33A0, 1, e->fn(sub + e->delta));
     *pos = sVec4_27B750(p->px, p->py, p->pz, 1.0f);
     *yaw = Atan2_27B750(p->dy, p->dx);
     float z = p->dz;
@@ -2257,7 +2257,7 @@ static inline float Atan2_27B948(float y, float x)
     return a;
 }
 
-extern "C" void func_0027B948(void* self, char* obj, sVec4_27B948* pos, int* roll, float* pitch, float* yaw)
+extern "C" void ScriptEngine_GetRiderPose(void* self, char* obj, sVec4_27B948* pos, int* roll, float* pitch, float* yaw)
 {
     char* sub = obj + 0x6C0;
     sVEntry_27B948* e = &(*(sVEntry_27B948**)sub)[5];
@@ -2405,7 +2405,7 @@ extern "C" void func_0027BB08(char* self, int slot, sVec_27BB08* pos, int* flag,
 }
 
 //100%
-void* func_0027BD78(void* self)
+void* ScriptEngine_PopFreeNode(void* self)
 {
     void* head = *(void**)((char*)self + 0x548);
     *(void**)((char*)self + 0x548) = *(void**)((char*)head + 0x10);
@@ -2414,7 +2414,7 @@ void* func_0027BD78(void* self)
 }
 
 //100%
-void func_0027BD90(void* self, void* a1)
+void ScriptEngine_PushFreeNode(void* self, void* a1)
 {
     *(void**)((char*)a1 + 0x10) = *(void**)((char*)self + 0x548);
     *(int*)a1 = -1;
@@ -2497,7 +2497,7 @@ extern "C" void func_0027BDB8_def(void* self, int* out, int a, int b, int c)
 //100% - objdiff report; single-function view differs only in a relocation name
 extern "C" void func_00278918(void*);
 
-extern "C" int func_0027BF50(void* self, int i)
+extern "C" int ScriptEngine_IsBankSlotLoading(void* self, int i)
 {
     func_00278918(self);
     return *(int*)((char*)self + (i << 4) + 0x630) != 0;
@@ -2542,7 +2542,7 @@ extern "C" void func_0027C020(void* self)
 }
 
 //100%
-extern "C" int func_0027C040(void* self, void* a1, int a2)
+extern "C" int ScriptDummyObj_AcceptCommand(void* self, void* a1, int a2)
 {
     return a2 == 6;
 }
@@ -2583,12 +2583,12 @@ extern "C" void* func_0027C0A0(void* self)
     return func_002742E0(self);
 }
 
-extern "C" void* func_00274D90();
+extern "C" void* InSeq_FindChannelData();
 extern "C" int func_00274318(void* p, int a);
 
 extern "C" int func_0027C0C0(void* self, int a, int b)
 {
-    return func_00274318(func_00274D90(), b);
+    return func_00274318(InSeq_FindChannelData(), b);
 }
 
 //100%
@@ -2603,21 +2603,21 @@ public:
     virtual float* v04();
 };
 
-// Same symbol as the unit's func_002742C8 (cScriptObj002742C8*), viewed with a float getter.
-cScriptObjC0F0* func_002742C8_C0F0(void* self, int a1) __asm__("func_002742C8__FPvi");
+// Same symbol as the unit's InSeq_ChannelGetTrack (cScriptObj002742C8*), viewed with a float getter.
+cScriptObjC0F0* InSeq_ChannelGetTrack_C0F0(void* self, int a1) __asm__("InSeq_ChannelGetTrack__FPvi");
 
-extern "C" void func_0027C0F0(void* self, float* out)
+extern "C" void ScriptCam_ReadManualFields(void* self, float* out)
 {
-    out[0] = *func_002742C8_C0F0(self, 0)->v04();
-    out[1] = *func_002742C8_C0F0(self, 1)->v04();
-    out[2] = *func_002742C8_C0F0(self, 2)->v04();
-    out[3] = *func_002742C8_C0F0(self, 3)->v04();
-    out[4] = *func_002742C8_C0F0(self, 4)->v04();
-    out[5] = *func_002742C8_C0F0(self, 5)->v04();
-    out[6] = *func_002742C8_C0F0(self, 6)->v04();
-    out[7] = *func_002742C8_C0F0(self, 7)->v04();
-    out[8] = *func_002742C8_C0F0(self, 8)->v04();
-    out[9] = *func_002742C8_C0F0(self, 9)->v04();
+    out[0] = *InSeq_ChannelGetTrack_C0F0(self, 0)->v04();
+    out[1] = *InSeq_ChannelGetTrack_C0F0(self, 1)->v04();
+    out[2] = *InSeq_ChannelGetTrack_C0F0(self, 2)->v04();
+    out[3] = *InSeq_ChannelGetTrack_C0F0(self, 3)->v04();
+    out[4] = *InSeq_ChannelGetTrack_C0F0(self, 4)->v04();
+    out[5] = *InSeq_ChannelGetTrack_C0F0(self, 5)->v04();
+    out[6] = *InSeq_ChannelGetTrack_C0F0(self, 6)->v04();
+    out[7] = *InSeq_ChannelGetTrack_C0F0(self, 7)->v04();
+    out[8] = *InSeq_ChannelGetTrack_C0F0(self, 8)->v04();
+    out[9] = *InSeq_ChannelGetTrack_C0F0(self, 9)->v04();
 }
 
 //100%
@@ -2633,12 +2633,12 @@ extern "C" void* func_0027C2B0(void* self)
     return func_002742E0(self);
 }
 
-extern "C" void* func_00274D90();
+extern "C" void* InSeq_FindChannelData();
 extern "C" int func_00274318(void* p, int a);
 
 extern "C" int func_0027C2D0(void* self, int a, int b)
 {
-    return func_00274318(func_00274D90(), b);
+    return func_00274318(InSeq_FindChannelData(), b);
 }
 
 //100%
@@ -2653,21 +2653,21 @@ public:
     virtual float* v04();
 };
 
-// Same symbol as the unit's func_002742C8 (cScriptObj002742C8*), viewed with a float getter.
-cScriptObjC300* func_002742C8_C300(void* self, int a1) __asm__("func_002742C8__FPvi");
+// Same symbol as the unit's InSeq_ChannelGetTrack (cScriptObj002742C8*), viewed with a float getter.
+cScriptObjC300* InSeq_ChannelGetTrack_C300(void* self, int a1) __asm__("InSeq_ChannelGetTrack__FPvi");
 
-extern "C" void func_0027C300(void* self, float* out)
+extern "C" void ScriptCam_ReadTargetFields(void* self, float* out)
 {
-    out[0] = *func_002742C8_C300(self, 0)->v04();
-    out[1] = *func_002742C8_C300(self, 1)->v04();
-    out[2] = *func_002742C8_C300(self, 2)->v04();
-    out[3] = *func_002742C8_C300(self, 3)->v04();
-    out[4] = *func_002742C8_C300(self, 4)->v04();
-    out[5] = *func_002742C8_C300(self, 5)->v04();
-    out[6] = *func_002742C8_C300(self, 6)->v04();
-    out[7] = *func_002742C8_C300(self, 7)->v04();
-    out[8] = *func_002742C8_C300(self, 8)->v04();
-    out[9] = *func_002742C8_C300(self, 9)->v04();
+    out[0] = *InSeq_ChannelGetTrack_C300(self, 0)->v04();
+    out[1] = *InSeq_ChannelGetTrack_C300(self, 1)->v04();
+    out[2] = *InSeq_ChannelGetTrack_C300(self, 2)->v04();
+    out[3] = *InSeq_ChannelGetTrack_C300(self, 3)->v04();
+    out[4] = *InSeq_ChannelGetTrack_C300(self, 4)->v04();
+    out[5] = *InSeq_ChannelGetTrack_C300(self, 5)->v04();
+    out[6] = *InSeq_ChannelGetTrack_C300(self, 6)->v04();
+    out[7] = *InSeq_ChannelGetTrack_C300(self, 7)->v04();
+    out[8] = *InSeq_ChannelGetTrack_C300(self, 8)->v04();
+    out[9] = *InSeq_ChannelGetTrack_C300(self, 9)->v04();
 }
 
 //100%
@@ -2683,12 +2683,12 @@ extern "C" void* func_0027C4C0(void* self)
     return func_002742E0(self);
 }
 
-extern "C" void* func_00274D90();
+extern "C" void* InSeq_FindChannelData();
 extern "C" int func_00274318(void* p, int a);
 
 extern "C" int func_0027C4E0(void* self, int a, int b)
 {
-    return func_00274318(func_00274D90(), b);
+    return func_00274318(InSeq_FindChannelData(), b);
 }
 
 //100%
@@ -2703,20 +2703,20 @@ public:
     virtual float* v04();
 };
 
-// Same symbol as the unit's func_002742C8 (cScriptObj002742C8*), viewed with a float getter.
-cScriptObjC510* func_002742C8_C510(void* self, int a1) __asm__("func_002742C8__FPvi");
+// Same symbol as the unit's InSeq_ChannelGetTrack (cScriptObj002742C8*), viewed with a float getter.
+cScriptObjC510* InSeq_ChannelGetTrack_C510(void* self, int a1) __asm__("InSeq_ChannelGetTrack__FPvi");
 
-extern "C" void func_0027C510(void* self, float* out)
+extern "C" void ScriptCam_ReadSubjectFields(void* self, float* out)
 {
-    out[0] = *func_002742C8_C510(self, 0)->v04();
-    out[1] = *func_002742C8_C510(self, 1)->v04();
-    out[2] = *func_002742C8_C510(self, 2)->v04();
-    out[3] = *func_002742C8_C510(self, 3)->v04();
-    out[4] = *func_002742C8_C510(self, 4)->v04();
-    out[5] = *func_002742C8_C510(self, 5)->v04();
-    out[6] = *func_002742C8_C510(self, 6)->v04();
-    out[7] = *func_002742C8_C510(self, 7)->v04();
-    out[8] = *func_002742C8_C510(self, 8)->v04();
+    out[0] = *InSeq_ChannelGetTrack_C510(self, 0)->v04();
+    out[1] = *InSeq_ChannelGetTrack_C510(self, 1)->v04();
+    out[2] = *InSeq_ChannelGetTrack_C510(self, 2)->v04();
+    out[3] = *InSeq_ChannelGetTrack_C510(self, 3)->v04();
+    out[4] = *InSeq_ChannelGetTrack_C510(self, 4)->v04();
+    out[5] = *InSeq_ChannelGetTrack_C510(self, 5)->v04();
+    out[6] = *InSeq_ChannelGetTrack_C510(self, 6)->v04();
+    out[7] = *InSeq_ChannelGetTrack_C510(self, 7)->v04();
+    out[8] = *InSeq_ChannelGetTrack_C510(self, 8)->v04();
 }
 
 //100%
@@ -2732,12 +2732,12 @@ extern "C" void* func_0027C6A8(void* self)
     return func_002742E0(self);
 }
 
-extern "C" void* func_00274D90();
+extern "C" void* InSeq_FindChannelData();
 extern "C" int func_00274318(void* p, int a);
 
 extern "C" int func_0027C6C8(void* self, int a, int b)
 {
-    return func_00274318(func_00274D90(), b);
+    return func_00274318(InSeq_FindChannelData(), b);
 }
 
 //100%
@@ -2752,20 +2752,20 @@ public:
     virtual float* v04();
 };
 
-// Same symbol as the unit's func_002742C8 (cScriptObj002742C8*), viewed with a float getter.
-cScriptObjC6F8* func_002742C8_C6F8(void* self, int a1) __asm__("func_002742C8__FPvi");
+// Same symbol as the unit's InSeq_ChannelGetTrack (cScriptObj002742C8*), viewed with a float getter.
+cScriptObjC6F8* InSeq_ChannelGetTrack_C6F8(void* self, int a1) __asm__("InSeq_ChannelGetTrack__FPvi");
 
-extern "C" void func_0027C6F8(void* self, float* out)
+extern "C" void ScriptCam_ReadAlgorithmicFields(void* self, float* out)
 {
-    out[0] = *func_002742C8_C6F8(self, 0)->v04();
-    out[1] = *func_002742C8_C6F8(self, 1)->v04();
-    out[2] = *func_002742C8_C6F8(self, 2)->v04();
-    out[3] = *func_002742C8_C6F8(self, 3)->v04();
-    out[4] = *func_002742C8_C6F8(self, 4)->v04();
-    out[5] = *func_002742C8_C6F8(self, 5)->v04();
-    out[6] = *func_002742C8_C6F8(self, 6)->v04();
-    out[7] = *func_002742C8_C6F8(self, 7)->v04();
-    out[8] = *func_002742C8_C6F8(self, 8)->v04();
+    out[0] = *InSeq_ChannelGetTrack_C6F8(self, 0)->v04();
+    out[1] = *InSeq_ChannelGetTrack_C6F8(self, 1)->v04();
+    out[2] = *InSeq_ChannelGetTrack_C6F8(self, 2)->v04();
+    out[3] = *InSeq_ChannelGetTrack_C6F8(self, 3)->v04();
+    out[4] = *InSeq_ChannelGetTrack_C6F8(self, 4)->v04();
+    out[5] = *InSeq_ChannelGetTrack_C6F8(self, 5)->v04();
+    out[6] = *InSeq_ChannelGetTrack_C6F8(self, 6)->v04();
+    out[7] = *InSeq_ChannelGetTrack_C6F8(self, 7)->v04();
+    out[8] = *InSeq_ChannelGetTrack_C6F8(self, 8)->v04();
 }
 
 //100%
@@ -2781,12 +2781,12 @@ extern "C" void* func_0027C890(void* self)
     return func_002742E0(self);
 }
 
-extern "C" void* func_00274D90();
+extern "C" void* InSeq_FindChannelData();
 extern "C" int func_00274318(void* p, int a);
 
 extern "C" int func_0027C8B0(void* self, int a, int b)
 {
-    return func_00274318(func_00274D90(), b);
+    return func_00274318(InSeq_FindChannelData(), b);
 }
 
 //100%
@@ -2801,12 +2801,12 @@ public:
     virtual int v05();
 };
 
-cScriptObj002742C8* func_002742C8(void* self, int a1);
+cScriptObj002742C8* InSeq_ChannelGetTrack(void* self, int a1);
 
 extern "C" void func_0027C8E0(void* self, int* out)
 {
-    out[0] = *func_002742C8(self, 0)->v04();
-    out[1] = func_002742C8(self, 0)->v05();
+    out[0] = *InSeq_ChannelGetTrack(self, 0)->v04();
+    out[1] = InSeq_ChannelGetTrack(self, 0)->v05();
 }
 
 //100%
@@ -2823,12 +2823,12 @@ void* func_0027C960(void* self)
     return func_002742E0(self);
 }
 
-extern "C" void* func_00274D90();
+extern "C" void* InSeq_FindChannelData();
 extern "C" int func_00274318(void* p, int a);
 
 extern "C" int func_0027C980(void* self, int a, int b)
 {
-    return func_00274318(func_00274D90(), b);
+    return func_00274318(InSeq_FindChannelData(), b);
 }
 
 //100%
@@ -2843,50 +2843,50 @@ public:
     virtual float* v04();
 };
 
-cScriptObj002742C8* func_002742C8(void* self, int a1);
-// Same symbol as the unit's func_002742C8 (cScriptObj002742C8*), viewed with a float getter.
-cScriptObjC9B0* func_002742C8_C9B0(void* self, int a1) __asm__("func_002742C8__FPvi");
+cScriptObj002742C8* InSeq_ChannelGetTrack(void* self, int a1);
+// Same symbol as the unit's InSeq_ChannelGetTrack (cScriptObj002742C8*), viewed with a float getter.
+cScriptObjC9B0* InSeq_ChannelGetTrack_C9B0(void* self, int a1) __asm__("InSeq_ChannelGetTrack__FPvi");
 
-extern "C" void func_0027C9B0(void* self, void* out)
+extern "C" void ScriptRider_ReadFields(void* self, void* out)
 {
-    ((int*)out)[0] = *func_002742C8(self, 0)->v04();
-    ((int*)out)[1] = func_002742C8(self, 0)->v05();
-    ((int*)out)[2] = *func_002742C8(self, 1)->v04();
-    ((int*)out)[3] = func_002742C8(self, 1)->v05();
-    ((int*)out)[4] = *func_002742C8(self, 2)->v04();
-    ((int*)out)[5] = func_002742C8(self, 2)->v05();
-    ((float*)out)[6] = *func_002742C8_C9B0(self, 3)->v04();
-    ((float*)out)[7] = *func_002742C8_C9B0(self, 4)->v04();
-    ((float*)out)[8] = *func_002742C8_C9B0(self, 5)->v04();
-    ((float*)out)[9] = *func_002742C8_C9B0(self, 6)->v04();
-    ((float*)out)[10] = *func_002742C8_C9B0(self, 7)->v04();
-    ((float*)out)[11] = *func_002742C8_C9B0(self, 8)->v04();
+    ((int*)out)[0] = *InSeq_ChannelGetTrack(self, 0)->v04();
+    ((int*)out)[1] = InSeq_ChannelGetTrack(self, 0)->v05();
+    ((int*)out)[2] = *InSeq_ChannelGetTrack(self, 1)->v04();
+    ((int*)out)[3] = InSeq_ChannelGetTrack(self, 1)->v05();
+    ((int*)out)[4] = *InSeq_ChannelGetTrack(self, 2)->v04();
+    ((int*)out)[5] = InSeq_ChannelGetTrack(self, 2)->v05();
+    ((float*)out)[6] = *InSeq_ChannelGetTrack_C9B0(self, 3)->v04();
+    ((float*)out)[7] = *InSeq_ChannelGetTrack_C9B0(self, 4)->v04();
+    ((float*)out)[8] = *InSeq_ChannelGetTrack_C9B0(self, 5)->v04();
+    ((float*)out)[9] = *InSeq_ChannelGetTrack_C9B0(self, 6)->v04();
+    ((float*)out)[10] = *InSeq_ChannelGetTrack_C9B0(self, 7)->v04();
+    ((float*)out)[11] = *InSeq_ChannelGetTrack_C9B0(self, 8)->v04();
 }
 
 //100%
-cScriptObj002742C8* func_002742C8(void* self, int a1);
+cScriptObj002742C8* InSeq_ChannelGetTrack(void* self, int a1);
 
 extern "C" void func_0027CBB0(void* self, void* out)
 {
-    ((int*)out)[0] = *func_002742C8(self, 0)->v04();
-    ((int*)out)[1] = func_002742C8(self, 0)->v05();
+    ((int*)out)[0] = *InSeq_ChannelGetTrack(self, 0)->v04();
+    ((int*)out)[1] = InSeq_ChannelGetTrack(self, 0)->v05();
 }
 
 //100%
-cScriptObj002742C8* func_002742C8(void* self, int a1);
+cScriptObj002742C8* InSeq_ChannelGetTrack(void* self, int a1);
 
 extern "C" void func_0027CC28(void* self, void* out)
 {
-    ((int*)out)[0] = *func_002742C8(self, 0)->v04();
-    ((int*)out)[1] = func_002742C8(self, 0)->v05();
-    ((int*)out)[2] = *func_002742C8(self, 1)->v04();
-    ((int*)out)[3] = func_002742C8(self, 1)->v05();
-    ((int*)out)[4] = *func_002742C8(self, 2)->v04();
-    ((int*)out)[5] = func_002742C8(self, 2)->v05();
-    ((int*)out)[6] = *func_002742C8(self, 3)->v04();
-    ((int*)out)[7] = func_002742C8(self, 3)->v05();
-    ((int*)out)[8] = *func_002742C8(self, 4)->v04();
-    ((int*)out)[9] = func_002742C8(self, 4)->v05();
+    ((int*)out)[0] = *InSeq_ChannelGetTrack(self, 0)->v04();
+    ((int*)out)[1] = InSeq_ChannelGetTrack(self, 0)->v05();
+    ((int*)out)[2] = *InSeq_ChannelGetTrack(self, 1)->v04();
+    ((int*)out)[3] = InSeq_ChannelGetTrack(self, 1)->v05();
+    ((int*)out)[4] = *InSeq_ChannelGetTrack(self, 2)->v04();
+    ((int*)out)[5] = InSeq_ChannelGetTrack(self, 2)->v05();
+    ((int*)out)[6] = *InSeq_ChannelGetTrack(self, 3)->v04();
+    ((int*)out)[7] = InSeq_ChannelGetTrack(self, 3)->v05();
+    ((int*)out)[8] = *InSeq_ChannelGetTrack(self, 4)->v04();
+    ((int*)out)[9] = InSeq_ChannelGetTrack(self, 4)->v05();
 }
 
 //100%
@@ -2907,7 +2907,7 @@ struct sScrEngine_CDD0 {
 extern char D_00482528[];
 extern void* D_004A34DC;
 
-extern "C" void* func_0027CDD0(void* self_)
+extern "C" void* ScriptEngine_ObjTableCtor(void* self_)
 {
     sScrEngine_CDD0* self = (sScrEngine_CDD0*)self_;
     int i;
@@ -2932,7 +2932,7 @@ void operator_delete(int*);
 extern char D_00482528[];
 extern void* D_004A34DC;
 
-extern "C" void func_0027CE58(void* self, int flags)
+extern "C" void ScriptEngine_ObjTableDtor(void* self, int flags)
 {
     *(void**)((char*)self + 0x2A8) = D_00482528;
     func_0027D050(self);
@@ -2943,7 +2943,7 @@ extern "C" void func_0027CE58(void* self, int flags)
 }
 
 //100%
-extern "C" int func_0027D330(void* self, int idx, void* item);
+extern "C" int ScriptEngine_AddBinding(void* self, int idx, void* item);
 
 class cScriptOwnerCEA8 {
 public:
@@ -2964,7 +2964,7 @@ struct sScrOwnersCEA8 {
     cScriptOwnerCEA8* owners[20];
 };
 
-extern "C" int func_0027CEA8(void* engine, void* o)
+extern "C" int ScriptEngine_AddScriptObj(void* engine, void* o)
 {
     sScrOwnersCEA8* self = (sScrOwnersCEA8*)engine;
     cScriptOwnerCEA8* obj = (cScriptOwnerCEA8*)o;
@@ -2978,13 +2978,13 @@ extern "C" int func_0027CEA8(void* engine, void* o)
     int k = 0;
     int n = obj->v06();
     for (; k < n; k++) {
-        func_0027D330(self, i, obj->v07(k));
+        ScriptEngine_AddBinding(self, i, obj->v07(k));
     }
     return i;
 }
 
 //100%
-extern "C" int func_0027D390(void* self, void* msg);
+extern "C" int ScriptEngine_RemoveBinding(void* self, void* msg);
 
 class cScriptOwnerCF88 {
 public:
@@ -3001,14 +3001,14 @@ public:
     virtual void* v07(int i);
 };
 
-extern "C" int func_0027CF88(void* self, int idx)
+extern "C" int ScriptEngine_RemoveScriptObj(void* self, int idx)
 {
     cScriptOwnerCF88* obj = *(cScriptOwnerCF88**)((char*)self + (idx << 2));
     if (obj == 0) return 0;
     int k = 0;
     int n = obj->v06();
     for (; k < n; k++) {
-        func_0027D390(self, obj->v07(k));
+        ScriptEngine_RemoveBinding(self, obj->v07(k));
     }
     *(cScriptOwnerCF88**)((char*)self + (idx << 2)) = 0;
     return 1;
@@ -3033,7 +3033,7 @@ extern "C" void func_0027D050(void* self)
 }
 
 //100%
-extern "C" void func_0027D540(void* self, void* a1, int a2);
+extern "C" void ScriptEngine_SetBindingFilter(void* self, void* a1, int a2);
 
 class cScriptOwnerD0C0 {
 public:
@@ -3050,13 +3050,13 @@ public:
     virtual void* v07(int i);
 };
 
-extern "C" void func_0027D0C0(void* self, int idx, int val)
+extern "C" void ScriptEngine_SetObjBindingFilter(void* self, int idx, int val)
 {
     cScriptOwnerD0C0* obj = *(cScriptOwnerD0C0**)((char*)self + (idx << 2));
     int i = 0;
     int n = obj->v06();
     for (; i < n; i++) {
-        func_0027D540(self, obj->v07(i), val);
+        ScriptEngine_SetBindingFilter(self, obj->v07(i), val);
     }
 }
 
@@ -3076,15 +3076,15 @@ public:
     virtual void* v07(int i);
 };
 
-extern "C" void func_0027D558(void* self, void* a1);
+extern "C" void ScriptEngine_ClearBindingFilter(void* self, void* a1);
 
-extern "C" void func_0027D170(void* self, int idx)
+extern "C" void ScriptEngine_ClearObjBindingFilter(void* self, int idx)
 {
     cScriptOwnerD170* obj = *(cScriptOwnerD170**)((char*)self + (idx << 2));
     int i = 0;
     int n = obj->v06();
     for (; i < n; i++) {
-        func_0027D558(self, obj->v07(i));
+        ScriptEngine_ClearBindingFilter(self, obj->v07(i));
     }
 }
 
@@ -3106,10 +3106,10 @@ public:
     virtual int* v07(int i);
 };
 
-// PORT: ScriptEngine_v04 declares func_0027D210 as void; it really returns 0/1.
-int func_0027D210_impl(void* self, int idx, int val) __asm__("func_0027D210");
+// PORT: ScriptEngine_v04 declares ScriptEngine_IsObjBoundToProcess as void; it really returns 0/1.
+int ScriptEngine_IsObjBoundToProcess_impl(void* self, int idx, int val) __asm__("ScriptEngine_IsObjBoundToProcess");
 
-int func_0027D210_impl(void* self, int idx, int val)
+int ScriptEngine_IsObjBoundToProcess_impl(void* self, int idx, int val)
 {
     cScriptOwnerD210* obj = *(cScriptOwnerD210**)((char*)self + (idx << 2));
     int i = 0;
@@ -3151,7 +3151,7 @@ struct sScriptEng0050 {
     sVar0050 vars[1];
 };
 
-extern "C" int func_0027D2F0(sScriptEng0050* self, void* a1)
+extern "C" int ScriptEngine_GetBindingProcess(sScriptEng0050* self, void* a1)
 {
     sVar0050* v = &self->vars[*(int*)((char*)a1 + 0x4)];
     if (v->type != 1) {
@@ -3161,15 +3161,15 @@ extern "C" int func_0027D2F0(sScriptEng0050* self, void* a1)
 }
 
 //100%
-int func_0027D320(void* self, int i)
+int ScriptEngine_GetScriptObj(void* self, int i)
 {
     return *(int*)((char*)self + (i << 2));
 }
 
-INCLUDE_ASM("scripter/ssxscriptengine", func_0027D330);
+INCLUDE_ASM("scripter/ssxscriptengine", ScriptEngine_AddBinding);
 
 //100%
-extern "C" void func_00282F90(void* self);
+extern "C" void ScriptBinding_ClearListener(void* self);
 
 struct sScrEnt27D390 {
     int* obj;
@@ -3179,11 +3179,11 @@ struct sScrEnt27D390 {
     int c;
 };
 
-extern "C" int func_0027D390(void* self, void* msg)
+extern "C" int ScriptEngine_RemoveBinding(void* self, void* msg)
 {
     sScrEnt27D390* e = (sScrEnt27D390*)((char*)self + (*(int*)((char*)msg + 0x4) * 0x14 + 0x50));
     if (e->state == 1) {
-        func_00282F90(msg);
+        ScriptBinding_ClearListener(msg);
     }
     e->obj[1] = -1;
     e->a = -1;
@@ -3274,7 +3274,7 @@ extern "C" void func_0027D4A0(sScrOwnerD4A0* self, int* key)
 }
 
 //100%
-extern "C" void func_0027D540(void* self, void* a1, int a2)
+extern "C" void ScriptEngine_SetBindingFilter(void* self, void* a1, int a2)
 {
     int i = *(int*)((char*)a1 + 0x4);
     char* p = (char*)self + i * 0x14;
@@ -3282,7 +3282,7 @@ extern "C" void func_0027D540(void* self, void* a1, int a2)
 }
 
 //100%
-extern "C" void func_0027D558(void* self, void* a1)
+extern "C" void ScriptEngine_ClearBindingFilter(void* self, void* a1)
 {
     int i = *(int*)((char*)a1 + 0x4);
     char* p = (char*)self + i * 0x14;
@@ -3343,7 +3343,7 @@ extern "C" void* ScriptObjCam_ctor(void* self, int a1)
 }
 
 //100%
-void func_0027D680(void* self, int val)
+void ScriptObjCam_SetOwner(void* self, int val)
 {
     *(int*)((char*)self + 0x10) = val;
 }
@@ -3359,10 +3359,10 @@ struct sSeVEntryD688 {
 
 // PORT: PS2-only VU0 inline asm (lqc2/sqc2 matrix copy of D_004FF1A0, likely identity);
 // the PC port needs a plain 64-byte copy.
-extern "C" void func_0027D688(char* self, void* anim)
+extern "C" void ScriptObjCam_SetBinding(char* self, void* anim)
 {
     if (anim != 0) {
-        int id = func_0027D2F0((sScriptEng0050*)func_0027D2E8(), anim);
+        int id = ScriptEngine_GetBindingProcess((sScriptEng0050*)func_0027D2E8(), anim);
         if (*(void**)(self + 0x14) != 0) {
             sSeVEntryD688* vt = *(sSeVEntryD688**)(self + 0xC);
             vt[5].fn(self + vt[5].delta, *(int*)(self + 0x20));
@@ -3397,7 +3397,7 @@ extern "C" void func_0027D688(char* self, void* anim)
 }
 
 //100%
-void func_0027D788(void* self, float val)
+void ScriptObjCam_SetWeight(void* self, float val)
 {
     *(float*)((char*)self + 0x18) = val;
 }
@@ -3438,7 +3438,7 @@ extern "C" void ScriptObjCam_v03(void* self)
 
 //100%
 void func_00283430(void* self);
-extern "C" void func_0027D970(void* self, int a1);
+extern "C" void ScriptObjCam_BuildMatrixFromScript(void* self, int a1);
 extern "C" void cScriptCameraController_addCamera(void* ctrl, void* script);
 extern "C" void func_0015DFD8(void* self, int mode);
 extern char* D_004A28A8;
@@ -3448,7 +3448,7 @@ extern "C" void func_0027D850(void* self)
     func_00283430(self);
     if (*(void**)(D_004A28A8 + 0x84) != 0) {
         *(float*)((char*)self + 0x18) = 1.0f;
-        func_0027D970(self, *(int*)((char*)self + 0x14));
+        ScriptObjCam_BuildMatrixFromScript(self, *(int*)((char*)self + 0x14));
         char* riders = *(char**)(*(char**)(D_004A28A8 + 0x84) + 0x84);
         char* rider = *(char**)(riders + (*(int*)((char*)self + 0x7C) << 2) + 4);
         cScriptCameraController_addCamera(*(void**)(rider + 0xAC), self);
@@ -3491,7 +3491,7 @@ extern "C" void func_0027D8D8(void* self)
     }
 }
 
-INCLUDE_ASM("scripter/ssxscriptengine", func_0027D970);
+INCLUDE_ASM("scripter/ssxscriptengine", ScriptObjCam_BuildMatrixFromScript);
 
 //100%
 void func_00282F60(void*);
@@ -3502,7 +3502,7 @@ extern char D_004FF1A0[];
 
 // PORT: PS2-only VU0 inline asm (lqc2/sqc2 matrix copy of D_004FF1A0, likely identity);
 // the PC port needs a plain 64-byte copy.
-extern "C" void* func_0027F968(void* self)
+extern "C" void* RiderScriptObj_ctor(void* self)
 {
     func_00282F60(self);
     func_00283200((char*)self + 0xC, 3);
@@ -3579,7 +3579,7 @@ public:
     virtual void* v06();
 };
 
-extern "C" int func_00280458(cScriptCtx0458* self, void* msg, int type)
+extern "C" int RiderScriptObj_AcceptCommand(cScriptCtx0458* self, void* msg, int type)
 {
     if (type != 5) return 0;
     void* rider = self->v06();
@@ -3610,7 +3610,7 @@ void func_00280548(void* self, int a1, void* a2, void* a3)
 }
 
 //100% - objdiff report; single-function view differs only in a relocation name
-extern "C" void* func_00279F18(void* self, int i, int a2);
+extern "C" void* ScriptEngine_GetTargetObject(void* self, int i, int a2);
 extern void* D_004A28A4;
 
 extern "C" int func_00280560(void* self, void* rider, int id, int a3)
@@ -3618,7 +3618,7 @@ extern "C" int func_00280560(void* self, void* rider, int id, int a3)
     if (id != 0) {
         if (id >= 0) {
             if (id < 0x16) {
-                return func_00279F18(D_004A28A4, id - 1, a3) == rider;
+                return ScriptEngine_GetTargetObject(D_004A28A4, id - 1, a3) == rider;
             }
         }
     } else {
@@ -3673,7 +3673,7 @@ extern "C" void cBankMonitor_stopVoice(void* bank, int id, int a, float f);
 extern "C" int cBankMonitor_findVoice(void* bank, int id, int a);
 extern "C" int cSpeechManager_canPlay(void* p, int i);
 
-extern "C" void func_00280640(sScrObj05B8* self)
+extern "C" void ScriptAudioObj_UpdateSounds(sScrObj05B8* self)
 {
     char* snd = (char*)func_0028B180();
     for (int i = 0; i < 4; i++) {
@@ -3694,7 +3694,7 @@ extern "C" void func_00280640(sScrObj05B8* self)
     if (self->field_0xF4 != 0) {
         self->field_0xF4 = 0;
         if (cSpeechManager_canPlay(snd + 0x5560, 0) != 0) {
-            func_00279070(D_004A28A4, *(int*)((char*)D_004A28A4 + 0x550), 1, 1);
+            ScriptEngine_ListSkip(D_004A28A4, *(int*)((char*)D_004A28A4 + 0x550), 1, 1);
         }
     }
 }
@@ -3801,15 +3801,15 @@ extern "C" void ScriptAudioObj_Deactivate(sSeEngine07B0* self)
 }
 
 //100%
-extern "C" int func_002808D8(void* self, void* a1, int a2)
+extern "C" int ScriptAudioObj_AcceptCommand(void* self, void* a1, int a2)
 {
     return a2 == 7;
 }
 
-INCLUDE_ASM("scripter/ssxscriptengine", func_002808E8);
+INCLUDE_ASM("scripter/ssxscriptengine", ScriptAudioObj_Apply);
 
 //100%
-void func_00281000(void* self, int a1, void* a2, void* a3)
+void ScriptAudioObj_GetSoundBankEntry(void* self, int a1, void* a2, void* a3)
 {
     *(int*)a3 = *(int*)((char*)*(void**)((char*)self + 0xf8) + 0x4);
     *(int*)a2 = a1;
@@ -3818,21 +3818,21 @@ void func_00281000(void* self, int a1, void* a2, void* a3)
 INCLUDE_ASM("scripter/ssxscriptengine", func_00281018);
 
 //100%
-extern "C" void func_00281AC8(void* self, int a1, int a2);
+extern "C" void ScriptViewObj_BindCamSlot(void* self, int a1, int a2);
 extern char* D_004A28A8;
 
 struct sVec4_1100 {
     float x, y, z, w;
 } __attribute__((aligned(16)));
 
-extern "C" void func_00281100(void* self)
+extern "C" void ScriptViewObj_Update(void* self)
 {
     if (*(int*)((char*)self + 0x8) > 0) {
         char* riders = *(char**)(*(char**)(D_004A28A8 + 0x84) + 0x84);
         char* rider = *(char**)(riders + (*(int*)((char*)self + 0xF8) << 2) + 4);
         *(sVec4_1100*)((char*)self + 0x100) = *(sVec4_1100*)(rider + 0x20);
         if (*(int*)((char*)self + 0x18) == 0) {
-            func_00281AC8(self, 0, 0);
+            ScriptViewObj_BindCamSlot(self, 0, 0);
         }
     }
 }
@@ -3844,13 +3844,13 @@ void func_00281160(void* self, int val)
 }
 
 //100%
-int func_00281168(void* self)
+int ScriptViewObj_GetBindingCount(void* self)
 {
     return 0xA;
 }
 
 //100%
-extern "C" void* func_00281170(void* self, int a1)
+extern "C" void* ScriptViewObj_GetBinding(void* self, int a1)
 {
     if (a1 == 0) {
         return (char*)self + 0x10;
@@ -3859,15 +3859,15 @@ extern "C" void* func_00281170(void* self, int a1)
 }
 
 //100% - objdiff report; single-function view differs only in a relocation name
-void func_0027D680(void* self, int val);
+void ScriptObjCam_SetOwner(void* self, int val);
 
-extern "C" int func_00281190(void* self, void* obj)
+extern "C" int ScriptViewObj_AddCam(void* self, void* obj)
 {
     void** slots = (void**)((char*)self + 0xD0);
     for (int i = 0; i < 2; i++) {
         if (slots[i] == 0) {
             slots[i] = obj;
-            func_0027D680(obj, (int)self); // PORT: pointer passed as int (callee mangled __FPvi)
+            ScriptObjCam_SetOwner(obj, (int)self); // PORT: pointer passed as int (callee mangled __FPvi)
             return 1;
         }
     }
@@ -3875,8 +3875,8 @@ extern "C" int func_00281190(void* self, void* obj)
 }
 
 //100%
-void func_0027D680(void* self, int val);
-extern "C" void func_0027D688(char* self, void* anim);
+void ScriptObjCam_SetOwner(void* self, int val);
+extern "C" void ScriptObjCam_SetBinding(char* self, void* anim);
 
 struct sSeEng11E8 {
     char pad_0x0[0x8];
@@ -3887,16 +3887,16 @@ struct sSeEng11E8 {
     int slots[2];           // 0xDC
 };
 
-// PORT: the unit declares func_002811E8(void*, void*) returning void; it returns found/not found.
-extern "C" int func_002811E8_impl(sSeEng11E8* self, char* key) __asm__("func_002811E8");
-extern "C" int func_002811E8_impl(sSeEng11E8* self, char* key)
+// PORT: the unit declares ScriptViewObj_RemoveCam(void*, void*) returning void; it returns found/not found.
+extern "C" int ScriptViewObj_RemoveCam_impl(sSeEng11E8* self, char* key) __asm__("ScriptViewObj_RemoveCam");
+extern "C" int ScriptViewObj_RemoveCam_impl(sSeEng11E8* self, char* key)
 {
     int k = *(int*)(key + 4);
     for (int i = 0; i < 2; i++) {
         char* o = self->objs[i];
         if (o != 0 && *(int*)(o + 4) == k) {
             if (self->count > 0 && *(int*)(o + 0x14) != 0) {
-                func_0027D688(o, 0);
+                ScriptObjCam_SetBinding(o, 0);
                 for (int j = 0; j < 2; j++) {
                     if (self->slots[j] == i) {
                         self->slots[j] = -1;
@@ -3904,7 +3904,7 @@ extern "C" int func_002811E8_impl(sSeEng11E8* self, char* key)
                     }
                 }
             }
-            func_0027D680(self->objs[i], 0);
+            ScriptObjCam_SetOwner(self->objs[i], 0);
             self->objs[i] = 0;
             return 1;
         }
@@ -3920,7 +3920,7 @@ void* func_00282DB0_f(void* self, int a1, int a2, float f0, float f1, float f2, 
     __asm__("func_00282DB0__FPvii");
 void func_00282DA8_p(void* self, void* owner) __asm__("func_00282DA8__FPvi");
 
-extern "C" int func_002812E0(void* self, void* obj)
+extern "C" int ScriptViewObj_SetTransition(void* self, void* obj)
 {
     if (obj == 0) {
         char* cur = *(char**)((char*)self + 0xD8);
@@ -3942,20 +3942,20 @@ extern "C" int func_002812E0(void* self, void* obj)
 
 //100%
 extern "C" void* func_0027D2E8(void);
-extern "C" void func_00281A50(void* self);
+extern "C" void ScriptViewObj_Reset(void* self);
 extern "C" void func_001033B0(void* self, void* pos);
 // PORT: these two are declared (void*) but called with a second argument.
-void* func_00282C18_2(void* self, int idx) __asm__("func_00282C18__FPv");
+void* ScriptEngine_GetSeqInstance_2(void* self, int idx) __asm__("ScriptEngine_GetSeqInstance__FPv");
 void func_00283430_2(void* self, int val) __asm__("func_00283430__FPv");
 extern void* D_004A28A4;
 extern char* D_004A28A8;
 
 extern "C" void ScriptViewObj_Activate(void* self, int val)
 {
-    func_0027D0C0(func_0027D2E8(), *(int*)((char*)self + 0x4), val);
-    func_00281A50(self);
+    ScriptEngine_SetObjBindingFilter(func_0027D2E8(), *(int*)((char*)self + 0x4), val);
+    ScriptViewObj_Reset(self);
     // PORT: pointer passed as int
-    if (func_00279370(D_004A28A4, (int)func_00282C18_2(D_004A28A4, val)) != 0) {
+    if (ScriptEngine_IsPlayingScript(D_004A28A4, (int)ScriptEngine_GetSeqInstance_2(D_004A28A4, val)) != 0) {
         func_001033B0(*(void**)(*(char**)(*(char**)(D_004A28A8 + 0x84) + 0xC) + 0xA4), (char*)self + 0x100);
         *(int*)((char*)self + 0x110) = 1;
     }
@@ -3965,11 +3965,11 @@ extern "C" void ScriptViewObj_Activate(void* self, int val)
 //100%
 extern char* D_004A28A8;
 extern "C" void* func_0027D2E8(void);
-extern "C" void func_0027D170(void* mgr, int id);
-extern "C" void func_0027D688(char* self, void* anim);
-extern "C" void func_00281A50(void* self);
+extern "C" void ScriptEngine_ClearObjBindingFilter(void* mgr, int id);
+extern "C" void ScriptObjCam_SetBinding(char* self, void* anim);
+extern "C" void ScriptViewObj_Reset(void* self);
 extern "C" void func_001033F8(void* a, void* b, void* c);
-// PORT: func_00282DB0's mangled signature is (void*, int, int); it also takes four floats (same alias as func_002812E0).
+// PORT: func_00282DB0's mangled signature is (void*, int, int); it also takes four floats (same alias as ScriptViewObj_SetTransition).
 void* func_00282DB0_f(void* self, int a1, int a2, float f0, float f1, float f2, float f3)
     __asm__("func_00282DB0__FPvii");
 // PORT: the unit declares func_00283440(void*); this caller passes a second argument.
@@ -3989,11 +3989,11 @@ struct sSeEng1400 {
 
 extern "C" void ScriptViewObj_Deactivate(sSeEng1400* self, int a1)
 {
-    func_0027D170(func_0027D2E8(), self->id);
+    ScriptEngine_ClearObjBindingFilter(func_0027D2E8(), self->id);
     for (int i = 0; i < 2; i++) {
         int s = self->slots[i];
         if (s >= 0) {
-            func_0027D688(self->objs[s], 0);
+            ScriptObjCam_SetBinding(self->objs[s], 0);
             self->slots[i] = -1;
         }
     }
@@ -4005,7 +4005,7 @@ extern "C" void ScriptViewObj_Deactivate(sSeEng1400* self, int a1)
         func_001033F8(*(void**)(lvl + 0xA4), self->area, lvl);
         self->pending = 0;
     }
-    func_00281A50(self);
+    ScriptViewObj_Reset(self);
     func_00283440_2(self, a1);
 }
 
@@ -4013,9 +4013,9 @@ extern "C" void ScriptViewObj_Deactivate(sSeEng1400* self, int a1)
 extern "C" void func_0027C8E0(void* self, int* out);
 // PORT: func_0027C888 is defined returning int, but it returns a pointer here; bound by asm label.
 signed char* func_0027C888_p(void* self) __asm__("func_0027C888__FPv");
-extern "C" void func_00281AC8(void* self, int a1, int a2);
+extern "C" void ScriptViewObj_BindCamSlot(void* self, int a1, int a2);
 extern "C" void func_00281C68(void* self, int* info, float t);
-// PORT: func_00282DB0's mangled signature is (void*, int, int); it also takes four floats (same alias as func_002812E0).
+// PORT: func_00282DB0's mangled signature is (void*, int, int); it also takes four floats (same alias as ScriptViewObj_SetTransition).
 void* func_00282DB0_f(void* self, int a1, int a2, float f0, float f1, float f2, float f3)
     __asm__("func_00282DB0__FPvii");
 
@@ -4028,7 +4028,7 @@ struct sNode_2814F8
     sNode_2814F8* next;
 };
 
-extern "C" void func_002814F8(void* self, void* obj, int a2, int flags, float t)
+extern "C" void ScriptViewObj_Apply(void* self, void* obj, int a2, int flags, float t)
 {
     if ((flags & 0xC) == 0)
         return;
@@ -4057,7 +4057,7 @@ extern "C" void func_002814F8(void* self, void* obj, int a2, int flags, float t)
             if (fade)
                 func_00282DB0_f(fade, -1, 9, 0.0f, 0.0f, 0.0f, 0.0f);
             for (int i = 0; i < 2; i++)
-                func_00281AC8(self, i, 9);
+                ScriptViewObj_BindCamSlot(self, i, 9);
             return;
         }
         if (*(int*)((char*)self + 0xEC))
@@ -4071,7 +4071,7 @@ extern "C" void func_002814F8(void* self, void* obj, int a2, int flags, float t)
         for (int i = 0; i < 2; i++)
         {
             if (((mask >> i) & 1) == 0)
-                func_00281AC8(self, i, 9);
+                ScriptViewObj_BindCamSlot(self, i, 9);
         }
     }
 }
@@ -4080,8 +4080,8 @@ extern "C" void func_002814F8(void* self, void* obj, int a2, int flags, float t)
 extern "C" void* func_0028B180();
 extern "C" float cMusicManager_getTimeToNextBeat(void* self);
 extern "C" void func_00282D30(void* self, float dt);
-void func_0027D788(void* self, float val);
-extern "C" void* func_00281C40_p(void* self, int i) __asm__("func_00281C40");
+void ScriptObjCam_SetWeight(void* self, float val);
+extern "C" void* ScriptViewObj_GetSlotCam_p(void* self, int i) __asm__("ScriptViewObj_GetSlotCam");
 
 struct sNode_2816A0
 {
@@ -4093,7 +4093,7 @@ struct sNode_2816A0
     signed char* kind;
 };
 
-extern "C" void func_002816A0(char* self, void* obj, float t, float dt)
+extern "C" void ScriptViewObj_Tick(char* self, void* obj, float t, float dt)
 {
     int info[2];
     func_0027C8E0(obj, info);
@@ -4132,8 +4132,8 @@ extern "C" void func_002816A0(char* self, void* obj, float t, float dt)
     {
         if ((float)(head->start + head->len) < t)
             *(int*)(self + 0xE8) = 0;
-        void* a = func_00281C40_p(self, head->bit);
-        void* b = func_00281C40_p(self, 1 - head->bit);
+        void* a = ScriptViewObj_GetSlotCam_p(self, head->bit);
+        void* b = ScriptViewObj_GetSlotCam_p(self, 1 - head->bit);
         if (b == 0)
         {
             *(int*)(self + 0xE8) = 0;
@@ -4144,8 +4144,8 @@ extern "C" void func_002816A0(char* self, void* obj, float t, float dt)
             *(int*)(self + 0xE8) = 0;
         else
             f = (t - (float)head->len) / (float)head->start;
-        func_0027D788(a, f);
-        func_0027D788(b, 1.0f - f);
+        ScriptObjCam_SetWeight(a, f);
+        ScriptObjCam_SetWeight(b, 1.0f - f);
         break;
     }
     case 1:
@@ -4155,21 +4155,21 @@ extern "C" void func_002816A0(char* self, void* obj, float t, float dt)
     case 5:
     case 6:
     {
-        void* a = func_00281C40_p(self, head->bit);
-        void* b = func_00281C40_p(self, 1 - head->bit);
+        void* a = ScriptViewObj_GetSlotCam_p(self, head->bit);
+        void* b = ScriptViewObj_GetSlotCam_p(self, 1 - head->bit);
         func_00282D30(*(void**)(self + 0xD8), dt);
         if (*(int*)(*(char**)(self + 0xD8) + 0x8) <= 0)
             *(int*)(self + 0xE8) = 0;
         if (*(int*)(self + 0xE8) != 0 && b != 0 && t < (float)(head->start + head->len))
         {
-            func_0027D788(b, 1.0f);
-            func_0027D788(a, 0.0f);
+            ScriptObjCam_SetWeight(b, 1.0f);
+            ScriptObjCam_SetWeight(a, 0.0f);
         }
         else
         {
             if (b != 0)
-                func_0027D788(b, 0.0f);
-            func_0027D788(a, 1.0f);
+                ScriptObjCam_SetWeight(b, 0.0f);
+            ScriptObjCam_SetWeight(a, 1.0f);
         }
         break;
     }
@@ -4189,7 +4189,7 @@ extern "C" void func_002816A0(char* self, void* obj, float t, float dt)
 void* func_0027A668_2(void* self, int idx) __asm__("func_0027A668__FPv");
 extern void* D_004A28A4;
 
-extern "C" int func_00281A00(void* self, void* arg, int n)
+extern "C" int ScriptViewObj_AcceptCommand(void* self, void* arg, int n)
 {
     if (n != 4) {
         return 0;
@@ -4210,7 +4210,7 @@ struct sVec4_1A50 {
     }
 } __attribute__((aligned(16)));
 
-extern "C" void func_00281A50(void* self)
+extern "C" void ScriptViewObj_Reset(void* self)
 {
     int i;
     int v = -1;
@@ -4227,10 +4227,10 @@ extern "C" void func_00281A50(void* self)
     *(int*)((char*)self + 0x110) = 0;
 }
 
-INCLUDE_ASM("scripter/ssxscriptengine", func_00281AC8);
+INCLUDE_ASM("scripter/ssxscriptengine", ScriptViewObj_BindCamSlot);
 
 //100%
-extern "C" int func_00281C40(void* self, int i)
+extern "C" int ScriptViewObj_GetSlotCam(void* self, int i)
 {
     int j = *(int*)((char*)self + (i << 2) + 0xdc);
     if (j < 0) {
@@ -4241,15 +4241,15 @@ extern "C" int func_00281C40(void* self, int i)
 
 //100%
 extern "C" void* func_0027D2E8(void);
-extern "C" int func_0027D2F0(sScriptEng0050* self, void* a1);
-void func_0027D788(void* self, float val);
-extern "C" void func_00281AC8(void* self, int a1, int a2);
-// PORT: func_00281C40 is defined returning int, but it returns a pointer here; bound by asm label.
-extern "C" void* func_00281C40_p(void* self, int i) __asm__("func_00281C40");
-// PORT: func_00282DB0's mangled signature is (void*, int, int); it also takes four floats (same alias as func_002812E0).
+extern "C" int ScriptEngine_GetBindingProcess(sScriptEng0050* self, void* a1);
+void ScriptObjCam_SetWeight(void* self, float val);
+extern "C" void ScriptViewObj_BindCamSlot(void* self, int a1, int a2);
+// PORT: ScriptViewObj_GetSlotCam is defined returning int, but it returns a pointer here; bound by asm label.
+extern "C" void* ScriptViewObj_GetSlotCam_p(void* self, int i) __asm__("ScriptViewObj_GetSlotCam");
+// PORT: func_00282DB0's mangled signature is (void*, int, int); it also takes four floats (same alias as ScriptViewObj_SetTransition).
 void* func_00282DB0_f(void* self, int a1, int a2, float f0, float f1, float f2, float f3)
     __asm__("func_00282DB0__FPvii");
-extern "C" void func_00282DD0(void* self, int id, int a, int b, float f0, float f1, float f2, float f3);
+extern "C" void cTransitionMan_StartTransition(void* self, int id, int a, int b, float f0, float f1, float f2, float f3);
 
 struct sKind_281C68
 {
@@ -4279,14 +4279,14 @@ extern "C" void func_00281C68(void* self, int* info, float t)
             continue;
         if (node->kind->a >= 7)
         {
-            func_00281AC8(self, i, 9);
+            ScriptViewObj_BindCamSlot(self, i, 9);
             continue;
         }
-        void* o = func_00281C40_p(self, i);
+        void* o = ScriptViewObj_GetSlotCam_p(self, i);
         if (o)
-            func_0027D788(o, 0.0f);
+            ScriptObjCam_SetWeight(o, 0.0f);
     }
-    func_00281AC8(self, bit, node->mode);
+    ScriptViewObj_BindCamSlot(self, bit, node->mode);
     *(int*)((char*)self + 0xE8) = 0;
     if (node->kind->a == 8)
         return;
@@ -4302,7 +4302,7 @@ extern "C" void func_00281C68(void* self, int* info, float t)
             *(int*)((char*)self + 0xE8) = 0;
             return;
         }
-        int id = func_0027D2F0((sScriptEng0050*)func_0027D2E8(), (char*)self + 0x10);
+        int id = ScriptEngine_GetBindingProcess((sScriptEng0050*)func_0027D2E8(), (char*)self + 0x10);
         func_00282DB0_f(*pf, id, node->kind->a, t - (float)node->start, (float)node->len, 0.0f, 0.0f);
     }
     else if (k > 0)
@@ -4313,13 +4313,13 @@ extern "C" void func_00281C68(void* self, int* info, float t)
             *(int*)((char*)self + 0xE8) = 0;
             return;
         }
-        int id = func_0027D2F0((sScriptEng0050*)func_0027D2E8(), (char*)self + 0x10);
-        func_00282DD0(*pf, id, node->kind->a, node->kind->b, t - (float)node->start, (float)node->kind->d, (float)node->len, (float)node->kind->c);
+        int id = ScriptEngine_GetBindingProcess((sScriptEng0050*)func_0027D2E8(), (char*)self + 0x10);
+        cTransitionMan_StartTransition(*pf, id, node->kind->a, node->kind->b, t - (float)node->start, (float)node->kind->d, (float)node->len, (float)node->kind->c);
     }
 }
 
 //100%
-extern "C" void* func_0027CDD0(void* self);
+extern "C" void* ScriptEngine_ObjTableCtor(void* self);
 extern "C" void func_002828B8(void* self);
 extern char D_00482450[];
 extern char D_004824B8[];
@@ -4327,7 +4327,7 @@ extern void* D_004A34E8;
 
 extern "C" void* func_00281E80(void* self)
 {
-    func_0027CDD0(self);
+    ScriptEngine_ObjTableCtor(self);
     *(void**)((char*)self + 0x2AC) = D_00482450;
     *(void**)((char*)self + 0x2A8) = D_004824B8;
     D_004A34E8 = self;
@@ -4338,7 +4338,7 @@ extern "C" void* func_00281E80(void* self)
 }
 
 //100%
-extern "C" void func_0027CE58(void* self, int flags);
+extern "C" void ScriptEngine_ObjTableDtor(void* self, int flags);
 extern "C" void func_00282020(void* self);
 extern char D_00482450[];
 extern char D_004824B8[];
@@ -4350,6 +4350,6 @@ extern "C" void func_00281ED8(void* self, int flags)
     *(void**)((char*)self + 0x2A8) = D_004824B8;
     func_00282020(self);
     D_004A34E8 = 0;
-    func_0027CE58(self, flags);
+    ScriptEngine_ObjTableDtor(self, flags);
 }
 

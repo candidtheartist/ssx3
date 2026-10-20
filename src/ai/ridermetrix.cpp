@@ -472,7 +472,7 @@ struct sGradeStep_119210;
 extern "C" int cRiderMetrix_checkDurationBonus(void* self, int* idx, sGradeStep_119210* tbl, int type, float x);
 extern "C" void func_00116FB8(void* slot);
 extern "C" void cRiderMetrix_updateHud(void* self);
-extern "C" void func_00290F58(void* audio, void* rider, float mult);
+extern "C" void cSSXAudio_SetPlayerTrickScore(void* audio, void* rider, float mult);
 extern "C" void* func_00416210(void* dst, int c, int n);
 int cRider_getMotionMode(void* rider);
 int cRider_getControlState(void* rider);
@@ -623,7 +623,7 @@ extern "C" void cRiderMetrix_update(sMetrix17C28* self)
     }
     func_00416210(self->clear, 0, 8);
     self->dirty = 1;
-    func_00290F58(func_0028B180(), self->rider, self->mult);
+    cSSXAudio_SetPlayerTrickScore(func_0028B180(), self->rider, self->mult);
 }
 
 INCLUDE_ASM("ai/ridermetrix", cRiderMetrix_updateHud);
@@ -847,8 +847,8 @@ extern "C" float cRiderMetrix_onMultiplierPickup(char* self, float value)
 extern void* D_004A28A8;
 extern "C" void* func_0028B180();
 extern "C" void cRiderMetrix_postPointsMsg(void* self, int type, int value, int arg, float duration);
-extern "C" int func_00238510(void* mgr, int id, int a2);
-extern "C" void func_002A3CE8(void* snd, void* rider, int a2);
+extern "C" int cGameModeMan_HandlerV06(void* mgr, int id, int a2);
+extern "C" void cSSXAudio_ArcadeSay20A9(void* snd, void* rider, int a2);
 
 struct sVEntry001194C0 { short delta; short index; int (*fn)(void*); };
 
@@ -867,12 +867,12 @@ extern "C" float cRiderMetrix_onCheckpointBonus(char* self, int a1)
         void* mgr = *(void**)((char*)D_004A28A8 + 0xC0);
         char* sub2 = metrix->mRider + 0x6C0;
         sVEntry001194C0* vt2 = *(sVEntry001194C0**)sub2;
-        if (func_00238510(mgr, vt2[7].fn(sub2 + vt2[7].delta), a1) != 0)
+        if (cGameModeMan_HandlerV06(mgr, vt2[7].fn(sub2 + vt2[7].delta), a1) != 0)
         {
             cRiderMetrix_postPointsMsg(self, 0x29, a1, 0, 2.5f);
             if (rmRiderFlags_1194C0(metrix->mRider))
             {
-                func_002A3CE8(func_0028B180(), *(void**)&metrix->mRider, 1);
+                cSSXAudio_ArcadeSay20A9(func_0028B180(), *(void**)&metrix->mRider, 1);
             }
         }
     }
@@ -1374,7 +1374,7 @@ extern "C" int cRiderMetrix_buildTrickId(void* self, sTrickId* id, int stance, i
 extern "C" int cRiderMetrix_matchMonsterTrick(void* self, sTrickId* id);
 extern "C" void cRiderMetrix_postPointsMsg(void* self, int type, int value, int arg, float duration);
 extern "C" void* func_0028B180();
-extern "C" void func_0029B7E0(void* audio, int rider);
+extern "C" void cSSXAudio_OnBonusTrick(void* audio, int rider);
 extern "C" int cRiderMetrix_updateRepeatHistory(void* self, sTrickId* id);
 extern "C" void cRiderMetrix_showTrickName(void* self, sTrickId* id, int repeat);
 
@@ -1396,7 +1396,7 @@ extern "C" void cRiderMetrix_nameAirTrick(void* self, int stance, int alternate,
         {
             metrix->mReward += pts * 9.999999747378752e-05f;
             cRiderMetrix_postPointsMsg(self, 0x32, pts, 0, 1.5f);
-            func_0029B7E0(func_0028B180(), *(int*)&metrix->mRider);
+            cSSXAudio_OnBonusTrick(func_0028B180(), *(int*)&metrix->mRider);
         }
         cRiderMetrix_showTrickName(self, id, cRiderMetrix_updateRepeatHistory(self, id) > 0);
     }
@@ -1429,14 +1429,14 @@ extern "C" int cRiderMetrix_getPendingPoints(void* self);
 extern "C" int cRiderMetrix_matchMonsterTrick(void* self, sTrickId* id);
 extern "C" void cRiderMetrix_postPointsMsg(void* self, int type, int value, int arg, float duration);
 extern "C" void* func_0028B180();
-extern "C" void func_0029B7E0(void* audio, int rider);
+extern "C" void cSSXAudio_OnBonusTrick(void* audio, int rider);
 extern "C" int cRiderMetrix_updateRepeatHistory(void* self, sTrickId* id);
 extern "C" void cRiderMetrix_showTrickName(void* self, sTrickId* id, int repeat);
 extern "C" int cRiderMetrix_getMultipliedPoints(void* self);
 extern "C" int cRiderMetrix_getPointsGrade(void* self, int points);
 extern "C" int cRiderMetrix_getInvertedPoints(void* self);
 extern "C" void cRiderMetrix_addComboTrick(void* self, int points);
-extern "C" void func_0029B430(void* audio, int rider, int ubers, int runUbers);
+extern "C" void cSSXAudio_OnTrickLanded(void* audio, int rider, int ubers, int runUbers);
 extern "C" void cRiderMetrix_awardCash(void* self, int kind, int amount);
 extern "C" void cRiderMetrix_extendComboClock(void* self, float seconds);
 extern "C" void* cBE_getBE();
@@ -1502,7 +1502,7 @@ extern "C" float cRiderMetrix_commitTrick(void* self, int stance, int alternate,
             if (bonus > 0) {
                 metrix->mReward += (float)bonus * 0.0001f;
                 cRiderMetrix_postPointsMsg(self, 0x32, bonus, 0, 1.5f);
-                func_0029B7E0(func_0028B180(), *(int*)&metrix->mRider);
+                cSSXAudio_OnBonusTrick(func_0028B180(), *(int*)&metrix->mRider);
             }
             repeats = cRiderMetrix_updateRepeatHistory(self, &id);
             cRiderMetrix_showTrickName(self, &id, repeats > 0);
@@ -1536,7 +1536,7 @@ extern "C" float cRiderMetrix_commitTrick(void* self, int stance, int alternate,
         *(int*)((char*)self + 0x108) += *(int*)((char*)self + 0x80);
 
         if (metrix->mUberCount > 0) {
-            func_0029B430(func_0028B180(), *(int*)&metrix->mRider, metrix->mUberCount,
+            cSSXAudio_OnTrickLanded(func_0028B180(), *(int*)&metrix->mRider, metrix->mUberCount,
                           metrix->mRunUberCount);
         }
 

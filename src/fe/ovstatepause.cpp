@@ -351,7 +351,7 @@ extern "C" void func_001FAFF8(void* self, bool on)
 
 //100%
 int GetHashValue32(char* str);
-extern "C" void func_001FB2B8(void* self, void* item, int msg);
+extern "C" void cOVState_HandleSelect(void* self, void* item, int msg);
 extern "C" void func_001FB458(void* self, int on);
 extern "C" void func_001FB588(void* self, int on);
 extern char D_0046FA90[];
@@ -364,7 +364,7 @@ extern "C" void func_001FB0C0(void* self, void* item, int msg)
     }
     switch (msg) {
     case 5:
-        func_001FB2B8(self, item, msg);
+        cOVState_HandleSelect(self, item, msg);
         break;
     case 1: {
         int id = *(int*)((char*)item + 0x38);
@@ -447,7 +447,7 @@ extern int D_004A2A54;
 extern int D_005366E8[];
 extern int D_004428F0[];
 
-extern "C" void func_001FB2B8(void* self, void* item, int msg)
+extern "C" void cOVState_HandleSelect(void* self, void* item, int msg)
 {
     func_0039F190_r(*(char**)((char*)self + 0x10) + 0x18, 1);
     *(int*)((char*)self + 0x1C) = (*(int*)((char*)self + 0x1C) & ~0x3F00) | 0x780;
@@ -1374,7 +1374,7 @@ void func_00270ED8(void* self);
 extern "C" void* func_001D58B8(void* self);
 extern "C" void func_0026F8A0(void* self, void* a1, int a2, int a3);
 
-extern "C" void func_001FDE60(void* self)
+extern "C" void OVScreenSaveReplay_Shutdown(void* self)
 {
     if (*(int*)((char*)self + 0x1C8) == 1) {
         func_00270ED8(*(void**)(*(char**)((char*)D_004A28A8 + 0x84) + 0x28));
@@ -1823,7 +1823,7 @@ public:
     virtual void v01(int);
 };
 
-extern "C" void func_001FE6E8(void* self, void* msg, unsigned int type)
+extern "C" void OVScreenSaveReplay_OnWidgetAction(void* self, void* msg, unsigned int type)
 {
     if (msg == 0)
         return;
@@ -1899,7 +1899,7 @@ extern void* D_004A28A8;
 void func_00270ED8(void* self);
 extern "C" void func_001D8700(void* self, void* a1, int key);
 
-extern "C" void func_001FE8F0(void* self, void* a1, int key)
+extern "C" void OVScreenSaveReplay_OnChildEvent(void* self, void* a1, int key)
 {
     if (key == 0x16) {
         if (*(int*)((char*)self + 0x19C) == 5) {
@@ -2000,7 +2000,7 @@ extern "C" void OVScreenSaveRecords_Init(char* self)
 extern "C" void* func_001D58B8(void* self);
 
 //100%
-void* func_001FEC40(void* self)
+void* OVScreenSaveRecords_Shutdown(void* self)
 {
     return func_001D58B8(self);
 }
@@ -2313,7 +2313,7 @@ extern "C" void* cUIScreen_getObjectByHashName(void* self, int hash);
 extern char D_00470188[];
 extern char D_004A20A0[];
 
-extern "C" void func_001FF278(void* self, bool on)
+extern "C" void OVScreenSaveRecords_v38(void* self, bool on)
 {
     ((cUIObj_1FF278*)cUIScreen_getObjectByHashName(*(void**)((char*)self + 0x40), GetHashValue32(D_00470188)))->setVisible(!on);
     ((cUIObj_1FF278*)cUIScreen_getObjectByHashName(*(void**)((char*)self + 0x40), GetHashValue32(D_004A20A0)))->setVisible(!on);
@@ -2339,7 +2339,7 @@ extern "C" void* cUIScreen_getObjectByHashName(void* self, int hash);
 extern char D_004A2090[];
 extern char D_004A2568[];
 
-extern "C" void func_001FF310(void* self, int a1, bool on)
+extern "C" void OVScreenSaveRecords_v39(void* self, int a1, bool on)
 {
     cUIObj_1FF310* a = (cUIObj_1FF310*)cUIScreen_getObjectByHashName(*(void**)((char*)self + 0x40), GetHashValue32(D_004A2090));
     ((cUIObj_1FF310*)cUIScreen_getObjectByHashName(*(void**)((char*)self + 0x40), GetHashValue32(D_004A2568)))->setVisible(!on);
@@ -2431,7 +2431,7 @@ public:
     virtual void v01(int);
 };
 
-extern "C" void func_001FF3B0(void* self, void* msg, unsigned int type)
+extern "C" void OVScreenSaveRecords_OnWidgetAction(void* self, void* msg, unsigned int type)
 {
     if (msg == 0)
         return;
@@ -2543,12 +2543,12 @@ extern "C" void cOVState_REWARDS_onCreateScreen(void* self)
 
 //100%
 extern "C" void func_0039E4C0(void* self);
-extern "C" void func_001FFD08(void* self, int a1);
+extern "C" void OVScreenRewardList_ShowPage(void* self, int a1);
 
 extern "C" void func_001FF6D0(void* self)
 {
     func_0039E4C0(self);
-    func_001FFD08(self, 0);
+    OVScreenRewardList_ShowPage(self, 0);
 }
 
 //100%
@@ -2573,7 +2573,7 @@ extern "C" int OVScreenRewardList_OnWidgetNotify(char* self, int a1, int msg, in
 {
     switch (msg) {
     case 4:
-        func_001FFD08(self, a3);
+        OVScreenRewardList_ShowPage(self, a3);
         return 1;
     case 7: case 8: case 9:
         return 0;
@@ -2629,7 +2629,7 @@ public:
     virtual void v25(int on);
 };
 
-extern "C" void func_001FFD08(void* vself, int base)
+extern "C" void OVScreenRewardList_ShowPage(void* vself, int base)
 {
     char* self = (char*)vself;
     sName_1FFD08 name = *(sName_1FFD08*)D_004A2580;

@@ -739,7 +739,7 @@ end:
 }
 
 //100%
-void func_0028C8C0(void* self, int val)
+void cSSXAudio_SetCountdownValue(void* self, int val)
 {
     *(int*)((char*)self + 0x6250) = val;
 }
@@ -1255,7 +1255,7 @@ extern sSndKey8_DF18 D_004A3650_DF18[] __asm__("D_004A3650");
 extern sSndKey8_DF18 D_004A3658_DF18[] __asm__("D_004A3658");
 // PORT: cSndTimerSys_addTimer returns int; the unit declares it void elsewhere.
 extern "C" int cSndTimerSys_addTimer_DF18(void*, int, long, int, int, int, int, int) __asm__("cSndTimerSys_addTimer");
-extern "C" int func_002A10C0(void* self, int id);
+extern "C" int cSSXAudio_IsCharacterSpeaking(void* self, int id);
 extern "C" void cMusicManager_fadeOut(void* self, float v);
 int cMusicManager_getSelectedSedValue(void* self);
 
@@ -1271,7 +1271,7 @@ typedef int (*tBmSetDF18)(void*, int);
 extern "C" int cSSXAudio_changeSong(void* self, int quiet)
 {
     int ok = 0;
-    if (func_002A10C0(self, 0xA) == 0) {
+    if (cSSXAudio_IsCharacterSpeaking(self, 0xA) == 0) {
         char* mon = (char*)self + 0x118;
         if (*(int*)((char*)self + 0x62B8) == 0) {
             cMusicManager_fadeOut(mon, 2.0f);
@@ -1325,7 +1325,7 @@ extern "C" void cSSXAudio_playMusic(void* self, int a1, int a2, int a3, int a4);
 extern "C" void cSSXAudio_pickNextSong(void* self);
 extern "C" int cSSXAudio_isMusicMode(void* self);
 extern "C" int func_002A1E20(void* self, int id);
-extern "C" int func_002A4030(void* self);
+extern "C" int cSSXAudio_IsTrackIdGroup4(void* self);
 extern "C" void cMusicManager_setIntensity(void* self, int a1);
 extern "C" void cMusicManager_setSongId(void* self, int a1);
 extern char D_004A3630[];
@@ -1386,7 +1386,7 @@ extern "C" void cSSXAudio_updateMusicRequest(char* self)
         if (cSSXAudio_isMusicMode(self)) {
             id = *(int*)(self + 0x6284);
             if (id != 0x17) {
-                if (func_002A4030(self)) {
+                if (cSSXAudio_IsTrackIdGroup4(self)) {
                     cSSXAudio_pickNextSong(self);
                     cSSXAudio_playMusic(self, 0x24, 1, -1, 0);
                 } else {
@@ -1725,7 +1725,7 @@ extern "C" void func_0028F5B8(void* self)
 
 //100%
 extern "C" void func_0029CE70(void* self);
-extern "C" int func_002A3F90(void* self);
+extern "C" int cSSXAudio_IsTrackGroup5(void* self);
 extern "C" void cSSXAudio_playMusic(void* self, int a1, int a2, int a3, int a4);
 extern "C" void func_0028FA98(void* self, float v);
 
@@ -1737,7 +1737,7 @@ extern "C" void func_0028F678(void* self, int a1)
     }
     if (*(int*)((char*)self + 0x62A8) >= 0) {
         func_0028FA98(self, 1.0f);
-        if (a1 != 0 && func_002A3F90(self) != 0) {
+        if (a1 != 0 && cSSXAudio_IsTrackGroup5(self) != 0) {
             cSSXAudio_playMusic(self, 0, 0, -1, 0);
         }
     }

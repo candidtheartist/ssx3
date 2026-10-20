@@ -8,7 +8,7 @@ extern "C" void* cMemMan_alloc(int size, const char* tag, unsigned int flags, in
 extern "C" void* func_00397B08(void* mem);
 extern "C" void cUIEngine_loadFile(void* engine, const char* name);
 extern "C" void* func_0039E2A0(void* self, void* engine);
-extern "C" void func_00233640(void* self, int type);
+extern "C" void cFELoadScreen_LoadPictures(void* self, int type);
 extern "C" void func_0039F400(void* list, void* screen);
 extern void* D_004A289C;
 extern void* D_004A28A8;
@@ -106,11 +106,11 @@ extern "C" void cFELoadScreen_load(void* self)
     } else if (*(int*)(gm + 0x9C) == 0 || D_00535C11[0] == 0) {
         screen = newScreenB_233438(self);
         *(void**)(screen + 0x48) = self;
-        func_00233640(self, 1);
+        cFELoadScreen_LoadPictures(self, 1);
     } else {
         screen = newScreenC_233438(self);
         *(void**)(screen + 0x48) = self;
-        func_00233640(self, 2);
+        cFELoadScreen_LoadPictures(self, 2);
     }
     func_0039F400(*(char**)((char*)self + 0xC) + 0x18, screen);
     *(int*)((char*)self + 0x18) = -1;
@@ -157,7 +157,7 @@ static inline int loadTex_3640(char* data, const char* name)
     return vt[46].fn(g + vt[46].delta, data + *(int*)(data + 0x14), name, 0, 1, -1);
 }
 
-extern "C" void func_00233640(void* self, int type)
+extern "C" void cFELoadScreen_LoadPictures(void* self, int type)
 {
     char name[0x70];
     cBigFile bf;
@@ -373,11 +373,11 @@ struct sVEntry_func_00233AF0 {
     void* (*fn)(void*, void*, int);
 };
 
-// PORT: the unit declares func_00233AF0 as `void* (void*)`; the body also uses $a1 (obj).
+// PORT: the unit declares GameState_SaveState as `void* (void*)`; the body also uses $a1 (obj).
 // Bound by asm label.
-void* func_00233AF0_2(void* self, void* obj) __asm__("func_00233AF0");
+void* GameState_SaveState_2(void* self, void* obj) __asm__("GameState_SaveState");
 
-void* func_00233AF0_2(void* self, void* obj)
+void* GameState_SaveState_2(void* self, void* obj)
 {
     sVEntry_func_00233AF0* vt = *(sVEntry_func_00233AF0**)obj;
     return vt[1].fn((char*)obj + vt[1].delta, self, 4);
@@ -390,11 +390,11 @@ struct sVEntry_func_00233B28 {
     void* (*fn)(void*, void*, int);
 };
 
-// PORT: the unit declares func_00233B28 as `void* (void*)`; the body also uses $a1 (obj).
+// PORT: the unit declares GameState_LoadState as `void* (void*)`; the body also uses $a1 (obj).
 // Bound by asm label.
-void* func_00233B28_2(void* self, void* obj) __asm__("func_00233B28");
+void* GameState_LoadState_2(void* self, void* obj) __asm__("GameState_LoadState");
 
-void* func_00233B28_2(void* self, void* obj)
+void* GameState_LoadState_2(void* self, void* obj)
 {
     sVEntry_func_00233B28* vt = *(sVEntry_func_00233B28**)obj;
     return vt[2].fn((char*)obj + vt[2].delta, self, 4);
@@ -414,32 +414,32 @@ void GameStateQuit_Exit(void* self)
 {
 }
 
-extern "C" void* func_00233AF0(void* self);
+extern "C" void* GameState_SaveState(void* self);
 
 //99.29%
-void* func_00233B90(void* self)
+void* GameStateQuit_SaveState(void* self)
 {
-    return func_00233AF0(self);
+    return GameState_SaveState(self);
 }
 
-extern "C" void* func_00233B28(void* self);
+extern "C" void* GameState_LoadState(void* self);
 
 //99.29%
-void* func_00233BB0(void* self)
+void* GameStateQuit_LoadState(void* self)
 {
-    return func_00233B28(self);
-}
-
-//99.29%
-void* func_00233BD0(void* self)
-{
-    return func_00233AF0(self);
+    return GameState_LoadState(self);
 }
 
 //99.29%
-void* func_00233BF0(void* self)
+void* GameStateIdle_SaveState(void* self)
 {
-    return func_00233B28(self);
+    return GameState_SaveState(self);
+}
+
+//99.29%
+void* GameStateIdle_LoadState(void* self)
+{
+    return GameState_LoadState(self);
 }
 
 //100%
@@ -465,17 +465,17 @@ extern void* D_004A2C68;
 extern void* D_004A28A4;
 extern void* D_004A28A8;
 extern void* D_004A2EEC;
-extern "C" void func_0026FA50(void* self);
+extern "C" void Replay_StopRecording(void* self);
 extern "C" void func_0039F840(void* list);
-extern "C" void func_002790A0(void* self, int i);
+extern "C" void ScriptEngine_ListStop(void* self, int i);
 extern "C" void func_001F36C0(void* self, int bit);
 void func_00244880(void* self);
 
 extern "C" void GameStateFinish_Enter(void* self)
 {
-    func_0026FA50(*(void**)((char*)D_004A2C68 + 0x28));
+    Replay_StopRecording(*(void**)((char*)D_004A2C68 + 0x28));
     func_0039F840(*(char**)((char*)D_004A2C68 + 0x48) + 0x18);
-    func_002790A0(D_004A28A4, 0);
+    ScriptEngine_ListStop(D_004A28A4, 0);
     *(int*)((char*)self + 0x10) = 0;
     *(int*)((char*)self + 0x14) = 0xB4;
     func_001F36C0(*(void**)(*(char**)((char*)D_004A28A8 + 0x84) + 0x94), 4);
@@ -493,13 +493,13 @@ void* cBE_getInterface_Fv(void* be, int kind) __asm__("cBE_getInterface__Fv");
 void* cBEAggressionInterface_getThis();
 extern "C" void func_00155E58(void* p);
 extern "C" void func_001F36D8(void* hud, int a);
-extern "C" void func_0020CC60();
+extern "C" void GameUI_OpenFinishScreen();
 extern "C" void GameState_GotoNext(void* self);
-extern "C" int func_00278F38(void* self, int i);
-extern "C" void func_002790A0(void* self, int i);
-extern "C" int func_002791D8(void* self, int i);
-extern "C" int func_00279248(void* self, int i);
-extern "C" void func_0027AC60(void* self);
+extern "C" int ScriptEngine_ListPrepare(void* self, int i);
+extern "C" void ScriptEngine_ListStop(void* self, int i);
+extern "C" int ScriptEngine_ListGetState(void* self, int i);
+extern "C" int ScriptEngine_ListCount(void* self, int i);
+extern "C" void ScriptEngine_QueueRaceCutscene(void* self);
 extern "C" void* func_0039F9D8(void* list, int hash);
 extern void* D_004A28A4;
 extern void* D_004A28A8;
@@ -600,7 +600,7 @@ extern "C" void GameStateFinish_Update(void* self)
             int n = **(int**)(*(char**)((char*)D_004A28A8 + 0x84) + 0x28);
             int ok = n != 0 && n < 10;
             if (!ok) {
-                func_0020CC60();
+                GameUI_OpenFinishScreen();
                 if (*(int*)(s + 0x10) != 2) {
                     cFEVObj_233CD8* o = (cFEVObj_233CD8*)func_0039F9D8(*(char**)(*(char**)((char*)D_004A28A8 + 0x84) + 0x48) + 0x18, GetHashValue32(D_0047C010));
                     if (o != 0) {
@@ -633,10 +633,10 @@ extern "C" void GameStateFinish_Update(void* self)
         if (skip) {
             return;
         }
-        func_002790A0(D_004A28A4, 0);
-        func_0027AC60(D_004A28A4);
-        func_00278F38(D_004A28A4, 0);
-        if (func_00279248(D_004A28A4, 0) > 0) {
+        ScriptEngine_ListStop(D_004A28A4, 0);
+        ScriptEngine_QueueRaceCutscene(D_004A28A4);
+        ScriptEngine_ListPrepare(D_004A28A4, 0);
+        if (ScriptEngine_ListCount(D_004A28A4, 0) > 0) {
             *(int*)s = 0xC;
         }
         sRace_233CD8* rc2 = &D_00535BC8_r233CD8;
@@ -647,7 +647,7 @@ extern "C" void GameStateFinish_Update(void* self)
         break;
     }
     case 1: {
-        if (func_002791D8(D_004A28A4, 0) == 1) {
+        if (ScriptEngine_ListGetState(D_004A28A4, 0) == 1) {
             break;
         }
         cFEVObj_233CD8* o = (cFEVObj_233CD8*)func_0039F9D8(*(char**)(*(char**)((char*)D_004A28A8 + 0x84) + 0x48) + 0x18, GetHashValue32(D_0047C010));
@@ -678,8 +678,8 @@ struct sLoadScreen00234008 {
 extern void* D_004A28A8;
 extern void* D_004A28A4;
 void func_00162290_v(void* self) __asm__("func_00162290__FPv");
-extern "C" int func_00278F68(void* self, int i, int a, int b);
-void func_00278DE8(void* self, int val);
+extern "C" int ScriptEngine_ListStart(void* self, int i, int a, int b);
+void ScriptEngine_SetSkipDelay(void* self, int val);
 
 extern "C" void GameStateFinish_Exit(sLoadScreen00234008* self)
 {
@@ -691,8 +691,8 @@ extern "C" void GameStateFinish_Exit(sLoadScreen00234008* self)
         func_00162290_v(*(void**)(item + 0xA8));
     }
     self->mode = 2;
-    func_00278F68(D_004A28A4, 0, 1, 0);
-    func_00278DE8(D_004A28A4, 1);
+    ScriptEngine_ListStart(D_004A28A4, 0, 1, 0);
+    ScriptEngine_SetSkipDelay(D_004A28A4, 1);
     self->state = 7;
 }
 
@@ -703,9 +703,9 @@ struct sVEntry_func_002340B8 {
     void (*fn)(void*, void*, int);
 };
 
-extern "C" void func_002340B8(void* self, void* stream)
+extern "C" void GameStateFinish_SaveState(void* self, void* stream)
 {
-    func_00233AF0_2(self, stream);
+    GameState_SaveState_2(self, stream);
     sVEntry_func_002340B8* e = &(*(sVEntry_func_002340B8**)stream)[1];
     e->fn((char*)stream + e->delta, (char*)self + 0x10, 4);
     e = &(*(sVEntry_func_002340B8**)stream)[1];
@@ -719,9 +719,9 @@ struct sVEntry_func_00234120 {
     void (*fn)(void*, void*, int);
 };
 
-extern "C" void func_00234120(void* self, void* stream)
+extern "C" void GameStateFinish_LoadState(void* self, void* stream)
 {
-    func_00233B28_2(self, stream);
+    GameState_LoadState_2(self, stream);
     sVEntry_func_00234120* e = &(*(sVEntry_func_00234120**)stream)[2];
     e->fn((char*)stream + e->delta, (char*)self + 0x10, 4);
     e = &(*(sVEntry_func_00234120**)stream)[2];
@@ -759,10 +759,10 @@ extern "C" void func_0026F228(void* p);
 extern "C" int cBENewRaceInterface_setNumberAI(void* self, int count);
 extern "C" void cBENewPlayerInterface_setRiderCharID(void* player, int i, int id);
 extern "C" void func_001473D0(void* player, int i, int v);
-extern "C" void func_002790A0(void* self, int i);
-extern "C" void func_0027AAF8(void* a, int b);
-// PORT: func_00278F38 returns func_00276270's result (ssxscriptengine defines it void).
-extern "C" int func_00278F38(void* self, int i);
+extern "C" void ScriptEngine_ListStop(void* self, int i);
+extern "C" void ScriptEngine_QueueIntroScripts(void* a, int b);
+// PORT: ScriptEngine_ListPrepare returns ScriptList_Prepare's result (ssxscriptengine defines it void).
+extern "C" int ScriptEngine_ListPrepare(void* self, int i);
 extern void* D_004A2C68;
 extern void* D_004A28A4;
 extern void* D_004A28A8;
@@ -816,15 +816,15 @@ extern "C" void GameStatePreRaceLoad_Enter(void* self, int mode)
     case 0:
         break;
     case 2:
-        func_002790A0(D_004A28A4, 0);
-        func_0027AAF8(D_004A28A4, 1);
-        func_00278F38(D_004A28A4, 0);
+        ScriptEngine_ListStop(D_004A28A4, 0);
+        ScriptEngine_QueueIntroScripts(D_004A28A4, 1);
+        ScriptEngine_ListPrepare(D_004A28A4, 0);
         break;
     case 1:
         if (!isMode4_2341D0()) {
-            func_002790A0(D_004A28A4, 0);
-            func_0027AAF8(D_004A28A4, 0);
-            func_00278F38(D_004A28A4, 0);
+            ScriptEngine_ListStop(D_004A28A4, 0);
+            ScriptEngine_QueueIntroScripts(D_004A28A4, 0);
+            ScriptEngine_ListPrepare(D_004A28A4, 0);
         }
         break;
     }
@@ -839,8 +839,8 @@ extern "C" void* cBE_getBE();
 void* cBE_getInterface_43B0(void* be, int kind) __asm__("cBE_getInterface__Fv");
 extern "C" void func_001F36C0(void* self, int bit);
 extern "C" void func_001F36D8(void* hud, int a);
-extern "C" int func_00279220(void* a, int b);
-extern "C" void func_00279040(void* self, int i, int a);
+extern "C" int ScriptEngine_ListGetPlayStatus(void* a, int b);
+extern "C" void ScriptEngine_ListSetPaused(void* self, int i, int a);
 extern "C" int func_00279298(void* p);
 extern "C" void func_00234910(void* self);
 extern "C" void func_0012AB20(void* self);
@@ -850,9 +850,9 @@ extern "C" void cAI_spawnComputerActors(void* self, int n);
 extern "C" void cAI_setPlaceMode(void* p, int a);
 extern "C" int cAI_areRidersLoaded(void* p);
 extern "C" void cAI_stepRiderInit(void* p);
-extern "C" int func_002791D8(void* self, int i);
-extern "C" int func_00278F68(void* self, int i, int a, int b);
-extern "C" int func_00279148(void* self, int i, int a);
+extern "C" int ScriptEngine_ListGetState(void* self, int i);
+extern "C" int ScriptEngine_ListStart(void* self, int i, int a, int b);
+extern "C" int ScriptEngine_ListGetEntryType(void* self, int i, int a);
 void func_001289F0(void* p);
 extern "C" int func_0012ABD0(void* p);
 extern "C" int func_0012ACF8(void* p);
@@ -877,11 +877,11 @@ extern "C" void GameStatePreRaceLoad_Update(char* self)
 {
     if (*(int*)(self + 0x1C) < 3) {
         func_001F36C0(*(void**)(*(char**)((char*)D_004A28A8 + 0x84) + 0x94), 2);
-        if (func_00279220(D_004A28A4, 0) == 4)
-            func_00279040(D_004A28A4, 0, 1);
+        if (ScriptEngine_ListGetPlayStatus(D_004A28A4, 0) == 4)
+            ScriptEngine_ListSetPaused(D_004A28A4, 0, 1);
     } else {
-        if (func_00279220(D_004A28A4, 0) == 3)
-            func_00279040(D_004A28A4, 0, 0);
+        if (ScriptEngine_ListGetPlayStatus(D_004A28A4, 0) == 3)
+            ScriptEngine_ListSetPaused(D_004A28A4, 0, 0);
         func_001F36D8(*(void**)(*(char**)((char*)D_004A28A8 + 0x84) + 0x94), 2);
     }
     switch (*(unsigned int*)(self + 0x1C)) {
@@ -926,18 +926,18 @@ extern "C" void GameStatePreRaceLoad_Update(char* self)
         *(int*)(self + 0x1C) = 3;
         break;
     case 3: {
-        if (func_00279220(D_004A28A4, 1) != 0)
+        if (ScriptEngine_ListGetPlayStatus(D_004A28A4, 1) != 0)
             return;
         if (*(int*)(Ai_2343B0() + 0x84) > 0)
             *(int*)(Ai_2343B0() + 0x8C) = 1;
         if (*(int*)(Ai_2343B0() + 0x80) > 0)
             *(int*)(Ai_2343B0() + 0x14) = 1;
-        if (func_002791D8(D_004A28A4, 0) == 2) {
-            func_00278F68(D_004A28A4, 0, *(int*)(self + 0x14) == 0, 1);
+        if (ScriptEngine_ListGetState(D_004A28A4, 0) == 2) {
+            ScriptEngine_ListStart(D_004A28A4, 0, *(int*)(self + 0x14) == 0, 1);
             return;
         }
-        int r = func_00279220(D_004A28A4, 0);
-        int r2 = func_00279148(D_004A28A4, 0, 0);
+        int r = ScriptEngine_ListGetPlayStatus(D_004A28A4, 0);
+        int r2 = ScriptEngine_ListGetEntryType(D_004A28A4, 0, 0);
         int busy = r != 0 && r2 != 5;
         if (busy)
             return;
@@ -973,7 +973,7 @@ extern "C" void* cBE_getBE();
 extern "C" void cBE_setState(int state);
 extern "C" void cAI_setAIState(void*, int);
 void* cBEAggressionInterface_getThis();
-extern "C" void func_002790A0(void* self, int i);
+extern "C" void ScriptEngine_ListStop(void* self, int i);
 extern "C" void cAI_spawnComputerRiders(void* p);
 void func_001289F0(void* p);
 extern "C" void func_00128A10(void* p);
@@ -1018,7 +1018,7 @@ static inline int otherSide_234750(char* p)
 
 extern "C" void GameStatePreRaceLoad_Exit(void* self)
 {
-    func_002790A0(D_004A28A4, 1);
+    ScriptEngine_ListStop(D_004A28A4, 1);
     cBE_getInterface_4750(cBE_getBE(), 0);
     sRace_234750* r = &D_00535BC8_r234750;
     int mode = r->mode48;
@@ -1060,7 +1060,7 @@ extern "C" void GameStatePreRaceLoad_Exit(void* self)
 
 //100%
 extern void* D_004A28A4;
-extern "C" int func_00278F68(void* self, int i, int a, int b);
+extern "C" int ScriptEngine_ListStart(void* self, int i, int a, int b);
 
 static inline int isState00234910(void* e, int s)
 {
@@ -1070,10 +1070,10 @@ static inline int isState00234910(void* e, int s)
 extern "C" void func_00234910(void* self)
 {
     if (isState00234910(D_004A28A4, 2)) {
-        func_00278F68(D_004A28A4, 1, 1, 1);
+        ScriptEngine_ListStart(D_004A28A4, 1, 1, 1);
     }
     if (isState00234910(D_004A28A4, 2)) {
-        func_00278F68(D_004A28A4, 0, 1, 1);
+        ScriptEngine_ListStart(D_004A28A4, 0, 1, 1);
     }
     *(int*)((char*)self + 0x14) = 0;
     if (*(int*)((char*)D_004A28A4 + 0x550) == 1) {
@@ -1082,8 +1082,8 @@ extern "C" void func_00234910(void* self)
 }
 
 //100% - objdiff report; single-function view differs only in a relocation name
-// PORT: the unit declares func_00233AF0 as `void* (void*)`; the body also uses $a1 (obj).
-void* func_00233AF0_2(void* self, void* obj) __asm__("func_00233AF0");
+// PORT: the unit declares GameState_SaveState as `void* (void*)`; the body also uses $a1 (obj).
+void* GameState_SaveState_2(void* self, void* obj) __asm__("GameState_SaveState");
 
 struct sVEntry_func_00234990 {
     short delta;
@@ -1091,9 +1091,9 @@ struct sVEntry_func_00234990 {
     void (*fn)(void*, void*, int);
 };
 
-extern "C" void func_00234990(void* self, void* stream)
+extern "C" void GameStatePreRaceLoad_SaveState(void* self, void* stream)
 {
-    func_00233AF0_2(self, stream);
+    GameState_SaveState_2(self, stream);
     sVEntry_func_00234990* e = &(*(sVEntry_func_00234990**)stream)[1];
     e->fn((char*)stream + e->delta, (char*)self + 0x10, 4);
     e = &(*(sVEntry_func_00234990**)stream)[1];
@@ -1105,8 +1105,8 @@ extern "C" void func_00234990(void* self, void* stream)
 }
 
 //100% - objdiff report; single-function view differs only in a relocation name
-// PORT: the unit declares func_00233B28 as `void* (void*)`; the body also uses $a1 (obj).
-void* func_00233B28_2(void* self, void* obj) __asm__("func_00233B28");
+// PORT: the unit declares GameState_LoadState as `void* (void*)`; the body also uses $a1 (obj).
+void* GameState_LoadState_2(void* self, void* obj) __asm__("GameState_LoadState");
 
 struct sVEntry_func_00234A30 {
     short delta;
@@ -1114,9 +1114,9 @@ struct sVEntry_func_00234A30 {
     void (*fn)(void*, void*, int);
 };
 
-extern "C" void func_00234A30(void* self, void* stream)
+extern "C" void GameStatePreRaceLoad_LoadState(void* self, void* stream)
 {
-    func_00233B28_2(self, stream);
+    GameState_LoadState_2(self, stream);
     sVEntry_func_00234A30* e = &(*(sVEntry_func_00234A30**)stream)[2];
     e->fn((char*)stream + e->delta, (char*)self + 0x10, 4);
     e = &(*(sVEntry_func_00234A30**)stream)[2];

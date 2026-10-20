@@ -85,7 +85,7 @@ extern sRewardDesc_0388 D_004781D0[][4];
 extern sRewardDesc_0388 D_004786E0[][5];
 extern sRewardDesc_0388 D_00478D38[][8];
 
-extern "C" sRewardDesc_0388 func_00200388(int a, int b, int kind)
+extern "C" sRewardDesc_0388 cUITemplate_MAP_GetEventRecord(int a, int b, int kind)
 {
     if (kind == 0) {
         return D_004781D0[a][b];
