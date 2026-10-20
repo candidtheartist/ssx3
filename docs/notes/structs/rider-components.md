@@ -131,11 +131,11 @@ Reached as *(rider+0x780); a front-end preview holds one at its slot +0x8. Bone 
 | +0xC | ptr | Model-part records, 0x58 bytes each | PS2 |
 | +0x24 | vec4[] | Local bone positions, one float4 per bone (current scaled local root data, read before world FK/IK) | PS2 |
 | +0x28 | quat[] | Local bone quaternions | PS2 |
-| +0x2C | ptr | World bone transforms, 32 bytes each (position then quaternion); input to the pose matrix build 0x00310120 | PS2 |
-| +0x30 | ptr | World bone matrices, 64 bytes each (unit axes, row 3 = translation in cm), written by 0x00310120; bone 23 gives the unscaled board frame used by snow; indexed by rider+0x8A8 | PS2 |
+| +0x2C | ptr | World bone transforms, 32 bytes each (position then quaternion); input to the pose matrix build 0x003103F0 (all bones; 0x00310120 does one bone) | PS2 |
+| +0x30 | ptr | World bone matrices, 64 bytes each (unit axes, row 3 = translation in cm), written per bone by 0x00310120 from the all-bones loop 0x003103F0; bone 23 gives the unscaled board frame used by snow; indexed by rider+0x8A8 | PS2 |
 | +0x34 | ptr | Scaled bone matrices (axes scaled by +0x140): board tracks and the wake (scaled board axis) use them; also cited as a skinning input with +0x38 | PS2 |
 | +0x38 | ptr | Static inverse bind matrices (29 slots, constant across captures), multiplied with the scaled pose by 0x00310640 | PS2 |
-| +0x140 | vec4 | Body (pose) scale XYZW applied per column by 0x00310120: model size x 0.01, e.g. (0.85,0.85,0.85,1); 1.0 on the front-end preview; grid spot, normals and lift follow it | PS2 |
+| +0x140 | vec4 | Body (pose) scale XYZW applied per column by 0x00310120 (one bone, called from 0x003103F0): model size x 0.01, e.g. (0.85,0.85,0.85,1); 1.0 on the front-end preview; grid spot, normals and lift follow it | PS2 |
 | +0x150 | u64 | Bone mask intersected with the sequence mask by the local sampler | PS2 |
 | +0x158 | u64 | Reduced bone mask used when rider+0xB1C is nonzero (at 0x0030F4F4) | PS2 |
 
@@ -147,8 +147,8 @@ Reached as *(rider+0x784).
 |---|---|---|---|
 | +0x0 | int[6] | Requested semantic per channel (+0x00..+0x14), read by 0x00312AA0 and 0x00311AE8 | PS2 |
 | +0x18 | int | Mirror flag (= rider+0x320 after a stance flip) | |
-| +0x1C | float | Pending playback rate for new sequences: applied by 0x00311F00, set by 0x003158E0, reset to 1 by 0x00311A50 and the air selector; 0x0012C678 sets 0.75 around the finish reaction, then 1 | PS2 |
-| +0x20 | int | Bone mask for the play call; normally -1, set from rider+0x8C0 during upper-body plays | |
+| +0x1C | float | Pending playback rate for new sequences: applied by 0x00311F00, set by 0x003158E0, reset to 1 by the full animator reset 0x00311A50 and the air selector; 0x0012C678 sets 0.75 around the finish reaction, then 1 | PS2 |
+| +0x20 | u64 | Bone mask for the play call (64-bit, one bit per bone); normally -1, set from rider+0x8C0 during upper-body plays | |
 | +0x30 | vec4 | Default root translation for new sequences (set from 0x004FF130) | |
 | +0x40 | quat | Default root quaternion for new sequences (sincos about 0x004FF160) | |
 | +0x50 | ptr | Six 8-byte sequencers (count, linked-list head), one per channel | PS2 |

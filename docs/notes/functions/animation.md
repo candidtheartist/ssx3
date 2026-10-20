@@ -17,13 +17,13 @@ Segment `0x0030D8B8`-`0x003115C8`.
 - **`0x0030F2B0`** - Animation local-pose sampler; contains the bone-mask and spherical-to-quaternion blocks below. *[PS2]*
   - `0x0030F4F4`: Local sampler bone-mask block: intersects geometry+0x158 when rider+0xB1C is nonzero (with geometry+0x150 and the sequence mask). *[PS2]*
   - `0x0030FC7C`: Spherical-coordinate to quaternion conversion block (through `0x0030FD9C`). *[static]*
-- **`0x00310120`** - Builds per-bone pose matrices from posed position and (unnormalised) quaternion: reads geometry+0x2C, writes the unscaled cache geometry+0x30, then scales every column by geometry+0x140 XYZW into geometry+0x34 (W is 1, so the position column is unchanged). First skin-palette stage, before the bind product at `0x003106CC` and weighted sum `0x00386BD0`. *[PS2]*
+- **`0x00310120`** - `cAnimModel_setBoneMatrix`: builds one bone's pose matrix (called per bone by `0x003103F0`) from posed position and (unnormalised) quaternion: reads geometry+0x2C, writes the unscaled cache geometry+0x30, then scales every column by geometry+0x140 XYZW into geometry+0x34 (W is 1, so the position column is unchanged). First skin-palette stage, before the bind product at `0x003106CC` and weighted sum `0x00386BD0`. *[PS2]*
 - **`0x00310200`** - Forward kinematics: scales each local translation and composes quaternion/position with the parent. *[static]*
-- **`0x003103F0`** - Animation step called in the tail of `0x0011D660`. *[static]*
+- **`0x003103F0`** - `cAnimModel_buildBoneMatrices`: loops over all bones calling `0x00310120`; called in the tail of `0x0011D660`. *[static]*
 - **`0x00310530`** - Late geometry translation: adds an accumulated contact displacement to the pose and to both cached translation columns (unscaled geometry+0x30 and scaled +0x34, not only the scaled one), moving cached bones and skin matrices without resampling. Used with `0x00121750` to move bones and head after contact. *[static]*
 - **`0x00310640`** - Geometry draw: multiplies the scaled pose (geometry+0x34) by the inverse binds (geometry+0x38) into the skin palette at `0x004FC420` (`0x003106B8`..`0x00310778`), then calls renderer slots 0x37C (`0x00386BD0`, weighted skin sum) and 0x31C (`0x0037A610`) for active model parts. *[PS2]*
   - `0x003106CC`: Pose x inverse-bind loop (through `0x00310778`) writing palette matrices to `0x004FC420`; the skin stage between `0x00310120` and `0x00386BD0`. *[static]*
-- **`0x00310C48`** - Skeleton bone lookup by name (skeleton, part, name): linear strcmp over the part's bones, returns part.firstIndex+i or -1. Used by FE lighting for the hips bone; another note describes it as returning a bone's world position. *[PS2]*
+- **`0x00310C48`** - Skeleton bone lookup by name (skeleton, part, name): linear strcmp over the part's bones, returns the bone index part.firstIndex+i or -1 (not a world position). Used by FE lighting to find the hips bone. *[PS2]*
 - **`0x00310CE8`** - Builds a bone mask from a bone-name list; `0x0011C298` uses it to build the channel-1 masks from lists `0x00457A90`, `0x00457B38` and `0x004A1090`. *[PS2]*
 - **`0x00311318`** - Compressed animation curve sampling with 30 Hz segment lookup; where consecutive packets overlap at a segment boundary, the sample comes from the next packet's first row. *[static]*
 
@@ -31,7 +31,7 @@ Segment `0x0030D8B8`-`0x003115C8`.
 
 Segment `0x003118D0`-`0x00313A10`.
 
-- **`0x00311A50`** - Animation placement routine; after its play it resets the pending next rate animator+0x1C to 1. *[PS2]*
+- **`0x00311A50`** - `cRiderAnimBase_reset`: full animator reset (requested anims, rates, masks and sequences); it also resets the pending next rate animator+0x1C to 1. *[PS2]*
 - **`0x00311AE8`** - Returns the animation class (not the semantic) of a channel's requested semantic, called as (anim, channel). Attack control tests classes 3/13; the handplant airborne entry test rejects channel-2 classes 18..20; the breath emitter treats channel-2 class 30 as effort. *[static]*
 - **`0x00311B20`** - Returns a channel's first playback sequence via `0x00314760` (list index 0), even while fading. Used to change the rate of only that sequence and with `0x001446A0`/`0x001446B8` to read its marker bits. *[static]*
 - **`0x00311B48`** `cRiderAnimBase_changeHeadingOffset` - Rotates all existing animation sequence roots on the six channels by -angle about Z (quaternion from sincos(-angle/2) about `0x004FF160`, applied via `0x00311BF0`); the rotation is by -angle, not +angle. Leaves the default root and mirror flags unchanged. Used by rail attach, stance flip `0x00115168` (pi), stance alignment and crash compensation. *[PS2]*

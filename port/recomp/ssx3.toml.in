@@ -122,7 +122,6 @@ stubs = [
   "sceMcRename@0x0040AE00",
   "sceMcUnformat@0x0040AF58",
   "sceMcGetEntSpace@0x0040B028",
-  "log@0x0040D610",
   "__ieee754_rem_pio2f@0x0040E878",
   "__divdi3@0x0040FCB0",
   "exit@0x00411310",

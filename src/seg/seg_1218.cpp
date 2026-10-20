@@ -1313,21 +1313,21 @@ extern "C" void func_00103AA0(void* self, sObj_3AA0* o)
 
 //100%
 extern char* D_004A3E7C;
-extern "C" void func_00313C50(void*, int, int);
-extern "C" void func_00313CF0(void*, int, float);
-extern "C" int func_00313800(void*, float);
-extern "C" void func_003145F8(void*, void*);
+extern "C" void cAnimSequence_setSlotClip(void*, int, int);
+extern "C" void cAnimSequence_setSlotTime(void*, int, float);
+extern "C" int cAnimSequence_updateFade(void*, float);
+extern "C" void cAnimSequencer_removeSequence(void*, void*);
 extern "C" int func_00103BE0(void* self, void* x, char* anim, int a, int b, float dt, float v)
 {
     if (v < 0.0f) {
-        func_00313C50(anim, 0, *(int*)(D_004A3E7C + b * 4 + 0x1030));
-        func_00313CF0(anim, 0, -v * *(float*)(anim + 0x10));
+        cAnimSequence_setSlotClip(anim, 0, *(int*)(D_004A3E7C + b * 4 + 0x1030));
+        cAnimSequence_setSlotTime(anim, 0, -v * *(float*)(anim + 0x10));
     } else {
-        func_00313C50(anim, 0, *(int*)(D_004A3E7C + a * 4 + 0x1030));
-        func_00313CF0(anim, 0, v * *(float*)(anim + 0x10));
+        cAnimSequence_setSlotClip(anim, 0, *(int*)(D_004A3E7C + a * 4 + 0x1030));
+        cAnimSequence_setSlotTime(anim, 0, v * *(float*)(anim + 0x10));
     }
-    if (func_00313800(anim, dt * 0.01666666753590107f) != 0) {
-        func_003145F8(x, anim);
+    if (cAnimSequence_updateFade(anim, dt * 0.01666666753590107f) != 0) {
+        cAnimSequencer_removeSequence(x, anim);
         return 1;
     }
     return 0;
@@ -1335,31 +1335,31 @@ extern "C" int func_00103BE0(void* self, void* x, char* anim, int a, int b, floa
 
 //100%
 extern char* D_004A3E7C;
-extern "C" void func_00313D40(void*, int, int);
-extern "C" void func_003135B0(void*, int, float);
-extern "C" void func_00313C50(void*, int, int);
-extern "C" void func_00313CF0(void*, int, float);
-extern "C" void func_00313D28(void*, int, float);
-extern "C" int func_00313800(void*, float);
-extern "C" void func_003145F8(void*, void*);
+extern "C" void cAnimSequence_setSlotLoop(void*, int, int);
+extern "C" void cAnimSequence_advanceSlot(void*, int, float);
+extern "C" void cAnimSequence_setSlotClip(void*, int, int);
+extern "C" void cAnimSequence_setSlotTime(void*, int, float);
+extern "C" void cAnimSequence_setSlotWeight(void*, int, float);
+extern "C" int cAnimSequence_updateFade(void*, float);
+extern "C" void cAnimSequencer_removeSequence(void*, void*);
 
 extern "C" int func_00103CC8(void* self, void* x, char* anim, int a, int b, float dt, float w, int c)
 {
-    func_00313C50(anim, 0, *(int*)(D_004A3E7C + b * 4 + 0x1030));
+    cAnimSequence_setSlotClip(anim, 0, *(int*)(D_004A3E7C + b * 4 + 0x1030));
     if (0.0f < w) {
-        func_00313C50(anim, 1, *(int*)(D_004A3E7C + c * 4 + 0x1030));
+        cAnimSequence_setSlotClip(anim, 1, *(int*)(D_004A3E7C + c * 4 + 0x1030));
     } else {
         w = -w;
-        func_00313C50(anim, 1, *(int*)(D_004A3E7C + a * 4 + 0x1030));
+        cAnimSequence_setSlotClip(anim, 1, *(int*)(D_004A3E7C + a * 4 + 0x1030));
     }
-    func_00313D28(anim, 0, 1.0f - w);
-    func_00313D28(anim, 1, w);
-    func_00313D40(anim, 0, 1);
+    cAnimSequence_setSlotWeight(anim, 0, 1.0f - w);
+    cAnimSequence_setSlotWeight(anim, 1, w);
+    cAnimSequence_setSlotLoop(anim, 0, 1);
     float t = dt * 0.01666666753590107f;
-    func_003135B0(anim, 0, t);
-    func_00313CF0(anim, 1, *(float*)(anim + 8) / *(float*)(anim + 0x10) * *(float*)(anim + 0x2C));
-    if (func_00313800(anim, t)) {
-        func_003145F8(x, anim);
+    cAnimSequence_advanceSlot(anim, 0, t);
+    cAnimSequence_setSlotTime(anim, 1, *(float*)(anim + 8) / *(float*)(anim + 0x10) * *(float*)(anim + 0x2C));
+    if (cAnimSequence_updateFade(anim, t)) {
+        cAnimSequencer_removeSequence(x, anim);
         return 1;
     }
     return 0;
@@ -1367,13 +1367,13 @@ extern "C" int func_00103CC8(void* self, void* x, char* anim, int a, int b, floa
 
 //100%
 extern char* D_004A3E7C;
-extern "C" void func_00313D40(void*, int, int);
-extern "C" void func_003135B0(void*, int, float);
-extern "C" void func_00313C50(void*, int, int);
-extern "C" void func_00313CF0(void*, int, float);
-extern "C" void func_00313D28(void*, int, float);
-extern "C" int func_00313800(void*, float);
-extern "C" void func_003145F8(void*, void*);
+extern "C" void cAnimSequence_setSlotLoop(void*, int, int);
+extern "C" void cAnimSequence_advanceSlot(void*, int, float);
+extern "C" void cAnimSequence_setSlotClip(void*, int, int);
+extern "C" void cAnimSequence_setSlotTime(void*, int, float);
+extern "C" void cAnimSequence_setSlotWeight(void*, int, float);
+extern "C" int cAnimSequence_updateFade(void*, float);
+extern "C" void cAnimSequencer_removeSequence(void*, void*);
 
 extern "C" int func_00103E28(void* self, void* x, char* anim, int i0, int i1, int i2, int i3, int i4, float dt, float v)
 {
@@ -1398,18 +1398,18 @@ extern "C" int func_00103E28(void* self, void* x, char* anim, int i0, int i1, in
     }
     if (*(int*)(D_004A3E7C + from * 4 + 0x1030) != *(int*)(anim + 4)) {
         float r = *(float*)(anim + 8) / *(float*)(anim + 0x10);
-        func_00313C50(anim, 0, *(int*)(D_004A3E7C + from * 4 + 0x1030));
-        func_00313CF0(anim, 0, *(float*)(anim + 0x10) * r);
+        cAnimSequence_setSlotClip(anim, 0, *(int*)(D_004A3E7C + from * 4 + 0x1030));
+        cAnimSequence_setSlotTime(anim, 0, *(float*)(anim + 0x10) * r);
     }
-    func_00313C50(anim, 1, *(int*)(D_004A3E7C + to * 4 + 0x1030));
-    func_00313D28(anim, 0, w);
-    func_00313D28(anim, 1, 1.0f - w);
-    func_00313D40(anim, 0, 1);
+    cAnimSequence_setSlotClip(anim, 1, *(int*)(D_004A3E7C + to * 4 + 0x1030));
+    cAnimSequence_setSlotWeight(anim, 0, w);
+    cAnimSequence_setSlotWeight(anim, 1, 1.0f - w);
+    cAnimSequence_setSlotLoop(anim, 0, 1);
     float t = dt * 0.01666666753590107f;
-    func_003135B0(anim, 0, t);
-    func_00313CF0(anim, 1, *(float*)(anim + 8) / *(float*)(anim + 0x10) * *(float*)(anim + 0x2C));
-    if (func_00313800(anim, t)) {
-        func_003145F8(x, anim);
+    cAnimSequence_advanceSlot(anim, 0, t);
+    cAnimSequence_setSlotTime(anim, 1, *(float*)(anim + 8) / *(float*)(anim + 0x10) * *(float*)(anim + 0x2C));
+    if (cAnimSequence_updateFade(anim, t)) {
+        cAnimSequencer_removeSequence(x, anim);
         return 1;
     }
     return 0;
@@ -1417,28 +1417,28 @@ extern "C" int func_00103E28(void* self, void* x, char* anim, int i0, int i1, in
 
 //100%
 extern char* D_004A3E7C;
-extern "C" void func_00313D40(void*, int, int);
-extern "C" void func_003135B0(void*, int, float);
-extern "C" void func_00313C50(void*, int, int);
-extern "C" void func_00313CF0(void*, int, float);
-extern "C" int func_00313800(void*, float);
-extern "C" void func_003145F8(void*, void*);
+extern "C" void cAnimSequence_setSlotLoop(void*, int, int);
+extern "C" void cAnimSequence_advanceSlot(void*, int, float);
+extern "C" void cAnimSequence_setSlotClip(void*, int, int);
+extern "C" void cAnimSequence_setSlotTime(void*, int, float);
+extern "C" int cAnimSequence_updateFade(void*, float);
+extern "C" void cAnimSequencer_removeSequence(void*, void*);
 
 extern "C" int func_00103FF8(void* self, void* x, char* anim, int a, float dt, int b)
 {
     if (*(int*)(anim + 4) == *(int*)(D_004A3E7C + a * 4 + 0x1030)) {
-        func_00313D40(anim, 0, 0);
-        func_003135B0(anim, 0, dt * 0.01666666753590107f);
+        cAnimSequence_setSlotLoop(anim, 0, 0);
+        cAnimSequence_advanceSlot(anim, 0, dt * 0.01666666753590107f);
         if (*(float*)(anim + 8) >= *(float*)(anim + 0x10)) {
-            func_00313C50(anim, 0, *(int*)(D_004A3E7C + b * 4 + 0x1030));
-            func_00313D40(anim, 0, 1);
-            func_00313CF0(anim, 0, 0.0f);
+            cAnimSequence_setSlotClip(anim, 0, *(int*)(D_004A3E7C + b * 4 + 0x1030));
+            cAnimSequence_setSlotLoop(anim, 0, 1);
+            cAnimSequence_setSlotTime(anim, 0, 0.0f);
         }
     } else {
-        func_003135B0(anim, 0, dt * 0.01666666753590107f);
+        cAnimSequence_advanceSlot(anim, 0, dt * 0.01666666753590107f);
     }
-    if (func_00313800(anim, dt * 0.01666666753590107f)) {
-        func_003145F8(x, anim);
+    if (cAnimSequence_updateFade(anim, dt * 0.01666666753590107f)) {
+        cAnimSequencer_removeSequence(x, anim);
         return 1;
     }
     return 0;
@@ -1573,9 +1573,9 @@ extern "C" int func_00104358(char* self, void* x, char* anim, float dt) {
     float b = vAbs_4358(*(float*)(p + 0x2A4));
     float a = vAbs_4358(*(float*)(p + 0x2B0));
     float m = (a < b) ? b : a;
-    func_00313CF0(anim, 0, m * *(float*)(anim + 0x10));
-    if (func_00313800(anim, dt * 0.01666666753590107f) != 0) {
-        func_003145F8(x, anim);
+    cAnimSequence_setSlotTime(anim, 0, m * *(float*)(anim + 0x10));
+    if (cAnimSequence_updateFade(anim, dt * 0.01666666753590107f) != 0) {
+        cAnimSequencer_removeSequence(x, anim);
         return 1;
     }
     return 0;
@@ -1595,8 +1595,8 @@ extern "C" int func_001043F8(char* self, void* x, char* anim, float dt)
     case 0x12F: clip = 0xA7; break;
     case 0x130: clip = 0xA9; break;
     }
-    func_00313C50(anim, 1, *(int*)(D_004A3E7C + clip * 4 + 0x1030));
-    func_00313D40(anim, 1, 1);
+    cAnimSequence_setSlotClip(anim, 1, *(int*)(D_004A3E7C + clip * 4 + 0x1030));
+    cAnimSequence_setSlotLoop(anim, 1, 1);
     char* p = *(char**)(self + 0x60);
     float b = __builtin_fabsf(*(float*)(p + 0x298));
     float a = __builtin_fabsf(*(float*)(p + 0x28C));
@@ -1608,13 +1608,13 @@ extern "C" int func_001043F8(char* self, void* x, char* anim, float dt)
     }
     m = r;
     float w = m * 0.75f + 0.25f;
-    func_00313D28(anim, 0, one - w);
-    func_00313D28(anim, 1, w);
-    func_00313CF0(anim, 0, m * *(float*)(anim + 0x10));
+    cAnimSequence_setSlotWeight(anim, 0, one - w);
+    cAnimSequence_setSlotWeight(anim, 1, w);
+    cAnimSequence_setSlotTime(anim, 0, m * *(float*)(anim + 0x10));
     float t = dt * 0.01666666753590107f;
-    func_003135B0(anim, 1, t);
-    if (func_00313800(anim, t)) {
-        func_003145F8(x, anim);
+    cAnimSequence_advanceSlot(anim, 1, t);
+    if (cAnimSequence_updateFade(anim, t)) {
+        cAnimSequencer_removeSequence(x, anim);
         return 1;
     }
     return 0;
@@ -1630,9 +1630,9 @@ extern "C" void func_001045B8(int a, int b, int c) {
 
 //100%
 extern "C" int func_001045D8(char* self, void* x, char* anim, float dt) {
-    func_00313CF0(anim, 0, *(float*)(anim + 0x10) * *(float*)(*(char**)(*(char**)(self + 0x60) + 0x77C) + 0x2A0));
-    if (func_00313800(anim, dt * 0.01666666753590107f) != 0) {
-        func_003145F8(x, anim);
+    cAnimSequence_setSlotTime(anim, 0, *(float*)(anim + 0x10) * *(float*)(*(char**)(*(char**)(self + 0x60) + 0x77C) + 0x2A0));
+    if (cAnimSequence_updateFade(anim, dt * 0.01666666753590107f) != 0) {
+        cAnimSequencer_removeSequence(x, anim);
         return 1;
     }
     return 0;
@@ -1688,9 +1688,9 @@ extern "C" int func_00104728(char* self, void* x, char* anim, float dt) {
     } else {
         v = *(float*)(*(char**)(self + 0x60) + 0x268);
     }
-    func_00313CF0(anim, 0, v * *(float*)(anim + 0x10));
-    if (func_00313800(anim, dt * 0.01666666753590107f) != 0) {
-        func_003145F8(x, anim);
+    cAnimSequence_setSlotTime(anim, 0, v * *(float*)(anim + 0x10));
+    if (cAnimSequence_updateFade(anim, dt * 0.01666666753590107f) != 0) {
+        cAnimSequencer_removeSequence(x, anim);
         return 1;
     }
     return 0;
@@ -1719,9 +1719,9 @@ extern "C" int func_001047F0(char* self, void* x, char* anim, float dt) {
     } else {
         v = vAbs_47F0(*(float*)(*(char**)(self + 0x60) + 0x280));
     }
-    func_00313CF0(anim, 0, clamp_47F0(v, 0.0f, 1.0f) * *(float*)(anim + 0x10));
-    if (func_00313800(anim, dt * 0.01666666753590107f) != 0) {
-        func_003145F8(x, anim);
+    cAnimSequence_setSlotTime(anim, 0, clamp_47F0(v, 0.0f, 1.0f) * *(float*)(anim + 0x10));
+    if (cAnimSequence_updateFade(anim, dt * 0.01666666753590107f) != 0) {
+        cAnimSequencer_removeSequence(x, anim);
         return 1;
     }
     return 0;
@@ -1729,96 +1729,96 @@ extern "C" int func_001047F0(char* self, void* x, char* anim, float dt) {
 
 //100%
 // PORT: PS2-only inline asm; needs a C fallback off-PS2.
-extern "C" int func_003135B0_48C0(void*, int, float) __asm__("func_003135B0");
+extern "C" int cAnimSequence_advanceSlot_48C0(void*, int, float) __asm__("cAnimSequence_advanceSlot");
 extern "C" int func_001048C0(void* self, void* x, void* anim, float dt) {
     float t = dt * 0.01666666753590107f;
     int done;
-    if (func_003135B0_48C0(anim, 0, t) != 0) {
+    if (cAnimSequence_advanceSlot_48C0(anim, 0, t) != 0) {
         done = 1;
     } else {
-        done = func_00313800(anim, t);
+        done = cAnimSequence_updateFade(anim, t);
     }
     if (done == 0) {
         return 0;
     }
-    func_003145F8(x, anim);
+    cAnimSequencer_removeSequence(x, anim);
     return 1;
 }
 
 //100%
 // PORT: PS2-only inline asm; needs a C fallback off-PS2.
-extern "C" int func_003135B0_4940(void*, int, float) __asm__("func_003135B0");
+extern "C" int cAnimSequence_advanceSlot_4940(void*, int, float) __asm__("cAnimSequence_advanceSlot");
 extern "C" int func_00104940(void* self, void* x, void* anim, float dt) {
     float t = dt * 0.01666666753590107f;
     int done;
-    if (func_003135B0_4940(anim, 0, t) != 0) {
+    if (cAnimSequence_advanceSlot_4940(anim, 0, t) != 0) {
         done = 1;
     } else {
-        done = func_00313800(anim, t);
+        done = cAnimSequence_updateFade(anim, t);
     }
     if (done == 0) {
         return 0;
     }
-    func_003145F8(x, anim);
+    cAnimSequencer_removeSequence(x, anim);
     return 1;
 }
 
 //100%
 // PORT: PS2-only inline asm; needs a C fallback off-PS2.
-extern "C" int func_003135B0_49C0(void*, int, float) __asm__("func_003135B0");
+extern "C" int cAnimSequence_advanceSlot_49C0(void*, int, float) __asm__("cAnimSequence_advanceSlot");
 extern "C" int func_001049C0(void* self, void* x, void* anim, float dt) {
     float t = dt * 0.01666666753590107f;
     int done;
-    if (func_003135B0_49C0(anim, 0, t) != 0) {
+    if (cAnimSequence_advanceSlot_49C0(anim, 0, t) != 0) {
         done = 1;
     } else {
-        done = func_00313800(anim, t);
+        done = cAnimSequence_updateFade(anim, t);
     }
     if (done == 0) {
         return 0;
     }
-    func_003145F8(x, anim);
+    cAnimSequencer_removeSequence(x, anim);
     return 1;
 }
 
 //100%
 // PORT: PS2-only inline asm; needs a C fallback off-PS2.
-extern "C" void func_00312B18_4A40(int, int, int, int) __asm__("func_00312B18");
+extern "C" void cRiderAnimBase_replaceSequence_4A40(int, int, int, int) __asm__("cRiderAnimBase_replaceSequence");
 
 extern "C" void func_00104A40(int a, int b, int c) {
-    func_00312B18_4A40(a, b, c, 0x11F);
+    cRiderAnimBase_replaceSequence_4A40(a, b, c, 0x11F);
 }
 
 //100%
-extern "C" int func_00312B18_4A60(int, int, int*, int) __asm__("func_00312B18");
+extern "C" int cRiderAnimBase_replaceSequence_4A60(int, int, int*, int) __asm__("cRiderAnimBase_replaceSequence");
 
 extern "C" int func_00104A60(int a, int b, int* c)
 {
     switch (*c) {
     case 0x10F:
     case 0x11D:
-        return func_00312B18_4A60(a, b, c, 0x123);
+        return cRiderAnimBase_replaceSequence_4A60(a, b, c, 0x123);
     case 0x110:
     case 0x118:
     case 0x119:
     case 0x11E:
-        return func_00312B18_4A60(a, b, c, 0x124);
+        return cRiderAnimBase_replaceSequence_4A60(a, b, c, 0x124);
     case 0x10D:
     case 0x116:
     case 0x11B:
-        return func_00312B18_4A60(a, b, c, 0x121);
+        return cRiderAnimBase_replaceSequence_4A60(a, b, c, 0x121);
     case 0x10E:
     case 0x117:
     case 0x11C:
-        return func_00312B18_4A60(a, b, c, 0x122);
+        return cRiderAnimBase_replaceSequence_4A60(a, b, c, 0x122);
     case 0x111:
-        return func_00312B18_4A60(a, b, c, 0x125);
+        return cRiderAnimBase_replaceSequence_4A60(a, b, c, 0x125);
     case 0x112:
-        return func_00312B18_4A60(a, b, c, 0x126);
+        return cRiderAnimBase_replaceSequence_4A60(a, b, c, 0x126);
     case 0x113:
-        return func_00312B18_4A60(a, b, c, 0x127);
+        return cRiderAnimBase_replaceSequence_4A60(a, b, c, 0x127);
     case 0x114:
-        return func_00312B18_4A60(a, b, c, 0x128);
+        return cRiderAnimBase_replaceSequence_4A60(a, b, c, 0x128);
     }
     return 0x1B6;
 }
@@ -1836,26 +1836,26 @@ extern "C" int func_00104B48(void *arg0, int b, int c) {
 
 //100%
 // PORT: PS2-only inline asm; needs a C fallback off-PS2.
-extern "C" void func_00312B18_4B78(int, int, int, int) __asm__("func_00312B18");
+extern "C" void cRiderAnimBase_replaceSequence_4B78(int, int, int, int) __asm__("cRiderAnimBase_replaceSequence");
 
 extern "C" void func_00104B78(int a, int b, int c) {
-    func_00312B18_4B78(a, b, c, 5);
+    cRiderAnimBase_replaceSequence_4B78(a, b, c, 5);
 }
 
 //100%
 // PORT: PS2-only inline asm; needs a C fallback off-PS2.
-extern "C" void func_00312B18_4B98(int, int, int, int) __asm__("func_00312B18");
+extern "C" void cRiderAnimBase_replaceSequence_4B98(int, int, int, int) __asm__("cRiderAnimBase_replaceSequence");
 
 extern "C" void func_00104B98(int a, int b, int c) {
-    func_00312B18_4B98(a, b, c, 3);
+    cRiderAnimBase_replaceSequence_4B98(a, b, c, 3);
 }
 
 //100%
 // PORT: PS2-only inline asm; needs a C fallback off-PS2.
-extern "C" void func_00312B18_4BB8(int, int, int, int) __asm__("func_00312B18");
+extern "C" void cRiderAnimBase_replaceSequence_4BB8(int, int, int, int) __asm__("cRiderAnimBase_replaceSequence");
 
 extern "C" void func_00104BB8(int a, int b, int c) {
-    func_00312B18_4BB8(a, b, c, 0x13);
+    cRiderAnimBase_replaceSequence_4BB8(a, b, c, 0x13);
 }
 
 //100%
@@ -1907,7 +1907,7 @@ extern "C" void func_00104C80(int a, int b, int c) {
 
 //100%
 extern "C" int func_00104CA0(int arg0, void* arg1, void* arg2) {
-    func_003145F8(arg1, arg2);
+    cAnimSequencer_removeSequence(arg1, arg2);
     return 0x1B6;
 }
 
@@ -1966,11 +1966,11 @@ class cStream_4D68 {
 public:
     virtual void Read(void* dst, int n);
 };
-extern "C" void func_003147F0(void*, cStream_4D68*);
+extern "C" void cAnimSequencer_save(void*, cStream_4D68*);
 extern "C" void func_00104D68(char* self, cStream_4D68* s) {
     s->Read(self, 0x50);
     for (int i = 0; i < 6; i++) {
-        func_003147F0(*(char**)(self + 0x50) + i * 8, s);
+        cAnimSequencer_save(*(char**)(self + 0x50) + i * 8, s);
     }
 }
 
@@ -1980,13 +1980,13 @@ public:
     virtual void v0();
     virtual void Read(void* dst, int n);
 };
-extern "C" void func_00314668(void*);
-extern "C" void func_00314880(void*, cStream_4DE0*);
+extern "C" void cAnimSequencer_removeAll(void*);
+extern "C" void cAnimSequencer_load(void*, cStream_4DE0*);
 extern "C" void func_00104DE0(char* self, cStream_4DE0* s) {
     s->Read(self, 0x50);
     for (int i = 0; i < 6; i++) {
-        func_00314668(*(char**)(self + 0x50) + i * 8);
-        func_00314880(*(char**)(self + 0x50) + i * 8, s);
+        cAnimSequencer_removeAll(*(char**)(self + 0x50) + i * 8);
+        cAnimSequencer_load(*(char**)(self + 0x50) + i * 8, s);
     }
 }
 
@@ -2654,8 +2654,8 @@ static inline float vDot_8A48(const sVec4_8A48& a, const sVec4_8A48& b)
 
 int cRider_getMotionMode(void*);
 extern "C" int func_00334680(void*, sVec4_8A48*, sVec4_8A48*, int, float);
-extern "C" int func_00311AE8(void*, int);
-extern "C" char* func_00311B20(void*, int);
+extern "C" int cRiderAnimBase_getChannelAnimClass(void*, int);
+extern "C" char* cRiderAnimBase_getChannelSequence(void*, int);
 extern "C" int func_001446A0(void*, int);
 extern "C" int func_001086B8(void*, sVec4_8A48*, sVec4_8A48*);
 
@@ -2673,13 +2673,13 @@ extern "C" int func_00108A48(char* self, sVec4_8A48* tgt)
         if (vDot_8A48(d, *(sVec4_8A48*)(self + 0x1E0)) < spd * -0.20000000298023224f)
             return 0;
     }
-    if (func_00311AE8(*(void**)(self + 0x784), 2) == 0x12) {
-        if (!func_001446A0(func_00311B20(*(void**)(self + 0x784), 2) + 0xB0, 2) &&
-            func_001446A0(func_00311B20(*(void**)(self + 0x784), 2) + 0xB0, 0))
+    if (cRiderAnimBase_getChannelAnimClass(*(void**)(self + 0x784), 2) == 0x12) {
+        if (!func_001446A0(cRiderAnimBase_getChannelSequence(*(void**)(self + 0x784), 2) + 0xB0, 2) &&
+            func_001446A0(cRiderAnimBase_getChannelSequence(*(void**)(self + 0x784), 2) + 0xB0, 0))
             return 0;
-    } else if (func_00311AE8(*(void**)(self + 0x784), 2) == 0x13 ||
-               func_00311AE8(*(void**)(self + 0x784), 2) == 0x14) {
-        if (!func_001446A0(func_00311B20(*(void**)(self + 0x784), 2) + 0xB0, 2))
+    } else if (cRiderAnimBase_getChannelAnimClass(*(void**)(self + 0x784), 2) == 0x13 ||
+               cRiderAnimBase_getChannelAnimClass(*(void**)(self + 0x784), 2) == 0x14) {
+        if (!func_001446A0(cRiderAnimBase_getChannelSequence(*(void**)(self + 0x784), 2) + 0xB0, 2))
             return 0;
     }
     return func_001086B8(self, tgt, tgt + 1);
@@ -3070,7 +3070,7 @@ struct sPad_AED8 {
 
 extern "C" int func_0010B980(char* self, float* speed, int* below, int* o3, int* o4, int* o5, int* o6);
 extern "C" void func_0010BFA8_AED8(char*, int, int, int, int) __asm__("func_0010BFA8");
-extern "C" int func_00311AE8(void*, int);
+extern "C" int cRiderAnimBase_getChannelAnimClass(void*, int);
 extern "C" int func_0010BB18(void*, float*, int*);
 
 // PORT: PS2-only VU0 inline asm (4-component vector length).
@@ -3126,7 +3126,7 @@ extern "C" void func_0010AED8(char* self, sPad_AED8* pad)
         pad->b25 = (int)(y * 31.0f);
     char* rider = *(char**)(self + 0x18);
     if ((unsigned int)(*(int*)(rider + 0x328) - 3) >= 2 &&
-        func_00311AE8(*(void**)(rider + 0x784), 2) != 0xE) {
+        cRiderAnimBase_getChannelAnimClass(*(void**)(rider + 0x784), 2) != 0xE) {
         float s = (*(float*)(self + 0xE38) < 0.0f) ? 1.0f : -1.0f;
         pad->w0 = (int)(s * 31.0f);
     }

@@ -332,10 +332,10 @@ extern "C" int func_0011C0E0(void* self)
 }
 
 //100% - objdiff report; single-function view differs only in a relocation name
-void* func_00314978(void* self);
+void* cMdfArchive_cMdfArchive(void* self);
 void func_00314A18(void* self, int a1);
-extern "C" void func_00314988(int* self, int flags);
-extern "C" void* func_00314C00(void* self, const char* name);
+extern "C" void cMdfArchive__cMdfArchive(int* self, int flags);
+extern "C" void* cMdfArchive_getModelPart(void* self, const char* name);
 extern "C" int cRider_collectEquippedItems(void* self, char** list);
 extern "C" void cAnimModel_addModelPartLOD(void* model, int lod, void* part, int a3);
 
@@ -348,7 +348,7 @@ extern "C" void cRider_addEquippedModelParts(void* self, int a1)
 {
     sMdfArchive_11C138 arc;
     char* list[52];
-    func_00314978(&arc);
+    cMdfArchive_cMdfArchive(&arc);
     func_00314A18(&arc, a1);
     int n = cRider_collectEquippedItems(self, list);
     for (int i = 0; i < n; i++)
@@ -359,7 +359,7 @@ extern "C" void cRider_addEquippedModelParts(void* self, int a1)
             const char* name = ((const char**)(item + 0x18))[j];
             if (name != 0)
             {
-                void* part = func_00314C00(&arc, name);
+                void* part = cMdfArchive_getModelPart(&arc, name);
                 if (part != 0)
                 {
                     cAnimModel_addModelPartLOD(*(void**)((char*)self + 0x780), j, part, 0);
@@ -367,7 +367,7 @@ extern "C" void cRider_addEquippedModelParts(void* self, int a1)
             }
         }
     }
-    func_00314988((int*)&arc, 2);
+    cMdfArchive__cMdfArchive((int*)&arc, 2);
 }
 
 //100%
@@ -506,7 +506,7 @@ extern "C" void cRider_placeAtRegion(void* self, int a1, int a2)
 }
 
 //100%
-extern "C" char* func_00311B20(void*, int);
+extern "C" char* cRiderAnimBase_getChannelSequence(void*, int);
 extern "C" void cMotionOwner_resetFX(void* self);
 extern "C" void func_003099F8(void* self);
 extern void* D_004A3DD8;
@@ -539,7 +539,7 @@ extern "C" void cRider_finishPlacement(void* self, int notify)
 {
     char* s = (char*)self;
     sVec4_0011DF18 v = *(sVec4_0011DF18*)(s + 0x1B0);
-    *(int*)(func_00311B20(*(void**)(s + 0x784), 2) + 0x90) = 0;
+    *(int*)(cRiderAnimBase_getChannelSequence(*(void**)(s + 0x784), 2) + 0x90) = 0;
     sVec4_0011DF18 t = vu0Scale_11DF18(v, 833.3333740234375f);
     *(sVec4_0011DF18*)(s + 0x1E0) = t;
     *(float*)(s + 0x1E8) = 0.0f;
@@ -568,13 +568,13 @@ extern "C" void cRider_updateOrientationImplicit(char* self);
 INCLUDE_ASM("ai/rider", cRider_updateQueryBounds);
 
 //100%
-extern "C" void func_003123C0(void*, int);
-extern "C" void func_00312490(void*);
+extern "C" void cRiderAnimBase_update(void*, int);
+extern "C" void cRiderAnimBase_dispatchCompletions(void*);
 
 extern "C" void cRider_updateAnimator(void* self, float value)
 {
-    func_003123C0(*(void**)((char*)self + 0x784), *(int*)((char*)self + 0xB1C));
-    func_00312490(*(void**)((char*)self + 0x784));
+    cRiderAnimBase_update(*(void**)((char*)self + 0x784), *(int*)((char*)self + 0xB1C));
+    cRiderAnimBase_dispatchCompletions(*(void**)((char*)self + 0x784));
 }
 
 INCLUDE_ASM("ai/rider", cRider_buildWorldPose);
@@ -784,7 +784,7 @@ extern "C" void func_00120D58(void* self)
 }
 
 //100%
-extern "C" int func_00311AE8(void*, int);
+extern "C" int cRiderAnimBase_getChannelAnimClass(void*, int);
 
 static inline float riderApproach_00120D90(float v, float t, float s)
 {
@@ -797,7 +797,7 @@ static inline float riderApproach_00120D90(float v, float t, float s)
 
 extern "C" void cRider_updateLegIKWeight(void* self)
 {
-    int a = func_00311AE8(*(void**)((char*)self + 0x784), 2);
+    int a = cRiderAnimBase_getChannelAnimClass(*(void**)((char*)self + 0x784), 2);
     if (a >= 0x14 && a <= 0x1A)
         *(float*)((char*)self + 0x318) = riderApproach_00120D90(*(float*)((char*)self + 0x318), 0.0f, 0.05000000447034836f);
     else
@@ -1012,7 +1012,7 @@ extern "C" void cRider_buildWorldPosePhase(void* self)
 
 //100%
 extern "C" void cMotionOwner_postUpdateMotion(void* p);
-extern "C" void func_00310530(void* model, void* v);
+extern "C" void cAnimModel_translate(void* model, void* v);
 
 struct sVec4_00121750
 {
@@ -1031,16 +1031,16 @@ extern "C" void cRider_updatePostMotion(char* self)
     cMotionOwner_postUpdateMotion(*(void**)(self + 0x77C));
     if (VecChanged_00121750(self, D_004FF120))
     {
-        func_00310530(*(void**)(self + 0x780), self + 0x9D0);
+        cAnimModel_translate(*(void**)(self + 0x780), self + 0x9D0);
     }
 }
 
-extern "C" void* func_003103F0(int);
+extern "C" void* cAnimModel_buildBoneMatrices(int);
 
 //100%
 void* func_001217F8(void* self)
 {
-    return func_003103F0(*(int*)((char*)self + 0x780));
+    return cAnimModel_buildBoneMatrices(*(int*)((char*)self + 0x780));
 }
 
 //100%
@@ -1493,7 +1493,7 @@ extern "C" int cRider_updateVisibility(char* self)
 extern void* D_004A289C;
 extern void* D_004A28A8;
 extern "C" void cRider_updateLOD(char* self);
-extern "C" void func_00310640(void* model, int lod, int a, int b);
+extern "C" void cAnimModel_draw(void* model, int lod, int a, int b);
 
 struct sVec4_122448 { float v[4]; };
 extern sVec4_122448 D_004FF120_v122448 __asm__("D_004FF120");
@@ -1522,7 +1522,7 @@ extern "C" void cRider_draw(char* self)
         rs[1] = (rs[1] & ~0x7C) | 0x14;
         sVEntryF_122448* vt2 = *(sVEntryF_122448**)((char*)g2 + 0x10D8);
         vt2[27].fn((char*)g2 + vt2[27].delta, 0.0f, self + 0x110);
-        func_00310640(*(void**)(self + 0x780), *(int*)(self + 0x898), a, b);
+        cAnimModel_draw(*(void**)(self + 0x780), *(int*)(self + 0x898), a, b);
         void* g3 = D_004A289C;
         sVEntryF_122448* vt3 = *(sVEntryF_122448**)((char*)g3 + 0x10D8);
         vt3[27].fn((char*)g3 + vt3[27].delta, 0.0f, &D_004FF120_v122448);
@@ -1892,8 +1892,8 @@ int cRider_getControlState(void* self);
 extern "C" int func_00135EB0(void* self);
 extern "C" int func_00135EF0(void* self);
 extern "C" int func_00135F30(void* self);
-extern "C" int func_00311AE8(void*, int);
-extern "C" char* func_00311B20(void*, int);
+extern "C" int cRiderAnimBase_getChannelAnimClass(void*, int);
+extern "C" char* cRiderAnimBase_getChannelSequence(void*, int);
 extern "C" int func_001446A0(void* self, int a1);
 
 // Tests one rider condition by id (used by the scripted-event checks).
@@ -1953,9 +1953,9 @@ extern "C" int cRider_testCondition(char* self, int cond)
         return *(int*)(*(char**)(self + 0x790) + 0x19C);
     case 18: {
         int r = 0;
-        if (func_00311AE8(*(void**)(self + 0x784), 1) == 0xD) {
-            if (func_001446A0(func_00311B20(*(void**)(self + 0x784), 1) + 0xB0, 0) != 0) {
-                r = func_001446A0(func_00311B20(*(void**)(self + 0x784), 1) + 0xB0, 1) == 0;
+        if (cRiderAnimBase_getChannelAnimClass(*(void**)(self + 0x784), 1) == 0xD) {
+            if (func_001446A0(cRiderAnimBase_getChannelSequence(*(void**)(self + 0x784), 1) + 0xB0, 0) != 0) {
+                r = func_001446A0(cRiderAnimBase_getChannelSequence(*(void**)(self + 0x784), 1) + 0xB0, 1) == 0;
             }
         }
         return r;
@@ -2022,8 +2022,8 @@ extern "C" void func_002803F0(void* self);
 extern "C" void cRider_placeOnArrival(void* self);
 extern "C" void* func_0028B180();
 void func_002A1BD0(void* p);
-extern "C" void func_0030EA80(void* model, int i, int channel);
-extern "C" void func_0030E9E0(void* model, int i, int channel);
+extern "C" void cAnimModel_hidePart(void* model, int i, int channel);
+extern "C" void cAnimModel_showPart(void* model, int i, int channel);
 int func_0027C958(void* self);
 // PORT: func_0014BDB8 is declared (void*) but never reads its argument; called here with none
 void* func_0014BDB8_noarg() __asm__("func_0014BDB8__FPv");
@@ -2079,7 +2079,7 @@ static inline void* model_123B48(char* self)
 
 static inline void setChan_123B48(char* self, int id, int ch)
 {
-    func_0030E9E0(model_123B48(self), id, ch);
+    cAnimModel_showPart(model_123B48(self), id, ch);
 }
 
 static inline int entItem_123B48(sEnt_123B48* e)
@@ -2105,13 +2105,13 @@ extern "C" void cRider_stopNISActor(char* self)
     int* ids = (int*)(self + 0xB08);
     *(int*)(self + 0xAD0) = 0;
     *(int*)(self + 0xB00) = 1;
-    func_0030EA80(*(void**)(self + 0x780), 5, 0);
-    func_0030EA80(*(void**)(self + 0x780), 6, 0);
-    func_0030EA80(*(void**)(self + 0x780), 8, 0);
-    func_0030EA80(*(void**)(self + 0x780), 9, 0);
-    func_0030EA80(*(void**)(self + 0x780), 11, 0);
-    func_0030E9E0(*(void**)(self + 0x780), 4, 0);
-    func_0030E9E0(*(void**)(self + 0x780), 7, 0);
+    cAnimModel_hidePart(*(void**)(self + 0x780), 5, 0);
+    cAnimModel_hidePart(*(void**)(self + 0x780), 6, 0);
+    cAnimModel_hidePart(*(void**)(self + 0x780), 8, 0);
+    cAnimModel_hidePart(*(void**)(self + 0x780), 9, 0);
+    cAnimModel_hidePart(*(void**)(self + 0x780), 11, 0);
+    cAnimModel_showPart(*(void**)(self + 0x780), 4, 0);
+    cAnimModel_showPart(*(void**)(self + 0x780), 7, 0);
     // PORT: func_0027C958 returns a record pointer as int
     if (*(signed char*)((char*)func_0027C958(*(void**)(self + 0x6D8)) + 6) != 0) {
         void* iface = cBE_getInterface(cBE_getBE(), 9);

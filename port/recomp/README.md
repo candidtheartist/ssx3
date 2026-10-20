@@ -175,6 +175,10 @@ or any disc file.
     it reads, wrapped as CLAMP sets up, and their filter weights. The full-screen passes are sprites, so the 8,000
     recorded race packets replay to the same VRAM, also with round-toward-zero and on several workers, with 5%
     fewer instructions;
+  - `printf`, `sprintf` and `scePrintf` reading their arguments the way EE code passes them: every argument,
+    32 or 64 bits, takes one 64-bit argument register and then one 8-byte stack slot. The runtime read them as
+    32-bit slots, so a `double` (a soft float in one register) came out as 0. SSX 3 prints race and record times
+    with `%02.0f`, and every time on the results and records screens read 00:00;
   - VU1 blocks run as C++ written for each block at build time, with the same results. The block executor steps
     through a list of decoded pairs; for each block in `vu1_blocks.txt`, the build instead writes one function in
     which every pair's decoded fields are constants, so the compiler specialises each pair's code. A block is found
@@ -191,7 +195,11 @@ or any disc file.
   answers the module search, routes `isceSifSendCmd`, and keeps the runtime's scratch buffers in the
   0x80000-0x100000 gap below the ELF, since the game's own allocator owns everything above it.
 - `ssx3.toml.in` is the translator config (the analyzer's stub and entry lists). `gen_funcs.py` and
-  `function_splits.txt` produce its function map.
+  `function_splits.txt` produce its function map. A stub runs the runtime's own version of a function instead of
+  the game's, so a name goes on the list only when the runtime's version takes the same arguments: SSX 3's `log`
+  (0x0040D610) takes and returns a soft `double` in integer registers, while the runtime's `log` stub works on a
+  `float` in `$f12`, so `log` is translated from the game's code. The particle code that calls it got its own
+  argument back instead of the logarithm.
 
 ## Building
 
