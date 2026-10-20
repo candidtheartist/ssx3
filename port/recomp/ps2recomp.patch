@@ -2379,7 +2379,7 @@ index 0000000..8dea1db
 +}
 diff --git a/ps2xRuntime/include/runtime/ps2_host_sync.h b/ps2xRuntime/include/runtime/ps2_host_sync.h
 new file mode 100644
-index 0000000..b5957a0
+index 0000000..d5ab2ac
 --- /dev/null
 +++ b/ps2xRuntime/include/runtime/ps2_host_sync.h
 @@ -0,0 +1,118 @@
@@ -2443,9 +2443,9 @@ index 0000000..b5957a0
 +    using CondVar = std::condition_variable;
 +#endif
 +
-+    // How many times a thread checks again, with a pause, before it sleeps at a Barrier.
-+    // PS2X_GS_SPIN overrides it.
-+    unsigned barrierSpins();
++    // How many times a GS worker that ran out of work, or waits at a Barrier, checks
++    // again with a pause before it sleeps. PS2X_GS_SPIN overrides it.
++    unsigned spinCount();
 +    void spinPause();
 +
 +    // A barrier for a fixed number of threads, like std::barrier (whose waits also go
@@ -2457,7 +2457,7 @@ index 0000000..b5957a0
 +    {
 +    public:
 +        Barrier(std::ptrdiff_t count, Completion completion)
-+            : m_count(count), m_left(count), m_completion(std::move(completion)), m_spins(barrierSpins())
++            : m_count(count), m_left(count), m_completion(std::move(completion)), m_spins(spinCount())
 +        {
 +        }
 +
@@ -5944,10 +5944,10 @@ index f0ad507..d816ecd 100644
      return false;
 diff --git a/ps2xRuntime/src/lib/gs/gs_threaded_backend.cpp b/ps2xRuntime/src/lib/gs/gs_threaded_backend.cpp
 new file mode 100644
-index 0000000..d094918
+index 0000000..f5dd018
 --- /dev/null
 +++ b/ps2xRuntime/src/lib/gs/gs_threaded_backend.cpp
-@@ -0,0 +1,1097 @@
+@@ -0,0 +1,1104 @@
 +#include "runtime/gs/gs_threaded_backend.h"
 +#include "runtime/gs/ps2_gs_common.h"
 +#include "runtime/ps2_host_fpu.h"
@@ -6759,11 +6759,18 @@ index 0000000..d094918
 +void GSThreadedBackend::workerMain(size_t index)
 +{
 +    std::atomic<uint64_t> &done = m_progress[index].done;
++    const unsigned spins = ps2_host_sync::spinCount();
 +    uint64_t next = 0;
 +    for (;;)
 +    {
 +        if (next == m_submitted.load())
 +        {
++            // The next commands usually come within microseconds, and going to sleep and
++            // being woken for them costs more than looking again for a while first.
++            for (unsigned spin = 0; spin < spins && next == m_submitted.load(std::memory_order_relaxed); ++spin)
++                ps2_host_sync::spinPause();
++            if (next != m_submitted.load())
++                continue;
 +            std::unique_lock<ps2_host_sync::Mutex> lock(m_wakeMutex);
 +            ++m_idleWorkers;
 +            m_workAvailable.wait(lock, [this, next]() { return m_stopping || m_submitted.load() != next; });
@@ -7346,7 +7353,7 @@ index 0000000..a8752e8
 +#endif
 diff --git a/ps2xRuntime/src/lib/ps2_host_sync.cpp b/ps2xRuntime/src/lib/ps2_host_sync.cpp
 new file mode 100644
-index 0000000..6654028
+index 0000000..a3f404d
 --- /dev/null
 +++ b/ps2xRuntime/src/lib/ps2_host_sync.cpp
 @@ -0,0 +1,72 @@
@@ -7401,7 +7408,7 @@ index 0000000..6654028
 +    }
 +#endif
 +
-+    unsigned barrierSpins()
++    unsigned spinCount()
 +    {
 +        // About 20 microseconds on a current x86 core, near what waking a sleeping
 +        // thread costs.
