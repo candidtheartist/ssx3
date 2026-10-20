@@ -3309,7 +3309,83 @@ void func_003BCAE8(int arg0, int n) {
     }
 }
 
-INCLUDE_ASM("ealib/seg_2B4578", func_003BCBA0);
+//100%
+struct S_CBA0 { unsigned char mode; unsigned char n; char pad2[4]; short pos; unsigned char *out; };
+extern struct S_CBA0 *D_0050AC68_CBA0 __asm__("D_0050AC68");
+
+void func_003BCBA0(void) {
+    int i;
+    int j;
+    int k;
+
+    D_0050AC68_CBA0->pos = 0;
+    func_003BCAE8(0xF8724E1F, 32);
+    func_003BCAE8(0xB3EE8, 32);
+    func_003BCAE8(0x7FFE8001, 32);
+    func_003BCAE8(0x0FC3C7DC, 28);
+    if (D_0050AC68_CBA0->mode == 1)
+        func_003BCAE8(8, 6);
+    else
+        func_003BCAE8(9, 6);
+    func_003BCAE8(0x6E000, 19);
+    func_003BCAE8((D_0050AC68_CBA0->n - 1) | 0x021C0000, 26);
+    for (i = 0; i < D_0050AC68_CBA0->n; i++)
+        func_003BCAE8(0x16, 5);
+    for (i = 0; i < D_0050AC68_CBA0->n; i++)
+        func_003BCAE8(0x17, 5);
+    for (i = 0; i < D_0050AC68_CBA0->n; i++)
+        func_003BCAE8(0, 3);
+    for (i = 0; i < D_0050AC68_CBA0->n; i++)
+        func_003BCAE8(3, 2);
+    for (i = 0; i < D_0050AC68_CBA0->n; i++)
+        func_003BCAE8(6, 3);
+    for (i = 0; i < D_0050AC68_CBA0->n; i++)
+        func_003BCAE8(6, 3);
+    for (i = 0; i < D_0050AC68_CBA0->n; i++)
+        func_003BCAE8(1, 1);
+    for (k = 0; k < 4; k++) {
+        for (i = 0; i < D_0050AC68_CBA0->n; i++)
+            func_003BCAE8(3, 2);
+    }
+    /* Pre-increment in the test keeps k counting up (6..10) to match. */
+    for (k = 5; ++k < 11;) {
+        for (i = 0; i < D_0050AC68_CBA0->n; i++)
+            func_003BCAE8(7, 3);
+    }
+    func_003BCAE8(8, 5);
+    for (i = 0; i < D_0050AC68_CBA0->n; i++)
+        func_003BCAE8(0, 24);
+    for (i = 0; i < D_0050AC68_CBA0->n; i++) {
+        j = 0;
+        if (D_0050AC68_CBA0->mode == 1) {
+            /* Copying j through k stops this loop from being reversed to match. */
+            for (; (k = j) < 14; j++)
+                func_003BCAE8(13, 5);
+            for (; j < 24; j++)
+                func_003BCAE8(11, 5);
+        } else {
+            for (; j < 5; j++)
+                func_003BCAE8(13, 5);
+            for (; j < 14; j++)
+                func_003BCAE8(11, 5);
+            for (; j < 24; j++)
+                func_003BCAE8(8, 5);
+        }
+    }
+    for (i = 0; i < D_0050AC68_CBA0->n; i++) {
+        func_003BCAE8(0, 24);
+        func_003BCAE8(0, 24);
+    }
+    if (D_0050AC68_CBA0->mode == 1) {
+        D_0050AC68_CBA0->out[0xE8] = 0;
+        D_0050AC68_CBA0->out[0x7CB] = 0xFF;
+        D_0050AC68_CBA0->out[0x7CA] = 0xFF;
+    } else {
+        D_0050AC68_CBA0->out[0x7D5] |= 7;
+        D_0050AC68_CBA0->out[0x7D4] = 0xFF;
+        D_0050AC68_CBA0->out[0x7D7] = 0xF8;
+    }
+}
 
 //100%
 // PORT: PS2-only inline asm; needs a C fallback off-PS2.
