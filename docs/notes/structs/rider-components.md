@@ -172,11 +172,14 @@ Reached as *(rider+0x788); seeded and restarted by 0x001135B8. The records named
 ## Rider collision body
 
 Reached as *(rider+0xAA0): a broad-phase sphere plus up to 20 bone-attached spheres, built at pose time.
+`cRiderSphereTree` in `include/intersect/riderspheretree.h`, 0x2B0 bytes.
 
 | Offset | Type | Meaning | Evidence |
 |---|---|---|---|
+| +0x00 | ptr | Bone pose table (32-byte records, position first) that `cRiderSphereTree_updateFromBones` copies centres from; 0 for a single sphere | |
 | +0x10 | vec4 | Broad-phase sphere centre | |
 | +0x20 | float | Broad-phase sphere radius (cm; 78.2 for Zoe) | PS2 |
+| +0x24 | int | Bone the broad centre follows (-1 none; the constructor sets -1) | |
 | +0x28 | u32 | Active sphere mask: 3 (spheres 0/1, lower spine and head) around obstacle queries 0x0013F488/0x0013AA48, all bits set before instance contact 0x00105398; ignored by pair overlap 0x00329F98 | PS2 |
 | +0x2C | u32 | Number of spheres in use (10 for riders) | PS2 |
 | +0x30 | struct[20] | Sphere slots, 32 bytes each: +0x0 centre float4, +0x10 radius, +0x14 bone index, +0x18/+0x1C two aux words; riders use bones 1,5,7,9,12,14,16,17,19,20 | PS2 |

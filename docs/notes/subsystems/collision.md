@@ -98,12 +98,14 @@ another would give different results).
 
 ## Rider collision body (rider+0xAA0)
 
-The body object pointed to by rider+0xAA0:
+The body object pointed to by rider+0xAA0 (`cRiderSphereTree`, 0x2B0 bytes, `include/intersect/riderspheretree.h`):
 
 | Offset | Field |
 | --- | --- |
+| +0x00 | bone pose table the sphere centres are copied from (32-byte records) |
 | +0x10 | broad sphere centre (float4) |
 | +0x20 | broad sphere radius |
+| +0x24 | bone the broad centre follows (-1 none) |
 | +0x28 | active sphere mask |
 | +0x2C | sphere count |
 | +0x30 | 20 sphere slots of 32 bytes: centre float4, radius float, bone index u32, two further words |
@@ -243,8 +245,10 @@ resource ID (same type, flags and collision resource). **(PS2)**
 indices are byte triples, vertices and normals float4, and bounding boxes group 16 triangles. Coordinates are
 local, Z-up centimetres. Type-3 resources hold sphere trees ("format 3"): a root centre, radius/offset/stride
 per level, and a bounded signed-byte RLE occupancy stream. The tree header also holds mass properties used by
-the crashbags: +0x1C centre of mass, +0x28 inertia, +0x4C inverse inertia (the runtime tree object keeps them
-at +0x2C/+0x38/+0x5C).
+the crashbags: +0x1C centre of mass, +0x28 inertia, +0x4C inverse inertia. `cSphereTree_load` copies them to
++0x2C/+0x38/+0x5C of the tree header, which is embedded at +0xC0 of the 0x140-byte `cSphereTree` (so tree
++0xEC/+0xF8/+0x11C); file +0x10 is the root centre (header +0x14, also copied to tree +0x80). See
+`include/intersect/spheretree.h`.
 
 **Transforms.** Local node translations are scaled, the node hierarchy is composed with the instance rotation
 and translation (the uniform instance scale is applied after the node hierarchy and before the instance
