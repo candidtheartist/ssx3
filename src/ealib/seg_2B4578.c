@@ -3965,7 +3965,107 @@ void func_003C15D8(char *dst, char *src) {
     *dst = 0;
 }
 
-INCLUDE_ASM("ealib/seg_2B4578", func_003C1638);
+// Lays out the sound command buffer: header blocks, per-channel sample
+// buffers and the optional reverb block, then records the final size.
+struct M_1638 {
+    char pad0[0xCB0];
+    char *fCB0;
+    int *fCB4;
+    char *fCB8;
+    char pad1[0x1AB2 - 0xCBC];
+    unsigned short off;
+    char *buf;
+    int f1AB8;
+    char *ch[14];
+    char *f1AF4;
+    int f1AF8;
+    int f1AFC;
+    char *f1B00;
+    int f1B04;
+    int f1B08;
+    int f1B0C;
+};
+struct C_1638 {
+    char pad0[0x2A];
+    unsigned short rate;
+    char pad1[0x42 - 0x2C];
+    unsigned char f42;
+    char pad2[0x47 - 0x43];
+    unsigned char f47;
+    unsigned char f48;
+    unsigned char f49;
+};
+extern struct M_1638 D_0050AD00_1638 __asm__("D_0050AD00");
+extern struct C_1638 D_0050A8E8_1638 __asm__("D_0050A8E8");
+extern char D_00512B80_1638[] __asm__("D_00512B80");
+extern void *func_00416210_1638(void *, int, int) __asm__("func_00416210");
+extern void func_003CBC00_1638(char *) __asm__("func_003CBC00");
+
+void func_003C1638(void) {
+    int *p;
+    short *q;
+    char **pp;
+    int n;
+    int i;
+    int j;
+
+    D_0050AD00_1638.buf = (char *)((int)D_00512B80_1638 | 0x20000000);
+    func_00416210_1638(D_0050AD00_1638.buf, 0, 0x2C00);
+    n = (D_0050A8E8_1638.rate << 9) / 48000;
+    D_0050AD00_1638.off = 0;
+    *(int *)(D_0050AD00_1638.buf + D_0050AD00_1638.off) = 0;
+    D_0050AD00_1638.off += 4;
+    D_0050AD00_1638.fCB4 = (int *)(D_0050AD00_1638.buf + D_0050AD00_1638.off);
+    D_0050AD00_1638.off += 0xC;
+    *(int *)(D_0050AD00_1638.buf + D_0050AD00_1638.off) = 3;
+    D_0050AD00_1638.off += 4;
+    p = (int *)(D_0050AD00_1638.buf + D_0050AD00_1638.off);
+    D_0050AD00_1638.off += 4;
+    D_0050AD00_1638.fCB0 = D_0050AD00_1638.buf + D_0050AD00_1638.off;
+    *p = 0x2A0;
+    D_0050AD00_1638.off += 0x2A0;
+    while (D_0050AD00_1638.off & 0xF) {
+        D_0050AD00_1638.off++;
+        (*p)++;
+    }
+    if (D_0050A8E8_1638.f42) {
+        *(int *)(D_0050AD00_1638.buf + D_0050AD00_1638.off) = 2;
+        D_0050AD00_1638.off += 0x10;
+        func_003CBC00_1638(D_0050AD00_1638.buf + D_0050AD00_1638.off);
+        D_0050AD00_1638.off += n * 4;
+    }
+    *(int *)(D_0050AD00_1638.buf + D_0050AD00_1638.off) = 1;
+    D_0050AD00_1638.off += 4;
+    q = (short *)(D_0050AD00_1638.buf + D_0050AD00_1638.off);
+    D_0050AD00_1638.off += 0xC;
+    for (i = 0; i < D_0050A8E8_1638.f47 + D_0050A8E8_1638.f48; i++) {
+        D_0050AD00_1638.ch[i] = D_0050AD00_1638.buf + (D_0050AD00_1638.off + i * n * 2);
+    }
+    *q = n * ((D_0050A8E8_1638.f47 + D_0050A8E8_1638.f48) << 1);
+    if (D_0050A8E8_1638.f47 == 1) {
+        D_0050AD00_1638.ch[1] = D_0050AD00_1638.buf + (D_0050AD00_1638.off + n * 2);
+        *q += n * 2;
+    }
+    D_0050AD00_1638.off += *q;
+    if (D_0050A8E8_1638.f49 & 2) {
+        *(int *)(D_0050AD00_1638.buf + D_0050AD00_1638.off) = 4;
+        D_0050AD00_1638.off += 4;
+        q = (short *)(D_0050AD00_1638.buf + D_0050AD00_1638.off);
+        D_0050AD00_1638.off += 0xC;
+        D_0050AD00_1638.f1AF4 = D_0050AD00_1638.buf + D_0050AD00_1638.off;
+        D_0050AD00_1638.off += 0x800;
+    }
+    *(int *)(D_0050AD00_1638.buf + D_0050AD00_1638.off) = 5;
+    D_0050AD00_1638.off += 4;
+    D_0050AD00_1638.fCB8 = D_0050AD00_1638.buf + D_0050AD00_1638.off;
+    D_0050AD00_1638.off += 0xC;
+    *(int *)(D_0050AD00_1638.buf + D_0050AD00_1638.off) = 6;
+    D_0050AD00_1638.off += 0x10;
+    D_0050AD00_1638.fCB4[1] = D_0050AD00_1638.off;
+    D_0050AD00_1638.f1B00 = D_00512B80_1638;
+    D_0050AD00_1638.f1B0C = 0;
+    D_0050AD00_1638.f1B08 = D_0050AD00_1638.off;
+}
 
 //100%
 struct S_1980 { char pad[0x1C0]; int cnt; };
