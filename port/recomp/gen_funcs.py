@@ -30,7 +30,7 @@ def main(funcinfo, splits_path, out_path):
         owner[1] = addr
 
     funcs.sort()
-    with open(out_path, "w") as f:
+    with open(out_path, "w", newline="\n") as f:
         f.write("Name,Start,End,Size\n")
         for start, end, name in funcs:
             f.write(f"{name},0x{start:08X},0x{end:08X},{end - start}\n")

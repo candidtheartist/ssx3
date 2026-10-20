@@ -1,6 +1,6 @@
 # SSX 3 on the PS2Recomp runtime
 
-This builds SSX 3 for 32-bit Linux by translating the retail `SLUS_207.72` to C++ with
+This builds SSX 3 for 32-bit Linux and Windows by translating the retail `SLUS_207.72` to C++ with
 [PS2Recomp](https://github.com/ran-j/PS2Recomp) and linking it against PS2Recomp's runtime, with our fixes
 applied. The translated code is generated in the build directory and is never committed. Neither is the ELF
 or any disc file.
@@ -11,6 +11,10 @@ or any disc file.
   with spimdisasm, translates the ELF, then builds the runtime 32-bit.
 - `ps2recomp.patch` holds our runtime changes. None of them are SSX 3 specific, so they could go upstream:
   - a 32-bit build, with EE RAM identity-mapped at its PS2 addresses;
+  - a native 32-bit Windows build with MinGW. The game thread gets a 16 MB stack, and `operator new` returns
+    16-byte aligned memory, which GCC assumes but 32-bit MinGW's `malloc` does not give. EE RAM is not mapped at
+    its PS2 addresses there, since Windows 11 already has memory at 0x00100000 when a process starts; the
+    recompiled code doesn't need it, only natively compiled C does;
   - EE→IOP SIF commands;
   - `sceCdCallback`;
   - semaphores with a max count of 0;
@@ -240,6 +244,23 @@ Pass `-DSSX3PC_TRACE_LOGS=ON` to turn them back on.
 
 The runtime is built with `-mfpmath=sse`. Without it a 32-bit build does float maths on the x87 unit, which
 turns PS2 floats with the top exponent (ordinary large numbers on the PS2) into NaNs.
+
+### Windows
+
+The Windows build uses the MINGW32 environment of [MSYS2](https://www.msys2.org), whose GCC builds 32-bit
+programs, and a Windows Python for spimdisasm. Work in a folder whose path has no spaces. In a MINGW32 shell:
+
+```bash
+pacman -S --needed git make diffutils mingw-w64-i686-gcc mingw-w64-i686-cmake mingw-w64-i686-ninja mingw-w64-i686-pkgconf
+git -c core.autocrlf=false clone https://github.com/candidtheartist/ssx3 && cd ssx3
+py -3 -m venv venv && venv/Scripts/python.exe -m pip install "spimdisasm>=1.41.0"
+cmake -S port/recomp -B port/recomp/build -G Ninja -DSSX3PC_ELF=C:/path/to/SLUS_207.72 -DSSX3PC_RUNTIME_JOBS=4
+ninja -C port/recomp/build
+```
+
+The build also fetches FFmpeg and builds a small static copy of it with only the MPEG video decoder and the scaler,
+so the game's movies play and `ps2EntryRunner.exe` needs no DLLs. Run it the same way as on Linux, from the
+extracted disc's folder in the MINGW32 shell.
 
 ### PS2Recomp's tests
 

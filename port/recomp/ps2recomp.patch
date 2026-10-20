@@ -927,10 +927,19 @@ index 509fd07..b5210f9 100644
  
      std::string CodeGenerator::translateVU_VRGET(const Instruction &inst)
 diff --git a/ps2xRuntime/CMakeLists.txt b/ps2xRuntime/CMakeLists.txt
-index 589d768..fbff776 100644
+index 589d768..4249a35 100644
 --- a/ps2xRuntime/CMakeLists.txt
 +++ b/ps2xRuntime/CMakeLists.txt
-@@ -383,8 +383,10 @@ add_library(ps2_runtime STATIC
+@@ -253,7 +253,7 @@ option(PS2X_ENABLE_FFMPEG "Enable FFmpeg-backed MPEG video decoding" ${PS2X_ENAB
+ if(NOT PS2X_ENABLE_FFMPEG)
+     message(STATUS "FFmpeg disabled; MPEG video decode falls back to stub frames")
+     add_library(ffmpeg INTERFACE)
+-elseif(WIN32)
++elseif(MSVC)
+     include(ExternalProject)
+ 
+     set(FFMPEG_PREBUILT_TAG "n7.1-241205")
+@@ -383,8 +383,12 @@ add_library(ps2_runtime STATIC
      src/lib/gs/ps2_gs_memory.cpp
      src/lib/gs/gs_frontend.cpp
      src/lib/gs/gs_cpu_backend.cpp
@@ -938,10 +947,12 @@ index 589d768..fbff776 100644
      src/lib/ps2_iop_host.cpp
      src/lib/ps2_memory.cpp
 +    src/lib/ps2_vu1_thread.cpp
++    src/lib/ps2_host_thread.cpp
++    src/lib/ps2_host_alloc.cpp
      src/lib/ps2_pad.cpp
      src/lib/ps2_rom_device.cpp
      src/lib/ps2_vfs.cpp
-@@ -393,6 +395,7 @@ add_library(ps2_runtime STATIC
+@@ -393,6 +397,7 @@ add_library(ps2_runtime STATIC
      src/lib/vu/ps2_vu1_core.cpp
      src/lib/vu/ps2_vu1_upper.cpp
      src/lib/vu/ps2_vu1_lower.cpp
@@ -949,7 +960,7 @@ index 589d768..fbff776 100644
      src/lib/games_database.cpp
  )
  
-@@ -429,6 +432,22 @@ target_compile_definitions(ps2_runtime PRIVATE
+@@ -429,6 +434,22 @@ target_compile_definitions(ps2_runtime PRIVATE
      PS2X_HAS_FFMPEG=$<BOOL:${PS2X_ENABLE_FFMPEG}>
  )
  
@@ -972,7 +983,7 @@ index 589d768..fbff776 100644
  file(GLOB_RECURSE KERNEL_SRC_FILES CONFIGURE_DEPENDS
      "${CMAKE_CURRENT_SOURCE_DIR}/src/lib/Kernel/*.cpp"
  )
-@@ -437,11 +456,17 @@ target_sources(ps2_runtime PRIVATE
+@@ -437,11 +458,17 @@ target_sources(ps2_runtime PRIVATE
      ${KERNEL_SRC_FILES}
  )
  
@@ -992,7 +1003,7 @@ index 589d768..fbff776 100644
  set(ROOT_MAIN_CPP "${CMAKE_CURRENT_SOURCE_DIR}/src/main.cpp")
  
  if(EXISTS "${RUNNER_MAIN_CPP}")
-@@ -460,6 +485,52 @@ else()
+@@ -460,6 +487,62 @@ else()
      add_executable(ps2EntryRunner
          ${RUNNER_SRC_FILES}
      )
@@ -1010,6 +1021,12 @@ index 589d768..fbff776 100644
 +        target_sources(ps2EntryRunner PRIVATE "${CMAKE_CURRENT_SOURCE_DIR}/src/lib/ps2_identity_map.cpp")
 +        set_source_files_properties("${CMAKE_CURRENT_SOURCE_DIR}/src/lib/ps2_identity_map.cpp" PROPERTIES SKIP_UNITY_BUILD_INCLUSION ON)
 +    endif()
++    if(CMAKE_SIZEOF_VOID_P EQUAL 4 AND MINGW)
++        # Static, so the executable runs without MinGW's DLLs next to it, and large-address-aware, so it gets
++        # 4 GB of address space on 64-bit Windows. EE RAM isn't identity-mapped here: Windows 11 already has
++        # memory at 0x00100000 when a process starts, and only natively compiled C needs the mapping.
++        target_link_options(ps2EntryRunner PRIVATE -static "LINKER:--large-address-aware")
++    endif()
 +endif()
 +
 +# VU1 blocks as straight-line code, generated at build time: the block list
@@ -1021,6 +1038,10 @@ index 589d768..fbff776 100644
 +if(PS2X_VU1_BLOCK_LIST AND PS2X_VU1_BLOCK_ELF)
 +    add_executable(ps2_vu1_blockgen src/tools/vu1_blockgen.cpp)
 +    target_link_libraries(ps2_vu1_blockgen PRIVATE ps2_runtime)
++    if(MINGW)
++        # It runs during the build, where MinGW's DLLs may not be on the path.
++        target_link_options(ps2_vu1_blockgen PRIVATE -static)
++    endif()
 +    target_include_directories(ps2_vu1_blockgen PRIVATE "${CMAKE_CURRENT_SOURCE_DIR}/src/lib")
 +
 +    set(PS2X_VU1_BLOCK_DIR "${CMAKE_CURRENT_BINARY_DIR}/vu1_blocks")
@@ -1045,7 +1066,7 @@ index 589d768..fbff776 100644
  endif()
  
  if(PS2X_ENABLE_RUNNER_UNITY_BUILD)
-@@ -476,6 +547,8 @@ if(PS2X_ENABLE_RUNNER_PCH)
+@@ -476,6 +559,8 @@ if(PS2X_ENABLE_RUNNER_PCH)
      )
  
      foreach(PS2X_RUNNER_GENERATED_HEADER IN ITEMS
@@ -1054,7 +1075,7 @@ index 589d768..fbff776 100644
          "${CMAKE_CURRENT_SOURCE_DIR}/include/ps2_recompiled_functions.h"
          "${CMAKE_CURRENT_SOURCE_DIR}/include/ps2_recompiled_stubs.h")
          if(EXISTS "${PS2X_RUNNER_GENERATED_HEADER}")
-@@ -511,6 +584,8 @@ target_link_libraries(ps2EntryRunner
+@@ -511,6 +596,8 @@ target_link_libraries(ps2EntryRunner
      PRIVATE
      ps2_runtime
  )
@@ -1063,6 +1084,15 @@ index 589d768..fbff776 100644
  
  if(PS2X_ENABLE_DEBUG_UI AND NOT PS2X_IS_VITA AND NOT PS2X_IS_ANDROID)
      target_sources(ps2EntryRunner PRIVATE
+@@ -597,7 +684,7 @@ install(TARGETS ps2_runtime ps2EntryRunner
+     ARCHIVE DESTINATION lib
+ )
+ 
+-if(WIN32 AND PS2X_ENABLE_FFMPEG)
++if(MSVC AND PS2X_ENABLE_FFMPEG)
+     install(DIRECTORY "${FFMPEG_BIN_DIR}/"
+         DESTINATION bin
+         FILES_MATCHING
 diff --git a/ps2xRuntime/include/ps2_guest_scratch.h b/ps2xRuntime/include/ps2_guest_scratch.h
 new file mode 100644
 index 0000000..06fdb29
@@ -1089,6 +1119,38 @@ index 0000000..06fdb29
 +// The range the game asked for through SetupHeap while a scratch region is active.
 +extern uint32_t g_ps2xGameHeapBase;
 +extern uint32_t g_ps2xGameHeapLimit;
+diff --git a/ps2xRuntime/include/ps2_host_thread.h b/ps2xRuntime/include/ps2_host_thread.h
+new file mode 100644
+index 0000000..bdeead2
+--- /dev/null
++++ b/ps2xRuntime/include/ps2_host_thread.h
+@@ -0,0 +1,26 @@
++#pragma once
++
++#include <cstddef>
++#include <functional>
++#include <thread>
++
++// A joinable host thread with a stack of at least stackBytes. std::thread leaves the stack size to the
++// platform: 8 MB on Linux, but the executable's default on Windows (2 MB with MinGW, 1 MB with MSVC).
++class Ps2HostThread
++{
++public:
++    Ps2HostThread(size_t stackBytes, std::function<void()> body);
++    ~Ps2HostThread();
++    Ps2HostThread(const Ps2HostThread &) = delete;
++    Ps2HostThread &operator=(const Ps2HostThread &) = delete;
++
++    bool joinable() const;
++    void join();
++
++private:
++#if defined(_WIN32)
++    void *m_handle = nullptr;
++#else
++    std::thread m_thread;
++#endif
++};
 diff --git a/ps2xRuntime/include/ps2_runtime.h b/ps2xRuntime/include/ps2_runtime.h
 index 4b9242c..f1c8648 100644
 --- a/ps2xRuntime/include/ps2_runtime.h
@@ -6935,6 +6997,166 @@ index c9aa2c6..5cfa0e7 100644
      }
  #endif
  }
+diff --git a/ps2xRuntime/src/lib/ps2_host_alloc.cpp b/ps2xRuntime/src/lib/ps2_host_alloc.cpp
+new file mode 100644
+index 0000000..a8752e8
+--- /dev/null
++++ b/ps2xRuntime/src/lib/ps2_host_alloc.cpp
+@@ -0,0 +1,75 @@
++// MinGW's GCC promises 16-byte aligned memory from operator new on 32-bit x86
++// (__STDCPP_DEFAULT_NEW_ALIGNMENT__ is 16), but the C runtime's malloc only gives 8 there, so objects holding
++// __m128i members could come out misaligned and fault on their first SSE load. Every operator new here hands
++// out 16-byte aligned blocks instead. It lives in the runtime library, which comes before libstdc++ on the
++// link line, so these definitions are the ones every new and delete in the program use.
++
++#if defined(__MINGW32__) && !defined(_WIN64)
++
++#include <cstddef>
++#include <malloc.h>
++#include <new>
++
++namespace
++{
++    constexpr std::size_t kMinAlignment = 16;
++
++    void *allocate(std::size_t size, std::size_t alignment)
++    {
++        if (alignment < kMinAlignment)
++            alignment = kMinAlignment;
++        if (size == 0)
++            size = 1;
++        for (;;)
++        {
++            if (void *p = _aligned_malloc(size, alignment))
++                return p;
++            const std::new_handler handler = std::get_new_handler();
++            if (!handler)
++                throw std::bad_alloc();
++            handler();
++        }
++    }
++
++    void *allocateOrNull(std::size_t size, std::size_t alignment) noexcept
++    {
++        try
++        {
++            return allocate(size, alignment);
++        }
++        catch (...)
++        {
++            return nullptr;
++        }
++    }
++}
++
++void *operator new(std::size_t size) { return allocate(size, kMinAlignment); }
++void *operator new[](std::size_t size) { return allocate(size, kMinAlignment); }
++void *operator new(std::size_t size, const std::nothrow_t &) noexcept { return allocateOrNull(size, kMinAlignment); }
++void *operator new[](std::size_t size, const std::nothrow_t &) noexcept { return allocateOrNull(size, kMinAlignment); }
++void *operator new(std::size_t size, std::align_val_t a) { return allocate(size, static_cast<std::size_t>(a)); }
++void *operator new[](std::size_t size, std::align_val_t a) { return allocate(size, static_cast<std::size_t>(a)); }
++void *operator new(std::size_t size, std::align_val_t a, const std::nothrow_t &) noexcept
++{
++    return allocateOrNull(size, static_cast<std::size_t>(a));
++}
++void *operator new[](std::size_t size, std::align_val_t a, const std::nothrow_t &) noexcept
++{
++    return allocateOrNull(size, static_cast<std::size_t>(a));
++}
++
++void operator delete(void *p) noexcept { _aligned_free(p); }
++void operator delete[](void *p) noexcept { _aligned_free(p); }
++void operator delete(void *p, std::size_t) noexcept { _aligned_free(p); }
++void operator delete[](void *p, std::size_t) noexcept { _aligned_free(p); }
++void operator delete(void *p, const std::nothrow_t &) noexcept { _aligned_free(p); }
++void operator delete[](void *p, const std::nothrow_t &) noexcept { _aligned_free(p); }
++void operator delete(void *p, std::align_val_t) noexcept { _aligned_free(p); }
++void operator delete[](void *p, std::align_val_t) noexcept { _aligned_free(p); }
++void operator delete(void *p, std::size_t, std::align_val_t) noexcept { _aligned_free(p); }
++void operator delete[](void *p, std::size_t, std::align_val_t) noexcept { _aligned_free(p); }
++void operator delete(void *p, std::align_val_t, const std::nothrow_t &) noexcept { _aligned_free(p); }
++void operator delete[](void *p, std::align_val_t, const std::nothrow_t &) noexcept { _aligned_free(p); }
++
++#endif
+diff --git a/ps2xRuntime/src/lib/ps2_host_thread.cpp b/ps2xRuntime/src/lib/ps2_host_thread.cpp
+new file mode 100644
+index 0000000..d6561bb
+--- /dev/null
++++ b/ps2xRuntime/src/lib/ps2_host_thread.cpp
+@@ -0,0 +1,73 @@
++#include "ps2_host_thread.h"
++
++#include <exception>
++#include <memory>
++#include <system_error>
++
++#if defined(_WIN32)
++#include <cerrno>
++#include <process.h>
++#include <windows.h>
++
++namespace
++{
++    unsigned __stdcall runBody(void *arg)
++    {
++        const std::unique_ptr<std::function<void()>> body(static_cast<std::function<void()> *>(arg));
++        (*body)();
++        return 0;
++    }
++}
++
++Ps2HostThread::Ps2HostThread(size_t stackBytes, std::function<void()> body)
++{
++    auto *heapBody = new std::function<void()>(std::move(body));
++    const uintptr_t handle = _beginthreadex(nullptr, static_cast<unsigned>(stackBytes), runBody, heapBody,
++                                            STACK_SIZE_PARAM_IS_A_RESERVATION, nullptr);
++    if (!handle)
++    {
++        delete heapBody;
++        throw std::system_error(errno, std::generic_category(), "cannot start a host thread");
++    }
++    m_handle = reinterpret_cast<void *>(handle);
++}
++
++Ps2HostThread::~Ps2HostThread()
++{
++    if (joinable())
++        std::terminate();
++}
++
++bool Ps2HostThread::joinable() const
++{
++    return m_handle != nullptr;
++}
++
++void Ps2HostThread::join()
++{
++    WaitForSingleObject(static_cast<HANDLE>(m_handle), INFINITE);
++    CloseHandle(static_cast<HANDLE>(m_handle));
++    m_handle = nullptr;
++}
++
++#else
++
++// pthreads' default stack (8 MB with glibc) is already enough, so stackBytes isn't used.
++Ps2HostThread::Ps2HostThread(size_t, std::function<void()> body)
++    : m_thread(std::move(body))
++{
++}
++
++Ps2HostThread::~Ps2HostThread() = default;
++
++bool Ps2HostThread::joinable() const
++{
++    return m_thread.joinable();
++}
++
++void Ps2HostThread::join()
++{
++    m_thread.join();
++}
++
++#endif
 diff --git a/ps2xRuntime/src/lib/ps2_identity_map.cpp b/ps2xRuntime/src/lib/ps2_identity_map.cpp
 new file mode 100644
 index 0000000..e46a8ef
@@ -7813,14 +8035,15 @@ index 37b6a4d..378880d 100644
                 (mode & 0x1u) |
                 (m_path3Masked ? 0x2u : 0u) |
 diff --git a/ps2xRuntime/src/lib/ps2_runtime.cpp b/ps2xRuntime/src/lib/ps2_runtime.cpp
-index 45cb9d2..9789fc0 100644
+index 45cb9d2..e0d31a9 100644
 --- a/ps2xRuntime/src/lib/ps2_runtime.cpp
 +++ b/ps2xRuntime/src/lib/ps2_runtime.cpp
-@@ -1,10 +1,15 @@
+@@ -1,10 +1,16 @@
 +#include <cstdio>
 +#include <cstdlib>
 +#include <map>
  #include "ps2_runtime.h"
++#include "ps2_host_thread.h"
 +#include "ps2_guest_scratch.h"
  #include "ps2_log.h"
  #include "ps2_stubs.h"
@@ -7832,7 +8055,7 @@ index 45cb9d2..9789fc0 100644
  #include "runtime/ee_scheduler.h"
  #include "ThreadNaming.h"
  #include "Kernel/Stubs/Audio.h"
-@@ -27,6 +32,11 @@
+@@ -27,6 +33,11 @@
  #include <unordered_map>
  #include <sstream>
  
@@ -7844,7 +8067,7 @@ index 45cb9d2..9789fc0 100644
  namespace ps2_stubs
  {
      void resetSifState();
-@@ -477,10 +487,17 @@ static void UploadFrame(Texture2D &tex, PS2Runtime *rt, uint32_t &outWidth, uint
+@@ -477,10 +488,17 @@ static void UploadFrame(Texture2D &tex, PS2Runtime *rt, uint32_t &outWidth, uint
      s_hasUploadedFrame = true;
  }
  
@@ -7862,7 +8085,7 @@ index 45cb9d2..9789fc0 100644
  
      m_eeScheduler = std::make_unique<EeScheduler>(*this);
  
-@@ -537,8 +554,8 @@ PS2Runtime::~PS2Runtime()
+@@ -537,8 +555,8 @@ PS2Runtime::~PS2Runtime()
  #else
          if (IsAudioDeviceReady())
          {
@@ -7872,7 +8095,7 @@ index 45cb9d2..9789fc0 100644
          }
  #endif
          if (m_debugUiInitialized && m_debugUiShutdownCallback)
-@@ -664,43 +681,70 @@ bool PS2Runtime::syncCoreSubsystems()
+@@ -664,43 +682,70 @@ bool PS2Runtime::syncCoreSubsystems()
          return true;
      }
  
@@ -7955,7 +8178,7 @@ index 45cb9d2..9789fc0 100644
                                           (cpuContext->vu0_vpu_stat & ~0x0600u) |
                                           (m_vu1.state().stoppedByD ? 0x0200u : 0u) |
                                           (m_vu1.state().stoppedByT ? 0x0400u : 0u); });
-@@ -1275,6 +1319,15 @@ void PS2Runtime::reportMissingFunction(uint8_t *rdram,
+@@ -1275,6 +1320,15 @@ void PS2Runtime::reportMissingFunction(uint8_t *rdram,
  
      if (firstReport)
      {
@@ -7971,7 +8194,7 @@ index 45cb9d2..9789fc0 100644
          std::ostringstream oss;
          oss << "[guest-branch:missing-target] kind=" << describeGuestBranchKind(kind)
              << " op=" << (debugName ? debugName : "<unknown>")
-@@ -1342,6 +1395,19 @@ void PS2Runtime::reportMissingFunction(uint8_t *rdram,
+@@ -1342,6 +1396,19 @@ void PS2Runtime::reportMissingFunction(uint8_t *rdram,
      }
  }
  
@@ -7991,7 +8214,7 @@ index 45cb9d2..9789fc0 100644
  bool PS2Runtime::dispatchGuestBranch(uint8_t *rdram,
                                       R5900Context *ctx,
                                       uint32_t targetPc,
-@@ -1350,6 +1416,13 @@ bool PS2Runtime::dispatchGuestBranch(uint8_t *rdram,
+@@ -1350,6 +1417,13 @@ bool PS2Runtime::dispatchGuestBranch(uint8_t *rdram,
                                       GuestBranchKind kind,
                                       const char *debugName)
  {
@@ -8005,7 +8228,7 @@ index 45cb9d2..9789fc0 100644
      ctx->pc = targetPc;
      const bool isCall = (kind == GuestBranchKind::DirectCall || kind == GuestBranchKind::IndirectCall);
  
-@@ -1358,6 +1431,7 @@ bool PS2Runtime::dispatchGuestBranch(uint8_t *rdram,
+@@ -1358,6 +1432,7 @@ bool PS2Runtime::dispatchGuestBranch(uint8_t *rdram,
      // this charge bounds straight-line call chains that have no local loop.
      if (m_eeScheduler && m_eeScheduler->checkpointDue(EeScheduler::kGuestDispatchCycles))
      {
@@ -8013,7 +8236,7 @@ index 45cb9d2..9789fc0 100644
          return false;
      }
  
-@@ -1369,6 +1443,7 @@ bool PS2Runtime::dispatchGuestBranch(uint8_t *rdram,
+@@ -1369,6 +1444,7 @@ bool PS2Runtime::dispatchGuestBranch(uint8_t *rdram,
          }
  
          ctx->pc = targetPc;
@@ -8021,7 +8244,7 @@ index 45cb9d2..9789fc0 100644
          return false;
      }
  
-@@ -1396,6 +1471,7 @@ bool PS2Runtime::dispatchGuestBranch(uint8_t *rdram,
+@@ -1396,6 +1472,7 @@ bool PS2Runtime::dispatchGuestBranch(uint8_t *rdram,
  
      RecompiledFunction targetFn = lookupFunction(targetPc);
      const uint32_t entryPc = ctx->pc;
@@ -8029,7 +8252,7 @@ index 45cb9d2..9789fc0 100644
      targetFn(rdram, ctx, this);
  
      if (isStopRequested() || ctx->pc == 0u)
-@@ -1403,7 +1479,10 @@ bool PS2Runtime::dispatchGuestBranch(uint8_t *rdram,
+@@ -1403,7 +1480,10 @@ bool PS2Runtime::dispatchGuestBranch(uint8_t *rdram,
          return false;
      }
  
@@ -8041,7 +8264,7 @@ index 45cb9d2..9789fc0 100644
      {
          ctx->pc = fallthroughPc;
      }
-@@ -1677,6 +1756,11 @@ void PS2Runtime::ensureGuestHeapInitializedLocked()
+@@ -1677,6 +1757,11 @@ void PS2Runtime::ensureGuestHeapInitializedLocked()
          return;
      }
  
@@ -8053,7 +8276,7 @@ index 45cb9d2..9789fc0 100644
      const uint32_t suggested = (m_guestHeapSuggestedBase == 0u) ? kGuestHeapDefaultBase : m_guestHeapSuggestedBase;
      resetGuestHeapLocked(suggested, clampGuestHeapLimit(0u));
  }
-@@ -1807,6 +1891,17 @@ void PS2Runtime::freeGuestBlockLocked(uint32_t guestAddr)
+@@ -1807,6 +1892,17 @@ void PS2Runtime::freeGuestBlockLocked(uint32_t guestAddr)
  void PS2Runtime::configureGuestHeap(uint32_t guestBase, uint32_t guestLimit)
  {
      std::lock_guard<std::mutex> lock(m_guestHeapMutex);
@@ -8071,7 +8294,7 @@ index 45cb9d2..9789fc0 100644
      uint32_t normalizedBase = alignGuestHeapValue(clampGuestHeapBase(guestBase), kGuestHeapDefaultAlignment);
      if (normalizedBase == 0u)
      {
-@@ -1820,7 +1915,10 @@ uint32_t PS2Runtime::guestMalloc(uint32_t size, uint32_t alignment)
+@@ -1820,7 +1916,10 @@ uint32_t PS2Runtime::guestMalloc(uint32_t size, uint32_t alignment)
  {
      std::lock_guard<std::mutex> lock(m_guestHeapMutex);
      ensureGuestHeapInitializedLocked();
@@ -8083,7 +8306,7 @@ index 45cb9d2..9789fc0 100644
  }
  
  uint32_t PS2Runtime::guestCalloc(uint32_t count, uint32_t size, uint32_t alignment)
-@@ -1975,6 +2073,16 @@ uint32_t PS2Runtime::guestHeapLimit() const
+@@ -1975,6 +2074,16 @@ uint32_t PS2Runtime::guestHeapLimit() const
      return m_guestHeapConfigured ? m_guestHeapLimit : m_guestHeapSuggestedBase;
  }
  
@@ -8100,7 +8323,7 @@ index 45cb9d2..9789fc0 100644
  uint32_t PS2Runtime::reserveAsyncCallbackStack(uint32_t size, uint32_t alignment)
  {
      if (size == 0u)
-@@ -2211,7 +2319,12 @@ void PS2Runtime::postEeEvent(EeEvent event)
+@@ -2211,7 +2320,12 @@ void PS2Runtime::postEeEvent(EeEvent event)
  
  bool PS2Runtime::eeCheckpointDue(uint32_t cycles) noexcept
  {
@@ -8114,7 +8337,7 @@ index 45cb9d2..9789fc0 100644
  }
  
  [[noreturn]] void PS2Runtime::eeWaitVSyncTicks(uint32_t ticks, uint32_t resumePc)
-@@ -2362,6 +2475,33 @@ void PS2Runtime::run()
+@@ -2362,9 +2476,37 @@ void PS2Runtime::run()
      Texture2D frameTex = LoadTextureFromImage(blank);
      UnloadImage(blank);
  
@@ -8147,8 +8370,13 @@ index 45cb9d2..9789fc0 100644
 +
      std::atomic<bool> gameThreadFinished{false};
  
-     std::thread gameThread([&]()
-@@ -2420,6 +2560,22 @@ void PS2Runtime::run()
+-    std::thread gameThread([&]()
++    // Recompiled code nests a host call for every guest call, so the game thread gets a deep stack.
++    Ps2HostThread gameThread(16u << 20, [&]()
+                            {
+         ThreadNaming::SetCurrentThreadName("GameThread");
+         try
+@@ -2420,6 +2562,22 @@ void PS2Runtime::run()
  
              }
          });
@@ -8171,7 +8399,7 @@ index 45cb9d2..9789fc0 100644
          uint32_t presentWidth = FB_WIDTH;
          uint32_t presentHeight = DEFAULT_DISPLAY_HEIGHT;
          UploadFrame(frameTex, this, presentWidth, presentHeight);
-@@ -2459,6 +2615,7 @@ void PS2Runtime::run()
+@@ -2459,6 +2617,7 @@ void PS2Runtime::run()
      {
          gameThread.join();
      }
@@ -12259,10 +12487,10 @@ index 0000000..c79579a
 +    return 0;
 +}
 diff --git a/ps2xTest/CMakeLists.txt b/ps2xTest/CMakeLists.txt
-index 3eaa8b3..66d58c7 100644
+index 3eaa8b3..0ff682d 100644
 --- a/ps2xTest/CMakeLists.txt
 +++ b/ps2xTest/CMakeLists.txt
-@@ -64,6 +64,31 @@ add_executable(ps2x_tests
+@@ -64,6 +64,35 @@ add_executable(ps2x_tests
      $<TARGET_OBJECTS:ps2_test_function_table>
  )
  
@@ -12275,6 +12503,10 @@ index 3eaa8b3..66d58c7 100644
 +    ${CMAKE_SOURCE_DIR}/ps2xRuntime/src/lib
 +)
 +target_link_libraries(ps2x_vu1_test_blocks PRIVATE ps2_runtime)
++if(MINGW)
++    # It runs during the build, where MinGW's DLLs may not be on the path.
++    target_link_options(ps2x_vu1_test_blocks PRIVATE -static)
++endif()
 +set(PS2X_TEST_VU1_BLOCK_DIR "${CMAKE_CURRENT_BINARY_DIR}/vu1_test_blocks")
 +set(PS2X_TEST_VU1_BLOCKS
 +    "${PS2X_TEST_VU1_BLOCK_DIR}/vu1_blocks_0.cpp"
@@ -12294,6 +12526,15 @@ index 3eaa8b3..66d58c7 100644
  option(PRINT_GENERATED_CODE "Print generated code in tests" OFF)
  if(PRINT_GENERATED_CODE)
  
+@@ -91,7 +120,7 @@ target_link_libraries(ps2x_tests PRIVATE
+ if(MSVC)
+     target_link_options(ps2x_tests PRIVATE "/STACK:8388608")
+ elseif(MINGW)
+-    target_link_options(ps2x_tests PRIVATE "--stack,8388608")
++    target_link_options(ps2x_tests PRIVATE -static "LINKER:--stack,8388608")
+ endif()
+ 
+ if(COMMAND ps2x_stage_ffmpeg_runtime_dlls)
 diff --git a/ps2xTest/include/vu1_fuzzer.h b/ps2xTest/include/vu1_fuzzer.h
 new file mode 100644
 index 0000000..75b971f
