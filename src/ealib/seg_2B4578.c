@@ -7573,7 +7573,99 @@ void func_003CA028(char *arg0, char *arg1) {
     func_003CCF60_A028(*(int *)(arg0 + 0x1C), *(int *)(arg0 + 0x20), n * 4, n);
 }
 
-INCLUDE_ASM("ealib/seg_2B4578", func_003CA0B8);
+//100%
+// Pulls n samples into buf from an in-memory ADPCM sample, looping from the
+// loop start (or restarting the loop region) when the decoder runs dry.
+// Returns the count delivered.
+struct F2_A0B8 { float a; float b; };
+struct S_A0B8 {
+    char pad[0x1C];
+    void *dec;
+    int pos;
+    int lstart;
+    int lend;
+    char *ldata;
+    int mode;
+    char *data;
+    int f38;
+    int primed;
+    int started;
+    int start;
+    int end;
+    float s4C;
+    float s50;
+};
+extern int func_003CCF60_A0B8(void *, char *, int, int) __asm__("func_003CCF60");
+extern int func_003CCF90_A0B8(void *, int **, int) __asm__("func_003CCF90");
+extern struct F2_A0B8 func_003CD138_A0B8(void *) __asm__("func_003CD138");
+extern void func_003CD190_A0B8(void *, struct F2_A0B8 *) __asm__("func_003CD190");
+
+int func_003CA0B8(struct S_A0B8 *self, int n, int unused, int *buf) {
+    struct F2_A0B8 st;
+    int junk[32];
+    int *q;
+    int done = 0;
+    int k;
+    int m;
+    int r;
+    int p;
+    int m2;
+
+    if (self->mode < 3) {
+        if (self->started == 0) {
+            int c = self->start / 28 * 28;
+            func_003CCF60_A0B8(self->dec, self->data, c * 4, c);
+            self->started = 1;
+        }
+        while (n != 0) {
+            k = func_003CCF90_A0B8(self->dec, &buf, n);
+            buf += k;
+            done += k;
+            self->pos += k;
+            if (k < n) {
+                r = self->start % 28;
+                n -= k;
+                p = self->start - r;
+                self->pos = p;
+                m2 = self->end - p + 1;
+                func_003CCF60_A0B8(self->dec, self->data + p / 28 * 15, m2 * 4, m2);
+                if (!self->primed) {
+                    st = func_003CD138_A0B8(self->dec);
+                    self->s4C = st.a;
+                    self->s50 = st.b;
+                    k = func_003CCF90_A0B8(self->dec, &buf, n);
+                    buf += k;
+                    self->pos += k;
+                    self->primed = 1;
+                    done += k;
+                    n -= k;
+                } else {
+                    st.a = self->s4C;
+                    st.b = self->s50;
+                    func_003CD190_A0B8(self->dec, &st);
+                    q = &junk[2];
+                    self->pos += func_003CCF90_A0B8(self->dec, &q, r);
+                }
+            } else {
+                n -= k;
+            }
+        }
+        return done;
+    }
+    while (n > 0) {
+        k = func_003CCF90_A0B8(self->dec, &buf, n);
+        buf += k;
+        n -= k;
+        self->pos += k;
+        done += k;
+        if (k < n) {
+            self->pos = self->lstart;
+            m = self->lend - self->lstart + 1;
+            func_003CCF60_A0B8(self->dec, self->ldata, m * 4, m);
+        }
+    }
+    return done;
+}
 
 //100%
 int func_003CA358(void *arg0) {
