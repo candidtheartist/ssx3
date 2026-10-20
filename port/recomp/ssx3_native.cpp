@@ -50,6 +50,7 @@ namespace
 
     std::unordered_map<uint32_t, Swapped> g_swapped;
     uint32_t g_checkCalls = 0;
+    uint32_t g_checksPerFunction = 0;
     bool g_inCheck = false;
 
     // Returns what the function gives back: 0 nothing, 1 v0, 2 f0.
@@ -131,8 +132,17 @@ namespace
             ++fn.mismatches;
             std::fprintf(stderr, "[native] %08X: MISMATCH (%u words differ)\n", address, differing);
         }
-        if ((g_checkCalls & 255u) == 0u)
-            std::fprintf(stderr, "[native] checked %u calls\n", g_checkCalls);
+        if ((g_checkCalls & 63u) == 0u)
+        {
+            uint32_t functions = 0, mismatched = 0;
+            for (const auto &kv : g_swapped)
+            {
+                functions += kv.second.checksLeft != g_checksPerFunction;
+                mismatched += kv.second.mismatches != 0u;
+            }
+            std::fprintf(stderr, "[native] checked %u calls of %u functions, %u functions differ\n", g_checkCalls,
+                         functions, mismatched);
+        }
         return true;
     }
 
@@ -169,6 +179,7 @@ void ssx3RegisterNative(PS2Runtime &runtime)
     }
     const char *check = std::getenv("PS2X_NATIVE_CHECK");
     const uint32_t checks = check ? static_cast<uint32_t>(std::strtoul(check, nullptr, 0)) : 0u;
+    g_checksPerFunction = checks;
     uint32_t swapped = 0;
     for (unsigned int i = 0; i < g_ssx3NativeCount; ++i)
     {
