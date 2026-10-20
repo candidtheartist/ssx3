@@ -2194,7 +2194,98 @@ extern "C" void func_00258C50(void *arg0, int arg1) {
     }
 }
 
-INCLUDE_ASM("seg/seg_156860", func_00258CB0);
+//100%
+int GetHashValue32(char* str);
+extern "C" char* func_0039F9D8(void* self, int id);
+extern "C" void func_002C2508(char* dst, int src);
+extern void* D_004A28A4;
+extern char D_004A2EF0[];
+extern char D_004805D8[];
+extern char D_004805F8[];
+
+struct sVE_8CB0 {
+    short delta;
+    short index;
+    int (*fn)(void*, ...);
+};
+
+static inline int GetStr_8CB0(char* name)
+{
+    char* o = *(char**)((char*)D_004A28A8 + 0x8C);
+    sVE_8CB0* vt = *(sVE_8CB0**)(o + 4);
+    return vt[4].fn(o + vt[4].delta, GetHashValue32(name));
+}
+
+static inline void Send_8CB0(char* obj, int msg, void* arg)
+{
+    sVE_8CB0* vt = *(sVE_8CB0**)(obj + 8);
+    vt[24].fn(obj + vt[24].delta, msg, arg);
+}
+
+static inline int Is2_8CB0()
+{
+    return *(int*)((char*)D_004A28A4 + 0x550) == 2;
+}
+
+// Each exit spells out the close (no shared break): the copies give obj the target's register.
+extern "C" void func_00258CB0(char* self)
+{
+    if (*(int*)(self + 0x84) != 0) *(int*)(self + 0x60) = 0;
+    char* p = *(char**)(*(char**)((char*)D_004A28A8 + 0x84) + 0x48);
+    if (p == 0) return;
+    char* obj = func_0039F9D8(p + 0x18, GetHashValue32(D_004A2EF0));
+    if (obj == 0) return;
+    char buf[0x100];
+    if (*(int*)(self + 0x78) != 0) {
+        func_002C2508(buf, GetStr_8CB0(D_004805D8));
+    } else {
+        func_002C2508(buf, GetStr_8CB0(D_004805F8));
+    }
+    switch (*(int*)(self + 0x98)) {
+    case 0:
+        if (*(int*)(self + 0x74) != 0) return;
+        if (*(int*)(self + 0x78) != 0) {
+            unsigned int st = **(int**)(*(char**)((char*)D_004A28A8 + 0x84) + 0xC) - 4;
+            if (!(st < 2) && Is2_8CB0()) return;
+            Send_8CB0(obj, 0xE, buf);
+            *(int*)(self + 0x98) = 1;
+            return;
+        }
+        if (*(int*)(self + 0x84) == 0) return;
+        Send_8CB0(obj, 0xE, buf);
+        *(int*)(self + 0x98) = 2;
+        return;
+    case 2:
+        if (*(int*)(self + 0x74) == 0) {
+            if (*(int*)(self + 0x78) != 0) {
+                Send_8CB0(obj, 0xE, buf);
+                *(int*)(self + 0x98) = 1;
+                return;
+            }
+            if (*(int*)(self + 0x84) != 0 && *(int*)(self + 0x3FC) <= 0) return;
+        }
+        Send_8CB0(obj, 0xF, 0);
+        *(int*)(self + 0x98) = 0;
+        return;
+    case 1:
+        if (*(int*)(*(char**)((char*)D_004A28A8 + 0x84) + 0x214) == 2 && Is2_8CB0()) {
+            Send_8CB0(obj, 0xF, 0);
+            *(int*)(self + 0x98) = 0;
+            return;
+        }
+        if (*(int*)(self + 0x78) == 0) {
+            Send_8CB0(obj, 0xF, 0);
+            *(int*)(self + 0x98) = 0;
+            return;
+        }
+        if (*(int*)(self + 0x74) == 0) return;
+        Send_8CB0(obj, 0xF, 0);
+        *(int*)(self + 0x98) = 0;
+        return;
+    }
+    Send_8CB0(obj, 0xF, 0);
+    *(int*)(self + 0x98) = 0;
+}
 
 //100%
 // PORT: PS2-only inline asm; needs a C fallback off-PS2.
