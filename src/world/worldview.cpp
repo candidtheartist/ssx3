@@ -617,7 +617,7 @@ extern "C" int func_003AA608(func_003AA608_cObj* self, void* a1)
 }
 
 //100%
-extern "C" int func_003AA6E8(void* self, void* a1)
+extern "C" int cPS2ChunkResolve_v16(void* self, void* a1)
 {
     *(int*)((char*)a1 + 0x20) += (int)a1;
     return 1;
@@ -625,7 +625,7 @@ extern "C" int func_003AA6E8(void* self, void* a1)
 
 //100%
 // PORT: decodes an int handle into a pointer ((void*)(i << 2)); not 64-bit safe.
-extern "C" int func_003AA700(void* self, void* a1)
+extern "C" int cPS2ChunkResolve_v17(void* self, void* a1)
 {
     unsigned int h = *(unsigned int*)((char*)a1 + 0x64);
     char* sec = (*(char***)(**(char***)self + 8))[h & 0xFF];
@@ -643,7 +643,7 @@ extern "C" int func_003AA700(void* self, void* a1)
 
 //100%
 // PORT: stores a pointer in an int field (int typing needed to match); not 64-bit safe.
-extern "C" int func_003AA758(void* self, void* a1)
+extern "C" int cPS2ChunkResolve_v09(void* self, void* a1)
 {
     if (*(int*)((char*)a1 + 0x10) == -1) {
         *(int*)((char*)a1 + 0x10) = 0;
@@ -655,7 +655,7 @@ extern "C" int func_003AA758(void* self, void* a1)
 
 //100%
 // PORT: decodes int handles into pointers ((void*)(i << 2)); not 64-bit safe.
-extern "C" int func_003AA780(void* self, int n, int* data)
+extern "C" int cPS2ChunkResolve_v10(void* self, int n, int* data)
 {
     int g;
     for (g = 0; g < n; g++) {
@@ -710,7 +710,7 @@ extern "C" int func_003AA830(func_003AA830_cObj* self, void* a1, int base)
 }
 
 //100%
-extern "C" int func_003AA8D8(void* self, void* a1, int a2)
+extern "C" int cPS2ChunkResolve_v12(void* self, void* a1, int a2)
 {
     *(int*)((char*)a1 + 0x4) += a2;
     return 1;
@@ -720,7 +720,7 @@ extern "C" int func_003AA8D8(void* self, void* a1, int a2)
 static inline char *refToPtr_A8F0(unsigned i) { return (char*)(i << 2); }
 static inline char *conv_A8F0(unsigned i) { if (i == 0) return 0; return refToPtr_A8F0(i); }
 // Resolves the node's object handle (0x80) to its object pointer and caches the object's 0xC field.
-extern "C" int func_003AA8F0(char** self, char* node)
+extern "C" int cPS2ChunkResolveBase_v13(char** self, char* node)
 {
     unsigned id = *(unsigned*)(node + 0x80);
     char *s = (*(char***)(**(char***)self + 8))[id & 0xFF];
@@ -741,7 +741,7 @@ extern "C" int func_003AA8F0(char** self, char* node)
 }
 
 //100%
-struct func_003AA960_sNode {
+struct cPS2ChunkResolve_v18_sNode {
     char pad[0x60];
     int prev;       // 0x60 (index fixed up into a pointer)
     int next;       // 0x64
@@ -750,13 +750,13 @@ struct func_003AA960_sNode {
 };
 
 // PORT: stores pointers in int fields (int typing needed to match); not 64-bit safe.
-extern "C" int func_003AA960(void* self, void* list)
+extern "C" int cPS2ChunkResolve_v18(void* self, void* list)
 {
     int i;
     int count = *(int*)((char*)list + 0x20);
-    func_003AA960_sNode* nodes = (func_003AA960_sNode*)((char*)list + 0x30);
+    cPS2ChunkResolve_v18_sNode* nodes = (cPS2ChunkResolve_v18_sNode*)((char*)list + 0x30);
     int next = 1;
-    *(func_003AA960_sNode**)((char*)list + 0x24) = nodes;
+    *(cPS2ChunkResolve_v18_sNode**)((char*)list + 0x24) = nodes;
     int prev = count - 1;
     for (i = 0; i < *(int*)((char*)list + 0x20); i++) {
         if (nodes[i].prev != -1) {
@@ -887,7 +887,7 @@ extern "C" int func_003AABD8(void* self, func_003AABD8_sObj* obj)
 }
 
 //100%
-extern "C" int func_003AAC50(void* self, void* obj)
+extern "C" int cPS2ChunkResolve_v21(void* self, void* obj)
 {
     if (*(int*)((char*)obj + 0xC) & 0x100) {
         return 0;
@@ -905,7 +905,7 @@ extern "C" int func_003AAC50(void* self, void* obj)
 }
 
 //100%
-extern "C" int func_003AACA8(void* self, void* a1)
+extern "C" int cPS2ChunkResolve_v22(void* self, void* a1)
 {
     if (*(int*)((char*)a1 + 0xC) & 0x100) {
         return 0;
@@ -940,7 +940,7 @@ void operator_delete(int*);
 extern void* D_00495090[];
 extern void* D_00495150[];
 
-extern "C" void func_003AADE8(int* self, int flags)
+extern "C" void cPS2ChunkResolve_dtor(int* self, int flags)
 {
     *(void***)((char*)self + 0x8) = D_00495090;
     func_003AAE60(self);
@@ -1043,7 +1043,7 @@ static inline void insert_AE68(void* self, int type, char* obj, int off)
 #define CALL1_AE68(self, off, obj) \
     ((tMsg1_AE68)VT_AE68(self, off)->fn)((char*)(self) + VT_AE68(self, off)->delta, obj)
 
-extern "C" void* func_003AAE68(void* self, int msg, unsigned int arg, char* obj)
+extern "C" void* cPS2ChunkResolve_Resolve(void* self, int msg, unsigned int arg, char* obj)
 {
     switch (msg) {
     case 1:
@@ -1247,7 +1247,7 @@ static inline void remove_B498(void* self, int type, char* obj, int off, int sta
 
 #define VT_B498(self, off) ((sVEntry_B498*)(*(char**)((char*)(self) + 8) + (off)))
 
-extern "C" void* func_003AB498(void* self, int msg, unsigned int arg, char* obj)
+extern "C" void* cPS2ChunkResolve_Release(void* self, int msg, unsigned int arg, char* obj)
 {
     switch (msg) {
     case 0:

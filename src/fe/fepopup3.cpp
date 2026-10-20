@@ -20,7 +20,7 @@ INCLUDE_ASM("fe/fepopup3", func_001DF418);
 
 INCLUDE_ASM("fe/fepopup3", func_001DF440);
 
-INCLUDE_ASM("fe/fepopup3", func_001DF4E8);
+INCLUDE_ASM("fe/fepopup3", cFEStateBraggingRights_dtor);
 
 INCLUDE_ASM("fe/fepopup3", func_001DF578);
 
@@ -38,9 +38,9 @@ INCLUDE_ASM("fe/fepopup3", func_001DF6E8);
 
 INCLUDE_ASM("fe/fepopup3", func_001DF750);
 
-INCLUDE_ASM("fe/fepopup3", func_001DF7C8);
+INCLUDE_ASM("fe/fepopup3", cFEStateLobbyMenu_dtor);
 
-INCLUDE_ASM("fe/fepopup3", func_001DF878);
+INCLUDE_ASM("fe/fepopup3", cFEStateNetCreateRoomPopup_dtor);
 
 INCLUDE_ASM("fe/fepopup3", func_001DF8E0);
 
@@ -58,7 +58,7 @@ INCLUDE_ASM("fe/fepopup3", func_001DFAA8);
 
 INCLUDE_ASM("fe/fepopup3", func_001DFAC0);
 
-INCLUDE_ASM("fe/fepopup3", func_001DFAC8);
+INCLUDE_ASM("fe/fepopup3", cFEStateRewardGalleryBase_v29);
 
 INCLUDE_ASM("fe/fepopup3", func_001DFAD0);
 
@@ -158,13 +158,13 @@ INCLUDE_ASM("fe/fepopup3", func_001E0548);
 
 INCLUDE_ASM("fe/fepopup3", func_001E05B0);
 
-INCLUDE_ASM("fe/fepopup3", func_001E0740);
+INCLUDE_ASM("fe/fepopup3", FEUISound_v01);
 
 INCLUDE_ASM("fe/fepopup3", func_001E0770);
 
 INCLUDE_ASM("fe/fepopup3", func_001E0778);
 
-INCLUDE_ASM("fe/fepopup3", func_001E0780);
+INCLUDE_ASM("fe/fepopup3", OVUISound_v01);
 
 INCLUDE_ASM("fe/fepopup3", func_001E07B0);
 
@@ -182,7 +182,7 @@ INCLUDE_ASM("fe/fepopup3", func_001E0940);
 
 INCLUDE_ASM("fe/fepopup3", func_001E0948);
 
-INCLUDE_ASM("fe/fepopup3", func_001E09A0);
+INCLUDE_ASM("fe/fepopup3", cFEStateChallengePopup_dtor);
 
 INCLUDE_ASM("fe/fepopup3", func_001E0A00);
 
@@ -214,7 +214,7 @@ INCLUDE_ASM("fe/fepopup3", func_001E0C90);
 
 INCLUDE_ASM("fe/fepopup3", func_001E0C98);
 
-INCLUDE_ASM("fe/fepopup3", func_001E0CF8);
+INCLUDE_ASM("fe/fepopup3", cFEStateCreateStep1_dtor);
 
 INCLUDE_ASM("fe/fepopup3", func_001E0D60);
 
@@ -232,131 +232,131 @@ INCLUDE_ASM("fe/fepopup3", func_001E0E90);
 
 INCLUDE_ASM("fe/fepopup3", func_001E0E98);
 
-INCLUDE_ASM("fe/fepopup3", func_001E0EC0);
+INCLUDE_ASM("fe/fepopup3", cFEStateStats_v13);
 
 INCLUDE_ASM("fe/fepopup3", func_001E0EC8);
 
-INCLUDE_ASM("fe/fepopup3", func_001E0EF0);
+INCLUDE_ASM("fe/fepopup3", cFEStateNetNews_TransitionOut);
 
 INCLUDE_ASM("fe/fepopup3", func_001E0F30);
 
-INCLUDE_ASM("fe/fepopup3", func_001E0F58);
+INCLUDE_ASM("fe/fepopup3", cFEStateRelogin_TransitionOut);
 
-INCLUDE_ASM("fe/fepopup3", func_001E0FB8);
+INCLUDE_ASM("fe/fepopup3", cFEStateNetMessenger_TransitionOut);
 
 INCLUDE_ASM("fe/fepopup3", func_001E0FC0);
 
-INCLUDE_ASM("fe/fepopup3", func_001E1040);
+INCLUDE_ASM("fe/fepopup3", cFEStateReadMessagePopup_TransitionOut);
 
 INCLUDE_ASM("fe/fepopup3", func_001E1048);
 
 INCLUDE_ASM("fe/fepopup3", func_001E1078);
 
-INCLUDE_ASM("fe/fepopup3", func_001E1080);
+INCLUDE_ASM("fe/fepopup3", UISoundBase_v03);
 
-INCLUDE_ASM("fe/fepopup3", func_001E1088);
+INCLUDE_ASM("fe/fepopup3", UISoundBase_v04);
 
 INCLUDE_ASM("fe/fepopup3", func_001E1090);
 
 INCLUDE_ASM("fe/fepopup3", func_001E10B8);
 
-INCLUDE_ASM("fe/fepopup3", func_001E10E8);
+INCLUDE_ASM("fe/fepopup3", UICustomBase_v02);
 
-INCLUDE_ASM("fe/fepopup3", func_001E10F0);
+INCLUDE_ASM("fe/fepopup3", UICustomBase_v03);
 
 INCLUDE_ASM("fe/fepopup3", func_001E10F8);
 
-INCLUDE_ASM("fe/fepopup3", func_001E1100);
+INCLUDE_ASM("fe/fepopup3", UICustomBase_v05);
 
 INCLUDE_ASM("fe/fepopup3", func_001E1108);
 
-INCLUDE_ASM("fe/fepopup3", func_001E1138);
+INCLUDE_ASM("fe/fepopup3", UIInputBase_v02);
 
-INCLUDE_ASM("fe/fepopup3", func_001E1140);
+INCLUDE_ASM("fe/fepopup3", UIInputBase_IsStart);
 
-INCLUDE_ASM("fe/fepopup3", func_001E1148);
+INCLUDE_ASM("fe/fepopup3", UIInputBase_IsSelect);
 
-INCLUDE_ASM("fe/fepopup3", func_001E1150);
+INCLUDE_ASM("fe/fepopup3", UIInputBase_IsNext);
 
-INCLUDE_ASM("fe/fepopup3", func_001E1158);
+INCLUDE_ASM("fe/fepopup3", UIInputBase_IsPrevious);
 
-INCLUDE_ASM("fe/fepopup3", func_001E1160);
+INCLUDE_ASM("fe/fepopup3", UIInputBase_IsOption);
 
-INCLUDE_ASM("fe/fepopup3", func_001E1168);
+INCLUDE_ASM("fe/fepopup3", UIInputBase_IsMisc);
 
-INCLUDE_ASM("fe/fepopup3", func_001E1170);
+INCLUDE_ASM("fe/fepopup3", UIInputBase_IsNextHeld);
 
-INCLUDE_ASM("fe/fepopup3", func_001E1178);
+INCLUDE_ASM("fe/fepopup3", UIInputBase_IsPreviousHeld);
 
-INCLUDE_ASM("fe/fepopup3", func_001E1180);
+INCLUDE_ASM("fe/fepopup3", UIInputBase_IsOptionHeld);
 
-INCLUDE_ASM("fe/fepopup3", func_001E1188);
+INCLUDE_ASM("fe/fepopup3", UIInputBase_IsMiscHeld);
 
-INCLUDE_ASM("fe/fepopup3", func_001E1190);
+INCLUDE_ASM("fe/fepopup3", UIInputBase_IsNextReleased);
 
-INCLUDE_ASM("fe/fepopup3", func_001E1198);
+INCLUDE_ASM("fe/fepopup3", UIInputBase_IsPreviousReleased);
 
-INCLUDE_ASM("fe/fepopup3", func_001E11A0);
+INCLUDE_ASM("fe/fepopup3", UIInputBase_IsOptionReleased);
 
-INCLUDE_ASM("fe/fepopup3", func_001E11A8);
+INCLUDE_ASM("fe/fepopup3", UIInputBase_IsMiscReleased);
 
-INCLUDE_ASM("fe/fepopup3", func_001E11B0);
+INCLUDE_ASM("fe/fepopup3", UIInputBase_IsUp);
 
-INCLUDE_ASM("fe/fepopup3", func_001E11B8);
+INCLUDE_ASM("fe/fepopup3", UIInputBase_IsDown);
 
-INCLUDE_ASM("fe/fepopup3", func_001E11C0);
+INCLUDE_ASM("fe/fepopup3", UIInputBase_IsLeft);
 
-INCLUDE_ASM("fe/fepopup3", func_001E11C8);
+INCLUDE_ASM("fe/fepopup3", UIInputBase_IsRight);
 
-INCLUDE_ASM("fe/fepopup3", func_001E11D0);
+INCLUDE_ASM("fe/fepopup3", UIInputBase_IsUpHeld);
 
-INCLUDE_ASM("fe/fepopup3", func_001E11D8);
+INCLUDE_ASM("fe/fepopup3", UIInputBase_IsDownHeld);
 
-INCLUDE_ASM("fe/fepopup3", func_001E11E0);
+INCLUDE_ASM("fe/fepopup3", UIInputBase_IsLeftHeld);
 
-INCLUDE_ASM("fe/fepopup3", func_001E11E8);
+INCLUDE_ASM("fe/fepopup3", UIInputBase_IsRightHeld);
 
-INCLUDE_ASM("fe/fepopup3", func_001E11F0);
+INCLUDE_ASM("fe/fepopup3", UIInputBase_IsRShift1);
 
-INCLUDE_ASM("fe/fepopup3", func_001E11F8);
+INCLUDE_ASM("fe/fepopup3", UIInputBase_IsRShift2);
 
-INCLUDE_ASM("fe/fepopup3", func_001E1200);
+INCLUDE_ASM("fe/fepopup3", UIInputBase_IsLShift1);
 
-INCLUDE_ASM("fe/fepopup3", func_001E1208);
+INCLUDE_ASM("fe/fepopup3", UIInputBase_IsLShift2);
 
-INCLUDE_ASM("fe/fepopup3", func_001E1210);
+INCLUDE_ASM("fe/fepopup3", UIInputBase_IsRShift1Held);
 
-INCLUDE_ASM("fe/fepopup3", func_001E1218);
+INCLUDE_ASM("fe/fepopup3", UIInputBase_IsRShift2Held);
 
-INCLUDE_ASM("fe/fepopup3", func_001E1220);
+INCLUDE_ASM("fe/fepopup3", UIInputBase_IsLShift1Held);
 
-INCLUDE_ASM("fe/fepopup3", func_001E1228);
+INCLUDE_ASM("fe/fepopup3", UIInputBase_IsLShift2Held);
 
-INCLUDE_ASM("fe/fepopup3", func_001E1230);
+INCLUDE_ASM("fe/fepopup3", UIInputBase_IsCamZoom);
 
-INCLUDE_ASM("fe/fepopup3", func_001E1238);
+INCLUDE_ASM("fe/fepopup3", UIInputBase_IsCamPan);
 
-INCLUDE_ASM("fe/fepopup3", func_001E1240);
+INCLUDE_ASM("fe/fepopup3", UIInputBase_IsCamRotate);
 
-INCLUDE_ASM("fe/fepopup3", func_001E1248);
+INCLUDE_ASM("fe/fepopup3", UIInputBase_GetCamZoom);
 
-INCLUDE_ASM("fe/fepopup3", func_001E1258);
+INCLUDE_ASM("fe/fepopup3", UIInputBase_GetCamPan);
 
-INCLUDE_ASM("fe/fepopup3", func_001E1268);
+INCLUDE_ASM("fe/fepopup3", UIInputBase_GetCamRotate);
 
-INCLUDE_ASM("fe/fepopup3", func_001E1278);
+INCLUDE_ASM("fe/fepopup3", UIInputBase_IsAnyButton);
 
-INCLUDE_ASM("fe/fepopup3", func_001E1280);
+INCLUDE_ASM("fe/fepopup3", UIInputBase_v41);
 
-INCLUDE_ASM("fe/fepopup3", func_001E1288);
+INCLUDE_ASM("fe/fepopup3", UIInputBase_v42);
 
-INCLUDE_ASM("fe/fepopup3", func_001E1290);
+INCLUDE_ASM("fe/fepopup3", UIInputBase_v43);
 
 INCLUDE_ASM("fe/fepopup3", func_001E1298);
 
-INCLUDE_ASM("fe/fepopup3", func_001E12A0);
+INCLUDE_ASM("fe/fepopup3", UIInputBase_v45);
 
-INCLUDE_ASM("fe/fepopup3", func_001E12A8);
+INCLUDE_ASM("fe/fepopup3", UIInputBase_PollUsbKeyboard);
 
 INCLUDE_ASM("fe/fepopup3", func_001E12B0);
 
@@ -374,7 +374,7 @@ INCLUDE_ASM("fe/fepopup3", func_001E1550);
 
 INCLUDE_ASM("fe/fepopup3", func_001E1A30);
 
-INCLUDE_ASM("fe/fepopup3", func_001E1AD0);
+INCLUDE_ASM("fe/fepopup3", MessageCenter_PickForeshadowMessage);
 
 INCLUDE_ASM("fe/fepopup3", func_001E1C10);
 
@@ -412,7 +412,7 @@ INCLUDE_ASM("fe/fepopup3", func_001E2D58);
 
 INCLUDE_ASM("fe/fepopup3", func_001E2DC0);
 
-INCLUDE_ASM("fe/fepopup3", func_001E2EA0);
+INCLUDE_ASM("fe/fepopup3", MessageCenter_GetSenderNameHash);
 
 INCLUDE_ASM("fe/fepopup3", func_001E2FE0);
 
@@ -450,7 +450,7 @@ INCLUDE_ASM("fe/fepopup3", func_001E3A30);
 
 INCLUDE_ASM("fe/fepopup3", func_001E3A78);
 
-INCLUDE_ASM("fe/fepopup3", func_001E3C00);
+INCLUDE_ASM("fe/fepopup3", OVScreenMessageCenter_ctor);
 
 INCLUDE_ASM("fe/fepopup3", func_001E3D58);
 
@@ -470,25 +470,25 @@ INCLUDE_ASM("fe/fepopup3", func_001E4610);
 
 INCLUDE_ASM("fe/fepopup3", func_001E4658);
 
-INCLUDE_ASM("fe/fepopup3", func_001E4758);
+INCLUDE_ASM("fe/fepopup3", OVScreenMessageCenter_UpdateCountText);
 
 INCLUDE_ASM("fe/fepopup3", func_001E4840);
 
 INCLUDE_ASM("fe/fepopup3", func_001E4878);
 
-INCLUDE_ASM("fe/fepopup3", func_001E48B0);
+INCLUDE_ASM("fe/fepopup3", OVScreenMessageCenter_RefreshList);
 
 INCLUDE_ASM("fe/fepopup3", func_001E4B80);
 
 INCLUDE_ASM("fe/fepopup3", func_001E4C78);
 
-INCLUDE_ASM("fe/fepopup3", func_001E4F70);
+INCLUDE_ASM("fe/fepopup3", OVScreenMessageCenter_SetRowSubject);
 
 INCLUDE_ASM("fe/fepopup3", func_001E50C8);
 
 INCLUDE_ASM("fe/fepopup3", func_001E5148);
 
-INCLUDE_ASM("fe/fepopup3", func_001E51D0);
+INCLUDE_ASM("fe/fepopup3", cOVState_ViewPopup_ctor);
 
 INCLUDE_ASM("fe/fepopup3", func_001E5248);
 
@@ -498,17 +498,17 @@ INCLUDE_ASM("fe/fepopup3", func_001E52D0);
 
 INCLUDE_ASM("fe/fepopup3", func_001E52F8);
 
-INCLUDE_ASM("fe/fepopup3", func_001E5428);
+INCLUDE_ASM("fe/fepopup3", cOVState_ViewPopup_ShowMessage);
 
 INCLUDE_ASM("fe/fepopup3", func_001E55D0);
 
-INCLUDE_ASM("fe/fepopup3", func_001E5638);
+INCLUDE_ASM("fe/fepopup3", cOVState_ViewPopup_SetVariantSubject);
 
 INCLUDE_ASM("fe/fepopup3", func_001E5780);
 
 INCLUDE_ASM("fe/fepopup3", func_001E5800);
 
-INCLUDE_ASM("fe/fepopup3", func_001E5A18);
+INCLUDE_ASM("fe/fepopup3", cOVState_ViewPopup_OnWidgetNotify);
 
 INCLUDE_ASM("fe/fepopup3", func_001E5AA0);
 
@@ -520,9 +520,9 @@ INCLUDE_ASM("fe/fepopup3", func_001E64C8);
 
 INCLUDE_ASM("fe/fepopup3", func_001E65B8);
 
-INCLUDE_ASM("fe/fepopup3", func_001E6630);
+INCLUDE_ASM("fe/fepopup3", OVScreenFreestyleStandings_OnWidgetNotify);
 
-INCLUDE_ASM("fe/fepopup3", func_001E6640);
+INCLUDE_ASM("fe/fepopup3", OVScreenFreestyleStandings_OnWidgetAction);
 
 INCLUDE_ASM("fe/fepopup3", func_001E6668);
 
@@ -532,15 +532,15 @@ INCLUDE_ASM("fe/fepopup3", func_001E7558);
 
 INCLUDE_ASM("fe/fepopup3", func_001E75D0);
 
-INCLUDE_ASM("fe/fepopup3", func_001E7920);
+INCLUDE_ASM("fe/fepopup3", OVScreenFinalStandings_OnDeactivate);
 
 INCLUDE_ASM("fe/fepopup3", func_001E7928);
 
 INCLUDE_ASM("fe/fepopup3", func_001E7AA8);
 
-INCLUDE_ASM("fe/fepopup3", func_001E7B78);
+INCLUDE_ASM("fe/fepopup3", OVScreenFinalStandings_OnWidgetNotify);
 
-INCLUDE_ASM("fe/fepopup3", func_001E7B88);
+INCLUDE_ASM("fe/fepopup3", OVScreenFinalStandings_OnWidgetAction);
 
 INCLUDE_ASM("fe/fepopup3", func_001E7BB0);
 
@@ -548,7 +548,7 @@ INCLUDE_ASM("fe/fepopup3", func_001E8098);
 
 INCLUDE_ASM("fe/fepopup3", func_001E8160);
 
-INCLUDE_ASM("fe/fepopup3", func_001E81B0);
+INCLUDE_ASM("fe/fepopup3", OVScreenFinishOv_OnWidgetNotify);
 
 INCLUDE_ASM("fe/fepopup3", func_001E81D0);
 
@@ -558,7 +558,7 @@ INCLUDE_ASM("fe/fepopup3", func_001E87B8);
 
 INCLUDE_ASM("fe/fepopup3", func_001E8880);
 
-INCLUDE_ASM("fe/fepopup3", func_001E88D0);
+INCLUDE_ASM("fe/fepopup3", OVScreenFinishOv2_OnWidgetNotify);
 
 INCLUDE_ASM("fe/fepopup3", func_001E88F0);
 
@@ -566,11 +566,11 @@ INCLUDE_ASM("fe/fepopup3", func_001E8920);
 
 INCLUDE_ASM("fe/fepopup3", func_001E8E70);
 
-INCLUDE_ASM("fe/fepopup3", func_001E8E90);
+INCLUDE_ASM("fe/fepopup3", OVScreenPeakChallengeResults_HandleInput);
 
-INCLUDE_ASM("fe/fepopup3", func_001E8E98);
+INCLUDE_ASM("fe/fepopup3", OVScreenPeakChallengeResults_OnWidgetNotify);
 
-INCLUDE_ASM("fe/fepopup3", func_001E8EA8);
+INCLUDE_ASM("fe/fepopup3", OVScreenPeakChallengeResults_OnWidgetAction);
 
 INCLUDE_ASM("fe/fepopup3", func_001E8ED0);
 
@@ -578,5 +578,5 @@ INCLUDE_ASM("fe/fepopup3", func_001E8F00);
 
 INCLUDE_ASM("fe/fepopup3", func_001E8FC0);
 
-INCLUDE_ASM("fe/fepopup3", func_001E8FC8);
+INCLUDE_ASM("fe/fepopup3", OVScreenMultiplayerStandings_OnWidgetAction);
 

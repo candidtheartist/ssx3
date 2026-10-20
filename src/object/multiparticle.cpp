@@ -4,7 +4,7 @@
 // PORT: operator_new__FUi really takes (size, tag, flags, d); bound by asm label
 void* operator_new_tag(unsigned int size, const char* tag, int flags, int d) __asm__("operator_new__FUi");
 extern "C" void* cMemMan_alloc(unsigned int size, const char* tag, int flags, int d);
-extern "C" void* func_00370018(void* p);
+extern "C" void* Emitter_ctor(void* p);
 extern "C" void func_003705E0(void* sys, void* data, int n);
 extern char D_004A4030[];
 extern char D_004A4038[];
@@ -277,7 +277,7 @@ extern void* D_004A4040;
 extern void* D_0048EDE0[];
 extern "C" void* func_00354850(void* self, void* a1, int type);
 
-extern "C" void* func_003584F0(void* self, void* a1)
+extern "C" void* RailMan_ctor(void* self, void* a1)
 {
     char* s = (char*)self;
     int i;
@@ -334,7 +334,7 @@ extern "C" void func_00358998(void* self, int idx);
 // PORT: func_00354920__FPv is the ObjNode deleting dtor; it takes (self, flags).
 extern void* func_00354920_dtor(void* self, int flags) __asm__("func_00354920__FPv");
 
-extern "C" void func_00358668(void* self, int flags)
+extern "C" void RailMan_dtor(void* self, int flags)
 {
     char* s = (char*)self;
     int i;
@@ -377,7 +377,7 @@ extern "C" void func_00358700(int kind)
 
 //100%
 void operator_delete(int*);
-extern "C" void* func_002D1BE0();
+extern "C" void* World_GetNash();
 extern "C" void func_00328F28(void* out, const void* box);
 extern "C" void func_003284B8(void* node, int idx, void* item, const void* target, const void* cur);
 
@@ -489,13 +489,13 @@ extern "C" void func_00358780(void* self, int idx)
         b.max.y = seg->maxy;
         b.max.z = seg->maxz;
         b.max.w = 1.0f;
-        remove_8780((char*)func_002D1BE0(), seg, &b);
+        remove_8780((char*)World_GetNash(), seg, &b);
         seg = seg->next;
     }
 }
 
 //100%
-extern "C" void* func_002D1BE0();
+extern "C" void* World_GetNash();
 extern "C" void func_00328F28(void* out, const void* box);
 extern "C" void func_00328C20(void* root, int idx, void* item, const void* target);
 
@@ -582,7 +582,7 @@ extern "C" void func_00358998(void* self, int idx)
         b.max.y = seg->maxy;
         b.max.z = seg->maxz;
         b.max.w = 1.0f;
-        insert_8998((char*)func_002D1BE0(), seg, &b);
+        insert_8998((char*)World_GetNash(), seg, &b);
         seg = seg->next;
     }
     ((unsigned int*)((char*)self + 0x18))[idx] = 0xFFFFFFFF;
@@ -604,14 +604,14 @@ extern void* D_004A4040;
 extern sMPMgr8B28* D_004A4040_mgr8B28 __asm__("D_004A4040");
 extern char D_004A4048[];
 extern "C" void* cMemMan_alloc(unsigned int size, const char* tag, int flags, int d);
-extern "C" void* func_003584F0(void* self, void* a1);
+extern "C" void* RailMan_ctor(void* self, void* a1);
 extern "C" void func_00358780(void* self, int idx);
 extern "C" void func_00358998(void* self, int idx);
 
-extern "C" void func_00358B28(sMPRef8B28 key, int add)
+extern "C" void RailMan_SetRailEnabled(sMPRef8B28 key, int add)
 {
     if (D_004A4040 == 0) {
-        func_003584F0(cMemMan_alloc(0x218, D_004A4048, 0x20000000, 0), (void*)1);
+        RailMan_ctor(cMemMan_alloc(0x218, D_004A4048, 0x20000000, 0), (void*)1);
     }
     sMPRef8B28 kFree;
     int idx = -1;
@@ -660,7 +660,7 @@ extern "C" void func_00358C30(void* self, void* stream)
     vt[1].fn((char*)stream + vt[1].delta, (char*)self + 0x18, 0x200);
 }
 
-INCLUDE_ASM("object/multiparticle", func_00358C80);
+INCLUDE_ASM("object/multiparticle", AnimCombo_ctor);
 
 INCLUDE_ASM("object/multiparticle", func_00358DB0);
 
@@ -670,7 +670,7 @@ void cMemMan_free(void*);
 extern "C" void cAnimObjectNode_destroy(void* p, int flags);
 extern char D_0048EC28[];
 
-extern "C" void func_00358E50(void* self, int flags)
+extern "C" void AnimCombo_dtor(void* self, int flags)
 {
     *(void**)((char*)self + 0x54) = D_0048EC28;
     void* buf = *(void**)((char*)self + 0x84);
@@ -687,7 +687,7 @@ extern "C" void func_00358E50(void* self, int flags)
 extern "C" void cAnimObjectNode_update(void* p);
 extern "C" int func_0034EBA0(void* p);
 
-extern "C" int func_00358EB8(void* self)
+extern "C" int AnimCombo_v15(void* self)
 {
     char* s = (char*)self;
     *(float*)(s + 0x3C) = 10000000000.0f;
@@ -732,11 +732,11 @@ struct sMpQuad {
 } __attribute__((aligned(16)));
 
 extern sMpQuad D_004FF120;
-extern "C" void func_00356AE0(void* self, void* out);
+extern "C" void cMoveNode_v42(void* self, void* out);
 
-extern "C" void func_00358F90(void* self, void* out)
+extern "C" void AnimCombo_v42(void* self, void* out)
 {
-    func_00356AE0((char*)self + 0x48, out);
+    cMoveNode_v42((char*)self + 0x48, out);
     *(sMpQuad*)((char*)out + 0x20) = D_004FF120;
     *(sMpQuad*)((char*)out + 0x30) = D_004FF120;
 }
@@ -745,7 +745,7 @@ extern "C" void func_00358F90(void* self, void* out)
 extern "C" void cAnimObjectNode_onMessage(void*);
 extern "C" void func_00359030(void*);
 
-extern "C" void func_00358FD0(void* self, int msg)
+extern "C" void AnimCombo_v36(void* self, int msg)
 {
     if (msg == 0x82) {
         if (*(unsigned short*)((char*)self + 0x14) == 0) {
@@ -764,7 +764,7 @@ INCLUDE_ASM("object/multiparticle", func_00359030);
 //100%
 extern "C" void func_0034FD90(void*);
 
-extern "C" void func_003590C8(void* self)
+extern "C" void AnimCombo_Kill(void* self)
 {
     if (*(signed char*)((char*)self + 0x15) == 0) {
         func_0034FD90((char*)self + 0x48);
@@ -780,7 +780,7 @@ struct sVEntry003590F0 {
 
 extern "C" void cAnimObjectNode_writeToReplayFrame(void* self, void* stream);
 
-extern "C" void func_003590F0(void* self, void* obj)
+extern "C" void AnimCombo_Save(void* self, void* obj)
 {
     cAnimObjectNode_writeToReplayFrame((char*)self + 0x18, obj);
     sVEntry003590F0* vt = *(sVEntry003590F0**)obj;
@@ -833,12 +833,12 @@ struct sMp_9140 {
     sMpMtx_9140* mtx;       // 0x84
 };
 
-extern "C" void func_0034E348(void* self);
+extern "C" void cAnimObjectNode_v52(void* self);
 extern "C" void func_00351948(sMpItem_9140* item, sMpMtx_9140* mtx);
 
-extern "C" void func_00359140(sMp_9140* self)
+extern "C" void AnimCombo_v52(sMp_9140* self)
 {
-    func_0034E348((char*)self + 0x34);
+    cAnimObjectNode_v52((char*)self + 0x34);
     if (self->items == 0) {
         return;
     }
@@ -865,7 +865,7 @@ extern "C" void func_00359140(sMp_9140* self)
 extern "C" void cAnimObjectNode_construct(void* self, int a, int type, int b, int c);
 extern void* D_0048EA70[];
 
-extern "C" void* func_00359228(void* self, int a, int b, int c)
+extern "C" void* AnimDelta_ctor(void* self, int a, int b, int c)
 {
     cAnimObjectNode_construct(self, a, 2, b, c);
     *(void***)((char*)self + 0x3C) = D_0048EA70;
@@ -902,7 +902,7 @@ struct sVEntry_3592D0 {
     void (*fn)(void*, int);
 };
 
-extern "C" int func_003592D0(void* self)
+extern "C" int AnimDelta_v15(void* self)
 {
     char* s = (char*)self;
     *(float*)(s + 0x24) = 10000000000.0f;
@@ -947,7 +947,7 @@ extern "C" int func_003592D0(void* self)
 // PORT: cAnimObjectNode_onMessage really takes (self, id, value); the unit declares it (void*).
 extern "C" void cAnimObjectNode_onMessage_set(void* self, int id, float v) __asm__("cAnimObjectNode_onMessage");
 
-extern "C" void func_003593D0(void* self, int id, float v)
+extern "C" void AnimDelta_v36(void* self, int id, float v)
 {
     if (id == 0x8C) {
         *(float*)((char*)self + 0x6C) += v * 0.03333333507180214f;
@@ -965,7 +965,7 @@ struct sSerVEntry_00359410 {
 
 extern "C" void cAnimObjectNode_writeToReplayFrame(void* self, void* stream);
 
-extern "C" void func_00359410(void* self, void* stream)
+extern "C" void AnimDelta_Save(void* self, void* stream)
 {
     cAnimObjectNode_writeToReplayFrame(self, stream);
     sSerVEntry_00359410* vt = *(sSerVEntry_00359410**)stream;
@@ -978,7 +978,7 @@ extern "C" void func_003451C0(void* ref, int id);
 extern "C" void func_00359688(void* self, float v);
 float AIrandf(float lo, float hi);
 
-extern "C" void* func_00359460(char* self, char* desc)
+extern "C" void* SplineModifier_ctor(char* self, char* desc)
 {
     *(void**)self = D_0048F250;
     *(unsigned int*)(self + 0xD8) = 0xFFFFFFFF;

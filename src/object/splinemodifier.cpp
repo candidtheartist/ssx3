@@ -62,7 +62,7 @@ extern "C" void func_00359688_impl(void* self, float speed)
 }
 
 //100%
-extern "C" float func_002D1C70();
+extern "C" float World_GetSecondsPerTick();
 
 struct cSplineModifier_9698 {
     char pad_0x0[0x30];
@@ -84,8 +84,8 @@ extern "C" void func_00359698(cSplineModifier_9698* self)
 {
     float zero = 0.0f;
     if (zero < self->accelTime) {
-        self->accelTime -= func_002D1C70();
-        self->speed += self->accel * func_002D1C70();
+        self->accelTime -= World_GetSecondsPerTick();
+        self->speed += self->accel * World_GetSecondsPerTick();
     }
     if (self->active == 0) {
         return;
@@ -93,7 +93,7 @@ extern "C" void func_00359698(cSplineModifier_9698* self)
     if (self->stopped != 0) {
         return;
     }
-    float pos = self->pos + self->speed * func_002D1C70();
+    float pos = self->pos + self->speed * World_GetSecondsPerTick();
     self->pos = pos;
     if (pos < zero) {
         int mode = self->mode;
@@ -342,7 +342,7 @@ extern "C" void func_00359CF8(cSplineModifier_9CF8* self, sSmBody_9CF8* body)
 //100% - objdiff report; single-function view differs only in a relocation name
 extern "C" void func_00359688(void* self);
 
-extern "C" void func_00359EB8(void* self, int msg)
+extern "C" void SplineModifier_v05(void* self, int msg)
 {
     if (msg == 0x190) {
         func_00359688(self);
@@ -388,7 +388,7 @@ extern "C" void cMultiSplineModifier_setupNodes(void* self);
 extern "C" void cMultiSplineModifier_setupOverlapSystem(void* self);
 extern "C" void* func_0035AC20(void* self);
 
-extern "C" void* func_00359F88(char* self, char* desc, char* model)
+extern "C" void* cMultiSplineModifier_ctor(char* self, char* desc, char* model)
 {
     *(char**)(self + 0x40) = model;
     *(void***)self = D_0048F168;
@@ -466,7 +466,7 @@ extern "C" void cMultiSplineModifier_setupOverlapSystem(void* self);
 void* cObjectInterface_getInstanceMan();
 extern "C" void* func_003511D0(void* man, unsigned int id);
 
-extern "C" cMultiSplineModifier_A118* func_0035A118(cMultiSplineModifier_A118* self, cStream0035A118* stream)
+extern "C" cMultiSplineModifier_A118* cMultiSplineModifier_ctor_2(cMultiSplineModifier_A118* self, cStream0035A118* stream)
 {
     self->vtable = D_0048F168;
     sSmFollow_A118* f = &self->follow;
@@ -508,7 +508,7 @@ struct cMultiSplineModifier_A250 {
     void** insts;           // 0x44
 };
 
-extern "C" void func_0035A250(cMultiSplineModifier_A250* self, int flags)
+extern "C" void cMultiSplineModifier_v01(cMultiSplineModifier_A250* self, int flags)
 {
     self->vtable = D_0048F168;
     func_0035A780(self);
@@ -586,11 +586,11 @@ extern "C" void func_0035A550(void* self, float speed)
 }
 
 //100%
-extern "C" float func_002D1C70();
+extern "C" float World_GetSecondsPerTick();
 
 extern "C" void func_0035A560(void* self)
 {
-    float t = *(float*)((char*)self + 0x10) + *(float*)((char*)self + 0x14) * func_002D1C70();
+    float t = *(float*)((char*)self + 0x10) + *(float*)((char*)self + 0x14) * World_GetSecondsPerTick();
     *(float*)((char*)self + 0x10) = t;
     if (t < 0.0f) {
         *(float*)((char*)self + 0x10) = t + *(float*)((char*)self + 0x54);
@@ -603,7 +603,7 @@ extern "C" void func_0035A560(void* self)
 extern "C" void* func_0035AC20(void* self);
 
 //100%
-void* func_0035A5D8(void* self)
+void* cMultiSplineModifier_v03(void* self)
 {
     return func_0035AC20(self);
 }
@@ -612,7 +612,7 @@ INCLUDE_ASM("object/splinemodifier", cMultiSplineModifier_setupOverlapSystem);
 
 //100%
 void operator_delete(int*);
-extern "C" void* func_002D1BE0();
+extern "C" void* World_GetNash();
 extern "C" void func_00328F28(void* out, const void* box);
 extern "C" void func_003284B8(void* node, int idx, void* item, const void* target, const void* cur);
 
@@ -687,7 +687,7 @@ extern "C" void func_0035A780(void* p)
     sSmMulti_A780* self = (sSmMulti_A780*)p;
     for (int i = 1; i < self->count; i++) {
         void* item = self->items[i];
-        remove_A780((char*)func_002D1BE0(), item, &self->elems[i].box);
+        remove_A780((char*)World_GetNash(), item, &self->elems[i].box);
     }
 }
 
@@ -727,7 +727,7 @@ struct cMultiSpline_A918 {
 };
 
 struct sBox_F048;
-extern "C" void* func_002D1BE0();
+extern "C" void* World_GetNash();
 extern "C" void cSpaceHash_moveItem(void* world, int type, void* id, sBox_F048* box, sBox_F048* old);
 
 // PORT: PS2-only VU0 inline asm (a - b).
@@ -787,7 +787,7 @@ static inline void setMax_A918(sSmInst_A918* in, const sSmVec4_A918& v)
     in->bmax[2] = v.z;
 }
 
-extern "C" void func_0035A918(cMultiSpline_A918* self)
+extern "C" void cMultiSplineModifier_v24(cMultiSpline_A918* self)
 {
     if (self->dirty != 0) {
         self->vtable[3].fn((char*)self + self->vtable[3].delta);
@@ -803,7 +803,7 @@ extern "C" void func_0035A918(cMultiSpline_A918* self)
         self->elems[i].box.min = vu0Sub_A918(instPos_A918(self, i), ext);
         self->elems[i].box.max = vu0Add_A918(instPos_A918(self, i), ext);
         void* id = self->insts[i];
-        cSpaceHash_moveItem(func_002D1BE0(), 0, id, (sBox_F048*)&self->elems[i].box, (sBox_F048*)&old);
+        cSpaceHash_moveItem(World_GetNash(), 0, id, (sBox_F048*)&self->elems[i].box, (sBox_F048*)&old);
         setMin_A918((sSmInst_A918*)self->insts[i], self->elems[i].box.min);
         setMax_A918((sSmInst_A918*)self->insts[i], self->elems[i].box.max);
     }
@@ -838,7 +838,7 @@ struct sSmVEntryP_AAF0 {
     void* (*fn)(void*);
 };
 
-extern "C" void* func_0035AAF0(void* self, void* item)
+extern "C" void* cMultiSplineModifier_v19(void* self, void* item)
 {
     if (*(int*)((char*)self + 0x30) != 0) {
         sSmVEntryV_AAF0* vt = *(sSmVEntryV_AAF0**)self;
@@ -865,7 +865,7 @@ struct sSmVEntryV_AB60 {
     void (*fn)(void*, void*, int);
 };
 
-extern "C" int func_0035AB60(void* self, void* item)
+extern "C" int cMultiSplineModifier_v23(void* self, void* item)
 {
     void* cur = *(void**)((char*)self + 0x40);
     if (item == cur) {
@@ -943,7 +943,7 @@ public:
     virtual int v51();
 };
 
-extern "C" int func_0035ABF0(void* self)
+extern "C" int cMultiSplineModifier_v04(void* self)
 {
     cSplineVirt* o = *(cSplineVirt**)((char*)*(void**)((char*)self + 0x40) + 0xC);
     return o->v51();
@@ -1007,7 +1007,7 @@ struct cMultiSpline_35B418 {
 extern char* D_004A5B80;
 extern "C" void func_00345430(void* a, void* b);
 
-extern "C" void func_0035B418(cMultiSpline_35B418* self)
+extern "C" void cMultiSplineModifier_v11(cMultiSpline_35B418* self)
 {
     if (self->dirty != 0) {
         self->vtable[3].fn((char*)self + self->vtable[3].delta);
@@ -1104,7 +1104,7 @@ extern "C" void func_0035B6D0(sSplineLink* link)
 
 //100%
 void operator_delete(int*);
-extern "C" void* func_002D1BE0();
+extern "C" void* World_GetNash();
 extern "C" void* func_002D1BD8();
 extern "C" void func_00328F28(void* out, const void* box);
 extern "C" void func_003284B8(void* node, int idx, void* item, const void* target, const void* cur);
@@ -1296,7 +1296,7 @@ static inline void grow_B708(sSmBox_B708& box, float d)
     addEq_B708(box.max, pad);
 }
 
-extern "C" char* func_0035B708(char* self, sSmDesc_B708* desc, sSmModel_B708* model)
+extern "C" char* RailModifier_ctor(char* self, sSmDesc_B708* desc, sSmModel_B708* model)
 {
     sSmBox_B708* box = (sSmBox_B708*)(self + 0x10);
     *(unsigned int*)(self + 0x30) = 0xFFFFFFFF;
@@ -1329,7 +1329,7 @@ extern "C" char* func_0035B708(char* self, sSmDesc_B708* desc, sSmModel_B708* mo
     }
     cRailModifier_buildXform(self);
     func_0035C040((sSmMod_C040*)self);
-    insert_B708((char*)func_002D1BE0(), *(void**)(self + 0x44), box);
+    insert_B708((char*)World_GetNash(), *(void**)(self + 0x44), box);
     sSmTrack_B708* t = ((sSmRef_B708*)(self + 0x30))->get();
     sSmSeg_B708* seg = t->first;
     for (int i = 0; i < t->count; i++) {
@@ -1342,7 +1342,7 @@ extern "C" char* func_0035B708(char* self, sSmDesc_B708* desc, sSmModel_B708* mo
         b.max.y = seg->maxy;
         b.max.z = seg->maxz;
         b.max.w = 1.0f;
-        remove_B708((char*)func_002D1BE0(), seg, &b);
+        remove_B708((char*)World_GetNash(), seg, &b);
         seg = seg->next;
     }
     return self;
@@ -1350,7 +1350,7 @@ extern "C" char* func_0035B708(char* self, sSmDesc_B708* desc, sSmModel_B708* mo
 
 //100%
 void operator_delete(int*);
-extern "C" void* func_002D1BE0();
+extern "C" void* World_GetNash();
 
 struct sSmVec4_BA88 {
     float x, y, z, w;
@@ -1473,7 +1473,7 @@ struct sSmRef_BA88 {
     }
 };
 
-extern "C" char* func_0035BA88(char* self, cSmStream_BA88* src)
+extern "C" char* RailModifier_ctor_2(char* self, cSmStream_BA88* src)
 {
     *(unsigned int*)(self + 0x30) = 0xFFFFFFFF;
     *(void**)(self + 0x8) = D_004911D0;
@@ -1482,7 +1482,7 @@ extern "C" char* func_0035BA88(char* self, cSmStream_BA88* src)
     src->v02(self + 0x10, 0x30);
     *(int*)(self + 0x40) = src->v03();
     cRailModifier_buildXform(self);
-    insert_BA88((char*)func_002D1BE0(), *(void**)(self + 0x44), (sSmBox_BA88*)(self + 0x10));
+    insert_BA88((char*)World_GetNash(), *(void**)(self + 0x44), (sSmBox_BA88*)(self + 0x10));
     sSmTrack_BA88* t = ((sSmRef_BA88*)(self + 0x30))->get();
     sSmSeg_BA88* seg = t->first;
     for (int i = 0; i < t->count; i++) {
@@ -1495,7 +1495,7 @@ extern "C" char* func_0035BA88(char* self, cSmStream_BA88* src)
         b.max.y = seg->maxy;
         b.max.z = seg->maxz;
         b.max.w = 1.0f;
-        remove_BA88((char*)func_002D1BE0(), seg, &b);
+        remove_BA88((char*)World_GetNash(), seg, &b);
         seg = seg->next;
     }
     return self;
@@ -1506,10 +1506,10 @@ extern char D_00491200[];
 struct sSplineLink;
 extern "C" void func_0035B6D0(sSplineLink* link);
 
-extern "C" void func_0035BD70(char* self, int flags)
+extern "C" void RailModifier_v01(char* self, int flags)
 {
     *(void**)(self + 0x8) = D_004911D0;
-    remove_BA88((char*)func_002D1BE0(), *(void**)(self + 0x44), (sSmBox_BA88*)(self + 0x10));
+    remove_BA88((char*)World_GetNash(), *(void**)(self + 0x44), (sSmBox_BA88*)(self + 0x10));
     operator_delete(*(int**)(self + 0x44));
     sSmTrack_BA88* t = ((sSmRef_BA88*)(self + 0x30))->get();
     sSmSeg_BA88* seg = t->first;
@@ -1523,7 +1523,7 @@ extern "C" void func_0035BD70(char* self, int flags)
         b.max.y = seg->maxy;
         b.max.z = seg->maxz;
         b.max.w = 1.0f;
-        insert_BA88((char*)func_002D1BE0(), seg, &b);
+        insert_BA88((char*)World_GetNash(), seg, &b);
         seg = seg->next;
     }
     *(void**)(self + 0x8) = D_00491200;

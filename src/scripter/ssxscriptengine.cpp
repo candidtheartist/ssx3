@@ -6,7 +6,7 @@ void* operator_new_tag(unsigned int size, const char* tag, int flags, int d) __a
 // PORT: func_0027B268 is defined with six params; this caller passes a seventh (0) in $t2.
 extern "C" void func_0027B268_7(void* self, int i, const char* name, int flags, int key, int* buf, int x)
     __asm__("func_0027B268");
-extern "C" void func_00283298(void* rig);
+extern "C" void ScriptObj_Register(void* rig);
 extern const char* D_004A349C;
 extern char D_00481BD8[];
 extern char D_00481BE8[];
@@ -63,9 +63,9 @@ extern "C" void cSSXScriptEngine_Load(sSse278358* self)
     self->freeLink = self->links;
     func_0027B268_7(self, 0, D_004A349C, 0, -1, 0, 0);
     for (int i = 0; i < 2; i++)
-        func_00283298(self->rigs[i]);
-    func_00283298(self->rigC);
-    func_00283298(self->rigD);
+        ScriptObj_Register(self->rigs[i]);
+    ScriptObj_Register(self->rigC);
+    ScriptObj_Register(self->rigD);
     sRider_278358** pa = &self->objsA;
     *pa = new (D_00481BE8, 0, 0) sRider_278358[2];
     int i;
@@ -350,7 +350,7 @@ struct sScrSlot8AD0 {
     char pad[0x120 - 8];
 };
 
-extern "C" int func_00278AD0(void* self, int key)
+extern "C" int ScriptEngine_v06(void* self, int key)
 {
     int r = func_00282450(self, key);
     if (r != 0) {
@@ -934,7 +934,7 @@ struct sScriptCount_9A70 {
 };
 
 // Picks a random option for every choice event of a script, honouring the per-slot team flags.
-extern "C" void func_00279A70(void* self, sScript_9A70* script, int idx, int* players)
+extern "C" void ScriptEngine_v10(void* self, sScript_9A70* script, int idx, int* players)
 {
     int flags[21];
     int cands[32];
@@ -986,7 +986,7 @@ extern "C" void func_00279A70(void* self, sScript_9A70* script, int idx, int* pl
 //100%
 void func_0027BD90(void*, void*);
 
-extern "C" void func_00279CE0(void* self, int unused, void* arg)
+extern "C" void ScriptEngine_v12(void* self, int unused, void* arg)
 {
     func_0027BD90(self, arg);
 }
@@ -1022,7 +1022,7 @@ struct sSsxEngine9D00 {
     sScrSlot9D00 slots[2];
 };
 
-extern "C" int func_00279D00(sSsxEngine9D00* self, cScriptOwner9D00* obj)
+extern "C" int ScriptEngine_v02(sSsxEngine9D00* self, cScriptOwner9D00* obj)
 {
     int r = func_0027CEA8(self, obj);
     if (obj->state == 1) {
@@ -1065,7 +1065,7 @@ struct sSsxEngine9DA8 {
     sScrSlot9DA8 slots[2];
 };
 
-extern "C" void func_00279DA8(sSsxEngine9DA8* self, int idx)
+extern "C" void ScriptEngine_v03(sSsxEngine9DA8* self, int idx)
 {
     // PORT: func_0027D320 returns a table pointer as int
     cScriptOwner9DA8* obj = (cScriptOwner9DA8*)func_0027D320(self, idx);
@@ -1083,7 +1083,7 @@ extern "C" int func_0027D790(void* self, int val);
 extern "C" void func_0027D210(void* self, int i, int val);
 extern "C" void func_00282EF0(void* obj, int val);
 
-extern "C" void func_00279E50(void* self, int i, int val)
+extern "C" void ScriptEngine_v04(void* self, int i, int val)
 {
     // PORT: func_0027D320 returns a table pointer as int
     int* obj = (int*)func_0027D320(self, i);
@@ -1100,7 +1100,7 @@ extern "C" void func_00279E50(void* self, int i, int val)
 extern "C" void* func_00275718(void*);
 
 //100%
-void* func_00279ED8(void* self)
+void* ScriptEngine_FindAnimBank(void* self)
 {
     return func_00275718((char*)self + 0xa28);
 }
@@ -1108,7 +1108,7 @@ void* func_00279ED8(void* self)
 extern "C" void* func_002836D8(void*);
 
 //100%
-void* func_00279EF8(void* self)
+void* ScriptEngine_FindSoundBank(void* self)
 {
     return func_002836D8((char*)self + 0xa38);
 }
@@ -3106,7 +3106,7 @@ public:
     virtual int* v07(int i);
 };
 
-// PORT: func_00279E50 declares func_0027D210 as void; it really returns 0/1.
+// PORT: ScriptEngine_v04 declares func_0027D210 as void; it really returns 0/1.
 int func_0027D210_impl(void* self, int idx, int val) __asm__("func_0027D210");
 
 int func_0027D210_impl(void* self, int idx, int val)
@@ -3313,7 +3313,7 @@ extern char D_004FF1A0[];
 
 // PORT: PS2-only VU0 inline asm (lqc2/sqc2 matrix copy of D_004FF1A0, likely identity);
 // the PC port needs a plain 64-byte copy.
-extern "C" void* func_0027D5E8(void* self, int a1)
+extern "C" void* ScriptObjCam_ctor(void* self, int a1)
 {
     func_00283200(self, 1);
     *(void**)((char*)self + 0xC) = D_004820B8;
@@ -3425,13 +3425,13 @@ public:
     virtual void v03();
 };
 
-extern "C" void func_0027D7F0(void* self)
+extern "C" void ScriptObjCam_v02(void* self)
 {
     (*(cSsxScriptVirt**)((char*)self + 0x10))->v02();
 }
 
 //100%
-extern "C" void func_0027D820(void* self)
+extern "C" void ScriptObjCam_v03(void* self)
 {
     (*(cSsxScriptVirt**)((char*)self + 0x10))->v03();
 }
@@ -3701,8 +3701,8 @@ extern "C" void func_00280640(sScrObj05B8* self)
 
 //100%
 void func_00283430(void* self);
-// PORT: func_00279EF8 is declared (void*) but forwards a key in $5.
-void* func_00279EF8_2(void* self, int key) __asm__("func_00279EF8__FPv");
+// PORT: ScriptEngine_FindSoundBank is declared (void*) but forwards a key in $5.
+void* ScriptEngine_FindSoundBank_2(void* self, int key) __asm__("ScriptEngine_FindSoundBank__FPv");
 extern void* D_004A28A4;
 
 struct sScrTrig_0730 {
@@ -3711,7 +3711,7 @@ struct sScrTrig_0730 {
     int c;  // 0x8
 };
 
-extern "C" void func_00280730(void* self)
+extern "C" void ScriptAudioObj_Activate(void* self)
 {
     int i;
     func_00283430((char*)self + 0xC);
@@ -3721,7 +3721,7 @@ extern "C" void func_00280730(void* self)
     // PORT: func_0027C070 returns a pointer as int
     char* info = (char*)func_0027C070(*(void**)(*(char**)((char*)self + 0x8) + 0x8));
     int key = *(int*)(info + 0x1C);
-    *(void**)((char*)self + 0xF8) = func_00279EF8_2(D_004A28A4, key);
+    *(void**)((char*)self + 0xF8) = ScriptEngine_FindSoundBank_2(D_004A28A4, key);
     sScrTrig_0730* t = (sScrTrig_0730*)((char*)self + 0xBC);
     for (i = 3; i >= 0; i--) {
         t->c = -1;
@@ -3770,7 +3770,7 @@ struct sSeEngine07B0 {
     int field_0xF8;             // 0xF8
 };
 
-extern "C" void func_002807B0(sSeEngine07B0* self)
+extern "C" void ScriptAudioObj_Deactivate(sSeEngine07B0* self)
 {
     sSeInfo07B0 info;
     func_00283440((char*)self + 0xC);
@@ -3950,7 +3950,7 @@ void func_00283430_2(void* self, int val) __asm__("func_00283430__FPv");
 extern void* D_004A28A4;
 extern char* D_004A28A8;
 
-extern "C" void func_00281370(void* self, int val)
+extern "C" void ScriptViewObj_Activate(void* self, int val)
 {
     func_0027D0C0(func_0027D2E8(), *(int*)((char*)self + 0x4), val);
     func_00281A50(self);
@@ -3987,7 +3987,7 @@ struct sSeEng1400 {
     int pending;            // 0x110
 };
 
-extern "C" void func_00281400(sSeEng1400* self, int a1)
+extern "C" void ScriptViewObj_Deactivate(sSeEng1400* self, int a1)
 {
     func_0027D170(func_0027D2E8(), self->id);
     for (int i = 0; i < 2; i++) {

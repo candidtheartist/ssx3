@@ -1733,7 +1733,7 @@ int func_003B80E0(int h, int v) {
 int *func_003B6A38_8120(void) __asm__("func_003B6A38");
 void func_003E0B28_8120(int, int) __asm__("func_003E0B28");
 
-int func_003B8120(int arg0, int arg1) {
+int SNDSTRM_SetLowWater(int arg0, int arg1) {
     int *temp_2;
 
     temp_2 = func_003B6A38_8120();
@@ -3313,7 +3313,7 @@ void func_003BCAE8(int arg0, int n) {
 struct S_CBA0 { unsigned char mode; unsigned char n; char pad2[4]; short pos; unsigned char *out; };
 extern struct S_CBA0 *D_0050AC68_CBA0 __asm__("D_0050AC68");
 
-void func_003BCBA0(void) {
+void SNDENC_WriteHeader(void) {
     int i;
     int j;
     int k;
@@ -3753,7 +3753,7 @@ extern char D_0044CB00_F0F0[] __asm__("D_0044CB00");
 extern char D_0044CF00_F0F0[] __asm__("D_0044CF00");
 extern char D_0044D500_F0F0[] __asm__("D_0044D500");
 extern void f_C968_F0F0(char *, char *, int, int) __asm__("func_003BC968");
-extern void f_CBA0_F0F0(void) __asm__("func_003BCBA0");
+extern void f_CBA0_F0F0(void) __asm__("SNDENC_WriteHeader");
 extern void f_D220_F0F0(int, struct C_F0F0 *, int) __asm__("func_003BD220");
 extern void f_D5B8_F0F0(int) __asm__("func_003BD5B8");
 extern void f_DE08_F0F0(int) __asm__("func_003BDE08");
@@ -3929,7 +3929,7 @@ void func_003C0A60(void) {
 struct S_0B10 { char pad[0xC80]; char buf[1]; };
 extern struct S_0B10 D_0050AD00_0B10 __asm__("D_0050AD00");
 extern void func_003C51E8(void *, void *, int);
-extern int func_00426F08(void *);
+extern int sceSifCheckStatRpc(void *);
 extern void func_00426D18(void *, int, int, void *, int, int, int, int, int);
 
 void func_003C0B10(int a0, void *a1, int a2) {
@@ -3938,7 +3938,7 @@ void func_003C0B10(int a0, void *a1, int a2) {
     if (a2) {
         func_003C51E8(&D_0050AD00_0B10, a1, a2);
     }
-    while (func_00426F08(D_0050AD00_0B10.buf)) {
+    while (sceSifCheckStatRpc(D_0050AD00_0B10.buf)) {
         for (i = 0; i < 10000; i++) {
         }
     }
@@ -8575,10 +8575,10 @@ INCLUDE_ASM("ealib/seg_2B4578", func_003CAFD0);
 
 //100%
 // Sets f24 = v / 4096 clamped to [0.5, 2.0]; the double compares are the soft-float
-// helpers called directly (func_00413AF8 = float->double, func_00412500 = double compare).
+// helpers called directly (func_00413AF8 = float->double, __cmpdf2 = double compare).
 struct O_B110 { char p[0x24]; float f; };
 extern long fptodp_B110(float) __asm__("func_00413AF8");
-extern int dpcmp_B110(long, long) __asm__("func_00412500");
+extern int dpcmp_B110(long, long) __asm__("__cmpdf2");
 void func_003CB110(struct O_B110 *o, int v) {
     o->f = v * (1.0f / 4096.0f);
     if (dpcmp_B110(fptodp_B110(o->f), 0x3FE0000000000000L) < 0) {
@@ -10159,7 +10159,7 @@ extern struct T_0ED0 D_00517610_0ED0[] __asm__("D_00517610");
 extern int func_003D5450_0ED0(int) __asm__("func_003D5450");
 extern void func_00416210_0ED0(void *, int, int) __asm__("func_00416210");
 extern void func_003D0B18_0ED0(struct A_0ED0 *, struct B_0ED0 *) __asm__("func_003D0B18");
-extern int func_003D2068_0ED0(struct A_0ED0 *) __asm__("func_003D2068");
+extern int PATHI_copyevent_0ED0(struct A_0ED0 *) __asm__("PATHI_copyevent");
 extern void func_003D1F80_0ED0(unsigned int, int) __asm__("func_003D1F80");
 
 static inline unsigned int has_0ED0(unsigned int a, unsigned int b) { return a & b; }
@@ -10186,7 +10186,7 @@ int func_003D0ED0(unsigned int mask, int val) {
         if (has_0ED0(v & 0xF0000000, mask) == 0) continue;
         if (has_0ED0(v & 0x0F000000, mask) == 0) continue;
         if (func_003D5450_0ED0(i & 0xFF) == 0) continue;
-        func_003D1F80_0ED0(mask, func_003D2068_0ED0(&a));
+        func_003D1F80_0ED0(mask, PATHI_copyevent_0ED0(&a));
     }
     D_0044F430_0ED0 = 0;
     D_0044F420_0ED0 = 0;
@@ -10207,7 +10207,7 @@ extern void PATHX_setPaused_1038(int, int) __asm__("PATHX_setPaused");
 
 static inline unsigned int has_1038(unsigned int a, unsigned int b) { return a & b; }
 
-void func_003D1038(unsigned int mask, unsigned char val) {
+void PATH_SetPaused(unsigned int mask, unsigned char val) {
     int i, j;
     if (D_0044F42C_1038 == 0) return;
     if (D_0044F430_1038 != 0) return;
@@ -10284,8 +10284,8 @@ extern int f_4BB0_11B8(unsigned int) __asm__("func_003D4BB0");
 extern int f_F2F0_11B8(int, int *, int *, int) __asm__("PATHX_getPlayStatus");
 extern void f_1658_11B8(char *, char *, int) __asm__("func_003D1658");
 
-int func_003D11B8_impl(unsigned int id, struct Info_11B8 *info) __asm__("func_003D11B8");
-int func_003D11B8_impl(unsigned int id, struct Info_11B8 *info) {
+int PATH_status_impl(unsigned int id, struct Info_11B8 *info) __asm__("PATH_status");
+int PATH_status_impl(unsigned int id, struct Info_11B8 *info) {
     int ret;
     struct S_11B8 *s;
     struct G_11B8 *g;
@@ -10447,7 +10447,7 @@ void func_003D16E8(void) {
 }
 
 //100%
-// Same walk as func_003D1038: allocates a voice for program prog in each bank
+// Same walk as PATH_SetPaused: allocates a voice for program prog in each bank
 // matching mask and registers it in the 16-entry list of every bank sharing the
 // top mask bits. Returns 0, -8 (none registered), -13 (full/bad prog) or -18.
 struct H_16F0 { int f0; int f4; int f8; };
@@ -10460,7 +10460,7 @@ extern int D_0044F430_16F0 __asm__("D_0044F430");
 extern struct G_16F0 *D_0044F420_16F0 __asm__("D_0044F420");
 extern struct T_16F0 D_00517610_16F0[] __asm__("D_00517610");
 extern int func_003D5450_16F0(int) __asm__("func_003D5450");
-extern struct H_16F0 *func_003D2068_16F0(struct E_16F0 *) __asm__("func_003D2068");
+extern struct H_16F0 *PATHI_copyevent_16F0(struct E_16F0 *) __asm__("PATHI_copyevent");
 extern int PATHX_getTimeMs_16F0(void) __asm__("PATHX_getTimeMs");
 
 static inline unsigned int has_16F0(unsigned int a, unsigned int b) { return a & b; }
@@ -10492,7 +10492,7 @@ int func_003D16F0(unsigned int mask, short prog) {
         e = (struct E_16F0 *)((char *)hdr + D_0044F420_16F0->idx[prog] * 4);
         if (e->wC & 0x20000000) continue;
         err = -8;
-        e = (struct E_16F0 *)func_003D2068_16F0(e);
+        e = (struct E_16F0 *)PATHI_copyevent_16F0(e);
         top = D_00517610_16F0[i].f30;
         top &= 0xFF000000;
         for (k = 0; k < 4; k++) {
@@ -10727,7 +10727,7 @@ extern int D_0044F43C_2068[] __asm__("D_0044F43C");
 extern char D_00495B48_2068[] __asm__("D_00495B48");
 extern void func_0041605C_2068(unsigned int, void *, int) __asm__("func_0041605C");
 
-unsigned int func_003D2068(void *arg0) {
+unsigned int PATHI_copyevent(void *arg0) {
     int temp_9;
     unsigned int *p;
     unsigned int temp_3;
@@ -10804,7 +10804,7 @@ INCLUDE_ASM("ealib/seg_2B4578", func_003D2350);
 INCLUDE_ASM("ealib/seg_2B4578", func_003D25F0);
 
 //100%
-// Same walk as func_003D1038: releases the first voice in mask (PATHX_destroyPlayer),
+// Same walk as PATH_SetPaused: releases the first voice in mask (PATHX_destroyPlayer),
 // then shuts the bank down; returns the released voice (or the last one seen).
 struct E_2A68 { char pad[0x54]; int f54; };
 struct G_2A68 { char pad[0x34]; int f34; char pad2[0x58 - 0x38]; struct E_2A68 *list[24]; int fB8; };
@@ -10866,8 +10866,8 @@ found:
 extern int func_003D5450_2C20(int) __asm__("func_003D5450");
 extern int func_003D4BB0_2C20(int) __asm__("func_003D4BB0");
 extern double func_00413AF8_2C20(float) __asm__("func_00413AF8");
-extern double func_00411F18_2C20(double, double) __asm__("func_00411F18");
-extern int func_004126A0_2C20(double) __asm__("func_004126A0");
+extern double __adddf3_2C20(double, double) __asm__("__adddf3");
+extern int __fixunsdfsi_2C20(double) __asm__("__fixunsdfsi");
 extern char *D_0044F420_2C20[] __asm__("D_0044F420");
 extern unsigned char D_0044F42C_2C20[] __asm__("D_0044F42C");
 extern int D_0044F430_2C20[] __asm__("D_0044F430");
@@ -10909,7 +10909,7 @@ int func_003D2C20(int m, int arg1) {
             max = ratio;
         }
     }
-    r = func_004126A0_2C20(func_00411F18_2C20(func_00413AF8_2C20(ratio * arg1), 0.5));
+    r = __fixunsdfsi_2C20(__adddf3_2C20(func_00413AF8_2C20(ratio * arg1), 0.5));
     D_0044F430_2C20[0] = 0;
     D_0044F420_2C20[0] = 0;
     return r;
@@ -11124,7 +11124,7 @@ void func_003D31E8(unsigned int a, int b, int c) {
 // PORT: PS2-only inline asm; needs a C fallback off-PS2.
 extern int D_0044ED48_32A8[4] __asm__("D_0044ED48");
 
-int *func_003D32A8(void) {
+int *PATH_GetVersionString(void) {
     return D_0044ED48_32A8;
 }
 
@@ -11152,7 +11152,7 @@ extern int func_003D3C90_D39(int, int) __asm__("func_003D3C90");
 extern int func_003D37A0_D39(int, int) __asm__("func_003D37A0");
 extern void func_00416210_D39(void *, int, int) __asm__("func_00416210");
 extern void func_003D0B18_D39(struct A_D39 *, struct B_D39 *) __asm__("func_003D0B18");
-extern int func_003D2068_D39(struct A_D39 *) __asm__("func_003D2068");
+extern int PATHI_copyevent_D39(struct A_D39 *) __asm__("PATHI_copyevent");
 extern void func_003D1F80_D39(unsigned int, int) __asm__("func_003D1F80");
 
 short func_003D3900(int arg0, int arg1, int arg2) {
@@ -11194,7 +11194,7 @@ short func_003D3900(int arg0, int arg1, int arg2) {
                 a.p1 = b.hE;
                 b.f4 = D_0044F438_D39 + b.hE;
                 func_003D0B18_D39(&a, &b);
-                func_003D1F80_D39(D_00517610_D39.f30, func_003D2068_D39(&a));
+                func_003D1F80_D39(D_00517610_D39.f30, PATHI_copyevent_D39(&a));
             }
             if ((ev->f4 & 0xE0000) == 0x20000) {
                 vel = (D_0044F438_D39 / 23) & 0x7F;
@@ -11335,7 +11335,7 @@ void func_003D3D20(int idx) {
 // PORT: PS2-only inline asm; needs a C fallback off-PS2.
 extern void func_003D0B18_4050(void *, void *) __asm__("func_003D0B18");
 extern void func_003D1F80_4050(int, int) __asm__("func_003D1F80");
-extern int func_003D2068_4050(void *) __asm__("func_003D2068");
+extern int PATHI_copyevent_4050(void *) __asm__("PATHI_copyevent");
 extern void func_003D32B8_4050(int, void *) __asm__("func_003D32B8");
 extern void *func_00416210_4050(void *, int, int) __asm__("func_00416210");
 extern char *D_0044F420_4050[] __asm__("D_0044F420");
@@ -11379,7 +11379,7 @@ int func_003D4050(int idx) {
             m.sc = idx;
             m.be = -1;
             func_003D0B18_4050(&a, &m);
-            r = func_003D2068_4050(&a);
+            r = PATHI_copyevent_4050(&a);
             func_003D1F80_4050(h, r);
         }
     }
@@ -11749,7 +11749,7 @@ INCLUDE_ASM("ealib/seg_2B4578", func_003D5330);
 
 //100% - objdiff report; single-function view differs only in a relocation name
 // PORT: PS2-only inline asm; needs a C fallback off-PS2.
-extern int func_003D11B8_53B8(int, int *) __asm__("func_003D11B8");
+extern int PATH_status_53B8(int, int *) __asm__("PATH_status");
 extern int func_003D3030_53B8(int) __asm__("func_003D3030");
 
 int func_003D53B8(int arg0, int arg1) {
@@ -11760,7 +11760,7 @@ int func_003D53B8(int arg0, int arg1) {
     for (i = 1; i >= 0; i--) {
         t = ((0x10000000 << i) | (0x01000000 << arg0)) + (1 << arg1);
         if (func_003D3030_53B8(t) >= 0) {
-            func_003D11B8_53B8(t, sp0);
+            PATH_status_53B8(t, sp0);
             if (sp0[0] >= 0) return t;
         }
     }
@@ -11799,7 +11799,7 @@ void func_003D54E8(void) {
 }
 
 //100%
-// Same walk as func_003D1038: clamps val to 0..100 and applies it to every voice
+// Same walk as PATH_SetPaused: clamps val to 0..100 and applies it to every voice
 // in mask through func_003D62C8.
 struct G_5508 { char pad[0x58]; void *list[24]; };
 struct T_5508 { char pad[0x30]; unsigned int f30; int f34; char pad2[0x928 - 0x38]; };

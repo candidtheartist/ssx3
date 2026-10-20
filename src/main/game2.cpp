@@ -28,7 +28,7 @@ INCLUDE_ASM("main/game2", func_00230640);
 
 INCLUDE_ASM("main/game2", func_00230698);
 
-INCLUDE_ASM("main/game2", func_002306A8);
+INCLUDE_ASM("main/game2", cGame_GetSplashManager);
 
 INCLUDE_ASM("main/game2", func_002306B8);
 
@@ -44,9 +44,9 @@ INCLUDE_ASM("main/game2", func_002312D8);
 
 INCLUDE_ASM("main/game2", func_00231320);
 
-INCLUDE_ASM("main/game2", func_00231348);
+INCLUDE_ASM("main/game2", cGame_SaveState);
 
-INCLUDE_ASM("main/game2", func_002314D0);
+INCLUDE_ASM("main/game2", cGame_LoadState);
 
 INCLUDE_ASM("main/game2", func_00231840);
 

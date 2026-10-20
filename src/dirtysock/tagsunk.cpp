@@ -116,7 +116,7 @@ struct sList_94D0 {
     int f14;
 };
 
-extern "C" void* func_002594D0(void* self_)
+extern "C" void* LobbyMan_ctor(void* self_)
 {
     char* self = (char*)self_;
     // An unused 16-byte local is needed to reproduce the 0x40-byte frame.
@@ -231,7 +231,7 @@ extern "C" void func_00259628(void* self_, int flags)
 extern "C" void* func_003E8FD0(int);
 
 //100%
-void* func_002598A8(void* self)
+void* LobbyMan_OnRecvDebug(void* self)
 {
     return func_003E8FD0(*(int*)((char*)self + 0x54));
 }
@@ -538,8 +538,8 @@ extern "C" void func_0025A1D0(char* self, char* msg)
 
 //100%
 extern "C" char* func_003E8A70(void* p, int tag);
-extern "C" void* func_003E6E08();
-extern "C" void func_003E7120(void* h, char* fmt, char* arg);
+extern "C" void* NetGameUtilCreate();
+extern "C" void NetGameUtilAdvert(void* h, char* fmt, char* arg);
 extern char D_004813A0[];
 
 extern "C" void func_0025A650(char* self)
@@ -552,33 +552,33 @@ extern "C" void func_0025A650(char* self)
         return;
     if (*func_003E8A70(*(void**)(self + 0x54), 0x70657273) == 0)
         return;
-    *(void**)(self + 0xF4) = func_003E6E08();
+    *(void**)(self + 0xF4) = NetGameUtilCreate();
     if (*(void**)(self + 0xF4) == 0)
         return;
-    func_003E7120(*(void**)(self + 0xF4), D_004813A0, func_003E8A70(*(void**)(self + 0x54), 0x70657273));
+    NetGameUtilAdvert(*(void**)(self + 0xF4), D_004813A0, func_003E8A70(*(void**)(self + 0x54), 0x70657273));
 }
 
 //100%
-extern "C" void func_003E6E70(void*);
+extern "C" void NetGameUtilDestroy(void*);
 
 extern "C" void func_0025A6F8(void* self)
 {
     void* p = *(void**)((char*)self + 0xF4);
     if (p != 0) {
-        func_003E6E70(p);
+        NetGameUtilDestroy(p);
         *(void**)((char*)self + 0xF4) = 0;
     }
 }
 
 //100%
 extern char D_004813A0[];
-extern "C" int func_003E7218(void* tags, const char* key, const char* def);
+extern "C" int NetGameUtilLocate(void* tags, const char* key, const char* def);
 
 extern "C" int func_0025A730(void* self, const char* key, int def)
 {
     void* tags = *(void**)((char*)self + 0xF4);
     if (tags != 0) {
-        int r = func_003E7218(tags, D_004813A0, key);
+        int r = NetGameUtilLocate(tags, D_004813A0, key);
         if (r != 0) {
             def = r;
         }
@@ -662,7 +662,7 @@ extern "C" void func_0025A8B0(void* self)
 
 //100%
 extern "C" int sprintf(char* buf, const char* fmt, ...);
-extern "C" void* func_003E7FF0(const char* tag, int a, void* cb);
+extern "C" void* LobbyApi_Create(const char* tag, int a, void* cb);
 extern "C" void func_003E8248(void* mgr, int idx, void* cb, void* user);
 extern "C" const char* func_00259198();
 extern "C" void func_00268B08(void* self, void* a1, int a2);
@@ -692,7 +692,7 @@ extern "C" void func_0025A948(void* self_)
     const char* key = D_004A2FE0;
     cDirtysock_tag_TagFieldSetString(tag, 0x100, key, func_00259198());
     cDirtysock_tag_TagFieldSetString(tag, 0x100, D_004A2FE8, D_00481390);
-    void* mgr = func_003E7FF0(tag, 0, (void*)func_00259390);
+    void* mgr = LobbyApi_Create(tag, 0, (void*)func_00259390);
     *(void**)(self + 0x54) = mgr;
     func_003E8248(mgr, 0, (void*)func_00268B08, self);
     func_003E8248(*(void**)(self + 0x54), 1, (void*)func_00268B30, self);
@@ -704,14 +704,14 @@ extern "C" void func_0025A948(void* self_)
 //100% - objdiff report; single-function view differs only in a relocation name
 extern "C" void func_0025A8B0(void* self);
 extern "C" void func_003E80C0(void* p);
-extern "C" void func_003E81C8(void* p);
+extern "C" void LobbyApi_Destroy(void* p);
 
 extern "C" void func_0025AA98(void* self)
 {
     func_0025A8B0(self);
     if (*(void**)((char*)self + 0x54) != 0) {
         func_003E80C0(*(void**)((char*)self + 0x54));
-        func_003E81C8(*(void**)((char*)self + 0x54));
+        LobbyApi_Destroy(*(void**)((char*)self + 0x54));
         *(void**)((char*)self + 0x54) = 0;
     }
 }
@@ -771,7 +771,7 @@ struct cBXStrAB40 {
     cBXStrAB40(const cBXStrAB40& o) : str(o.str) {}
 };
 
-extern "C" void func_0025AB40(char* self, const char* a, const char* b)
+extern "C" void LobbyMan_PostChatEvent(char* self, const char* a, const char* b)
 {
     int* m = (int*)operator new(0x10, D_00480498, 0x20000000, 0);
     cBXStrAB40 sa;
@@ -804,11 +804,11 @@ extern "C" void func_0025B608(void* self, int a1, int tag, void* cb, int a4, flo
 extern char D_00480838[];
 extern void* D_004A3028;
 extern "C" void* cMemMan_alloc(int size, const char* tag, unsigned int flags, int d);
-extern "C" void* func_002594D0(void* self);
+extern "C" void* LobbyMan_ctor(void* self);
 
 extern "C" void func_0025B650(void)
 {
-    D_004A3028 = func_002594D0(cMemMan_alloc(0x300, D_00480838, 0x20000000, 0));
+    D_004A3028 = LobbyMan_ctor(cMemMan_alloc(0x300, D_00480838, 0x20000000, 0));
 }
 
 //100% - objdiff report; single-function view differs only in a relocation name
@@ -838,7 +838,7 @@ extern char D_004804A8[];
 extern void* D_004812B0[];
 extern int D_004A3018;
 extern "C" void func_0025A948(void* self);
-extern "C" void func_003E8260(void* p, int a, int timeout, void* cb, void* user);
+extern "C" void LobbyApi_Connect(void* p, int a, int timeout, void* cb, void* user);
 extern "C" int func_003F3A98(void* p, int a);
 extern "C" void func_00268BA8(void* self, void* a1, int a2);
 
@@ -878,7 +878,7 @@ extern "C" void func_0025B6D8(char* self, int conn)
         *(float*)(self + 0xE0) = 30.0f;
         *(int*)(self + 0x4) = g;
         // PORT: function pointer passed as a callback argument.
-        func_003E8260(*(void**)(self + 0x54), g, 0x2AF8, (void*)func_00268BA8, self);
+        LobbyApi_Connect(*(void**)(self + 0x54), g, 0x2AF8, (void*)func_00268BA8, self);
     } else {
         *(int*)self = 2;
         *(int*)(self + 0x58) = func_003F3A98(*(void**)(self + 0xE8), 0);
@@ -3233,7 +3233,7 @@ extern "C" int func_0025F248(void* self)
 //100%
 extern char D_004A2F30[];
 extern "C" void* func_003EE560(void*);
-extern "C" int func_004187C0(const char* s);
+extern "C" int atoi(const char* s);
 extern "C" int cDirtysock_tag_TagFieldGetStructure(const char* tag, void* data, int len, const char* fmt);
 
 struct sDsPeerK2 {
@@ -3260,7 +3260,7 @@ extern "C" void func_0025F288(void* self, int a1, sDsPeerInfoK2* out)
         if (e != 0 && e->record != 0) {
             rec = e->record;
             out->addr = e->addr;
-            out->nameLen = func_004187C0(e->name);
+            out->nameLen = atoi(e->name);
         } else {
             out->addr = 0;
             rec = 0;
@@ -3333,7 +3333,7 @@ extern void* D_004812B0[];
 extern "C" void func_003E8D70(void* p, int a);
 extern "C" void func_0025F858(void* self);
 extern "C" void func_0025F740(void* self, int type);
-void* func_0025FC48(void* self);
+void* LobbyMan_SendAbortChal(void* self);
 
 struct sMsgListNodeF628 {
     sMsgListNodeF628* next;
@@ -3367,7 +3367,7 @@ extern "C" void func_0025F628(void* selfp, int notify, int flag)
     if (st != 0) {
         if (st == 0x15 || st == 0x16 || st == 0x18) {
             if (flag)
-                func_0025FC48(self);
+                LobbyMan_SendAbortChal(self);
             func_003E8D70(*(void**)(self + 0x54), *(int*)(self + 0x40));
             func_0025F858(self);
         } else if (st == 0x19) {
@@ -3461,8 +3461,8 @@ extern char D_004A3238[];
 extern float D_004A5154;
 // PORT: TagFieldGetString really takes a 4th (default value) argument; the unit declares 3.
 extern "C" int cDirtysock_tag_TagFieldGetString4(const char* tag, char* buf, int size, const char* defval) __asm__("cDirtysock_tag_TagFieldGetString");
-void* func_0025FC48(void* self);
-extern "C" void func_0025FC70(void* self, int a1, int a2);
+void* LobbyMan_SendAbortChal(void* self);
+extern "C" void LobbyMan_SendLockChal(void* self, int a1, int a2);
 extern "C" int func_004165A8(void*, void*);
 
 struct sMsgListNodeF8A0 {
@@ -3497,7 +3497,7 @@ extern "C" void func_0025F8A0(char* self, char* msg)
     if (*(int*)(msg + 0x8) != 0) {
         if (*(int*)self == 0x15) {
             *(int*)self = 1;
-            func_0025FC48(self);
+            LobbyMan_SendAbortChal(self);
             int* m = (int*)operator new(0xC, D_00480488, 0x20000000, 0);
             m[0] = 0x102;
             *(void***)((char*)m + 0x4) = D_00481290;
@@ -3507,7 +3507,7 @@ extern "C" void func_0025F8A0(char* self, char* msg)
         }
     } else if (func_004165A8(buf, D_004A3228) == 0) {
         if (*(int*)self == 0x15)
-            func_0025FC70(self, *(int*)(self + 0x98), 0x18);
+            LobbyMan_SendLockChal(self, *(int*)(self + 0x98), 0x18);
     } else if (func_004165A8(buf, D_004A3230) == 0) {
     } else if (func_004165A8(buf, D_004A3238) == 0) {
         if (*(int*)self == 0x15) {
@@ -3553,13 +3553,13 @@ extern "C" void func_0025FAD0(void* self, const char* name)
 }
 
 //100%
-extern "C" void func_0025FC70(void* self, int a1, int a2);
+extern "C" void LobbyMan_SendLockChal(void* self, int a1, int a2);
 
 extern "C" void func_0025FB58(void* self, int a1, int a2)
 {
     if (*(int*)self != 0) {
         *(int*)((char*)self + 0xA4) = a2;
-        func_0025FC70(self, a1, 0x17);
+        LobbyMan_SendLockChal(self, a1, 0x17);
     }
 }
 
@@ -3571,7 +3571,7 @@ extern "C" int cDirtysock_tag_TagFieldSetFlags(char* record, int len, const char
 extern "C" void func_00268EC8(void* self, void* a1, int a2);
 
 // PORT: a1 carries a string pointer in an int (the unit's declaration).
-extern "C" void* func_0025FB80(void* self, int a1, void* a2)
+extern "C" void* LobbyMan_SendPrivateMessage(void* self, int a1, void* a2)
 {
     char buf[0x100];
     buf[0] = 0;
@@ -3588,21 +3588,21 @@ void func_0025FC20(void* self)
 }
 
 extern void* D_004A3270[];
-extern "C" void* func_0025FB80(void*, int, void*);
+extern "C" void* LobbyMan_SendPrivateMessage(void*, int, void*);
 
 //100%
-void* func_0025FC28(void* self, int a1)
+void* LobbyMan_SendDecline(void* self, int a1)
 {
-    return func_0025FB80(self, a1, (void*)D_004A3270);
+    return LobbyMan_SendPrivateMessage(self, a1, (void*)D_004A3270);
 }
 
 extern void* D_004807F8[];
-extern "C" void* func_0025FB80(void*, int, void*);
+extern "C" void* LobbyMan_SendPrivateMessage(void*, int, void*);
 
 //100%
-void* func_0025FC48(void* self)
+void* LobbyMan_SendAbortChal(void* self)
 {
-    return func_0025FB80(self, *(int*)((char*)self + 0x98), (void*)D_004807F8);
+    return LobbyMan_SendPrivateMessage(self, *(int*)((char*)self + 0x98), (void*)D_004807F8);
 }
 
 //100%
@@ -3640,9 +3640,9 @@ static inline sMsgListIter_0025FC70 sMsgList_0025FC70_insert(sMsgListIter_0025FC
     return tmp;
 }
 
-extern "C" void func_0025FC70(void* self, int a1, int a2)
+extern "C" void LobbyMan_SendLockChal(void* self, int a1, int a2)
 {
-    func_0025FB80(self, a1, D_00480910);
+    LobbyMan_SendPrivateMessage(self, a1, D_00480910);
     int kind = 0x110;
     *(int*)self = a2;
     int* m = (int*)operator new(8, D_00480488, 0x20000000, 0);
@@ -4044,7 +4044,7 @@ extern "C" void func_002614E8(void* self, void* a1)
 //100%
 extern void* D_004A3028;
 // PORT: callee defined as returning void* in this unit; called here as void.
-void func_0025FC28_v(void* self, int a1) __asm__("func_0025FC28__FPvi");
+void LobbyMan_SendDecline_v(void* self, int a1) __asm__("LobbyMan_SendDecline__FPvi");
 extern "C" void func_003F0BE0(void* p);
 extern "C" void func_003F07A0(void* p);
 
@@ -4075,7 +4075,7 @@ extern "C" void func_00261530(void* vself)
     if (self->h != 0) {
         while (self->begin != self->end) {
             sObj261530* p = self->end[-1];
-            func_0025FC28_v(D_004A3028, p->id);
+            LobbyMan_SendDecline_v(D_004A3028, p->id);
             self->end--;
             if (p != 0) {
                 p->vt[1].fn((char*)p + p->vt[1].delta, 3);
@@ -4283,7 +4283,7 @@ void func_00261A20(void* self)
 // PORT: TagFieldGetUnk is called here with a 4th (default) argument left in $a3.
 extern "C" void cDirtysock_tag_TagFieldGetUnk4(const char* tag, char* dst, int size, const char* defval) __asm__("cDirtysock_tag_TagFieldGetUnk");
 extern "C" int func_002623B0(void* self, int name);
-extern "C" void func_00261CD0(char* self, char* name, char* text, char* date);
+extern "C" void BuddyMan_AddMessage(char* self, char* name, char* text, char* date);
 extern "C" int func_00262A08(void* self, int name);
 extern "C" void func_002635A8(void* self, int i);
 extern "C" int func_003EDD70(const char* data, int* year, int* month, int* day, int* hour, int* min, int* sec, int offset);
@@ -4357,7 +4357,7 @@ extern "C" void func_00261A28(char* self, char* msg)
     func_004162D0(text, raw);
     func_003EDD70(cDirtysock_tag_TagFieldFind(*(char**)(msg + 0xC), D_004A3378), &t0, &t1, &t2, &t3, &t4, &t5, 0);
     sprintf(date, D_00480E78, t1, t2, t0, t3, t4);
-    func_00261CD0(self, name, text, date);
+    BuddyMan_AddMessage(self, name, text, date);
     if (func_00262A08(self, (int)name) >= 0x1F) {
         sTagVec_00261A28_remove(self, name);
     }
@@ -4446,7 +4446,7 @@ static inline void post_1CD0(char* owner, void* msg)
 }
 
 // PORT: name pointers passed through int parameters of some callees.
-extern "C" void func_00261CD0(char* self, char* name, char* a2, char* a3)
+extern "C" void BuddyMan_AddMessage(char* self, char* name, char* a2, char* a3)
 {
     if (func_00262360(self, (int)name) == 0
         && func_002623B0(self, (int)name) == 0
@@ -5109,7 +5109,7 @@ extern "C" int func_00262E20(void* self, void* name)
 //100%
 extern void* D_004A3028;
 // PORT: callee defined as returning void* in this unit; called here as void.
-void func_0025FC28_v(void* self, int a1) __asm__("func_0025FC28__FPvi");
+void LobbyMan_SendDecline_v(void* self, int a1) __asm__("LobbyMan_SendDecline__FPvi");
 extern "C" void cBXString__cBXString(void* self, int flags);
 extern "C" void* cBXString_cBXString2(void* self, const char* s);
 extern "C" int func_00262400(void* self, int a1);
@@ -5163,7 +5163,7 @@ extern "C" void func_00262EC0(char* self, int idx)
     if (func_00263128(self, s.p))
     {
         // PORT: the name is passed through an int parameter.
-        func_0025FC28_v(D_004A3028, (int)s.p);
+        LobbyMan_SendDecline_v(D_004A3028, (int)s.p);
         int k = func_00262E20(self, s.p);
         sObjVec_262EC0* v = (sObjVec_262EC0*)(self + 0xB8);
         // PORT: pointer arithmetic through int.
@@ -5178,7 +5178,7 @@ extern "C" void func_00262EC0(char* self, int idx)
 //100%
 extern void* D_004A3028;
 // PORT: callee defined as returning void* in this unit; called here as void.
-void func_0025FC28_v(void* self, int a1) __asm__("func_0025FC28__FPvi");
+void LobbyMan_SendDecline_v(void* self, int a1) __asm__("LobbyMan_SendDecline__FPvi");
 extern "C" void* func_0041610C(void* dst, const void* src, unsigned int n);
 extern "C" int func_00262438(void* self, int a1);
 extern "C" int func_00262A38(void* self, void* name);
@@ -5210,7 +5210,7 @@ extern "C" void func_00263018(void* self, void* name)
 {
     int idx = func_00262E20(self, name);
     if (idx >= 0) {
-        func_0025FC28_v(D_004A3028, (int)name);
+        LobbyMan_SendDecline_v(D_004A3028, (int)name);
         sTagsUnkObjVec18* v = (sTagsUnkObjVec18*)((char*)self + 0xB8);
         void** pos = *(void***)((char*)self + 0xBC) + idx;
         char* obj = (char*)*pos;
@@ -5760,7 +5760,7 @@ extern void* D_004A33CC;
 extern void* D_004A33F4;
 extern "C" int func_00255D38(void* comm, int chan);
 extern "C" void func_00255CC8(void* comm, int chan);
-extern "C" void func_00264098(void);
+extern "C" void cSetupMan_Destroy(void);
 extern "C" void func_00266DF8(void* self);
 extern "C" void func_00266E88(void* self);
 extern "C" void func_0025F740(void* self, int type);
@@ -5808,7 +5808,7 @@ extern "C" void func_00263BA8(void* p, int arg)
         func_00266DF8(D_004A33F4);
     }
     if (D_004A33CC != 0)
-        func_00264098();
+        cSetupMan_Destroy();
     func_0025F740(D_004A3028, 0);
     self[0] = 0;
     if (arg == 1) {
@@ -5844,8 +5844,8 @@ extern "C" int func_00261460(void* p);
 extern "C" void func_00262768(void* self, int a1, int a2, int a3, int a4, int a5);
 extern "C" void func_00263BA8(void* p, int arg);
 extern "C" void func_00264030(int a1, int a2, int a3);
-extern "C" void func_00264098(void);
-extern "C" void func_002642B8(void* self);
+extern "C" void cSetupMan_Destroy(void);
+extern "C" void cSetupMan_Update(void* self);
 // PORT: func_00264CB8 is defined with one parameter; this caller passes a second in $a1.
 extern "C" void func_00264CB8_2(void* self, int a) __asm__("func_00264CB8");
 extern "C" void* cMemMan_alloc(int size, const char* tag, unsigned int flags, int d);
@@ -5925,7 +5925,7 @@ extern "C" void func_00263CF0(int* self)
             return;
         }
         {
-            func_002642B8(D_004A33CC);
+            cSetupMan_Update(D_004A33CC);
             int go = 0;
             int st = *(int*)D_004A33CC;
             if (st == 0xD)
@@ -5934,7 +5934,7 @@ extern "C" void func_00263CF0(int* self)
                 func_00263BA8(self, 2);
             if (go == 0)
                 return;
-            func_00264098();
+            cSetupMan_Destroy();
             func_0025B800(D_004A3028);
             D_004A19C4 = 0x34;
             func_00262768(Mgr_263CF0(), 1, 9, *(int*)((char*)D_004A3028 + 0x98), 0, 0);
@@ -5958,18 +5958,18 @@ extern "C" void func_00263CF0(int* self)
 extern char D_00480F08[];
 extern void* D_004A33CC;
 extern "C" void* cMemMan_alloc(int size, const char* tag, unsigned int flags, int d);
-extern "C" void* func_002640C0(void* self, int a1, int a2, int a3);
+extern "C" void* cSetupMan_ctor(void* self, int a1, int a2, int a3);
 
 extern "C" void func_00264030(int a1, int a2, int a3)
 {
-    D_004A33CC = func_002640C0(cMemMan_alloc(0x12C, D_00480F08, 0x20000000, 0), a1, a2, a3);
+    D_004A33CC = cSetupMan_ctor(cMemMan_alloc(0x12C, D_00480F08, 0x20000000, 0), a1, a2, a3);
 }
 
 //100%
 extern void* D_004A33CC;
 extern "C" void func_00264138(void* self, int flags);
 
-extern "C" void func_00264098(void)
+extern "C" void cSetupMan_Destroy(void)
 {
     if (D_004A33CC != 0) {
         func_00264138(D_004A33CC, 3);
@@ -5980,7 +5980,7 @@ extern "C" void func_00264098(void)
 //100%
 extern "C" void* func_003E6448(void* dst, int value, int size);
 
-extern "C" void* func_002640C0(void* self, int a1, int a2, int a3)
+extern "C" void* cSetupMan_ctor(void* self, int a1, int a2, int a3)
 {
     *(int*)((char*)self + 0x0) = 1;
     *(int*)((char*)self + 0x120) = a1;
@@ -6057,7 +6057,7 @@ extern "C" void func_00264138(void* self_, int flags)
         operator_delete((int*)self);
 }
 
-INCLUDE_ASM("dirtysock/tagsunk", func_002642B8);
+INCLUDE_ASM("dirtysock/tagsunk", cSetupMan_Update);
 
 //100%
 extern "C" void* cMemMan_alloc(int size, const char* tag, unsigned int flags, int d);
@@ -6849,11 +6849,11 @@ INCLUDE_ASM("dirtysock/tagsunk", func_00265768);
 extern char D_00480F30[];
 extern void* D_004A33D0;
 extern "C" void* cMemMan_alloc(int size, const char* tag, unsigned int flags, int d);
-extern "C" void* func_002658E0(void* self);
+extern "C" void* cSharedLoginMan_ctor(void* self);
 
 extern "C" void func_00265880(void)
 {
-    D_004A33D0 = func_002658E0(cMemMan_alloc(8, D_00480F30, 0x20000000, 0));
+    D_004A33D0 = cSharedLoginMan_ctor(cMemMan_alloc(8, D_00480F30, 0x20000000, 0));
 }
 
 //100%
@@ -6871,7 +6871,7 @@ extern "C" void func_002658B8(void)
 //100%
 extern "C" void func_00265950(void* self);
 
-extern "C" void* func_002658E0(void* self)
+extern "C" void* cSharedLoginMan_ctor(void* self)
 {
     func_00265950(self);
     return self;
@@ -7942,17 +7942,17 @@ extern "C" void func_00266760(void* self, void* ptr)
 extern char D_00481090[];
 extern void* D_004A33F0;
 extern "C" void* cMemMan_alloc(int size, const char* tag, unsigned int flags, int d);
-extern "C" void* func_002667E8(void* self);
+extern "C" void* cUsbKeyboard_ctor(void* self);
 
 extern "C" void func_00266788(void)
 {
-    D_004A33F0 = func_002667E8(cMemMan_alloc(0x464, D_00481090, 0x20000000, 0));
+    D_004A33F0 = cUsbKeyboard_ctor(cMemMan_alloc(0x464, D_00481090, 0x20000000, 0));
 }
 
 extern void* D_004A33F0;
 extern "C" void func_00266850(void* p, int a);
 
-extern "C" void func_002667C0()
+extern "C" void cUsbKeyboard_Destroy()
 {
     if (D_004A33F0) {
         func_00266850(D_004A33F0, 3);
@@ -7966,7 +7966,7 @@ extern "C" void func_002668A8(void* self);
 extern "C" int func_003F61D0(int a0, int a1, void* name, void* cb, int a4);
 extern "C" void* func_003E6448(void* dst, int value, int size);
 
-extern "C" void* func_002667E8(void* self)
+extern "C" void* cUsbKeyboard_ctor(void* self)
 {
     *(int*)((char*)self + 0x460) = 0;
     if (func_003F61D0(0, 0, D_005371D0, (void*)func_002668A8, 0) >= 0) {
@@ -8126,11 +8126,11 @@ extern "C" int func_00266BA8(sSlots_668E8* self, int idx, int* a, int* b)
 extern char D_004810A0[];
 extern void* D_004A33F4;
 extern "C" void* cMemMan_alloc(int size, const char* tag, unsigned int flags, int d);
-void* func_00266D00(void* self);
+void* cVoipMan_ctor(void* self);
 
 extern "C" void func_00266CA0(void)
 {
-    D_004A33F4 = func_00266D00(cMemMan_alloc(8, D_004810A0, 0x20000000, 0));
+    D_004A33F4 = cVoipMan_ctor(cMemMan_alloc(8, D_004810A0, 0x20000000, 0));
 }
 
 //100%
@@ -8146,7 +8146,7 @@ extern "C" void func_00266CD8(void)
 }
 
 //100%
-void* func_00266D00(void* self)
+void* cVoipMan_ctor(void* self)
 {
     int t0 = 0;
     *(int*)self = t0;
@@ -8536,13 +8536,13 @@ int func_00267DD0(void* self)
 }
 
 //100%
-extern "C" float func_00267DD8(void)
+extern "C" float cDSockChannel_Base_v05(void)
 {
     return 0.01666666753590107f;
 }
 
 //100%
-int func_00267DE8(void* self)
+int cDSockChannel_Base_v06(void* self)
 {
     return 0;
 }
@@ -8566,7 +8566,7 @@ extern "C" int func_00267E00(void* self)
 }
 
 //100%
-int func_00267E10(void* self)
+int cDSockChannel_v06(void* self)
 {
     return 0x1;
 }
@@ -8576,7 +8576,7 @@ extern void* D_004812B0[];
 void operator_delete(int*);
 
 // deleting destructor: reset the vtable, free when bit 0 of flags is set
-extern "C" void func_00267E18(void* self, int flags)
+extern "C" void NetEvent_dtor(void* self, int flags)
 {
     *(void***)((char*)self + 0x4) = D_004812B0;
     if (flags & 1) {
@@ -8589,7 +8589,7 @@ extern char D_00480488[];
 extern void* D_004812B0[];
 extern "C" void* cMemMan_alloc(int size, const char* tag, unsigned int flags, int d);
 
-extern "C" void* func_00267E48(int* self)
+extern "C" void* NetEvent_Clone(int* self)
 {
     int* p = (int*)cMemMan_alloc(8, D_00480488, 0x20000000, 0);
     int v = *self;
@@ -8659,7 +8659,7 @@ extern void* D_004812B0[];
 void operator_delete(int*);
 
 // deleting destructor: reset the vtable, free when bit 0 of flags is set
-extern "C" void func_00267FB8(void* self, int flags)
+extern "C" void NetErrorEvent_dtor(void* self, int flags)
 {
     *(void***)((char*)self + 0x4) = D_004812B0;
     if (flags & 1) {
@@ -8672,7 +8672,7 @@ extern char D_00480488[];
 extern void* D_00481250[];
 extern "C" void* cMemMan_alloc(int size, const char* tag, unsigned int flags, int d);
 
-extern "C" void* func_00267FE8(void* self)
+extern "C" void* NetErrorEvent_Clone(void* self)
 {
     int* p = (int*)cMemMan_alloc(0xC, D_00480488, 0x20000000, 0);
     int v = *(int*)((char*)self + 0x8);

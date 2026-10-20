@@ -28,7 +28,7 @@ struct sDebounceVEntry2D88 {
     void (*fn)(void*, int);
 };
 
-extern "C" int func_00342D88(void* self)
+extern "C" int Debounce_v15(void* self)
 {
     int n = *(int*)((char*)self + 0x2C);
     if (n > 0) {
@@ -73,12 +73,12 @@ extern "C" void func_00342DD8(void* self)
     }
 }
 
-extern "C" void* func_00356B08(void* self);
+extern "C" void* cMoveNode_v36(void* self);
 
 //100%
-void* func_00342E78(void* self)
+void* Debounce_v36(void* self)
 {
-    return func_00356B08(self);
+    return cMoveNode_v36(self);
 }
 
 //100%
@@ -169,7 +169,7 @@ struct sDebounce_3010 {
 extern char D_00490570[];
 extern "C" void* func_0034FB00(void* self, void* a1, int type, void* a3);
 
-extern "C" void* func_00343010(sDebounce_3010* self, void* a1, void* a2, sDesc_3010* desc)
+extern "C" void* Conveyor_ctor(sDebounce_3010* self, void* a1, void* a2, sDesc_3010* desc)
 {
     func_0034FB00(self, a1, 0xF, a2);
     self->vt = D_00490570;
@@ -206,7 +206,7 @@ extern "C" void* func_003430D0(void* self, void* unused, void* stream)
     return self;
 }
 
-INCLUDE_ASM("object/debouncenode", func_00343130);
+INCLUDE_ASM("object/debouncenode", Conveyor_v42);
 
 //100%
 struct sDebounceScroll {
@@ -217,7 +217,7 @@ struct sDebounceScroll {
     float v;  // 0x44
 };
 
-extern "C" void func_003434E8(sDebounceScroll* self)
+extern "C" void Conveyor_Update(sDebounceScroll* self)
 {
     self->u += self->du;
     self->v += self->dv;
@@ -255,7 +255,7 @@ extern "C" void func_00343718(void* self, void* stream)
 extern "C" void* func_0034FB00(void* self, void* a1, int type, void* a3);
 extern char D_004903F0[];
 
-extern "C" void* func_00343768(void* self, void* a1, void* a2, void* a3)
+extern "C" void* Counter_ctor(void* self, void* a1, void* a2, void* a3)
 {
     func_0034FB00(self, a1, 7, a2);
     *(void**)((char*)self + 0xC) = D_004903F0;
@@ -396,7 +396,7 @@ struct sState00343A68 {
     char rest[0x1F4 - 0x10C];
 };
 
-extern "C" sState00343A68* func_00343A68(sState00343A68* self)
+extern "C" sState00343A68* CrowdMan3d_ctor(sState00343A68* self)
 {
     sState00343A68* p = self;
     int i;
@@ -432,7 +432,7 @@ struct sDebounce_343B28 {
     sDebounceElem_343B28 elems[5];
 };
 
-extern "C" void func_00343B28(void* self, int flags)
+extern "C" void CrowdMan3d_dtor(void* self, int flags)
 {
     sDebounce_343B28* d = (sDebounce_343B28*)self;
     int i;
@@ -499,7 +499,7 @@ struct sDebounceElem40C8 {
 
 extern "C" void func_003449F0(void* elem);
 
-extern "C" void func_003440C8(sDebounceElem40C8* self)
+extern "C" void CrowdMan3d_Update(sDebounceElem40C8* self)
 {
     int i;
     sDebounceElem40C8* p = self;
@@ -643,7 +643,7 @@ void* func_00344348(void* self)
 
 //100%
 extern char* D_004A5B64;
-extern "C" void func_003443A8(void* self);
+extern "C" void CrowdMan3d_GroupCreateMeshes(void* self);
 
 extern "C" void func_00344368(void* self, int a1)
 {
@@ -652,10 +652,10 @@ extern "C" void func_00344368(void* self, int a1)
     *(int*)(s + 0x4) = a1;
     *(int*)(s + 0x1DC) = 0;
     *(float*)(s + 0x1E4) = 1.0f / (float)*(int*)(g + 0x10);
-    func_003443A8(self);
+    CrowdMan3d_GroupCreateMeshes(self);
 }
 
-INCLUDE_ASM("object/debouncenode", func_003443A8);
+INCLUDE_ASM("object/debouncenode", CrowdMan3d_GroupCreateMeshes);
 
 //100%
 struct sTrackWorld51C0;
@@ -909,13 +909,13 @@ extern "C" void func_00344FC0(void* self, cDebounceStream* s)
 }
 
 //100%
-extern "C" void func_003443A8(void* self);
+extern "C" void CrowdMan3d_GroupCreateMeshes(void* self);
 
 extern "C" void func_00344FF8(void* self, cDebounceStream* s)
 {
     s->v02(self, 0x10C);
     func_00344800(self);
-    func_003443A8(self);
+    CrowdMan3d_GroupCreateMeshes(self);
 }
 
 //100%

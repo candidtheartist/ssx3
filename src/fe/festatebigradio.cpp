@@ -645,7 +645,7 @@ static inline int isOn00194138()
     return D_004A1A70 == 1;
 }
 
-extern "C" void* func_00194138(void* self, int a1, int a2)
+extern "C" void* cFEStateBraggingRights_v24(void* self, int a1, int a2)
 {
     if (isOn00194138()) {
         return func_001A8B88(self, a1, a2);
@@ -709,7 +709,7 @@ struct sBigRadio_41B0 {
     char* opts;
 };
 
-extern "C" int func_001941B0(sBigRadio_41B0* self, int msg, sMsg_41B0* data)
+extern "C" int cFEStateBraggingRights_v31(sBigRadio_41B0* self, int msg, sMsg_41B0* data)
 {
     switch (msg) {
     case 0xFB:

@@ -6,7 +6,7 @@ INCLUDE_ASM("fe/all_in_one_fe", __sti__all_in_one_fe_cpp);
 // PORT: PS2-only inline asm; needs a C fallback off-PS2.
 extern "C" void func_0039E2A0_xi(void*, int) __asm__("func_0039E2A0");
 extern char D_00474E08[];
-extern "C" void* func_0021C640(void *self) {
+extern "C" void* cOVStateOverlay_ctor(void *self) {
     func_0039E2A0_xi(self, 0);
     *(char**)((char*)self + 8) = D_00474E08;
     return self;
@@ -17,7 +17,7 @@ extern "C" void *func_0039E2A0(void*, ...);
 extern char D_00474E08[];
 extern unsigned short D_004A2088[];
 
-extern "C" void *func_0021C678(void *arg0, int arg1, int arg2) {
+extern "C" void *cOVStateOverlay_ctor_2(void *arg0, int arg1, int arg2) {
     func_0039E2A0(arg0);
     (*(int *)((char*)(arg0) + (0x98))) = arg2;
     (*(int *)((char*)(arg0) + (0x48))) = 0;
@@ -40,7 +40,7 @@ extern "C" void func_0021C6D8(void *arg0) {
 }
 
 //100%
-extern "C" int func_0021C700(void *arg0) {
+extern "C" int cOVStateOverlay_v25(void *arg0) {
     return (*(int *)((char*)(arg0) + (0x4C)));
 }
 
@@ -60,7 +60,7 @@ extern char D_00474D30[];
 extern char D_00474E08[];
 extern unsigned short D_004A2088[];
 
-extern "C" void *func_0021C730(void *arg0, int arg1, int arg2) {
+extern "C" void *OVScreenOverlayMenu_ctor(void *arg0, int arg1, int arg2) {
     func_0039E2A0(arg0);
     (*(int *)((char*)(arg0) + (0x98))) = arg2;
     (*(int *)((char*)(arg0) + (0x48))) = 0;
@@ -135,7 +135,7 @@ extern char D_00474AA8[];
 extern char D_00474E08[];
 extern unsigned short D_004A2088[];
 
-extern "C" void *func_0021C898(void *arg0, int arg1, int arg2) {
+extern "C" void *cOVState_ctor(void *arg0, int arg1, int arg2) {
     func_0039E2A0(arg0);
     (*(int *)((char*)(arg0) + (0x98))) = arg2;
     (*(int *)((char*)(arg0) + (0x48))) = 0;
@@ -250,7 +250,7 @@ extern "C" void func_0021CA88(void) {
 // PORT: PS2-only inline asm; needs a C fallback off-PS2.
 extern "C" void func_0039E2A0_x(void*) __asm__("func_0039E2A0");
 extern char D_004743F0[];
-extern "C" void* func_0021CAA8(void *self) {
+extern "C" void* OVScreenPDATemplate_ctor(void *self) {
     func_0039E2A0_x(self);
     *(char**)((char*)self + 8) = D_004743F0;
     return self;
@@ -270,7 +270,7 @@ extern "C" void func_0021CAE0(void *arg0) {
 // PORT: PS2-only inline asm; needs a C fallback off-PS2.
 extern "C" void func_0039E2A0_xi(void*, int) __asm__("func_0039E2A0");
 extern char D_00474248[];
-extern "C" void* func_0021CB08(void *self) {
+extern "C" void* cOVState_ViewPopup_ctor_2(void *self) {
     func_0039E2A0_xi(self, 0);
     *(char**)((char*)self + 8) = D_00474248;
     return self;
@@ -287,7 +287,7 @@ extern "C" void func_0021CB40(void *arg0) {
 }
 
 //100%
-extern "C" int func_0021CB68(void) {
+extern "C" int cOVState_ViewPopup_TransitionOut(void) {
     return 1;
 }
 
@@ -327,7 +327,7 @@ struct sElem_CBA0 {
     sElem_CBA0() { func_0020EAA0(sub); }
 };
 
-extern "C" void *func_0021CBA0(void *arg0) {
+extern "C" void *cOVStateHUD1P_ctor_2(void *arg0) {
     char* self = (char*)arg0;
     func_0039E2A0_CBA0(self, 0);
     *(char**)(self + 8) = D_00474160;
@@ -347,7 +347,7 @@ extern "C" void func_0020EB08(void *, int);
 extern "C" void func_0039E390(void *, int);
 extern char D_00474160[];
 
-extern "C" void func_0021CC40(void *arg0, int arg1) {
+extern "C" void cOVStateHUD1P_dtor(void *arg0, int arg1) {
     (*(char **)((char*)(arg0) + (8))) = D_00474160;
     if ((char*)arg0 + 0x48 != 0) {
         char *p = (char*)arg0 + 0x48 + 0x118;
@@ -381,7 +381,7 @@ extern char D_00474088[];
 extern char D_00474E08[];
 extern unsigned short D_004A2088[];
 
-extern "C" void *func_0021CD08(void *arg0, int arg1, int arg2) {
+extern "C" void *OVScreenFreestyleStandings_ctor(void *arg0, int arg1, int arg2) {
     func_0039E2A0(arg0);
     (*(int *)((char*)(arg0) + (0x98))) = arg2;
     (*(int *)((char*)(arg0) + (0x48))) = 0;
@@ -410,7 +410,7 @@ extern char D_00473FB0[];
 extern char D_00474E08[];
 extern unsigned short D_004A2088[];
 
-extern "C" void *func_0021CD98(void *arg0, int arg1, int arg2) {
+extern "C" void *OVScreenFinalStandings_ctor(void *arg0, int arg1, int arg2) {
     func_0039E2A0(arg0);
     (*(int *)((char*)(arg0) + (0x98))) = arg2;
     (*(int *)((char*)(arg0) + (0x48))) = 0;
@@ -440,7 +440,7 @@ extern char D_00473ED8[];
 extern char D_00474E08[];
 extern unsigned short D_004A2088[];
 
-extern "C" void *func_0021CE28(void *arg0, int arg1, int arg2) {
+extern "C" void *OVScreenPeakChallengeResults_ctor(void *arg0, int arg1, int arg2) {
     func_0039E2A0_CE28(arg0);
     (*(int *)((char*)(arg0) + (0x98))) = arg2;
     (*(int *)((char*)(arg0) + (0x48))) = 0;
@@ -538,7 +538,7 @@ extern char D_00473C50[];
 extern char D_00474E08[];
 extern unsigned short D_004A2088[];
 
-extern "C" void *func_0021D008(void *arg0, int arg1, int arg2) {
+extern "C" void *OVScreenMultiplayerStandings_ctor(void *arg0, int arg1, int arg2) {
     func_0039E2A0_D008(arg0);
     (*(int *)((char*)(arg0) + (0x98))) = arg2;
     (*(int *)((char*)(arg0) + (0x48))) = 0;
@@ -557,7 +557,7 @@ extern char D_00473B78[];
 extern char D_00474E08[];
 extern unsigned short D_004A2088[];
 
-extern "C" void *func_0021D070(void *arg0) {
+extern "C" void *OVScreenHiscoreList_ctor(void *arg0) {
     func_0039E2A0(arg0, 0);
     (*(int *)((char*)(arg0) + (0x98))) = 0;
     (*(int *)((char*)(arg0) + (0x48))) = 0;
@@ -577,7 +577,7 @@ extern char D_00473B78[];
 extern char D_00474E08[];
 extern unsigned short D_004A2088[];
 
-extern "C" void *func_0021D0D0(void *arg0, int arg1, int arg2) {
+extern "C" void *OVScreenHiscoreList_ctor_2(void *arg0, int arg1, int arg2) {
     func_0039E2A0_D0D0(arg0);
     (*(int *)((char*)(arg0) + (0x98))) = arg2;
     (*(int *)((char*)(arg0) + (0x48))) = 0;
@@ -970,7 +970,7 @@ extern "C" void func_00220AD0(char* self, char* obj, float t) {
 // PORT: PS2-only inline asm; needs a C fallback off-PS2.
 extern "C" void func_0039E2A0_xi(void*, int) __asm__("func_0039E2A0");
 extern char D_00473AA8[];
-extern "C" void* func_00220D38(void *self) {
+extern "C" void* cFEStateLodge_ctor_2(void *self) {
     func_0039E2A0_xi(self, 0);
     *(char**)((char*)self + 8) = D_00473AA8;
     return self;
@@ -990,7 +990,7 @@ extern "C" void func_00220D70(void *arg0) {
 // PORT: PS2-only inline asm; needs a C fallback off-PS2.
 extern "C" void func_0039E2A0_xi(void*, int) __asm__("func_0039E2A0");
 extern char D_004739D8[];
-extern "C" void* func_00220D98(void *self) {
+extern "C" void* cFEStateLodgeRiderDetail_ctor_2(void *self) {
     func_0039E2A0_xi(self, 0);
     *(char**)((char*)self + 8) = D_004739D8;
     return self;
@@ -1010,7 +1010,7 @@ extern "C" void func_00220DD0(void *arg0) {
 // PORT: PS2-only inline asm; needs a C fallback off-PS2.
 extern "C" void func_0039E2A0_xi(void*, int) __asm__("func_0039E2A0");
 extern char D_00473908[];
-extern "C" void* func_00220DF8(void *self) {
+extern "C" void* cFEStateBuyAttrib_ctor_2(void *self) {
     func_0039E2A0_xi(self, 0);
     *(char**)((char*)self + 8) = D_00473908;
     return self;
@@ -1030,7 +1030,7 @@ extern "C" void func_00220E30(void *arg0) {
 extern "C" void* func_0039E2A0(void*, ...);
 extern char D_00473838[];
 
-extern "C" void *func_00220E58(void *arg0) {
+extern "C" void *cFEStateCareerStats_ctor_2(void *arg0) {
     func_0039E2A0(arg0, 0);
     (*(char **)((char*)(arg0) + (8))) = D_00473838;
     return arg0;
@@ -1063,7 +1063,7 @@ extern char D_00473760[];
 extern char D_00474E08[];
 extern unsigned short D_004A2088[];
 
-extern "C" void *func_00220EE0(void *arg0, int arg1, int arg2) {
+extern "C" void *OVScreenEnterLodge_ctor(void *arg0, int arg1, int arg2) {
     func_0039E2A0_0EE0(arg0);
     (*(int *)((char*)(arg0) + (0x98))) = arg2;
     (*(int *)((char*)(arg0) + (0x48))) = 0;
@@ -1082,7 +1082,7 @@ extern char D_00473688[];
 extern char D_00474E08[];
 extern unsigned short D_004A2088[];
 
-extern "C" void *func_00220F48(void *arg0) {
+extern "C" void *OVScreenBCStart_ctor(void *arg0) {
     func_0039E2A0(arg0, 0);
     (*(int *)((char*)(arg0) + (0x98))) = 0;
     (*(int *)((char*)(arg0) + (0x48))) = 0;
@@ -1103,7 +1103,7 @@ extern char D_00473688[];
 extern char D_00474E08[];
 extern unsigned short D_004A2088[];
 
-extern "C" void *func_00220FA8(void *arg0, int arg1, int arg2) {
+extern "C" void *OVScreenBCStart_ctor_2(void *arg0, int arg1, int arg2) {
     func_0039E2A0_0FA8(arg0);
     (*(int *)((char*)(arg0) + (0x98))) = arg2;
     (*(int *)((char*)(arg0) + (0x48))) = 0;
@@ -1195,7 +1195,7 @@ extern char D_004734D0[];
 extern char D_00474E08[];
 extern unsigned short D_004A2088[];
 
-extern "C" void *func_00221160(void *arg0, int arg1, int arg2) {
+extern "C" void *OVScreenTopTimes_ctor(void *arg0, int arg1, int arg2) {
     func_0039E2A0_1160(arg0);
     (*(int *)((char*)(arg0) + (0x98))) = arg2;
     (*(int *)((char*)(arg0) + (0x48))) = 0;
@@ -1214,7 +1214,7 @@ extern char D_004733F8[];
 extern char D_00474E08[];
 extern unsigned short D_004A2088[];
 
-extern "C" void *func_002211C8(void *arg0) {
+extern "C" void *OVScreenMap_ctor(void *arg0) {
     func_0039E2A0(arg0, 0);
     (*(int *)((char*)(arg0) + (0x98))) = 0;
     (*(int *)((char*)(arg0) + (0x48))) = 0;
@@ -1235,7 +1235,7 @@ extern char D_004733F8[];
 extern char D_00474E08[];
 extern unsigned short D_004A2088[];
 
-extern "C" void *func_00221228(void *arg0, int arg1, int arg2) {
+extern "C" void *OVScreenMap_ctor_2(void *arg0, int arg1, int arg2) {
     func_0039E2A0_1228(arg0);
     (*(int *)((char*)(arg0) + (0x98))) = arg2;
     (*(int *)((char*)(arg0) + (0x48))) = 0;
@@ -1258,7 +1258,7 @@ extern "C" void* func_00221298(void *self) {
     return func_0039E390_x(self);
 }
 
-extern "C" void func_002212C0(void) {
+extern "C" void OVScreenMap_v13(void) {
 }
 
 //100%
@@ -1280,8 +1280,8 @@ extern char D_00473320[];
 extern char D_00474E08[];
 extern unsigned short D_004A2088[];
 
-INCLUDE_ASM("fe/all_in_one_fe", func_00221350);
-extern "C" void *func_00221350(void *arg0, int arg1, int arg2);
+INCLUDE_ASM("fe/all_in_one_fe", cOVState_ctor_2);
+extern "C" void *cOVState_ctor_2(void *arg0, int arg1, int arg2);
 
 //100%
 // PORT: PS2-only inline asm; needs a C fallback off-PS2.
@@ -1292,7 +1292,7 @@ extern "C" void* func_002213D8(void *self) {
     return func_0039E390_x(self);
 }
 
-extern "C" void func_00221400(void) {
+extern "C" void cOVState_v13(void) {
 }
 
 //100%
@@ -1301,7 +1301,7 @@ extern char D_00473248[];
 extern char D_00474E08[];
 extern unsigned short D_004A2088[];
 
-extern "C" void *func_00221408(void *arg0) {
+extern "C" void *OVScreenReadPrivateMessage_ctor(void *arg0) {
     func_0039E2A0(arg0, 0);
     (*(int *)((char*)(arg0) + (0x98))) = 0;
     (*(int *)((char*)(arg0) + (0x48))) = 0;
@@ -1321,7 +1321,7 @@ extern char D_00473248[];
 extern char D_00474E08[];
 extern unsigned short D_004A2088[];
 
-extern "C" void *func_00221468(void *arg0, int arg1, int arg2) {
+extern "C" void *OVScreenReadPrivateMessage_ctor_2(void *arg0, int arg1, int arg2) {
     func_0039E2A0_1468(arg0);
     (*(int *)((char*)(arg0) + (0x98))) = arg2;
     (*(int *)((char*)(arg0) + (0x48))) = 0;
@@ -1349,7 +1349,7 @@ extern char D_00473170[];
 extern char D_00474E08[];
 extern unsigned short D_004A2088[];
 
-extern "C" void *func_002214F8(void *arg0) {
+extern "C" void *OVScreenPauseFreeride_ctor(void *arg0) {
     func_0039E2A0(arg0, 0);
     (*(int *)((char*)(arg0) + (0x98))) = 0;
     (*(int *)((char*)(arg0) + (0x48))) = 0;
@@ -1369,7 +1369,7 @@ extern char D_00473170[];
 extern char D_00474E08[];
 extern unsigned short D_004A2088[];
 
-extern "C" void *func_00221558(void *arg0, int arg1, int arg2) {
+extern "C" void *OVScreenPauseFreeride_ctor_2(void *arg0, int arg1, int arg2) {
     func_0039E2A0_1558(arg0);
     (*(int *)((char*)(arg0) + (0x98))) = arg2;
     (*(int *)((char*)(arg0) + (0x48))) = 0;
@@ -1437,7 +1437,7 @@ extern "C" void *func_00221658(void *arg0, int arg1, int arg2) {
 // PORT: PS2-only inline asm; needs a C fallback off-PS2.
 extern "C" void* func_0039E390_x(void*) __asm__("func_0039E390");
 extern char D_00474E08[];
-extern "C" void* func_002216C8(void *self) {
+extern "C" void* OVScreenPauseMode1_dtor(void *self) {
     *(char**)((char*)self + 8) = D_00474E08;
     return func_0039E390_x(self);
 }
@@ -1487,7 +1487,7 @@ extern "C" void *func_00221758(void *arg0, int arg1, int arg2) {
 // PORT: PS2-only inline asm; needs a C fallback off-PS2.
 extern "C" void* func_0039E390_x(void*) __asm__("func_0039E390");
 extern char D_00474E08[];
-extern "C" void* func_002217C8(void *self) {
+extern "C" void* OVScreenPauseMode2_dtor(void *self) {
     *(char**)((char*)self + 8) = D_00474E08;
     return func_0039E390_x(self);
 }
@@ -1537,7 +1537,7 @@ extern "C" void *func_00221858(void *arg0, int arg1, int arg2) {
 // PORT: PS2-only inline asm; needs a C fallback off-PS2.
 extern "C" void* func_0039E390_x(void*) __asm__("func_0039E390");
 extern char D_00474E08[];
-extern "C" void* func_002218C8(void *self) {
+extern "C" void* OVScreenPauseMode3_dtor(void *self) {
     *(char**)((char*)self + 8) = D_00474E08;
     return func_0039E390_x(self);
 }
@@ -1587,7 +1587,7 @@ extern "C" void *func_00221958(void *arg0, int arg1, int arg2) {
 // PORT: PS2-only inline asm; needs a C fallback off-PS2.
 extern "C" void* func_0039E390_x(void*) __asm__("func_0039E390");
 extern char D_00474E08[];
-extern "C" void* func_002219C8(void *self) {
+extern "C" void* OVScreenPauseMode4_dtor(void *self) {
     *(char**)((char*)self + 8) = D_00474E08;
     return func_0039E390_x(self);
 }
@@ -1637,7 +1637,7 @@ extern "C" void *func_00221A58(void *arg0, int arg1, int arg2) {
 // PORT: PS2-only inline asm; needs a C fallback off-PS2.
 extern "C" void* func_0039E390_x(void*) __asm__("func_0039E390");
 extern char D_00474E08[];
-extern "C" void* func_00221AC8(void *self) {
+extern "C" void* OVScreenPauseMode5_dtor(void *self) {
     *(char**)((char*)self + 8) = D_00474E08;
     return func_0039E390_x(self);
 }
@@ -1687,7 +1687,7 @@ extern "C" void *func_00221B58(void *arg0, int arg1, int arg2) {
 // PORT: PS2-only inline asm; needs a C fallback off-PS2.
 extern "C" void* func_0039E390_x(void*) __asm__("func_0039E390");
 extern char D_00474E08[];
-extern "C" void* func_00221BC8(void *self) {
+extern "C" void* OVScreenPauseMode6_dtor(void *self) {
     *(char**)((char*)self + 8) = D_00474E08;
     return func_0039E390_x(self);
 }
@@ -1708,7 +1708,7 @@ extern char D_00472B88[];
 extern char D_00474E08[];
 extern unsigned short D_004A2088[];
 
-extern "C" void *func_00221C18(void *arg0, int arg1, int arg2) {
+extern "C" void *OVScreenBEOptions_ctor(void *arg0, int arg1, int arg2) {
     func_0039E2A0_1C18(arg0);
     (*(int *)((char*)(arg0) + (0x98))) = arg2;
     (*(int *)((char*)(arg0) + (0x48))) = 0;
@@ -1787,7 +1787,7 @@ extern "C" void* func_00221D88(void *self) {
 extern "C" void* func_001D53B0(void* self, int a1, int a2);
 extern char D_00472928[];
 
-extern "C" void *func_00221DB0(void *arg0) {
+extern "C" void *OVScreenProfileSavePDA_ctor_2(void *arg0) {
     func_001D53B0(arg0, 0, 0);
     (*(char **)((char*)(arg0) + (8))) = D_00472928;
     return arg0;
@@ -1809,7 +1809,7 @@ extern char D_00472850[];
 extern char D_00474E08[];
 extern unsigned short D_004A2088[];
 
-extern "C" void *func_00221E18(void *arg0, int arg1, int arg2) {
+extern "C" void *OVScreenRacePre_ctor(void *arg0, int arg1, int arg2) {
     func_0039E2A0_1E18(arg0);
     (*(int *)((char*)(arg0) + (0x98))) = arg2;
     (*(int *)((char*)(arg0) + (0x48))) = 0;
@@ -1838,7 +1838,7 @@ extern char D_00472778[];
 extern char D_00474E08[];
 extern unsigned short D_004A2088[];
 
-extern "C" void *func_00221EA8(void *arg0, int arg1, int arg2) {
+extern "C" void *OVScreenFreestylePre_ctor(void *arg0, int arg1, int arg2) {
     func_0039E2A0_1EA8(arg0);
     (*(int *)((char*)(arg0) + (0x98))) = arg2;
     (*(int *)((char*)(arg0) + (0x48))) = 0;
@@ -1867,7 +1867,7 @@ extern char D_004726A0[];
 extern char D_00474E08[];
 extern unsigned short D_004A2088[];
 
-extern "C" void *func_00221F38(void *arg0, int arg1, int arg2) {
+extern "C" void *OVScreenMultiFreestylePre_ctor(void *arg0, int arg1, int arg2) {
     func_0039E2A0_1F38(arg0);
     (*(int *)((char*)(arg0) + (0x98))) = arg2;
     (*(int *)((char*)(arg0) + (0x48))) = 0;
@@ -1896,7 +1896,7 @@ extern char D_004725C8[];
 extern char D_00474E08[];
 extern unsigned short D_004A2088[];
 
-extern "C" void *func_00221FC8(void *arg0, int arg1, int arg2) {
+extern "C" void *OVScreenRivalPre_ctor(void *arg0, int arg1, int arg2) {
     func_0039E2A0_1FC8(arg0);
     (*(int *)((char*)(arg0) + (0x98))) = arg2;
     (*(int *)((char*)(arg0) + (0x48))) = 0;
@@ -1913,7 +1913,7 @@ extern "C" void *func_00221FC8(void *arg0, int arg1, int arg2) {
 // PORT: PS2-only inline asm; needs a C fallback off-PS2.
 extern "C" void* func_001D5428_x(void*) __asm__("func_001D5428");
 extern char D_00472440[];
-extern "C" void* func_00222030(void *self) {
+extern "C" void* OVScreenSaveReplay_dtor(void *self) {
     *(char**)((char*)self + 8) = D_00472440;
     return func_001D5428_x(self);
 }
@@ -1922,7 +1922,7 @@ extern "C" void* func_00222030(void *self) {
 extern "C" void* func_001D53B0(void* self, int a1, int a2);
 extern char D_00472440[];
 
-extern "C" void *func_00222058(void *arg0) {
+extern "C" void *OVScreenSaveReplay_ctor_2(void *arg0) {
     func_001D53B0(arg0, 0, 0);
     (*(char **)((char*)(arg0) + (8))) = D_00472440;
     return arg0;
@@ -1932,7 +1932,7 @@ extern "C" void *func_00222058(void *arg0) {
 // PORT: PS2-only inline asm; needs a C fallback off-PS2.
 extern "C" void* func_001D5428_x(void*) __asm__("func_001D5428");
 extern char D_004722B8[];
-extern "C" void* func_00222098(void *self) {
+extern "C" void* OVScreenSaveRecords_dtor(void *self) {
     *(char**)((char*)self + 8) = D_004722B8;
     return func_001D5428_x(self);
 }
@@ -1941,7 +1941,7 @@ extern "C" void* func_00222098(void *self) {
 extern "C" void* func_001D53B0(void* self, int a1, int a2);
 extern char D_004722B8[];
 
-extern "C" void *func_002220C0(void *arg0) {
+extern "C" void *OVScreenSaveRecords_ctor_2(void *arg0) {
     func_001D53B0(arg0, 0, 0);
     (*(char **)((char*)(arg0) + (8))) = D_004722B8;
     return arg0;
@@ -1953,7 +1953,7 @@ extern char D_004721E0[];
 extern char D_00474E08[];
 extern unsigned short D_004A2088[];
 
-extern "C" void *func_00222100(void *arg0) {
+extern "C" void *OVScreenRewardsListPopup_ctor(void *arg0) {
     func_0039E2A0(arg0, 0);
     (*(int *)((char*)(arg0) + (0x98))) = 0;
     (*(int *)((char*)(arg0) + (0x48))) = 0;
@@ -1973,7 +1973,7 @@ extern char D_004721E0[];
 extern char D_00474E08[];
 extern unsigned short D_004A2088[];
 
-extern "C" void *func_00222160(void *arg0, int arg1, int arg2) {
+extern "C" void *OVScreenRewardsListPopup_ctor_2(void *arg0, int arg1, int arg2) {
     func_0039E2A0_2160(arg0);
     (*(int *)((char*)(arg0) + (0x98))) = arg2;
     (*(int *)((char*)(arg0) + (0x48))) = 0;
@@ -2011,7 +2011,7 @@ extern char D_00472108[];
 extern char D_00474E08[];
 extern unsigned short D_004A2088[];
 
-extern "C" void *func_00222218(void *arg0, int arg1, int arg2) {
+extern "C" void *OVScreenRewardList_ctor(void *arg0, int arg1, int arg2) {
     func_0039E2A0_2218(arg0);
     (*(int *)((char*)(arg0) + (0x98))) = arg2;
     (*(int *)((char*)(arg0) + (0x48))) = 0;
@@ -2033,17 +2033,17 @@ extern "C" void* func_00222280(void *self) {
     return func_001D5428_x(self);
 }
 
-extern "C" void func_002222A8(void) {
+extern "C" void OVScreenAutosave_OnWidgetAction(void) {
 }
 
-extern "C" void func_002222B0(void) {
+extern "C" void OVScreenAutosave_v37(void) {
 }
 
 //100%
 extern "C" void* func_001D53B0(void* self, int a1, int a2);
 extern char D_00471F80[];
 
-extern "C" void *func_002222B8(void *arg0) {
+extern "C" void *OVScreenAutosave_ctor_2(void *arg0) {
     func_001D53B0(arg0, 0, 0);
     (*(char **)((char*)(arg0) + (8))) = D_00471F80;
     return arg0;
@@ -2055,7 +2055,7 @@ extern char D_00471EA8[];
 extern char D_00474E08[];
 extern unsigned short D_004A2088[];
 
-extern "C" void *func_002222F8(void *arg0) {
+extern "C" void *OVScreenTrophy_ctor(void *arg0) {
     func_0039E2A0(arg0, 0);
     (*(int *)((char*)(arg0) + (0x98))) = 0;
     (*(int *)((char*)(arg0) + (0x48))) = 0;
@@ -2075,7 +2075,7 @@ extern char D_00471EA8[];
 extern char D_00474E08[];
 extern unsigned short D_004A2088[];
 
-extern "C" void *func_00222358(void *arg0, int arg1, int arg2) {
+extern "C" void *OVScreenTrophy_ctor_2(void *arg0, int arg1, int arg2) {
     func_0039E2A0_2358(arg0);
     (*(int *)((char*)(arg0) + (0x98))) = arg2;
     (*(int *)((char*)(arg0) + (0x48))) = 0;

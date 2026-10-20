@@ -32,7 +32,7 @@ struct sAIState_1286A0 {
 
 struct sAIObj_1286A0 {
     char pad[0xB60];
-    sAIObj_1286A0(void* owner) __asm__("func_00101310");
+    sAIObj_1286A0(void* owner) __asm__("DangerMan_ctor");
 };
 
 INCLUDE_ASM("ai/ai", cAI_cAI);
@@ -241,7 +241,7 @@ extern "C" void func_002DF920(void* p);
 extern "C" void func_002F1150(void* p);
 extern "C" void func_002F6518(void* p);
 extern "C" void cRider_updateFX(void* rider);
-extern "C" void func_00101B60(void* p);
+extern "C" void FocusMan_Update(void* p);
 extern "C" void func_001013A8(void* p);
 
 struct sAiObjAF0
@@ -339,7 +339,7 @@ extern "C" void cAI_update(sAiObjAF0* self)
         for (i = 0; i < n; i++) func_002F6518(m[i] + 0xD20);
         for (i = 0; i < n; i++) cRider_updateFX(r[i]);
     }
-    func_00101B60(self->fA4);
+    FocusMan_Update(self->fA4);
     func_001013A8(self->fA8);
     self->mFrame++;
 }
@@ -821,7 +821,7 @@ extern "C" void cAI_initMissionRiders(void* p)
 }
 
 //100%
-extern "C" void* func_00108C80(void* mem, int a, int b);
+extern "C" void* cComputer_ctor(void* mem, int a, int b);
 extern "C" void cBENewPlayerInterface_setRiderCtrlID(void* iface, int rider, int ctrl);
 extern "C" void cBENewPlayerInterface_setRiderCharID(void* iface, int rider, int ch);
 int cBENewPlayerInterface_getRiderCharID(void* iface, int rider);
@@ -865,7 +865,7 @@ extern "C" void cAI_initComputerRiders(void* p)
     for (int i = 0; i < n; i++)
     {
         int ch = cBENewPlayerInterface_getRiderCharID(iface, idx);
-        char* obj = (char*)func_00108C80(cMemMan_alloc(0x1A90, D_00457F30, 0x80000000, 0), 1, 0);
+        char* obj = (char*)cComputer_ctor(cMemMan_alloc(0x1A90, D_00457F30, 0x80000000, 0), 1, 0);
         sRiderCR** slot = &self->mRiders[idx];
         sRiderCR* rider = obj ? *(sRiderCR**)(obj + 0x18) : 0;
         *slot = rider;
@@ -894,7 +894,7 @@ extern "C" void cAI_initComputerRiders(void* p)
 //100%
 // PORT: cBE_getInterface__Fv is called with (be, kind) here; bind the 2-arg form to that symbol.
 void* cBE_getInterface_Fv(void* be, int kind) __asm__("cBE_getInterface__Fv");
-extern "C" void* func_00108C80(void* mem, int a, int b);
+extern "C" void* cComputer_ctor(void* mem, int a, int b);
 extern "C" void cBENewPlayerInterface_setRiderCtrlID(void* iface, int rider, int ctrl);
 extern "C" void cBENewPlayerInterface_setRiderCharID(void* iface, int rider, int ch);
 extern "C" void func_001473D0(void* iface, int rider, int v);
@@ -928,7 +928,7 @@ extern "C" void cAI_initComputerActors(void* p)
     for (int i = 0; i < n; i++)
     {
         int ch = self->mCharIds[self->mNumActors];
-        char* obj = (char*)func_00108C80(cMemMan_alloc(0x1A90, D_00457F40, 0x80000000, 0), 1, 1);
+        char* obj = (char*)cComputer_ctor(cMemMan_alloc(0x1A90, D_00457F40, 0x80000000, 0), 1, 1);
         sRiderCA* rider = obj ? *(sRiderCA**)(obj + 0x18) : 0;
         self->mRiders[idx] = rider;
         rider->mIndex = idx;

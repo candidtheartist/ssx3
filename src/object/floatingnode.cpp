@@ -33,9 +33,9 @@ extern "C" void func_0034EF08(cFloatingNode* self)
 
 //100%
 struct sBox_F048;
-extern "C" void* func_002D1BE0();
+extern "C" void* World_GetNash();
 extern "C" void cSpaceHash_moveItem(void* world, int type, void* id, sBox_F048* box, sBox_F048* old);
-extern "C" void func_003568B0(void* self);
+extern "C" void cMoveNode_v50(void* self);
 
 struct sFlVec4_34EF40 {
     float x, y, z, w;
@@ -93,7 +93,7 @@ static inline sFlVec4_34EF40 nodePos_34EF40(char* self)
     return *(sFlVec4_34EF40*)(vt[24].fn(self + vt[24].delta) + 0x30);
 }
 
-extern "C" void func_0034EF40(char* self)
+extern "C" void Floating_v50(char* self)
 {
     sFlInfo_34EF40* info = *(sFlInfo_34EF40**)(self + 0x78);
     if (info != 0) {
@@ -109,9 +109,9 @@ extern "C" void func_0034EF40(char* self)
         nb.max = vu0Add_34EF40(nodePos_34EF40(self), ext);
         (*(sFlInfo_34EF40**)(self + 0x78))->box = nb;
         void* id = *(void**)(self + 0x18);
-        cSpaceHash_moveItem(func_002D1BE0(), 0, id, (sBox_F048*)&nb, (sBox_F048*)&old);
+        cSpaceHash_moveItem(World_GetNash(), 0, id, (sBox_F048*)&nb, (sBox_F048*)&old);
     } else {
-        func_003568B0(self);
+        cMoveNode_v50(self);
     }
 }
 
@@ -131,11 +131,11 @@ struct sInst_F048 {
     float max[3];   // 0x6C
 };
 
-extern "C" void* func_002D1BE0();
+extern "C" void* World_GetNash();
 extern "C" void cSpaceHash_moveItem(void* world, int type, void* id, sBox_F048* box, sBox_F048* old);
-extern "C" void func_003567E0(void* self);
+extern "C" void cMoveNode_v49(void* self);
 
-extern "C" void func_0034F048(cFloatingNode* self)
+extern "C" void Floating_v49(cFloatingNode* self)
 {
     sBox_F048* info = (sBox_F048*)self->field_0x78;
     if (info != 0) {
@@ -154,18 +154,18 @@ extern "C" void func_0034F048(cFloatingNode* self)
         nb.max = t;
         *info = nb;
         void* id = *(void**)((char*)self + 0x18);
-        cSpaceHash_moveItem(func_002D1BE0(), 0, id, &nb, &old);
+        cSpaceHash_moveItem(World_GetNash(), 0, id, &nb, &old);
         func_0034EF08(self);
     } else {
-        func_003567E0(self);
+        cMoveNode_v49(self);
     }
 }
 
-INCLUDE_ASM("object/floatingnode", func_0034F120);
+INCLUDE_ASM("object/floatingnode", Floating_BuildMatrices);
 
-INCLUDE_ASM("object/floatingnode", func_0034F600);
+INCLUDE_ASM("object/floatingnode", Floating_v43);
 
-INCLUDE_ASM("object/floatingnode", func_0034F790);
+INCLUDE_ASM("object/floatingnode", Floating_v42);
 
 //100%
 extern char* D_004A5B64_F930 __asm__("D_004A5B64");
@@ -246,7 +246,7 @@ extern "C" void func_0034FA88(cFloatingNode* self, void* stream)
 //100%
 extern "C" void* func_00354850(void* self, void* a1, int type);
 extern "C" void func_0034FC78(void* self, void* node);
-extern "C" void func_002D1BF0(void* node);
+extern "C" void World_AddFocusObject(void* node);
 extern char D_00491C80[];
 
 extern "C" void* func_0034FB00(void* self, void* a1, int type, void* node)
@@ -257,7 +257,7 @@ extern "C" void* func_0034FB00(void* self, void* a1, int type, void* node)
     func_0034FC78(self, node);
     if ((*(int*)((char*)node + 0x8) & 0x100) == 0) {
         if (type != 6 && type != 0x10 && type != 0x16) {
-            func_002D1BF0(node);
+            World_AddFocusObject(node);
         }
     }
     return self;

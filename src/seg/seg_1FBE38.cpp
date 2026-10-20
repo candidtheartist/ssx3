@@ -52,7 +52,7 @@ static inline char *refToPtr_B060(unsigned i) { return (char*)(i << 2); }
 static inline char *conv_B060(unsigned i) { if (i == 0) return 0; return refToPtr_B060(i); }
 extern "C" int checkActiveNode(void*, int, void*);
 extern "C" void* cMemMan_alloc(int, void*, int, int);
-extern "C" void func_00359228_B060(void*, int, void*, void*) __asm__("func_00359228");
+extern "C" void AnimDelta_ctor_B060(void*, int, void*, void*) __asm__("AnimDelta_ctor");
 extern char D_00489658_B060[] __asm__("D_00489658");
 struct V3_B060 { float x, y, z; };
 extern V3_B060 D_004C9098_B060 __asm__("D_004C9098");
@@ -114,7 +114,7 @@ extern "C" V3_B060 func_002FB060(int n, Ent_B060 *e) {
     void *p = *(void**)(obj + 0xC);
     if (p && checkActiveNode(p, 2, buf))
         return D_004C9098_B060;
-    func_00359228_B060(cMemMan_alloc(0x70, D_00489658_B060, 0x20000000, 0), 1, obj, buf);
+    AnimDelta_ctor_B060(cMemMan_alloc(0x70, D_00489658_B060, 0x20000000, 0), 1, obj, buf);
     return D_004C9098_B060;
 }
 
@@ -126,7 +126,7 @@ static inline char *refToPtr_B270(unsigned i) { return (char*)(i << 2); }
 static inline char *conv_B270(unsigned i) { if (i == 0) return 0; return refToPtr_B270(i); }
 extern "C" int checkActiveNode(void*, int, void*);
 extern "C" void* cMemMan_alloc(int, void*, int, int);
-extern "C" void func_00358C80_B270(void*, int, void*, void*) __asm__("func_00358C80");
+extern "C" void AnimCombo_ctor_B270(void*, int, void*, void*) __asm__("AnimCombo_ctor");
 extern char D_00489668_B270[] __asm__("D_00489668");
 struct V3_B270 { float x, y, z; };
 extern V3_B270 D_004C9098_B270 __asm__("D_004C9098");
@@ -192,7 +192,7 @@ extern "C" V3_B270 func_002FB270(int n, Ent_B270 *e) {
     void *p = *(void**)(obj + 0xC);
     if (p && checkActiveNode(p, 3, buf))
         return D_004C9098_B270;
-    func_00358C80_B270(cMemMan_alloc(0x88, D_00489668_B270, 0x20000000, 0), 1, obj, buf);
+    AnimCombo_ctor_B270(cMemMan_alloc(0x88, D_00489668_B270, 0x20000000, 0), 1, obj, buf);
     return D_004C9098_B270;
 }
 
@@ -278,7 +278,7 @@ static inline char *refToPtr_B6B8(unsigned i) { return (char*)(i << 2); }
 static inline char *conv_B6B8(unsigned i) { if (i == 0) return 0; return refToPtr_B6B8(i); }
 extern "C" int checkActiveNode(void*, int, void*);
 extern "C" void* cMemMan_alloc(int, void*, int, int);
-extern "C" void func_00343010_B6B8(void*, int, void*, void*) __asm__("func_00343010");
+extern "C" void Conveyor_ctor_B6B8(void*, int, void*, void*) __asm__("Conveyor_ctor");
 extern char D_00489688_B6B8[] __asm__("D_00489688");
 struct V3_B6B8 { float x, y, z; };
 extern V3_B6B8 D_004C9098_B6B8 __asm__("D_004C9098");
@@ -343,7 +343,7 @@ extern "C" V3_B6B8 func_002FB6B8(int n, Ent_B6B8 *e) {
     void *p = *(void**)(obj + 0xC);
     if (p && checkActiveNode(p, 15, buf))
         return D_004C9098_B6B8;
-    func_00343010_B6B8(cMemMan_alloc(0x48, D_00489688_B6B8, 0x20000000, 0), 1, obj, buf);
+    Conveyor_ctor_B6B8(cMemMan_alloc(0x48, D_00489688_B6B8, 0x20000000, 0), 1, obj, buf);
     return D_004C9098_B6B8;
 }
 
@@ -355,7 +355,7 @@ static inline char *refToPtr_B8D0(unsigned i) { return (char*)(i << 2); }
 static inline char *conv_B8D0(unsigned i) { if (i == 0) return 0; return refToPtr_B8D0(i); }
 extern "C" int checkActiveNode(void*, int, void*);
 extern "C" void* cMemMan_alloc(int, void*, int, int);
-extern "C" void func_00343768_B8D0(void*, int, void*, void*) __asm__("func_00343768");
+extern "C" void Counter_ctor_B8D0(void*, int, void*, void*) __asm__("Counter_ctor");
 extern char D_004A3BE8_B8D0[] __asm__("D_004A3BE8");
 struct V3_B8D0 { float x, y, z; };
 extern V3_B8D0 D_004C9098_B8D0 __asm__("D_004C9098");
@@ -409,7 +409,7 @@ extern "C" V3_B8D0 func_002FB8D0(int n, Ent_B8D0 *e) {
     void *p = *(void**)(obj + 0xC);
     if (p && checkActiveNode(p, 7, buf))
         return D_004C9098_B8D0;
-    func_00343768_B8D0(cMemMan_alloc(0x24, D_004A3BE8_B8D0, 0x20000000, 0), 1, obj, buf);
+    Counter_ctor_B8D0(cMemMan_alloc(0x24, D_004A3BE8_B8D0, 0x20000000, 0), 1, obj, buf);
     return D_004C9098_B8D0;
 }
 
@@ -421,7 +421,7 @@ static inline char *refToPtr_BAB0(unsigned i) { return (char*)(i << 2); }
 static inline char *conv_BAB0(unsigned i) { if (i == 0) return 0; return refToPtr_BAB0(i); }
 extern "C" int checkActiveNode(void*, int, void*);
 extern "C" void* cMemMan_alloc(int, void*, int, int);
-extern "C" void func_0034EC58_BAB0(void*, int, void*, void*) __asm__("func_0034EC58");
+extern "C" void Floating_ctor_BAB0(void*, int, void*, void*) __asm__("Floating_ctor");
 extern char D_00489698_BAB0[] __asm__("D_00489698");
 struct V3_BAB0 { float x, y, z; };
 extern V3_BAB0 D_004C9098_BAB0 __asm__("D_004C9098");
@@ -480,7 +480,7 @@ extern "C" V3_BAB0 func_002FBAB0(int n, Ent_BAB0 *e) {
     void *p = *(void**)(obj + 0xC);
     if (p && checkActiveNode(p, 14, buf))
         return D_004C9098_BAB0;
-    func_0034EC58_BAB0(cMemMan_alloc(0x7C, D_00489698_BAB0, 0x20000000, 0), 1, obj, buf);
+    Floating_ctor_BAB0(cMemMan_alloc(0x7C, D_00489698_BAB0, 0x20000000, 0), 1, obj, buf);
     return D_004C9098_BAB0;
 }
 
@@ -639,7 +639,7 @@ static inline char *refToPtr_C0D0(unsigned i) { return (char*)(i << 2); }
 static inline char *conv_C0D0(unsigned i) { if (i == 0) return 0; return refToPtr_C0D0(i); }
 extern "C" int checkActiveNode(void*, int, void*);
 extern "C" void* cMemMan_alloc(int, void*, int, int);
-extern "C" void func_00356DB0_C0D0(void*, int, void*, int, bool) __asm__("func_00356DB0");
+extern "C" void Object_ctor_C0D0(void*, int, void*, int, bool) __asm__("Object_ctor");
 extern char D_004A3BF8_C0D0[] __asm__("D_004A3BF8");
 struct V3_C0D0 { float x, y, z; };
 extern V3_C0D0 D_004C9098_C0D0 __asm__("D_004C9098");
@@ -694,7 +694,7 @@ extern "C" V3_C0D0 func_002FC0D0(int n, Ent_C0D0 *e) {
     void *p = *(void**)(obj + 0xC);
     if (p && checkActiveNode(p, 17, buf))
         return D_004C9098_C0D0;
-    func_00356DB0_C0D0(cMemMan_alloc(0x2C, D_004A3BF8_C0D0, 0x20000000, 0), 1, obj, buf[1], buf[2] != 0);
+    Object_ctor_C0D0(cMemMan_alloc(0x2C, D_004A3BF8_C0D0, 0x20000000, 0), 1, obj, buf[1], buf[2] != 0);
     return D_004C9098_C0D0;
 }
 
@@ -2464,7 +2464,7 @@ static inline char *refToPtr_F390(unsigned i) { return (char*)(i << 2); }
 static inline char *conv_F390(unsigned i) { if (i == 0) return 0; return refToPtr_F390(i); }
 extern "C" int checkActiveNode(void*, int, void*);
 extern "C" void* cMemMan_alloc(int, void*, int, int);
-extern "C" void func_00348D98_F390(void*, void*, void*) __asm__("func_00348D98");
+extern "C" void FloatRail_ctor_F390(void*, void*, void*) __asm__("FloatRail_ctor");
 extern char D_00489768_F390[] __asm__("D_00489768");
 struct V3_F390 { float x, y, z; };
 extern V3_F390 D_004C9098_F390 __asm__("D_004C9098");
@@ -2545,7 +2545,7 @@ extern "C" V3_F390 func_002FF390(int n, Ent_F390 *e) {
     void *p = *(void**)(obj + 0xC);
     if (p && checkActiveNode(p, 20, buf))
         return D_004C9098_F390;
-    func_00348D98_F390(cMemMan_alloc(0x80, D_00489768_F390, 0x20000000, 0), obj, buf);
+    FloatRail_ctor_F390(cMemMan_alloc(0x80, D_00489768_F390, 0x20000000, 0), obj, buf);
     return D_004C9098_F390;
 }
 
@@ -2557,7 +2557,7 @@ static inline char *refToPtr_F5E8(unsigned i) { return (char*)(i << 2); }
 static inline char *conv_F5E8(unsigned i) { if (i == 0) return 0; return refToPtr_F5E8(i); }
 extern "C" int checkActiveNode(void*, int, void*);
 extern "C" void* cMemMan_alloc(int, void*, int, int);
-extern "C" void func_00349B48_F5E8(void*, void*, void*) __asm__("func_00349B48");
+extern "C" void SpringRail_ctor_F5E8(void*, void*, void*) __asm__("SpringRail_ctor");
 extern char D_00489778_F5E8[] __asm__("D_00489778");
 struct V3_F5E8 { float x, y, z; };
 extern V3_F5E8 D_004C9098_F5E8 __asm__("D_004C9098");
@@ -2639,7 +2639,7 @@ extern "C" V3_F5E8 func_002FF5E8(int n, Ent_F5E8 *e) {
     if (p && checkActiveNode(p, 21, buf))
         return D_004C9098_F5E8;
     *(float*)&buf[20] *= 0.0010000000474974513f;
-    func_00349B48_F5E8(cMemMan_alloc(0x80, D_00489778_F5E8, 0x20000000, 0), obj, buf);
+    SpringRail_ctor_F5E8(cMemMan_alloc(0x80, D_00489778_F5E8, 0x20000000, 0), obj, buf);
     return D_004C9098_F5E8;
 }
 
@@ -2760,7 +2760,7 @@ struct V3_FB50 { float x, y, z; };
 extern V3_FB50 D_004C9098_FB50 __asm__("D_004C9098");
 extern "C" void* func_003E6574_FB50(void*, void*, int) __asm__("func_003E6574");
 struct Ent_FB50 { int idx; int val; int pad; int type; };
-extern "C" V3_FB50 func_002FFB50(int n, Ent_FB50 *e) {
+extern "C" V3_FB50 WorldObjFactory_Hide(int n, Ent_FB50 *e) {
     if (D_004A5650_FB50 == 0) {
         D_004A5648_FB50 = 0xFFFFFFFF;
         D_004A5650_FB50 = 1;
@@ -3315,7 +3315,7 @@ struct R12_0B20 { int a; int b; int c; };
 extern R12_0B20 D_004C9098_0B20 __asm__("D_004C9098");
 
 extern int D_004A3C50_0B20[2] __asm__("D_004A3C50");
-extern "C" void func_00358B28(unsigned, int);
+extern "C" void RailMan_SetRailEnabled(unsigned, int);
 extern int D_004A56A4_0B20 __asm__("D_004A56A4");
 struct T12_0B20 { unsigned a; int b; Flag_0B20 f; };
 extern T12_0B20 D_004FBB48_0B20 __asm__("D_004FBB48");
@@ -3343,9 +3343,9 @@ extern "C" R12_0B20 func_00300B20(int n, Ent_0B20* e) {
     if (~vp[0] != 0) {
         int y = vp[1];
         if (y == 1)
-            func_00358B28(vp[0], 1);
+            RailMan_SetRailEnabled(vp[0], 1);
         else if (y == 0)
-            func_00358B28(vp[0], 0);
+            RailMan_SetRailEnabled(vp[0], 0);
     }
     return D_004C9098_0B20;
 }
@@ -4769,7 +4769,7 @@ void* func_00226618(void*);
 extern int D_004A57B8_3598 __asm__("D_004A57B8");
 struct T12_3598 { float a; float b; Flag_3598 f; };
 extern T12_3598 D_004FBC60_3598 __asm__("D_004FBC60");
-extern "C" void* func_00303598(void* self, int n, Ent_3598* e) {
+extern "C" void* WScriptFn_RandRange(void* self, int n, Ent_3598* e) {
     if (D_004A57B8_3598 == 0) {
         D_004FBC60_3598.a = 0;
         D_004FBC60_3598.b = 1.0f;
@@ -5645,7 +5645,7 @@ extern const int D_004466A0_5478[] __asm__("D_004466A0");
 extern "C" void* func_003E6574_5478(void*, void*, int) __asm__("func_003E6574");
 extern "C" void func_003559F8_5478(O_5478*, void*, float, float) __asm__("func_003559F8");
 struct Ent_5478 { int idx; int val; int pad; int type; };
-extern "C" V3_5478 func_00305478(int n, Ent_5478 *e) {
+extern "C" V3_5478 WScriptFn_AddMagnetModifier(int n, Ent_5478 *e) {
     if (D_5840_5478 == 0) {
         D_4FBD58_5478.id = 0xFFFFFFFF;
         D_4FBD58_5478.a = 400.0f;
@@ -5752,7 +5752,7 @@ extern const int D_004466B0_57C0[] __asm__("D_004466B0");
 extern "C" void* func_003E6574_57C0(void*, void*, int) __asm__("func_003E6574");
 extern "C" void cMoveNode_addHalo_57C0(void*, void*) __asm__("cMoveNode_addHalo");
 struct Ent_57C0 { int idx; int val; int pad; int type; };
-extern "C" V3_57C0 func_003057C0(int n, Ent_57C0 *e) {
+extern "C" V3_57C0 WScriptFn_AddHaloModifier(int n, Ent_57C0 *e) {
     if (D_5854_57C0 == 0) {
         D_4FBD68_57C0.id = 0xFFFFFFFF;
         D_4FBD68_57C0.a = 0;
@@ -5863,7 +5863,7 @@ extern int D_004A5878;
 extern int D_004A3DA0;
 extern "C" void* func_003E6574_5D90(void*, void*, int) __asm__("func_003E6574");
 struct Ent_5D90 { int idx; int val; int pad; int type; };
-extern "C" V3_5D90 func_00305D90(int n, Ent_5D90 *e) {
+extern "C" V3_5D90 WScriptFn_AddAvaSplineModifier(int n, Ent_5D90 *e) {
     if (D_004A5878 == 0) {
         D_5D90 = 0xFFFFFFFF;
         D_004A5878 = 1;
@@ -6083,7 +6083,7 @@ extern int D_004A5890;
 extern const int D_00446880[];
 extern "C" void* func_003E6574_6438(void*, void*, int) __asm__("func_003E6574");
 struct Ent_6438 { int idx; int val; int pad; int type; };
-extern "C" V3_6438 func_00306438(int n, Ent_6438 *e) {
+extern "C" V3_6438 WScriptFn_AddDanger(int n, Ent_6438 *e) {
     if (D_004A5890 == 0) {
         D_6438[0] = 0xFFFFFFFF;
         *(float*)&D_6438[1] = 1000.0f;
@@ -6152,7 +6152,7 @@ extern int D_004A58A0;
 extern int D_004A3DB8;
 extern "C" void* func_003E6574_65E8(void*, void*, int) __asm__("func_003E6574");
 struct Ent_65E8 { int idx; int val; int pad; int type; };
-extern "C" V3_65E8 func_003065E8(int n, Ent_65E8 *e) {
+extern "C" V3_65E8 WScriptFn_RemoveDanger(int n, Ent_65E8 *e) {
     if (D_004A58A0 == 0) {
         D_65E8 = 0xFFFFFFFF;
         D_004A58A0 = 1;
@@ -6204,7 +6204,7 @@ extern int D_004A58A4;
 extern int D_004A3DC0;
 extern "C" void* func_003E6574_6770(void*, void*, int) __asm__("func_003E6574");
 struct Ent_6770 { int idx; int val; int pad; int type; };
-extern "C" V3_6770 func_00306770(int n, Ent_6770 *e) {
+extern "C" V3_6770 WScriptFn_AcquireDangerZone(int n, Ent_6770 *e) {
     if (D_004A58A4 == 0) {
         D_6770[0] = 0xFFFFFFFF;
         D_6770[1] = 0;
@@ -6262,7 +6262,7 @@ extern int D_004A58B0;
 extern int D_004A3DC8;
 extern "C" void* func_003E6574_6908(void*, void*, int) __asm__("func_003E6574");
 struct Ent_6908 { int idx; int val; int pad; int type; };
-extern "C" V3_6908 func_00306908(int n, Ent_6908 *e) {
+extern "C" V3_6908 WScriptFn_ReleaseDangerZone(int n, Ent_6908 *e) {
     if (D_004A58B0 == 0) {
         D_6908 = 0xFFFFFFFF;
         D_004A58B0 = 1;
@@ -6318,7 +6318,7 @@ extern int D_58B4_6A90 __asm__("D_004A58B4");
 extern const int D_00446890_6A90[] __asm__("D_00446890");
 extern "C" void* func_003E6574_6A90(void*, void*, int) __asm__("func_003E6574");
 extern int D_004A4028_6A90 __asm__("D_004A4028");
-extern "C" void func_00357A78_6A90(int, int, Rec_6A90*, int) __asm__("func_00357A78");
+extern "C" void MultiParticleMan_CreateSlot_6A90(int, int, Rec_6A90*, int) __asm__("MultiParticleMan_CreateSlot");
 struct Ent_6A90 { int idx; int val; int pad; int type; };
 extern "C" V3_6A90 func_00306A90(int n, Ent_6A90 *e) {
     if (D_58B4_6A90 == 0) {
@@ -6398,7 +6398,7 @@ extern "C" V3_6A90 func_00306A90(int n, Ent_6A90 *e) {
         else
             *d = x->val;
     }
-    func_00357A78_6A90(D_004A4028_6A90, buf->q, buf, buf->w);
+    MultiParticleMan_CreateSlot_6A90(D_004A4028_6A90, buf->q, buf, buf->w);
     return D_004C9098_6A90;
 }
 
@@ -6594,11 +6594,11 @@ extern "C" void func_003071C8(void* self) {
 // PORT: PS2-only inline asm; needs a C fallback off-PS2.
 extern char *D_004A28A8_71F0 __asm__("D_004A28A8");
 void func_0010F2B8_71F0(void*) __asm__("func_0010F2B8__FPv");
-extern "C" void func_00307C40_71F0(void*) __asm__("func_00307C40");
+extern "C" void WScriptProcess_v04_71F0(void*) __asm__("WScriptProcess_v04");
 struct Tab_71F0 { char pad[0x28]; void *arr[1]; };
-extern "C" void func_003071F0(void* self) {
+extern "C" void WScriptMission_v04(void* self) {
     func_0010F2B8_71F0((*(Tab_71F0**)(*(char**)(D_004A28A8_71F0 + 0x84) + 0xC))->arr[**(int**)((char*)self + 0x10)]);
-    func_00307C40_71F0(self);
+    WScriptProcess_v04_71F0(self);
 }
 
 //100%
@@ -6607,7 +6607,7 @@ struct P_7240 { int state; char pad[0x58]; virtual void v01(); virtual void v02(
 int func_0030B898_7240(void*, void*) __asm__("func_0030B898__FPvT0");
 extern "C" void *func_0028B180_7240(void) __asm__("func_0028B180");
 extern "C" void func_0029D8E0_7240(void*) __asm__("func_0029D8E0");
-extern "C" void func_00307240(P_7240* self) {
+extern "C" void WScriptMission_v02(P_7240* self) {
     if (func_0030B898_7240(*(void**)((char*)self + 0x10), self)) {
         self->v06();
         self->v18();
@@ -6617,7 +6617,7 @@ extern "C" void func_00307240(P_7240* self) {
 
 //100%
 struct P_72B0 { int state; char pad[0x58]; virtual void v01(); virtual void v02(); virtual void v03(); virtual void v04(); virtual void v05(); virtual void v06(); };
-extern "C" void func_003072B0(P_72B0* self) {
+extern "C" void WScriptMission_v17(P_72B0* self) {
     if (self->state == 2)
         self->v06();
     self->v04();
@@ -6651,7 +6651,7 @@ struct sGame_7308 {
 };
 
 // Mission completed: pays the reward the first time, unlocks the follow-up mission and resets the script.
-extern "C" void func_00307308(char* self)
+extern "C" void WScriptMission_v18(char* self)
 {
     int money = 0;
     void* missions = cBE_getInterface_Fv(cBE_getBE(), 0xA);
@@ -6692,7 +6692,7 @@ extern "C" void func_001540F0_74C0(int, int, int) __asm__("func_001540F0");
 extern "C" void func_00307D78_74C0(void*) __asm__("func_00307D78");
 extern "C" void func_0030AC98(int, void *, int);
 struct P_74C0 { int state; char pad[0x58]; virtual void v01(); virtual void v02(); virtual void v03(); virtual void v04(); virtual void v05(); virtual void v06(); virtual void v07(); virtual void v08(); virtual void v09(); virtual void v10(); virtual void v11(); virtual void v12(); virtual void v13(); virtual void v14(); virtual void v15(); virtual void v16(); virtual void v17(); virtual void v18(); virtual void v19(); virtual void v20(); };
-extern "C" void func_003074C0(P_74C0* self) {
+extern "C" void WScriptMission_v19(P_74C0* self) {
     int iface = cBE_getInterface_Fv_74C0(cBE_getBE_74C0(), 10);
     if (!func_00153E80_74C0(iface, *(int*)((char*)self + 0x20)))
         func_001540F0_74C0(iface, *(int*)((char*)self + 0x20), 1);
@@ -6708,7 +6708,7 @@ extern "C" void func_003074C0(P_74C0* self) {
 //100%
 extern "C" void func_0030AC98(int, void *, int);
 
-extern "C" void func_00307568(void *arg0) {
+extern "C" void WScriptMission_v20(void *arg0) {
     int temp_6;
 
     temp_6 = (*(int *)((char*)(arg0) + (0x74)));

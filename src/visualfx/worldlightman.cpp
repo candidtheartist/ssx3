@@ -918,12 +918,12 @@ extern "C" void func_002F7BF0(void* self, int flags)
 }
 
 //100%
-void func_002F7C20(void* self)
+void VfxComponent_Update(void* self)
 {
 }
 
 //100%
-void func_002F7C28(void* self)
+void VfxComponent_Render(void* self)
 {
 }
 
@@ -1349,7 +1349,7 @@ extern "C" void* func_002F8060(char* self, sWLPacked8060* src)
 extern void* D_004880E0[];
 extern "C" void func_002E4D30(void* p);
 
-extern "C" void func_002F80D8(void* self, int flags)
+extern "C" void TransitionWipe_dtor(void* self, int flags)
 {
     *(void***)self = D_004880E0;
     if (flags & 1) {
@@ -1382,7 +1382,7 @@ extern "C" void func_002F8138(void* self, int flags)
 }
 
 //100%
-void func_002F8168(void* self)
+void SnowFall_Save(void* self)
 {
 }
 

@@ -2124,7 +2124,7 @@ extern "C" void func_0019CA70(void* self, void* nodep)
 //100%
 extern "C" void func_0019CB60(void* self);
 
-extern "C" void* func_0019CB38(void* self)
+extern "C" void* BoltFileIndexManager_ctor(void* self)
 {
     func_0019CB60(self);
     return self;
@@ -2320,7 +2320,7 @@ extern "C" void func_0019CE68(void* self)
     t->fB4004 = 0;
     t->fB4000 = 0;
     if (D_004A1968 == 0) {
-        D_004A1968 = func_0019CB38(cMemMan_alloc(0x1F44, D_004609C0, 0, 0));
+        D_004A1968 = BoltFileIndexManager_ctor(cMemMan_alloc(0x1F44, D_004609C0, 0, 0));
     } else {
         func_0019CB60(D_004A1968);
     }

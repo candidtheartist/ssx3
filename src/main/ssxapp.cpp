@@ -115,7 +115,7 @@ extern char D_00479A90[];
 extern char D_00479AA0[];
 extern char D_0047AB40[];
 extern char D_004A28B0[];
-extern "C" void* func_002C7440();
+extern "C" void* cPS2ConsoleConfig_Create();
 extern "C" void* func_00375A08();
 void cLightMan_construct();
 void cBezierMan_construct();
@@ -123,7 +123,7 @@ extern "C" void cSSXApp_parseCommandLine(char* self, int argc, char** argv);
 extern "C" void* SHAPE_locate(const char* name, void* list);
 extern "C" void func_00369FF8(void* gfx);
 void* func_00232328(void* p);
-extern "C" void* func_001A3590(void* p);
+extern "C" void* cFEAsyncManager_ctor(void* p);
 extern "C" void func_001A3648(void* p);
 extern "C" void* cGameModeMan_getGM();
 struct cAppMan;
@@ -136,7 +136,7 @@ typedef void* (*LoadFn_6900)(char*, void*, const char*, int, int, int);
 extern "C" void cSSXApp_init(char* self, int argc, char** argv)
 {
     D_004A28A8 = self;
-    *(void**)(self + 0x9C) = func_002C7440();
+    *(void**)(self + 0x9C) = cPS2ConsoleConfig_Create();
     cPlayerMgr_6900* volatile pm = (cPlayerMgr_6900*)cMemMan_alloc(0x2EFC, D_00479A40, 0, 0);
     func_00326A28(pm);
     D_004A28A0 = pm;
@@ -169,7 +169,7 @@ extern "C" void cSSXApp_init(char* self, int argc, char** argv)
     *(sTint_6900**)(self + 0xA4) = new (D_00479A80, 0, 0) sTint_6900;
     cAppMan_setNextModule((cAppMan*)self, (unsigned int)func_00232328(cMemMan_alloc(0xC, D_00479A90, 0x100, 0)));
     *(void**)(self + 0xC0) = cGameModeMan_getGM();
-    void* m = func_001A3590(cMemMan_alloc(0x590, D_00479AA0, 0, 0));
+    void* m = cFEAsyncManager_ctor(cMemMan_alloc(0x590, D_00479AA0, 0, 0));
     *(void**)(self + 0x11C) = m;
     func_001A3648(m);
 }
@@ -448,7 +448,7 @@ extern "C" void cSSXApp_purge(sSSXAppPurge* self)
 
 //100%
 extern "C" void* cMemMan_alloc(int size, const char* tag, unsigned int flags, int d);
-extern "C" void* func_0022E968(void* self);
+extern "C" void* cGame_ctor(void* self);
 struct cAppMan;
 void cAppMan_setNextModule(cAppMan* self, unsigned int module);
 extern "C" void* cGameModeMan_getGM();
@@ -456,7 +456,7 @@ extern char D_0047A808[];
 
 extern "C" void cSSXApp_startGameLoad(void* self)
 {
-    void* m = func_0022E968(cMemMan_alloc(0x22C, D_0047A808, 0, 0));
+    void* m = cGame_ctor(cMemMan_alloc(0x22C, D_0047A808, 0, 0));
     *(void**)((char*)self + 0x84) = m;
     cAppMan_setNextModule((cAppMan*)self, (unsigned int)m);
     *(void**)((char*)self + 0xC0) = cGameModeMan_getGM();
@@ -465,14 +465,14 @@ extern "C" void cSSXApp_startGameLoad(void* self)
 //100%
 extern int D_004A203C;
 extern char D_0047A818[];
-extern "C" void* func_001A1CE8(void* p);
+extern "C" void* cRealFE_ctor(void* p);
 extern "C" void* func_0017F7B8(void* p);
 
 extern "C" void func_00228238(void* self)
 {
     D_004A203C = 0;
     if (*(int*)((char*)self + 0x60) != 0) {
-        void* m = func_001A1CE8(cMemMan_alloc(0xB5AE0, D_0047A818, 0, 0));
+        void* m = cRealFE_ctor(cMemMan_alloc(0xB5AE0, D_0047A818, 0, 0));
         *(void**)((char*)self + 0x7C) = m;
         cAppMan_setNextModule((cAppMan*)self, (unsigned int)m);
     } else {
@@ -488,7 +488,7 @@ INCLUDE_ASM("main/ssxapp", cSSXApp_initload);
 extern "C" void* cBE_getBE();
 // PORT: cBE_getInterface__Fv really takes (be, kind); bound by asm label
 void* cBE_getInterface_Fv(void* be, int kind) __asm__("cBE_getInterface__Fv");
-extern "C" void* func_00195880(void* self);
+extern "C" void* FELocale_ctor(void* self);
 extern "C" void func_00195B70(void* self);
 extern char D_0047A978[];
 
@@ -514,7 +514,7 @@ static inline int optLanguage_228A78(sOptions_228A78 o)
 extern "C" void cSSXApp_initLocale(void* self)
 {
     if (*(void**)((char*)self + 0x8C) == 0) {
-        *(void**)((char*)self + 0x8C) = func_00195880(cMemMan_alloc(0xC0, D_0047A978, 0, 0));
+        *(void**)((char*)self + 0x8C) = FELocale_ctor(cMemMan_alloc(0xC0, D_0047A978, 0, 0));
     }
     cBE_getInterface_Fv(cBE_getBE(), 4);
     char* loc = *(char**)((char*)self + 0x8C);
@@ -680,7 +680,7 @@ extern "C" void func_00319930(int loader);
 extern "C" void func_003197D0(int loader);
 extern "C" int sprintf(char* buf, const char* fmt, ...);
 extern "C" void THREAD_yieldticks(int ticks);
-extern "C" void func_0040B130(int a);
+extern "C" void sceSifMInitRpc(int a);
 extern "C" void func_003F6A40();
 extern "C" void func_003F6AB0();
 extern "C" void func_00266788();
@@ -714,7 +714,7 @@ extern "C" void initOnline()
     if (D_004A29EC) {
         func_003197D0(D_004A3E94);
         func_00319718(D_004A3E94, D_0047AAE8, 1, 0, 0);
-        func_0040B130(0);
+        sceSifMInitRpc(0);
         func_00319718(D_004A3E94, D_0047AAF8, 1, 0, 0);
         func_00319718(D_004A3E94, D_0047AB08, 0, 0x12, D_0047AB18);
         if (func_00319718(D_004A3E94, D_0047AB30, 0, 0, 0) >= 0) {
@@ -772,8 +772,8 @@ struct sCrowd_229180 {
     char* anim;
 };
 
-INCLUDE_ASM("main/ssxapp", func_00229180);
-extern "C" void* func_00229180(sCrowd_229180* self);
+INCLUDE_ASM("main/ssxapp", CrowdMan2d_ctor);
+extern "C" void* CrowdMan2d_ctor(sCrowd_229180* self);
 
 //100%
 extern "C" void func_00229398(void* self);
@@ -874,7 +874,7 @@ extern "C" void cCrowdAnim2D_update(void* p);
 extern "C" void func_00229530(void* self);
 extern short D_00536690[];
 
-extern "C" void func_002294C8(void* self)
+extern "C" void CrowdMan2d_Update(void* self)
 {
     int i;
     char* p;
@@ -1509,5 +1509,5 @@ extern "C" char* func_0022ADD8(char* self, sCfg_22ADD8* cfg, void* a2, void* a3,
     return self;
 }
 
-INCLUDE_ASM("main/ssxapp", func_0022B008);
+INCLUDE_ASM("main/ssxapp", cGame_Render);
 

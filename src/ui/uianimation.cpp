@@ -118,7 +118,7 @@ void cMemMan_free(void*);
 void operator_delete(int* ptr);
 extern void* D_00494D08[];
 
-extern "C" void func_003973A8(void* self, int flags)
+extern "C" void UIAnim_dtor(void* self, int flags)
 {
     *(void***)((char*)self + 0x10) = D_00494D08;
     char* base = *(char**)((char*)self + 0x4);

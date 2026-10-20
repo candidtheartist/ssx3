@@ -48,9 +48,9 @@ INCLUDE_ASM("fe/festaterewards3", cFEStateCareerStats_setupMenuFocus);
 
 INCLUDE_ASM("fe/festaterewards3", cFEStateCareerStats_setupHighlightsList);
 
-INCLUDE_ASM("fe/festaterewards3", func_001F60E0);
+INCLUDE_ASM("fe/festaterewards3", cFEStateCareerStats_ShowRacePage);
 
-INCLUDE_ASM("fe/festaterewards3", func_001F6490);
+INCLUDE_ASM("fe/festaterewards3", cFEStateCareerStats_ShowFreestylePage);
 
 INCLUDE_ASM("fe/festaterewards3", func_001F6840);
 

@@ -212,7 +212,7 @@ void* func_0039BAB0(void* self)
 }
 
 //100%
-class func_0039BAD0_cVirt {
+class UIPair_v04_cVirt {
 public:
     char pad[0x8];
     // vptr at 0x8; slot N at vtable offset N*8
@@ -222,20 +222,20 @@ public:
     virtual void v04(int);
 };
 
-struct func_0039BAD0_s {
+struct UIPair_v04_s {
     char pad0[0x14];
     unsigned int b0 : 1;
     unsigned int b1 : 1;
     char pad18[0x78 - 0x18];
-    func_0039BAD0_cVirt* a;
-    func_0039BAD0_cVirt* b;
+    UIPair_v04_cVirt* a;
+    UIPair_v04_cVirt* b;
 };
 
-extern "C" void func_0039BAD0(func_0039BAD0_s* self, int on)
+extern "C" void UIPair_v04(UIPair_v04_s* self, int on)
 {
     self->b1 = (on != 0);
     self->a->v04(on);
-    func_0039BAD0_cVirt* b = self->b;
+    UIPair_v04_cVirt* b = self->b;
     if (b != 0) {
         b->v04(on);
     }
@@ -335,45 +335,45 @@ extern "C" void func_0039BBD8(char* self, int on)
 }
 
 //100%
-class func_0039BD38_cVirt {
+class UIPair_Accept_cVirt {
 public:
     // vptr at 0x0; slot N at vtable offset N*8
     virtual void v01();
     virtual int v02(void*);
 };
 
-extern "C" int func_0039BD38(void* a, func_0039BD38_cVirt* obj)
+extern "C" int UIPair_Accept(void* a, UIPair_Accept_cVirt* obj)
 {
     return obj->v02(a);
 }
 
 //100%
-class func_0039BD68_cPred {
+class UIPair_v03_cPred {
 public:
     // vptr at 0x0; slot N at vtable offset N*8
     virtual void v01();
     virtual int v02(void*);
 };
 
-class func_0039BD68_cNode {
+class UIPair_v03_cNode {
 public:
     char pad[0x8];
     // vptr at 0x8
     virtual void v01();
     virtual void v02();
-    virtual void* v03(func_0039BD68_cPred*);
+    virtual void* v03(UIPair_v03_cPred*);
 };
 
-extern "C" void* func_0039BD68(void* self, func_0039BD68_cPred* pred)
+extern "C" void* UIPair_v03(void* self, UIPair_v03_cPred* pred)
 {
     if (pred->v02(self)) {
         return self;
     }
-    func_0039BD68_cNode* child = *(func_0039BD68_cNode**)((char*)self + 0x78);
+    UIPair_v03_cNode* child = *(UIPair_v03_cNode**)((char*)self + 0x78);
     if (child != 0 && child->v03(pred) != 0) {
         return *(void**)((char*)self + 0x78);
     }
-    func_0039BD68_cNode* next = *(func_0039BD68_cNode**)((char*)self + 0x7C);
+    UIPair_v03_cNode* next = *(UIPair_v03_cNode**)((char*)self + 0x7C);
     if (next != 0) {
         return next->v03(pred);
     }

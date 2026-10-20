@@ -62,12 +62,12 @@ extern "C" int func_002CA320(void* self)
 }
 
 //100%
-void func_002CA368(void* self)
+void MenuSysItem_OnFocus(void* self)
 {
 }
 
 //100%
-void func_002CA370(void* self)
+void MenuSysItem_OnBlur(void* self)
 {
 }
 
@@ -104,11 +104,11 @@ extern "C" void func_002CA3C0(void* self, int enable)
 }
 
 //100%
-int func_002CC248(void* self);
+int MenuSys_GetInputCode(void* self);
 
 extern "C" int func_002CA3E8(void** self)
 {
-    return func_002CC248(*(void**)((char*)*self + 0x124));
+    return MenuSys_GetInputCode(*(void**)((char*)*self + 0x124));
 }
 
 // PORT: func_002CC260 is C++ (void*); this caller passes an int handle.
@@ -1169,7 +1169,7 @@ extern "C" void func_002CBFD0(void* p)
 //100%
 void func_002CC070(void* self);
 
-extern "C" void* func_002CC018(void* self)
+extern "C" void* MenuSys_ctor(void* self)
 {
     *(int*)self = 0;
     func_002CC070(self);
@@ -1286,7 +1286,7 @@ extern "C" void func_002CC0C0(void* p)
 }
 
 //100%
-int func_002CC248(void* self)
+int MenuSys_GetInputCode(void* self)
 {
     return *(int*)((char*)self + 0x48);
 }
@@ -2047,7 +2047,7 @@ cNullMenuItem* cNullMenuItem_cNullMenuItem(cNullMenuItem* self, void* text)
 }
 
 //100%
-int func_002CD2E8(void* self)
+int MenuSysLabelItem_IsSelectable(void* self)
 {
     return 0;
 }
@@ -2093,7 +2093,7 @@ cSpaceMenuItem* cSpaceMenuItem_cSpaceMenuItem(cSpaceMenuItem* self, void* text)
 }
 
 //100%
-int func_002CD398(void* self)
+int MenuSysSpacerItem_IsSelectable(void* self)
 {
     return 0;
 }
@@ -2103,7 +2103,7 @@ struct s2CD3A0Vec {
     float x, y, z, w;
 };
 
-extern "C" s2CD3A0Vec func_002CD3A0(void* self)
+extern "C" s2CD3A0Vec MenuSysSpacerItem_Measure(void* self)
 {
     s2CD3A0Vec v;
     v.x = v.y = v.z = 0.0f;
@@ -2112,7 +2112,7 @@ extern "C" s2CD3A0Vec func_002CD3A0(void* self)
 }
 
 //100%
-void func_002CD3F0(void* self)
+void MenuSysSpacerItem_Draw(void* self)
 {
 }
 
@@ -2664,7 +2664,7 @@ extern void* D_004A3E90;
 extern "C" void cBXString__cBXString(void* self, int flags);
 extern "C" void cBXString_cBXString1(void* self, void* src);
 extern "C" int func_003194A8(void* str, const char* fmt, ...);
-extern "C" float func_0040DA10(float x);
+extern "C" float logf(float x);
 extern "C" int func_00413AF8(float f);
 extern char D_004A3998[];
 extern char D_004A39A0[];
@@ -2680,7 +2680,7 @@ void* func_002CDFD8_impl(void* out, float v) __asm__("func_002CDFD8");
 
 void* func_002CDFD8_impl(void* out, float v)
 {
-    float d = func_0040DA10(v) / func_0040DA10(10.0f) + 4.3431620724732056e-05f;
+    float d = logf(v) / logf(10.0f) + 4.3431620724732056e-05f;
     float t;
     // PORT: FPU-only float->int->float round trip (floor helper); no C cast reproduces it.
     __asm__("cvt.w.s %0,%1\n\tcvt.s.w %0,%0" : "=f"(t) : "f"(d));
@@ -3391,7 +3391,7 @@ INCLUDE_ASM("util/menu", func_002CF7E8);
 INCLUDE_ASM("util/menu", func_002CF860);
 
 //100%
-class func_002CF8D8_cItem {
+class MenuSysGroupItem_v08_cItem {
 public:
     char pad[0x10];
     // vptr at 0x10; slot N at vtable offset N*8
@@ -3407,9 +3407,9 @@ public:
 
 extern "C" void* func_002CBF30(void* self);
 
-extern "C" void func_002CF8D8(void* self)
+extern "C" void MenuSysGroupItem_v08(void* self)
 {
-    ((func_002CF8D8_cItem*)func_002CBF30((char*)self + 0x18))->v08();
+    ((MenuSysGroupItem_v08_cItem*)func_002CBF30((char*)self + 0x18))->v08();
 }
 
 // PORT: cMenu_addItem is extern "C" (list, item, index); this caller leaves $a2 as-is.
@@ -3509,7 +3509,7 @@ extern "C" void* func_002CFA08(void* p)
 }
 
 //100%
-class func_002CFAF8_cMenu {
+class MenuSysGroupItem_v09_cMenu {
 public:
     char pad[0x12C];
     // vptr at 0x12C; slot N at vtable offset N*8
@@ -3518,13 +3518,13 @@ public:
     virtual int v03(int a, int b);
 };
 
-extern "C" int func_002CFAF8(func_002CFAF8_cMenu** self, int a, int b)
+extern "C" int MenuSysGroupItem_v09(MenuSysGroupItem_v09_cMenu** self, int a, int b)
 {
     return (*self)->v03(a, b);
 }
 
 //100%
-class func_002CFB28_cMenu {
+class MenuSysGroupItem_v10_cMenu {
 public:
     char pad[0x12C];
     // vptr at 0x12C; slot N at vtable offset N*8
@@ -3534,7 +3534,7 @@ public:
     virtual void v04(void*);
 };
 
-extern "C" void func_002CFB28(func_002CFB28_cMenu** self)
+extern "C" void MenuSysGroupItem_v10(MenuSysGroupItem_v10_cMenu** self)
 {
     (*self)->v04(self);
 }
@@ -3651,13 +3651,13 @@ extern "C" void func_002CFD28(func_002CFD28_sOwner* self, func_002CFD28_sRect* r
 }
 
 //100%
-// PORT: the target leaves mode in $a1 for func_002CA368; bind a 2-arg form to that symbol.
-void func_002CA368_2(void* self, int a1) __asm__("func_002CA368__FPv");
+// PORT: the target leaves mode in $a1 for MenuSysItem_OnFocus; bind a 2-arg form to that symbol.
+void MenuSysItem_OnFocus_2(void* self, int a1) __asm__("MenuSysItem_OnFocus__FPv");
 extern "C" void func_002CBE68_v(void* self, int index) __asm__("func_002CBE68");
 
 extern "C" void func_002CFE78(void* self, int mode)
 {
-    func_002CA368_2(self, mode);
+    MenuSysItem_OnFocus_2(self, mode);
     switch (mode) {
     case 0:
         func_002CBE68_v((char*)self + 0x18, 0);
@@ -3674,7 +3674,7 @@ extern "C" void func_002CBFD0(void* p);
 
 extern "C" void func_002CFEF8(void* self)
 {
-    func_002CA370(self);
+    MenuSysItem_OnBlur(self);
     func_002CBFD0((char*)self + 0x18);
 }
 
@@ -3701,7 +3701,7 @@ extern "C" cRGBTitleMenuItem_sItem* cRGBTitleMenuItem_cRGBTitleMenuItem(cRGBTitl
 }
 
 //100%
-int func_002CFF80(void* self)
+int MenuSysColorSwatchItem_IsSelectable(void* self)
 {
     return 0;
 }
@@ -3886,7 +3886,7 @@ extern "C" sMenuItem_2CC7B0* func_002D03F0(sMenuItem_2CC7B0* self, int a1, int a
 }
 
 //100%
-int func_002D0448(void* self)
+int MenuSysVectorLabelItem_IsSelectable(void* self)
 {
     return 0;
 }
@@ -4056,11 +4056,11 @@ extern "C" sMenuItem_D0808* func_002D0808(sMenuItem_D0808* self, int a1, int a2,
 }
 
 //100% - objdiff report; single-function view differs only in a relocation name
-void func_002CA368(void* self);
+void MenuSysItem_OnFocus(void* self);
 
 extern "C" void func_002D08E0(void* self)
 {
-    func_002CA368(self);
+    MenuSysItem_OnFocus(self);
     *(int*)((char*)self + 0x40) = 0;
 }
 
@@ -4365,7 +4365,7 @@ extern "C" int func_002D1AC8(int id)
 //100%
 extern char* D_004A28A8;
 
-extern "C" void* func_002D1AF0()
+extern "C" void* World_GetRiderCount()
 {
     return *(void**)(*(char**)(*(char**)(D_004A28A8 + 0x84) + 0xC) + 0x78);
 }
@@ -4373,7 +4373,7 @@ extern "C" void* func_002D1AF0()
 //100%
 extern char* D_004A28A8;
 
-extern "C" void* func_002D1B08(int i)
+extern "C" void* World_GetRider(int i)
 {
     char* base = *(char**)(*(char**)(D_004A28A8 + 0x84) + 0xC);
     char* p = *(char**)(base + (i << 2) + 0x28);
@@ -4438,7 +4438,7 @@ extern "C" void* func_002D1BD8()
 //100%
 extern char* D_004A28A8;
 
-extern "C" void* func_002D1BE0()
+extern "C" void* World_GetNash()
 {
     return *(void**)(*(char**)(D_004A28A8 + 0x84) + 0x20);
 }
@@ -4447,7 +4447,7 @@ extern "C" void* func_002D1BE0()
 extern "C" int func_001032C0(void* self, int a);
 extern char* D_004A28A8;
 
-extern "C" int func_002D1BF0(int a)
+extern "C" int World_AddFocusObject(int a)
 {
     return func_001032C0(*(void**)(*(char**)(*(char**)(D_004A28A8 + 0x84) + 0xC) + 0xA4), a);
 }
@@ -4455,7 +4455,7 @@ extern "C" int func_002D1BF0(int a)
 //100%
 extern char* D_004A28A8;
 
-extern "C" void* func_002D1C20(int i)
+extern "C" void* World_GetCameraEye(int i)
 {
     char* riders = *(char**)(*(char**)(D_004A28A8 + 0x84) + 0x84);
     return *(char**)(riders + (i << 2) + 4) + 0x20;
@@ -4480,7 +4480,7 @@ extern "C" void* func_002D1C58()
 //100%
 extern char* D_004A28A8;
 
-extern "C" float func_002D1C70()
+extern "C" float World_GetSecondsPerTick()
 {
     return *(float*)(D_004A28A8 + 0x14);
 }
@@ -4496,7 +4496,7 @@ extern "C" float func_002D1C80()
 //100%
 extern char* D_004A28A8;
 
-extern "C" void* func_002D1C98()
+extern "C" void* World_GetAIFrameCount()
 {
     return *(void**)(*(char**)(*(char**)(D_004A28A8 + 0x84) + 0xC) + 0x8);
 }
@@ -4504,7 +4504,7 @@ extern "C" void* func_002D1C98()
 //100%
 extern char* D_004A28A8;
 
-extern "C" void* func_002D1CB0()
+extern "C" void* World_GetFlagManager()
 {
     return *(void**)(*(char**)(D_004A28A8 + 0x84) + 0x70);
 }

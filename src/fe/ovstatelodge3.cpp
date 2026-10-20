@@ -22,13 +22,13 @@ INCLUDE_ASM("fe/ovstatelodge3", func_001F7590);
 
 INCLUDE_ASM("fe/ovstatelodge3", func_001F75A0);
 
-INCLUDE_ASM("fe/ovstatelodge3", func_001F76B8);
+INCLUDE_ASM("fe/ovstatelodge3", OVScreenBCFail_Init);
 
 INCLUDE_ASM("fe/ovstatelodge3", func_001F7738);
 
 INCLUDE_ASM("fe/ovstatelodge3", func_001F7770);
 
-INCLUDE_ASM("fe/ovstatelodge3", func_001F77F0);
+INCLUDE_ASM("fe/ovstatelodge3", OVScreenBCFail_OnWidgetNotify);
 
 INCLUDE_ASM("fe/ovstatelodge3", func_001F7800);
 
@@ -38,9 +38,9 @@ INCLUDE_ASM("fe/ovstatelodge3", cOVState_TOPTIMES_onWidgetCreate);
 
 INCLUDE_ASM("fe/ovstatelodge3", func_001F7F08);
 
-INCLUDE_ASM("fe/ovstatelodge3", func_001F80C8);
+INCLUDE_ASM("fe/ovstatelodge3", OVScreenTopTimes_OnWidgetNotify);
 
 INCLUDE_ASM("fe/ovstatelodge3", func_001F80D8);
 
-INCLUDE_ASM("fe/ovstatelodge3", func_001F8118);
+INCLUDE_ASM("fe/ovstatelodge3", OVScreenTopTimes_v26);
 

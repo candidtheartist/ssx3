@@ -3,7 +3,7 @@
 //100%
 void cMemMan_free(void* p);
 void* func_003ACA50(void* self);
-extern "C" void func_003ACA70(int* self, int flags);
+extern "C" void tWScriptCache_dtor(int* self, int flags);
 // PORT: operator_new__FUi really takes (size, tag, flags, d); bound by asm label
 void* operator_new_tag(unsigned int size, const char* tag, int flags, int d) __asm__("operator_new__FUi");
 extern char D_00495070[];
@@ -16,7 +16,7 @@ extern "C" void cWScriptCache_init(void* self, int count)
         char* p = (char*)(*(int*)(old - 0x10) * 0xC + (int)old);
         while (*(char**)((char*)self + 0x4) != p) {
             p -= 0xC;
-            func_003ACA70((int*)p, 0);
+            tWScriptCache_dtor((int*)p, 0);
         }
         cMemMan_free(*(char**)((char*)self + 0x4) - 0x10);
     }
@@ -37,7 +37,7 @@ extern "C" void cWScriptCache_init(void* self, int count)
 //100%
 void cMemMan_free(void* p);
 void operator_delete(int*);
-extern "C" void func_003ACA70(int* self, int flags);
+extern "C" void tWScriptCache_dtor(int* self, int flags);
 extern int D_004A4810;
 
 // PORT: array cookie arithmetic through int (pointer in int).
@@ -48,7 +48,7 @@ extern "C" void func_003AC8F0(int* self, int flags)
         char* p = (char*)(*(int*)(old - 0x10) * 0xC + (int)old);
         while (*(char**)((char*)self + 0x4) != p) {
             p -= 0xC;
-            func_003ACA70((int*)p, 0);
+            tWScriptCache_dtor((int*)p, 0);
         }
         cMemMan_free(*(char**)((char*)self + 0x4) - 0x10);
     }
@@ -58,14 +58,14 @@ extern "C" void func_003AC8F0(int* self, int flags)
     }
 }
 
-extern "C" void func_003ACAD0(void* entry);
+extern "C" void tWScriptCache_PollLoad(void* entry);
 
 // Updates every 12-byte entry of the list
 extern "C" void func_003AC980(void* self)
 {
     unsigned int i;
     for (i = 0; i < *(unsigned int*)((char*)self + 0x8); i++)
-        func_003ACAD0(*(char**)((char*)self + 0x4) + i * 12);
+        tWScriptCache_PollLoad(*(char**)((char*)self + 0x4) + i * 12);
 }
 
 extern "C" void func_003ACBB8(void* entry, int a);
@@ -116,7 +116,7 @@ void* func_003ACA50(void* self)
 void cMemMan_free(void* p);
 void operator_delete(int*);
 
-extern "C" void func_003ACA70(int* self, int flags)
+extern "C" void tWScriptCache_dtor(int* self, int flags)
 {
     if (*(void**)((char*)self + 0x8) != 0 && *(short*)((char*)self + 0x2) == 0) {
         cMemMan_free(*(void**)((char*)self + 0x8));
@@ -134,7 +134,7 @@ extern "C" int func_003DF980_CAD0(int) __asm__("func_003DF980");
 extern "C" void func_003E6574_CAD0(int, int, int) __asm__("func_003E6574");
 int operator_new_CAD0(unsigned int, void*, int, int) __asm__("operator_new__FUi");
 extern char D_00495080[];
-extern "C" void func_003ACAD0(void *self_) {
+extern "C" void tWScriptCache_PollLoad(void *self_) {
     char *self = (char*)self_;
     short st = *(short*)self;
     if (st == 1 && func_003DF980_CAD0(*(int*)(self + 4)) == st) {
@@ -529,14 +529,14 @@ extern "C" void* func_003ADE08(void* self, int a1, int a2, int a3, int a4, int a
     return self;
 }
 
-extern "C" void* func_003ADE58(void* self, int a1, int a2, int a3, int a4, int a5, int a6, int a7, int a8)
+extern "C" void* AV_Player_ctor_3(void* self, int a1, int a2, int a3, int a4, int a5, int a6, int a7, int a8)
 {
     *(int*)((char*)self + 0x60) = 0;
     func_003ADEC8(self, a1, a2, a3, a4, a5, a6, a7, a8);
     return self;
 }
 
-extern "C" void* func_003ADE90(void* self, int a1, int a2, int a3, int a4, int a5, int a6, int a7)
+extern "C" void* AV_Player_ctor_4(void* self, int a1, int a2, int a3, int a4, int a5, int a6, int a7)
 {
     *(int*)((char*)self + 0x60) = 0;
     func_003ADEC8(self, a1, a2, a3, a4, a5, a6, 2, a7);
@@ -915,12 +915,12 @@ void* func_003AE958(void* self)
     return func_003AE888(self, 0x1000);
 }
 
-extern "C" int func_003AEF48(void* self, int a);
+extern "C" int AV_Audio_SetVolume(void* self, int a);
 
 extern "C" int func_003AE978(void** self, int a)
 {
     if (*self)
-        return func_003AEF48(*self, a);
+        return AV_Audio_SetVolume(*self, a);
     return 0;
 }
 
@@ -1192,7 +1192,7 @@ extern "C" void func_003B58A0();
 extern "C" void func_003B58D8();
 extern "C" int func_003B7E70(int handle, int a);
 
-extern "C" int func_003AEF48(void* self, int a)
+extern "C" int AV_Audio_SetVolume(void* self, int a)
 {
     int r;
     if (*(int*)((char*)self + 0xC) != -1) {
@@ -1911,7 +1911,7 @@ extern "C" void func_003B09A0(sPl_09A0* self, int flags)
 //100%
 extern "C" void func_003B0B40(void* a, void* b, void* c);
 
-extern "C" int func_003B0B10(void* self, void* a1, void* a2)
+extern "C" int PS2_SONY_CODEC_INTERNAL_NodataCallback(void* self, void* a1, void* a2)
 {
     func_003B0B40(a2, self, a1);
     return 1;
@@ -2000,12 +2000,12 @@ extern char D_004953E8[];
 extern char D_004953F0[];
 extern char D_00495400[];
 extern "C" void func_003B1228(void* data);
-extern "C" int func_003B13D8(void);
+extern "C" int MPEG2_Get_Hdr(void);
 extern "C" void* func_003B07F8(void* self, unsigned int w, int h);
 extern "C" void func_00402708(void);
 extern "C" void func_004027B8(void* a, void* b, int size);
 extern "C" void* func_00402C08(void* a, int n, void* fn, void* arg);
-extern "C" int func_003B0B10(void* self, void* a1, void* a2);
+extern "C" int PS2_SONY_CODEC_INTERNAL_NodataCallback(void* self, void* a1, void* a2);
 
 struct sWSNode_B0C58 {
     sWSNode_B0C58* next;
@@ -2055,7 +2055,7 @@ extern "C" int func_003B0C58(sPlayer_B0C58* self, sScript_B0C58* script, sData_B
     void* data = d->data;
     *(void**)&D_0050A088 = D_00509648;
     func_003B1228(data);
-    func_003B13D8();
+    MPEG2_Get_Hdr();
     int mode = D_00509648[0x420 / 4];
     if (mode == 0) {
         D_00509524_s = 1;
@@ -2092,7 +2092,7 @@ extern "C" int func_003B0C58(sPlayer_B0C58* self, sScript_B0C58* script, sData_B
     self->ipuBufUc = (void*)(((unsigned int)self->ipuBuf & 0x0FFFFFFF) | 0x30000000);
     func_00402708();
     func_004027B8(self->mpeg, self->work, self->w * self->h * 9 / 2 + 0x176C);
-    func_00402C08(self->mpeg, 1, (void*)func_003B0B10, self);
+    func_00402C08(self->mpeg, 1, (void*)PS2_SONY_CODEC_INTERNAL_NodataCallback, self);
     return 2;
 }
 
@@ -2370,10 +2370,10 @@ extern "C" unsigned int func_003B13A8(void)
 // PORT: func_003B1498 takes no arguments (the unit declares it void*(void*)); bound by asm label
 extern "C" void func_003B1498_noarg(void) __asm__("func_003B1498");
 extern "C" void func_003B14F0(void);
-extern "C" void func_003B16E0(void);
-extern "C" void func_003B17A8(void);
+extern "C" void MPEG2_group_of_pictures_header(void);
+extern "C" void MPEG2_picture_header(void);
 
-extern "C" int func_003B13D8(void)
+extern "C" int MPEG2_Get_Hdr(void)
 {
     for (;;) {
         func_003B1498_noarg();
@@ -2382,12 +2382,12 @@ extern "C" int func_003B13D8(void)
             func_003B14F0();
             break;
         case 0x1B8:
-            func_003B16E0();
+            MPEG2_group_of_pictures_header();
             break;
         case 0x1B7:
             return 0;
         case 0x100:
-            func_003B17A8();
+            MPEG2_picture_header();
             return 1;
         }
     }
@@ -2422,10 +2422,10 @@ extern void* D_00509638[];
 extern void* D_0050963C[];
 extern void* D_00509640[];
 extern char D_00495468[];
-void* func_003B2360(void* self);
-extern "C" void func_003B1988(void);
+void* MPEG2_marker_bit(void* self);
+extern "C" void MPEG2_extension_and_user_data(void);
 
-extern "C" void func_003B16E0(void)
+extern "C" void MPEG2_group_of_pictures_header(void)
 {
     if (D_0050A088.ptr == D_00509648) {
         D_0044C378[0] = D_0044C37C[0] + 1;
@@ -2434,12 +2434,12 @@ extern "C" void func_003B16E0(void)
     D_00509628[0] = func_003B1300(1);
     D_0050962C[0] = func_003B1300(5);
     D_00509630[0] = func_003B1300(6);
-    func_003B2360(D_00495468);
+    MPEG2_marker_bit(D_00495468);
     D_00509634[0] = func_003B1300(6);
     D_00509638[0] = func_003B1300(6);
     D_0050963C[0] = func_003B1300(1);
     D_00509640[0] = func_003B1300(1);
-    func_003B1988();
+    MPEG2_extension_and_user_data();
 }
 
 //100%
@@ -2450,12 +2450,12 @@ extern void* D_00509560[];
 extern void* D_00509564[];
 extern void* D_00509568[];
 extern void* D_0050956C[];
-extern "C" void func_003B1988(void);
+extern "C" void MPEG2_extension_and_user_data(void);
 extern "C" int func_003B2318(void);
 extern "C" void func_003B2440(void);
 
 // PORT: func_003B1300 really returns unsigned int (unit declares void*)
-extern "C" void func_003B17A8(void)
+extern "C" void MPEG2_picture_header(void)
 {
     *(int*)((char*)D_0050A088.ptr + 0x430) = 0;
     D_00509554[0] = (int)func_003B1300(0xA);
@@ -2470,7 +2470,7 @@ extern "C" void func_003B17A8(void)
         D_0050956C[0] = func_003B1300(3);
     }
     func_003B2318();
-    func_003B1988();
+    MPEG2_extension_and_user_data();
     func_003B2440();
 }
 
@@ -2505,19 +2505,19 @@ extern "C" int func_003B1878(void)
 }
 
 //100%
-extern "C" void func_003B1AB0(void);
-extern "C" void func_003B1CC0(void);
+extern "C" void MPEG2_sequence_extension(void);
+extern "C" void MPEG2_sequence_display_extension(void);
 extern "C" void func_003B1D58(void);
 extern "C" void func_003B1EE0(void);
-extern "C" void func_003B1FC8(void);
+extern "C" void MPEG2_picture_display_extension(void);
 extern "C" void func_003B20B8(void);
-extern "C" void func_003B2230(void);
+extern "C" void MPEG2_picture_spatial_scalable_extension(void);
 extern "C" void func_003B22F8(void);
-extern "C" void func_003B23A0(void);
+extern "C" void MPEG2_copyright_extension(void);
 // PORT: called with no argument set up; bound to the mangled void* form by asm label
 void func_003B2380_noarg(void) __asm__("func_003B2380__FPv");
 
-extern "C" void func_003B1988(void)
+extern "C" void MPEG2_extension_and_user_data(void)
 {
     unsigned int t;
     func_003B1498_noarg();
@@ -2526,10 +2526,10 @@ extern "C" void func_003B1988(void)
             func_003B1340();
             switch ((int)func_003B1300(4) - 1) {
             case 0:
-                func_003B1AB0();
+                MPEG2_sequence_extension();
                 break;
             case 1:
-                func_003B1CC0();
+                MPEG2_sequence_display_extension();
                 break;
             case 2:
                 func_003B1D58();
@@ -2538,19 +2538,19 @@ extern "C" void func_003B1988(void)
                 func_003B1EE0();
                 break;
             case 6:
-                func_003B1FC8();
+                MPEG2_picture_display_extension();
                 break;
             case 7:
                 func_003B20B8();
                 break;
             case 8:
-                func_003B2230();
+                MPEG2_picture_spatial_scalable_extension();
                 break;
             case 9:
                 func_003B22F8();
                 break;
             case 3:
-                func_003B23A0();
+                MPEG2_copyright_extension();
                 break;
             }
             func_003B1498_noarg();
@@ -2580,7 +2580,7 @@ extern float D_00509504[];
 struct sD_00509508;
 extern float D_0044C388[];
 extern char D_004954B8[];
-void* func_003B2360(void* self);
+void* MPEG2_marker_bit(void* self);
 
 struct sMpegCtx1AB0 {
     char pad[0x420];
@@ -2589,7 +2589,7 @@ struct sMpegCtx1AB0 {
 };
 
 // Parse an MPEG-2 sequence extension.
-extern "C" void func_003B1AB0(void)
+extern "C" void MPEG2_sequence_extension(void)
 {
     sMpegCtx1AB0* g = (sMpegCtx1AB0*)D_0050A088.ptr;
     g->f420 = 1;
@@ -2601,7 +2601,7 @@ extern "C" void func_003B1AB0(void)
     int hext = (int)func_003B1300(2);
     int vext = (int)func_003B1300(2);
     int brext = (int)func_003B1300(0xC);
-    func_003B2360(D_004954B8);
+    MPEG2_marker_bit(D_004954B8);
     int vbvext = (int)func_003B1300(8);
     D_0050952C[0] = (int)func_003B1300(1);
     D_00509530[0] = (int)func_003B1300(2);
@@ -2632,9 +2632,9 @@ extern void* D_00509548[];
 extern void* D_0050954C[];
 extern void* D_00509550[];
 extern char D_004954D0[];
-void* func_003B2360(void* self);
+void* MPEG2_marker_bit(void* self);
 
-extern "C" void func_003B1CC0(void)
+extern "C" void MPEG2_sequence_display_extension(void)
 {
     D_00509538[0] = func_003B1300(3);
     D_0050953C[0] = func_003B1300(1);
@@ -2644,7 +2644,7 @@ extern "C" void func_003B1CC0(void)
         D_00509548[0] = func_003B1300(8);
     }
     D_0050954C[0] = func_003B1300(0xE);
-    func_003B2360(D_004954D0);
+    MPEG2_marker_bit(D_004954D0);
     D_00509550[0] = func_003B1300(0xE);
 }
 
@@ -2734,9 +2734,9 @@ extern void* D_005095C0[];
 extern void* D_005095D0[];
 extern char D_00495538[];
 extern char D_00495568[];
-void* func_003B2360(void* self);
+void* MPEG2_marker_bit(void* self);
 
-extern "C" void func_003B1FC8(void)
+extern "C" void MPEG2_picture_display_extension(void)
 {
     int n;
     int i;
@@ -2753,9 +2753,9 @@ extern "C" void func_003B1FC8(void)
     }
     for (i = 0; i < n; i++) {
         D_005095C0[i] = func_003B1300(0x10);
-        func_003B2360(D_00495538);
+        MPEG2_marker_bit(D_00495538);
         D_005095D0[i] = func_003B1300(0x10);
-        func_003B2360(D_00495568);
+        MPEG2_marker_bit(D_00495568);
     }
 }
 
@@ -2813,19 +2813,19 @@ extern void* D_00509608[];
 extern void* D_0050960C[];
 extern char D_00495598[];
 extern char D_004955D0[];
-void* func_003B2360(void* self);
+void* MPEG2_marker_bit(void* self);
 
 // PORT: func_003B1300 really returns unsigned int (unit declares void*)
-extern "C" void func_003B2230(void)
+extern "C" void MPEG2_picture_spatial_scalable_extension(void)
 {
     *(int*)((char*)D_0050A088.ptr + 0x430) = 1;
     D_005095F8[0] = func_003B1300(0xA);
-    func_003B2360(D_00495598);
+    MPEG2_marker_bit(D_00495598);
     D_005095FC[0] = (int)func_003B1300(0xF);
     if (D_005095FC[0] >= 0x4000) {
         D_005095FC[0] -= 0x8000;
     }
-    func_003B2360(D_004955D0);
+    MPEG2_marker_bit(D_004955D0);
     D_00509600[0] = (int)func_003B1300(0xF);
     if (D_00509600[0] >= 0x4000) {
         D_00509600[0] -= 0x8000;
@@ -2859,7 +2859,7 @@ extern "C" int func_003B2318(void)
 }
 
 //100%
-void* func_003B2360(void* self)
+void* MPEG2_marker_bit(void* self)
 {
     return func_003B1300(1);
 }
@@ -2882,19 +2882,19 @@ extern void* D_00509624[];
 extern char D_00495630[];
 extern char D_00495658[];
 extern char D_00495688[];
-void* func_003B2360(void* self);
+void* MPEG2_marker_bit(void* self);
 
-extern "C" void func_003B23A0(void)
+extern "C" void MPEG2_copyright_extension(void)
 {
     D_00509610[0] = func_003B1300(1);
     D_00509614[0] = func_003B1300(8);
     D_00509618[0] = func_003B1300(1);
     func_003B1300(7);
-    func_003B2360(D_00495630);
+    MPEG2_marker_bit(D_00495630);
     D_0050961C[0] = func_003B1300(0x14);
-    func_003B2360(D_00495658);
+    MPEG2_marker_bit(D_00495658);
     D_00509620[0] = func_003B1300(0x16);
-    func_003B2360(D_00495688);
+    MPEG2_marker_bit(D_00495688);
     D_00509624[0] = func_003B1300(0x16);
 }
 

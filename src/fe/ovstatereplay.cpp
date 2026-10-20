@@ -44,7 +44,7 @@ extern "C" void cOVState_REPLAY_onWidgetCreate(void* self, cUIObj_20DE30* w)
     }
 }
 
-INCLUDE_ASM("fe/ovstatereplay", func_0020DF10);
+INCLUDE_ASM("fe/ovstatereplay", cOVState_OnWidgetNotify);
 
 INCLUDE_ASM("fe/ovstatereplay", func_0020DF38);
 

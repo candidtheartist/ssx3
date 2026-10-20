@@ -1863,7 +1863,7 @@ struct func_0030BAC8_sMan {
     func_0030BAC8_sEntry entries[1];
 };
 
-extern "C" void func_0030C4A8(void* e, int a1, int a2);
+extern "C" void WScriptMan_CollectSetAddItems(void* e, int a1, int a2);
 
 extern "C" void func_0030BAC8(func_0030BAC8_sMan* self, int id, int a1, int a2)
 {
@@ -1871,7 +1871,7 @@ extern "C" void func_0030BAC8(func_0030BAC8_sMan* self, int id, int a1, int a2)
     int i;
     for (i = 0; i < 1; i++, e++) {
         if (e->id == id) {
-            func_0030C4A8(e, a1, a2);
+            WScriptMan_CollectSetAddItems(e, a1, a2);
             return;
         }
     }
@@ -2191,7 +2191,7 @@ static inline void respawn_C4A8(unsigned int id)
 }
 
 // PORT: a1 is really an unsigned int* id list and a2 its count (the unit declares both int).
-extern "C" void func_0030C4A8(void* ep, int a1, int a2)
+extern "C" void WScriptMan_CollectSetAddItems(void* ep, int a1, int a2)
 {
     sEntry_C4A8* e = (sEntry_C4A8*)ep;
     unsigned int* ids = (unsigned int*)a1;

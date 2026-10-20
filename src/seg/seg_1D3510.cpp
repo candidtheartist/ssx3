@@ -191,14 +191,14 @@ extern "C" int func_002D37D8(void *arg0) {
 
 //100%
 struct VEnt_37E0 { short delta; short idx; int (*fn)(void*, int); };
-extern "C" void func_002D37E0(void *arg0) {
+extern "C" void cPS2MemCard_v49(void *arg0) {
     VEnt_37E0 *e = (VEnt_37E0*)(*(char **)arg0 + 0x180);
     e->fn((char*)arg0 + e->delta, *(int *)((char*)arg0 + 0xC));
 }
 
 //100%
 struct VEnt_3810 { short delta; short idx; int (*fn)(void*, int); };
-extern "C" void func_002D3810(void *arg0) {
+extern "C" void cPS2MemCard_v53(void *arg0) {
     VEnt_3810 *e = (VEnt_3810*)(*(char **)arg0 + 0x1A0);
     e->fn((char*)arg0 + e->delta, *(int *)((char*)arg0 + 0xC));
 }
@@ -262,7 +262,7 @@ struct Obj_3840 {
   virtual void v55();
   virtual int v56(int);
 };
-extern "C" int func_002D3840(Obj_3840 *o, int x) {
+extern "C" int cPS2MemCard_v54(Obj_3840 *o, int x) {
     int ok = 0;
     if (!o->v48() && !o->v50(x) && o->v56(x)) {
         ok = o->v52(x) != 0;
@@ -272,7 +272,7 @@ extern "C" int func_002D3840(Obj_3840 *o, int x) {
 
 //100%
 struct VEnt_38F0 { short delta; short idx; int (*fn)(void*, int); };
-extern "C" void func_002D38F0(void *arg0) {
+extern "C" void cPS2MemCard_v55(void *arg0) {
     VEnt_38F0 *e = (VEnt_38F0*)(*(char **)arg0 + 0x1C0);
     e->fn((char*)arg0 + e->delta, *(int *)((char*)arg0 + 0xC));
 }
@@ -290,14 +290,14 @@ extern "C" int func_002D3928(void) {
 //100%
 // PORT: PS2-only inline asm; needs a C fallback off-PS2.
 extern "C" void func_002C53C8_3930(void*, int) __asm__("func_002C53C8");
-extern "C" void func_002D3930(void *arg0) {
+extern "C" void cPS2MemCard_v63(void *arg0) {
     func_002C53C8_3930(arg0, (*(int *)((char*)(arg0) + (0xC))));
 }
 
 //100%
 // PORT: PS2-only inline asm; needs a C fallback off-PS2.
 extern "C" void func_002C53E0_3950(void*, int, int) __asm__("func_002C53E0");
-extern "C" void func_002D3950(void *arg0, int arg1) {
+extern "C" void cPS2MemCard_v64(void *arg0, int arg1) {
     func_002C53E0_3950(arg0, (*(int *)((char*)(arg0) + (0xC))), arg1);
 }
 
@@ -313,7 +313,7 @@ extern "C" int func_002D3978(void) {
 
 //100%
 struct VEnt_3980 { short delta; short idx; void (*fn)(void*, int, int, int); };
-extern "C" void func_002D3980(void *arg0, int a1, int a2, int a3) {
+extern "C" void cPS2MemCard_v71(void *arg0, int a1, int a2, int a3) {
     VEnt_3980 *e = (VEnt_3980*)(*(char **)arg0 + 0x230);
     e->fn((char*)arg0 + e->delta, a1, a2, a3);
 }
@@ -785,7 +785,7 @@ extern "C" void func_002D3F78(int arg0, int arg1) {
 //100%
 void operator_delete(int *);
 extern void* D_00487480[];
-extern "C" void func_002D3FD8(char *self, int flags) {
+extern "C" void cPS2ConsoleConfig_v01(char *self, int flags) {
     *(void***)(self + 0x34) = D_00487480;
     if (flags & 1) operator_delete((int*)self);
 }

@@ -1,7 +1,7 @@
 #include "common.h"
 
 extern "C" void* cMemMan_alloc(int size, const char* tag, unsigned int flags, int d);
-extern "C" void func_0014F418(void* self);
+extern "C" void cBEOptionInterface_Init(void* self);
 extern const char D_0045A6B0[];
 extern void* D_0045ADC8[16];
 extern void* D_004A120C;
@@ -20,7 +20,7 @@ void* cBEOptionInterface_getThis()
         mem->vtable = D_0045ADC8;
         D_004A120C = mem;
         mem->field_0x8 = 0;
-        func_0014F418(mem);
+        cBEOptionInterface_Init(mem);
     }
     return D_004A120C;
 }
@@ -54,7 +54,7 @@ extern "C" void func_0014F600(void* self);
 extern "C" void func_0014F4F8(void* self);
 extern "C" void func_0014F458(void* self);
 
-extern "C" void func_0014F418(void* self)
+extern "C" void cBEOptionInterface_Init(void* self)
 {
     func_0014F648(self);
     func_0014F600(self);

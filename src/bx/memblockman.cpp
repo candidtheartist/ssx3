@@ -450,7 +450,7 @@ extern "C" void func_00423BF0(int);
 extern "C" void func_00423BB0(int);
 extern "C" void func_00423DB0(int);
 
-extern "C" void func_0031A920(void* self)
+extern "C" void PS2ExecutionMan_v03(void* self)
 {
     func_00424880(3);
     func_00423AA0(3, *(int*)((char*)self + 0x14290));
@@ -473,7 +473,7 @@ extern "C" void func_0031A920(void* self)
 //100% - objdiff report; single-function view differs only in a relocation name
 extern "C" void func_0031A3C0(void* buf);
 
-extern "C" void func_0031A9D8(void* self)
+extern "C" void PS2ExecutionMan_v11(void* self)
 {
     if (*(int*)((char*)self + 0x14048) != 0) {
         func_0031A3C0((char*)self + 0x14080);
@@ -481,7 +481,7 @@ extern "C" void func_0031A9D8(void* self)
 }
 
 //100% - objdiff report; single-function view differs only in a relocation name
-extern "C" void func_0031AA18(void* self)
+extern "C" void PS2ExecutionMan_v12(void* self)
 {
     if (*(int*)((char*)self + 0x14048) != 0) {
         func_0031A308((char*)self + 0x14080);
@@ -520,7 +520,7 @@ extern "C" void func_0031AA58(void* self)
 //100%
 extern "C" void func_00423DC0(int);
 
-extern "C" void func_0031AAC8(void* self)
+extern "C" void PS2ExecutionMan_v05(void* self)
 {
     if (*(int*)((char*)self + 0x1C) != 0) {
         func_00423DC0(*(int*)((char*)self + 0x18));
@@ -539,7 +539,7 @@ void* func_0031AAF0(void* self)
 // Thread entry: passes the handle at 0xC to func_00423DC0, then loops on func_00423CC0 forever.
 extern "C" void func_00423CC0();
 
-extern "C" void func_0031AB10(void* self)
+extern "C" void PS2ExecutionMan_v14(void* self)
 {
     func_00423DC0(*(int*)((char*)self + 0xC));
     for (;;)
@@ -548,7 +548,7 @@ extern "C" void func_0031AB10(void* self)
 
 //100%
 // Thread body: marks the thread running, then halts or runs the virtual main.
-// PORT: the splat asm covered this together with func_0031AB10; it has no symbol of its own.
+// PORT: the splat asm covered this together with PS2ExecutionMan_v14; it has no symbol of its own.
 extern "C" int func_00423C90_AB30(void) __asm__("func_00423C90");
 extern "C" void func_00423D10(int);
 int cExecutionMan_checkHalt(void* self, int flag);
@@ -632,7 +632,7 @@ extern "C" void func_0031AC60(void* self)
 //100%
 extern "C" void func_00423DC0(int);
 
-extern "C" void func_0031ACD8(void* self, int a1)
+extern "C" void PS2ExecutionMan_v09(void* self, int a1)
 {
     *(int*)((char*)self + 0x14048) = a1;
     func_00423DC0(*(int*)((char*)self + 0x14044));
@@ -657,7 +657,7 @@ extern "C" void func_0031AD18()
 //100%
 extern int D_00519C40[];
 extern int D_004A3ED4;
-extern "C" int func_00402618(int cmd, int* out);
+extern "C" int sceCdTrayReq(int cmd, int* out);
 extern "C" void func_003E3D78(void);
 
 extern "C" int func_0031AD20(void)
@@ -667,11 +667,11 @@ extern "C" int func_0031AD20(void)
         int r;
         D_004A3ED4 = 0;
         r = 0;
-        func_00402618(2, &r);
+        sceCdTrayReq(2, &r);
     }
     if ((flags & 6) == 6) {
         int r2 = 0;
-        func_00402618(2, &r2);
+        sceCdTrayReq(2, &r2);
         if (r2 != 0)
             D_004A3ED0 = 1;
         D_00519C40[0] &= ~6;

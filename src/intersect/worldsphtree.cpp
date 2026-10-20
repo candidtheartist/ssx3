@@ -705,14 +705,14 @@ extern "C" int cOverlapList_findNearestRail(char* self, sSphereVec4* pos, int a2
 
 //100%
 extern "C" void* cMemMan_alloc(int size, const char* tag, unsigned int flags, int d);
-void* func_00327810(void* self);
+void* AIFwdDiffCache_ctor(void* self);
 extern "C" void cAIFwdDiffCache_Init(void* cache, int n);
 extern char D_0048E4F8[];
 
 extern "C" void cSpaceHash_createFwdDiffCache(void* self)
 {
     cSpaceHash* t = (cSpaceHash*)self;
-    void* c = func_00327810(cMemMan_alloc(0x10, D_0048E4F8, 0, 0));
+    void* c = AIFwdDiffCache_ctor(cMemMan_alloc(0x10, D_0048E4F8, 0, 0));
     t->mFwdDiff = (cAIFwdDiffCache*)c;
     cAIFwdDiffCache_Init(c, 0x28);
 }
@@ -1547,8 +1547,8 @@ void* cBoostNode_destroy__FPv(void* self)
 }
 
 //100%
-extern "C" int func_002D1AF0();
-extern "C" void** func_002D1B08(int i);
+extern "C" int World_GetRiderCount();
+extern "C" void** World_GetRider(int i);
 
 struct sVEnt_003415D0 { short delta; short index; void* fn; };
 typedef void (*Fn0_003415D0)(void*);
@@ -1586,8 +1586,8 @@ extern "C" void cBoostNode_update(sNode_003415D0* self)
     sVEnt_003415D0* vt = self->vt;
     ((Fn0_003415D0)vt[49].fn)((char*)self + vt[49].delta);
     if (self->type == 1 || self->t3C <= 0) {
-        for (int i = 0; i < func_002D1AF0(); i++) {
-            void** obj = func_002D1B08(i);
+        for (int i = 0; i < World_GetRiderCount(); i++) {
+            void** obj = World_GetRider(i);
             if (self->type == 2) {
                 sVEnt_003415D0* ovt = (sVEnt_003415D0*)*obj;
                 if (((Test0_003415D0)ovt[9].fn)((char*)obj + ovt[9].delta) != 0) continue;
@@ -1643,11 +1643,11 @@ public:
     virtual void setVelocity(sVec4_341770* v);
 };
 
-extern "C" float func_002D1C70();
+extern "C" float World_GetSecondsPerTick();
 
 extern "C" void cBoostNode_scaleVelocity(void* self, cMover_341770* obj)
 {
-    sVec4_341770 u = vu0Scale_341770(vu0Scale_341770(*obj->getVelocity(), *(float*)((char*)self + 0x34) + 1.0f), func_002D1C70());
+    sVec4_341770 u = vu0Scale_341770(vu0Scale_341770(*obj->getVelocity(), *(float*)((char*)self + 0x34) + 1.0f), World_GetSecondsPerTick());
     obj->setVelocity(&u);
 }
 
@@ -1722,7 +1722,7 @@ public:
     virtual void setVelocity(sVec4_341818* v);
 };
 
-extern "C" float func_002D1C70();
+extern "C" float World_GetSecondsPerTick();
 
 struct sParams_341818 {
     sVec4_341818 dir;
@@ -1738,7 +1738,7 @@ struct sSph_341818 {
 
 static inline void push_341818(sParams_341818* p, cMover_341818* obj, const sVec4_341818& dir, float amount)
 {
-    sVec4_341818 u = vu0Scale_341818(vu0Scale_341818(vu0Scale_341818(dir, amount), p->scale), func_002D1C70());
+    sVec4_341818 u = vu0Scale_341818(vu0Scale_341818(vu0Scale_341818(dir, amount), p->scale), World_GetSecondsPerTick());
     obj->setVelocity(&u);
 }
 
@@ -1754,11 +1754,11 @@ extern "C" void cBoostNode_pushVelocity(sSph_341818* self, cMover_341818* obj)
     sParams_341818* p = &self->params;
     if (self->type == 2) {
         if (d >= 0.0f) {
-            sVec4_341818 u = vu0Scale_341818(vu0Scale_341818(vu0Scale_341818(dir, p->speed), p->scale), func_002D1C70());
+            sVec4_341818 u = vu0Scale_341818(vu0Scale_341818(vu0Scale_341818(dir, p->speed), p->scale), World_GetSecondsPerTick());
             obj->setVelocity(&u);
         }
     } else if (diff > 0.0f) {
-        sVec4_341818 u = vu0Scale_341818(vu0Scale_341818(vu0Scale_341818(dir, diff), p->scale), func_002D1C70());
+        sVec4_341818 u = vu0Scale_341818(vu0Scale_341818(vu0Scale_341818(dir, diff), p->scale), World_GetSecondsPerTick());
         obj->setVelocity(&u);
     }
 }
@@ -2092,7 +2092,7 @@ extern "C" void cAnimObjectNode_onFinished(void* self, int a1)
 
 //100%
 extern char* D_004A5B64;
-extern "C" void func_00356B08(void* p);
+extern "C" void cMoveNode_v36(void* p);
 
 extern "C" void cAnimObjectNode_onMessage(sClampFloat_1F38* self, int msg, float v)
 {
@@ -2135,7 +2135,7 @@ extern "C" void cAnimObjectNode_onMessage(sClampFloat_1F38* self, int msg, float
     } else if (msg == 0x69) {
         *(short*)self = 0;
     } else {
-        func_00356B08((char*)self + 0x30);
+        cMoveNode_v36((char*)self + 0x30);
     }
 }
 
@@ -2252,7 +2252,7 @@ extern "C" void* func_003422E8(void* self, int a1, sVEntry003422E8** stream)
 }
 
 //100%
-extern "C" float func_002D1C70();
+extern "C" float World_GetSecondsPerTick();
 extern "C" int func_0034EBA0(void* p);
 
 struct sSphCtl_00342358 {
@@ -2287,7 +2287,7 @@ static inline float absf_00342358(float x)
 extern "C" int cAnimTeeterNode_update(sSphCtl_00342358* s)
 {
     s->prev = s->pos;
-    float dt = func_002D1C70();
+    float dt = World_GetSecondsPerTick();
     float force = s->gain * s->force;
     if (s->gain < 0.0f) {
         force = -force;
@@ -2438,8 +2438,8 @@ extern "C" void* cBoostModifier_cBoostModifier(void* self, sVEntry00342808** str
 }
 
 //100%
-extern "C" int func_002D1AF0();
-extern "C" void** func_002D1B08(int i);
+extern "C" int World_GetRiderCount();
+extern "C" void** World_GetRider(int i);
 
 struct sVEnt_00342880 { short delta; short index; void* fn; };
 typedef void (*Fn0_00342880)(void*);
@@ -2463,8 +2463,8 @@ extern "C" void cBoostModifier_update(sSph_342768* self)
     sVEnt_00342880* vt = (sVEnt_00342880*)self->vt;
     ((Fn0_00342880)vt[9].fn)((char*)self + vt[9].delta);
     if (self->type == 1 || self->t2C <= 0) {
-        for (int i = 0; i < func_002D1AF0(); i++) {
-            void** obj = func_002D1B08(i);
+        for (int i = 0; i < World_GetRiderCount(); i++) {
+            void** obj = World_GetRider(i);
             sVEnt_00342880* ovt = (sVEnt_00342880*)*obj;
             if (((Test_00342880)ovt[3].fn)((char*)obj + ovt[3].delta, self->a40) != 0) {
                 self->refs = 1;
@@ -2512,11 +2512,11 @@ public:
     virtual void setVelocity(sVec4_3429E0* v);
 };
 
-extern "C" float func_002D1C70();
+extern "C" float World_GetSecondsPerTick();
 
 extern "C" void cBoostModifier_scaleVelocity(void* self, cMover_3429E0* obj)
 {
-    sVec4_3429E0 u = vu0Scale_3429E0(vu0Scale_3429E0(*obj->getVelocity(), *(float*)((char*)self + 0x24) + 1.0f), func_002D1C70());
+    sVec4_3429E0 u = vu0Scale_3429E0(vu0Scale_3429E0(*obj->getVelocity(), *(float*)((char*)self + 0x24) + 1.0f), World_GetSecondsPerTick());
     obj->setVelocity(&u);
 }
 

@@ -148,7 +148,7 @@ extern "C" int BXFILE_exists(char* name);
 extern "C" void func_003DED50(char* name, int a1, int a2, void* out);
 extern char D_00461418[];
 
-extern "C" void* func_001A3590(void* self)
+extern "C" void* cFEAsyncManager_ctor(void* self)
 {
     if (BXFILE_exists(D_00461418) != 0) {
         func_003DED50(D_00461418, 0, 0x64, (char*)self + 0x58C);

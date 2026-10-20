@@ -2,7 +2,7 @@
 
 //100%
 extern "C" void* cMemMan_alloc(int size, const char* tag, unsigned int flags, int d);
-extern "C" void* func_0026D0A0(void* self);
+extern "C" void* ReplayCache_ctor(void* self);
 extern const char D_004817B0[];
 
 extern "C" void* cReplay_addCache(void* self)
@@ -10,7 +10,7 @@ extern "C" void* cReplay_addCache(void* self)
     void** slot = (void**)((char*)self + 0x48C);
     for (int i = 0; i < 2; i++, slot++) {
         if (*slot == 0) {
-            return *slot = func_0026D0A0(cMemMan_alloc(0x10, D_004817B0, 0, 0));
+            return *slot = ReplayCache_ctor(cMemMan_alloc(0x10, D_004817B0, 0, 0));
         }
     }
     return 0;
@@ -630,11 +630,11 @@ extern "C" void func_00270E18(sRcSlots* self)
 }
 
 //100%
-extern "C" void func_00270F20(void* self);
+extern "C" void Replay_AllocSaveBuffers(void* self);
 
 extern "C" void func_00270E68(void* self)
 {
-    func_00270F20(self);
+    Replay_AllocSaveBuffers(self);
     *(int*)((char*)self + 0x638) = 0;
     *(int*)((char*)self + 0x644) = 0;
     *(int*)((char*)self + 0x648) = 0;
@@ -681,7 +681,7 @@ void* operator_new_tag(unsigned int size, const char* tag, int flags, int d) __a
 extern const char D_00481800[];
 extern const char D_00481810[];
 
-extern "C" void func_00270F20(void* self)
+extern "C" void Replay_AllocSaveBuffers(void* self)
 {
     *(void**)((char*)self + 0x63C) = cMemMan_alloc(0x4000, D_00481800, 0x20000000, 0);
     *(void**)((char*)self + 0x640) = operator_new_tag(0xC800, D_00481810, 0x20000000, 0);
@@ -1188,7 +1188,7 @@ extern "C" void func_00272288(int* self)
 extern "C" void* func_002718E8(int, int);
 
 //99.38%
-void* func_002722C0(void* self)
+void* Replay_GlobalCtors(void* self)
 {
     return func_002718E8(1, 0xffff);
 }
@@ -1443,7 +1443,7 @@ extern "C" int func_002725F0(sRcTrack25F0* self, unsigned int* data, int key)
 }
 
 //100%
-void func_00272680(void* self)
+void InSeq_CurveTrackStop(void* self)
 {
     *(int*)((char*)self + 0x8) = 0;
     *(int*)((char*)self + 0xc) = 0;
@@ -3387,7 +3387,7 @@ void* func_002752F0(void* self)
 }
 
 //100%
-int func_002752F8(void* self)
+int InSeq_CurveTrack_v05(void* self)
 {
     return *(int*)((char*)self + 0x20);
 }
@@ -3423,7 +3423,7 @@ void* func_00275328(void* self)
 }
 
 //100%
-int func_00275330(void* self)
+int InSeq_SpanTrack_v05(void* self)
 {
     return *(int*)((char*)self + 0x24);
 }
@@ -3453,7 +3453,7 @@ void* func_00275358(void* self)
 }
 
 //100%
-int func_00275360(void* self)
+int InSeq_EventTrack_v05(void* self)
 {
     return *(int*)((char*)self + 0x1C);
 }
@@ -3483,7 +3483,7 @@ void* func_00275388(void* self)
 }
 
 //100%
-int func_00275390(void* self)
+int InSeq_RampTrack_v05(void* self)
 {
     return *(int*)((char*)self + 0x20);
 }

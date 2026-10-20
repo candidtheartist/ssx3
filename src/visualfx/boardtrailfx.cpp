@@ -286,7 +286,7 @@ extern void* D_00487F30[];
 extern "C" void* func_00354648(void* self);
 extern "C" void func_002EAA28(void* self);
 
-extern "C" void* func_002EA670(void* self)
+extern "C" void* cCutSceneTransitionMan_ctor(void* self)
 {
     func_00354648(self);
     *(void***)((char*)self + 0xC) = D_00487F30;

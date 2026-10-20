@@ -210,12 +210,12 @@ struct sMat00391C48 {
 } __attribute__((aligned(16)));
 
 extern sMat00391C48 D_00500CA0;
-extern "C" void func_004186C8(sMat00391C48* m);
+extern "C" void vsprintf(sMat00391C48* m);
 extern "C" void func_00391CB0(void* self, float x, float y, sMat00391C48* m);
 
 extern "C" void func_00391C48(void* self, float x, float y)
 {
-    func_004186C8(&D_00500CA0);
+    vsprintf(&D_00500CA0);
     func_00391CB0(self, x, y, &D_00500CA0);
 }
 
@@ -938,26 +938,26 @@ int func_00393FB0(void* self)
 }
 
 //100%
-extern "C" void func_00393FB8(void* self, int a1, int a2)
+extern "C" void GraphicsMan_SetScreenOffset(void* self, int a1, int a2)
 {
     *(float*)self = (float)a1;
     *(float*)((char*)self + 0x4) = (float)a2;
 }
 
 //100%
-extern "C" int func_00393FD8(void* self)
+extern "C" int GraphicsMan_GetScreenOffsetX(void* self)
 {
     return (int)*(float*)self;
 }
 
 //100%
-extern "C" int func_00393FF0(void* self)
+extern "C" int GraphicsMan_GetScreenOffsetY(void* self)
 {
     return (int)*(float*)((char*)self + 0x4);
 }
 
 //100%
-void func_00394008(void* self)
+void GraphicsMan_v16(void* self)
 {
 }
 
@@ -1379,7 +1379,7 @@ void func_003942C8(void* self)
 }
 
 //100%
-void func_003942D0(void* self)
+void GraphicsMan_v62(void* self)
 {
 }
 
@@ -1390,7 +1390,7 @@ void* func_003942D8(void* self)
 }
 
 //100%
-void func_003942E0(void* self)
+void GraphicsMan_v65(void* self)
 {
 }
 
@@ -1506,12 +1506,12 @@ void func_003945C0(void* self)
 }
 
 //100%
-void func_003945C8(void* self)
+void GraphicsMan_v74(void* self)
 {
 }
 
 //100%
-void func_003945D0(void* self)
+void GraphicsMan_v88(void* self)
 {
 }
 
@@ -1526,7 +1526,7 @@ void func_003945E0(void* self)
 }
 
 //100%
-void func_003945E8(void* self)
+void GraphicsMan_v98(void* self)
 {
 }
 
@@ -1550,62 +1550,62 @@ void func_00394610(void* self)
 }
 
 //100%
-void func_00394618(void* self)
+void GraphicsMan_v102(void* self)
 {
 }
 
 //100%
-void func_00394620(void* self)
+void GraphicsMan_v103(void* self)
 {
 }
 
 //100%
-void func_00394628(void* self)
+void GraphicsMan_v104(void* self)
 {
 }
 
 //100%
-void func_00394630(void* self)
+void GraphicsMan_v105(void* self)
 {
 }
 
 //100%
-void func_00394638(void* self)
+void GraphicsMan_v106(void* self)
 {
 }
 
 //100%
-void func_00394640(void* self)
+void GraphicsMan_v107(void* self)
 {
 }
 
 //100%
-void func_00394648(void* self)
+void GraphicsMan_v108(void* self)
 {
 }
 
 //100%
-void func_00394650(void* self)
+void GraphicsMan_v109(void* self)
 {
 }
 
 //100%
-void func_00394658(void* self)
+void GraphicsMan_v110(void* self)
 {
 }
 
 //100%
-void func_00394660(void* self)
+void GraphicsMan_v111(void* self)
 {
 }
 
 //100%
-void func_00394668(void* self)
+void GraphicsMan_v112(void* self)
 {
 }
 
 //100%
-void func_00394670(void* self)
+void GraphicsMan_v113(void* self)
 {
 }
 
@@ -1879,23 +1879,23 @@ extern "C" int func_00394B70()
 }
 
 //100%
-void func_00394B78(void* self)
+void BezierManBase_v04(void* self)
 {
 }
 
 //100%
-void func_00394B80(void* self)
+void BezierManBase_v05(void* self)
 {
 }
 
 //100%
-void func_00394B88(void* self, float val)
+void BezierManBase_v19(void* self, float val)
 {
     *(float*)((char*)self + 0x0) = val;
 }
 
 //100%
-float func_00394B90(void* self)
+float BezierManBase_v20(void* self)
 {
     return *(float*)((char*)self + 0x0);
 }
@@ -1960,43 +1960,43 @@ float func_00394BD8(void* self)
 }
 
 //100%
-void func_00394BE0(void* self, int val)
+void PS2BezierMan_v10(void* self, int val)
 {
     *(int*)((char*)self + 0x354) = val;
 }
 
 //100%
-void func_00394BE8(void* self, int val)
+void PS2BezierMan_v11(void* self, int val)
 {
     *(int*)((char*)self + 0x344) = val;
 }
 
 //100%
-void func_00394BF0(void* self, int val)
+void PS2BezierMan_v12(void* self, int val)
 {
     *(int*)((char*)self + 0x34C) = val;
 }
 
 //100%
-void func_00394BF8(void* self, int val)
+void PS2BezierMan_v13(void* self, int val)
 {
     *(int*)((char*)self + 0x350) = val;
 }
 
 //100%
-int func_00394C00(void* self)
+int PS2BezierMan_v14(void* self)
 {
     return *(int*)((char*)self + 0x344);
 }
 
 //100%
-int func_00394C08(void* self)
+int PS2BezierMan_v15(void* self)
 {
     return *(int*)((char*)self + 0x34C);
 }
 
 //100%
-int func_00394C10(void* self)
+int PS2BezierMan_v16(void* self)
 {
     return *(int*)((char*)self + 0x350);
 }
@@ -2099,22 +2099,22 @@ extern "C" char* func_00394D18(void* self)
 }
 
 //100%
-void func_00394D30(void* self)
+void LightMan_v08(void* self)
 {
 }
 
 //100%
-void func_00394D38(void* self)
+void LightMan_v13(void* self)
 {
 }
 
 //100%
-void func_00394D40(void* self)
+void LightMan_v14(void* self)
 {
 }
 
 //100%
-void func_00394D48(void* self)
+void LightMan_v15(void* self)
 {
 }
 
@@ -2167,8 +2167,8 @@ struct sFontCache {
 
 inline void* operator new(unsigned int, void* p) { return p; }
 
-INCLUDE_ASM("render/font", func_00394D50);
-extern "C" void* func_00394D50(void* self);
+INCLUDE_ASM("render/font", DeferMan_ctor);
+extern "C" void* DeferMan_ctor(void* self);
 
 //100%
 struct sGlyphKey {
@@ -2200,7 +2200,7 @@ static inline int glyphKeyEq(const int* a, const int* b)
     return 1;
 }
 
-extern "C" sGlyphEntry* func_00394ED0(sGlyphCache* self, sGlyphKey* key, unsigned char hash)
+extern "C" sGlyphEntry* DeferMan_InternState(sGlyphCache* self, sGlyphKey* key, unsigned char hash)
 {
     sGlyphEntry** pp = &self->buckets[hash];
     while (*pp != 0) {
@@ -2223,7 +2223,7 @@ extern "C" sGlyphEntry* func_00394ED0(sGlyphCache* self, sGlyphKey* key, unsigne
     return e;
 }
 
-INCLUDE_ASM("render/font", func_00395000);
+INCLUDE_ASM("render/font", DeferMan_FindBucket);
 
 //100%
 struct sVec50C0 {
@@ -2296,8 +2296,8 @@ struct sRenderSlot5288 {
     sRenderSlot5288() {}
 };
 
-INCLUDE_ASM("render/font", func_00395288);
-extern "C" void* func_00395288(void* self);
+INCLUDE_ASM("render/font", PS2GraphicsMan_ctor);
+extern "C" void* PS2GraphicsMan_ctor(void* self);
 
 //100%
 int func_00395318(void* self)
@@ -2306,7 +2306,7 @@ int func_00395318(void* self)
 }
 
 //100%
-int func_00395320(void* self)
+int PS2GraphicsMan_IsProgressive(void* self)
 {
     return *(int*)((char*)self + 0x5A4C);
 }
@@ -2327,7 +2327,7 @@ struct sFontEntry {
 };
 
 //100%
-extern "C" int func_00395330(void* self)
+extern "C" int PS2GraphicsMan_GetScreenWidth(void* self)
 {
     int i = *(int*)((char*)self + 0x59c8);
     sFontEntry* p = *(sFontEntry**)((char*)self + 0x59cc);
@@ -2335,7 +2335,7 @@ extern "C" int func_00395330(void* self)
 }
 
 //100%
-extern "C" int func_00395350(void* self)
+extern "C" int PS2GraphicsMan_GetScreenHeight(void* self)
 {
     int i = *(int*)((char*)self + 0x59c8);
     sFontEntry* p = *(sFontEntry**)((char*)self + 0x59cc);
@@ -2431,12 +2431,12 @@ void* func_00395500(void* self)
 }
 
 //100%
-void func_00395508(void* self)
+void PS2GraphicsMan_v110(void* self)
 {
 }
 
 //100%
-int func_00395510(void* self)
+int PS2GraphicsMan_GetFlipCount(void* self)
 {
     return *(int*)((char*)self + 0x5A74);
 }
@@ -2595,7 +2595,7 @@ extern "C" int func_003956D8(void* self)
 }
 
 //100%
-void func_003956E0(void* self, int val)
+void PS2GraphicsMan_v98(void* self, int val)
 {
     *(int*)((char*)self + 0x6D14) = val;
 }
@@ -2603,7 +2603,7 @@ void func_003956E0(void* self, int val)
 //100%
 // Matrix stack push: duplicate the top 4x4 matrix into the next slot, then advance.
 // PORT: PS2-only VU0 inline asm (lqc2/sqc2 matrix copy); the PC port needs a plain 64-byte copy.
-extern "C" void func_003956E8(void* self)
+extern "C" void PS2GraphicsMan_PushMatrix(void* self)
 {
     char* top = *(char**)((char*)self + 0x13e4);
     __asm__ __volatile__(
@@ -2625,19 +2625,19 @@ extern "C" void func_003956E8(void* self)
 }
 
 //100%
-void func_00395730(void* self)
+void PS2GraphicsMan_PopMatrix(void* self)
 {
     *(int*)((char*)self + 0x6b90) = 0;
     *(char**)((char*)self + 0x13e4) -= 0x40;
     *(int*)((char*)self + 0x13e0) -= 1;
 }
 
-INCLUDE_ASM("render/font", func_00395750);
+INCLUDE_ASM("render/font", PS2GraphicsMan_v33);
 
 //100%
 // Load matrix m into the top of the matrix stack and clear the cached flag at 0x6b90.
 // PORT: PS2-only VU0 inline asm (lqc2/sqc2 matrix copy); the PC port needs a plain 64-byte copy.
-extern "C" void func_00395C38(void* self, void* m)
+extern "C" void PS2GraphicsMan_LoadMatrix(void* self, void* m)
 {
     __asm__ __volatile__(
         ".set noreorder\n"
@@ -2657,7 +2657,7 @@ extern "C" void func_00395C38(void* self, void* m)
 }
 
 //100%
-int func_00395C68(void* self)
+int PS2GraphicsMan_GetMatrix(void* self)
 {
     return *(int*)((char*)self + 0x13E4);
 }
@@ -2711,7 +2711,7 @@ extern char D_004FF1A0[];
 // Load the matrix D_004FF1A0 (likely identity) into the top of the matrix stack
 // and clear the cached flag at 0x6b90.
 // PORT: PS2-only VU0 inline asm (lqc2/sqc2 matrix copy); the PC port needs a plain 64-byte copy.
-extern "C" void func_00395CF0(void* self)
+extern "C" void PS2GraphicsMan_LoadIdentity(void* self)
 {
     __asm__ __volatile__(
         ".set noreorder\n"
@@ -2854,7 +2854,7 @@ void* func_00395F80(void* self)
 }
 
 //100%
-void func_00395FA0(void* self)
+void PS2GraphicsMan_v68(void* self)
 {
 }
 
@@ -2907,13 +2907,13 @@ extern "C" void func_003960E8(void* a, void* b)
 }
 
 //100%
-int func_00396108(void* self)
+int cPS2GridMesh_IsValid(void* self)
 {
     return *(int*)((char*)self + 0x1C8);
 }
 
 //100%
-extern "C" void func_00396110(void* self, float range)
+extern "C" void cPS2GridMesh_SetScale(void* self, float range)
 {
     *(float*)((char*)self + 0x194) = range;
     *(float*)((char*)self + 0x198) = 32767.0f / range;
@@ -3568,7 +3568,7 @@ extern "C" int* func_003968B8()
 }
 
 //100%
-void func_003968C8(void* self)
+void VfxTube_Render(void* self)
 {
 }
 
@@ -3584,7 +3584,7 @@ void operator_delete(int* ptr);
 
 extern char D_00488680[];
 
-extern "C" void func_003968E8(int* self, int flags)
+extern "C" void PathArrow_dtor(int* self, int flags)
 {
     *(void**)self = D_00488680;
     if (flags & 1) {
@@ -3593,12 +3593,12 @@ extern "C" void func_003968E8(int* self, int flags)
 }
 
 //100%
-void func_00396918(void* self)
+void PathArrow_Update(void* self)
 {
 }
 
 //100%
-void func_00396920(void* self)
+void PathArrow_Render(void* self)
 {
 }
 
@@ -3607,7 +3607,7 @@ void operator_delete(int* ptr);
 
 extern char D_00488680[];
 
-extern "C" void func_00396928(int* self, int flags)
+extern "C" void DetailSystem_dtor(int* self, int flags)
 {
     *(void**)self = D_00488680;
     if (flags & 1) {
@@ -3616,7 +3616,7 @@ extern "C" void func_00396928(int* self, int flags)
 }
 
 //100%
-void func_00396958(void* self)
+void DetailSystem_v05(void* self)
 {
 }
 
@@ -3835,7 +3835,7 @@ struct sRS_6B40 {
 };
 
 // Emits the font's GS setup packet (register set + the 10 cached qwords) and a VU call for the glyph program.
-extern "C" void func_00396B40(char* self)
+extern "C" void PS2GraphicsMan_EmitLightingPacket(char* self)
 {
     sRS_6B40* rs = *(sRS_6B40**)(self + 0xE84);
     unsigned int addrMask = 0x3FFFFFFF;

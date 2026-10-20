@@ -2,7 +2,7 @@
 
 INCLUDE_ASM("fe/fepopup2", cFEStateNetHelpPopup_onCreateScreen);
 
-INCLUDE_ASM("fe/fepopup2", func_001D9E20);
+INCLUDE_ASM("fe/fepopup2", cFEStateNetHelpPopup_v24);
 
 INCLUDE_ASM("fe/fepopup2", func_001D9E68);
 

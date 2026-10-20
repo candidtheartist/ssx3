@@ -16,7 +16,7 @@ extern void* D_004A28A8;
 extern "C" void func_0019DC20(void* self, int bank, int i);
 extern "C" void func_0039E390(void* self, int flags);
 
-extern "C" void func_001D28F8(void* self, int flags)
+extern "C" void cFEStateMountainRoom_dtor(void* self, int flags)
 {
     *(void***)((char*)self + 8) = D_00469858;
     int slot = *(int*)((char*)self + 0xBC);

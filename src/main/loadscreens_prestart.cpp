@@ -222,7 +222,7 @@ void func_00232710(void* self)
 }
 
 //100%
-void func_00232718(void* self)
+void cPreFELoadScreen_Load(void* self)
 {
 }
 

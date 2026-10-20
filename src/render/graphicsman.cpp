@@ -1003,7 +1003,7 @@ INCLUDE_ASM("render/graphicsman", func_0036D500);
 extern char D_00493160[];
 void func_002F7A68(void*);
 
-extern "C" void* func_00370018(void* self)
+extern "C" void* Emitter_ctor(void* self)
 {
     *(void**)((char*)self + 0x18C) = D_00493160;
     func_002F7A68((char*)self + 0x10);

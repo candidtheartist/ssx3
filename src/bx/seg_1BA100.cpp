@@ -1435,317 +1435,317 @@ extern "C" void func_002BC4E0(void) {
 }
 
 //100%
-extern "C" int func_002BC500(void) {
+extern "C" int tWPIGD_Base_GetMusicTrigger08(void) {
     return 0;
 }
 
 //100%
-extern "C" int func_002BC508(void) {
+extern "C" int tWPIGD_Base_GetMusicTrigger10(void) {
     return 0;
 }
 
 //100%
-extern "C" int func_002BC510(void) {
+extern "C" int tWPIGD_Base_GetMix08(void) {
     return 0;
 }
 
 //100%
-extern "C" int func_002BC518(void) {
+extern "C" int tWPIGD_Base_GetAmbience08(void) {
     return 0;
 }
 
 //100%
-extern "C" int func_002BC520(void) {
+extern "C" int tWPIGD_Base_GetSpeech08(void) {
     return 0;
 }
 
 //100%
-extern "C" int func_002BC528(void) {
+extern "C" int tWPIGD_Base_GetCamera08(void) {
     return 0;
 }
 
 //100%
-extern "C" int func_002BC530(void) {
+extern "C" int tWPIGD_Base_GetFog08(void) {
     return 0;
 }
 
 //100%
-extern "C" int func_002BC538(void) {
+extern "C" int tWPIGD_Base_GetFog10(void) {
     return 0;
 }
 
 //100%
-extern "C" int func_002BC540(void) {
+extern "C" int tWPIGD_Base_GetFog18(void) {
     return 0;
 }
 
 //100%
-extern "C" int func_002BC548(void) {
+extern "C" int tWPIGD_Base_GetFog20(void) {
     return 0;
 }
 
 //100%
-extern "C" int func_002BC550(void) {
+extern "C" int tWPIGD_Base_GetFog28(void) {
     return 0;
 }
 
 //100%
-extern "C" int func_002BC558(void) {
+extern "C" int tWPIGD_Base_GetFog30(void) {
     return 0;
 }
 
 //100%
-extern "C" int func_002BC560(void) {
+extern "C" int tWPIGD_Base_GetLightGlow08(void) {
     return 0;
 }
 
 //100%
-extern "C" int func_002BC568(void) {
+extern "C" int tWPIGD_Base_GetLightGlow10(void) {
     return 0;
 }
 
 //100%
-extern "C" int func_002BC570(void) {
+extern "C" int tWPIGD_Base_GetLightGlow18(void) {
     return 0;
 }
 
 //100%
-extern "C" int func_002BC578(void) {
+extern "C" int tWPIGD_Base_GetLightGlow20(void) {
     return 0;
 }
 
 //100%
-extern "C" int func_002BC580(void) {
+extern "C" int tWPIGD_Base_GetLightGlow28(void) {
     return 0;
 }
 
 //100%
-extern "C" int func_002BC588(void) {
+extern "C" int tWPIGD_Base_GetLightGlow30(void) {
     return 0;
 }
 
 //100%
-extern "C" int func_002BC590(void) {
+extern "C" int tWPIGD_Base_GetLightGlow38(void) {
     return 0;
 }
 
 //100%
-extern "C" int func_002BC598(void) {
+extern "C" int tWPIGD_Base_GetScreenTintRed(void) {
     return 0;
 }
 
 //100%
-extern "C" int func_002BC5A0(void) {
+extern "C" int tWPIGD_Base_GetScreenTintGreen(void) {
     return 0;
 }
 
 //100%
-extern "C" int func_002BC5A8(void) {
+extern "C" int tWPIGD_Base_GetScreenTintBlue(void) {
     return 0;
 }
 
 //100%
-extern "C" int func_002BC5B0(void) {
+extern "C" int tWPIGD_Base_GetScreenFillRed(void) {
     return 0;
 }
 
 //100%
-extern "C" int func_002BC5B8(void) {
+extern "C" int tWPIGD_Base_GetScreenFillGreen(void) {
     return 0;
 }
 
 //100%
-extern "C" int func_002BC5C0(void) {
+extern "C" int tWPIGD_Base_GetScreenFillBlue(void) {
     return 0;
 }
 
 //100%
-extern "C" int func_002BC5C8(void) {
+extern "C" int tWPIGD_Base_GetSkyBox08(void) {
     return 0;
 }
 
 //100%
-extern "C" int func_002BC5D0(void) {
+extern "C" int tWPIGD_Base_GetSunElevation(void) {
     return 0;
 }
 
 //100%
-extern "C" int func_002BC5D8(void) {
+extern "C" int tWPIGD_Base_GetSunAzimuth(void) {
     return 0;
 }
 
 //100%
-extern "C" int func_002BC5E0(void) {
+extern "C" int tWPIGD_Base_GetSunRed(void) {
     return 0;
 }
 
 //100%
-extern "C" int func_002BC5E8(void) {
+extern "C" int tWPIGD_Base_GetSunGreen(void) {
     return 0;
 }
 
 //100%
-extern "C" int func_002BC5F0(void) {
+extern "C" int tWPIGD_Base_GetSunBlue(void) {
     return 0;
 }
 
 //100%
-extern "C" int func_002BC5F8(void) {
+extern "C" int tWPIGD_Base_GetSunIntensity(void) {
     return 0;
 }
 
 //100%
-extern "C" int func_002BC600(void) {
+extern "C" int tWPIGD_Base_GetSunTexture(void) {
     return 0;
 }
 
 //100%
-extern "C" int func_002BC608(void) {
+extern "C" int tWPIGD_Base_GetSunFlareIntensity(void) {
     return 0;
 }
 
 //100%
-extern "C" int func_002BC610(void) {
+extern "C" int tWPIGD_Base_GetSunSize(void) {
     return 0;
 }
 
 //100%
-extern "C" int func_002BC618(void) {
+extern "C" int tWPIGD_Base_GetSurface08(void) {
     return 0;
 }
 
 //100%
-extern "C" int func_002BC620(void) {
+extern "C" int tWPIGD_Base_GetIrradianceName0(void) {
     return 0;
 }
 
 //100%
-extern "C" int func_002BC628(void) {
+extern "C" int tWPIGD_Base_GetIrradianceName1(void) {
     return 0;
 }
 
 //100%
-extern "C" int func_002BC630(void) {
+extern "C" int tWPIGD_Base_GetIrradianceName2(void) {
     return 0;
 }
 
 //100%
-extern "C" int func_002BC638(void) {
+extern "C" int tWPIGD_Base_GetIrradianceName3(void) {
     return 0;
 }
 
 //100%
-extern "C" int func_002BC640(void) {
+extern "C" int tWPIGD_Base_GetLighting48(void) {
     return 0;
 }
 
 //100%
-extern "C" int func_002BC648(void) {
+extern "C" int tWPIGD_Base_GetLighting50(void) {
     return 0;
 }
 
 //100%
-extern "C" int func_002BC650(void) {
+extern "C" int tWPIGD_Base_GetWeather08(void) {
     return 0;
 }
 
 //100%
-extern "C" int func_002BC658(void) {
+extern "C" int tWPIGD_Base_GetWeather10(void) {
     return 0;
 }
 
 //100%
-extern "C" int func_002BC660(void) {
+extern "C" int tWPIGD_Base_GetWeather18(void) {
     return 0;
 }
 
 //100%
-extern "C" int func_002BC668(void) {
+extern "C" int tWPIGD_Base_GetWeather20(void) {
     return 0;
 }
 
 //100%
-extern "C" int func_002BC670(void) {
+extern "C" int tWPIGD_Base_GetWeather28(void) {
     return 0;
 }
 
 //100%
-extern "C" int func_002BC678(void) {
+extern "C" int tWPIGD_Base_GetWeather30(void) {
     return 0;
 }
 
 //100%
-extern "C" int func_002BC680(void) {
+extern "C" int tWPIGD_Base_GetWeather38(void) {
     return 0;
 }
 
 //100%
-extern "C" int func_002BC688(void) {
+extern "C" int tWPIGD_Base_GetWeather40(void) {
     return 0;
 }
 
 //100%
-extern "C" int func_002BC690(void) {
+extern "C" int tWPIGD_Base_GetWeather48(void) {
     return 0;
 }
 
 //100%
-extern "C" int func_002BC698(void) {
+extern "C" int tWPIGD_Base_GetWeather50(void) {
     return 0;
 }
 
 //100%
-extern "C" int func_002BC6A0(void) {
+extern "C" int tWPIGD_Base_GetWeather58(void) {
     return 0;
 }
 
 //100%
-extern "C" int func_002BC6A8(void) {
+extern "C" int tWPIGD_Base_GetWeather60(void) {
     return 0;
 }
 
 //100%
-extern "C" int func_002BC6B0(void) {
+extern "C" int tWPIGD_Base_GetWeather68(void) {
     return 0;
 }
 
 //100%
-extern "C" int func_002BC6B8(void) {
+extern "C" int tWPIGD_Base_GetWeather70(void) {
     return 0;
 }
 
 //100%
-extern "C" int func_002BC6C0(void) {
+extern "C" int tWPIGD_Base_GetWeather78(void) {
     return 0;
 }
 
 //100%
-extern "C" int func_002BC6C8(void) {
+extern "C" int tWPIGD_Base_GetWeather80(void) {
     return 0;
 }
 
 //100%
-extern "C" int func_002BC6D0(void) {
+extern "C" int tWPIGD_Base_GetWeather88(void) {
     return 0;
 }
 
 //100%
-extern "C" int func_002BC6D8(void) {
+extern "C" int tWPIGD_Base_GetWeather90(void) {
     return 0;
 }
 
 //100%
-extern "C" int func_002BC6E0(void) {
+extern "C" int tWPIGD_Base_GetWeather98(void) {
     return 0;
 }
 
 //100%
-extern "C" int func_002BC6E8(void) {
+extern "C" int tWPIGD_Base_GetDanger08(void) {
     return 0;
 }
 
 //100%
-extern "C" int func_002BC6F0(void) {
+extern "C" int tWPIGD_Base_GetDanger10(void) {
     return 0;
 }
 
@@ -2291,43 +2291,43 @@ extern "C" void func_002BD968(void *self, void *p, float f) {
 extern "C" void func_002BDA28(void) {
 }
 
-extern "C" void func_002BDA30(void) {
+extern "C" void tWPIGD_Ambience_v67(void) {
 }
 
-extern "C" void func_002BDA38(void) {
+extern "C" void tWPIGD_Camera_v67(void) {
 }
 
-extern "C" void func_002BDA40(void) {
+extern "C" void tWPIGD_Danger_v67(void) {
 }
 
-extern "C" void func_002BDA48(void) {
+extern "C" void tWPIGD_Fog_v67(void) {
 }
 
-extern "C" void func_002BDA50(void) {
+extern "C" void tWPIGD_LightGlow_v67(void) {
 }
 
-extern "C" void func_002BDA58(void) {
+extern "C" void tWPIGD_Lighting_v67(void) {
 }
 
-extern "C" void func_002BDA60(void) {
+extern "C" void tWPIGD_Mix_v67(void) {
 }
 
-extern "C" void func_002BDA68(void) {
+extern "C" void tWPIGD_ScreenTint_v67(void) {
 }
 
-extern "C" void func_002BDA70(void) {
+extern "C" void tWPIGD_SkyBox_v67(void) {
 }
 
-extern "C" void func_002BDA78(void) {
+extern "C" void tWPIGD_Speech_v67(void) {
 }
 
-extern "C" void func_002BDA80(void) {
+extern "C" void tWPIGD_Sun_v67(void) {
 }
 
-extern "C" void func_002BDA88(void) {
+extern "C" void tWPIGD_Surface_v67(void) {
 }
 
-extern "C" void func_002BDA90(void) {
+extern "C" void tWPIGD_Weather_v67(void) {
 }
 
 //100%

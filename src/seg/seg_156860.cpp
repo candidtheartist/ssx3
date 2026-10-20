@@ -129,7 +129,7 @@ extern "C" void func_00255A20(char* self)
 //100%
 // PORT: PS2-only inline asm; needs a C fallback off-PS2.
 extern "C" void *cMemMan_alloc_5BF8(int, char *, int, int) __asm__("cMemMan_alloc");
-extern "C" void *func_00256698_5BF8(void *) __asm__("func_00256698");
+extern "C" void *cDSockChannel_ctor_5BF8(void *) __asm__("cDSockChannel_ctor");
 extern "C" void func_00256860_5BF8(void *, int, int) __asm__("func_00256860");
 extern "C" void func_002568F8_5BF8(void *, int, int) __asm__("func_002568F8");
 extern char D_00480350[];
@@ -139,7 +139,7 @@ extern "C" int cCommSystem_openDSockChannel(void **slots, int a1, int a2, int a3
     int n = a2 & 0xFFFF;
     for (i = 0; i < 1; i++) {
         if (slots[i] == 0) {
-            void *obj = func_00256698_5BF8(cMemMan_alloc_5BF8(0x20, D_00480350, 0x20000000, 0));
+            void *obj = cDSockChannel_ctor_5BF8(cMemMan_alloc_5BF8(0x20, D_00480350, 0x20000000, 0));
             if (a3 != 0) {
                 func_002568F8_5BF8(obj, a1, n);
             } else {
@@ -544,7 +544,7 @@ extern "C" void func_002565E0(char *self) {
 void func_002557E0(void *);
 extern char D_004812D0[];
 
-extern "C" void *func_00256698(void *arg0) {
+extern "C" void *cDSockChannel_ctor(void *arg0) {
     func_002557E0(arg0);
     (*(char **)((char*)(arg0) + (8))) = D_004812D0;
     (*(float *)((char*)(arg0) + (0x10))) = 0.10000000149011612f;
@@ -570,12 +570,12 @@ extern "C" void func_002566E8(void *arg0, int arg1) {
 //100%
 // PORT: PS2-only inline asm; needs a C fallback off-PS2.
 extern "C" void func_003E6574_6730(char *, char *, int) __asm__("func_003E6574");
-extern "C" int func_003E6B10_6730(int, char *, int) __asm__("func_003E6B10");
+extern "C" int NetGameLinkRecv_6730(int, char *, int) __asm__("NetGameLinkRecv");
 
 extern "C" unsigned char func_00256730(char *self, char *dst, int maxlen) {
     unsigned char buf[0x108];
     if (*(int *)(self + 0xC) == 2) {
-        while (func_003E6B10_6730(*(int *)(self + 0x1C), (char *)buf, 1) > 0) {
+        while (NetGameLinkRecv_6730(*(int *)(self + 0x1C), (char *)buf, 1) > 0) {
             if (buf[2] == 5) {
                 if (buf[3] != 0 && maxlen >= (int)buf[3]) {
                     unsigned char n = buf[3];
@@ -593,7 +593,7 @@ extern "C" unsigned char func_00256730(char *self, char *dst, int maxlen) {
 
 //100%
 extern "C" void func_003E6574(char *, int, int);
-extern "C" int func_003E6C80(int, void *, int);
+extern "C" int NetGameLinkSend(int, void *, int);
 
 extern "C" int func_002567E0(char *self, int a1, int len) {
     char buf[0x108];
@@ -604,7 +604,7 @@ extern "C" int func_002567E0(char *self, int a1, int len) {
         buf[2] = 5;
         buf[3] = len;
         func_003E6574(buf + 4, a1, len);
-        return t < func_003E6C80(*(int *)(self + 0x1C), buf, 1);
+        return t < NetGameLinkSend(*(int *)(self + 0x1C), buf, 1);
     }
     return 0;
 }
@@ -612,8 +612,8 @@ extern "C" int func_002567E0(char *self, int a1, int len) {
 //100%
 // PORT: PS2-only inline asm; needs a C fallback off-PS2.
 extern "C" void func_00255830__FPv_6860(void *) __asm__("func_00255830__FPv");
-extern "C" int func_003E6E08_6860() __asm__("func_003E6E08");
-extern "C" int func_003E6F40_6860(int, int, void *) __asm__("func_003E6F40");
+extern "C" int NetGameUtilCreate_6860() __asm__("NetGameUtilCreate");
+extern "C" int NetGameUtilConnect_6860(int, int, void *) __asm__("NetGameUtilConnect");
 extern "C" int sprintf_6860(char *, const char *, ...) __asm__("sprintf");
 extern char D_00480448[];
 
@@ -623,11 +623,11 @@ extern "C" void func_00256860(char *self, int a1, int a2) {
     char *vt = *(char **)(self + 8);
     (*(void (**)(void *))(vt + 0x14))(self + *(short *)(vt + 0x10));
     func_00255830__FPv_6860(self);
-    int h = func_003E6E08_6860();
+    int h = NetGameUtilCreate_6860();
     *(int *)(self + 0x18) = h;
     if (h != 0) {
         sprintf_6860(buf, D_00480448, a1, n, n);
-        func_003E6F40_6860(*(int *)(self + 0x18), 0x101, buf);
+        NetGameUtilConnect_6860(*(int *)(self + 0x18), 0x101, buf);
         *(int *)(self + 0xC) = 1;
     }
 }
@@ -635,8 +635,8 @@ extern "C" void func_00256860(char *self, int a1, int a2) {
 //100%
 // PORT: PS2-only inline asm; needs a C fallback off-PS2.
 extern "C" void func_00255830__FPv_68F8(void *) __asm__("func_00255830__FPv");
-extern "C" int func_003E6E08_68F8() __asm__("func_003E6E08");
-extern "C" int func_003E6F40_68F8(int, int, void *) __asm__("func_003E6F40");
+extern "C" int NetGameUtilCreate_68F8() __asm__("NetGameUtilCreate");
+extern "C" int NetGameUtilConnect_68F8(int, int, void *) __asm__("NetGameUtilConnect");
 extern "C" int sprintf_68F8(char *, const char *, ...) __asm__("sprintf");
 extern char D_00480448[];
 
@@ -647,19 +647,19 @@ extern "C" void func_002568F8(char *self, int a1, int a2) {
     char *vt = *(char **)(self + 8);
     (*(void (**)(void *))(vt + 0x14))(self + *(short *)(vt + 0x10));
     func_00255830__FPv_68F8(self);
-    int h = func_003E6E08_68F8();
+    int h = NetGameUtilCreate_68F8();
     *(int *)(self + 0x18) = h;
     if (h != 0) {
         sprintf_68F8(buf, D_00480448, a1, n, n);
-        func_003E6F40_68F8(*(int *)(self + 0x18), 0x102, buf);
+        NetGameUtilConnect_68F8(*(int *)(self + 0x18), 0x102, buf);
         *(int *)(self + 0xC) = 1;
     }
 }
 
 //100%
 extern "C" void func_00255840();
-extern "C" void func_003E67F8(int);
-extern "C" void func_003E6E70(int);
+extern "C" void NetGameLinkDestroy(int);
+extern "C" void NetGameUtilDestroy(int);
 
 extern "C" void func_00256998(void *arg0) {
     int temp_4;
@@ -669,12 +669,12 @@ extern "C" void func_00256998(void *arg0) {
         func_00255840();
         temp_4 = (*(int *)((char*)(arg0) + (0x1C)));
         if (temp_4 != 0) {
-            func_003E67F8(temp_4);
+            NetGameLinkDestroy(temp_4);
             (*(int *)((char*)(arg0) + (0x1C))) = 0;
         }
         temp_4_2 = (*(int *)((char*)(arg0) + (0x18)));
         if (temp_4_2 != 0) {
-            func_003E6E70(temp_4_2);
+            NetGameUtilDestroy(temp_4_2);
             (*(int *)((char*)(arg0) + (0x18))) = 0;
         }
         (*(int *)((char*)(arg0) + (0xC))) = 0;
@@ -703,16 +703,16 @@ extern "C" void func_00256A00(char* self)
 }
 
 //100%
-extern "C" int func_003E66F0(int, int, int);
-extern "C" int func_003E6FC8(int);
+extern "C" int NetGameLinkCreate(int, int, int);
+extern "C" int NetGameUtilComplete(int);
 
 extern "C" void func_00256A58(void *arg0) {
     int temp_2;
     int temp_2_2;
 
-    temp_2 = func_003E6FC8((*(int *)((char*)(arg0) + (0x18))));
+    temp_2 = NetGameUtilComplete((*(int *)((char*)(arg0) + (0x18))));
     if (temp_2 != 0) {
-        temp_2_2 = func_003E66F0(temp_2, 0, 0x237C);
+        temp_2_2 = NetGameLinkCreate(temp_2, 0, 0x237C);
         (*(int *)((char*)(arg0) + (0x1C))) = temp_2_2;
         if (temp_2_2 != 0) {
             (*(int *)((char*)(arg0) + (0xC))) = 2;
@@ -755,7 +755,7 @@ extern "C" void func_00256AA8(char* s)
 }
 
 //100%
-extern "C" float func_00256BA8(void *arg0) {
+extern "C" float cDSockChannel_v05(void *arg0) {
     return (*(float *)((char*)(arg0) + (0x10)));
 }
 
@@ -779,12 +779,12 @@ extern "C" void func_00256BD8(int arg0) {
 
 //100%
 extern "C" int cMemMan_alloc(int, int *, int, int);
-extern "C" int func_00256C78(int, int, int);
+extern "C" int cGameComm_ctor(int, int, int);
 extern int D_004804B8[];
 extern int D_004A2EEC;
 
 extern "C" void cGameComm_construct(int arg0, int arg1) {
-    D_004A2EEC = func_00256C78(cMemMan_alloc(0x5F0, D_004804B8, 0x20000000, 0), arg0, arg1);
+    D_004A2EEC = cGameComm_ctor(cMemMan_alloc(0x5F0, D_004804B8, 0x20000000, 0), arg0, arg1);
 }
 
 //100%
@@ -803,7 +803,7 @@ void* cBE_getInterface_6C78(void* be, int kind) __asm__("cBE_getInterface__Fv");
 int func_0014E2C0(void* iface);
 extern "C" void func_00257038_6C78(void* self, int mode) __asm__("func_00257038");
 extern "C" void func_003E6448_6C78(void* p, int c, int n) __asm__("func_003E6448");
-extern "C" int func_003E7340();
+extern "C" int ProtoPingCreate();
 
 struct sGcQueue_6C78 {
     int wr;                 // 0x0
@@ -907,7 +907,7 @@ extern sGcGlobals_6C78* D_004A28A8_6C78 __asm__("D_004A28A8");
 // cGameComm setup (called by cGameComm_construct on a fresh 0x5F0-byte block): clears the session state,
 // the five packet queues and the two message buffers, and returns self.
 // PORT: the unit declares this as (int, int, int) returning int.
-extern "C" int func_00256C78(int vself, int port, int b)
+extern "C" int cGameComm_ctor(int vself, int port, int b)
 {
     sGameComm_6C78* self = (sGameComm_6C78*)vself;
     self->unk_6C = port;
@@ -991,7 +991,7 @@ extern "C" int func_00256C78(int vself, int port, int b)
     self->unk_40C = -1;
     func_003E6448_6C78(self->unk_410, 0, sizeof(self->unk_410));
     func_003E6448_6C78(self->unk_500, 0, sizeof(self->unk_500));
-    self->unk_140 = func_003E7340();
+    self->unk_140 = ProtoPingCreate();
     return (int)self;
 }
 
@@ -999,7 +999,7 @@ extern "C" int func_00256C78(int vself, int port, int b)
 extern "C" void cMemMan_free_6EE0(void *) __asm__("cMemMan_free__FPv");
 extern "C" void operator_delete__FPi(int *);
 extern "C" void func_002581B8(void *arg0, int *arg1);
-extern "C" void func_003E73E0(void* p);
+extern "C" void ProtoPingDestroy(void* p);
 
 struct PacketQueue_6EE0 {
     int wr;                 // 0x0
@@ -1030,7 +1030,7 @@ extern "C" void func_00256EE0(int self, int flags)
         }
     }
     if (*(void**)(s + 0x140)) {
-        func_003E73E0(*(void**)(s + 0x140));
+        ProtoPingDestroy(*(void**)(s + 0x140));
         *(void**)(s + 0x140) = 0;
     }
     if (flags & 1) operator_delete__FPi((int*)s);
@@ -1062,9 +1062,9 @@ extern "C" void func_00257038(char* self, int v)
     *(int*)(self + 0x70) = v;
 }
 
-extern "C" int func_003E7500_70D8(int, char *, int *, void *) __asm__("func_003E7500");
+extern "C" int ProtoPingResponse_70D8(int, char *, int *, void *) __asm__("ProtoPingResponse");
 extern "C" int func_00416B18_70D8(const char *, const char *, int) __asm__("func_00416B18");
-extern "C" int func_003E7450_70D8(int, int, char *, int) __asm__("func_003E7450");
+extern "C" int ProtoPingRequest_70D8(int, int, char *, int) __asm__("ProtoPingRequest");
 extern "C" void func_00258CB0_70D8(void *) __asm__("func_00258CB0");
 extern "C" void func_00257750_70D8(void *) __asm__("func_00257750");
 extern "C" int func_002577C8_70D8(void *) __asm__("func_002577C8");
@@ -1126,7 +1126,7 @@ extern "C" void func_002570D8(void *self)
 
     if (s->x138 > 0) {
         s->x138--;
-        while (len = 0x100, func_003E7500_70D8(s->h140, buf, &len, &from) != 0) {
+        while (len = 0x100, ProtoPingResponse_70D8(s->h140, buf, &len, &from) != 0) {
             int i;
             if (func_00416B18_70D8(buf, D_00481380, 13) != 0) continue;
             for (i = 0; i < s->count; i++) {
@@ -1142,7 +1142,7 @@ extern "C" void func_002570D8(void *self)
             if (s->delay > 0) {
                 s->delay--;
             } else {
-                s->peers[s->count++] = func_003E7450_70D8(s->h140, s->xC0, D_00481380, 14);
+                s->peers[s->count++] = ProtoPingRequest_70D8(s->h140, s->xC0, D_00481380, 14);
                 s->delay = 4;
             }
         }
@@ -1843,7 +1843,7 @@ extern "C" float func_00258360(void *arg0) {
 
 //100%
 // PORT: PS2-only inline asm; needs a C fallback off-PS2.
-extern "C" int func_003E7450_83A8(int, int, char *, int) __asm__("func_003E7450");
+extern "C" int ProtoPingRequest_83A8(int, int, char *, int) __asm__("ProtoPingRequest");
 extern char D_00481380[];
 extern int D_004A2EB8;
 
@@ -1862,7 +1862,7 @@ extern "C" void func_002583A8(S83A8 *self, int arg1, int arg2) {
     if (self->t138 <= 0) {
         self->count = 0;
         self->c0 = arg1;
-        self->arr[self->count++] = func_003E7450_83A8(self->h140, arg1, D_00481380, 0xE);
+        self->arr[self->count++] = ProtoPingRequest_83A8(self->h140, arg1, D_00481380, 0xE);
         self->bc = 4;
         self->t138 = arg2 * 0x3C;
         self->t13c = 0;

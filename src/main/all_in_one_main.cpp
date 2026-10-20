@@ -411,10 +411,10 @@ extern "C" void func_001DC900(void *self, int flags) {
     }
 }
 
-extern "C" void func_001DC930(void) {
+extern "C" void AppModule_Unload(void) {
 }
 
-extern "C" void func_001DC938(void) {
+extern "C" void AppModule_Enter(void) {
 }
 
 //100%
@@ -600,7 +600,7 @@ extern "C" void func_001DCBD8(void *self, int flags) {
 // PORT: PS2-only inline asm; needs a C fallback off-PS2.
 extern "C" void func_001E1090_CC08(void*, int) __asm__("func_001E1090");
 
-extern "C" void func_001DCC08(signed char *self, signed char v) {
+extern "C" void FELocale_v02(signed char *self, signed char v) {
     *self = v;
     func_001E1090_CC08(self, v == 2);
 }
@@ -635,7 +635,7 @@ extern "C" void *func_001DCC60(void *arg0) {
 void operator_delete(int*);
 extern void* D_0046DD28[];
 
-extern "C" void func_001DCC78(void *self, int flags) {
+extern "C" void cFECustom_dtor(void *self, int flags) {
     *(void***)((char*)self + 4) = D_0046DD28;
     if (flags & 1) {
         operator_delete((int*)self);
@@ -693,7 +693,7 @@ void operator_delete(int*);
 extern void* D_0046D948[];
 
 
-extern "C" void func_001DCD00(void *self, int flags) {
+extern "C" void cDebugMenuScreen_v01(void *self, int flags) {
     func_0017ABE0_CD00((char *)self + 0x8C10, 2);
     *(void ***)self = D_0046D948;
     if (flags & 1) {
@@ -1658,7 +1658,7 @@ extern int D_0046C980[];
 extern int D_00474E08[];
 extern unsigned short D_004A1390[];
 
-extern "C" void *func_001DDE18(void *self) {
+extern "C" void *cFEMemCard_ctor_3(void *self) {
     func_0039E2A0_DE18(self, 0);
     *(int *)((char *)self + 0x98) = 0;
     *(int *)((char *)self + 0x48) = 0;
@@ -2186,7 +2186,7 @@ extern "C" void *func_001DE628(void *self) {
 extern "C" void* func_0039E390_E668(void*) __asm__("func_0039E390");
 extern void* D_0046BB88[];
 
-extern "C" void* func_001DE668(void *self) {
+extern "C" void* cFEStateTransition_dtor(void *self) {
     *(void***)((char*)self + 8) = D_0046BB88;
     return func_0039E390_E668(self);
 }
@@ -2369,7 +2369,7 @@ extern "C" void func_001DE910(void) {
 extern "C" void* func_001A85D0_E918(void*) __asm__("func_001A85D0");
 extern void* D_0046B6F8[];
 
-extern "C" void* func_001DE918(void *self) {
+extern "C" void* FEScreenBlank_dtor(void *self) {
     *(void***)((char*)self + 8) = D_0046B6F8;
     return func_001A85D0_E918(self);
 }

@@ -1301,12 +1301,12 @@ extern "C" void* cBE_getBE();
 // PORT: cBE_getInterface__Fv is called with (be, kind) here; bind the 2-arg form to that symbol.
 void* cBE_getInterface_Fv(void* be, int kind) __asm__("cBE_getInterface__Fv");
 extern "C" void cRiderMetrix_onBigChallengeComplete(int, int);
-extern "C" void func_00159B08(void*, int, int);
+extern "C" void cBERewardInterface_OnMissionCompleted(void*, int, int);
 
 extern "C" void cRider_completeChallenge(void* self, int a, int b)
 {
     cRiderMetrix_onBigChallengeComplete(*(int*)((char*)self + 0x790), b);
-    func_00159B08(cBE_getInterface_Fv(cBE_getBE(), 0xD), *(int*)((char*)self + 0x86C), a);
+    cBERewardInterface_OnMissionCompleted(cBE_getInterface_Fv(cBE_getBE(), 0xD), *(int*)((char*)self + 0x86C), a);
 }
 
 //100%
@@ -1314,12 +1314,12 @@ extern "C" void* cBE_getBE();
 // PORT: cBE_getInterface__Fv is called with (be, kind) here; bind the 2-arg form to that symbol.
 void* cBE_getInterface_Fv(void* be, int kind) __asm__("cBE_getInterface__Fv");
 extern "C" void cRiderMetrix_awardCash(int, int);
-extern "C" void func_001599A0(void*, int, int);
+extern "C" void cBERewardInterface_OnCollectibleCollected(void*, int, int);
 
 extern "C" void cRider_awardCollectible(void* self, int a)
 {
     cRiderMetrix_awardCash(*(int*)((char*)self + 0x790), 3);
-    func_001599A0(cBE_getInterface_Fv(cBE_getBE(), 0xD), *(int*)((char*)self + 0x86C), a);
+    cBERewardInterface_OnCollectibleCollected(cBE_getInterface_Fv(cBE_getBE(), 0xD), *(int*)((char*)self + 0x86C), a);
 }
 
 extern "C" void* cAI_initPairRecords(void* self);
@@ -1956,7 +1956,7 @@ extern "C" void func_002F1148(void*);
 void func_002F64E8(void*);
 // PORT: cWorldPainterMan_reset is defined with an unused self param; this caller passes none.
 void cWorldPainterMan_reset_noarg() __asm__("cWorldPainterMan_reset__FPv");
-void* func_002306A8(void* self, int i);
+void* cGame_GetSplashManager(void* self, int i);
 extern void* D_004A28A8;
 
 struct sVEntry00111890 { short delta; short index; void (*fn)(void*); };
@@ -1979,7 +1979,7 @@ extern "C" void cMotionOwner_resetFX(void* self)
     int id = *(int*)(*(char**)(s + 0x18) + 0x870);
     if (id >= 0)
     {
-        char* obj = (char*)func_002306A8(*(void**)((char*)D_004A28A8 + 0x84), id);
+        char* obj = (char*)cGame_GetSplashManager(*(void**)((char*)D_004A28A8 + 0x84), id);
         if (obj != 0)
         {
             sVEntry00111890* vt = *(sVEntry00111890**)(obj + 0xC);

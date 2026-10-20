@@ -648,7 +648,7 @@ extern "C" void* func_0041605C(void* dst, const void* src, int n);
 void* operator_new_tag(unsigned int size, const char* tag, int flags, int d) __asm__("operator_new__FUi");
 extern char D_004940A8[];
 
-extern "C" int func_003A1958(void* self)
+extern "C" int cUITextScroll_GrowLines(void* self)
 {
     unsigned short old = *(unsigned short*)((char*)self + 0xC8);
     *(unsigned short*)((char*)self + 0xC8) = old + 1;
@@ -728,7 +728,7 @@ extern "C" void func_003A19F8(void* self, char* str)
 }
 
 //100% - objdiff report; single-function view differs only in a relocation name
-extern "C" int func_003A1958(void* self);
+extern "C" int cUITextScroll_GrowLines(void* self);
 extern "C" int USTR_length(unsigned short* s);
 extern "C" void USTR_copy(unsigned short* dst, unsigned short* src);
 // PORT: operator_new really takes (size, tag, flags, d); bound by asm label
@@ -737,7 +737,7 @@ extern char D_004940B8[];
 
 extern "C" void cUITextScroll_addUnicodeString(void* self, unsigned short* str)
 {
-    int idx = func_003A1958(self);
+    int idx = cUITextScroll_GrowLines(self);
     unsigned short* copy = (unsigned short*)operator_new_tag((USTR_length(str) + 1) * 2, D_004940B8, 0x100, 0);
     USTR_copy(copy, str);
     (*(unsigned short***)((char*)self + 0xBC))[idx] = copy;
@@ -945,7 +945,7 @@ extern "C" func_003A3280_s* func_003A3280(func_003A3280_s* self, int a1, int a2)
 extern "C" void func_0039FC48(void* self, int flags);
 extern void* D_004941B8[];
 
-extern "C" void func_003A32F0(void* self, int flags)
+extern "C" void UIVector_dtor(void* self, int flags)
 {
     *(void***)((char*)self + 0x8) = D_004941B8;
     if (*(void**)((char*)self + 0x7C) != 0) {
