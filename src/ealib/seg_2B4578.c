@@ -1417,7 +1417,45 @@ int func_003B7B48_impl(int arg0, int *out) {
     return 0;
 }
 
-INCLUDE_ASM("ealib/seg_2B4578", func_003B7C40);
+//100%
+typedef struct { unsigned int lo, hi; } U64_7C40;
+extern char *f_6A38_7C40(int) __asm__("func_003B6A38");
+extern char *f_7A70_7C40(int) __asm__("func_003B7A70");
+extern U64_7C40 f_6380_7C40(unsigned int, unsigned int) __asm__("func_003C6380");
+extern unsigned int f_64A8_7C40(U64_7C40, unsigned int) __asm__("func_003C64A8");
+
+int func_003B7C40(int arg0, unsigned int *out) {
+    char *ch;
+    char *it;
+    unsigned int d;
+    out[0] = 0;
+    out[1] = 0;
+    out[2] = 0;
+    out[3] = 0;
+    if (arg0 < 0 || (ch = f_6A38_7C40(arg0 & 0xFF)) == 0) {
+        return -8;
+    }
+    it = f_7A70_7C40(arg0);
+    if (it != 0) {
+        if (*(unsigned char *)(it + 0x24) == 0) {
+            out[0] = 0;
+        } else {
+            if (*(char **)(ch + 0x11C) == it) {
+                out[0] = 2;
+                d = *(unsigned short *)(ch + 0x14);
+            } else {
+                out[0] = 1;
+                d = *(unsigned short *)(ch + 0x18);
+            }
+            out[1] = f_64A8_7C40(f_6380_7C40(*(unsigned int *)(it + 0x14), 1000), d);
+            out[2] = f_64A8_7C40(f_6380_7C40(*(unsigned int *)(it + 0x18) - *(unsigned int *)(it + 0x14), 1000), d);
+            out[3] = *(unsigned int *)(it + 0x1C) * 1000 / d;
+        }
+    } else {
+        out[0] = 3;
+    }
+    return 0;
+}
 
 //100%
 // PORT: PS2-only inline asm; needs a C fallback off-PS2.
