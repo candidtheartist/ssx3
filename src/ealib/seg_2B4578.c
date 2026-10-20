@@ -367,7 +367,107 @@ void func_003B49B0(void) {
     func_003B4818();
 }
 
-INCLUDE_ASM("ealib/seg_2B4578", func_003B49D0);
+//100%
+// RefPack decoder: unpacks source into dest and returns the unpacked size from
+// the header; stores the packed size in *compsize when given.
+int func_003B49D0(unsigned char *dest, unsigned char *source, int *compsize) {
+    unsigned char *s;
+    unsigned char *ref;
+    unsigned char *d;
+    unsigned char first;
+    unsigned char second;
+    unsigned char third;
+    unsigned char forth;
+    unsigned int run;
+    unsigned int type;
+    int ulen;
+
+    s = source;
+    d = dest;
+    ulen = 0;
+
+    if (s) {
+        type = *s++;
+        type = (type << 8) + *s++;
+
+        if (type & 0x8000) {
+            if (type & 0x100)
+                s += 4;
+
+            ulen = *s++;
+            ulen = (ulen << 8) + *s++;
+            ulen = (ulen << 8) + *s++;
+            ulen = (ulen << 8) + *s++;
+        } else {
+            if (type & 0x100)
+                s += 3;
+
+            ulen = *s++;
+            ulen = (ulen << 8) + *s++;
+            ulen = (ulen << 8) + *s++;
+        }
+
+        for (;;) {
+            first = *s++;
+            if (!(first & 0x80)) {
+                second = *s++;
+                run = first & 3;
+                while (run--)
+                    *d++ = *s++;
+                ref = d - 1 - (((first & 0x60) << 3) | second);
+                run = ((first & 0x1c) >> 2) + 3 - 1;
+                do {
+                    *d++ = *ref++;
+                } while (run--);
+                continue;
+            }
+            if (!(first & 0x40)) {
+                second = *s++;
+                third = *s++;
+                run = second >> 6;
+                while (run--)
+                    *d++ = *s++;
+
+                ref = d - 1 - (((second & 0x3f) << 8) | third);
+
+                run = (first & 0x3f) + 4 - 1;
+                do {
+                    *d++ = *ref++;
+                } while (run--);
+                continue;
+            }
+            if (!(first & 0x20)) {
+                second = *s++;
+                third = *s++;
+                forth = *s++;
+                run = first & 3;
+                while (run--)
+                    *d++ = *s++;
+
+                ref = d - 1 - ((((first & 0x10) >> 4 << 16) + (second << 8)) | third);
+
+                run = ((first & 0x0c) >> 2 << 8) + forth + 5 - 1;
+                do {
+                    *d++ = *ref++;
+                } while (run--);
+                continue;
+            }
+            run = ((first & 0x1f) << 2) + 4;
+            if (run <= 112) {
+                while (run--)
+                    *d++ = *s++;
+                continue;
+            }
+            run = first & 3;
+            while (run--)
+                *d++ = *s++;
+            break;
+        }
+    }
+    if (compsize)
+        *compsize = (int)(s - source);
+    return ulen;
+}
 
 //100%
 int func_003B4D00(unsigned char *p, int *outlen) {
@@ -1262,7 +1362,29 @@ int func_003B7080(int ch, int *msg) {
     return 1;
 }
 
-INCLUDE_ASM("ealib/seg_2B4578", func_003B70F8);
+//100%
+extern unsigned int f_14C8_70F8(int) __asm__("func_003E14C8");
+extern int f_14F8_70F8(int) __asm__("func_003E14F8");
+struct S_70F8 { int pad[4]; unsigned int rate; int pad2[3]; volatile int cnt; };
+
+int func_003B70F8(int *p) {
+    struct S_70F8 *s = (struct S_70F8 *)p[0x134 / 4];
+    unsigned int t;
+    if (s == 0 || s->rate == 0) return 0;
+    if (s->cnt < 0) return 1;
+    if (s->cnt == 0) return 0;
+    t = f_14C8_70F8(p[0]);
+    if (t > 4000000) t = 4000000;
+    if (t * 1000 / s->rate >= (unsigned int)s->cnt) {
+    clr:
+        s->cnt = 0;
+        return 0;
+    }
+    if (f_14F8_70F8(p[0]) == 2) goto clr;
+    if (p[0x130 / 4] > 0) return 1;
+    if (f_14F8_70F8(p[0]) == 0) goto clr;
+    return 1;
+}
 
 INCLUDE_ASM("ealib/seg_2B4578", func_003B71D8);
 
@@ -1417,7 +1539,45 @@ int func_003B7B48_impl(int arg0, int *out) {
     return 0;
 }
 
-INCLUDE_ASM("ealib/seg_2B4578", func_003B7C40);
+//100%
+typedef struct { unsigned int lo, hi; } U64_7C40;
+extern char *f_6A38_7C40(int) __asm__("func_003B6A38");
+extern char *f_7A70_7C40(int) __asm__("func_003B7A70");
+extern U64_7C40 f_6380_7C40(unsigned int, unsigned int) __asm__("func_003C6380");
+extern unsigned int f_64A8_7C40(U64_7C40, unsigned int) __asm__("func_003C64A8");
+
+int func_003B7C40(int arg0, unsigned int *out) {
+    char *ch;
+    char *it;
+    unsigned int d;
+    out[0] = 0;
+    out[1] = 0;
+    out[2] = 0;
+    out[3] = 0;
+    if (arg0 < 0 || (ch = f_6A38_7C40(arg0 & 0xFF)) == 0) {
+        return -8;
+    }
+    it = f_7A70_7C40(arg0);
+    if (it != 0) {
+        if (*(unsigned char *)(it + 0x24) == 0) {
+            out[0] = 0;
+        } else {
+            if (*(char **)(ch + 0x11C) == it) {
+                out[0] = 2;
+                d = *(unsigned short *)(ch + 0x14);
+            } else {
+                out[0] = 1;
+                d = *(unsigned short *)(ch + 0x18);
+            }
+            out[1] = f_64A8_7C40(f_6380_7C40(*(unsigned int *)(it + 0x14), 1000), d);
+            out[2] = f_64A8_7C40(f_6380_7C40(*(unsigned int *)(it + 0x18) - *(unsigned int *)(it + 0x14), 1000), d);
+            out[3] = *(unsigned int *)(it + 0x1C) * 1000 / d;
+        }
+    } else {
+        out[0] = 3;
+    }
+    return 0;
+}
 
 //100%
 // PORT: PS2-only inline asm; needs a C fallback off-PS2.
@@ -1911,7 +2071,40 @@ unsigned int func_003B8AB8(void) {
     return func_003BA6E8() >> 0x1F;
 }
 
-INCLUDE_ASM("ealib/seg_2B4578", func_003B8AD8);
+//100%
+// Returns the largest remaining-time estimate over the voices of a handle (0x7FFFFFFF for an f8A of 16 or less); -7 if none.
+struct E_8AD8 { char p0[0x14]; int f14; int f18; char p18[4]; unsigned short f20; char p22[0x48]; unsigned short f6A; char p6C[0x1E]; unsigned short f8A; };
+struct G_8AD8 { char pad[0x1F0]; struct E_8AD8 *tab; };
+extern struct G_8AD8 D_0050A8E8_8AD8 __asm__("D_0050A8E8");
+extern int func_003BAA00_8AD8(int, int *) __asm__("func_003BAA00");
+extern int func_003BA6E8_8AD8(void) __asm__("func_003BA6E8");
+extern int func_003C4318_8AD8(int) __asm__("func_003C4318");
+
+int func_003B8AD8(void) {
+    int best = -7;
+    int h;
+    int sp0;
+    h = func_003BA6E8_8AD8();
+    if (h >= 0) {
+        sp0 = -1;
+        while (func_003BAA00_8AD8(h, &sp0)) {
+            struct E_8AD8 *e = &D_0050A8E8_8AD8.tab[sp0];
+            int p;
+            int t;
+            if (e->f18 > 0) p = -7; else p = func_003C4318_8AD8(sp0);
+            if (p >= 0) {
+                t = (e->f14 - p) * 100 / e->f20;
+                if (e->f8A > 0x10) {
+                    t = ((t << 12) / e->f8A << 12) / e->f6A;
+                } else {
+                    t = 0x7FFFFFFF;
+                }
+                if (best < t) best = t;
+            }
+        }
+    }
+    return best;
+}
 
 //100%
 // PORT: PS2-only inline asm; needs a C fallback off-PS2.
@@ -3165,7 +3358,101 @@ void func_003BD078(int a0, signed char *out, signed char *out8) {
     }
 }
 
-INCLUDE_ASM("ealib/seg_2B4578", func_003BD220);
+// Decodes one macroblock: fetch the coefficients (by IPU DMA when the work
+// buffer is in scratchpad), dequantize, run the four IDCT passes per block
+// row, color-convert into the output and send the result back.
+struct C_D220 {
+    char pad0[0x600];
+    char b600[0x200];
+    char b800[0x220];
+    char *pA20;
+    char *pA24;
+    char *pA28;
+    char *pA2C;
+    char *pA30;
+    char *pA34;
+    char *pA38;
+    unsigned char flagA3C;
+};
+struct S_D220 { char pad0[4]; unsigned short n4; };
+extern struct S_D220 *D_0050AC68_D220 __asm__("D_0050AC68");
+extern struct C_D220 *D_0050AC6C_D220 __asm__("D_0050AC6C");
+extern void func_003BC968_D220(int, char *, int, int) __asm__("func_003BC968");
+extern void func_003BCA28_D220(char *, int, int, int) __asm__("func_003BCA28");
+extern void func_003BF3E0_D220(int, char *, int) __asm__("func_003BF3E0");
+extern void func_003BF440_D220(int, char *, int) __asm__("func_003BF440");
+extern void func_003BF4C0_D220(char *, char *, char *) __asm__("func_003BF4C0");
+extern void func_003BF5A0_D220(char *, char *, char *) __asm__("func_003BF5A0");
+extern void func_003BF6B0_D220(char *, char *, char *) __asm__("func_003BF6B0");
+extern void func_003BF800_D220(char *) __asm__("func_003BF800");
+extern void func_003BF8D0_D220(char *, char *) __asm__("func_003BF8D0");
+extern void func_003BF960_D220(char *, char *) __asm__("func_003BF960");
+extern void func_003BFAC0_D220(char *, char *) __asm__("func_003BFAC0");
+extern void func_003BFB90_D220(char *, char *) __asm__("func_003BFB90");
+extern void func_003BFC50_D220(char *, char *) __asm__("func_003BFC50");
+extern void func_003BFD60_D220(char *, char *, char *) __asm__("func_003BFD60");
+extern void func_003BFE80_D220(char *, char *, char *) __asm__("func_003BFE80");
+extern void func_003BFFA0_D220(char *, char *, char *) __asm__("func_003BFFA0");
+extern void func_003C01A0_D220(char *, char *, int, int) __asm__("func_003C01A0");
+
+void func_003BD220(int src, int dst, int out) {
+    int dma;
+    int i;
+
+    if (D_0050AC6C_D220->flagA3C) {
+        dma = (src & 0x70000000) != 0x70000000 && (out & 0x70000000) != 0x70000000;
+    } else {
+        dma = 0;
+    }
+    if (dma) {
+        func_003BC968_D220(out, D_0050AC6C_D220->pA20, D_0050AC68_D220->n4 >> 2, 0);
+        func_003BF440_D220(src, D_0050AC6C_D220->pA20 + D_0050AC68_D220->n4 * 4, 0x200);
+        if (*(volatile int *)0x1000D400 & 0x100) {
+            do {
+            } while (*(volatile int *)0x1000D400 & 0x100);
+        }
+    } else {
+        func_003BF3E0_D220(out, D_0050AC6C_D220->pA20, D_0050AC68_D220->n4);
+    }
+    for (i = 0; i < 4; i++) {
+        if (dma) {
+            if (D_0050AC68_D220->n4 == 0xE0) {
+                func_003BF4C0_D220(D_0050AC6C_D220->pA20 + (i << 9), D_0050AC6C_D220->pA24, D_0050AC6C_D220->b600);
+            } else if (D_0050AC68_D220->n4 == 0x160) {
+                func_003BF5A0_D220(D_0050AC6C_D220->pA20 + (i << 9), D_0050AC6C_D220->pA24, D_0050AC6C_D220->b600);
+            } else {
+                func_003BF6B0_D220(D_0050AC6C_D220->pA20 + (i << 9), D_0050AC6C_D220->pA24, D_0050AC6C_D220->b600);
+            }
+        } else {
+            func_003BF440_D220(src, D_0050AC6C_D220->pA20 + D_0050AC68_D220->n4 * 4, 0x80);
+            if (D_0050AC68_D220->n4 == 0xE0) {
+                func_003BF4C0_D220(D_0050AC6C_D220->pA20, D_0050AC6C_D220->pA24, D_0050AC6C_D220->b600);
+            } else if (D_0050AC68_D220->n4 == 0x160) {
+                func_003BF5A0_D220(D_0050AC6C_D220->pA20, D_0050AC6C_D220->pA24, D_0050AC6C_D220->b600);
+            } else {
+                func_003BF6B0_D220(D_0050AC6C_D220->pA20, D_0050AC6C_D220->pA24, D_0050AC6C_D220->b600);
+            }
+            func_003BF3E0_D220((int)(D_0050AC6C_D220->pA20 + 0x200), D_0050AC6C_D220->pA20, D_0050AC68_D220->n4);
+        }
+        src += 0x100;
+        func_003BF800_D220(D_0050AC6C_D220->b600);
+        func_003BF8D0_D220(D_0050AC6C_D220->b600, D_0050AC6C_D220->b800);
+        func_003BF960_D220(D_0050AC6C_D220->b800, D_0050AC6C_D220->b600);
+        func_003BFAC0_D220(D_0050AC6C_D220->b600, D_0050AC6C_D220->b800);
+        func_003BFB90_D220(D_0050AC6C_D220->b800, D_0050AC6C_D220->b600);
+        func_003BFC50_D220(D_0050AC6C_D220->b600, D_0050AC6C_D220->pA28);
+        func_003BFD60_D220(D_0050AC6C_D220->b600, D_0050AC6C_D220->pA2C, D_0050AC6C_D220->b800);
+        func_003BFE80_D220(D_0050AC6C_D220->b800, D_0050AC6C_D220->pA30, D_0050AC6C_D220->b600);
+        func_003BFFA0_D220(D_0050AC6C_D220->b600, D_0050AC6C_D220->pA34, D_0050AC6C_D220->b800);
+        func_003C01A0_D220(D_0050AC6C_D220->b800, D_0050AC6C_D220->pA38, dst, 0x40);
+        dst += 0x10;
+    }
+    if (dma) {
+        func_003BCA28_D220(D_0050AC6C_D220->pA20 + 0x800, out, D_0050AC68_D220->n4 >> 2, 0x10000);
+    } else {
+        func_003BF3E0_D220((int)D_0050AC6C_D220->pA20, (char *)out, D_0050AC68_D220->n4);
+    }
+}
 
 INCLUDE_ASM("ealib/seg_2B4578", func_003BD5B8);
 
@@ -3772,7 +4059,107 @@ void func_003C15D8(char *dst, char *src) {
     *dst = 0;
 }
 
-INCLUDE_ASM("ealib/seg_2B4578", func_003C1638);
+// Lays out the sound command buffer: header blocks, per-channel sample
+// buffers and the optional reverb block, then records the final size.
+struct M_1638 {
+    char pad0[0xCB0];
+    char *fCB0;
+    int *fCB4;
+    char *fCB8;
+    char pad1[0x1AB2 - 0xCBC];
+    unsigned short off;
+    char *buf;
+    int f1AB8;
+    char *ch[14];
+    char *f1AF4;
+    int f1AF8;
+    int f1AFC;
+    char *f1B00;
+    int f1B04;
+    int f1B08;
+    int f1B0C;
+};
+struct C_1638 {
+    char pad0[0x2A];
+    unsigned short rate;
+    char pad1[0x42 - 0x2C];
+    unsigned char f42;
+    char pad2[0x47 - 0x43];
+    unsigned char f47;
+    unsigned char f48;
+    unsigned char f49;
+};
+extern struct M_1638 D_0050AD00_1638 __asm__("D_0050AD00");
+extern struct C_1638 D_0050A8E8_1638 __asm__("D_0050A8E8");
+extern char D_00512B80_1638[] __asm__("D_00512B80");
+extern void *func_00416210_1638(void *, int, int) __asm__("func_00416210");
+extern void func_003CBC00_1638(char *) __asm__("func_003CBC00");
+
+void func_003C1638(void) {
+    int *p;
+    short *q;
+    char **pp;
+    int n;
+    int i;
+    int j;
+
+    D_0050AD00_1638.buf = (char *)((int)D_00512B80_1638 | 0x20000000);
+    func_00416210_1638(D_0050AD00_1638.buf, 0, 0x2C00);
+    n = (D_0050A8E8_1638.rate << 9) / 48000;
+    D_0050AD00_1638.off = 0;
+    *(int *)(D_0050AD00_1638.buf + D_0050AD00_1638.off) = 0;
+    D_0050AD00_1638.off += 4;
+    D_0050AD00_1638.fCB4 = (int *)(D_0050AD00_1638.buf + D_0050AD00_1638.off);
+    D_0050AD00_1638.off += 0xC;
+    *(int *)(D_0050AD00_1638.buf + D_0050AD00_1638.off) = 3;
+    D_0050AD00_1638.off += 4;
+    p = (int *)(D_0050AD00_1638.buf + D_0050AD00_1638.off);
+    D_0050AD00_1638.off += 4;
+    D_0050AD00_1638.fCB0 = D_0050AD00_1638.buf + D_0050AD00_1638.off;
+    *p = 0x2A0;
+    D_0050AD00_1638.off += 0x2A0;
+    while (D_0050AD00_1638.off & 0xF) {
+        D_0050AD00_1638.off++;
+        (*p)++;
+    }
+    if (D_0050A8E8_1638.f42) {
+        *(int *)(D_0050AD00_1638.buf + D_0050AD00_1638.off) = 2;
+        D_0050AD00_1638.off += 0x10;
+        func_003CBC00_1638(D_0050AD00_1638.buf + D_0050AD00_1638.off);
+        D_0050AD00_1638.off += n * 4;
+    }
+    *(int *)(D_0050AD00_1638.buf + D_0050AD00_1638.off) = 1;
+    D_0050AD00_1638.off += 4;
+    q = (short *)(D_0050AD00_1638.buf + D_0050AD00_1638.off);
+    D_0050AD00_1638.off += 0xC;
+    for (i = 0; i < D_0050A8E8_1638.f47 + D_0050A8E8_1638.f48; i++) {
+        D_0050AD00_1638.ch[i] = D_0050AD00_1638.buf + (D_0050AD00_1638.off + i * n * 2);
+    }
+    *q = n * ((D_0050A8E8_1638.f47 + D_0050A8E8_1638.f48) << 1);
+    if (D_0050A8E8_1638.f47 == 1) {
+        D_0050AD00_1638.ch[1] = D_0050AD00_1638.buf + (D_0050AD00_1638.off + n * 2);
+        *q += n * 2;
+    }
+    D_0050AD00_1638.off += *q;
+    if (D_0050A8E8_1638.f49 & 2) {
+        *(int *)(D_0050AD00_1638.buf + D_0050AD00_1638.off) = 4;
+        D_0050AD00_1638.off += 4;
+        q = (short *)(D_0050AD00_1638.buf + D_0050AD00_1638.off);
+        D_0050AD00_1638.off += 0xC;
+        D_0050AD00_1638.f1AF4 = D_0050AD00_1638.buf + D_0050AD00_1638.off;
+        D_0050AD00_1638.off += 0x800;
+    }
+    *(int *)(D_0050AD00_1638.buf + D_0050AD00_1638.off) = 5;
+    D_0050AD00_1638.off += 4;
+    D_0050AD00_1638.fCB8 = D_0050AD00_1638.buf + D_0050AD00_1638.off;
+    D_0050AD00_1638.off += 0xC;
+    *(int *)(D_0050AD00_1638.buf + D_0050AD00_1638.off) = 6;
+    D_0050AD00_1638.off += 0x10;
+    D_0050AD00_1638.fCB4[1] = D_0050AD00_1638.off;
+    D_0050AD00_1638.f1B00 = D_00512B80_1638;
+    D_0050AD00_1638.f1B0C = 0;
+    D_0050AD00_1638.f1B08 = D_0050AD00_1638.off;
+}
 
 //100%
 struct S_1980 { char pad[0x1C0]; int cnt; };
@@ -5389,7 +5776,83 @@ int func_003C5BF8(int arg0) {
     return 0;
 }
 
-INCLUDE_ASM("ealib/seg_2B4578", func_003C5C30);
+//100%
+// Rebuilds the output config for the current speaker mode: fills the channel
+// route list, picks the channel layout for the mode, keeps the sample rate in
+// sync, then applies the config and restarts the output.
+struct C_5C30 {
+    char p0[0x2A];
+    unsigned short rate;
+    unsigned short outrate;
+    char p2E;
+    unsigned char ext;
+    char p30[0x47 - 0x30];
+    char layout;
+    char f48;
+    char f49;
+    char p4A[2];
+    unsigned char n;
+    char p4D;
+    unsigned short list[(0xE0 - 0x4E) / 2];
+};
+extern int D_0044E1C4;
+extern int D_0044E1C0;
+extern int D_005157B0;
+extern void func_003B4DD8_5C30(struct C_5C30 *) __asm__("func_003B4DD8");
+extern int func_003B4FC0_5C30(struct C_5C30 *) __asm__("func_003B4FC0");
+extern int func_003B5158_5C30(int, int, int) __asm__("func_003B5158");
+
+int func_003C5C30(int arg0) {
+    struct C_5C30 c;
+
+    func_003B4DD8_5C30(&c);
+    c.n = 0;
+    if (D_0044E1C4 == 8) {
+        c.list[c.n] = 0x44;
+        c.n++;
+    }
+    c.list[c.n] = 0x24;
+    c.n++;
+    if (c.ext) {
+        if (D_0044E1C4 == 8) {
+            c.list[c.n] = 0x140;
+            c.n++;
+        }
+        c.list[c.n] = 0x120;
+        c.n++;
+    }
+    if (D_0044E1C4 == 8) {
+        c.list[c.n] = 0x48;
+        c.n++;
+    }
+    c.list[c.n] = 0x28;
+    c.f49 = 1;
+    c.f48 = 0;
+    c.n++;
+    switch (D_0044E1C4) {
+    case 0:
+        c.layout = 1;
+        break;
+    case 4:
+        c.layout = 4;
+        c.f49 = 2;
+        break;
+    case 5:
+        c.layout = 5;
+        c.f49 = 2;
+        break;
+    case 1:
+    case 8:
+        c.layout = 2;
+        break;
+    }
+    if (c.rate != c.outrate && (c.rate != 36000 || c.outrate != 24000)) {
+        c.outrate = c.rate;
+    }
+    func_003B4FC0_5C30(&c);
+    func_003B5158_5C30(D_0044E1C0, D_005157B0, arg0);
+    return 0;
+}
 
 //100%
 // PORT: PS2-only inline asm; needs a C fallback off-PS2.
@@ -5668,7 +6131,32 @@ void func_003C6320(void *arg0, void *arg1) {
     (*(int *)((char*)(arg0) + (8))) = (int) ((*(int *)((char*)(arg0) + (8))) - 1);
 }
 
-INCLUDE_ASM("ealib/seg_2B4578", func_003C6380);
+//100%
+// 32x32 -> 64-bit unsigned multiply built from four 16x16 partial products; returns a by-value {lo, hi} pair.
+typedef struct { unsigned int lo, hi; } U64_6380;
+extern unsigned long f_14D0_6380(unsigned long, unsigned long) __asm__("func_004114D0");
+
+static inline unsigned long shr_6380(unsigned long x, int n) {
+    return x >> n;
+}
+
+U64_6380 func_003C6380(unsigned int a, unsigned int b) {
+    unsigned long al, ah, bl, bh;
+    unsigned long ll, lh, hl, hh;
+    U64_6380 t, r;
+    al = a & 0xFFFF;
+    bl = b & 0xFFFF;
+    ah = (a >> 16) & 0xFFFF;
+    bh = (b >> 16) & 0xFFFF;
+    ll = f_14D0_6380(al, bl);
+    lh = f_14D0_6380(al, bh);
+    hl = f_14D0_6380(ah, bl);
+    hh = f_14D0_6380(ah, bh);
+    t.hi = shr_6380(lh, 16) + shr_6380(hl, 16) + hh + shr_6380(shr_6380(ll, 16) + (lh & 0xFFFF) + (hl & 0xFFFF), 16);
+    t.lo = ll + (lh << 16) + (hl << 16);
+    r = t;
+    return r;
+}
 
 //100%
 // 64-bit by 32-bit unsigned shift-subtract divide; the dividend arrives as a by-value {lo, hi} pair.
@@ -6271,7 +6759,89 @@ void func_003C8148(signed char arg0) {
     D_00515B4E_8148[0] = arg0;
 }
 
-INCLUDE_ASM("ealib/seg_2B4578", func_003C8158);
+//100%
+// Sets up a stream channel: picks a decoder by format and channel mode, creates it with the given parameters and adds it (plus an optional filter) to the channel's chain.
+struct P_8158 { int a; int b; int c; int d; int e; int f; int one; int ch; int b17A; int g; int out; };
+struct O_8158 { char p0[4]; int f4; char p8[0x10]; short f18; char f1A; };
+struct E_8158 { unsigned char active; char p1[0x3F]; int list; int f44; struct O_8158 *dec; struct O_8158 *filt; int f50; char p54[4]; int f58; int f5C; };
+struct T_8158 {
+    char p0[0x18];
+    void (*make[6][3])(struct O_8158 *, struct P_8158 *);
+    int size[6][3];
+    char pA8[0x1DC - 0xA8];
+    struct E_8158 *ents;
+};
+struct C_8158 { char p0[0x17A]; unsigned char b17A; };
+extern struct T_8158 D_00515B40_8158 __asm__("D_00515B40");
+extern struct C_8158 D_0050A8E8_8158 __asm__("D_0050A8E8");
+extern struct O_8158 *func_003B5C60_8158(int) __asm__("func_003B5C60");
+extern void func_003C8F48_8158(int *, struct O_8158 *) __asm__("func_003C8F48");
+extern void func_003CB280_8158(struct O_8158 *, int, int) __asm__("func_003CB280");
+
+void func_003C8158(int ch, int fmt, int stereo, int a, int b, int filt, int c, int d, int e, int f, int u10, int u11, int g, int tag) {
+    struct E_8158 *ent = &D_00515B40_8158.ents[ch];
+    struct P_8158 p;
+    int type;
+    int mode;
+
+    ent->list = 0;
+    ent->dec = 0;
+    ent->f50 = 0;
+    ent->f58 = 0;
+    ent->f5C = 0;
+    ent->filt = 0;
+    p.one = 1;
+    p.out = 0;
+    type = -1;
+    if (fmt == 8) {
+        type = 0;
+    } else if (fmt == 10) {
+        type = 1;
+    } else if (fmt == 4) {
+        type = 2;
+    } else if (fmt == 0x16) {
+        type = 3;
+    } else if (fmt == 0x10) {
+        type = 4;
+    } else if (fmt == 0x17) {
+        type = 5;
+    }
+    if (stereo == 1) {
+        mode = 0;
+        if (f >= 1) mode = 1;
+    } else {
+        mode = 2;
+        if (stereo) mode = 0;
+    }
+    if (D_00515B40_8158.make[type][mode]) {
+        ent->dec = func_003B5C60_8158(D_00515B40_8158.size[type][mode]);
+        p.a = a;
+        p.b = b;
+        p.c = c;
+        p.g = g;
+        p.d = d;
+        p.e = e;
+        p.f = f;
+        p.ch = ch;
+        p.b17A = D_0050A8E8_8158.b17A;
+        ent->dec->f4 = 0;
+        ent->dec->f18 = 0xF0;
+        ent->dec->f1A = tag;
+        D_00515B40_8158.make[type][mode](ent->dec, &p);
+        ent->f44 = p.out;
+        func_003C8F48_8158(&ent->list, ent->dec);
+    }
+    if (filt) {
+        if (stereo) ch = -1;
+        ent->filt = func_003B5C60_8158(0x1828);
+        ent->filt->f4 = 0;
+        ent->filt->f18 = 0xC8;
+        ent->filt->f1A = tag;
+        func_003CB280_8158(ent->filt, filt, ch);
+        func_003C8F48_8158(&ent->list, ent->filt);
+    }
+    ent->active = 1;
+}
 
 //100%
 // PORT: PS2-only inline asm; needs a C fallback off-PS2.
@@ -7373,7 +7943,99 @@ void func_003CA028(char *arg0, char *arg1) {
     func_003CCF60_A028(*(int *)(arg0 + 0x1C), *(int *)(arg0 + 0x20), n * 4, n);
 }
 
-INCLUDE_ASM("ealib/seg_2B4578", func_003CA0B8);
+//100%
+// Pulls n samples into buf from an in-memory ADPCM sample, looping from the
+// loop start (or restarting the loop region) when the decoder runs dry.
+// Returns the count delivered.
+struct F2_A0B8 { float a; float b; };
+struct S_A0B8 {
+    char pad[0x1C];
+    void *dec;
+    int pos;
+    int lstart;
+    int lend;
+    char *ldata;
+    int mode;
+    char *data;
+    int f38;
+    int primed;
+    int started;
+    int start;
+    int end;
+    float s4C;
+    float s50;
+};
+extern int func_003CCF60_A0B8(void *, char *, int, int) __asm__("func_003CCF60");
+extern int func_003CCF90_A0B8(void *, int **, int) __asm__("func_003CCF90");
+extern struct F2_A0B8 func_003CD138_A0B8(void *) __asm__("func_003CD138");
+extern void func_003CD190_A0B8(void *, struct F2_A0B8 *) __asm__("func_003CD190");
+
+int func_003CA0B8(struct S_A0B8 *self, int n, int unused, int *buf) {
+    struct F2_A0B8 st;
+    int junk[32];
+    int *q;
+    int done = 0;
+    int k;
+    int m;
+    int r;
+    int p;
+    int m2;
+
+    if (self->mode < 3) {
+        if (self->started == 0) {
+            int c = self->start / 28 * 28;
+            func_003CCF60_A0B8(self->dec, self->data, c * 4, c);
+            self->started = 1;
+        }
+        while (n != 0) {
+            k = func_003CCF90_A0B8(self->dec, &buf, n);
+            buf += k;
+            done += k;
+            self->pos += k;
+            if (k < n) {
+                r = self->start % 28;
+                n -= k;
+                p = self->start - r;
+                self->pos = p;
+                m2 = self->end - p + 1;
+                func_003CCF60_A0B8(self->dec, self->data + p / 28 * 15, m2 * 4, m2);
+                if (!self->primed) {
+                    st = func_003CD138_A0B8(self->dec);
+                    self->s4C = st.a;
+                    self->s50 = st.b;
+                    k = func_003CCF90_A0B8(self->dec, &buf, n);
+                    buf += k;
+                    self->pos += k;
+                    self->primed = 1;
+                    done += k;
+                    n -= k;
+                } else {
+                    st.a = self->s4C;
+                    st.b = self->s50;
+                    func_003CD190_A0B8(self->dec, &st);
+                    q = &junk[2];
+                    self->pos += func_003CCF90_A0B8(self->dec, &q, r);
+                }
+            } else {
+                n -= k;
+            }
+        }
+        return done;
+    }
+    while (n > 0) {
+        k = func_003CCF90_A0B8(self->dec, &buf, n);
+        buf += k;
+        n -= k;
+        self->pos += k;
+        done += k;
+        if (k < n) {
+            self->pos = self->lstart;
+            m = self->lend - self->lstart + 1;
+            func_003CCF60_A0B8(self->dec, self->ldata, m * 4, m);
+        }
+    }
+    return done;
+}
 
 //100%
 int func_003CA358(void *arg0) {
@@ -7639,7 +8301,37 @@ void func_003CAA28(float *a, float *b, float *out, int n, int k) {
     }
 }
 
-INCLUDE_ASM("ealib/seg_2B4578", func_003CAB28);
+//100%
+// Error-diffusion step: picks between two neighbouring codes, whichever leaves the smaller carried error.
+#define ABS_AB28(x) ((x) < 0.0f ? -(x) : (x))
+
+int func_003CAB28(int n, unsigned char **pp, float *err, float t) {
+    int v = **pp + n / 2;
+    float e1, e2;
+
+    if (t < 1.0f) {
+        e1 = (float)n + *err - t * (float)n;
+        e2 = (float)(n * 2 - v) + *err - 2.0f * t * (float)n;
+        if (ABS_AB28(e1) < ABS_AB28(e2)) {
+            *pp += 1;
+            *err = e1;
+            return 0;
+        }
+        *pp += 2;
+        *err = e2;
+        return -v;
+    }
+    e1 = (float)n + *err - t * (float)n;
+    e2 = (float)(n + v) + *err - t * (float)n;
+    if (ABS_AB28(e1) < ABS_AB28(e2)) {
+        *pp += 1;
+        *err = e1;
+        return 0;
+    }
+    *pp += 1;
+    *err = e2;
+    return v;
+}
 
 //100% - objdiff report; single-function view differs only in a relocation name
 // PORT: PS2-only inline asm; needs a C fallback off-PS2.
@@ -7836,7 +8528,81 @@ unsigned char func_003CBC20(int arg0, int arg1, int arg2) {
     return D_0044E770_BC20[arg0 - 1][arg1 - 1][arg2 - 1];
 }
 
-INCLUDE_ASM("ealib/seg_2B4578", func_003CBC58);
+//100%
+// Mixes one frame of n samples: copies a pending buffer straight out when one is
+// queued, else runs each channel's voice and sends it (and its linked channels)
+// to the output once, then clears the mix buffer.
+struct V_BC58 { int (*fn)(struct V_BC58 *, int, int, int, int); };
+struct G_BC58 {
+    char pad00[0x5];
+    unsigned char n;
+    char pad06[0x14 - 0x6];
+    void *f14;
+    char pad18[0xB0 - 0x18];
+    int fB0;
+    int fB4;
+    char padB8[0xD0 - 0xB8];
+    int out[(0x1E0 - 0xD0) / 4];
+    void (*send)(int, int, int, float);
+};
+struct M_BC58 { char pad[0x1800]; int frames; };
+extern struct G_BC58 D_00515B40_BC58 __asm__("D_00515B40");
+extern struct M_BC58 D_00515D80_BC58 __asm__("D_00515D80");
+extern signed char D_0044E164_BC58[] __asm__("D_0044E164");
+extern int *D_00515D40;
+extern int *D_00515D44;
+extern struct V_BC58 **D_00515D48;
+extern int D_00515D58;
+extern int D_00517600;
+extern void *func_00416210_BC58(void *, int, int) __asm__("func_00416210");
+extern void func_003C51E8_BC58(void *, void *, int) __asm__("func_003C51E8");
+extern int func_003C72F8_BC58(void *, int) __asm__("func_003C72F8");
+extern void func_003CF798_BC58(int, void *) __asm__("func_003CF798");
+
+void func_003CBC58(int n) {
+    int done[6];
+    int b0;
+    int b4;
+    int size;
+    int i;
+    int j;
+    struct V_BC58 *v;
+    signed char *p;
+    signed char *q;
+
+    func_00416210_BC58(done, 0, 0x18);
+    if (D_00515B40_BC58.f14 != 0) {
+        func_003C51E8_BC58(D_00515B40_BC58.f14, &D_00515D80_BC58, n * 4);
+        func_00416210_BC58(&D_00515D80_BC58, 0, n * 4);
+        return;
+    }
+    b0 = D_00515B40_BC58.fB0;
+    b4 = D_00515B40_BC58.fB4;
+    if (++D_00515D80_BC58.frames < 3000) {
+        size = n * 4;
+        if (func_003C72F8_BC58(&D_00515D40[D_00515D58 + 1], 4) != 0) {
+            func_003CF798_BC58(D_00515D44[D_00517600], &D_00515D80_BC58);
+            for (i = 0; i < D_00515B40_BC58.n; i++) {
+                if (done[i] != 0) continue;
+                v = D_00515D48[i + 1];
+                if (v == 0) continue;
+                v->fn(v, n, b0, b4, i + 1);
+                D_00515B40_BC58.send(n, b4, D_00515B40_BC58.out[i], 1.0f);
+                done[i] = 1;
+                q = D_0044E164_BC58 + D_00515D58 * 0xD8;
+                q += D_00515B40_BC58.n * 0x24;
+                p = q + i * 6;
+                for (j = 0; j < D_00515B40_BC58.n; j++, p++) {
+                    if (*p >= 0) {
+                        D_00515B40_BC58.send(n, b4, D_00515B40_BC58.out[*p], 1.0f);
+                        done[*p] = 1;
+                    }
+                }
+            }
+        }
+        func_00416210_BC58(&D_00515D80_BC58, 0, size);
+    }
+}
 
 INCLUDE_ASM("ealib/seg_2B4578", func_003CBEC8);
 
@@ -8197,7 +8963,46 @@ void func_003CD690(char *arg0, int arg1, int arg2) {
     func_003CE410(arg2, buf, arg0 + 0x144, arg0 + (arg1 * 4 + 0x684));
 }
 
-INCLUDE_ASM("ealib/seg_2B4578", func_003CD6F0);
+//100%
+// Starts a bit reader on data and, when asked, reads the header fields and builds the 64-step gain table.
+struct S_D6F0 {
+    unsigned char *ptr;
+    unsigned int bits;
+    int cnt;
+    unsigned int flag;
+    int shift;
+    float gain[64];
+    int a[12];
+    int b[12];
+    int c[0x144];
+};
+extern unsigned int f_D1F8_D6F0(struct S_D6F0 *, int) __asm__("func_003CD1F8");
+
+void func_003CD6F0_impl(int, unsigned char *, struct S_D6F0 *, int) __asm__("func_003CD6F0");
+void func_003CD6F0_impl(int arg0, unsigned char *data, struct S_D6F0 *s, int full) {
+    int i;
+    float k;
+
+    s->cnt = 8;
+    s->ptr = data + 1;
+    s->bits = *data;
+    if (full != 0) {
+        s->flag = f_D1F8_D6F0(s, 1);
+        s->shift = 0x20 - f_D1F8_D6F0(s, 4);
+        s->gain[0] = (float)(f_D1F8_D6F0(s, 4) + 1) * 8.0f;
+        k = (float)f_D1F8_D6F0(s, 6) * 0.001f + 1.04f;
+        for (i = 1; i < 64; i++) {
+            s->gain[i] = s->gain[i - 1] * k;
+        }
+        for (i = 0; i < 12; i++) {
+            s->a[i] = 0;
+            s->b[i] = 0;
+        }
+        for (i = 0x143; i >= 0; i--) {
+            s->c[i] = 0;
+        }
+    }
+}
 
 INCLUDE_ASM("ealib/seg_2B4578", func_003CD878);
 
@@ -8240,7 +9045,83 @@ int func_003CDDE8(char *arg0, unsigned char *arg1, int arg2, int arg3) {
     return 0;
 }
 
-INCLUDE_ASM("ealib/seg_2B4578", func_003CDE68);
+//100%
+// Copies up to n decoded samples to the caller's buffer, decoding new frames (and reading any inline sample table) as the buffer runs dry.
+struct S_DE68 {
+    unsigned char *ptr;
+    int bits;
+    int nbits;
+    char pC[0x678];
+    float buf[0x1B0];
+    int avail;
+    unsigned char *p;
+    char *out;
+    short n;
+    short off;
+    int remain;
+    char pD58[8];
+    int table;
+    int mode;
+};
+extern void *func_0041605C_DE68(void *, void *, int) __asm__("func_0041605C");
+extern void func_003CD878_DE68(struct S_DE68 *) __asm__("func_003CD878");
+
+static inline void rd16_DE68(unsigned char *d, unsigned char *p) {
+    d[0] = p[1];
+    d[1] = p[0];
+}
+
+int func_003CDE68(struct S_DE68 *s, char **out, int n) {
+    int left = s->avail;
+    int total;
+    int rem;
+
+    if (s->remain == 0) return 0;
+    total = s->remain;
+    if (n < total) total = n;
+    s->out = *out;
+    rem = total;
+    if (rem > 0) do {
+        if (rem < left) left = rem;
+        rem -= left;
+        func_0041605C_DE68(s->out, (void *)((0x1B0 - s->avail) * 4 + (int)s + 0x684), left * 4);
+        s->out += left * 4;
+        s->avail -= left;
+        if (rem <= 0) break;
+        func_003CD878_DE68(s);
+        s->avail = 0x1B0;
+        left = 0x1B0;
+        if (s->mode == 1) {
+            unsigned char *q;
+            s->p = s->ptr - 1;
+            q = s->p;
+            if (s->table) {
+                float *f;
+                short i;
+                rd16_DE68((unsigned char *)&s->off, q);
+                rd16_DE68((unsigned char *)&s->n, q + 2);
+                q += 4;
+                s->p = s->p + s->n * 2 + 4;
+                s->ptr = s->p + 1;
+                f = &s->buf[s->off];
+                for (i = 0; i < s->n; i++) {
+                    short v;
+                    ((unsigned char *)&v)[0] = q[1];
+                    ((unsigned char *)&v)[1] = q[0];
+                    q += 2;
+                    *f++ = v;
+                }
+                s->table = 0;
+            }
+            if (*s->p == 0xEE) s->table = 1;
+            s->nbits = 8;
+            s->bits = *s->ptr;
+            s->ptr++;
+        }
+    } while (rem > 0);
+    s->remain -= total;
+    return total;
+}
 
 //100%
 struct V3_E078 { int a; int b; int c; };
@@ -10001,7 +10882,93 @@ INCLUDE_ASM("ealib/seg_2B4578", func_003D3658);
 
 INCLUDE_ASM("ealib/seg_2B4578", func_003D37A0);
 
-INCLUDE_ASM("ealib/seg_2B4578", func_003D3900);
+// Runs the control events at the current sequence position: note-on setup,
+// per-track controller writes, random velocity and sub-sequence jumps, then
+// returns the next note event.
+struct A_D39 { int p0; int p1; unsigned long w : 44; unsigned long n : 4; unsigned long top : 16; };
+struct B_D39 { unsigned int f0; unsigned int f4; long b8 : 8; unsigned long b9 : 8; unsigned long pA : 16; unsigned long bC : 8; unsigned long v : 7; unsigned long flag : 1; unsigned short hE; };
+struct E_D39 { short f0; unsigned short f2; unsigned int f4; unsigned int f8; unsigned int fC; };
+struct K_D39 { char p0[0x20]; int f20; char p24[8]; short f2C; char p2E[2]; struct E_D39 *f30; };
+struct G_D39 { char p0[0x30]; unsigned int f30; int *f34; short *f38; char p3C[4]; short *f40; char p44[0x10]; unsigned int *f54; struct K_D39 *f58[32]; };
+struct T_D39 { char p0[0x30]; unsigned int f30; };
+extern struct G_D39 *D_0044F420_D39 __asm__("D_0044F420");
+extern void (*D_0044F424_D39)(int, int) __asm__("D_0044F424");
+extern int D_0044F430_D39 __asm__("D_0044F430");
+extern unsigned int D_0044F438_D39 __asm__("D_0044F438");
+extern struct T_D39 D_00517610_D39 __asm__("D_00517610");
+extern int func_003D3C90_D39(int, int) __asm__("func_003D3C90");
+extern int func_003D37A0_D39(int, int) __asm__("func_003D37A0");
+extern void func_00416210_D39(void *, int, int) __asm__("func_00416210");
+extern void func_003D0B18_D39(struct A_D39 *, struct B_D39 *) __asm__("func_003D0B18");
+extern int func_003D2068_D39(struct A_D39 *) __asm__("func_003D2068");
+extern void func_003D1F80_D39(unsigned int, int) __asm__("func_003D1F80");
+
+short func_003D3900(int arg0, int arg1, int arg2) {
+    struct B_D39 b;
+    struct A_D39 a;
+    int orig;
+    struct E_D39 *ev;
+    struct K_D39 *trk;
+    short idx;
+    short type;
+    int vel;
+    unsigned int t;
+
+    vel = arg2;
+    orig = vel;
+    idx = func_003D3C90_D39(arg0, arg1);
+    ev = (struct E_D39 *)&D_0044F420_D39->f34[D_0044F420_D39->f38[idx]];
+    trk = D_0044F420_D39->f58[ev->f2 & 0x1F];
+    while (ev->f0 <= 0) {
+    type = ev->f0;
+        if (type == 0) {
+            trk->f30 = ev;
+            if (ev->f8 & 0x7C00) {
+                func_00416210_D39(&a, 0, 0x10);
+                func_00416210_D39(&b, 0, 0x10);
+                t = D_0044F420_D39->f54[((ev->f8 >> 10) & 0x1F) - 1];
+                if (t & 0x80) {
+                    b.bC = 100;
+                } else {
+                    b.bC = 0;
+                }
+                b.flag = t >> 7;
+                b.b9 = 6;
+                b.hE = 0x25A0;
+                b.v = ((ev->f8 >> 10) & 0x1F) - 1;
+                b.f0 = 0x1F000001;
+                a.n = 0;
+                b.b8 = -1;
+                a.p1 = b.hE;
+                b.f4 = D_0044F438_D39 + b.hE;
+                func_003D0B18_D39(&a, &b);
+                func_003D1F80_D39(D_00517610_D39.f30, func_003D2068_D39(&a));
+            }
+            if ((ev->f4 & 0xE0000) == 0x20000) {
+                vel = (D_0044F438_D39 / 23) & 0x7F;
+            }
+            if (D_0044F424_D39) {
+                D_0044F424_D39(D_0044F430_D39, idx);
+            }
+        } else if (type == -1) {
+            t = *(unsigned int *)ev;
+            if (t & 0xF0000000) {
+                if (idx != trk->f2C) {
+                    trk->f2C = idx;
+                    trk->f20 = (trk->f20 & ~0xF) | (t >> 28);
+                }
+            }
+        } else if (type == -2) {
+            vel = (D_0044F438_D39 / 23) & 0x7F;
+        } else if (type == -3) {
+            func_003D1F80_D39(D_0044F420_D39->f30, (int)&D_0044F420_D39->f34[D_0044F420_D39->f40[(ev->fC >> 2) & 0xFFF]]);
+        }
+        idx = func_003D3C90_D39(arg0, func_003D37A0_D39(idx, vel));
+        vel = orig;
+        ev = (struct E_D39 *)&D_0044F420_D39->f34[D_0044F420_D39->f38[idx]];
+        }
+    return func_003D3C90_D39(arg0, idx);
+}
 
 //100%
 // Looks up id's remap list in the table at D_0044F420 and returns what value maps to, or value.
@@ -10729,7 +11696,63 @@ b10:
 
 INCLUDE_ASM("ealib/seg_2B4578", func_003D5A98);
 
-INCLUDE_ASM("ealib/seg_2B4578", func_003D5CC0);
+//100%
+// Steps a volume fade on a voice; the fade curve and length come from the current bank.
+struct T_5CC0 { unsigned int type : 7; unsigned int dir : 1; unsigned int pad : 8; unsigned int dur : 16; };
+union U_5CC0 { struct T_5CC0 b; unsigned int w; };
+struct B_5CC0 { char pad[0x1C]; unsigned short dur; char pad1E[2]; int type; };
+struct S_5CC0 { char pad[0x10]; unsigned int t; signed char lo; signed char mid; signed char hi; char pad17[0x3D]; int h; };
+extern struct B_5CC0 *D_0044F420_5CC0 __asm__("D_0044F420");
+extern int D_0044F438_5CC0 __asm__("D_0044F438");
+extern void f_F4E0_5CC0(int, int, int, unsigned int) __asm__("func_002AF4E0");
+
+void func_003D5CC0(struct S_5CC0 *s) {
+    union U_5CC0 m;
+    float d;
+    float f;
+    float g;
+    float base;
+    int up;
+    int none;
+
+    g = -1.0f;
+    d = s->hi;
+    d -= s->lo;
+    up = 1;
+    m.b.dur = D_0044F420_5CC0->dur;
+    m.b.type = D_0044F420_5CC0->type;
+    none = -1;
+    if (d < 0.0f) up = 0;
+    m.b.dir = up;
+    f = (float)(unsigned int)(D_0044F438_5CC0 - s->t) / (float)m.b.dur;
+    if (f >= 1.0f) {
+        f_F4E0_5CC0(s->h, 0, s->hi, m.w);
+        s->lo = none;
+        s->t = 0;
+        s->hi = -1;
+        s->mid = -1;
+        return;
+    }
+    if (m.w & 0x80) f = 1.0f - f;
+    switch (m.w & 0x7F) {
+    case 1:
+        g = 1.0f - f;
+        break;
+    case 2:
+        g = 1.0f - f * f;
+        break;
+    case 3:
+        g = 1.0f / f / 25.0f;
+        break;
+    }
+    base = s->lo;
+    if (s->hi < s->lo) base = s->hi;
+    if (d < 0.0f) d = -d;
+    if (g >= 0.0f && g <= 1.0f) {
+        g = base + d * g;
+        f_F4E0_5CC0(s->h, 0, (int)g, m.w);
+    }
+}
 
 INCLUDE_ASM("ealib/seg_2B4578", func_003D5EE8);
 
