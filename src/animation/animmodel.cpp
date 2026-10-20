@@ -1,4 +1,5 @@
 #include "common.h"
+#include "animation/animmodel.h"
 
 //100%
 // PORT: operator_new__FUi is the game's tagged allocator (size, tag, flags, d); bound by asm label
@@ -701,7 +702,8 @@ struct sAmGroup58 {
 
 extern "C" int cAnimModel_findBone(void* self, int idx, const char* name)
 {
-    sAmGroup58* g = &(*(sAmGroup58**)((char*)self + 0xC))[(*(int**)((char*)self + 0x1C))[idx]];
+    cAnimModel* model = (cAnimModel*)self;
+    sAmGroup58* g = &(*(sAmGroup58**)&model->mParts)[(model->mPartIndexById)[idx]];
     sAmItem50* items = g->items;
     for (int i = 0; i < g->count; i++)
     {
@@ -730,14 +732,15 @@ struct sAnimPart_0CE8 {
 // PORT: returns a 64-bit mask (long is 8 bytes on the EE).
 extern "C" ulong cAnimModel_getBoneMask(char* self, int idx, char* names)
 {
-    if (*(int*)(self + 0x14) < idx)
+    cAnimModel* model = (cAnimModel*)self;
+    if (model->mMaxPartId < idx)
         return 0;
-    int* tbl = *(int**)(self + 0x1C);
+    int* tbl = model->mPartIndexById;
     if (tbl == 0 || tbl[idx] < 0)
         return 0;
     char* p = names;
     ulong mask = 0;
-    sAnimPart_0CE8* part = &(*(sAnimPart_0CE8**)(self + 0xC))[tbl[idx]];
+    sAnimPart_0CE8* part = &(*(sAnimPart_0CE8**)&model->mParts)[tbl[idx]];
     while (*p) {
         char* q = p;
         if (*q != 0 && *q != ',') {
@@ -747,7 +750,7 @@ extern "C" ulong cAnimModel_getBoneMask(char* self, int idx, char* names)
         }
         int len = q - p;
         if (part->chanBit >= 0 && func_00416B18(p, D_004A3DF0, len) == 0) {
-            mask |= (ulong)1 << (part->chanBit + *(int*)(self + 0x10));
+            mask |= (ulong)1 << (part->chanBit + model->mNumBones);
         } else {
             char* list = part->names;
             int j = 0;
@@ -767,19 +770,21 @@ extern "C" ulong cAnimModel_getBoneMask(char* self, int idx, char* names)
 //100%
 class cAmStream {
 public:
-    virtual void read(void* data, int size);
-    virtual void write(void* data, int size);
+    virtual void write(void* data, int size);   // slot 1
+    virtual void read(void* data, int size);    // slot 2
 };
 
 extern "C" void cAnimModel_savePose(void* self, cAmStream* s)
 {
-    s->read(*(void**)((char*)self + 0x2C), *(int*)((char*)self + 0x10) << 5);
+    cAnimModel* model = (cAnimModel*)self;
+    s->write(*(void**)&model->mPoses, model->mNumBones << 5);
 }
 
 //100%
 extern "C" void cAnimModel_loadPose(void* self, cAmStream* s)
 {
-    s->write(*(void**)((char*)self + 0x2C), *(int*)((char*)self + 0x10) << 5);
+    cAnimModel* model = (cAnimModel*)self;
+    s->read(*(void**)&model->mPoses, model->mNumBones << 5);
 }
 
 //100%

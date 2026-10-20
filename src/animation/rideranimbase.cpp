@@ -1,4 +1,5 @@
 #include "common.h"
+#include "animation/rideranimbase.h"
 
 //100%
 // PORT: operator_new__FUi really takes (size, tag, flags, d), like cMemMan_alloc.
@@ -10,12 +11,13 @@ extern const char D_0048A4E0[];
 
 extern "C" void* cRiderAnimBase_cRiderAnimBase(void* self)
 {
-    *(int*)((char*)self + 0x54) = 0;
-    *(void**)((char*)self + 0x58) = D_0048D7D8;
-    *(void**)((char*)self + 0x50) = operator_new_tag(0x30, D_0048A4E0, 0, 0);
+    cRiderAnimBase* ra = (cRiderAnimBase*)self;
+    *(int*)&ra->mModel = 0;
+    ra->mVtable = D_0048D7D8;
+    *(void**)&ra->mSequencers = operator_new_tag(0x30, D_0048A4E0, 0, 0);
     for (int i = 0; i < 6; i++)
     {
-        cAnimSequencer_cAnimSequencer(*(char**)((char*)self + 0x50) + (i << 3));
+        cAnimSequencer_cAnimSequencer(ra->mSequencers + (i << 3));
     }
     cRiderAnimBase_reset(self);
     return self;
@@ -29,12 +31,13 @@ extern char D_0048D7D8[];
 
 extern "C" void cRiderAnimBase__cRiderAnimBase(void* self, int flags)
 {
-    *(void**)((char*)self + 0x58) = D_0048D7D8;
+    cRiderAnimBase* ra = (cRiderAnimBase*)self;
+    ra->mVtable = D_0048D7D8;
     for (int i = 0; i < 6; i++)
     {
-        cAnimSequencer_removeAll(*(char**)((char*)self + 0x50) + (i << 3));
+        cAnimSequencer_removeAll(ra->mSequencers + (i << 3));
     }
-    void* p = *(void**)((char*)self + 0x50);
+    void* p = *(void**)&ra->mSequencers;
     if (p)
         cMemMan_free(p);
     if (flags & 1)
@@ -44,7 +47,8 @@ extern "C" void cRiderAnimBase__cRiderAnimBase(void* self, int flags)
 //100%
 extern "C" void* cRiderAnimBase_getSequencer(void* self, int i)
 {
-    return *(char**)((char*)self + 0x50) + (i << 3);
+    cRiderAnimBase* ra = (cRiderAnimBase*)self;
+    return ra->mSequencers + (i << 3);
 }
 
 //100%
@@ -125,7 +129,8 @@ cAnimSequenceNode* cAnimSequencer_getSequence(cAnimSequencer* self, int index);
 
 extern "C" cAnimSequenceNode* cRiderAnimBase_getChannelSequence(void* self, int i)
 {
-    cAnimSequencer* seqs = *(cAnimSequencer**)((char*)self + 0x50);
+    cRiderAnimBase* ra = (cRiderAnimBase*)self;
+    cAnimSequencer* seqs = *(cAnimSequencer**)&ra->mSequencers;
     return cAnimSequencer_getSequence(&seqs[i], 0);
 }
 
@@ -252,15 +257,16 @@ static inline sRabXform_00311B48 Combine_00311BF0(const sRabXform_00311B48& a, c
 
 extern "C" void cRiderAnimBase_changeOrientationOffset(void* self, sRabXform_00311B48* xf)
 {
+    cRiderAnimBase* ra = (cRiderAnimBase*)self;
     for (int i = 0; i < 6; i++) {
         int j = 0;
-        if (j < (*(cAnimSequencer**)((char*)self + 0x50))[i].mCount) {
+        if (j < (*(cAnimSequencer**)&ra->mSequencers)[i].mCount) {
             do {
-            sRabXform_00311B48* src = (sRabXform_00311B48*)((char*)cAnimSequencer_getSequence(&(*(cAnimSequencer**)((char*)self + 0x50))[i], j) + 0x60);
-            sRabXform_00311B48* dst = (sRabXform_00311B48*)((char*)cAnimSequencer_getSequence(&(*(cAnimSequencer**)((char*)self + 0x50))[i], j) + 0x60);
+            sRabXform_00311B48* src = (sRabXform_00311B48*)((char*)cAnimSequencer_getSequence(&(*(cAnimSequencer**)&ra->mSequencers)[i], j) + 0x60);
+            sRabXform_00311B48* dst = (sRabXform_00311B48*)((char*)cAnimSequencer_getSequence(&(*(cAnimSequencer**)&ra->mSequencers)[i], j) + 0x60);
             *dst = Combine_00311BF0(*xf, *src);
                 j++;
-            } while (j < (*(cAnimSequencer**)((char*)self + 0x50))[i].mCount);
+            } while (j < (*(cAnimSequencer**)&ra->mSequencers)[i].mCount);
         }
     }
 }
@@ -294,8 +300,9 @@ extern "C" void cAnimSequencer_fadeOutAll(void* self, float v);
 
 extern "C" void cRiderAnimBase_fadeOutChannel(char* self, int i, float v)
 {
-    cAnimSequencer_removeEndTriggers(*(char**)(self + 0x50) + (i << 3), 0x3F);
-    cAnimSequencer_fadeOutAll(*(char**)(self + 0x50) + (i << 3), v);
+    cRiderAnimBase* ra = (cRiderAnimBase*)self;
+    cAnimSequencer_removeEndTriggers(ra->mSequencers + (i << 3), 0x3F);
+    cAnimSequencer_fadeOutAll(ra->mSequencers + (i << 3), v);
     *(int*)(self + (i << 2)) = 0x1B6;
 }
 
@@ -312,14 +319,15 @@ extern "C" void cRiderAnimBase_samplePose(void* self, int a1);
 
 extern "C" void cRiderAnimBase_update(char* self, int a1, float t)
 {
+    cRiderAnimBase* ra = (cRiderAnimBase*)self;
     for (int i = 0; i < 6; i++)
     {
-        cAnimSequenceNode* node = cAnimSequencer_getSequence(&(*(cAnimSequencer**)(self + 0x50))[i], 0);
+        cAnimSequenceNode* node = cAnimSequencer_getSequence(&(*(cAnimSequencer**)&ra->mSequencers)[i], 0);
         while (node)
         {
             cAnimSequenceNode* next = *(cAnimSequenceNode**)((char*)node + 0xC8);
-            sVEntry003123C0* vt = *(sVEntry003123C0**)(self + 0x58);
-            vt[2].fn(self + vt[2].delta, &(*(cAnimSequencer**)(self + 0x50))[i], node, t);
+            sVEntry003123C0* vt = *(sVEntry003123C0**)&ra->mVtable;
+            vt[2].fn(self + vt[2].delta, &(*(cAnimSequencer**)&ra->mSequencers)[i], node, t);
             node = next;
         }
     }
@@ -342,17 +350,18 @@ struct sSeqRef_00312490 {
 
 extern "C" void cRiderAnimBase_dispatchCompletions(char* self)
 {
+    cRiderAnimBase* ra = (cRiderAnimBase*)self;
     sSeqRef_00312490 list[32];
     int n = 0;
     for (int i = 0; i < 6; i++)
     {
-        cAnimSequenceNode* node = cAnimSequencer_getSequence(&(*(cAnimSequencer**)(self + 0x50))[i], 0);
+        cAnimSequenceNode* node = cAnimSequencer_getSequence(&(*(cAnimSequencer**)&ra->mSequencers)[i], 0);
         while (node)
         {
             if (func_001446A0((char*)node + 0xB0, 0x3F) != 0)
             {
                 list[n].node = node;
-                list[n].seq = &(*(cAnimSequencer**)(self + 0x50))[i];
+                list[n].seq = &(*(cAnimSequencer**)&ra->mSequencers)[i];
                 n++;
             }
             node = *(cAnimSequenceNode**)((char*)node + 0xC8);
@@ -360,7 +369,7 @@ extern "C" void cRiderAnimBase_dispatchCompletions(char* self)
     }
     for (int k = 0; k < n; k++)
     {
-        sVEntry00312490* vt = *(sVEntry00312490**)(self + 0x58);
+        sVEntry00312490* vt = *(sVEntry00312490**)&ra->mVtable;
         vt[3].fn(self + vt[3].delta, list[k].seq, list[k].node);
     }
 }
@@ -391,7 +400,8 @@ extern char** D_004A3DF8;
 
 extern "C" float cRiderAnimBase_getAnimDuration(char* self, int a1)
 {
-    sVEntry00312790* vt = *(sVEntry00312790**)(self + 0x58);
+    cRiderAnimBase* ra = (cRiderAnimBase*)self;
+    sVEntry00312790* vt = *(sVEntry00312790**)&ra->mVtable;
     int id = vt[4].fn(self + vt[4].delta, a1);
     if (id == 0x207)
         return 0.0f;
@@ -415,7 +425,8 @@ struct sAnimKey00312820 {
 
 extern "C" float cRiderAnimBase_getAnimEventTime(char* self, int a1, int frame)
 {
-    sVEntry00312820* vt = *(sVEntry00312820**)(self + 0x58);
+    cRiderAnimBase* ra = (cRiderAnimBase*)self;
+    sVEntry00312820* vt = *(sVEntry00312820**)&ra->mVtable;
     int id = vt[4].fn(self + vt[4].delta, a1);
     if (id == 0x207)
         return 0.0f;
@@ -453,7 +464,8 @@ int cRiderAnimBase_play_impl(char* self, int anim, int flags, float blend) __asm
 
 int cRiderAnimBase_play_impl(char* self, int anim, int flags, float blend)
 {
-    sVEntry003128E8* vt = *(sVEntry003128E8**)(self + 0x58);
+    cRiderAnimBase* ra = (cRiderAnimBase*)self;
+    sVEntry003128E8* vt = *(sVEntry003128E8**)&ra->mVtable;
     int id = vt[4].fn(self + vt[4].delta, anim);
     if (id == 0x207)
         return 0x1B6;
@@ -463,7 +475,7 @@ int cRiderAnimBase_play_impl(char* self, int anim, int flags, float blend)
     }
     int h = *(int*)(id * 4 + D_004A3E7C + 0x1030);
     int slot = cAIAnimEventMap_getBlendInTime(anim)[3];
-    return *(int*)(self + (slot << 2)) = cRiderAnimBase_startSequence(self, *(char**)(self + 0x50) + (slot << 3), anim, h, flags, D_0048D808[slot], blend);
+    return *(int*)(self + (slot << 2)) = cRiderAnimBase_startSequence(self, ra->mSequencers + (slot << 3), anim, h, flags, D_0048D808[slot], blend);
 }
 
 //100% - objdiff report; single-function view differs only in a relocation name
@@ -473,12 +485,13 @@ extern int D_0048D808[];
 
 extern "C" void cRiderAnimBase_playClip(char* self, int anim, int a2, float blend)
 {
+    cRiderAnimBase* ra = (cRiderAnimBase*)self;
     int slot = cAIAnimEventMap_getBlendInTime(anim)[3];
     if (blend < 0.0f)
     {
         blend = *(float*)&cAIAnimEventMap_getBlendInTime(anim)[4];
     }
-    *(int*)(self + (slot << 2)) = cRiderAnimBase_startSequence(self, *(char**)(self + 0x50) + (slot << 3), anim, a2, 1, D_0048D808[slot], blend);
+    *(int*)(self + (slot << 2)) = cRiderAnimBase_startSequence(self, ra->mSequencers + (slot << 3), anim, a2, 1, D_0048D808[slot], blend);
 }
 
 //100%
@@ -490,7 +503,8 @@ int cRiderAnimBase_getChannelAnim(void* self, int i)
 //100%
 extern "C" float cRiderAnimBase_getChannelProgress(void* self, int i)
 {
-    cAnimSequencer* seqs = *(cAnimSequencer**)((char*)self + 0x50);
+    cRiderAnimBase* ra = (cRiderAnimBase*)self;
+    cAnimSequencer* seqs = *(cAnimSequencer**)&ra->mSequencers;
     cAnimSequenceNode* node = cAnimSequencer_getSequence(&seqs[i], 0);
     return *(float*)((char*)node + 0x8) / *(float*)((char*)node + 0x10);
 }
@@ -498,7 +512,8 @@ extern "C" float cRiderAnimBase_getChannelProgress(void* self, int i)
 //100%
 extern "C" int cRiderAnimBase_isChannelComplete(void* self, int i)
 {
-    cAnimSequencer* seqs = *(cAnimSequencer**)((char*)self + 0x50);
+    cRiderAnimBase* ra = (cRiderAnimBase*)self;
+    cAnimSequencer* seqs = *(cAnimSequencer**)&ra->mSequencers;
     return *(int*)((char*)cAnimSequencer_getSequence(&seqs[i], 0) + 0xC0);
 }
 
