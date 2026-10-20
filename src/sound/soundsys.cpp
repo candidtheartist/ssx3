@@ -10725,7 +10725,27 @@ extern "C" char* func_002A7CF0(void* self)
     return buf;
 }
 
-INCLUDE_ASM("sound/soundsys", func_002A7DA0);
+//100%
+// Reads one whitespace-delimited token into the buffer at +0xC.
+extern "C" const char* func_002A7DA0_s(void* self)
+{
+    int n = 0;
+    func_002A78F8(self);
+    char* dst = (char*)self + 0xC;
+    // Re-reading the current char in each test keeps the loop entered at its test;
+    // a local copy makes gcc duplicate the test above the loop.
+    while (**(signed char**)((char*)self + 0x8) != 0
+           && **(signed char**)((char*)self + 0x8) != ' '
+           && **(signed char**)((char*)self + 0x8) != '\t'
+           && **(signed char**)((char*)self + 0x8) != '\n'
+           && **(signed char**)((char*)self + 0x8) != '\r') {
+        dst[n] = func_002A78E0(self);
+        n++;
+    }
+    char* buf = (char*)self + 0xC;
+    buf[n] = 0;
+    return buf;
+}
 
 //100% - objdiff report; single-function view differs only in a relocation name
 extern "C" void func_002A78F8(void*);
