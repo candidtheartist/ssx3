@@ -927,7 +927,7 @@ index 509fd07..b5210f9 100644
  
      std::string CodeGenerator::translateVU_VRGET(const Instruction &inst)
 diff --git a/ps2xRuntime/CMakeLists.txt b/ps2xRuntime/CMakeLists.txt
-index 589d768..c08e969 100644
+index 589d768..70c4a33 100644
 --- a/ps2xRuntime/CMakeLists.txt
 +++ b/ps2xRuntime/CMakeLists.txt
 @@ -253,7 +253,7 @@ option(PS2X_ENABLE_FFMPEG "Enable FFmpeg-backed MPEG video decoding" ${PS2X_ENAB
@@ -939,7 +939,7 @@ index 589d768..c08e969 100644
      include(ExternalProject)
  
      set(FFMPEG_PREBUILT_TAG "n7.1-241205")
-@@ -383,8 +383,13 @@ add_library(ps2_runtime STATIC
+@@ -383,8 +383,14 @@ add_library(ps2_runtime STATIC
      src/lib/gs/ps2_gs_memory.cpp
      src/lib/gs/gs_frontend.cpp
      src/lib/gs/gs_cpu_backend.cpp
@@ -947,13 +947,14 @@ index 589d768..c08e969 100644
      src/lib/ps2_iop_host.cpp
      src/lib/ps2_memory.cpp
 +    src/lib/ps2_vu1_thread.cpp
++    src/lib/ps2_gs_feed.cpp
 +    src/lib/ps2_host_sync.cpp
 +    src/lib/ps2_host_thread.cpp
 +    src/lib/ps2_host_alloc.cpp
      src/lib/ps2_pad.cpp
      src/lib/ps2_rom_device.cpp
      src/lib/ps2_vfs.cpp
-@@ -393,6 +398,7 @@ add_library(ps2_runtime STATIC
+@@ -393,6 +399,7 @@ add_library(ps2_runtime STATIC
      src/lib/vu/ps2_vu1_core.cpp
      src/lib/vu/ps2_vu1_upper.cpp
      src/lib/vu/ps2_vu1_lower.cpp
@@ -961,7 +962,7 @@ index 589d768..c08e969 100644
      src/lib/games_database.cpp
  )
  
-@@ -429,6 +435,22 @@ target_compile_definitions(ps2_runtime PRIVATE
+@@ -429,6 +436,22 @@ target_compile_definitions(ps2_runtime PRIVATE
      PS2X_HAS_FFMPEG=$<BOOL:${PS2X_ENABLE_FFMPEG}>
  )
  
@@ -984,7 +985,7 @@ index 589d768..c08e969 100644
  file(GLOB_RECURSE KERNEL_SRC_FILES CONFIGURE_DEPENDS
      "${CMAKE_CURRENT_SOURCE_DIR}/src/lib/Kernel/*.cpp"
  )
-@@ -437,11 +459,17 @@ target_sources(ps2_runtime PRIVATE
+@@ -437,11 +460,17 @@ target_sources(ps2_runtime PRIVATE
      ${KERNEL_SRC_FILES}
  )
  
@@ -1004,7 +1005,7 @@ index 589d768..c08e969 100644
  set(ROOT_MAIN_CPP "${CMAKE_CURRENT_SOURCE_DIR}/src/main.cpp")
  
  if(EXISTS "${RUNNER_MAIN_CPP}")
-@@ -460,6 +488,62 @@ else()
+@@ -460,6 +489,62 @@ else()
      add_executable(ps2EntryRunner
          ${RUNNER_SRC_FILES}
      )
@@ -1067,7 +1068,7 @@ index 589d768..c08e969 100644
  endif()
  
  if(PS2X_ENABLE_RUNNER_UNITY_BUILD)
-@@ -476,6 +560,8 @@ if(PS2X_ENABLE_RUNNER_PCH)
+@@ -476,6 +561,8 @@ if(PS2X_ENABLE_RUNNER_PCH)
      )
  
      foreach(PS2X_RUNNER_GENERATED_HEADER IN ITEMS
@@ -1076,7 +1077,7 @@ index 589d768..c08e969 100644
          "${CMAKE_CURRENT_SOURCE_DIR}/include/ps2_recompiled_functions.h"
          "${CMAKE_CURRENT_SOURCE_DIR}/include/ps2_recompiled_stubs.h")
          if(EXISTS "${PS2X_RUNNER_GENERATED_HEADER}")
-@@ -511,6 +597,8 @@ target_link_libraries(ps2EntryRunner
+@@ -511,6 +598,8 @@ target_link_libraries(ps2EntryRunner
      PRIVATE
      ps2_runtime
  )
@@ -1085,7 +1086,7 @@ index 589d768..c08e969 100644
  
  if(PS2X_ENABLE_DEBUG_UI AND NOT PS2X_IS_VITA AND NOT PS2X_IS_ANDROID)
      target_sources(ps2EntryRunner PRIVATE
-@@ -597,7 +685,7 @@ install(TARGETS ps2_runtime ps2EntryRunner
+@@ -597,7 +686,7 @@ install(TARGETS ps2_runtime ps2EntryRunner
      ARCHIVE DESTINATION lib
  )
  
@@ -2493,6 +2494,61 @@ index a8c2a55..642e8cb 100644
  
  private:
      struct DecodedSample
+diff --git a/ps2xRuntime/include/runtime/ps2_gs_feed.h b/ps2xRuntime/include/runtime/ps2_gs_feed.h
+new file mode 100644
+index 0000000..d1a2c20
+--- /dev/null
++++ b/ps2xRuntime/include/runtime/ps2_gs_feed.h
+@@ -0,0 +1,49 @@
++#pragma once
++
++#include <cstddef>
++#include <cstdint>
++#include <functional>
++#include <vector>
++
++#include "runtime/ps2_vu1_thread.h"
++
++// Runs the GS frontend, and so the hand-over of each draw to the raster backend, on a
++// thread of its own after the VU1 thread, so that thread can go on with the next VIF1
++// list meanwhile. The VU1 thread queues the GIF packets it sends, and the GS register
++// stores that must stay in order with them, and hands them over at the end of each of
++// its jobs. Only the VU1 thread queues. The EE side waits for the VU1 thread and then
++// for this one before it touches the GS (PS2Memory::waitForVu1Thread).
++class GsFeed
++{
++public:
++    using PacketFn = std::function<void(const uint8_t *, uint32_t)>;
++
++    explicit GsFeed(PacketFn process);
++
++    // Each item runs in the rounding mode the queuing thread has now.
++    void QueuePacket(const uint8_t *data, uint32_t sizeBytes);
++    void QueueCall(std::function<void()> call);
++    // Hands over what is queued.
++    void Flush();
++    void WaitIdle() { m_thread.WaitIdle(); }
++    void VsyncFence() { m_thread.VsyncFence(); }
++    bool OnThread() const { return m_thread.OnThread(); }
++
++    // Past this much queued data the queue is handed over without waiting for the job's end.
++    static constexpr size_t kBatchBytes = 64u << 10u;
++
++private:
++    struct Batch
++    {
++        // Each item is a 16-byte header, then for a packet its data padded to 16 bytes.
++        std::vector<uint8_t> bytes;
++        std::vector<std::function<void()>> calls;
++    };
++
++    void Run(const Batch &batch) const;
++    void queueHeader(uint32_t sizeBytes, uint32_t call);
++
++    PacketFn m_process;
++    Batch m_batch;
++    Vu1Thread m_thread{"GsFeed"}; // last, so it stops before the rest goes
++};
 diff --git a/ps2xRuntime/include/runtime/ps2_host_fpu.h b/ps2xRuntime/include/runtime/ps2_host_fpu.h
 new file mode 100644
 index 0000000..f7c76fc
@@ -2729,10 +2785,10 @@ index 0000000..bf12500
 +    };
 +}
 diff --git a/ps2xRuntime/include/runtime/ps2_memory.h b/ps2xRuntime/include/runtime/ps2_memory.h
-index ea86a9c..50d3a59 100644
+index ea86a9c..88200fd 100644
 --- a/ps2xRuntime/include/runtime/ps2_memory.h
 +++ b/ps2xRuntime/include/runtime/ps2_memory.h
-@@ -9,9 +9,11 @@
+@@ -9,9 +9,12 @@
  #include <unordered_map>
  #include <atomic>
  #include <iostream>
@@ -2740,11 +2796,12 @@ index ea86a9c..50d3a59 100644
  #include <mutex>
  
  #include "gs/ps2_gif_arbiter.h"
++#include "runtime/ps2_gs_feed.h"
 +#include "runtime/ps2_vu1_thread.h"
  #if defined(_MSC_VER)
  #include <intrin.h>
  #elif defined(USE_SSE2NEON)
-@@ -19,6 +21,7 @@
+@@ -19,6 +22,7 @@
  #else
  #include <immintrin.h> // For SSE/AVX instructions
  #include <smmintrin.h> // For SSE4.1 instructions
@@ -2752,7 +2809,7 @@ index ea86a9c..50d3a59 100644
  #endif
  
  class GS;
-@@ -212,7 +215,7 @@ struct GSRegisters
+@@ -212,7 +216,7 @@ struct GSRegisters
      uint64_t siglblid; // Signal label ID
  };
  static_assert(sizeof(GSRegisters) == (20u * sizeof(uint64_t)), "GSRegisters layout changed unexpectedly");
@@ -2761,7 +2818,7 @@ index ea86a9c..50d3a59 100644
  static_assert(std::atomic<uint64_t>::is_always_lock_free, "GS CSR atomic must be lock-free on all supported targets");
  
  // PS2 VIF (VPU Interface) registers
-@@ -331,8 +334,31 @@ public:
+@@ -331,8 +335,48 @@ public:
      uint8_t *getVU0Data() { return m_vu0Data; }
      const uint8_t *getVU0Data() const { return m_vu0Data; }
  
@@ -2774,17 +2831,34 @@ index ea86a9c..50d3a59 100644
 +    void enableVu1Thread(bool enabled, Vu1AsyncAllowedFn asyncAllowed = {});
 +    bool vu1ThreadEnabled() const { return m_vu1Thread != nullptr; }
 +    bool onVu1Thread() const { return m_vu1Thread && m_vu1Thread->OnThread(); }
++    // With the VU1 thread on, the GS feed can take the GS frontend off it (see GsFeed);
++    // process runs each packet there. Turning the VU1 thread off turns the feed off too.
++    void enableGsFeed(bool enabled, GsFeed::PacketFn process = {});
++    // On the VU1 thread with the feed on, queues the packet for the feed and returns true;
++    // otherwise returns false and the caller sends it to the GS itself.
++    bool queueForGsFeed(const uint8_t *data, uint32_t sizeBytes)
++    {
++        if (!m_gsFeed || !m_vu1Thread->OnThread())
++            return false;
++        m_gsFeed->QueuePacket(data, sizeBytes);
++        return true;
++    }
 +    // Called from the EE side before it reads or changes what the thread's jobs use.
 +    void waitForVu1Thread() const
 +    {
-+        if (m_vu1Thread && !m_vu1Thread->OnThread())
-+            m_vu1Thread->WaitIdle();
++        if (!m_vu1Thread || m_vu1Thread->OnThread() || (m_gsFeed && m_gsFeed->OnThread()))
++            return;
++        m_vu1Thread->WaitIdle();
++        if (m_gsFeed)
++            m_gsFeed->WaitIdle();
 +    }
 +    // Called at each vertical blank, to keep the EE close behind the drawing.
 +    void vu1ThreadVsync()
 +    {
 +        if (m_vu1Thread)
 +            m_vu1Thread->VsyncFence();
++        if (m_gsFeed)
++            m_gsFeed->VsyncFence();
 +    }
 +
      bool isPath3Masked() const { return m_path3Masked; }
@@ -2793,11 +2867,12 @@ index ea86a9c..50d3a59 100644
  
      void submitGifPacket(GifPathId pathId, const uint8_t *data, uint32_t sizeBytes, bool drainImmediately = true, bool path2DirectHl = false);
      void processGIFPacket(uint32_t srcPhysAddr, uint32_t qwCount);
-@@ -401,15 +427,18 @@ public:
+@@ -401,15 +445,19 @@ public:
      GifArbiter *m_gifArbiter = nullptr;
      Vu1MscalCallback m_vu1MscalCallback;
      Vu1MscntCallback m_vu1MscntCallback;
 +    std::unique_ptr<Vu1Thread> m_vu1Thread;
++    std::unique_ptr<GsFeed> m_gsFeed; // only with m_vu1Thread
 +    Vu1AsyncAllowedFn m_vu1AsyncAllowed;
  
      uint8_t *m_vu0Code = nullptr;
@@ -2813,7 +2888,7 @@ index ea86a9c..50d3a59 100644
  
      struct PendingTransfer
      {
-@@ -421,6 +450,8 @@ public:
+@@ -421,6 +469,8 @@ public:
      std::vector<PendingTransfer> m_pendingGifTransfers;
      std::vector<PendingTransfer> m_pendingVif0Transfers;
      std::vector<PendingTransfer> m_pendingVif1Transfers;
@@ -3182,10 +3257,10 @@ index 67c8184..dae19d5 100644
      void reportReservedInstruction(bool upper, uint32_t instruction);
 diff --git a/ps2xRuntime/include/runtime/ps2_vu1_thread.h b/ps2xRuntime/include/runtime/ps2_vu1_thread.h
 new file mode 100644
-index 0000000..935924d
+index 0000000..d820167
 --- /dev/null
 +++ b/ps2xRuntime/include/runtime/ps2_vu1_thread.h
-@@ -0,0 +1,73 @@
+@@ -0,0 +1,78 @@
 +#pragma once
 +
 +#include <array>
@@ -3204,18 +3279,22 @@ index 0000000..935924d
 +// keep going meanwhile. Each job runs in the rounding mode its submitter had. Before
 +// the EE side reads or changes anything a job may touch (VIF1 and VU1 state, the GIF
 +// arbiter, the GS frontend and the GS registers the GIF writes), it calls WaitIdle.
++// GsFeed runs a second one, named after it, for the GS frontend.
 +class Vu1Thread
 +{
 +public:
-+    Vu1Thread();
++    explicit Vu1Thread(const char *name = "Vu1Thread");
 +    ~Vu1Thread();
 +
 +    Vu1Thread(const Vu1Thread &) = delete;
 +    Vu1Thread &operator=(const Vu1Thread &) = delete;
 +
-+    // Submit, WaitIdle and VsyncFence are called from one thread, the EE's.
++    // Submit is called from one thread at a time, WaitIdle and VsyncFence from the EE's.
++    // When another thread submits, the EE first waits for that thread to finish its jobs.
 +    // bytes is the data the job carries: past kMaxPendingBytes the submitter waits.
 +    void Submit(std::function<void()> job, size_t bytes);
++    // Runs on the thread after each job, before the job counts as finished.
++    void SetJobEnd(std::function<void()> jobEnd);
 +    // Returns once every submitted job has finished.
 +    void WaitIdle();
 +    // Called at each vertical blank. Returns once every job submitted before the
@@ -3235,7 +3314,7 @@ index 0000000..935924d
 +        int roundingMode = 0;
 +    };
 +
-+    void Run();
++    void Run(const char *name);
 +    void WaitFor(uint64_t sequence);
 +    bool hasRoomFor(size_t bytes) const; // with m_mutex held
 +
@@ -3243,6 +3322,7 @@ index 0000000..935924d
 +    ps2_host_sync::CondVar m_jobReady;
 +    ps2_host_sync::CondVar m_jobDone;
 +    std::deque<Job> m_jobs;
++    std::function<void()> m_jobEnd;
 +    size_t m_pendingBytes = 0;
 +    // Waking a thread costs a lot more than checking whether it needs waking (on Windows
 +    // most of all), so the two threads only wake each other when the other is waiting
@@ -7626,6 +7706,97 @@ index c9aa2c6..5cfa0e7 100644
      }
  #endif
  }
+diff --git a/ps2xRuntime/src/lib/ps2_gs_feed.cpp b/ps2xRuntime/src/lib/ps2_gs_feed.cpp
+new file mode 100644
+index 0000000..81d390b
+--- /dev/null
++++ b/ps2xRuntime/src/lib/ps2_gs_feed.cpp
+@@ -0,0 +1,85 @@
++#include "runtime/ps2_gs_feed.h"
++
++#include "runtime/ps2_host_fpu.h"
++
++#include <cstring>
++#include <utility>
++
++namespace
++{
++    struct ItemHeader
++    {
++        uint32_t sizeBytes;
++        uint32_t call; // kNoCall for a packet
++        int32_t roundingMode;
++        uint32_t unused;
++    };
++    static_assert(sizeof(ItemHeader) == 16u, "items stay 16-byte aligned");
++
++    constexpr uint32_t kNoCall = UINT32_MAX;
++}
++
++GsFeed::GsFeed(PacketFn process) : m_process(std::move(process))
++{
++    m_batch.bytes.reserve(kBatchBytes);
++}
++
++void GsFeed::queueHeader(uint32_t sizeBytes, uint32_t call)
++{
++    ItemHeader header{sizeBytes, call, ps2_host_fpu::getRounding(), 0u};
++    const size_t at = m_batch.bytes.size();
++    m_batch.bytes.resize(at + sizeof(header));
++    std::memcpy(m_batch.bytes.data() + at, &header, sizeof(header));
++}
++
++void GsFeed::QueuePacket(const uint8_t *data, uint32_t sizeBytes)
++{
++    queueHeader(sizeBytes, kNoCall);
++    const size_t at = m_batch.bytes.size();
++    m_batch.bytes.resize(at + ((sizeBytes + 15u) & ~size_t{15u}));
++    std::memcpy(m_batch.bytes.data() + at, data, sizeBytes);
++    if (m_batch.bytes.size() >= kBatchBytes)
++        Flush();
++}
++
++void GsFeed::QueueCall(std::function<void()> call)
++{
++    queueHeader(0u, static_cast<uint32_t>(m_batch.calls.size()));
++    m_batch.calls.push_back(std::move(call));
++}
++
++void GsFeed::Flush()
++{
++    if (m_batch.bytes.empty())
++        return;
++    const size_t bytes = m_batch.bytes.size();
++    m_thread.Submit([this, batch = std::move(m_batch)]
++                    { Run(batch); },
++                    bytes);
++    m_batch = Batch{};
++    m_batch.bytes.reserve(kBatchBytes);
++}
++
++void GsFeed::Run(const Batch &batch) const
++{
++    int roundingMode = ps2_host_fpu::getRounding();
++    size_t pos = 0u;
++    while (pos < batch.bytes.size())
++    {
++        ItemHeader header;
++        std::memcpy(&header, batch.bytes.data() + pos, sizeof(header));
++        pos += sizeof(header);
++        if (header.roundingMode != roundingMode)
++        {
++            ps2_host_fpu::setRounding(header.roundingMode);
++            roundingMode = header.roundingMode;
++        }
++        if (header.call != kNoCall)
++        {
++            batch.calls[header.call]();
++            continue;
++        }
++        m_process(batch.bytes.data() + pos, header.sizeBytes);
++        pos += (header.sizeBytes + 15u) & ~size_t{15u};
++    }
++}
 diff --git a/ps2xRuntime/src/lib/ps2_host_alloc.cpp b/ps2xRuntime/src/lib/ps2_host_alloc.cpp
 new file mode 100644
 index 0000000..a8752e8
@@ -8028,7 +8199,7 @@ index 6bd1835..25608c0 100644
  {
  public:
 diff --git a/ps2xRuntime/src/lib/ps2_memory.cpp b/ps2xRuntime/src/lib/ps2_memory.cpp
-index 37b6a4d..378880d 100644
+index 37b6a4d..97a7ada 100644
 --- a/ps2xRuntime/src/lib/ps2_memory.cpp
 +++ b/ps2xRuntime/src/lib/ps2_memory.cpp
 @@ -238,6 +238,55 @@ static inline uint32_t gs_vram_offset(uint32_t basePage, uint32_t x, uint32_t y,
@@ -8417,10 +8588,7 @@ index 37b6a4d..378880d 100644
 -                continue;
 -            }
 -            if (p.fromScratchpad)
-+            const size_t first = gifChunks.size();
-+            queueChunk(gifChunks, p, 16u);
-+            if (gifChunks.size() != first)
-             {
+-            {
 -                uint32_t bytesLeft = sizeBytes;
 -                while (bytesLeft > 0)
 -                {
@@ -8437,7 +8605,10 @@ index 37b6a4d..378880d 100644
 -                }
 -            }
 -            else
--            {
++            const size_t first = gifChunks.size();
++            queueChunk(gifChunks, p, 16u);
++            if (gifChunks.size() != first)
+             {
 -                uint32_t bytesLeft = sizeBytes;
 -                while (bytesLeft > 0)
 -                {
@@ -8565,7 +8736,7 @@ index 37b6a4d..378880d 100644
  
      static constexpr uint32_t GIF_CHANNEL = 0x1000A000;
      static constexpr uint32_t VIF0_CHANNEL = 0x10008000;
-@@ -1905,6 +1916,37 @@ void PS2Memory::processPendingTransfers()
+@@ -1905,6 +1916,65 @@ void PS2Memory::processPendingTransfers()
      }
  }
  
@@ -8576,7 +8747,7 @@ index 37b6a4d..378880d 100644
 +        if (uint64_t *reg = gsRegPtr(gs_regs, address))
 +            *reg = (*reg & ~mask) | (value & mask);
 +    };
-+    if (!m_vu1Thread || m_vu1Thread->OnThread())
++    if (!m_vu1Thread)
 +    {
 +        store();
 +        return;
@@ -8584,14 +8755,26 @@ index 37b6a4d..378880d 100644
 +
 +    // The store waits its turn behind the GIF packets already queued, so the display
 +    // changes at the same point in the drawing as on a PS2.
-+    m_vu1Thread->Submit(store, 0u);
++    auto storeInTurn = [this, store]
++    {
++        if (m_gsFeed)
++            m_gsFeed->QueueCall(store);
++        else
++            store();
++    };
++    if (m_vu1Thread->OnThread())
++        storeInTurn();
++    else
++        m_vu1Thread->Submit(storeInTurn, 0u);
 +}
 +
 +void PS2Memory::enableVu1Thread(bool enabled, Vu1AsyncAllowedFn asyncAllowed)
 +{
 +    if (!enabled)
 +    {
++        // The VU1 thread finishes its jobs first, and they may still hand work to the feed.
 +        m_vu1Thread.reset();
++        m_gsFeed.reset();
 +        m_vu1AsyncAllowed = {};
 +        return;
 +    }
@@ -8600,10 +8783,26 @@ index 37b6a4d..378880d 100644
 +        m_vu1Thread = std::make_unique<Vu1Thread>();
 +}
 +
++void PS2Memory::enableGsFeed(bool enabled, GsFeed::PacketFn process)
++{
++    if (!m_vu1Thread || enabled == (m_gsFeed != nullptr))
++        return;
++    waitForVu1Thread();
++    if (!enabled)
++    {
++        m_vu1Thread->SetJobEnd({});
++        m_gsFeed.reset();
++        return;
++    }
++    m_gsFeed = std::make_unique<GsFeed>(std::move(process));
++    m_vu1Thread->SetJobEnd([feed = m_gsFeed.get()]
++                           { feed->Flush(); });
++}
++
  void PS2Memory::queueCompletedDmacCause(uint32_t cause)
  {
      std::lock_guard<std::mutex> lock(m_completedDmacMutex);
-@@ -1919,8 +1961,42 @@ std::vector<uint32_t> PS2Memory::consumeCompletedDmacCauses()
+@@ -1919,8 +1989,42 @@ std::vector<uint32_t> PS2Memory::consumeCompletedDmacCauses()
      return causes;
  }
  
@@ -8646,7 +8845,7 @@ index 37b6a4d..378880d 100644
      if (m_path3Masked || m_path3MaskedFifo.empty())
          return;
  
-@@ -1932,21 +2008,65 @@ void PS2Memory::flushMaskedPath3Packets(bool drainImmediately)
+@@ -1932,21 +2036,65 @@ void PS2Memory::flushMaskedPath3Packets(bool drainImmediately)
              m_gifPacketCallback(packetData, packetSize);
      };
  
@@ -8715,7 +8914,7 @@ index 37b6a4d..378880d 100644
  
      if (pathId == GifPathId::Path3)
      {
-@@ -2007,7 +2127,8 @@ bool PS2Memory::tryProcessNativeGifImageUploadChain(GS &gs, uint32_t tadr, uint3
+@@ -2007,7 +2155,8 @@ bool PS2Memory::tryProcessNativeGifImageUploadChain(GS &gs, uint32_t tadr, uint3
      static constexpr uint32_t D_STAT = 0x1000E010u;
      static constexpr uint32_t D_CTRL = 0x1000E000u;
  
@@ -8725,7 +8924,7 @@ index 37b6a4d..378880d 100644
          return false;
      if (m_gifArbiter && !m_gifArbiter->empty())
          return false;
-@@ -2199,7 +2320,8 @@ bool PS2Memory::tryProcessNativeGifPackedChain(GS &gs, uint32_t tadr, uint32_t c
+@@ -2199,7 +2348,8 @@ bool PS2Memory::tryProcessNativeGifPackedChain(GS &gs, uint32_t tadr, uint32_t c
      static constexpr uint32_t D_STAT = 0x1000E010u;
      static constexpr uint32_t D_CTRL = 0x1000E000u;
  
@@ -8735,7 +8934,7 @@ index 37b6a4d..378880d 100644
          return false;
      if (m_gifArbiter && !m_gifArbiter->empty())
          return false;
-@@ -2310,6 +2432,7 @@ uint32_t PS2Memory::readIORegister(uint32_t address)
+@@ -2310,6 +2460,7 @@ uint32_t PS2Memory::readIORegister(uint32_t address)
          {
              return static_cast<uint32_t>((gs_regs.csr.load() >> (off * 8u)) & 0xFFFFFFFFull);
          }
@@ -8743,7 +8942,7 @@ index 37b6a4d..378880d 100644
          if (uint64_t *reg = gsRegPtr(gs_regs, address))
          {
              return static_cast<uint32_t>((*reg >> (off * 8u)) & 0xFFFFFFFFull);
-@@ -2346,7 +2469,9 @@ uint32_t PS2Memory::readIORegister(uint32_t address)
+@@ -2346,7 +2497,9 @@ uint32_t PS2Memory::readIORegister(uint32_t address)
          const uint32_t ctrl = m_ioRegisters.count(0x10003000u) ? m_ioRegisters[0x10003000u] : 0u;
  
          // M3R and IMT mirror GIF_MODE, PSE mirrors GIF_CTRL, and M3P is the
@@ -8828,7 +9027,7 @@ index 8590f14..8c831eb 100644
      data[2] = static_cast<uint8_t>(btns & 0xFF);
      data[3] = static_cast<uint8_t>(btns >> 8);
 diff --git a/ps2xRuntime/src/lib/ps2_runtime.cpp b/ps2xRuntime/src/lib/ps2_runtime.cpp
-index 45cb9d2..e0d31a9 100644
+index 45cb9d2..80e404e 100644
 --- a/ps2xRuntime/src/lib/ps2_runtime.cpp
 +++ b/ps2xRuntime/src/lib/ps2_runtime.cpp
 @@ -1,10 +1,16 @@
@@ -8888,14 +9087,17 @@ index 45cb9d2..e0d31a9 100644
          }
  #endif
          if (m_debugUiInitialized && m_debugUiShutdownCallback)
-@@ -664,43 +682,70 @@ bool PS2Runtime::syncCoreSubsystems()
+@@ -664,43 +682,72 @@ bool PS2Runtime::syncCoreSubsystems()
          return true;
      }
  
 +    m_memory.waitForVu1Thread();
      m_gs.init(gsVram, static_cast<uint32_t>(PS2_GS_VRAM_SIZE), &m_memory.gs());
      m_gifArbiter.setProcessPacketFn([this](const uint8_t *data, uint32_t size)
-                                     { m_gs.processGIFPacket(data, size); });
+-                                    { m_gs.processGIFPacket(data, size); });
++                                    {
++                                        if (!m_memory.queueForGsFeed(data, size))
++                                            m_gs.processGIFPacket(data, size); });
      m_memory.setGifArbiter(&m_gifArbiter);
      m_memory.setVu1MscalCallback([this](uint32_t startPC, uint32_t top, uint32_t itop)
                                   {
@@ -8971,7 +9173,7 @@ index 45cb9d2..e0d31a9 100644
                                           (cpuContext->vu0_vpu_stat & ~0x0600u) |
                                           (m_vu1.state().stoppedByD ? 0x0200u : 0u) |
                                           (m_vu1.state().stoppedByT ? 0x0400u : 0u); });
-@@ -1275,6 +1320,15 @@ void PS2Runtime::reportMissingFunction(uint8_t *rdram,
+@@ -1275,6 +1322,15 @@ void PS2Runtime::reportMissingFunction(uint8_t *rdram,
  
      if (firstReport)
      {
@@ -8987,7 +9189,7 @@ index 45cb9d2..e0d31a9 100644
          std::ostringstream oss;
          oss << "[guest-branch:missing-target] kind=" << describeGuestBranchKind(kind)
              << " op=" << (debugName ? debugName : "<unknown>")
-@@ -1342,6 +1396,19 @@ void PS2Runtime::reportMissingFunction(uint8_t *rdram,
+@@ -1342,6 +1398,19 @@ void PS2Runtime::reportMissingFunction(uint8_t *rdram,
      }
  }
  
@@ -9007,7 +9209,7 @@ index 45cb9d2..e0d31a9 100644
  bool PS2Runtime::dispatchGuestBranch(uint8_t *rdram,
                                       R5900Context *ctx,
                                       uint32_t targetPc,
-@@ -1350,6 +1417,13 @@ bool PS2Runtime::dispatchGuestBranch(uint8_t *rdram,
+@@ -1350,6 +1419,13 @@ bool PS2Runtime::dispatchGuestBranch(uint8_t *rdram,
                                       GuestBranchKind kind,
                                       const char *debugName)
  {
@@ -9021,7 +9223,7 @@ index 45cb9d2..e0d31a9 100644
      ctx->pc = targetPc;
      const bool isCall = (kind == GuestBranchKind::DirectCall || kind == GuestBranchKind::IndirectCall);
  
-@@ -1358,6 +1432,7 @@ bool PS2Runtime::dispatchGuestBranch(uint8_t *rdram,
+@@ -1358,6 +1434,7 @@ bool PS2Runtime::dispatchGuestBranch(uint8_t *rdram,
      // this charge bounds straight-line call chains that have no local loop.
      if (m_eeScheduler && m_eeScheduler->checkpointDue(EeScheduler::kGuestDispatchCycles))
      {
@@ -9029,7 +9231,7 @@ index 45cb9d2..e0d31a9 100644
          return false;
      }
  
-@@ -1369,6 +1444,7 @@ bool PS2Runtime::dispatchGuestBranch(uint8_t *rdram,
+@@ -1369,6 +1446,7 @@ bool PS2Runtime::dispatchGuestBranch(uint8_t *rdram,
          }
  
          ctx->pc = targetPc;
@@ -9037,7 +9239,7 @@ index 45cb9d2..e0d31a9 100644
          return false;
      }
  
-@@ -1396,6 +1472,7 @@ bool PS2Runtime::dispatchGuestBranch(uint8_t *rdram,
+@@ -1396,6 +1474,7 @@ bool PS2Runtime::dispatchGuestBranch(uint8_t *rdram,
  
      RecompiledFunction targetFn = lookupFunction(targetPc);
      const uint32_t entryPc = ctx->pc;
@@ -9045,7 +9247,7 @@ index 45cb9d2..e0d31a9 100644
      targetFn(rdram, ctx, this);
  
      if (isStopRequested() || ctx->pc == 0u)
-@@ -1403,7 +1480,10 @@ bool PS2Runtime::dispatchGuestBranch(uint8_t *rdram,
+@@ -1403,7 +1482,10 @@ bool PS2Runtime::dispatchGuestBranch(uint8_t *rdram,
          return false;
      }
  
@@ -9057,7 +9259,7 @@ index 45cb9d2..e0d31a9 100644
      {
          ctx->pc = fallthroughPc;
      }
-@@ -1677,6 +1757,11 @@ void PS2Runtime::ensureGuestHeapInitializedLocked()
+@@ -1677,6 +1759,11 @@ void PS2Runtime::ensureGuestHeapInitializedLocked()
          return;
      }
  
@@ -9069,7 +9271,7 @@ index 45cb9d2..e0d31a9 100644
      const uint32_t suggested = (m_guestHeapSuggestedBase == 0u) ? kGuestHeapDefaultBase : m_guestHeapSuggestedBase;
      resetGuestHeapLocked(suggested, clampGuestHeapLimit(0u));
  }
-@@ -1807,6 +1892,17 @@ void PS2Runtime::freeGuestBlockLocked(uint32_t guestAddr)
+@@ -1807,6 +1894,17 @@ void PS2Runtime::freeGuestBlockLocked(uint32_t guestAddr)
  void PS2Runtime::configureGuestHeap(uint32_t guestBase, uint32_t guestLimit)
  {
      std::lock_guard<std::mutex> lock(m_guestHeapMutex);
@@ -9087,7 +9289,7 @@ index 45cb9d2..e0d31a9 100644
      uint32_t normalizedBase = alignGuestHeapValue(clampGuestHeapBase(guestBase), kGuestHeapDefaultAlignment);
      if (normalizedBase == 0u)
      {
-@@ -1820,7 +1916,10 @@ uint32_t PS2Runtime::guestMalloc(uint32_t size, uint32_t alignment)
+@@ -1820,7 +1918,10 @@ uint32_t PS2Runtime::guestMalloc(uint32_t size, uint32_t alignment)
  {
      std::lock_guard<std::mutex> lock(m_guestHeapMutex);
      ensureGuestHeapInitializedLocked();
@@ -9099,7 +9301,7 @@ index 45cb9d2..e0d31a9 100644
  }
  
  uint32_t PS2Runtime::guestCalloc(uint32_t count, uint32_t size, uint32_t alignment)
-@@ -1975,6 +2074,16 @@ uint32_t PS2Runtime::guestHeapLimit() const
+@@ -1975,6 +2076,16 @@ uint32_t PS2Runtime::guestHeapLimit() const
      return m_guestHeapConfigured ? m_guestHeapLimit : m_guestHeapSuggestedBase;
  }
  
@@ -9116,7 +9318,7 @@ index 45cb9d2..e0d31a9 100644
  uint32_t PS2Runtime::reserveAsyncCallbackStack(uint32_t size, uint32_t alignment)
  {
      if (size == 0u)
-@@ -2211,7 +2320,12 @@ void PS2Runtime::postEeEvent(EeEvent event)
+@@ -2211,7 +2322,12 @@ void PS2Runtime::postEeEvent(EeEvent event)
  
  bool PS2Runtime::eeCheckpointDue(uint32_t cycles) noexcept
  {
@@ -9130,7 +9332,7 @@ index 45cb9d2..e0d31a9 100644
  }
  
  [[noreturn]] void PS2Runtime::eeWaitVSyncTicks(uint32_t ticks, uint32_t resumePc)
-@@ -2362,9 +2476,37 @@ void PS2Runtime::run()
+@@ -2362,9 +2478,46 @@ void PS2Runtime::run()
      Texture2D frameTex = LoadTextureFromImage(blank);
      UnloadImage(blank);
  
@@ -9159,6 +9361,15 @@ index 45cb9d2..e0d31a9 100644
 +                                         cpuContext = &m_cpuContext;
 +                                     return (cpuContext->vu0_fbrst & 0x0C00u) == 0u &&
 +                                            (cpuContext->vu0_vpu_stat & 0x0600u) == 0u; });
++
++        // Run the GS frontend on a thread after it, so the VU1 thread does not wait for
++        // each draw to be handed to the GS workers. PS2X_GS_FEED=0 keeps it on the VU1 thread.
++        bool gsFeed = true;
++        if (const char *value = std::getenv("PS2X_GS_FEED"))
++            gsFeed = std::strtoul(value, nullptr, 10) != 0u;
++        if (gsFeed)
++            m_memory.enableGsFeed(true, [this](const uint8_t *data, uint32_t size)
++                                  { m_gs.processGIFPacket(data, size); });
 +    }
 +
      std::atomic<bool> gameThreadFinished{false};
@@ -9169,7 +9380,7 @@ index 45cb9d2..e0d31a9 100644
                             {
          ThreadNaming::SetCurrentThreadName("GameThread");
          try
-@@ -2420,6 +2562,22 @@ void PS2Runtime::run()
+@@ -2420,6 +2573,22 @@ void PS2Runtime::run()
  
              }
          });
@@ -9192,7 +9403,7 @@ index 45cb9d2..e0d31a9 100644
          uint32_t presentWidth = FB_WIDTH;
          uint32_t presentHeight = DEFAULT_DISPLAY_HEIGHT;
          UploadFrame(frameTex, this, presentWidth, presentHeight);
-@@ -2459,6 +2617,7 @@ void PS2Runtime::run()
+@@ -2459,6 +2628,7 @@ void PS2Runtime::run()
      {
          gameThread.join();
      }
@@ -9259,10 +9470,10 @@ index b02c7ca..b60974f 100644
      }
 diff --git a/ps2xRuntime/src/lib/ps2_vu1_thread.cpp b/ps2xRuntime/src/lib/ps2_vu1_thread.cpp
 new file mode 100644
-index 0000000..b3e6b0d
+index 0000000..68f8342
 --- /dev/null
 +++ b/ps2xRuntime/src/lib/ps2_vu1_thread.cpp
-@@ -0,0 +1,127 @@
+@@ -0,0 +1,138 @@
 +#include "runtime/ps2_vu1_thread.h"
 +
 +#include "ThreadNaming.h"
@@ -9273,10 +9484,10 @@ index 0000000..b3e6b0d
 +#include <exception>
 +#include <utility>
 +
-+Vu1Thread::Vu1Thread()
++Vu1Thread::Vu1Thread(const char *name)
 +{
-+    m_thread = std::thread([this]
-+                           { Run(); });
++    m_thread = std::thread([this, name]
++                           { Run(name); });
 +    m_threadId = m_thread.get_id();
 +}
 +
@@ -9316,6 +9527,12 @@ index 0000000..b3e6b0d
 +        m_jobReady.notify_one();
 +}
 +
++void Vu1Thread::SetJobEnd(std::function<void()> jobEnd)
++{
++    std::lock_guard<ps2_host_sync::Mutex> lock(m_mutex);
++    m_jobEnd = std::move(jobEnd);
++}
++
 +bool Vu1Thread::hasRoomFor(size_t bytes) const
 +{
 +    return m_pendingBytes == 0u || m_pendingBytes + bytes <= kMaxPendingBytes;
@@ -9348,12 +9565,13 @@ index 0000000..b3e6b0d
 +        m_waitTarget = UINT64_MAX;
 +}
 +
-+void Vu1Thread::Run()
++void Vu1Thread::Run(const char *name)
 +{
-+    ThreadNaming::SetCurrentThreadName("Vu1Thread");
++    ThreadNaming::SetCurrentThreadName(name);
 +    for (;;)
 +    {
 +        Job job;
++        std::function<void()> jobEnd;
 +        {
 +            std::unique_lock<ps2_host_sync::Mutex> lock(m_mutex);
 +            if (!m_stop && m_jobs.empty())
@@ -9367,6 +9585,8 @@ index 0000000..b3e6b0d
 +                return;
 +            job = std::move(m_jobs.front());
 +            m_jobs.pop_front();
++            if (m_jobEnd)
++                jobEnd = m_jobEnd;
 +        }
 +
 +        ps2_host_fpu::setRounding(job.roundingMode);
@@ -9378,6 +9598,8 @@ index 0000000..b3e6b0d
 +        {
 +            std::fprintf(stderr, "[vu1-thread] job failed: %s\n", error.what());
 +        }
++        if (jobEnd)
++            jobEnd();
 +
 +        bool wake = false;
 +        {
@@ -14434,7 +14656,7 @@ index f1172e9..13913df 100644
          {
              iop_test::Host host;
 diff --git a/ps2xTest/src/ps2_memory_tests.cpp b/ps2xTest/src/ps2_memory_tests.cpp
-index 0b22fe0..0eaf636 100644
+index 0b22fe0..d6cf576 100644
 --- a/ps2xTest/src/ps2_memory_tests.cpp
 +++ b/ps2xTest/src/ps2_memory_tests.cpp
 @@ -8,8 +8,10 @@
@@ -14537,7 +14759,7 @@ index 0b22fe0..0eaf636 100644
          tc.Run("GIF arbiter prioritizes PATH1 then PATH2 then PATH3", [](TestCase &t)
          {
              std::vector<uint8_t> order;
-@@ -1059,6 +1143,119 @@ void register_ps2_memory_tests()
+@@ -1059,6 +1143,177 @@ void register_ps2_memory_tests()
              t.Equals(mem.readIORegister(kGifCh + 0x20u), 0u, "GIF QWC should be cleared after drain");
          });
  
@@ -14654,10 +14876,68 @@ index 0b22fe0..0eaf636 100644
 +            mem.enableVu1Thread(false);
 +        });
 +
++        tc.Run("GS feed runs VU1 thread packets and display stores in order on its own thread", [](TestCase &t)
++        {
++            PS2Memory mem;
++            t.IsTrue(mem.initialize(), "PS2Memory initialize should succeed");
++            mem.enableVu1Thread(true);
++
++            struct Seen
++            {
++                size_t size;
++                uint8_t last;
++                uint64_t dispfb;
++                bool onFeed;
++            };
++            std::vector<Seen> seen;
++            const std::thread::id eeThread = std::this_thread::get_id();
++            mem.enableGsFeed(true, [&](const uint8_t *data, uint32_t sizeBytes)
++            {
++                const bool onFeed = std::this_thread::get_id() != eeThread && !mem.onVu1Thread();
++                seen.push_back({sizeBytes, data[sizeBytes - 1u], mem.gs().dispfb1, onFeed});
++            });
++            GifArbiter arbiter([&](const uint8_t *data, uint32_t sizeBytes)
++            {
++                if (!mem.queueForGsFeed(data, sizeBytes))
++                    seen.push_back({sizeBytes, data[sizeBytes - 1u], mem.gs().dispfb1, false});
++            });
++            mem.setGifArbiter(&arbiter);
++
++            constexpr uint32_t kGifCh = 0x1000A000u;
++            constexpr uint32_t kGifSrc = 0x00022000u;
++            constexpr uint32_t kDispfb1 = 0x12000070u;
++            uint8_t *rdram = mem.getRDRAM();
++            mem.write64(kDispfb1, 0x11ull);
++            for (uint32_t qwc = 1u; qwc <= 2u; ++qwc)
++            {
++                std::memset(rdram + kGifSrc, 0, 32u);
++                rdram[kGifSrc] = 0x01u;          // NLOOP 1
++                rdram[kGifSrc + 1u] = 0x80u;     // EOP
++                rdram[kGifSrc + 7u] = 0x08u;     // IMAGE
++                rdram[kGifSrc + qwc * 16u - 1u] = static_cast<uint8_t>(0xA0u + qwc);
++                mem.writeIORegister(kGifCh + 0x10u, kGifSrc);
++                mem.writeIORegister(kGifCh + 0x20u, qwc);
++                mem.writeIORegister(kGifCh + 0x00u, 0x100u);
++                mem.processPendingTransfers();
++                if (qwc == 1u)
++                    mem.write64(kDispfb1, 0x22ull);
++            }
++            mem.waitForVu1Thread();
++
++            t.Equals(seen.size(), static_cast<size_t>(2u), "both packets should reach the GS");
++            t.IsTrue(seen[0].onFeed && seen[1].onFeed, "both should run on the feed thread");
++            t.Equals(seen[0].size, static_cast<size_t>(16u), "the first packet should be one quadword");
++            t.Equals(seen[1].last, static_cast<uint8_t>(0xA2u), "the second packet should hold its own data");
++            t.Equals(seen[0].dispfb, 0x11ull, "the first packet should run before the display store");
++            t.Equals(seen[1].dispfb, 0x22ull, "the second packet should run after it");
++            mem.setGifArbiter(nullptr);
++            mem.enableVu1Thread(false);
++        });
++
          tc.Run("GIF DMA can source from scratchpad", [](TestCase &t)
          {
              PS2Memory mem;
-@@ -1370,6 +1567,47 @@ void register_ps2_memory_tests()
+@@ -1370,6 +1625,47 @@ void register_ps2_memory_tests()
              t.IsTrue(ct32Ok, "all CT32 pixels should survive a preceding paletted upload in the same GIF DMA chain");
          });
  

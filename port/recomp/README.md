@@ -248,6 +248,11 @@ or any disc file.
     the workers can run straight after it, joins that one's command, up to 64 to a command. SSX 3 queues about
     1.3 million primitives a second in busy scenes, and each command cost the VU1 thread a queue slot, a lock
     and a copy of the draw state;
+  - the GS front end on a thread of its own (`GsFeed`), after the VU1 thread: the VU1 thread queues the GIF
+    packets it sends, and the GS register stores that stay in order with them, and hands them over at the end
+    of each of its jobs, so it goes on with the next VIF1 list while the last one's draws are decoded and
+    queued for the workers. That part was about a third of the VU1 thread's time on the Windows PC. Whatever
+    waits for the VU1 thread now waits for both; `PS2X_GS_FEED=0` keeps the front end on the VU1 thread;
   - a fix for a picture that stopped changing while the game went on. A presentation request queued while the
     thread that queues draws was waiting for room in a full queue was overwritten by that thread's next draw, so
     the window kept its last frame for the rest of the session. A 4-core Linux machine, where the queue is often
