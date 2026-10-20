@@ -68,7 +68,8 @@ def main():
         stem = unit.replace("/", "_").replace(".", "_")
         wrapper = os.path.join(work, stem + ".cpp")
         with open(wrapper, "w") as f:
-            f.write(f'#include "{os.path.join(root, unit)}"\n#include "native_abi.h"\n')
+            # the ABI header first, so no macro the game code defines can reach into it
+            f.write(f'#include "native_abi.h"\n#include "{os.path.join(root, unit)}"\n')
             for addr, name in entries:
                 f.write(f"SSX3_NATIVE({addr:08X}, {name})\n")
                 table.append(addr)

@@ -1,8 +1,8 @@
 // SPDX-License-Identifier: GPL-3.0-or-later
 // Calls a natively compiled game function with the arguments an EE caller left
-// in its registers. Included at the end of each generated unit wrapper, so it
-// sees the function's real type; it uses no runtime headers, since game code
-// declares its own C library functions.
+// in its registers. Included at the start of each generated unit wrapper, whose
+// SSX3_NATIVE lines after the unit then see each function's real type; it uses
+// no runtime headers, since game code declares its own C library functions.
 //
 // The EE EABI passes int and pointer arguments in a0-a3, t0-t3 and float
 // arguments in f12-f19, each kind counted on its own, and returns them in v0 or
@@ -71,25 +71,25 @@ namespace ssx3native
         static_assert(((isFloat<A> || isWord<A>) && ...), "argument kind the EE passes some other way");
         static_assert(std::is_void<R>::value || isFloat<R> || isWord<R>, "result kind the EE returns some other way");
 
-        template <R (*F)(A...), std::size_t... I>
+        template <R (*Ssx3Fn_)(A...), std::size_t... I>
         static void call(Ssx3NativeFrame *f, std::index_sequence<I...>)
         {
             static_assert(((slot<A...>(I) < 8) && ...), "more than 8 register arguments of one kind");
             f->result = std::is_void<R>::value ? 0u : isFloat<R> ? 2u : 1u;
             if constexpr (std::is_void<R>::value)
-                F(arg<A, slot<A...>(I)>(f)...);
+                Ssx3Fn_(arg<A, slot<A...>(I)>(f)...);
             else if constexpr (isFloat<R>)
-                f->f0 = F(arg<A, slot<A...>(I)>(f)...);
+                f->f0 = Ssx3Fn_(arg<A, slot<A...>(I)>(f)...);
             else if constexpr (std::is_pointer<R>::value)
-                f->v0 = static_cast<unsigned int>(reinterpret_cast<unsigned long>(F(arg<A, slot<A...>(I)>(f)...)));
+                f->v0 = static_cast<unsigned int>(reinterpret_cast<unsigned long>(Ssx3Fn_(arg<A, slot<A...>(I)>(f)...)));
             else
-                f->v0 = static_cast<unsigned int>(static_cast<int>(F(arg<A, slot<A...>(I)>(f)...)));
+                f->v0 = static_cast<unsigned int>(static_cast<int>(Ssx3Fn_(arg<A, slot<A...>(I)>(f)...)));
         }
 
-        template <R (*F)(A...)>
+        template <R (*Ssx3Fn_)(A...)>
         static void call(Ssx3NativeFrame *f)
         {
-            call<F>(f, std::index_sequence_for<A...>{});
+            call<Ssx3Fn_>(f, std::index_sequence_for<A...>{});
         }
     };
 } // namespace ssx3native

@@ -167,6 +167,23 @@ namespace
     }
 }
 
+// PS2X_NATIVE_SKIP=addr,addr,... keeps those functions recompiled (to narrow down a problem).
+static bool skipped(uint32_t address)
+{
+    static const char *list = std::getenv("PS2X_NATIVE_SKIP");
+    for (const char *p = list; p && *p;)
+    {
+        char *end = nullptr;
+        const unsigned long a = std::strtoul(p, &end, 16);
+        if (end == p)
+            break;
+        if (a == address)
+            return true;
+        p = *end == ',' ? end + 1 : end;
+    }
+    return false;
+}
+
 void ssx3RegisterNative(PS2Runtime &runtime)
 {
     if (&g_ssx3NativeCount == nullptr)
@@ -187,6 +204,8 @@ void ssx3RegisterNative(PS2Runtime &runtime)
         PS2Runtime::RecompiledFunction recompiled = runtime.lookupFunction(e.address);
         if (!recompiled)
             continue; // the translator found no function starting here
+        if (skipped(e.address))
+            continue;
         g_swapped[e.address] = {e.entry, recompiled, checks, 0u};
         runtime.replaceFunction(e.address, nativeShim);
         ++swapped;

@@ -208,12 +208,16 @@ def host_functions(obj):
     """Host symbol -> {sig, problem} from DWARF, for defined functions; and the
     prototypes the unit declares for functions it calls but does not define."""
     out, decls = {}, {}
+    names = defaultdict(set)  # source name -> every symbol declared under it
     with open(obj, "rb") as f:
         elf = ELFFile(f)
         if not elf.has_dwarf_info():
-            return out, decls
+            return out, decls, names
         for cu in elf.get_dwarf_info().iter_CUs():
             for die in cu.iter_DIEs():
+                if die.tag == "DW_TAG_subprogram" and "DW_AT_name" in die.attributes:
+                    link = die.attributes.get("DW_AT_linkage_name") or die.attributes["DW_AT_name"]
+                    names[die.attributes["DW_AT_name"].value.decode()].add(link.value.decode())
                 if die.tag == "DW_TAG_subprogram" and "DW_AT_declaration" in die.attributes:
                     link = (die.attributes.get("DW_AT_linkage_name") or die.attributes.get("DW_AT_name"))
                     if link is not None:
@@ -259,7 +263,7 @@ def host_functions(obj):
                 if wide:
                     problem = problem or "uses " + wide
                 out[sym] = {"params": params, "ret": ret, "problem": problem, "proto": prototype(decl)}
-    return out, decls
+    return out, decls, names
 
 
 def host_relocs(obj):
@@ -332,10 +336,12 @@ def main():
         skip = asm_names(unit)
         ee = scan_ee(unit)
         ee_by_base = {ee_base(n): v for n, v in ee.items()}
-        sigs, decls = host_functions(obj)
+        sigs, decls, names = host_functions(obj)
         relocs, defined, undefined, kinds, sections = host_relocs(obj)
         unit_undef[unit] = undefined
-        dem = demangle(sigs.keys())
+        dem = demangle(set(sigs) | set(decls))
+        # the entry point takes the function's address by name, which an overload makes ambiguous
+        overloads = names
         for sym, sig in sigs.items():
             base = dem.get(sym, sym).split("(")[0]
             if base in skip or base not in ee_by_base:
@@ -348,6 +354,9 @@ def main():
                 info["why"] = "no unique EE address"
                 continue
             info["addr"] = next(iter(a))
+            if len(overloads[base]) > 1:
+                info["why"] = "overloaded in its unit"
+                continue
             if eeinfo["bad"]:
                 info["why"] = "EE code uses " + ",".join(sorted(eeinfo["bad"]))
                 continue
