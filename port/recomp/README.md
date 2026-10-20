@@ -253,6 +253,13 @@ or any disc file.
     of each of its jobs, so it goes on with the next VIF1 list while the last one's draws are decoded and
     queued for the workers. That part was about a third of the VU1 thread's time on the Windows PC. Whatever
     waits for the VU1 thread now waits for both; `PS2X_GS_FEED=0` keeps the front end on the VU1 thread;
+  - frames skipped while drawing is behind. A game can tell the runtime where each frame's drawing starts; SSX 3
+    does it when the renderer starts the GIF chain that `PS2GraphicsMan_EndFrame` published for the frame's
+    first part. When a frame starts while the one before has not yet reached the end of the GS front end, its
+    VU1 microprograms don't run and the GS drops its draws, while its texture uploads and register writes still
+    run, so the game keeps its pace. The window shows only finished frames, and the EE may run up to 6 vertical
+    blanks ahead of the drawing instead of 3. `PS2X_FRAME_SKIP=0` or `1` turns skipping off or on; by default
+    it is on with the VU1 thread;
   - a fix for a picture that stopped changing while the game went on. A presentation request queued while the
     thread that queues draws was waiting for room in a full queue was overwritten by that thread's next draw, so
     the window kept its last frame for the rest of the session. A 4-core Linux machine, where the queue is often
@@ -358,7 +365,7 @@ These debug switches print to stderr:
 | `PS2X_DUMP_RDRAM_ON_FAULT=file` | EE RAM, written to `file` the first time guest code jumps to an unknown address |
 | `PS2X_VU1_LOG=1` | how often each VU1 microprogram runs, and VIF1 codes the interpreter skips |
 | `PS2X_GS_SPIN=n` | how many times a GS worker checks, with a pause, before it sleeps waiting for the others or for commands (2000) |
-| `PS2X_FRAME_LOG=1` | every 2 s: passes of the game's main loop a second (two a vertical blank at full speed), the game's speed against a PS2 (1.00x is 60 vertical blanks a second) and the median, 95th-percentile and longest pass in ms |
+| `PS2X_FRAME_LOG=1` | every 2 s: passes of the game's main loop a second (two a vertical blank at full speed), the game's speed against a PS2 (1.00x is 60 vertical blanks a second) and the median, 95th-percentile and longest pass in ms, and frames started and shown a second |
 | `PS2X_GS_SAMPLE=flagfile` | once `flagfile` exists, 3000 non-sprite primitives drawn to the main framebuffer |
 
 `PS2X_VU1_BLOCK_LIST=file` appends each VU1 block the game compiles to `file`, as lines for `vu1_blocks.txt`. Add
