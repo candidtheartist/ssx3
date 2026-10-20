@@ -106,11 +106,11 @@ INCLUDE_ASM("fe/fememcard2", func_001D99C8);
 
 INCLUDE_ASM("fe/fememcard2", func_001D9A80);
 
-INCLUDE_ASM("fe/fememcard2", func_001D9BD0);
+INCLUDE_ASM("fe/fememcard2", cScreenPopup_v26);
 
-INCLUDE_ASM("fe/fememcard2", func_001D9CA8);
+INCLUDE_ASM("fe/fememcard2", cScreenPopup_v27);
 
-INCLUDE_ASM("fe/fememcard2", func_001D9D18);
+INCLUDE_ASM("fe/fememcard2", cScreenPopup_v25);
 
 INCLUDE_ASM("fe/fememcard2", func_001D9D48);
 

@@ -1151,12 +1151,12 @@ extern "C" void func_002F0388()
 
 //100%
 extern "C" void* cMemMan_alloc(int size, const char* tag, unsigned int flags, int d);
-extern "C" void* func_002F03C8(void* self);
+extern "C" void* PS2AIVisualEffectsMan_ctor(void* self);
 extern char D_00487B88[];
 
 extern "C" void* func_002F0390(void)
 {
-    return func_002F03C8(cMemMan_alloc(8, D_00487B88, 0, 0));
+    return PS2AIVisualEffectsMan_ctor(cMemMan_alloc(8, D_00487B88, 0, 0));
 }
 
 //100% - objdiff report; single-function view differs only in a relocation name
@@ -1167,7 +1167,7 @@ extern char D_00487568[];
 extern void* D_00487D50[];
 extern void* D_00488648[];
 
-extern "C" void* func_002F03C8(void* self)
+extern "C" void* PS2AIVisualEffectsMan_ctor(void* self)
 {
     func_002F0368(self);
     *(void***)((char*)self + 0x4) = D_00487D50;

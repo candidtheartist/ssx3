@@ -2,7 +2,7 @@
 
 INCLUDE_ASM("bx/bxstring2", cBXString_cBXString__FP10cBXString2);
 
-INCLUDE_ASM("bx/bxstring2", func_00268950);
+INCLUDE_ASM("bx/bxstring2", cChallenger_dtor);
 
 INCLUDE_ASM("bx/bxstring2", func_002689B8);
 

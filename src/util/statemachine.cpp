@@ -138,12 +138,12 @@ extern "C" void func_002C73C0(void* self)
 
 //100%
 extern "C" void* cMemMan_alloc(int size, const char* tag, unsigned int flags, int d);
-extern "C" void* func_002C7478(void* self);
+extern "C" void* cPS2ConsoleConfig_ctor(void* self);
 extern char D_00486560[];
 
-extern "C" void* func_002C7440(void)
+extern "C" void* cPS2ConsoleConfig_Create(void)
 {
-    return func_002C7478(cMemMan_alloc(0x38, D_00486560, 0, 0));
+    return cPS2ConsoleConfig_ctor(cMemMan_alloc(0x38, D_00486560, 0, 0));
 }
 
 //100%
@@ -156,7 +156,7 @@ extern "C" void func_0040BFE0(unsigned char* clock);
 extern char D_00486798[];
 extern void* D_004A28A8;
 
-extern "C" void* func_002C7478(void* self_)
+extern "C" void* cPS2ConsoleConfig_ctor(void* self_)
 {
     int* self = (int*)self_;
     unsigned char clock[8];

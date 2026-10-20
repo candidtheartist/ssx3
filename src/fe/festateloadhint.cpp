@@ -64,7 +64,7 @@ extern "C" void* cUIScreen_getObjectByHashName(void* self, int hash);
 extern "C" int func_002C27C0(char* buf, const char* fmt, ...);
 extern "C" void func_003A0E90(void* obj, char* text);
 
-extern "C" int func_00245AE0(void* self)
+extern "C" int cFELoadHintState_TransitionIn(void* self)
 {
     char buf[200];
     void* obj = cUIScreen_getObjectByHashName(*(void**)((char*)self + 0x40), GetHashValue32(D_004A2BC8));
@@ -84,7 +84,7 @@ void func_00245B50(void* self)
 extern void* D_0047C608[];
 extern "C" void* func_0039E390(void* self);
 
-extern "C" void* func_00245B58(void* self)
+extern "C" void* cFELoadState_dtor(void* self)
 {
     *(void**)((char*)self + 0x8) = D_0047C608;
     return func_0039E390(self);
@@ -133,7 +133,7 @@ extern "C" void* cUIScreen_getObjectByHashName(void* self, int hash);
 extern "C" int func_002C27C0(char* buf, const char* fmt, ...);
 extern "C" void func_003A0E90(void* obj, char* text);
 
-extern "C" int func_00245C60(void* self)
+extern "C" int cFELoadState_TransitionIn(void* self)
 {
     char buf[200];
     void* obj = cUIScreen_getObjectByHashName(*(void**)((char*)self + 0x40), GetHashValue32(D_004A2BC8));
@@ -151,7 +151,7 @@ void* cBE_getInterface_Fv(void* be, int kind) __asm__("cBE_getInterface__Fv");
 extern "C" void cFELoadState_widgetCreateQP(void* self, void* widget);
 extern signed char D_00535C11[];
 
-extern "C" void func_00245CD0(void* self, void* widget)
+extern "C" void cFELoadState_OnWidgetCreated(void* self, void* widget)
 {
     cBE_getInterface_Fv(cBE_getBE(), 0);
     if (D_00535C11[0] != 2) {
@@ -163,7 +163,7 @@ extern "C" void func_00245CD0(void* self, void* widget)
 extern void* D_0047C538[];
 extern "C" void* func_0039E390(void* self);
 
-extern "C" void* func_00245D28(void* self)
+extern "C" void* cFELoadStateInLodge_dtor(void* self)
 {
     *(void**)((char*)self + 0x8) = D_0047C538;
     return func_0039E390(self);
@@ -186,7 +186,7 @@ extern "C" void cFELoadStateInLodge_onCreateScreen(void* self)
 }
 
 //100%
-void func_00245DB8(void* self)
+void cFELoadStateInLodge_OnWidgetCreated(void* self)
 {
 }
 
@@ -199,7 +199,7 @@ extern "C" void* cUIScreen_getObjectByHashName(void* self, int hash);
 extern "C" int func_002C27C0(char* buf, const char* fmt, ...);
 extern "C" void func_003A0E90(void* obj, char* text);
 
-extern "C" int func_00245DC0(void* self)
+extern "C" int cFELoadStateInLodge_TransitionIn(void* self)
 {
     char buf[200];
     void* obj = cUIScreen_getObjectByHashName(*(void**)((char*)self + 0x40), GetHashValue32(D_004A2BC8));
@@ -264,7 +264,7 @@ extern "C" void func_00245F00(void* self, int flags)
 extern "C" void* func_0039E390(void* self);
 
 //100%
-void* func_00245F30(void* self)
+void* cFEStateProgressiveVerifyPS2_dtor(void* self)
 {
     return func_0039E390(self);
 }
@@ -291,7 +291,7 @@ struct sVEK245F50 {
     void (*fn)(void*, int);
 };
 
-extern "C" void func_00245F50(void* self)
+extern "C" void cFEStateProgressiveVerifyPS2_Init(void* self)
 {
     void* engine = *(void**)((char*)self + 0x10);
     void* screen = cUIEngine_addScreenByHashName(engine, self, GetHashValue32(D_004A2AD8), 0);
@@ -341,7 +341,7 @@ struct sVEK246098 {
     void (*fn)(void*, int);
 };
 
-extern "C" void func_00246098(void* self)
+extern "C" void cFEStateProgressiveVerifyPS2_Update(void* self)
 {
     if (*(int*)((char*)self + 0x4C) != 0) {
         if (--*(int*)((char*)self + 0x4C) == 0) {
@@ -382,7 +382,7 @@ extern "C" void func_0039F400(void* list, void* item);
 extern char D_004A2AC8[];
 extern char D_0047B978[];
 
-extern "C" void func_002461E0(void* self, void* item, int msg)
+extern "C" void cFEStateProgressiveVerifyPS2_OnWidgetAction(void* self, void* item, int msg)
 {
     if (item != 0) {
         if (msg == 5) {

@@ -8,10 +8,10 @@ extern "C" void func_002847A8(void) {
 extern "C" void func_002847B0(void) {
 }
 
-extern "C" void func_002847B8(void) {
+extern "C" void DataInstanceMan_v04(void) {
 }
 
-extern "C" void func_002847C0(void) {
+extern "C" void DataInstanceMan_v05(void) {
 }
 
 //100%
@@ -40,14 +40,14 @@ extern "C" int func_002847F8(void) {
     return 1;
 }
 
-extern "C" void func_00284800(void) {
+extern "C" void ScriptEngine_SeqListener_v07(void) {
 }
 
-extern "C" void func_00284808(void) {
+extern "C" void ScriptEngine_SeqListener_v08(void) {
 }
 
 //100%
-extern "C" int func_00284810(void) {
+extern "C" int ScriptEngine_SeqListener_v11(void) {
     return 1;
 }
 
@@ -67,13 +67,13 @@ extern "C" void func_00284828(void) {
 extern "C" void func_00284830(void) {
 }
 
-extern "C" void func_00284838(void) {
+extern "C" void ScriptEngine_ScriptDb_v10(void) {
 }
 
-extern "C" void func_00284840(void) {
+extern "C" void ScriptEngine_ScriptDb_v11(void) {
 }
 
-extern "C" void func_00284848(void) {
+extern "C" void ScriptEngine_ScriptDb_v12(void) {
 }
 
 //100%
@@ -123,7 +123,7 @@ extern "C" void func_00283228_48A0(void *) __asm__("func_00283228");
 extern char D_00482360[];
 extern char D_00482398[];
 
-extern "C" void func_002848A0(void *arg0) {
+extern "C" void ScriptViewObj_dtor(void *arg0) {
     *(char **)((char*)arg0 + 0x10) = D_00482360;
     *(char **)((char*)arg0 + 0xC) = D_00482398;
     func_00283228_48A0(arg0);
@@ -141,7 +141,7 @@ void operator_delete(int *);
 extern char D_004822E0[];
 extern char D_00482318[];
 
-extern "C" void func_002848D8(void *arg0, int arg1) {
+extern "C" void ScriptDummyObj_dtor(void *arg0, int arg1) {
     *(char **)((char*)arg0 + 0x18) = D_00482318;
     *(char **)((char*)arg0 + 0x0) = D_004822E0;
     func_00283228_48D8((char*)arg0 + 0xC, 0);
@@ -167,7 +167,7 @@ void operator_delete(int *);
 extern char D_00482260[];
 extern char D_00482298[];
 
-extern "C" void func_00284950(void *arg0, int arg1) {
+extern "C" void ScriptAudioObj_dtor(void *arg0, int arg1) {
     *(char **)((char*)arg0 + 0x18) = D_00482298;
     *(char **)((char*)arg0 + 0x0) = D_00482260;
     func_00283228_4950((char*)arg0 + 0xC, 0);

@@ -94,7 +94,7 @@ INCLUDE_ASM("fe/festatecharequip2", func_0019C938);
 
 INCLUDE_ASM("fe/festatecharequip2", func_0019CA70);
 
-INCLUDE_ASM("fe/festatecharequip2", func_0019CB38);
+INCLUDE_ASM("fe/festatecharequip2", BoltFileIndexManager_ctor);
 
 INCLUDE_ASM("fe/festatecharequip2", func_0019CB60);
 

@@ -1,14 +1,14 @@
 #include "common.h"
 
 extern "C" void* cMemMan_alloc(int size, const char* tag, unsigned int flags, int d);
-extern "C" void* func_002EC418(void* self);
+extern "C" void* LensFX_ctor(void* self);
 extern const char D_004A3B48[];
 
 //99.23%
 void* cLensFxMan_construct()
 {
     void* mem = cMemMan_alloc(0x6820, D_004A3B48, 0, 0);
-    return func_002EC418(mem);
+    return LensFX_ctor(mem);
 }
 
 //100%
@@ -17,8 +17,8 @@ extern void* D_00487F00[];
 
 // PORT: asm label because the unit's forward declaration above has C++ linkage;
 // fix that declaration to extern "C" and this can be a plain extern "C" definition.
-void* func_002EC418_impl(void* self) __asm__("func_002EC418");
-void* func_002EC418_impl(void* self)
+void* LensFX_ctor_impl(void* self) __asm__("LensFX_ctor");
+void* LensFX_ctor_impl(void* self)
 {
     func_002E2E18(self);
     *(int*)((char*)self + 0x649c) = (int)(void*)D_00487F00;
@@ -35,7 +35,7 @@ void* func_002EC450(void* self)
     return func_002E3060(self);
 }
 
-INCLUDE_ASM("visualfx/lensfx", func_002EC478);
+INCLUDE_ASM("visualfx/lensfx", LensFX_v04);
 
 //100%
 void* func_002EC9D0(void* self)
@@ -49,7 +49,7 @@ extern void* D_00487EE8[];
 struct sLensFx;
 extern "C" void func_002ECAF0(sLensFx* self);
 
-extern "C" void* func_002EC9E0(void* self, int a1, int a2)
+extern "C" void* cBoltOnFXInterface_ctor(void* self, int a1, int a2)
 {
     *(void***)((char*)self + 0xC4) = D_00487EE8;
     *(int*)((char*)self + 0x0) = 1;
@@ -111,7 +111,7 @@ extern void* D_00487EE8[];
 extern "C" void func_002F2218(int a, int id);
 void operator_delete(int* ptr);
 
-extern "C" void func_002ECB28(sLensFx* self, int flags)
+extern "C" void cBoltOnFXInterface_dtor(sLensFx* self, int flags)
 {
     *(void***)((char*)self + 0xC4) = D_00487EE8;
     int i;
@@ -389,7 +389,7 @@ INCLUDE_ASM("visualfx/lensfx", func_002ED490);
 INCLUDE_ASM("visualfx/lensfx", func_002EDB20);
 
 //100%
-extern "C" float func_0040DA10(float x);
+extern "C" float logf(float x);
 extern "C" float func_0040D758(float x);
 
 // PORT: abs.s via inline asm (as an SDK math-header fabsf would); gcc folds __builtin_fabsf of a constant.
@@ -422,7 +422,7 @@ extern "C" float func_002EDF00(void* self)
     }
     float k = 0.600117564201355f;
     float t = (lum - 0.10000000149011612f) / absf_DF00(0.3499999940395355f);
-    return clamp_DF00(func_0040D758(func_0040DA10(t) * k), 0.0f, 1.0f);
+    return clamp_DF00(func_0040D758(logf(t) * k), 0.0f, 1.0f);
 }
 
 // padded past the 8-byte gp-relative threshold so the compiler emits
@@ -448,7 +448,7 @@ extern "C" void func_002EDFD0(void* self)
 
 //100%
 // PORT: PS2-only inline asm; needs a C fallback off-PS2.
-extern "C" void* func_0038ABF8(void* self, int i);
+extern "C" void* Irradiance_GetEntry(void* self, int i);
 extern int D_004A43C4;
 
 extern "C" void* func_002EE010_r(void* self) __asm__("func_002EE010");
@@ -456,12 +456,12 @@ extern "C" void* func_002EE010_r(void* self)
 {
     if (*(int*)((char*)self + 4) != 0x123400) {
         if (*(signed char*)self == 0) {
-            return func_0038ABF8(D_005047F8, D_004A43C4);
+            return Irradiance_GetEntry(D_005047F8, D_004A43C4);
         }
         func_002EDFD0(self);
-        return func_0038ABF8(D_005047F8, *(int*)self);
+        return Irradiance_GetEntry(D_005047F8, *(int*)self);
     }
-    return func_0038ABF8(D_005047F8, *(int*)self);
+    return Irradiance_GetEntry(D_005047F8, *(int*)self);
 }
 
 //100%

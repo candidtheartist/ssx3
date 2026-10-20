@@ -40,7 +40,7 @@ struct sVEntry001A07C8 {
     int (*fn)(void*, int, int);
 };
 
-extern "C" int func_001A07C8(void* self, int a1, int hash)
+extern "C" int cFECustom_v03(void* self, int a1, int hash)
 {
     if (hash == GetHashValue32(D_0045FFF8)) {
         void* obj = *(void**)((char*)self + 0x10);
@@ -506,7 +506,7 @@ struct sFEState16C0 {
 
 // Case order matters: cross-jumping keeps the later copy of identical case
 // bodies, so the cases whose code the original shares come first.
-extern "C" void* func_001A16C0(void** self, sFEState16C0* st, int a2)
+extern "C" void* cFECustom_v05(void** self, sFEState16C0* st, int a2)
 {
     switch (st->id) {
     case 5:
@@ -654,7 +654,7 @@ void func_00263660(void* p);
 void func_00263998(void* p);
 extern void* D_0046D7C0[];
 
-extern "C" void* func_001A1CE8(void* self)
+extern "C" void* cRealFE_ctor(void* self)
 {
     cFE_cFE(self);
     *(void***)self = D_0046D7C0;
@@ -1302,7 +1302,7 @@ extern "C" void* func_001A2E20(void* self)
 extern "C" void* func_0028B180();
 extern "C" void func_00294F78(void* snd, int a);
 
-extern "C" void func_001A2E58(void* self, int which)
+extern "C" void FEUISound_v02(void* self, int which)
 {
     switch (which) {
     case 1:
@@ -1342,7 +1342,7 @@ extern "C" void* func_001A2F38(void* self)
 extern "C" void* func_0028B180();
 extern "C" void func_00294F78(void* snd, int a);
 
-extern "C" void func_001A2F70(void* self, int which)
+extern "C" void OVUISound_v02(void* self, int which)
 {
     switch (which) {
     case 1:
@@ -1370,7 +1370,7 @@ extern "C" void func_001A2F70(void* self, int which)
 extern char D_00469248[];
 
 //100%
-extern "C" void* func_001A3050(void* self, void* owner)
+extern "C" void* cFEStateSelectMultiplayerMode_ctor(void* self, void* owner)
 {
     func_0039E2A0(self, owner);
     *(void**)((char*)self + 0x8) = D_00469248;

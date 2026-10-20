@@ -735,19 +735,19 @@ struct sMbReplayHdr36D8 {
 
 extern "C" void* cMemMan_alloc(int size, const char* tag, unsigned int flags, int d);
 extern "C" void* cSplineModifier_cSplineModifier(void* self, sMbStream36D8* s);
-extern "C" void* func_0035A118(void* self, sMbStream36D8* s);
-extern "C" void* func_00357090(void* self, sMbStream36D8* s);
-extern "C" void* func_00356F68(void* self, sMbStream36D8* s);
-extern "C" void* func_0035DF70(void* self, sMbStream36D8* s);
-extern "C" void* func_00357358(void* self, sMbStream36D8* s);
-extern "C" void* func_00357798(void* self, sMbStream36D8* s);
+extern "C" void* cMultiSplineModifier_ctor_2(void* self, sMbStream36D8* s);
+extern "C" void* ParentModifier_ctor_2(void* self, sMbStream36D8* s);
+extern "C" void* PositionModifier_ctor_3(void* self, sMbStream36D8* s);
+extern "C" void* RollerModifier_ctor_2(void* self, sMbStream36D8* s);
+extern "C" void* MagnetModifier_ctor_2(void* self, sMbStream36D8* s);
+extern "C" void* AvaSplineModifier_ctor_2(void* self, sMbStream36D8* s);
 extern "C" void* func_0035F788(void* self, sMbStream36D8* s);
 extern "C" void* func_0035F1A8(void* self, sMbStream36D8* s);
 extern "C" void* cBoostModifier_cBoostModifier(void* self, sMbStream36D8* s);
 extern "C" void* func_003459A8(void* self, sMbStream36D8* s);
-extern "C" void* func_00345D80(void* self, sMbStream36D8* s);
-extern "C" void* func_003461C0(void* self, sMbStream36D8* s);
-extern "C" void* func_0035BA88(void* self, sMbStream36D8* s);
+extern "C" void* DynamicParticleModifier_ctor_2(void* self, sMbStream36D8* s);
+extern "C" void* HaloModifier_ctor_2(void* self, sMbStream36D8* s);
+extern "C" void* RailModifier_ctor_2(void* self, sMbStream36D8* s);
 extern "C" void func_00345720(void* pool, void* item);
 extern "C" void func_0035B690(void* list, void* item);
 
@@ -780,17 +780,17 @@ extern "C" void tModifierBlock_readFromReplayFrame(tModifierBlock* self, sMbStre
         if (hdr.type == 1) {
             *(void**)&self->node = cSplineModifier_cSplineModifier(cMemMan_alloc(0xF0, D_0048E8D0, 0x20000000, 0), stream);
         } else if (hdr.type == 2) {
-            *(void**)&self->node = func_0035A118(cMemMan_alloc(0x58, D_0048E8D0, 0x20000000, 0), stream);
+            *(void**)&self->node = cMultiSplineModifier_ctor_2(cMemMan_alloc(0x58, D_0048E8D0, 0x20000000, 0), stream);
         } else if (hdr.type == 4) {
-            *(void**)&self->node = func_00357090(cMemMan_alloc(0xB0, D_0048E8E0, 0x20000000, 0), stream);
+            *(void**)&self->node = ParentModifier_ctor_2(cMemMan_alloc(0xB0, D_0048E8E0, 0x20000000, 0), stream);
         } else if (hdr.type == 3) {
-            *(void**)&self->node = func_00356F68(cMemMan_alloc(0x90, D_0048E8F0, 0x20000000, 0), stream);
+            *(void**)&self->node = PositionModifier_ctor_3(cMemMan_alloc(0x90, D_0048E8F0, 0x20000000, 0), stream);
         } else if (hdr.type == 5) {
-            *(void**)&self->node = func_0035DF70(cMemMan_alloc(0x2D0, D_0048E908, 0x20000000, 0), stream);
+            *(void**)&self->node = RollerModifier_ctor_2(cMemMan_alloc(0x2D0, D_0048E908, 0x20000000, 0), stream);
         } else if (hdr.type == 6) {
-            *(void**)&self->node = func_00357358(cMemMan_alloc(0xB0, D_0048E918, 0x20000000, 0), stream);
+            *(void**)&self->node = MagnetModifier_ctor_2(cMemMan_alloc(0xB0, D_0048E918, 0x20000000, 0), stream);
         } else if (hdr.type == 7) {
-            *(void**)&self->node = func_00357798(cMemMan_alloc(0x90, D_0048E928, 0x20000000, 0), stream);
+            *(void**)&self->node = AvaSplineModifier_ctor_2(cMemMan_alloc(0x90, D_0048E928, 0x20000000, 0), stream);
         }
     }
     if (hdr.flags & 2) {
@@ -807,23 +807,23 @@ extern "C" void tModifierBlock_readFromReplayFrame(tModifierBlock* self, sMbStre
         if (hdr.typesA[i] == 1) {
             p = func_003459A8(cMemMan_alloc(0x1F0, D_0048E978, 0x20000000, 0), stream);
         } else if (hdr.typesA[i] == 2) {
-            p = func_00345D80(cMemMan_alloc(0x270, D_0048E990, 0x20000000, 0), stream);
+            p = DynamicParticleModifier_ctor_2(cMemMan_alloc(0x270, D_0048E990, 0x20000000, 0), stream);
         } else if (hdr.typesA[i] == 3) {
-            p = func_003461C0(cMemMan_alloc(0x40, D_0048E9A8, 0x20000000, 0), stream);
+            p = HaloModifier_ctor_2(cMemMan_alloc(0x40, D_0048E9A8, 0x20000000, 0), stream);
         } else {
             p = 0;
         }
         func_00345720((char*)self + 0x10, p);
     }
     for (i = 0; i < hdr.numB; i++) {
-        func_0035B690((char*)self + 0x1C, func_0035BA88(cMemMan_alloc(0x90, D_0048E9B8, 0x20000000, 0), stream));
+        func_0035B690((char*)self + 0x1C, RailModifier_ctor_2(cMemMan_alloc(0x90, D_0048E9B8, 0x20000000, 0), stream));
     }
 }
 
 extern void* D_0048F008[];
 
 //100%
-void* func_00353AC0(void* self)
+void* SkyBox_ctor(void* self)
 {
     *(void***)((char*)self + 0xc) = D_0048F008;
     *(int*)((char*)self + 0x10) = -1;
@@ -843,9 +843,9 @@ void* func_00353AE8(void* self)
 }
 
 //100%
-// PORT: func_002D1C58 is defined returning void*, but its value is the rider index passed to func_002D1C20(int).
+// PORT: func_002D1C58 is defined returning void*, but its value is the rider index passed to World_GetCameraEye(int).
 extern "C" int func_002D1C58_i() __asm__("func_002D1C58");
-extern "C" void* func_002D1C20(int i);
+extern "C" void* World_GetCameraEye(int i);
 extern int D_004A452C;
 extern char D_004FF1A0[];
 
@@ -914,7 +914,7 @@ extern "C" void func_00353B10(void* self)
         return;
     sMat_53B10 m;
     vu0CopyMatrix_53B10(&m, D_004FF1A0);
-    sVec4_53B10 pos = *(sVec4_53B10*)func_002D1C20(func_002D1C58_i());
+    sVec4_53B10 pos = *(sVec4_53B10*)World_GetCameraEye(func_002D1C58_i());
     *(sVec4_53B10*)&m.m[12] = pos;
     ctx->top[1] = ctx->top[0];
     sRS_53B10* t = ctx->top;

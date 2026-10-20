@@ -133,7 +133,7 @@ extern "C" void func_0017D260(void* self, void* ev)
 extern void* D_0046D350[];
 extern int D_004A3E90;
 extern void* D_004A4E90;
-extern "C" void* func_002CC018(void* self);
+extern "C" void* MenuSys_ctor(void* self);
 extern "C" void* func_001DA988(void* self, void* a, void* b);
 extern "C" void* func_001DACB8(void* self, void* a, void* b, void* c);
 extern "C" void* func_001DAE20(void* self, void* a);
@@ -147,11 +147,11 @@ struct sDbgOwner17D298 {
     void* owner;
 };
 
-extern "C" void* func_0017D298(char* self)
+extern "C" void* LobbyMenu_ctor(char* self)
 {
     *(void***)self = D_0046D350;
     *(int*)(self + 0x4) = 0;
-    func_002CC018(self + 0x8);
+    MenuSys_ctor(self + 0x8);
     sDbgOwner17D298 o0;
     o0.owner = self;
     sDbgOwner17D298 o1;
@@ -342,7 +342,7 @@ extern "C" int func_0025F120(void* self);
 extern "C" void func_0025D800(void* self, int idx, int a2);
 extern "C" void func_001DB418_D6F0(void* menu, void* src) __asm__("func_001DB418");
 extern "C" bool func_0025F430(void* self);
-void func_0025FC28_D6F0(void* self, int a1) __asm__("func_0025FC28__FPvi");
+void LobbyMan_SendDecline_D6F0(void* self, int a1) __asm__("LobbyMan_SendDecline__FPvi");
 void func_0025CD28(void* self, int a1);
 extern char D_004A1320[];
 // Same global as D_004A3028; read through a const alias so the load can be scheduled above the state store.
@@ -446,7 +446,7 @@ extern "C" void func_0017D6F0(void* self_, void* msg_)
             func_002CC3B8(self + 0x8, self + 0x18C0);
             break;
         }
-        func_0025FC28_D6F0(D_004A3028, msg[2]);
+        LobbyMan_SendDecline_D6F0(D_004A3028, msg[2]);
         break;
     }
 }
@@ -949,7 +949,7 @@ struct sDebugFEState17E4F0 {
 };
 extern "C" void func_002CC460(void* list);
 extern "C" void func_002CC3B8(void* list, void* item);
-void func_0025FC28(void* a, int b);
+void LobbyMan_SendDecline(void* a, int b);
 
 extern "C" void func_0017E4F0(sDebugFEState17E4F0* self)
 {
@@ -959,7 +959,7 @@ extern "C" void func_0017E4F0(sDebugFEState17E4F0* self)
     }
     func_002CC3B8((char*)self + 0x8, (char*)self + 0x1044);
     self->state = 0xC;
-    func_0025FC28(D_004A3028, *(int*)((char*)self + 0x1C0C));
+    LobbyMan_SendDecline(D_004A3028, *(int*)((char*)self + 0x1C0C));
 }
 
 //100%
@@ -1368,8 +1368,8 @@ void* cMemMan_free(void* ptr);
 extern "C" void* func_003915E8(void* self, const char* name, int a2);
 extern "C" int* func_003E1908(const char* name, int flags);
 extern "C" int* FILE_load(const char* name, int flags);
-extern "C" void* func_0017B1B0(void* self);
-extern "C" void* func_0017D298(char* self);
+extern "C" void* cDebugMenuScreen_ctor(void* self);
+extern "C" void* LobbyMenu_ctor(char* self);
 
 struct sVEnt_17F868 { short delta; short index; void* fn; };
 typedef void (*Fn1_17F868)(void*, int);
@@ -1419,8 +1419,8 @@ extern "C" void func_0017F868(sDebugFE_17F868* self)
     for (int i = 0; i < 2; i++) {
         self->objs[i] = 0;
     }
-    self->cur = self->objs[0] = func_0017B1B0(cMemMan_alloc(0x8C48, D_0045D510, 0, 0));
-    self->objs[1] = func_0017D298((char*)cMemMan_alloc(0x1C18, D_0045D520, 0, 0));
+    self->cur = self->objs[0] = cDebugMenuScreen_ctor(cMemMan_alloc(0x8C48, D_0045D510, 0, 0));
+    self->objs[1] = LobbyMenu_ctor((char*)cMemMan_alloc(0x1C18, D_0045D520, 0, 0));
     if (*(int*)((char*)D_004A28A8 + 0x74)) {
         self->cur = self->objs[1];
     } else {
@@ -1437,7 +1437,7 @@ struct sVec3K17FA60 {
 typedef void (*tFn_17FA60)(void*, const sVec3K17FA60&);
 
 //100%
-extern "C" void func_0017FA60(void* self)
+extern "C" void DebugMenuModule_Enter(void* self)
 {
     char* m;
     char* vt;
@@ -1516,7 +1516,7 @@ public:
 extern "C" void func_00231D18(void* self);
 extern "C" void func_0017F2D0(void* p);
 
-extern "C" void func_0017FB98(void* self)
+extern "C" void DebugMenuModule_v06(void* self)
 {
     func_00231D18(self);
     if (*(int*)((char*)D_004A28A8 + 4) == 0)
@@ -1565,7 +1565,7 @@ static inline void setB2_17FBF0(sRS_17FBF0* r, int v) { r->b2 = v; }
 static inline void setB22_17FBF0(sRS_17FBF0* r, int v) { r->b22 = v; }
 static inline void setC5_17FBF0(sRS_17FBF0* r, int v) { r->c5 = v; }
 
-extern "C" int func_0017FBF0(char* self)
+extern "C" int DebugMenuModule_Render(char* self)
 {
     char* m = D_004A289C;
     sVEnt_17FBF0* vt = *(sVEnt_17FBF0**)(m + 0x10D8);
@@ -1611,7 +1611,7 @@ extern "C" int func_0017FBF0(char* self)
 //100%
 void* func_00320C48_jt(void*, int) __asm__("func_00320C48__FPvi");
 
-extern "C" void func_0017FDF0(void* self, signed char key)
+extern "C" void FEUIInput_IsDirection(void* self, signed char key)
 {
     int v = 0;
     switch (key) {
@@ -1631,199 +1631,199 @@ extern "C" void func_0017FDF0(void* self, signed char key)
 void* func_00320C48(int, int) __asm__("func_00320C48__FPvi");
 
 //100%
-void* func_0017FE80(void* self)
+void* FEUIInput_IsStart(void* self)
 {
     return func_00320C48(*(int*)((char*)self + 0x18), 0x70);
 }
 
 //100%
-void* func_0017FEA0(void* self)
+void* FEUIInput_IsSelect(void* self)
 {
     return func_00320C48(*(int*)((char*)self + 0x18), 0x71);
 }
 
 //100%
-void* func_0017FEC0(void* self)
+void* FEUIInput_IsNext(void* self)
 {
     return func_00320C48(*(int*)((char*)self + 0x18), 0x7a);
 }
 
 //100%
-void* func_0017FEE0(void* self)
+void* FEUIInput_IsPrevious(void* self)
 {
     return func_00320C48(*(int*)((char*)self + 0x18), 0x7b);
 }
 
 //100%
-void* func_0017FF00(void* self)
+void* FEUIInput_IsOption(void* self)
 {
     return func_00320C48(*(int*)((char*)self + 0x18), 0x7c);
 }
 
 //100%
-void* func_0017FF20(void* self)
+void* FEUIInput_IsMisc(void* self)
 {
     return func_00320C48(*(int*)((char*)self + 0x18), 0x7d);
 }
 
 //100%
-void* func_0017FF40(void* self)
+void* FEUIInput_IsNextHeld(void* self)
 {
     return func_00320C48(*(int*)((char*)self + 0x18), 0x97);
 }
 
 //100%
-void* func_0017FF60(void* self)
+void* FEUIInput_IsPreviousHeld(void* self)
 {
     return func_00320C48(*(int*)((char*)self + 0x18), 0x98);
 }
 
 //100%
-void* func_0017FF80(void* self)
+void* FEUIInput_IsOptionHeld(void* self)
 {
     return func_00320C48(*(int*)((char*)self + 0x18), 0x99);
 }
 
 //100%
-void* func_0017FFA0(void* self)
+void* FEUIInput_IsMiscHeld(void* self)
 {
     return func_00320C48(*(int*)((char*)self + 0x18), 0x9a);
 }
 
 //100%
-void* func_0017FFC0(void* self)
+void* FEUIInput_IsNextReleased(void* self)
 {
     return func_00320C48(*(int*)((char*)self + 0x18), 0x9b);
 }
 
 //100%
-void* func_0017FFE0(void* self)
+void* FEUIInput_IsPreviousReleased(void* self)
 {
     return func_00320C48(*(int*)((char*)self + 0x18), 0x9c);
 }
 
 //100%
-void* func_00180000(void* self)
+void* FEUIInput_IsOptionReleased(void* self)
 {
     return func_00320C48(*(int*)((char*)self + 0x18), 0x9d);
 }
 
 //100%
-void* func_00180020(void* self)
+void* FEUIInput_IsMiscReleased(void* self)
 {
     return func_00320C48(*(int*)((char*)self + 0x18), 0x9e);
 }
 
 //100%
-void* func_00180040(void* self)
+void* FEUIInput_IsUp(void* self)
 {
     return func_00320C48(*(int*)((char*)self + 0x18), 0x72);
 }
 
 //100%
-void* func_00180060(void* self)
+void* FEUIInput_IsDown(void* self)
 {
     return func_00320C48(*(int*)((char*)self + 0x18), 0x73);
 }
 
 //100%
-void* func_00180080(void* self)
+void* FEUIInput_IsLeft(void* self)
 {
     return func_00320C48(*(int*)((char*)self + 0x18), 0x74);
 }
 
 //100%
-void* func_001800A0(void* self)
+void* FEUIInput_IsRight(void* self)
 {
     return func_00320C48(*(int*)((char*)self + 0x18), 0x75);
 }
 
 //100%
-void* func_001800C0(void* self)
+void* FEUIInput_IsUpHeld(void* self)
 {
     return func_00320C48(*(int*)((char*)self + 0x18), 0x93);
 }
 
 //100%
-void* func_001800E0(void* self)
+void* FEUIInput_IsDownHeld(void* self)
 {
     return func_00320C48(*(int*)((char*)self + 0x18), 0x94);
 }
 
 //100%
-void* func_00180100(void* self)
+void* FEUIInput_IsLeftHeld(void* self)
 {
     return func_00320C48(*(int*)((char*)self + 0x18), 0x95);
 }
 
 //100%
-void* func_00180120(void* self)
+void* FEUIInput_IsRightHeld(void* self)
 {
     return func_00320C48(*(int*)((char*)self + 0x18), 0x96);
 }
 
 //100%
-void* func_00180140(void* self)
+void* FEUIInput_IsRShift1(void* self)
 {
     return func_00320C48(*(int*)((char*)self + 0x18), 0x7e);
 }
 
 //100%
-void* func_00180160(void* self)
+void* FEUIInput_IsRShift2(void* self)
 {
     return func_00320C48(*(int*)((char*)self + 0x18), 0x7f);
 }
 
 //100%
-void* func_00180180(void* self)
+void* FEUIInput_IsLShift1(void* self)
 {
     return func_00320C48(*(int*)((char*)self + 0x18), 0x80);
 }
 
 //100%
-void* func_001801A0(void* self)
+void* FEUIInput_IsLShift2(void* self)
 {
     return func_00320C48(*(int*)((char*)self + 0x18), 0x81);
 }
 
 //100%
-void* func_001801C0(void* self)
+void* FEUIInput_IsRShift1Held(void* self)
 {
     return func_00320C48(*(int*)((char*)self + 0x18), 0x82);
 }
 
 //100%
-void* func_001801E0(void* self)
+void* FEUIInput_IsRShift2Held(void* self)
 {
     return func_00320C48(*(int*)((char*)self + 0x18), 0x83);
 }
 
 //100%
-void* func_00180200(void* self)
+void* FEUIInput_IsLShift1Held(void* self)
 {
     return func_00320C48(*(int*)((char*)self + 0x18), 0x84);
 }
 
 //100%
-void* func_00180220(void* self)
+void* FEUIInput_IsLShift2Held(void* self)
 {
     return func_00320C48(*(int*)((char*)self + 0x18), 0x85);
 }
 
 //100%
-void* func_00180240(void* self)
+void* FEUIInput_IsCamZoom(void* self)
 {
     return func_00320C48(*(int*)((char*)self + 0x18), 0x90);
 }
 
 //100%
-void* func_00180260(void* self)
+void* FEUIInput_IsCamPan(void* self)
 {
     return func_00320C48(*(int*)((char*)self + 0x18), 0x92);
 }
 
 //100%
-void* func_00180280(void* self)
+void* FEUIInput_IsCamRotate(void* self)
 {
     return func_00320C48(*(int*)((char*)self + 0x18), 0x91);
 }
@@ -1831,25 +1831,25 @@ void* func_00180280(void* self)
 extern "C" void* func_00320BF0(int, int);
 
 //100%
-void* func_001802A0(void* self)
+void* FEUIInput_GetCamZoom(void* self)
 {
     return func_00320BF0(*(int*)((char*)self + 0x18), 0x90);
 }
 
 //100%
-void* func_001802C0(void* self)
+void* FEUIInput_GetCamPan(void* self)
 {
     return func_00320BF0(*(int*)((char*)self + 0x18), 0x92);
 }
 
 //100%
-void* func_001802E0(void* self)
+void* FEUIInput_GetCamRotate(void* self)
 {
     return func_00320BF0(*(int*)((char*)self + 0x18), 0x91);
 }
 
 //100%
-extern "C" int func_00180300(void* self)
+extern "C" int FEUIInput_IsAnyButton(void* self)
 {
     int r = 0;
     if (func_00320C48(*(int*)((char*)self + 0x18), 0x72) || func_00320C48(*(int*)((char*)self + 0x18), 0x73) ||

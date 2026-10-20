@@ -350,7 +350,7 @@ extern "C" void func_00233A70(void* self)
 extern void* D_004A2C68;
 extern "C" void func_00231250(void* self, int a, int b, int refresh);
 
-extern "C" void func_00233AA0(void* self)
+extern "C" void GameState_GotoNext(void* self)
 {
     int a = *(int*)self;
     if (a != 0) {
@@ -404,13 +404,13 @@ void* func_00233B28_2(void* self, void* obj)
 extern void* D_004A2C68;
 extern "C" void func_00231250(void* self, int a, int b, int refresh);
 
-extern "C" void func_00233B60(void)
+extern "C" void GameStateQuit_Enter(void)
 {
     func_00231250(D_004A2C68, 0xA, 0, 0);
 }
 
 //100%
-void func_00233B88(void* self)
+void GameStateQuit_Exit(void* self)
 {
 }
 
@@ -471,7 +471,7 @@ extern "C" void func_002790A0(void* self, int i);
 extern "C" void func_001F36C0(void* self, int bit);
 void func_00244880(void* self);
 
-extern "C" void func_00233C50(void* self)
+extern "C" void GameStateFinish_Enter(void* self)
 {
     func_0026FA50(*(void**)((char*)D_004A2C68 + 0x28));
     func_0039F840(*(char**)((char*)D_004A2C68 + 0x48) + 0x18);
@@ -494,7 +494,7 @@ void* cBEAggressionInterface_getThis();
 extern "C" void func_00155E58(void* p);
 extern "C" void func_001F36D8(void* hud, int a);
 extern "C" void func_0020CC60();
-extern "C" void func_00233AA0(void* self);
+extern "C" void GameState_GotoNext(void* self);
 extern "C" int func_00278F38(void* self, int i);
 extern "C" void func_002790A0(void* self, int i);
 extern "C" int func_002791D8(void* self, int i);
@@ -591,7 +591,7 @@ public:
 };
 
 
-extern "C" void func_00233CD8(void* self)
+extern "C" void GameStateFinish_Update(void* self)
 {
     char* s = (char*)self;
     cBE_getInterface_Fv(cBE_getBE(), 0);
@@ -661,7 +661,7 @@ extern "C" void func_00233CD8(void* self)
     case 2: {
         sRace_233CD8* rc = &D_00535BC8_r233CD8;
         if (rc->flag49 == 0 && rc->mode48 == 4) {
-            func_00233AA0(self);
+            GameState_GotoNext(self);
         }
         break;
     }
@@ -681,7 +681,7 @@ void func_00162290_v(void* self) __asm__("func_00162290__FPv");
 extern "C" int func_00278F68(void* self, int i, int a, int b);
 void func_00278DE8(void* self, int val);
 
-extern "C" void func_00234008(sLoadScreen00234008* self)
+extern "C" void GameStateFinish_Exit(sLoadScreen00234008* self)
 {
     int n = *(int*)(*(char**)(*(char**)((char*)D_004A28A8 + 0x84) + 0x84) + 0x10);
     int i;
@@ -787,7 +787,7 @@ static inline int isMode4_2341D0()
     return D_00535C10[0] == 4;
 }
 
-extern "C" void func_002341D0(void* self, int mode)
+extern "C" void GameStatePreRaceLoad_Enter(void* self, int mode)
 {
     int i = 0;
     char* race = (char*)cBE_getInterface_41D0(cBE_getBE(), 0);
@@ -858,7 +858,7 @@ extern "C" int func_0012ABD0(void* p);
 extern "C" int func_0012ACF8(void* p);
 extern "C" void func_0012B030(void* p);
 extern "C" void func_0012B000(void* p);
-extern "C" void func_00233AA0(void* self);
+extern "C" void GameState_GotoNext(void* self);
 
 struct sRace_2343B0 {
     char pad0[0x48];
@@ -873,7 +873,7 @@ static inline char* Ai_2343B0()
     return *(char**)((char*)D_004A2C68 + 0xC);
 }
 
-extern "C" void func_002343B0(char* self)
+extern "C" void GameStatePreRaceLoad_Update(char* self)
 {
     if (*(int*)(self + 0x1C) < 3) {
         func_001F36C0(*(void**)(*(char**)((char*)D_004A28A8 + 0x84) + 0x94), 2);
@@ -957,7 +957,7 @@ extern "C" void func_002343B0(char* self)
             *(int*)(self + 0x10) = 0;
         }
         *(int*)(self + 0x1C) = 4;
-        func_00233AA0(self);
+        GameState_GotoNext(self);
         break;
     }
     case 4:
@@ -1016,7 +1016,7 @@ static inline int otherSide_234750(char* p)
     return *(int*)(p + 0xB0) == 0;
 }
 
-extern "C" void func_00234750(void* self)
+extern "C" void GameStatePreRaceLoad_Exit(void* self)
 {
     func_002790A0(D_004A28A4, 1);
     cBE_getInterface_4750(cBE_getBE(), 0);

@@ -53,7 +53,7 @@ extern "C" sInstSlot* func_003512C0(sInstPool* self, unsigned int handle)
 //100%
 extern "C" void func_003513D0(void* self);
 extern "C" void func_00351398(void* self, float* src);
-void func_00351538_impl(char* self, float t) __asm__("func_00351538");
+void IntersectInfo_Evaluate_impl(char* self, float t) __asm__("IntersectInfo_Evaluate");
 extern char D_00490AF0[];
 
 extern "C" void* func_00351330(char* self, float* src, float f)
@@ -61,7 +61,7 @@ extern "C" void* func_00351330(char* self, float* src, float f)
     *(void**)(self + 0x84) = D_00490AF0;
     func_003513D0(self);
     func_00351398(self, src);
-    func_00351538_impl(self, f);
+    IntersectInfo_Evaluate_impl(self, f);
     return self;
 }
 
@@ -138,10 +138,10 @@ static inline bool inRange_351538(sImSeg_351538* e, float x)
     return e->lo <= x && x < e->hi;
 }
 
-// PORT: the unit declares func_00351538(void*) for its caller; the body also reads t from $f12
-void func_00351538_impl(char* self, float t) __asm__("func_00351538");
+// PORT: the unit declares IntersectInfo_Evaluate(void*) for its caller; the body also reads t from $f12
+void IntersectInfo_Evaluate_impl(char* self, float t) __asm__("IntersectInfo_Evaluate");
 
-void func_00351538_impl(char* self, float t)
+void IntersectInfo_Evaluate_impl(char* self, float t)
 {
     sImCurve_351538** curves = *(sImCurve_351538***)(*(char**)(self + 0x40) + 0x20);
     int* cur = (int*)self;
@@ -215,7 +215,7 @@ extern "C" void func_00351660(char* self, sImV4_351660* vel, sImV4_351660* rotVe
 
 //100%
 extern "C" void func_0031BE50(float* s, float* c, float angle);
-extern "C" void* func_00351538(void* self);
+extern "C" void* IntersectInfo_Evaluate(void* self);
 
 struct sImInst_351800 {
     char pad_0x0[0x44];
@@ -225,9 +225,9 @@ struct sImInst_351800 {
     float m[4][4];      // 0x90
 };
 
-extern "C" void func_00351800(sImInst_351800* self)
+extern "C" void IntersectInfo_EvaluateMatrix(sImInst_351800* self)
 {
-    func_00351538(self);
+    IntersectInfo_Evaluate(self);
     float r[3];
     float sc[3][2];
     r[0] = -self->rot[0] * 0.01745329424738884f;
@@ -332,7 +332,7 @@ extern "C" void func_00351948(void* self, sImMat44* m)
     vu0CopyMatIM(dst, &t2);
 }
 
-extern "C" void* func_00351538(void* self);
+extern "C" void* IntersectInfo_Evaluate(void* self);
 
 //100%
 // PORT: func_00351A60 also takes the float arg in $f12; the asm label keeps
@@ -351,7 +351,7 @@ void* func_00351A10(char* self, float* src, float f)
 //99.29%
 void* func_00351A60(void* self, float f)
 {
-    return func_00351538(self);
+    return IntersectInfo_Evaluate(self);
 }
 
 //100%
@@ -397,7 +397,7 @@ extern "C" sImRange* func_00351A80(sImRangeTable* t, int* cur, float x)
 
 //100%
 extern "C" void* func_0034FB00(void* self, void* a1, int type, void* def);
-extern "C" float func_002D1C70();
+extern "C" float World_GetSecondsPerTick();
 extern "C" void func_00352230(void* self);
 
 extern void* D_0048F6D8[];
@@ -637,7 +637,7 @@ extern void* D_0048F6D8[];
 extern "C" void* func_0034FBF0(void*);
 
 //100%
-void* func_00352208(void* self)
+void* MeshAnim_v01(void* self)
 {
     *(int*)((char*)self + 0xc) = (int)(void*)D_0048F6D8;
     return func_0034FBF0(self);
@@ -884,15 +884,15 @@ struct sInstanceManVEntry2708 {
 };
 
 int func_0034FCC0(void* self);
-extern "C" void func_0034FE28(void* self);
+extern "C" void WorldObj_ReplaceWithDeadNode(void* self);
 
-extern "C" void func_00352708(void* self, int check)
+extern "C" void MeshAnim_KillRestorable(void* self, int check)
 {
     if (check != 0 && func_0034FCC0(self) != 0) {
         return;
     }
     if (*(int*)((char*)self + 0x6B0) == 0) {
-        func_0034FE28(self);
+        WorldObj_ReplaceWithDeadNode(self);
     }
     if (*(int*)((char*)self + 0x6B0) == 2 && self != 0) {
         sInstanceManVEntry2708* vt = *(sInstanceManVEntry2708**)((char*)self + 0xC);
@@ -901,7 +901,7 @@ extern "C" void func_00352708(void* self, int check)
 }
 
 //100%
-extern "C" void func_0034FE28(void* self);
+extern "C" void WorldObj_ReplaceWithDeadNode(void* self);
 
 struct sInstManVEntry2780 {
     short delta;
@@ -909,7 +909,7 @@ struct sInstManVEntry2780 {
     void (*fn)(void*, int);
 };
 
-extern "C" void func_00352780(void* self)
+extern "C" void MeshAnim_Kill(void* self)
 {
     if (*(int*)((char*)self + 0x6B0) != 0) {
         *(int*)(*(char**)((char*)self + 0x18) + 0x8) &= 0xFFFF0300;
@@ -920,7 +920,7 @@ extern "C" void func_00352780(void* self)
             vt[1].fn((char*)self + vt[1].delta, 3);
         }
     } else {
-        func_0034FE28(self);
+        WorldObj_ReplaceWithDeadNode(self);
     }
 }
 

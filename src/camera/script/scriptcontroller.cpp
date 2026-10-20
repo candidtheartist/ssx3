@@ -3,8 +3,8 @@
 //100%
 extern "C" void* cCameraController_cCameraController(void* self, void* arg);
 extern "C" void* cMemMan_alloc(int size, const char* tag, unsigned int flags, int d);
-extern "C" void* func_0027D5E8(void* mem, void* script);
-extern "C" void func_00283298(void* p);
+extern "C" void* ScriptObjCam_ctor(void* mem, void* script);
+extern "C" void ScriptObj_Register(void* p);
 // PORT: operator_new__FUi takes (size, tag, flags, align) here.
 void* operator_new_K2(unsigned int size, const char* tag, int flags, int d) __asm__("operator_new__FUi");
 extern void* D_0045C428[];
@@ -20,8 +20,8 @@ extern "C" void* cScriptCameraController_cScriptCameraController(void* self, voi
     *(void***)((char*)self + 0x1C) = (void**)operator_new_K2(8, D_0045BE88, 0, 0);
     for (i = 0; i < 2; i++) {
         void** slot = (void**)((i << 2) + *(int*)((char*)self + 0x1C));
-        *slot = func_0027D5E8(cMemMan_alloc(0x80, D_0045BEA0, 0, 0), script);
-        func_00283298((*(void***)((char*)self + 0x1C))[i]);
+        *slot = ScriptObjCam_ctor(cMemMan_alloc(0x80, D_0045BEA0, 0, 0), script);
+        ScriptObj_Register((*(void***)((char*)self + 0x1C))[i]);
     }
     *(int*)((char*)self + 0x18) = 0;
     return self;
@@ -40,7 +40,7 @@ public:
     virtual ~cScrCamScriptK2();
 };
 
-extern "C" void func_001690D0(void* self, int flags)
+extern "C" void cScriptCameraController_dtor(void* self, int flags)
 {
     int i;
     *(void***)((char*)self + 0x14) = D_0045C428;
@@ -56,10 +56,10 @@ extern "C" void func_001690D0(void* self, int flags)
 //100%
 int func_002743C8(void* self);
 void func_001694A8(void* self, int val);
-extern "C" void* func_001694B8(void* self);
-extern "C" void* func_00169CF8(void* self);
-extern "C" void* func_0016A458(void* self);
-extern "C" void* func_0016AD38(void* self);
+extern "C" void* ManualScriptCameraAlgo_ctor(void* self);
+extern "C" void* TargetScriptCameraAlgo_ctor(void* self);
+extern "C" void* SubjectScriptCameraAlgo_ctor(void* self);
+extern "C" void* AlgorithmicScriptCameraAlgo_ctor(void* self);
 // PORT: func_00169340 is defined with (self, algo); this caller passes a third int argument.
 extern "C" void func_00169340_3(void* self, void* algo, int a) __asm__("func_00169340");
 extern char D_0045BEB0[];
@@ -73,16 +73,16 @@ extern "C" void cScriptCameraController_addCamera(char* self, char* cam)
     switch (func_002743C8(*(void**)(*(char**)(cam + 0x14) + 8)))
     {
     case 0:
-        ctl = func_001694B8(cMemMan_alloc(0xB0, D_0045BEB0, 0x20000000, 0));
+        ctl = ManualScriptCameraAlgo_ctor(cMemMan_alloc(0xB0, D_0045BEB0, 0x20000000, 0));
         break;
     case 1:
-        ctl = func_00169CF8(cMemMan_alloc(0xB0, D_0045BED0, 0x20000000, 0));
+        ctl = TargetScriptCameraAlgo_ctor(cMemMan_alloc(0xB0, D_0045BED0, 0x20000000, 0));
         break;
     case 2:
-        ctl = func_0016A458(cMemMan_alloc(0xA0, D_0045BEF0, 0x20000000, 0));
+        ctl = SubjectScriptCameraAlgo_ctor(cMemMan_alloc(0xA0, D_0045BEF0, 0x20000000, 0));
         break;
     case 3:
-        ctl = func_0016AD38(cMemMan_alloc(0xA0, D_0045BF10, 0x20000000, 0));
+        ctl = AlgorithmicScriptCameraAlgo_ctor(cMemMan_alloc(0xA0, D_0045BF10, 0x20000000, 0));
         break;
     default:
         return;
@@ -179,7 +179,7 @@ extern void* D_0045BDE0[];
 extern void* D_0045C8B8[];
 extern void* D_004A28A8;
 struct sVec4K9418 { float x, y, z, w; } __attribute__((aligned(16)));
-// Same object as the unit's later `extern func_001694B8_sVec4 D_004FF130;` (that type is defined below this point).
+// Same object as the unit's later `extern ManualScriptCameraAlgo_ctor_sVec4 D_004FF130;` (that type is defined below this point).
 extern sVec4K9418 D_004FF130_K9418 __asm__("D_004FF130");
 extern "C" float func_00167E30(void* self);
 
@@ -227,19 +227,19 @@ int func_001694B0(void* self)
 }
 
 //100% - objdiff report; single-function view differs only in a relocation name
-struct func_001694B8_sVec4 { float x, y, z, w; } __attribute__((aligned(16)));
+struct ManualScriptCameraAlgo_ctor_sVec4 { float x, y, z, w; } __attribute__((aligned(16)));
 
 extern void* D_0045C850[];
-extern func_001694B8_sVec4 D_004FF130;
+extern ManualScriptCameraAlgo_ctor_sVec4 D_004FF130;
 extern "C" void* func_00169418(void* self);
 extern "C" void* func_0015FFF0(void* self);
 
-extern "C" void* func_001694B8(void* self)
+extern "C" void* ManualScriptCameraAlgo_ctor(void* self)
 {
     func_00169418(self);
     *(void***)((char*)self + 0x10) = D_0045C850;
     func_0015FFF0((char*)self + 0x74);
-    *(func_001694B8_sVec4*)((char*)self + 0x30) = D_004FF130;
+    *(ManualScriptCameraAlgo_ctor_sVec4*)((char*)self + 0x30) = D_004FF130;
     *(int*)((char*)self + 0xC) = 0x56;
     *(int*)((char*)self + 0x44) = 0;
     *(int*)((char*)self + 0x48) = 0;
@@ -579,16 +579,16 @@ extern "C" sPair_9828 func_00169828(char* p)
 
 //100% - objdiff report; single-function view differs only in a relocation name
 extern void* D_0045C7E8[];
-extern func_001694B8_sVec4 D_004FF130;
+extern ManualScriptCameraAlgo_ctor_sVec4 D_004FF130;
 extern "C" void* func_00169418(void* self);
 extern "C" void* func_0015FFF0(void* self);
 
-extern "C" void* func_00169CF8(void* self)
+extern "C" void* TargetScriptCameraAlgo_ctor(void* self)
 {
     func_00169418(self);
     *(void***)((char*)self + 0x10) = D_0045C7E8;
     func_0015FFF0((char*)self + 0x74);
-    *(func_001694B8_sVec4*)((char*)self + 0x30) = D_004FF130;
+    *(ManualScriptCameraAlgo_ctor_sVec4*)((char*)self + 0x30) = D_004FF130;
     *(int*)((char*)self + 0xC) = 0x57;
     *(int*)((char*)self + 0x40) = 0;
     *(int*)((char*)self + 0x44) = 0;
@@ -892,16 +892,16 @@ extern "C" sPair_9F88 func_00169F88(char* p)
 
 //100% - objdiff report; single-function view differs only in a relocation name
 extern void* D_0045C780[];
-extern func_001694B8_sVec4 D_004FF130;
+extern ManualScriptCameraAlgo_ctor_sVec4 D_004FF130;
 extern "C" void* func_00169418(void* self);
 extern "C" void* func_0015FFF0(void* self);
 
-extern "C" void* func_0016A458(void* self)
+extern "C" void* SubjectScriptCameraAlgo_ctor(void* self)
 {
     func_00169418(self);
     *(void***)((char*)self + 0x10) = D_0045C780;
     func_0015FFF0((char*)self + 0x70);
-    *(func_001694B8_sVec4*)((char*)self + 0x30) = D_004FF130;
+    *(ManualScriptCameraAlgo_ctor_sVec4*)((char*)self + 0x30) = D_004FF130;
     *(int*)((char*)self + 0xC) = 0x58;
     *(int*)((char*)self + 0x40) = 0;
     *(int*)((char*)self + 0x44) = 0;
@@ -1272,16 +1272,16 @@ extern "C" sPair_A868 func_0016A868(char* p)
 
 //100% - objdiff report; single-function view differs only in a relocation name
 extern void* D_0045C718[];
-extern func_001694B8_sVec4 D_004FF130;
+extern ManualScriptCameraAlgo_ctor_sVec4 D_004FF130;
 extern "C" void* func_00169418(void* self);
 extern "C" void* func_0015FFF0(void* self);
 
-extern "C" void* func_0016AD38(void* self)
+extern "C" void* AlgorithmicScriptCameraAlgo_ctor(void* self)
 {
     func_00169418(self);
     *(void***)((char*)self + 0x10) = D_0045C718;
     func_0015FFF0((char*)self + 0x70);
-    *(func_001694B8_sVec4*)((char*)self + 0x30) = D_004FF130;
+    *(ManualScriptCameraAlgo_ctor_sVec4*)((char*)self + 0x30) = D_004FF130;
     *(int*)((char*)self + 0xC) = 0x59;
     *(int*)((char*)self + 0x40) = 0;
     *(int*)((char*)self + 0x44) = 0;

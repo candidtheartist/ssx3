@@ -254,7 +254,7 @@ extern "C" void func_00307A10(cWScriptProcList* self, int a1)
 //100%
 extern "C" void func_0030AC98(void* man, void* proc, void* script);
 
-extern "C" void func_00307A60(void* self)
+extern "C" void WScriptProcess_v07(void* self)
 {
     void* script = *(void**)((char*)self + 0x34);
     if (script != 0) {
@@ -265,7 +265,7 @@ extern "C" void func_00307A60(void* self)
 //100%
 extern "C" void func_0030AC98(void* man, void* proc, void* script);
 
-extern "C" void func_00307A90(void* self)
+extern "C" void WScriptProcess_v08(void* self)
 {
     void* script = *(void**)((char*)self + 0x38);
     if (script != 0) {
@@ -276,7 +276,7 @@ extern "C" void func_00307A90(void* self)
 //100%
 extern "C" void func_0030AC98(void* man, void* proc, void* script);
 
-extern "C" void func_00307AC0(void* self)
+extern "C" void WScriptProcess_v09(void* self)
 {
     void* script = *(void**)((char*)self + 0x3c);
     if (script != 0) {
@@ -287,7 +287,7 @@ extern "C" void func_00307AC0(void* self)
 //100%
 extern "C" void func_0030AC98(void* man, void* proc, void* script);
 
-extern "C" void func_00307AF0(void* self)
+extern "C" void WScriptProcess_v10(void* self)
 {
     void* script = *(void**)((char*)self + 0x40);
     if (script != 0) {
@@ -298,7 +298,7 @@ extern "C" void func_00307AF0(void* self)
 //100%
 extern "C" void func_0030AC98(void* man, void* proc, void* script);
 
-extern "C" void func_00307B20(void* self)
+extern "C" void WScriptProcess_v11(void* self)
 {
     void* script = *(void**)((char*)self + 0x44);
     if (script != 0) {
@@ -309,7 +309,7 @@ extern "C" void func_00307B20(void* self)
 //100%
 extern "C" void func_0030AC98(void* man, void* proc, void* script);
 
-extern "C" void func_00307B50(void* self)
+extern "C" void WScriptProcess_v12(void* self)
 {
     void* script = *(void**)((char*)self + 0x48);
     if (script != 0) {
@@ -320,7 +320,7 @@ extern "C" void func_00307B50(void* self)
 //100%
 extern "C" void func_0030AC98(void* man, void* proc, void* script);
 
-extern "C" void func_00307B80(void* self)
+extern "C" void WScriptProcess_v13(void* self)
 {
     void* script = *(void**)((char*)self + 0x4c);
     if (script != 0) {
@@ -331,7 +331,7 @@ extern "C" void func_00307B80(void* self)
 //100%
 extern "C" void func_0030AC98(void* man, void* proc, void* script);
 
-extern "C" void func_00307BB0(void* self)
+extern "C" void WScriptProcess_v14(void* self)
 {
     void* script = *(void**)((char*)self + 0x50);
     if (script != 0) {
@@ -342,7 +342,7 @@ extern "C" void func_00307BB0(void* self)
 //100%
 extern "C" void func_0030AC98(void* man, void* proc, void* script);
 
-extern "C" void func_00307BE0(void* self)
+extern "C" void WScriptProcess_v15(void* self)
 {
     void* script = *(void**)((char*)self + 0x54);
     if (script != 0) {
@@ -353,7 +353,7 @@ extern "C" void func_00307BE0(void* self)
 //100%
 extern "C" void func_0030AC98(void* man, void* proc, void* script);
 
-extern "C" void func_00307C10(void* self)
+extern "C" void WScriptProcess_v16(void* self)
 {
     void* script = *(void**)((char*)self + 0x58);
     if (script != 0) {
@@ -362,7 +362,7 @@ extern "C" void func_00307C10(void* self)
 }
 
 //100%
-class func_00307C40_cElem {
+class WScriptProcess_v04_cElem {
 public:
     char pad00[0x40];
     // vptr at 0x40
@@ -372,13 +372,13 @@ public:
     virtual void v04();
 };
 
-struct func_00307C40_sProc {
+struct WScriptProcess_v04_sProc {
     int state;
     int count;
     int cur;
     int pad0C;
     void* man;
-    func_00307C40_cElem* elems;
+    WScriptProcess_v04_cElem* elems;
     int pad18;
     void* luno;
     int pad20;
@@ -393,7 +393,7 @@ extern "C" void func_0030AC98(void* man, void* proc, void* script);
 extern "C" void func_00309A60(void* man, void* proc);
 extern char D_00489888[];
 
-extern "C" void func_00307C40(func_00307C40_sProc* self)
+extern "C" void WScriptProcess_v04(WScriptProcess_v04_sProc* self)
 {
     if (self->luno != 0) {
         func_00224DF0(self->luno, 3);
@@ -413,7 +413,7 @@ extern "C" void func_00307C40(func_00307C40_sProc* self)
 //100%
 extern "C" void func_0030AC98(void* man, void* proc, void* script);
 
-extern "C" void func_00307D00(void* self)
+extern "C" void WScriptProcess_v05(void* self)
 {
     void* script = *(void**)((char*)self + 0x2c);
     if (script != 0) {
@@ -425,7 +425,7 @@ extern "C" void func_00307D00(void* self)
 extern "C" void func_0030AC98(void* man, void* proc, void* script);
 extern "C" void func_00307D78(void* self);
 
-extern "C" void func_00307D30(void* self)
+extern "C" void WScriptProcess_v06(void* self)
 {
     *(int*)self = 3;
     void* script = *(void**)((char*)self + 0x30);
@@ -459,7 +459,7 @@ struct sVEntry00307DC8 {
     void (*fn)(void*);
 };
 
-extern "C" void func_00307DC8(void* self)
+extern "C" void WScriptProcess_v02(void* self)
 {
     if (func_0030B898(*(void**)((char*)self + 0x10), self) != 0) {
         sVEntry00307DC8* vt = *(sVEntry00307DC8**)((char*)self + 0x5C);
@@ -989,9 +989,9 @@ extern "C" void func_00308988(void* self);
 extern char D_00489C00[];
 extern char* D_004A47B8;
 // D_004A3DD8 is declared `int` later in the unit; it holds the current process.
-extern void* func_003087D0_current __asm__("D_004A3DD8");
+extern void* WScriptMan_ctor_current __asm__("D_004A3DD8");
 
-extern "C" void* func_003087D0(void* self)
+extern "C" void* WScriptMan_ctor(void* self)
 {
     *(unsigned int*)((char*)self + 0x2C) = 0xFFFFFFFF;
     func_0030C738((char*)self + 0x1C4);
@@ -1011,7 +1011,7 @@ extern "C" void* func_003087D0(void* self)
         func_0030C390(p);
         p = next;
     }
-    func_003087D0_current = self;
+    WScriptMan_ctor_current = self;
     *(char**)((char*)self + 0x28C) = D_004A47B8;
     func_003E6448((char*)self + 0x3CC, 0, 0xC8);
     func_00308988(self);

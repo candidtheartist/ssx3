@@ -516,7 +516,7 @@ void* operator_new_tag(unsigned int size, const char* tag, int flags, int d) __a
 extern const char D_004815A0[];
 void func_0026D168(void* self);
 
-extern "C" void* func_0026D0A0(void* self)
+extern "C" void* ReplayCache_ctor(void* self)
 {
     *(void**)((char*)self + 0xC) = operator_new_tag(0x8000, D_004815A0, 0, 0);
     func_0026D168(self);

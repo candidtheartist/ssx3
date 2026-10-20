@@ -142,7 +142,7 @@ extern "C" void* cMemMan_alloc(int size, const char* tag, unsigned int flags, in
 extern char D_0048E738[];
 extern "C" void* func_003506D8(void* mem, int v);
 
-extern "C" void func_0034FE28(void* self)
+extern "C" void WorldObj_ReplaceWithDeadNode(void* self)
 {
     int v = *(int*)((char*)self + 0x18);
     if (self != 0) {

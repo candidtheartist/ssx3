@@ -2140,12 +2140,12 @@ INCLUDE_ASM("visualfx/boardwakefx", func_002E3AF8);
 //100%
 extern "C" void* func_00354648(void* self, void* a1);
 extern "C" void* func_00282CD0(void* self);
-extern "C" void func_00283298(void* self);
+extern "C" void ScriptObj_Register(void* self);
 extern "C" void func_002E4CB0(void);
 extern void* D_00488100[];
 extern void* D_00488158[];
 
-extern "C" void* func_002E4228(void* self, void* a1, int a2)
+extern "C" void* cTransitionMan_ctor(void* self, void* a1, int a2)
 {
     func_00354648(self, a1);
     func_00282CD0((char*)self + 0x10);
@@ -2165,7 +2165,7 @@ extern "C" void* func_002E4228(void* self, void* a1, int a2)
     *(void***)((char*)self + 0xC) = D_00488158;
     *(int*)((char*)self + 0x6C) = -1;
     func_002E4CB0();
-    func_00283298((char*)self + 0x10);
+    ScriptObj_Register((char*)self + 0x10);
     return self;
 }
 
@@ -2710,7 +2710,7 @@ static inline void wakeScaleMatD88(sMatD88* dst, const sMatD88* src, const sVec4
         : "memory");
 }
 
-extern "C" void* func_002E4D88(char* self, int a1, int a2, float f0, float f1, float f2, float f3)
+extern "C" void* SnowBox_ctor(char* self, int a1, int a2, float f0, float f1, float f2, float f3)
 {
     *(int*)(self + 0x8) = 0;
     *(int*)(self + 0x10) = 0;
@@ -3118,8 +3118,8 @@ struct sWake5920 {
     sVec5920 v[2];              // 0x40
 };
 
-INCLUDE_ASM("visualfx/boardwakefx", func_002E5920);
-extern "C" void* func_002E5920(sWake5920* self, void* a1);
+INCLUDE_ASM("visualfx/boardwakefx", SnowFall_ctor);
+extern "C" void* SnowFall_ctor(sWake5920* self, void* a1);
 
 //100% - objdiff report; single-function view differs only in a relocation name
 extern void* D_00487FD8[];
@@ -3172,7 +3172,7 @@ extern "C" float func_002EE8A0(int i);
 extern "C" float func_002EE8E8(int i);
 extern "C" float func_002EE930(int i);
 extern "C" float func_002EE978(int i);
-void* func_002306A8(void* self, int i);
+void* cGame_GetSplashManager(void* self, int i);
 extern "C" void func_002F4330(void* obj, float v);
 
 struct sWakeRec_5DA0 {
@@ -3217,7 +3217,7 @@ extern "C" void func_002E5DA0(void* self)
             recs[i].c1.z = func_002EE930(k);
             recs[i].c1.w = func_002EE978(k);
         }
-        func_002F4330(func_002306A8(*(void**)((char*)D_004A28A8 + 0x84), i), recs[i].f[0]);
+        func_002F4330(cGame_GetSplashManager(*(void**)((char*)D_004A28A8 + 0x84), i), recs[i].f[0]);
     }
     int j;
     for (j = 0; j < 12; j++) {

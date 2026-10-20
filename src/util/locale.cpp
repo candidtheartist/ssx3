@@ -64,7 +64,7 @@ extern "C" void func_00195BE0(void* self);
 extern "C" void func_00195DE0(void* self);
 extern "C" void cFELocale_addFile(void* self, int lang);
 
-extern "C" void func_00195AA0(void* self, signed char lang)
+extern "C" void FELocale_v03(void* self, signed char lang)
 {
     if (*(signed char*)((char*)self + 0x1) != lang) {
         *(signed char*)((char*)self + 0x1) = lang;
@@ -236,14 +236,14 @@ extern "C" const char* func_002C6DE0(void* file, int key);
 extern "C" void func_002C27C0(char* dst, const char* src);
 extern char D_004A1390[];
 
-struct func_00195EB8_sLocale {
+struct FELocale_v04_sLocale {
     signed char useDefault;
     signed char lang;
     char pad2[6];
     signed char* files[20];
 };
 
-extern "C" const char* func_00195EB8(func_00195EB8_sLocale* self, int key)
+extern "C" const char* FELocale_v04(FELocale_v04_sLocale* self, int key)
 {
     if (self->useDefault == 0) {
         for (signed char i = 0; i < 20; i++) {
@@ -266,13 +266,13 @@ extern "C" const char* func_00195EB8(func_00195EB8_sLocale* self, int key)
 // func_003DBB68); bind the 2-arg view to the 1-arg mangled symbol.
 void* func_002C6DC0_2(void* self, void* arg) __asm__("func_002C6DC0__FPv");
 
-struct func_00195F70_sArr {
+struct FELocale_v05_sArr {
     void* items[20];
 };
 
-extern "C" void* func_00195F70(void* self, void* arg)
+extern "C" void* FELocale_v05(void* self, void* arg)
 {
-    func_00195F70_sArr* arr = (func_00195F70_sArr*)((char*)self + 8);
+    FELocale_v05_sArr* arr = (FELocale_v05_sArr*)((char*)self + 8);
     signed char i;
     for (i = 0; i < 20; i++) {
         if (arr->items[i] != 0) {

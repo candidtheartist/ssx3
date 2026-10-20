@@ -654,7 +654,7 @@ struct sVEntry00226768 {
 };
 extern char D_00479890[];
 
-extern "C" void func_00226768(void* self, int flags)
+extern "C" void cLunoTableEntry_dtor(void* self, int flags)
 {
     *(void**)((char*)self + 0x1C) = D_00479890;
     void* obj = *(void**)((char*)self + 0x18);

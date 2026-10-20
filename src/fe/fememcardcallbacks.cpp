@@ -1904,7 +1904,7 @@ void func_001C57A0(void* slots, int idx, int data);
 // PORT: func_001C5DD8 takes only self; the unit's later (void*, int) declaration is a guess. Bound by asm label.
 void func_001C5DD8_self(void* self) __asm__("func_001C5DD8");
 
-extern "C" void func_001D9BD0(void* self, void* src, int mode)
+extern "C" void cScreenPopup_v26(void* self, void* src, int mode)
 {
     void* slots = (char*)self + 0xBC;
     if (mode == 0) {
@@ -1935,7 +1935,7 @@ extern "C" void* func_002C2508(void* dst, void* src);
 // PORT: func_001C5DD8 takes only self; the unit's later (void*, int) declaration is a guess. Bound by asm label.
 void func_001C5DD8_self(void* self) __asm__("func_001C5DD8");
 
-extern "C" void func_001D9CA8(void* self, void* src)
+extern "C" void cScreenPopup_v27(void* self, void* src)
 {
     if (src != 0 && func_002C24D0(src) != 0) {
         void* dst = (char*)self + 0x360;
@@ -1951,7 +1951,7 @@ extern "C" void func_001D9CA8(void* self, void* src)
 //100%
 extern "C" void func_001C5DD8(void*, int);
 
-extern "C" void func_001D9D18(void* self, int a1)
+extern "C" void cScreenPopup_v25(void* self, int a1)
 {
     *(int*)((char*)self + 0x168) = a1;
     if (*(int*)((char*)self + 0x40) != 0) {

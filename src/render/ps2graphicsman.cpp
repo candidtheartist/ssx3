@@ -376,7 +376,7 @@ struct sPs2UpMgr {
 };
 
 // PORT: 64-bit `ulong` GIF/DMA packet words.
-extern "C" void func_003684F0(sPs2UpMgr* self, int idx, ulong** dma, ulong** gif)
+extern "C" void TexMan_EmitClutUpload(sPs2UpMgr* self, int idx, ulong** dma, ulong** gif)
 {
     sPs2UpTex* tex = self->texs[idx];
     ulong* p = *gif;
@@ -424,7 +424,7 @@ extern "C" void func_003684F0(sPs2UpMgr* self, int idx, ulong** dma, ulong** gif
 //100% - objdiff report; single-function view differs only in a relocation name
 extern "C" int func_00366CE0(void* heap, int size, int idx, int other, int a4, int a5);
 extern "C" void func_00368170(void* self, int idx, ulong** dma, ulong** gif);
-extern "C" void func_00368970(void* self, int idx, int slot, ulong** dma);
+extern "C" void TexMan_EmitTex0(void* self, int idx, int slot, ulong** dma);
 extern "C" ulong* func_0038F460(void* ring, unsigned int addr, int size, int flags);
 extern "C" void* func_0038F668(void* ring, ulong* p, int a2);
 extern void* D_004A4474;
@@ -511,7 +511,7 @@ extern "C" void func_00368660(char* self, int a, int b, int a3, ulong** pp, void
             t->caddr = fl >> 8;
             if (gif == 0)
                 gif = func_0038F460(D_004A4474, *(unsigned int*)gifOut, -1, 0);
-            func_003684F0((sPs2UpMgr*)self, idx, &cur, &gif);
+            TexMan_EmitClutUpload((sPs2UpMgr*)self, idx, &cur, &gif);
             sent = 1;
         }
     }
@@ -525,9 +525,9 @@ extern "C" void func_00368660(char* self, int a, int b, int a3, ulong** pp, void
         cur += 4;
     }
     if (a >= 0)
-        func_00368970(self, a, 0, &cur);
+        TexMan_EmitTex0(self, a, 0, &cur);
     if (b >= 0)
-        func_00368970(self, b, 1, &cur);
+        TexMan_EmitTex0(self, b, 1, &cur);
     *pp = cur;
 }
 
@@ -589,7 +589,7 @@ static inline int mipSize8970(sMipTex8970* t, int i, int shift)
     return (bytes + (-bytes & 0xFF)) >> shift;
 }
 
-extern "C" void func_00368970(void* self, int idx, int slot, ulong** dma)
+extern "C" void TexMan_EmitTex0(void* self, int idx, int slot, ulong** dma)
 {
     sMipMgr8970* m = (sMipMgr8970*)self;
     ulong* p = *dma;

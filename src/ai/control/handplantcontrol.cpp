@@ -1867,7 +1867,7 @@ extern "C" sVec4HP func_001408E0(char* self)
 }
 
 //100%
-void* func_001408F0(void* self)
+void* cRider_GetPosition(void* self)
 {
     return (char*)self + 0x110;
 }
@@ -1883,7 +1883,7 @@ extern "C" sVec4HP func_00140900(char* self)
 }
 
 //100%
-void* func_00140910(void* self)
+void* cRider_GetVelocity(void* self)
 {
     return (char*)self + 0x1E0;
 }
@@ -2107,7 +2107,7 @@ extern "C" int func_00140B78(void* self)
 }
 
 //100%
-int func_00140B80(void* self)
+int cRider_GetIndex(void* self)
 {
     return *(int*)((char*)self + 0x86C);
 }
@@ -2138,13 +2138,13 @@ extern "C" void func_00140BB0(void* self)
 }
 
 //100%
-int func_00140BC0(void* self)
+int cRider_IsHuman(void* self)
 {
     return *(int*)((char*)self + 0x874);
 }
 
 //100%
-extern "C" int func_00140BC8(void* self)
+extern "C" int cRider_IsComputer(void* self)
 {
     return *(int*)((char*)self + 0x874) ^ 1;
 }
@@ -2288,7 +2288,7 @@ extern "C" int func_00140CE8(void* self)
 
 extern "C" void func_00120D58(void* self);
 
-extern "C" void func_00140CF0(void* self, int value)
+extern "C" void cRider_SetBoostMode(void* self, int value)
 {
     *(int*)((char*)self + 0x304) = value;
     func_00120D58(self);
@@ -2530,7 +2530,7 @@ extern "C" void func_00144040(char* self, int i)
 }
 
 //100%
-void func_00144068(void* self)
+void RaceStateRace_Exit(void* self)
 {
 }
 

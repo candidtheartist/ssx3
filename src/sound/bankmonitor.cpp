@@ -2959,7 +2959,7 @@ extern "C" int func_002B2488(void* self);
 extern "C" void func_003B58A0(void);
 extern "C" void func_003B58D8(void);
 extern "C" void func_003B7FB8(int h, int v);
-extern "C" void func_003D1038(int cmd, int v);
+extern "C" void PATH_SetPaused(int cmd, int v);
 
 extern "C" void cSongInstance_pause(void* self)
 {
@@ -2969,7 +2969,7 @@ extern "C" void cSongInstance_pause(void* self)
         func_003B7FB8(h, 0);
     }
     func_003B58D8();
-    func_003D1038(0x11000002, 1);
+    PATH_SetPaused(0x11000002, 1);
 }
 
 //100%
@@ -2977,7 +2977,7 @@ extern "C" int func_002B2488(void* self);
 extern "C" void func_003B58A0(void);
 extern "C" void func_003B58D8(void);
 extern "C" void func_003B7FB8(int h, int v);
-extern "C" void func_003D1038(int cmd, int v);
+extern "C" void PATH_SetPaused(int cmd, int v);
 
 extern "C" void cSongInstance_resume(void* self)
 {
@@ -2987,7 +2987,7 @@ extern "C" void cSongInstance_resume(void* self)
         func_003B7FB8(h, 0x1000);
     }
     func_003B58D8();
-    func_003D1038(0x11000002, 0);
+    PATH_SetPaused(0x11000002, 0);
 }
 
 //100%
@@ -3167,12 +3167,12 @@ extern "C" int cSongInstance_pickPhraseOffset(void* self)
     return (r % (*(unsigned int*)((char*)p + 0x6C) - 1)) * *(int*)((char*)p + 0x74);
 }
 
-extern "C" void func_003D11B8(unsigned int id, void* out);
+extern "C" void PATH_status(unsigned int id, void* out);
 
 extern "C" int cSongInstance_getStatus()
 {
     int info[0xC];
-    func_003D11B8(0x11000001U, info);
+    PATH_status(0x11000001U, info);
     return info[9];
 }
 
@@ -3261,13 +3261,13 @@ extern "C" float func_002B26F8(void* self)
 
 //100% - objdiff report; single-function view differs only in a relocation name
 extern "C" float cSongInstance_getPlayPosMs(void* self);
-extern "C" float func_0040D8D0(float x, float y);
+extern "C" float fmodf(float x, float y);
 
 extern "C" float cSongInstance_getTimeToNextBeat(void* self)
 {
     float a = cSongInstance_getBeatMs(self);
     float b = cSongInstance_getPlayPosMs(self);
-    return a - func_0040D8D0(b, cSongInstance_getBeatMs(self));
+    return a - fmodf(b, cSongInstance_getBeatMs(self));
 }
 
 extern "C" int cSongInstance_getBeatIndex(void* self)

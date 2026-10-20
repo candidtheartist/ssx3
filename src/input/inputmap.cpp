@@ -45,12 +45,12 @@ extern "C" void func_00320D50(void* self, const char* name)
 
 //100%
 extern "C" void* cMemMan_alloc(int size, const char* tag, unsigned int flags, int d);
-extern "C" void* func_00321428(void* self, void* a1, void* a2);
+extern "C" void* cInputMapParser_ctor(void* self, void* a1, void* a2);
 extern char D_0048DD10[];
 
 extern "C" void cInputMap_loadMapFile(void* self, void* a1, void* a2)
 {
-    *(void**)((char*)self + 0x8) = func_00321428(cMemMan_alloc(0x109EC, D_0048DD10, 0x100, 0), a1, a2);
+    *(void**)((char*)self + 0x8) = cInputMapParser_ctor(cMemMan_alloc(0x109EC, D_0048DD10, 0x100, 0), a1, a2);
 }
 
 //100%
@@ -261,7 +261,7 @@ struct sParser_1428 {
 extern "C" void func_00323098(void* self);
 
 // Sets up the expression parser over src: free register list 63..1 and the node free list.
-extern "C" void* func_00321428(void* selfp, void* srcp, void* lenp)
+extern "C" void* cInputMapParser_ctor(void* selfp, void* srcp, void* lenp)
 {
     sParser_1428* self = (sParser_1428*)selfp;
     char* src = (char*)srcp;
@@ -300,7 +300,7 @@ typedef char* func_00321500_va_list;
           - (__builtin_args_info(2) < 8 ? (8 - __builtin_args_info(2)) * 8 : 0))
 
 extern "C" int sprintf(char* dst, const char* fmt, ...);
-extern "C" int func_004186C8(char* dst, const char* fmt, char* ap);
+extern "C" int vsprintf(char* dst, const char* fmt, char* ap);
 extern char D_0048DD40[];
 
 extern "C" void func_00321500(void* self, const char* fmt, ...)
@@ -308,7 +308,7 @@ extern "C" void func_00321500(void* self, const char* fmt, ...)
     char buf[0x400];
     func_00321500_va_list ap;
     func_00321500_va_start(ap);
-    func_004186C8(buf + sprintf(buf, D_0048DD40, (char*)self + 0xC, *(int*)((char*)self + 0x8C)), fmt, ap);
+    vsprintf(buf + sprintf(buf, D_0048DD40, (char*)self + 0xC, *(int*)((char*)self + 0x8C)), fmt, ap);
     *(int*)((char*)self + 0x94) = 1;
 }
 
@@ -360,12 +360,12 @@ extern "C" void func_00321638(char* self, int* node)
 }
 
 //100%
-extern "C" int func_0041AB78(const char* a, const char* b, int n);
+extern "C" int strncasecmp(const char* a, const char* b, int n);
 extern char D_004A3EF0[];
 
 extern "C" int func_003216E8(void* self, char* name)
 {
-    if (func_0041AB78(name, D_004A3EF0, 6) != 0) {
+    if (strncasecmp(name, D_004A3EF0, 6) != 0) {
         return -1;
     }
     int d = name[6] - '0';

@@ -18,7 +18,7 @@ INCLUDE_ASM("main/loadscreens2", func_002326D8);
 
 INCLUDE_ASM("main/loadscreens2", func_00232710);
 
-INCLUDE_ASM("main/loadscreens2", func_00232718);
+INCLUDE_ASM("main/loadscreens2", cPreFELoadScreen_Load);
 
 INCLUDE_ASM("main/loadscreens2", func_00232720);
 

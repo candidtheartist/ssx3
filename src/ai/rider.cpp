@@ -23,7 +23,7 @@ extern "C" void cRiderSphereTree_destroy(void* p, int flags);
 extern "C" void cAirPredictor_destroy(void* p, int flags);
 extern "C" void func_001033F8(void* a, void* p);
 extern "C" void func_00117290(void* p, int flags);
-extern "C" void func_00375918(void* p, int flags);
+extern "C" void BoaderShadow_dtor(void* p, int flags);
 void operator_delete(int* p);
 extern void* D_004A28A8;
 extern void* D_00459C18[];
@@ -78,7 +78,7 @@ extern "C" void cRider_destroy(char* self, int flags)
         vdel_11B978(o, 0xA4);
     p = *(void**)(self + 0xAA8);
     if (p != 0)
-        func_00375918(p, 3);
+        BoaderShadow_dtor(p, 3);
     *(void***)(self + 0x6E8) = D_00482018;
     *(void***)(self + 0x6D0) = D_00481FD8;
     func_00283228(self + 0x6DC, 0);
@@ -107,7 +107,7 @@ extern "C" void cRider_addFocusBox(sRider_addFocusBox* self)
 }
 
 extern "C" void* cMemMan_alloc(int size, const char* tag, unsigned int flags, int d);
-extern "C" void* func_00117248(void* mem);
+extern "C" void* cRiderMetrix_ctor(void* mem);
 extern "C" void cRiderMetrix_linkToRider(void* metrix);
 extern const char D_00457970[];
 
@@ -118,7 +118,7 @@ extern "C" void cRiderMetrix_linkToRider_impl(void* metrix, cRider* rider) __asm
 void cRider_addRiderMetrix(cRider* self)
 {
     void* mem = cMemMan_alloc(0x1CC, D_00457970, 0, 0);
-    void* metrix = func_00117248(mem);
+    void* metrix = cRiderMetrix_ctor(mem);
     self->mRiderMetrix = metrix;
     cRiderMetrix_linkToRider_impl(metrix, self);
 }

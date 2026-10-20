@@ -714,12 +714,12 @@ void func_003A4BE0(void* self)
 }
 
 //100%
-void func_003A4BE8(void* self)
+void UIObject_Render(void* self)
 {
 }
 
 //100%
-void func_003A4BF0(void* self)
+void UIObject_v18(void* self)
 {
 }
 
@@ -1059,29 +1059,29 @@ extern "C" void func_003A5180(void* self, cListNode* node)
 }
 
 //100%
-class func_003A51A0_cVirt {
+class cUIGroup_Accept_cVirt {
 public:
     // vptr at 0x0; slot N at vtable offset N*8
     virtual void v01();
     virtual int v02(void*);
 };
 
-extern "C" int func_003A51A0(void* a, func_003A51A0_cVirt* obj)
+extern "C" int cUIGroup_Accept(void* a, cUIGroup_Accept_cVirt* obj)
 {
     return obj->v02(a);
 }
 
 //100%
-class func_003A51D0_cFunctor {
+class cUIGroup_v03_cFunctor {
 public:
     // vptr at 0x0; slot N at vtable offset N*8
     virtual void v01();
     virtual int v02(void*);
 };
 
-extern "C" void* func_00397A68(void* list, func_003A51D0_cFunctor* fn);
+extern "C" void* func_00397A68(void* list, cUIGroup_v03_cFunctor* fn);
 
-extern "C" void* func_003A51D0(void* self, func_003A51D0_cFunctor* fn)
+extern "C" void* cUIGroup_v03(void* self, cUIGroup_v03_cFunctor* fn)
 {
     if (fn->v02(self) != 0) {
         return self;
@@ -1567,40 +1567,40 @@ extern "C" void func_003A5A88(void* self, int value)
 }
 
 //100%
-void func_003A5AA8(void* self)
+void UIState_Init(void* self)
 {
 }
 
 //100%
-int func_003A5AB0(void* self)
-{
-    return 0;
-}
-
-//100%
-int func_003A5AB8(void* self)
+int UIState_TransitionIn(void* self)
 {
     return 0;
 }
 
 //100%
-int func_003A5AC0(void* self)
+int UIState_HandleInput(void* self)
 {
     return 0;
 }
 
 //100%
-void func_003A5AC8(void* self)
+int UIState_TransitionOut(void* self)
+{
+    return 0;
+}
+
+//100%
+void UIState_OnDeactivate(void* self)
 {
 }
 
 //100%
-void func_003A5AD0(void* self)
+void UIState_OnRender(void* self)
 {
 }
 
 //100%
-int func_003A5AD8(void* self)
+int UIState_OnAnimEvent(void* self)
 {
     return 0;
 }
@@ -1631,17 +1631,17 @@ extern "C" signed char func_003A5B00(void* self)
 }
 
 //100%
-void func_003A5B08(void* self)
+void UIState_OnChildEvent(void* self)
 {
 }
 
 //100%
-void func_003A5B10(void* self)
+void UIState_OnWidgetCreated(void* self)
 {
 }
 
 //100%
-void func_003A5B18(void* self)
+void UIState_OnWidgetAction(void* self)
 {
 }
 
@@ -1652,19 +1652,19 @@ int func_003A5B20(void* self)
 }
 
 //100%
-int func_003A5B28(void* self)
+int UIState_v21(void* self)
 {
     return 0x101;
 }
 
 //100%
-int func_003A5B30(void* self)
+int UIState_v22(void* self)
 {
     return 0x101;
 }
 
 //100%
-int func_003A5B38(void* self)
+int UIState_v23(void* self)
 {
     return 0;
 }
@@ -1838,7 +1838,7 @@ extern "C" int func_003A5E58(void* self)
 }
 
 //100%
-extern "C" void func_003A5E68(void* self, int enable)
+extern "C" void cUIText_v23(void* self, int enable)
 {
     ((sUIVectorFlags*)((char*)self + 0x74))->bit2 = enable;
 }
@@ -1856,7 +1856,7 @@ extern "C" void func_003A5EA8(void* self, int enable)
 }
 
 //100%
-extern "C" void func_003A5EC8(void* self, int enable)
+extern "C" void cUIText_v26(void* self, int enable)
 {
     ((sUIVectorFlags*)((char*)self + 0x74))->bit5 = enable;
 }
@@ -2131,13 +2131,13 @@ extern "C" int func_003A6368(void* self)
 }
 
 //100%
-extern "C" void func_003A6378(void* self, int enable)
+extern "C" void cUITextScroll_v23(void* self, int enable)
 {
     ((sUIVectorFlags*)((char*)self + 0x74))->bit3 = enable;
 }
 
 //100%
-extern "C" void func_003A6398(void* self, int enable)
+extern "C" void cUITextScroll_v24(void* self, int enable)
 {
     ((sUIVectorFlags*)((char*)self + 0x74))->bit4 = enable;
 }

@@ -934,7 +934,7 @@ extern "C" void* cVisualEffectsMainMenu_cVisualEffectsMainMenu(void* self)
 extern "C" void* func_002CBF60(void* self);
 
 //100%
-void* func_0024D690(void* self)
+void* VisualEffectsMainMenu_OnActivate(void* self)
 {
     return func_002CBF60(self);
 }
@@ -942,7 +942,7 @@ void* func_0024D690(void* self)
 extern "C" void* func_002CBFD0(void* self);
 
 //100%
-void* func_0024D6B0(void* self)
+void* VisualEffectsMainMenu_OnDeactivate(void* self)
 {
     return func_002CBFD0(self);
 }
@@ -1402,25 +1402,25 @@ extern "C" void func_0024F6C0(void* self, int flags)
 }
 
 //100%
-void* func_0024F7E0(void* self)
+void* RenderTogglesMenu_OnActivate(void* self)
 {
     return func_002CBF60(self);
 }
 
 //100%
-void* func_0024F800(void* self)
+void* RenderTogglesMenu_OnDeactivate(void* self)
 {
     return func_002CBFD0(self);
 }
 
 //100%
-void* func_0024F820(void* self)
+void* VisualEffectsTestMenu_OnActivate(void* self)
 {
     return func_002CBF60(self);
 }
 
 //100%
-void* func_0024F840(void* self)
+void* VisualEffectsTestMenu_OnDeactivate(void* self)
 {
     return func_002CBFD0(self);
 }
@@ -1449,37 +1449,37 @@ extern "C" void func_0024F860(void* self, int flags)
 }
 
 //100%
-void* func_0024F940(void* self)
+void* PlantsMenu_OnActivate(void* self)
 {
     return func_002CBF60(self);
 }
 
 //100%
-void* func_0024F960(void* self)
+void* PlantsMenu_OnDeactivate(void* self)
 {
     return func_002CBFD0(self);
 }
 
 //100%
-void* func_0024F980(void* self)
+void* LightGlowMenu_OnActivate(void* self)
 {
     return func_002CBF60(self);
 }
 
 //100%
-void* func_0024F9A0(void* self)
+void* LightGlowMenu_OnDeactivate(void* self)
 {
     return func_002CBFD0(self);
 }
 
 //100%
-void* func_0024F9C0(void* self)
+void* DepthFogMenu_OnActivate(void* self)
 {
     return func_002CBF60(self);
 }
 
 //100%
-void* func_0024F9E0(void* self)
+void* DepthFogMenu_OnDeactivate(void* self)
 {
     return func_002CBFD0(self);
 }
@@ -1499,13 +1499,13 @@ extern "C" void func_0024FA00(void* self, int flags)
 }
 
 //100%
-void* func_0024FA78(void* self)
+void* HeightFogMenu_OnActivate(void* self)
 {
     return func_002CBF60(self);
 }
 
 //100%
-void* func_0024FA98(void* self)
+void* HeightFogMenu_OnDeactivate(void* self)
 {
     return func_002CBFD0(self);
 }
@@ -1532,13 +1532,13 @@ extern "C" void func_0024FAB8(void* self, int flags)
 }
 
 //100%
-void* func_0024FB80(void* self)
+void* DetailSystemMenu_OnActivate(void* self)
 {
     return func_002CBF60(self);
 }
 
 //100%
-void* func_0024FBA0(void* self)
+void* DetailSystemMenu_OnDeactivate(void* self)
 {
     return func_002CBFD0(self);
 }
@@ -1564,25 +1564,25 @@ extern "C" void func_0024FBC0(void* self, int flags)
 }
 
 //100%
-void* func_0024FC80(void* self)
+void* ShellRendererMenu_OnActivate(void* self)
 {
     return func_002CBF60(self);
 }
 
 //100%
-void* func_0024FCA0(void* self)
+void* ShellRendererMenu_OnDeactivate(void* self)
 {
     return func_002CBFD0(self);
 }
 
 //100%
-void* func_0024FCC0(void* self)
+void* ScreenTintMenu_OnActivate(void* self)
 {
     return func_002CBF60(self);
 }
 
 //100%
-void* func_0024FCE0(void* self)
+void* ScreenTintMenu_OnDeactivate(void* self)
 {
     return func_002CBFD0(self);
 }
@@ -1608,13 +1608,13 @@ extern "C" void func_0024FD00(void* self, int flags)
 }
 
 //100%
-void* func_0024FDC0(void* self)
+void* ShadowMenu_OnActivate(void* self)
 {
     return func_002CBF60(self);
 }
 
 //100%
-void* func_0024FDE0(void* self)
+void* ShadowMenu_OnDeactivate(void* self)
 {
     return func_002CBFD0(self);
 }
@@ -1638,25 +1638,25 @@ extern "C" void func_0024FE00(void* self, int flags)
 }
 
 //100%
-void* func_0024FEA8(void* self)
+void* SnowSurfaceMenu_OnActivate(void* self)
 {
     return func_002CBF60(self);
 }
 
 //100%
-void* func_0024FEC8(void* self)
+void* SnowSurfaceMenu_OnDeactivate(void* self)
 {
     return func_002CBFD0(self);
 }
 
 //100%
-void* func_0024FEE8(void* self)
+void* BoardTrailMenu_OnActivate(void* self)
 {
     return func_002CBF60(self);
 }
 
 //100%
-void* func_0024FF08(void* self)
+void* BoardTrailMenu_OnDeactivate(void* self)
 {
     return func_002CBFD0(self);
 }
@@ -1675,49 +1675,49 @@ extern "C" void func_0024FF28(void* self, int flags)
 }
 
 //100%
-void* func_0024FF90(void* self)
+void* FlagsMenu_OnActivate(void* self)
 {
     return func_002CBF60(self);
 }
 
 //100%
-void* func_0024FFB0(void* self)
+void* FlagsMenu_OnDeactivate(void* self)
 {
     return func_002CBFD0(self);
 }
 
 //100%
-void* func_0024FFD0(void* self)
+void* PowerUpFXTogglesMenu_OnActivate(void* self)
 {
     return func_002CBF60(self);
 }
 
 //100%
-void* func_0024FFF0(void* self)
+void* PowerUpFXTogglesMenu_OnDeactivate(void* self)
 {
     return func_002CBFD0(self);
 }
 
 //100%
-void* func_00250010(void* self)
+void* SnowfallTogglesMenu_OnActivate(void* self)
 {
     return func_002CBF60(self);
 }
 
 //100%
-void* func_00250030(void* self)
+void* SnowfallTogglesMenu_OnDeactivate(void* self)
 {
     return func_002CBFD0(self);
 }
 
 //100%
-void* func_00250050(void* self)
+void* CameraSplashMenu_OnActivate(void* self)
 {
     return func_002CBF60(self);
 }
 
 //100%
-void* func_00250070(void* self)
+void* CameraSplashMenu_OnDeactivate(void* self)
 {
     return func_002CBFD0(self);
 }
@@ -1737,25 +1737,25 @@ extern "C" void func_00250090(void* self, int flags)
 }
 
 //100%
-void* func_00250128(void* self)
+void* TubeMenu_OnActivate(void* self)
 {
     return func_002CBF60(self);
 }
 
 //100%
-void* func_00250148(void* self)
+void* TubeMenu_OnDeactivate(void* self)
 {
     return func_002CBFD0(self);
 }
 
 //100%
-void* func_00250168(void* self)
+void* PathArrowMenu_OnActivate(void* self)
 {
     return func_002CBF60(self);
 }
 
 //100%
-void* func_00250188(void* self)
+void* PathArrowMenu_OnDeactivate(void* self)
 {
     return func_002CBFD0(self);
 }
@@ -1763,7 +1763,7 @@ void* func_00250188(void* self)
 extern "C" void* func_0024E8D8(int, int);
 
 //99.38%
-void* func_002501A8(void* self)
+void* VisualEffectsMenus_GlobalCtors(void* self)
 {
     return func_0024E8D8(1, 0xffff);
 }
@@ -1771,7 +1771,7 @@ void* func_002501A8(void* self)
 extern "C" void* func_0024E8D8(int, int);
 
 //99.38%
-void* func_002501C8(void* self)
+void* VisualEffectsMenus_GlobalDtors(void* self)
 {
     return func_0024E8D8(0, 0xffff);
 }
@@ -1803,13 +1803,13 @@ extern "C" void* cAIVisualEffectsMainMenu_cAIVisualEffectsMainMenu(void* self)
 }
 
 //100%
-void* func_00250A60(void* self)
+void* AIVisualEffectsMainMenu_OnActivate(void* self)
 {
     return func_002CBF60(self);
 }
 
 //100%
-void* func_00250A80(void* self)
+void* AIVisualEffectsMainMenu_OnDeactivate(void* self)
 {
     return func_002CBFD0(self);
 }
@@ -1865,13 +1865,13 @@ extern "C" void func_00250AE0(void* self, int flags)
 INCLUDE_ASM("main/debugmenu", func_00250CB0);
 
 //100%
-void* func_002515F0(void* self)
+void* AvalancheMenu_OnActivate(void* self)
 {
     return func_002CBF60(self);
 }
 
 //100%
-void* func_00251610(void* self)
+void* AvalancheMenu_OnDeactivate(void* self)
 {
     return func_002CBFD0(self);
 }

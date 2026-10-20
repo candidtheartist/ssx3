@@ -32,7 +32,7 @@ extern "C" int cInputMapParser_lookupModifierName(void* self, const char* name)
 
 //100%
 extern "C" int func_0041AA88(const char* a, const char* b);
-extern "C" int func_0041AB78(const char* a, const char* b, int n);
+extern "C" int strncasecmp(const char* a, const char* b, int n);
 extern char D_004A3F18[];
 extern char D_004A3F20[];
 extern char D_004A3F28[];
@@ -41,7 +41,7 @@ extern "C" int cInputMapParser_lookupConfigName(void* self, char* name)
 {
     if (func_0041AA88(name, D_004A3F18) == 0)
         return 0;
-    if (func_0041AB78(name, D_004A3F20, 3) == 0) {
+    if (strncasecmp(name, D_004A3F20, 3) == 0) {
         int d = name[3] - '0';
         if ((unsigned char)d < 10) {
             int n = d;
@@ -60,7 +60,7 @@ extern "C" int cInputMapParser_lookupConfigName(void* self, char* name)
             }
         }
     }
-    if (func_0041AB78(name, D_004A3F28, 6) != 0) {
+    if (strncasecmp(name, D_004A3F28, 6) != 0) {
         return -1;
     }
     int d = name[6] - '0';
@@ -831,7 +831,7 @@ extern "C" void func_00321500(void* self, const char* fmt, ...);
 extern "C" void* func_003215F8(void* self);
 extern "C" void func_00321638(void* self, void* node);
 extern "C" float func_0031C228(float x);
-extern "C" float func_0040DA10(float x);
+extern "C" float logf(float x);
 extern "C" float func_0040D758(float x);
 extern char D_0048E198[];
 extern char D_0048E1B8[];
@@ -848,7 +848,7 @@ struct sBinNode_4138 {
 
 static inline float pow_4138(float x, float y)
 {
-    return func_0040D758(func_0040DA10(x) * y);
+    return func_0040D758(logf(x) * y);
 }
 
 static inline float atan2_4138(float y, float x)
@@ -1874,7 +1874,7 @@ extern "C" void func_00326CF0(void* p)
 
 //100%
 extern "C" void* cMemMan_alloc(int size, const char* tag, unsigned int flags, int d);
-extern "C" void* func_00326DF0(void* self, int a1, int a2);
+extern "C" void* PS2Pad_ctor(void* self, int a1, int a2);
 extern char D_004A3FB0[];
 
 extern "C" int func_00326D60(void* p, int n)
@@ -1885,7 +1885,7 @@ extern "C" int func_00326D60(void* p, int n)
         n = 2;
     }
     for (i = 0; i < n; i++) {
-        arr[i] = func_00326DF0(cMemMan_alloc(0x180, D_004A3FB0, 0x4000000, 0), i, 0);
+        arr[i] = PS2Pad_ctor(cMemMan_alloc(0x180, D_004A3FB0, 0x4000000, 0), i, 0);
     }
     return n;
 }
@@ -1894,7 +1894,7 @@ extern "C" int func_00326D60(void* p, int n)
 extern "C" void* func_00416210(void* dst, int c, int n);
 extern void* D_0048E488[];
 
-extern "C" void* func_00326DF0(void* self, int a1, int a2)
+extern "C" void* PS2Pad_ctor(void* self, int a1, int a2)
 {
     *(void***)self = D_0048E488;
     *(int*)((char*)self + 0x4) = a1;
@@ -1910,7 +1910,7 @@ extern "C" void* func_00326DF0(void* self, int a1, int a2)
 }
 
 //100%
-extern "C" int func_003FF8F0(int a, int b);
+extern "C" int scePadPortClose(int a, int b);
 void operator_delete(int* ptr);
 extern void* D_0048E488[];
 extern char D_0048E4B8[];
@@ -1918,7 +1918,7 @@ extern char D_0048E4B8[];
 extern "C" void func_00326E50(void* self, int flags)
 {
     *(void***)self = D_0048E488;
-    func_003FF8F0(*(int*)((char*)self + 0x4), *(int*)((char*)self + 0x8));
+    scePadPortClose(*(int*)((char*)self + 0x4), *(int*)((char*)self + 0x8));
     *(void**)self = D_0048E4B8;
     if (flags & 1) {
         operator_delete((int*)self);
@@ -1967,16 +1967,16 @@ struct sPadData_326EB0 {
     unsigned char pad14[0xC];
 };
 extern "C" int func_003FF708(int port, int slot, void* buf);
-extern "C" int func_003FFBC0(int port, int slot);
-extern "C" int func_003FFFA0(int port, int slot, int a, int b);
-extern "C" int func_004000D8(int port, int slot, int a, int b);
-extern "C" int func_00400490(int port, int slot);
-extern "C" int func_004004F0(int port, int slot);
-extern "C" int func_003FFCD8(int port, int slot);
-extern "C" int func_003FFD60(int port, int slot, int a, int b);
-extern "C" int func_00400250(int port, int slot, void* align);
+extern "C" int scePadGetState(int port, int slot);
+extern "C" int scePadInfoMode(int port, int slot, int a, int b);
+extern "C" int scePadSetMainMode(int port, int slot, int a, int b);
+extern "C" int scePadInfoPressMode(int port, int slot);
+extern "C" int scePadEnterPressMode(int port, int slot);
+extern "C" int scePadGetReqState(int port, int slot);
+extern "C" int scePadInfoAct(int port, int slot, int a, int b);
+extern "C" int scePadSetActAlign(int port, int slot, void* align);
 extern "C" int func_003FFA58(int port, int slot, void* buf);
-extern "C" int func_00400190(int port, int slot, void* act);
+extern "C" int scePadSetActDirect(int port, int slot, void* act);
 extern unsigned char D_004A3FB8[8];
 
 static inline float Btn_326EB0(int on)
@@ -2009,7 +2009,7 @@ extern "C" int func_00326EB0(void* selfp, float* out)
             s->bigMotor = 0;
         }
     }
-    st = func_003FFBC0(s->port, s->slot);
+    st = scePadGetState(s->port, s->slot);
     if (st == 0 || st == 7) {
         s->modeSet = 0;
         s->state = 1;
@@ -2021,11 +2021,11 @@ extern "C" int func_00326EB0(void* selfp, float* out)
             s->pressure = 0;
             s->analog = 0;
             s->actuators = 0;
-            id = func_003FFFA0(s->port, s->slot, 1, 0);
+            id = scePadInfoMode(s->port, s->slot, 1, 0);
             if (id == 0) {
                 break;
             }
-            switch (func_003FFFA0(s->port, s->slot, 2, 0)) {
+            switch (scePadInfoMode(s->port, s->slot, 2, 0)) {
             case 0:
                 if (id == 4) {
                     s->state = 10;
@@ -2043,7 +2043,7 @@ extern "C" int func_00326EB0(void* selfp, float* out)
         break;
     case 2:
         if (s->analog == 0 || s->modeSet == 0) {
-            int r = func_004000D8(s->port, s->slot, 1, 3);
+            int r = scePadSetMainMode(s->port, s->slot, 1, 3);
             if (r == 1) {
                 s->modeSet = r;
                 s->state = 3;
@@ -2053,25 +2053,25 @@ extern "C" int func_00326EB0(void* selfp, float* out)
         }
         break;
     case 3:
-        if (func_003FFBC0(s->port, s->slot) != 5) {
+        if (scePadGetState(s->port, s->slot) != 5) {
             s->state = 1;
         }
         break;
     case 4:
-        if (func_00400490(s->port, s->slot) == 1) {
+        if (scePadInfoPressMode(s->port, s->slot) == 1) {
             s->state = 5;
         } else {
             s->state = 7;
         }
         break;
     case 5:
-        if (func_004004F0(s->port, s->slot) == 1) {
+        if (scePadEnterPressMode(s->port, s->slot) == 1) {
             s->retries = 0;
             s->state = 6;
         }
         break;
     case 6: {
-        int r = func_003FFCD8(s->port, s->slot);
+        int r = scePadGetReqState(s->port, s->slot);
         if (r == 1) {
             s->state = 1;
             s->modeSet = 0;
@@ -2086,20 +2086,20 @@ extern "C" int func_00326EB0(void* selfp, float* out)
         break;
     }
     case 7:
-        if (func_003FFD60(s->port, s->slot, -1, 0) != 0) {
+        if (scePadInfoAct(s->port, s->slot, -1, 0) != 0) {
             s->state = 8;
         } else {
             s->state = 10;
         }
         break;
     case 8:
-        if (func_00400250(s->port, s->slot, D_004A3FB8) == 1) {
+        if (scePadSetActAlign(s->port, s->slot, D_004A3FB8) == 1) {
             s->retries = 0;
             s->state = 9;
         }
         break;
     case 9: {
-        int r = func_003FFCD8(s->port, s->slot);
+        int r = scePadGetReqState(s->port, s->slot);
         if (r == 1) {
             s->state = 1;
             s->modeSet = 0;
@@ -2182,7 +2182,7 @@ extern "C" int func_00326EB0(void* selfp, float* out)
             s->act[1] = s->bigMotor;
             s->smallMotorSent = s->smallMotor;
             s->bigMotorSent = s->bigMotor;
-            func_00400190(s->port, s->slot, s->act);
+            scePadSetActDirect(s->port, s->slot, s->act);
         }
     }
     return ret;
@@ -2249,7 +2249,7 @@ void func_00327808(void* self)
 }
 
 //100%
-void* func_00327810(void* self)
+void* AIFwdDiffCache_ctor(void* self)
 {
     int t0 = 0;
     *(int*)self = t0;

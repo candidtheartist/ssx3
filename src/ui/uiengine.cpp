@@ -618,18 +618,18 @@ extern "C" int func_00398798(void* self, int a1)
 }
 
 //100%
-struct func_003987F8_sVEntry {
+struct cUIGroup_v18_sVEntry {
     short delta;
     short index;
     void (*fn)(void*, int);
 };
 
-extern "C" void func_003987F8(void* self, int a1)
+extern "C" void cUIGroup_v18(void* self, int a1)
 {
     void* n = cList_first((cList*)((char*)self + 0x74));
     if (n != 0) {
         while (!cListNode_isSentinel((cListNode*)n)) {
-            func_003987F8_sVEntry* vt = *(func_003987F8_sVEntry**)((char*)n + 8);
+            cUIGroup_v18_sVEntry* vt = *(cUIGroup_v18_sVEntry**)((char*)n + 8);
             vt[0x12].fn((char*)n + vt[0x12].delta, a1);
             n = *(void**)((char*)n + 4);
         }

@@ -551,7 +551,7 @@ static inline int moviePlaying_K1874E8(void* mp)
     return r;
 }
 
-extern "C" void func_001874E8(void* self)
+extern "C" void cFEStateMemCard_v33(void* self)
 {
     if (*(int*)((char*)self + 0x1AC) != 0)
         return;
@@ -579,7 +579,7 @@ struct sVtEntK1876A8 {
     void (*fn)(void*, int);
 };
 
-extern "C" void func_001876A8(void)
+extern "C" void cFEStateMemCard_v26(void)
 {
     void* st = D_004A14B8;
     void* obj = cUIScreen_getObjectByHashName(*(void**)((char*)st + 0x40), GetHashValue32(D_0045DC80));
@@ -796,7 +796,7 @@ extern "C" void* func_0039E318(void* self);
 extern char D_0046B4A0[];
 
 //100%
-extern "C" void* func_00187C18(void* self)
+extern "C" void* cFEStateLegal_ctor(void* self)
 {
     func_0039E318(self);
     *(void**)((char*)self + 0x8) = D_0046B4A0;

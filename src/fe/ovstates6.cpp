@@ -10,7 +10,7 @@ INCLUDE_ASM("fe/ovstates6", func_0020AB50);
 
 INCLUDE_ASM("fe/ovstates6", func_0020CA10);
 
-INCLUDE_ASM("fe/ovstates6", func_0020CBA0);
+INCLUDE_ASM("fe/ovstates6", GameUI_IsPauseMenuOpen);
 
 INCLUDE_ASM("fe/ovstates6", func_0020CBE8);
 

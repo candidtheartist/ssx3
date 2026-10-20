@@ -232,7 +232,7 @@ extern "C" void func_00243B80(int* self, int flags)
 extern char D_0047D788[];
 extern "C" void func_00231CD0(void* self);
 
-extern "C" void* func_00243BB0(void* self)
+extern "C" void* cGameLoadScreen_ctor(void* self)
 {
     func_00231CD0(self);
     *(int*)((char*)self + 0xC) = 0;
@@ -268,7 +268,7 @@ extern "C" void func_00243C00(int* self, int flags)
 extern char D_0047D740[];
 extern "C" void func_00231CD0(void* self);
 
-extern "C" void* func_00243C30(void* self)
+extern "C" void* cFELoadScreen_ctor(void* self)
 {
     func_00231CD0(self);
     *(int*)((char*)self + 0xC) = 0;
@@ -302,32 +302,32 @@ extern "C" void func_00243C80(int* self, int flags)
 }
 
 //100%
-void func_00243CB0(void* self)
+void GameState_OverlayEnter(void* self)
 {
 }
 
 //100%
-void func_00243CB8(void* self)
+void GameState_OverlayUpdate(void* self)
 {
 }
 
 //100%
-void func_00243CC0(void* self)
+void GameState_OverlayExit(void* self)
 {
 }
 
 //100%
-void func_00243CC8(void* self)
+void GameState_Enter(void* self)
 {
 }
 
 //100%
-void func_00243CD0(void* self)
+void GameState_Update(void* self)
 {
 }
 
 //100%
-void func_00243CD8(void* self)
+void GameState_Exit(void* self)
 {
 }
 
@@ -338,7 +338,7 @@ int func_00243CE0(void* self)
 }
 
 //100%
-void func_00243CE8(void* self)
+void GameState_v09(void* self)
 {
 }
 
@@ -930,7 +930,7 @@ extern "C" void* func_002443F0(void* self, void* a1)
 }
 
 //100%
-int func_002443F8(void* self)
+int GenericStreamPause_v03(void* self)
 {
     return 0x1;
 }
@@ -1002,7 +1002,7 @@ void operator_delete(int* ptr);
 
 extern char D_0047D008[];
 
-extern "C" void func_002444F0(int* self, int flags)
+extern "C" void GMHandler_dtor(int* self, int flags)
 {
     *(void**)self = D_0047D008;
     if (flags & 1) {
@@ -1018,23 +1018,23 @@ extern "C" void func_00244520(int value)
 }
 
 //100%
-void func_00244528(void* self)
+void GMHandler_Reset(void* self)
 {
 }
 
 //100%
-int func_00244530(void* self)
+int GMHandler_v06(void* self)
 {
     return 0x1;
 }
 
 //100%
-void func_00244538(void* self)
+void GMHandler_v07(void* self)
 {
 }
 
 //100%
-void func_00244540(void* self)
+void GMHandler_OnRiderFinished(void* self)
 {
 }
 
@@ -1045,12 +1045,12 @@ int func_00244548(void* self)
 }
 
 //100%
-void func_00244550(void* self)
+void GMHandler_SaveState(void* self)
 {
 }
 
 //100%
-void func_00244558(void* self)
+void GMHandler_LoadState(void* self)
 {
 }
 
@@ -1107,12 +1107,12 @@ extern "C" void func_002445F0(int* self, int flags)
 }
 
 //100%
-void func_00244620(void* self)
+void GMHandler9_SaveState(void* self)
 {
 }
 
 //100%
-void func_00244628(void* self)
+void GMHandler9_LoadState(void* self)
 {
 }
 
@@ -1507,8 +1507,8 @@ extern "C" void func_0026F4A8(void* p);
 extern "C" int func_00270280(void* p);
 extern "C" int func_0026CE50(void* p);
 extern "C" void func_00309270(void* p);
-extern "C" void func_002294C8(void* p);
-extern "C" void func_003440C8(void* p);
+extern "C" void CrowdMan2d_Update(void* p);
+extern "C" void CrowdMan3d_Update(void* p);
 extern "C" void func_00357BF8(void* p);
 extern "C" void func_002B7848(void* p, void* q, int i);
 extern char D_004A5988[8];
@@ -1557,8 +1557,8 @@ extern "C" void func_00244E60(char* self)
         if (!(D_004A2A50 & 0x10)) func_00354F98(GetSnd(), 2);
         if (!(D_004A2A50 & 4)) func_00354F98(GetSnd(), 3);
         func_00309270(F(0x30, void*));
-        func_002294C8(F(0x38, void*));
-        func_003440C8(F(0x3C, void*));
+        CrowdMan2d_Update(F(0x38, void*));
+        CrowdMan3d_Update(F(0x3C, void*));
         func_00357BF8(F(0x40, void*));
         func_00354C98(GetSnd(), 1);
     } else {
@@ -1635,7 +1635,7 @@ extern "C" void func_002451B0(s002451B0_App* self)
 }
 
 //100%
-void* func_00245228(void* self)
+void* cFEStateProgressive_dtor(void* self)
 {
     return func_0039E390(self);
 }
@@ -1651,7 +1651,7 @@ extern char D_004A2AD8[];
 extern char D_004A2AC0[];
 extern char D_0047B988[];
 
-extern "C" void func_00245248(void* self)
+extern "C" void cFEStateProgressive_Init(void* self)
 {
     void* engine = *(void**)((char*)self + 0x10);
     void* screen = cUIEngine_addScreenByHashName(engine, self, GetHashValue32(D_004A2AD8), 0);
@@ -1708,7 +1708,7 @@ static inline sUIObj_2452D8* newUIObj_2452D8(void* owner, char flag)
     return o;
 }
 
-extern "C" void func_002452D8(void* self, char* msg, int type)
+extern "C" void cFEStateProgressive_OnWidgetAction(void* self, char* msg, int type)
 {
     if (msg == 0) {
         return;
@@ -1736,7 +1736,7 @@ extern "C" int func_002453E0(void* self, int a1, int a2)
 extern void* D_0047C948[];
 extern "C" void* func_0039E390(void* self);
 
-extern "C" void* func_002453F0(void* self)
+extern "C" void* cGameLoadState_dtor(void* self)
 {
     *(void**)((char*)self + 0x8) = D_0047C948;
     return func_0039E390(self);
@@ -1754,7 +1754,7 @@ extern signed char D_00535C11[];
 extern char D_0047BA28[];
 extern char D_0047BA38[];
 
-extern "C" void func_00245418(void* self)
+extern "C" void cGameLoadState_Init(void* self)
 {
     cBE_getInterface_Fv(cBE_getBE(), 0);
     if (D_00535C11[0] == 2) {
@@ -1783,7 +1783,7 @@ extern char* D_004A5B64;
 extern "C" void func_002C27C0(char* dst, const char* fmt, ...);
 extern "C" void func_003A0E90(void* text, void* p);
 
-extern "C" int func_002454F8(void* self, int refresh)
+extern "C" int cGameLoadState_TransitionIn(void* self, int refresh)
 {
     void* obj = cUIScreen_getObjectByHashName(*(void**)((char*)self + 0x40), GetHashValue32(D_004A2BC8));
     if (obj != 0) {
@@ -1806,7 +1806,7 @@ extern "C" void func_002464E8(void* self, int a1);
 extern "C" void func_00246278(void* self, int a1);
 extern signed char D_00535C11[];
 
-extern "C" void func_00245598(void* self, int a1)
+extern "C" void cGameLoadState_OnWidgetCreated(void* self, int a1)
 {
     cBE_getInterface_Fv(cBE_getBE(), 0);
     bool ok = D_00535C11[0] != 2;
@@ -1821,7 +1821,7 @@ extern "C" void func_00245598(void* self, int a1)
 extern void* D_0047C878[];
 extern "C" void* func_0039E390(void* self);
 
-extern "C" void* func_00245600(void* self)
+extern "C" void* cGameLoadStateOutLodge_dtor(void* self)
 {
     *(void**)((char*)self + 0x8) = D_0047C878;
     return func_0039E390(self);
@@ -1833,7 +1833,7 @@ extern "C" void* cUIEngine_addScreenByHashName(void* engine, void* owner, int ha
 extern "C" void cUIScreen_playFrame(void* screen, int a1, int a2);
 extern char D_0047BCC8[];
 
-extern "C" void func_00245628(void* self)
+extern "C" void cGameLoadStateOutLodge_Init(void* self)
 {
     void* engine = *(void**)((char*)self + 0x10);
     void* screen = cUIEngine_addScreenByHashName(engine, self, GetHashValue32(D_0047BCC8), 0);
@@ -1844,7 +1844,7 @@ extern "C" void func_00245628(void* self)
 }
 
 //100%
-void func_00245690(void* self)
+void cGameLoadStateOutLodge_OnWidgetCreated(void* self)
 {
 }
 
@@ -1855,7 +1855,7 @@ extern char* D_004A5B64;
 extern "C" void func_002C27C0(char* dst, const char* fmt, ...);
 extern "C" void func_003A0E90(void* text, void* p);
 
-extern "C" int func_00245698(void* self)
+extern "C" int cGameLoadStateOutLodge_TransitionIn(void* self)
 {
     void* obj = cUIScreen_getObjectByHashName(*(void**)((char*)self + 0x40), GetHashValue32(D_004A2BC8));
     if (obj != 0) {
@@ -1870,7 +1870,7 @@ extern "C" int func_00245698(void* self)
 extern void* D_0047C7A8[];
 extern "C" void* func_0039E390(void* self);
 
-extern "C" void* func_00245708(void* self)
+extern "C" void* cGameLoadStateConquer_dtor(void* self)
 {
     *(void**)((char*)self + 0x8) = D_0047C7A8;
     return func_0039E390(self);
@@ -1902,7 +1902,7 @@ public:
     virtual void setVisible(int on);
 };
 
-extern "C" void func_00245730(void* self)
+extern "C" void cGameLoadStateConquer_Init(void* self)
 {
     void* engine = *(void**)((char*)self + 0x10);
     void* scr = cUIEngine_addScreenByHashName(engine, self, GetHashValue32(D_0047BCD8), 0);
@@ -1933,7 +1933,7 @@ extern "C" void func_00245730(void* self)
 }
 
 //100%
-void func_002458B0(void* self)
+void cGameLoadStateConquer_OnWidgetCreated(void* self)
 {
 }
 
@@ -1944,7 +1944,7 @@ extern char* D_004A5B64;
 extern "C" void func_002C27C0(char* dst, const char* fmt, ...);
 extern "C" void func_003A0E90(void* text, void* p);
 
-extern "C" int func_002458B8(void* self)
+extern "C" int cGameLoadStateConquer_TransitionIn(void* self)
 {
     void* obj = cUIScreen_getObjectByHashName(*(void**)((char*)self + 0x40), GetHashValue32(D_004A2BC8));
     if (obj != 0) {
@@ -1959,7 +1959,7 @@ extern "C" int func_002458B8(void* self)
 extern void* D_0047C6D8[];
 extern "C" void* func_0039E390(void* self);
 
-extern "C" void* func_00245928(void* self)
+extern "C" void* cFELoadHintState_dtor(void* self)
 {
     *(void**)((char*)self + 0x8) = D_0047C6D8;
     return func_0039E390(self);

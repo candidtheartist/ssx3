@@ -389,7 +389,7 @@ void* func_0026E5A8(void* self);
 extern "C" void* func_00272288(void* self);
 void func_0026F4A0(void* self, int state);
 
-extern "C" void* func_0026EFB8(void* self)
+extern "C" void* Replay_ctor(void* self)
 {
     char* p = (char*)self + 0x2C;
     for (int i = 15; i != -1; i--, p += 0x38) {

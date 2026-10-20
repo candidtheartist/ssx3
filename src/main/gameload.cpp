@@ -35,11 +35,11 @@ extern "C" void cBXString__cBXString(sBXStr_F6B0* self, int flags);
 extern "C" sBXStr_F6B0* cBXString_operatorE(sBXStr_F6B0* self, sBXStr_F6B0* o);
 extern "C" char* func_00144BC0(void* iface);
 extern "C" void cBigFile_open(void* bf, const char* name, int flags);
-extern "C" void func_003A6AE0(void* a, const char* name, void* b);
-void* func_00353AC0(void* p);
-extern "C" void* func_0022CCE8(void* p, void* game);
+extern "C" void World_Load(void* a, const char* name, void* b);
+void* SkyBox_ctor(void* p);
+extern "C" void* SectionMan_ctor(void* p, void* game);
 extern "C" void func_002C2F18(void* p);
-extern "C" void* func_002B6AA0(void* p, int a);
+extern "C" void* cWorldSound_ctor(void* p, int a);
 extern "C" void cSpaceHash_createFwdDiffCache(void* p);
 extern "C" void func_0022D088(void* p, int id, int a);
 extern "C" int func_0022D278(void* p, int id);
@@ -376,7 +376,7 @@ int func_00230698(void* self, int i)
 }
 
 //100%
-int func_002306A8(void* self, int i)
+int cGame_GetSplashManager(void* self, int i)
 {
     return *(int*)((char*)self + (i << 2) + 0x68);
 }
@@ -613,13 +613,13 @@ extern "C" int func_002312D8(void* self)
 }
 
 //100%
-extern "C" void func_00233AA0(void* p);
+extern "C" void GameState_GotoNext(void* p);
 
 extern "C" void func_00231320(void* self)
 {
     void* p = *(void**)((char*)self + 0x200);
     if (p != 0) {
-        func_00233AA0(p);
+        GameState_GotoNext(p);
     }
 }
 
@@ -660,7 +660,7 @@ extern "C" void func_00235990(void* p, void* s);
 extern "C" void func_00235F48(void* p, void* s);
 extern "C" void func_00236728(void* p, void* s);
 
-extern "C" void func_00231348(void* self, cStream_00231348* stream)
+extern "C" void cGame_SaveState(void* self, cStream_00231348* stream)
 {
     (*(cSerObj_00231348**)((char*)self + 0x70))->serialize(stream);
     (*(cSerObj_00231348**)((char*)self + 0x74))->serialize(stream);
@@ -720,7 +720,7 @@ static inline void SerInt_14D0(char* stream, int* p)
     vt[2].fn(stream + vt[2].delta, p, 4);
 }
 
-extern "C" void func_002314D0(void* self_, char* stream)
+extern "C" void cGame_LoadState(void* self_, char* stream)
 {
     cGLMan_0F40* self = (cGLMan_0F40*)self_;
     Ser_14D0(*(char**)((char*)self + 0x70), stream);

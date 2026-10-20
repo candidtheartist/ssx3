@@ -78,12 +78,12 @@ extern "C" void* func_002D20F8()
 }
 
 extern "C" void* cMemMan_alloc(int size, const char* tag, unsigned int flags, int d);
-extern "C" void* func_002D21C0(void* p);
+extern "C" void* SSXStatsMan_ctor(void* p);
 extern char D_00486758[];
 
 extern "C" void* func_002D2100()
 {
-    return func_002D21C0(cMemMan_alloc(1, D_00486758, 0, 0));
+    return SSXStatsMan_ctor(cMemMan_alloc(1, D_00486758, 0, 0));
 }
 
 extern "C" void func_002D2138()
@@ -134,7 +134,7 @@ void func_002D21B8(void* self)
 //100%
 extern void* D_004A3A00;
 
-extern "C" void* func_002D21C0(void* p)
+extern "C" void* SSXStatsMan_ctor(void* p)
 {
     D_004A3A00 = p;
     return p;
@@ -155,7 +155,7 @@ extern "C" int func_002D21D0(char** cursor, float value)
     return 4;
 }
 
-extern "C" int func_002D2210(char** cursor, unsigned int value)
+extern "C" int Serialize_WriteU32(char** cursor, unsigned int value)
 {
     char* p = *cursor;
     p[0] = value;
@@ -223,7 +223,7 @@ extern "C" int func_002D23E8(char** cursor, const char* s)
 struct sOIStr_2478 { unsigned int n; char* s; };
 extern "C" int func_002D2478(char** cursor, sOIStr_2478** str)
 {
-    int total = func_002D2210(cursor, (*str)->n);
+    int total = Serialize_WriteU32(cursor, (*str)->n);
     for (unsigned int i = 0; i < (*str)->n; i++) {
         total += func_002D23C8(cursor, (*str)->s[i]);
     }

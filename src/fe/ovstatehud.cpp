@@ -299,7 +299,7 @@ struct sElem_9A30 {
 };
 
 // HUD overlay state constructor: base state, vtable, the two sub-panels and default scales.
-extern "C" void* func_001E9A30(void* arg0, int a1)
+extern "C" void* cOVStateHUD1P_ctor(void* arg0, int a1)
 {
     char* self = (char*)arg0;
     func_0039E2A0_9A30(self, a1);
@@ -324,7 +324,7 @@ INCLUDE_ASM("fe/ovstatehud", func_001EA930);
 extern "C" char* func_002B40F0(void* self, int a1);
 
 // Handles a HUD command: toggles, counters, and the two message lines.
-extern "C" int func_001EC1F0(char* self, unsigned int cmd, unsigned short* str)
+extern "C" int cOVStateHUD1P_v24(char* self, unsigned int cmd, unsigned short* str)
 {
     switch (cmd) {
     case 0:
@@ -999,7 +999,7 @@ extern "C" void func_001F2DB0(void* self, sFont_001F2DB0* font, sHudElemDef_001F
 }
 
 //100%
-void* func_001F30C0(void* self)
+void* LoadIndicator_ctor(void* self)
 {
     cOVStateHUDElem* e = (cOVStateHUDElem*)self;
     int t0 = 0;

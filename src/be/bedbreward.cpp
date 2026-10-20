@@ -153,12 +153,12 @@ void func_0015BB08(void* self)
 }
 
 //100%
-void func_0015BB10(void* self)
+void BEInterface_SaveState(void* self)
 {
 }
 
 //100%
-void func_0015BB18(void* self)
+void BEInterface_LoadState(void* self)
 {
 }
 
@@ -308,7 +308,7 @@ void func_0015BCC0(void* self)
 }
 
 //100%
-void func_0015BCC8(void* self)
+void cBEMissionInterface_Reset(void* self)
 {
 }
 

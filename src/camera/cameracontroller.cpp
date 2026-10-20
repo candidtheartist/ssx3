@@ -133,7 +133,7 @@ struct sCamCtrlVEDtor {
     void (*fn)(void*, int);
 };
 
-extern "C" void func_0015CE10(void* self, int flags)
+extern "C" void cManualCameraController_dtor(void* self, int flags)
 {
     *(void***)((char*)self + 0x14) = D_0045B8D8;
     char* a = *(char**)((char*)self + 0x18);

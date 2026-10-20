@@ -1531,7 +1531,7 @@ extern "C" void func_00159CD0(void* self, int a1, int a2, int bit);
 extern int D_00440F48[];
 extern int D_0045AFE8_2d[][4] __asm__("D_0045AFE8");
 
-extern "C" void func_001599A0(void* self, int rider, int k)
+extern "C" void cBERewardInterface_OnCollectibleCollected(void* self, int rider, int k)
 {
     int cur = cBEMissionInterface_getCurrentCollectForPeak(cBE_getInterface_Fv(cBE_getBE(), 0xA), rider, k);
     int* p = &D_00440F48[k];
@@ -1568,7 +1568,7 @@ extern "C" void func_00159CD0(void* self, int a1, int a2, int bit);
 extern int D_00440F58[];
 extern int D_0045B018_2d[][4] __asm__("D_0045B018");
 
-extern "C" void func_00159B08(void* self, int rider, int k)
+extern "C" void cBERewardInterface_OnMissionCompleted(void* self, int rider, int k)
 {
     int cur = func_001543E0(cBE_getInterface_Fv(cBE_getBE(), 0xA), k);
     int* p = &D_00440F58[k];
@@ -2007,7 +2007,7 @@ extern "C" void* func_0015A778(void* self)
 void operator_delete(int* ptr);
 extern "C" void func_0015AE00(void* self);
 
-extern "C" void func_0015A7D0(int* self, int flags)
+extern "C" void cBERewardDB_dtor(int* self, int flags)
 {
     func_0015AE00(self);
     if (flags & 1)

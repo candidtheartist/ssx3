@@ -7,7 +7,7 @@ extern "C" void* cBE_getBE();
 void* cBE_getInterface_Fv(void* be, int kind) __asm__("cBE_getInterface__Fv");
 extern "C" void cBE_setState(int state);
 extern "C" void func_0039F840(void* list);
-extern "C" void func_00233AA0(void* self);
+extern "C" void GameState_GotoNext(void* self);
 extern "C" void func_0026F228(void* p);
 extern "C" void* func_0028B180(void);
 extern "C" void func_00258968(void* p);
@@ -45,7 +45,7 @@ extern "C" void cGFGateState_gainFocus(void* self)
     cBE_getInterface_Fv(cBE_getBE(), 0);
     int mode = D_00535C10[0];
     if (mode >= 4 && mode <= 6) {
-        func_00233AA0(self);
+        GameState_GotoNext(self);
         return;
     }
     cAI_setAIState(*(void**)(D_004A2C68 + 0xC), 4);
@@ -87,7 +87,7 @@ extern "C" void* func_0039F9D8(void* list, int hash);
 extern "C" void* func_0028B180(void);
 extern "C" void func_0029C7B0(void* p);
 void func_0028C8C0(void* self, int val);
-extern "C" void func_00233AA0(void* self);
+extern "C" void GameState_GotoNext(void* self);
 extern "C" void func_0029C420(void* p, int secs);
 extern char* D_004A2C68;
 extern signed char D_00535C10[];
@@ -129,7 +129,7 @@ extern "C" void cGFGateState_update(void* self)
         }
         func_0029C7B0(func_0028B180());
         func_0028C8C0(func_0028B180(), 0x78);
-        func_00233AA0(self);
+        GameState_GotoNext(self);
     }
     int frames = *(int*)(*(char**)(D_004A2C68 + 0xC) + 0x1C);
     float secs = frames / 60;
@@ -164,7 +164,7 @@ extern "C" void func_0039F840(void* list);
 extern char* D_004A2C68;
 extern signed char D_00535C10[];
 
-extern "C" void func_00234E20(void)
+extern "C" void GameStateRace_Enter(void)
 {
     cAI_setAIState(*(void**)(D_004A2C68 + 0xC), 5);
     cBE_getInterface_Fv(cBE_getBE(), 0);
@@ -472,7 +472,7 @@ extern "C" void func_00235570(void* self)
 }
 
 //100%
-extern "C" int func_002355B0(void* self)
+extern "C" int GameStateReset_v08(void* self)
 {
     return *(int*)((char*)self + 0x10) == 5;
 }
@@ -528,7 +528,7 @@ static inline int isMode2_2355C0(void* s)
     return *(int*)((char*)s + 0x550) == 2;
 }
 
-extern "C" void func_002355C0(void* self)
+extern "C" void GameStateReset_Enter(void* self)
 {
     *(int*)((char*)self + 0x1C) = 0;
     if (func_0027AA80(D_004A28A4))
@@ -576,18 +576,18 @@ extern "C" void func_002355C0(void* self)
 //100%
 extern "C" int func_0027AA80(void* a);
 extern "C" int func_00279220(void* a, int b);
-extern "C" void func_00233AA0(void* self);
+extern "C" void GameState_GotoNext(void* self);
 extern void* D_004A28A4;
 extern void* D_004A28A8;
 
-extern "C" void func_002357F8(void* self)
+extern "C" void GameStateReset_Update(void* self)
 {
     if (*(int*)((char*)self + 0x1C) != 0 && func_0027AA80(D_004A28A4) == 0) {
         *(int*)(*(char**)(*(char**)((char*)D_004A28A8 + 0x84) + 0x78) + 0x1A4) = 1;
         *(int*)((char*)self + 0x1C) = 0;
     }
     if (func_00279220(D_004A28A4, 1) == 0) {
-        func_00233AA0(self);
+        GameState_GotoNext(self);
     }
 }
 
@@ -620,7 +620,7 @@ static inline int otherSide_235868(char* p)
     return *(int*)(p + 0xB0) == 0;
 }
 
-extern "C" void func_00235868(void* self)
+extern "C" void GameStateReset_Exit(void* self)
 {
     func_00308F38(D_004A3DD8);
     func_00308C60(D_004A3DD8);
@@ -736,7 +736,7 @@ struct sGM_235AA0 {
     int boards[10]; // 0x40
 };
 
-extern "C" void func_00235AA0(void* self)
+extern "C" void GameStateRestartRace_Enter(void* self)
 {
     cBE_setState(0);
     func_0030B7F8(D_004A3DD8);
@@ -834,14 +834,14 @@ extern "C" int func_003A9770(void* cache, int idx, sVec4_236960* pos, float* dis
 extern "C" int func_002791D8(void* p, int a);
 extern "C" int func_00279298(void* p);
 extern "C" void func_0027A9F0(void* p);
-extern "C" void func_00233AA0(void* self);
+extern "C" void GameState_GotoNext(void* self);
 void* func_00230698(void* self, int id);
 extern char* D_004A2C68;
 extern void* D_004A28A8;
 extern void* D_004A28A4;
 extern int D_00535C04[];
 
-extern "C" void func_00235CC8(void* self)
+extern "C" void GameStateRestartRace_Update(void* self)
 {
     *(int*)((char*)self + 0x14) += 1;
     cBE_getInterface_Fv(cBE_getBE(), 0);
@@ -895,7 +895,7 @@ extern "C" void func_00235CC8(void* self)
         *(int*)((char*)self + 0x10) = 3;
         break;
     case 3:
-        func_00233AA0(self);
+        GameState_GotoNext(self);
         break;
     }
 }
@@ -904,7 +904,7 @@ extern "C" void func_00235CC8(void* self)
 extern "C" void func_001F36D8(void* hud, int a);
 extern void* D_004A28A8;
 
-extern "C" void func_00235F20(void)
+extern "C" void GameStateRestartRace_Exit(void)
 {
     func_001F36D8(*(void**)(*(char**)((char*)D_004A28A8 + 0x84) + 0x94), 3);
 }
@@ -968,7 +968,7 @@ struct sColor_236058 {
     float r, g, b, a;
 };
 
-extern "C" void func_00236058(void* self)
+extern "C" void GameStateWarpToEvent_Enter(void* self)
 {
     void* gm = *(void**)((char*)D_004A28A8 + 0xC0);
     func_0030B7F8(D_004A3DD8);
@@ -995,7 +995,7 @@ extern "C" void func_00236058(void* self)
 extern "C" void func_00231250(void* self, int a, int b, int refresh);
 extern void* D_004A28A8;
 
-extern "C" void func_00236198(void)
+extern "C" void GameStateWarpToEvent_Update(void)
 {
     func_00231250(*(void**)((char*)D_004A28A8 + 0x84), 1, 0, 0);
 }
@@ -1055,7 +1055,7 @@ static inline int isOne_6250(int m)
     return m == 1;
 }
 
-extern "C" void func_00236250(void* self, int mode)
+extern "C" void GameStateEventSelect_Enter(void* self, int mode)
 {
     func_0030B7F8(D_004A3DD8);
     void* iface = cBE_getInterface_Fv(cBE_getBE(), 0);
@@ -1090,7 +1090,7 @@ extern "C" void func_00236250(void* self, int mode)
     }
 }
 
-INCLUDE_ASM("main/gamestate", func_00236418);
+INCLUDE_ASM("main/gamestate", GameStateEventSelect_Update);
 
 //100%
 struct sVEntry_func_00236728 {
@@ -1171,7 +1171,7 @@ struct sRace002368A0 {
 };
 extern sRace002368A0 D_00535BC8_r002368A0 __asm__("D_00535BC8");
 
-extern "C" void func_002368A0(void* self)
+extern "C" void GameStateEventSwitchLoad_Enter(void* self)
 {
     cBE_setState(0);
     func_0026F228(*(void**)(D_004A2C68 + 0x28));
@@ -1212,7 +1212,7 @@ extern "C" int func_00279298(void* p);
 extern "C" void func_0027A9F0(void* p);
 extern void* D_004A28A4;
 
-extern "C" void func_00236960(void* self)
+extern "C" void GameStateEventSwitchLoad_Update(void* self)
 {
     char* g84 = *(char**)((char*)D_004A28A8 + 0x84);
     char* game = *(char**)(g84 + 0x78);
@@ -1262,7 +1262,7 @@ extern "C" void func_00236960(void* self)
 }
 
 //100%
-void func_00236AF0(void* self)
+void GameStateEventSwitchLoad_Exit(void* self)
 {
 }
 
@@ -1324,7 +1324,7 @@ struct sGsMgr_6BB0 {
 };
 extern sGsMgr_6BB0* D_004A28A8_6BB0 __asm__("D_004A28A8");
 
-extern "C" void func_00236BB0(void* self)
+extern "C" void GameStatePreRaceMenu_Enter(void* self)
 {
     char* p = D_004A2EEC;
     *(int*)((char*)self + 8) = 0;
@@ -1343,14 +1343,14 @@ extern "C" void func_00236BB0(void* self)
 }
 
 //100%
-extern "C" void func_00233AA0(void* self);
+extern "C" void GameState_GotoNext(void* self);
 extern char* D_004A2EEC;
 
-extern "C" void func_00236C48(void* self)
+extern "C" void GameStatePreRaceMenu_Update(void* self)
 {
     if (D_004A2EEC == 0 || *(int*)(D_004A2EEC + 4) == 0) {
         if (*(int*)((char*)self + 8) == 1) {
-            func_00233AA0(self);
+            GameState_GotoNext(self);
         }
     }
 }
@@ -1362,7 +1362,7 @@ extern int D_004A2A50;
 extern int D_005366E8[];
 extern int D_004428F0[];
 
-extern "C" void func_00236C88(void* self)
+extern "C" void GameStatePreRaceMenu_Exit(void* self)
 {
     D_004A2A50 = D_004428F0[D_005366E8[--D_004A2A54]];
     func_00236CD8(self);
@@ -1433,7 +1433,7 @@ struct sRace00236DA0 {
 };
 extern sRace00236DA0 D_00535BC8_r00236DA0 __asm__("D_00535BC8");
 
-extern "C" void func_00236DA0(void* self)
+extern "C" void GameStateResults_Enter(void* self)
 {
     cBE_getInterface_Fv(cBE_getBE(), 0);
     if (D_00535BC8_r00236DA0.flag49 == 0) {
@@ -1463,7 +1463,7 @@ extern "C" void func_00236E60(void* self)
 extern "C" void func_0039F840(void* list);
 extern char* D_004A2C68;
 
-extern "C" void func_00236EA0(void)
+extern "C" void GameStateResults_Exit(void)
 {
     func_0039F840(*(char**)(D_004A2C68 + 0x48) + 0x18);
 }
@@ -1485,7 +1485,7 @@ extern "C" void* func_0028B180(void);
 extern "C" void cSSXAudio_playPodiumMusic(void* mgr);
 extern void* D_004A28A8;
 
-extern "C" void func_00236F08(void)
+extern "C" void GameStateFinishCinematic_Enter(void)
 {
     cSSXAudio_playPodiumMusic(func_0028B180());
     *(int*)(*(char**)(*(char**)((char*)D_004A28A8 + 0x84) + 0xC) + 0x8C) = 1;
@@ -1493,22 +1493,22 @@ extern "C" void func_00236F08(void)
 
 //100%
 extern "C" int func_00279220(void* a, int b);
-extern "C" void func_00233AA0(void* self);
+extern "C" void GameState_GotoNext(void* self);
 extern void* D_004A28A4;
 
-extern "C" void func_00236F40(void* self)
+extern "C" void GameStateFinishCinematic_Update(void* self)
 {
     int r = func_00279220(D_004A28A4, 0);
     int busy = r != 0 && r != 5;
     if (!busy) {
-        func_00233AA0(self);
+        GameState_GotoNext(self);
     }
 }
 
 //100%
 extern void* D_004A28A8;
 
-extern "C" void func_00236F90(void)
+extern "C" void GameStateFinishCinematic_Exit(void)
 {
     *(int*)(*(char**)(*(char**)((char*)D_004A28A8 + 0x84) + 0xC) + 0x8C) = 0;
 }
@@ -1533,7 +1533,7 @@ extern "C" void func_0020AB50(int state);
 extern void* D_004A3DD8;
 extern void* D_004A28A8;
 
-extern "C" void func_00236FE8(void)
+extern "C" void GameStateReplayPlayback_Enter(void)
 {
     func_00309030(D_004A3DD8);
     func_00309F18(D_004A3DD8);
@@ -1542,7 +1542,7 @@ extern "C" void func_00236FE8(void)
 }
 
 //100%
-void func_00237030(void* self)
+void GameStateReplayPlayback_Update(void* self)
 {
 }
 
@@ -1551,14 +1551,14 @@ extern "C" void func_00308F38(void* a);
 extern "C" void func_00308C60(void* a);
 extern void* D_004A3DD8;
 
-extern "C" void func_00237038(void)
+extern "C" void GameStateReplayPlayback_Exit(void)
 {
     func_00308F38(D_004A3DD8);
     func_00308C60(D_004A3DD8);
 }
 
 //100%
-extern "C" void* func_00237060(void* self, int a1, int a2)
+extern "C" void* InputSync_ctor(void* self, int a1, int a2)
 {
     *(int*)((char*)self + 0x4) = a1;
     *(int*)((char*)self + 0x8) = a2;
@@ -1586,7 +1586,7 @@ struct sObj_func_002370A0 {
     sEntry_func_002370A0 entries[1];
 };
 
-extern "C" void func_002370A0(sObj_func_002370A0* self, int flags)
+extern "C" void InputSync_dtor(sObj_func_002370A0* self, int flags)
 {
     int i;
     for (i = 0; i < self->count; i++) {

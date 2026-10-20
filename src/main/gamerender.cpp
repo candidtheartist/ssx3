@@ -305,7 +305,7 @@ static inline void Init_22E968(char* s, int off, void* vt, int id)
     *(int*)(s + off + 0x0) = id;
 }
 
-extern "C" char* func_0022E968(char* self)
+extern "C" char* cGame_ctor(char* self)
 {
     func_00231CD0(self);
     *(int*)(self + 0xC) = 0;

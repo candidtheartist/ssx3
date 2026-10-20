@@ -113,8 +113,8 @@ extern "C" void func_0034B7B8(void* self)
 
 //100%
 extern int D_004A4240;
-extern "C" void* func_002D1CB0();
-extern "C" int func_002D1C98();
+extern "C" void* World_GetFlagManager();
+extern "C" int World_GetAIFrameCount();
 extern "C" void func_0034BCA0(void* self, void* verts);
 
 struct sFlagVert_B818 {
@@ -373,7 +373,7 @@ struct sFlagSet_C428 {
     sFlagSetElem_C428 elems[15];    // 0x20
 };
 
-extern "C" sFlagSet_C428* func_0034C428(sFlagSet_C428* self, void* a1)
+extern "C" sFlagSet_C428* cFlagManager_ctor(sFlagSet_C428* self, void* a1)
 {
     int i;
     sFlagSetElem_C428* p = self->elems;
@@ -411,7 +411,7 @@ struct sFlagSet_C4B8 {
     sFlagSetElem_C4B8 elems[15];    // 0x20
 };
 
-extern "C" void func_0034C4B8(sFlagSet_C4B8* self, int flags)
+extern "C" void cFlagManager_dtor(sFlagSet_C4B8* self, int flags)
 {
     self->vtable = D_0048FB80;
     if (self->elems != 0) {
@@ -648,9 +648,9 @@ extern "C" void func_0034D6F0(void* self, float dt);
 extern void* D_0048FA00[];
 
 // PORT: the unit declares this as void (callers ignore the result); bound by asm label.
-extern "C" sFlagSet_CAB8* func_0034CAB8_ctor(sFlagSet_CAB8* self, int a1, void* obj, sFlagBlock_CAB8* desc, int flag, float dt) __asm__("func_0034CAB8");
-INCLUDE_ASM("object/flagset", func_0034CAB8);
-extern "C" sFlagSet_CAB8* func_0034CAB8_ctor(sFlagSet_CAB8* self, int a1, void* obj, sFlagBlock_CAB8* desc, int flag, float dt);
+extern "C" sFlagSet_CAB8* Fence_ctor_ctor(sFlagSet_CAB8* self, int a1, void* obj, sFlagBlock_CAB8* desc, int flag, float dt) __asm__("Fence_ctor");
+INCLUDE_ASM("object/flagset", Fence_ctor);
+extern "C" sFlagSet_CAB8* Fence_ctor_ctor(sFlagSet_CAB8* self, int a1, void* obj, sFlagBlock_CAB8* desc, int flag, float dt);
 
 //100%
 extern char* D_004A5B80;
@@ -663,7 +663,7 @@ struct sFlagSetVEntryCB80 {
     void (*fn)(void*, void*);
 };
 
-extern "C" void func_0034CB80(void* self, int flags)
+extern "C" void Fence_dtor(void* self, int flags)
 {
     char* s = (char*)self;
     *(void***)(s + 0xC) = D_0048FA00;
@@ -713,7 +713,7 @@ public:
 };
 
 extern "C" void* cMemMan_alloc(int size, const char* tag, unsigned int flags, int d);
-extern "C" void func_0034CAB8(void* self, int a1, void* obj, void* pos, int flag, float force);
+extern "C" void Fence_ctor(void* self, int a1, void* obj, void* pos, int flag, float force);
 extern "C" void func_0034CDE8(void* self, int flag, float force);
 extern char D_004A4018[];
 
@@ -770,7 +770,7 @@ extern "C" void func_0034CC80(char* self, char* obj, int flag)
         }
     } else if (0.25f <= fabs_34CC80(force)) {
         void* m = cMemMan_alloc(0x10C, D_004A4018, 0x20000000, 0);
-        func_0034CAB8(m, 1, obj, self + 0x1C, flag, force);
+        Fence_ctor(m, 1, obj, self + 0x1C, flag, force);
     }
 }
 
@@ -1022,7 +1022,7 @@ static inline float fsDot_D650(const sFsVec4_D650& a, const sFsVec4_D650& b)
     return r;
 }
 
-extern "C" void func_0034D650(void* self, void* obj)
+extern "C" void Fence_v40(void* self, void* obj)
 {
     char* s = (char*)self;
     char* o = (char*)obj;
@@ -1094,7 +1094,7 @@ extern "C" void* func_00355280(void* self, void* a1, int type, void* a3);
 extern "C" void cAnimNode_setAnimMeshCache(void* self);
 extern "C" float func_00351508(void* p);
 struct sFlagOwner_E348;
-extern "C" void func_0034E348(sFlagOwner_E348* self);
+extern "C" void cAnimObjectNode_v52(sFlagOwner_E348* self);
 // PORT: operator_new__FUi really takes (size, tag, flags, d); bound by asm label
 void* operator new[](unsigned int size, const char* tag, unsigned int flags, int d) __asm__("operator_new__FUi");
 extern void* D_00490CC8[];
@@ -1181,7 +1181,7 @@ struct sFlagSetVEntry_DC90c {
     void (*fn)(void*, void*, int);
 };
 
-extern "C" void func_0034DC90(void* self)
+extern "C" void cAnimObjectNode_v51(void* self)
 {
     sFlagSetVEntry_DC90a* vt = *(sFlagSetVEntry_DC90a**)((char*)self + 0x20);
     vt[52].fn((char*)self + vt[52].delta);
@@ -1193,7 +1193,7 @@ extern "C" void func_0034DC90(void* self)
     *(unsigned short*)((char*)self + 0x26) &= ~1;
 }
 
-INCLUDE_ASM("object/flagset", func_0034DD18);
+INCLUDE_ASM("object/flagset", cAnimObjectNode_BuildMatrices);
 
 //100%
 extern char D_004FF1A0[];
@@ -1230,7 +1230,7 @@ struct sFlagOwner_E348 {
     sFlagItem_E348* items;      // 0x48
 };
 
-extern "C" void func_0034E348(sFlagOwner_E348* self)
+extern "C" void cAnimObjectNode_v52(sFlagOwner_E348* self)
 {
     int i;
     if (self->items != 0) {

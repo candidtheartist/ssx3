@@ -642,8 +642,8 @@ extern "C" void func_001F5650(void* self, void* item, int msg)
 extern "C" void cFEStateCareerStats_setupHighlightsList(void* self);
 extern "C" void cFEStateCareerStats_setupMenuFocus(void* self, int focus);
 extern "C" void func_001F5A38(void* self);
-extern "C" void func_001F60E0(void* self);
-extern "C" void func_001F6490(void* self);
+extern "C" void cFEStateCareerStats_ShowRacePage(void* self);
+extern "C" void cFEStateCareerStats_ShowFreestylePage(void* self);
 extern char D_004A2358[];
 extern char D_004A2360[];
 extern char D_004A2368[];
@@ -736,7 +736,7 @@ extern "C" int cFEStateCareerStats_onInputBegin(sCareer_56C8* self, char* w)
         if (wantCall_56C8(w, 17)) {
             if (self->scrollB > 0) {
                 self->scrollB--;
-                func_001F60E0(self);
+                cFEStateCareerStats_ShowRacePage(self);
                 handled = 1;
                 playFrame_56C8(self, D_004A2370);
                 msg = 2;
@@ -747,7 +747,7 @@ extern "C" int cFEStateCareerStats_onInputBegin(sCareer_56C8* self, char* w)
             if (self->scrollB + 5 < self->countB) {
                 handled = 1;
                 self->scrollB++;
-                func_001F60E0(self);
+                cFEStateCareerStats_ShowRacePage(self);
                 playFrame_56C8(self, D_0046F188);
                 msg = 2;
             } else {
@@ -758,7 +758,7 @@ extern "C" int cFEStateCareerStats_onInputBegin(sCareer_56C8* self, char* w)
         if (wantCall_56C8(w, 17)) {
             if (self->scrollC > 0) {
                 self->scrollC--;
-                func_001F6490(self);
+                cFEStateCareerStats_ShowFreestylePage(self);
                 handled = 1;
                 playFrame_56C8(self, D_004A2378);
                 msg = 2;
@@ -769,7 +769,7 @@ extern "C" int cFEStateCareerStats_onInputBegin(sCareer_56C8* self, char* w)
             if (self->scrollC + 5 < self->countC) {
                 handled = 1;
                 self->scrollC++;
-                func_001F6490(self);
+                cFEStateCareerStats_ShowFreestylePage(self);
                 playFrame_56C8(self, D_0046F198);
                 msg = 2;
             } else {
@@ -842,8 +842,8 @@ extern "C" void func_001F5A38(void* self)
 extern "C" void* cUIScreen_getObjectByHashName(void* self, int hash);
 extern "C" void cFEStateCareerStats_setupHighlightsList(void* self);
 extern "C" void cFEStateCareerStats_setupRidersBest(void* self);
-extern "C" void func_001F60E0(void* self);
-extern "C" void func_001F6490(void* self);
+extern "C" void cFEStateCareerStats_ShowRacePage(void* self);
+extern "C" void cFEStateCareerStats_ShowFreestylePage(void* self);
 extern char D_0046F210[];
 extern char D_0046F220[];
 extern char D_0046F238[];
@@ -884,11 +884,11 @@ extern "C" void cFEStateCareerStats_setupMenuFocus(void* self_, int menu)
         break;
     case 1:
         setFocus_5BA8(b, 1);
-        func_001F60E0(self);
+        cFEStateCareerStats_ShowRacePage(self);
         break;
     case 2:
         setFocus_5BA8(c, 1);
-        func_001F6490(self);
+        cFEStateCareerStats_ShowFreestylePage(self);
         break;
     case 3:
         setFocus_5BA8(d, 1);
@@ -1046,7 +1046,7 @@ struct sCareer_60E0 {
     unsigned int done;          // 0x60
 };
 
-extern "C" void func_001F60E0(void* vself)
+extern "C" void cFEStateCareerStats_ShowRacePage(void* vself)
 {
     sCareer_60E0* self = (sCareer_60E0*)vself;
     void* race = cBE_getInterface_Fv(cBE_getBE(), 0);
@@ -1150,7 +1150,7 @@ struct sCareer_6490 {
     unsigned int done;          // 0x70
 };
 
-extern "C" void func_001F6490(void* vself)
+extern "C" void cFEStateCareerStats_ShowFreestylePage(void* vself)
 {
     sCareer_6490* self = (sCareer_6490*)vself;
     void* race = cBE_getInterface_Fv(cBE_getBE(), 0);
