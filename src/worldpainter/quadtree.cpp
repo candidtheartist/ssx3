@@ -475,7 +475,34 @@ extern "C" void* func_002C2940(void* ptr, void* self, int size, int big)
     return ptr;
 }
 
-INCLUDE_ASM("worldpainter/quadtree", func_002C29D0);
+//100%
+extern char D_00486088[];
+extern "C" int func_003E50C8(void* state, void* a, void* b, void* buf, int size, int level);
+
+extern "C" void** func_002C29D0(void* a, void* b, int size)
+{
+    void** h = (void**)func_002C28C0(0, 0xC, 0);
+    *h = 0;
+    *h = func_002C28C0(D_00486088, size, 0);
+    if (*h != 0) {
+        if (func_003E50C8(h + 1, a, b, *h, size, 0x63) == 0) {
+            func_002C28F8(*h);
+            *h = 0;
+        }
+    }
+    // Testing a flag instead of *h keeps gcc from threading the failed-alloc branch past this check.
+    int failed = *h == 0;
+    if (failed) {
+        if (h != 0) {
+            if (*h != 0) {
+                func_002C28F8(*h);
+            }
+            func_002C28F8(h);
+        }
+        return 0;
+    }
+    return h;
+}
 
 extern "C" void func_002C2AA8(void** self)
 {
@@ -534,7 +561,6 @@ extern "C" void func_002C2BB8()
 // PORT: PS2-only inline asm; needs a C fallback off-PS2.
 extern "C" void func_004165A8();
 extern "C" char* strcpy(char* dst, const char* src);
-extern "C" void func_002C29D0();
 extern "C" void func_002C2AA8();
 extern "C" void func_002C2B08();
 extern "C" void func_002C2B28_p3() __asm__("func_002C2B28");
