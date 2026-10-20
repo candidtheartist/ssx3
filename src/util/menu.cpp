@@ -2509,7 +2509,77 @@ extern "C" cFloatMenuItem_sItem* cFloatMenuItem_cFloatMenuItem(cFloatMenuItem_sI
     return self;
 }
 
-INCLUDE_ASM("util/menu", func_002CDD78);
+//100%
+struct sFItem_DD78 {
+    char* menu;
+    char pad4[0x14];
+    float* p;
+    float lo;
+    float hi;
+    float scale;
+    float off;
+    int n;
+    int dir;
+};
+
+extern "C" int func_002CDD78(void* self)
+{
+    char* s = (char*)self;
+    sFItem_DD78* it = (sFItem_DD78*)self;
+    int r = func_002CA2B0(self);
+    if (func_002CA3B0(self) != 0) {
+        return r;
+    }
+    if (r != 0) {
+        return r;
+    }
+    float d = func_002CA428_f(self) - func_002CA408_f(self);
+    int dir;
+    if (d <= -0.1f || d >= 0.1f) {
+        dir = 1;
+        if (d < 0.0f) {
+            dir = -1;
+        }
+    } else {
+        dir = 0;
+    }
+    if (dir == it->dir) {
+        it->n += 1;
+    } else {
+        it->n = 0;
+        it->dir = dir;
+    }
+    if (dir != 0) {
+        float div = 1.0f;
+        if (func_002CA488(self) != 0 && func_002CA4A8(self) != 0) {
+            div = 50.0f;
+        } else if (func_002CA488(self) != 0) {
+            div = 20.0f;
+        } else if (func_002CA4A8(self) != 0) {
+            div = 5.0f;
+        }
+        int n = it->n;
+        float* p = it->p;
+        float f = (float)(n * n) * 50.0f / div * 6.9444446e-05f;
+        f = f >? 1.0f;
+        float v = it->scale * *p + it->off;
+        // Going through a variable keeps the constant as the first operand (register choice).
+        float c = 5e-05f;
+        c *= f;
+        v += d * (c / div) * (it->hi - it->lo);
+        if (v < it->lo) {
+            v = it->lo;
+        }
+        if (it->hi < v) {
+            v = it->hi;
+        }
+        *p = (v - it->off) / it->scale;
+        char* menu = *(char**)s;
+        sVEntry002CD5A0* e = &(*(sVEntry002CD5A0**)(menu + 0x12C))[4];
+        e->fn(menu + e->delta, self);
+    }
+    return r;
+}
 
 //100%
 extern "C" void func_002CDF78(void* self)

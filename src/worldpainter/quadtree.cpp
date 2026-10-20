@@ -705,7 +705,60 @@ extern "C" void func_002C3FE0(void* self, int flags)
     }
 }
 
-INCLUDE_ASM("worldpainter/quadtree", func_002C4050);
+//100%
+extern int D_004A3938;
+extern int D_004A393C;
+extern int D_004A3940;
+extern int D_004A3944;
+// memset declared without a return value: the void call changes the store schedule above it.
+void func_003E6448_4050(void* dst, int c, int n) __asm__("func_003E6448");
+
+extern "C" void func_002C4050(void* self)
+{
+    char* p = (char*)self;
+    int i;
+    *(int*)(p + 0x8) = 0x1C;
+    *(int*)(p + 0x4) = 0;
+    *(int*)(p + 0xC) = 0;
+    *(int*)(p + 0x10) = 0;
+    *(int*)(p + 0x40) = 0;
+    *(int*)(p + 0x4C) = 0;
+    D_004A3938 = 0;
+    D_004A393C = 0;
+    D_004A3940 = 0;
+    *(int*)(p + 0x18) = -1;
+    *(int*)(p + 0x1C) = -1;
+    *(int*)(p + 0x38) = -1;
+    *(int*)(p + 0x14) = 6;
+    *(int*)(p + 0x50) = 0;
+    *(int*)(p + 0x54) = 0;
+    *(int*)(p + 0x20) = 0;
+    *(int*)(p + 0x24) = 0;
+    *(int*)(p + 0x2C) = 0;
+    *(int*)(p + 0x30) = 0;
+    *(int*)(p + 0x34) = 0;
+    *(int*)(p + 0x44) = 0;
+    *(int*)(p + 0x48) = 0;
+    D_004A3944 = 0;
+    *(int*)(p + 0x28) = 0;
+    *(int*)(p + 0x14E0) = 0;
+    *(int*)(p + 0x14E8) = 0;
+    *(int*)(p + 0x14E4) = 0;
+    *(int*)(p + 0x3C) = 0;
+    func_003E6448_4050(p + 0xB9, 0, 0x40);
+    func_003E6448_4050(p + 0xF9, 0, 0x40);
+    func_003E6448_4050(p + 0x79, 0, 0x40);
+    func_003E6448_4050(p + 0x139, 0, 0x40);
+    for (i = 0; i < 2; i++) {
+        // Two 5-int slots at 0x17C, addressed from their last field.
+        int* q = (int*)(p + 0x18C) + i * 5;
+        q[-4] = 0; q[-3] = 0; q[-2] = 0; q[-1] = 0; q[0] = 0;
+    }
+    func_003E6448_4050(p + 0x480, 0, 0x40);
+    func_003E6448_4050(p + 0x1A4, 0, 0x2D0);
+    func_003E6448_4050(p + 0x4C0, 0, 0x1000);
+    func_003E6448_4050(p + 0x14C0, 0, 0x20);
+}
 
 //100% - objdiff report; single-function view differs only in a relocation name
 // PORT: PS2-only inline asm; needs a C fallback off-PS2.

@@ -512,7 +512,105 @@ extern "C" void func_00309F18(sWSMan9F18* self)
     self->f0 = saved;
 }
 
-INCLUDE_ASM("wscript/wscriptman", func_0030A060);
+//100%
+extern "C" void* func_00224DA0(void* mem, int a1);
+extern "C" void func_00224DF0(void* obj, int flags);
+extern char D_004898D8[];
+extern "C" int func_003A6B78(void* world, int id, int flag);
+
+struct sVEnt_A060 {
+    short delta;
+    short index;
+    int (*fn)(void*);
+};
+struct sVEntF_A060 {
+    short delta;
+    short index;
+    void (*fn)(void*, float);
+};
+// The empty destructor gives the call object the target's stack slot.
+struct sCall_A060 {
+    int pad;
+    ~sCall_A060() {}
+};
+
+class cObj_A060 {
+public:
+    virtual void v01();
+    virtual void v02();
+    virtual void v03();
+    virtual void v04();
+    virtual void v05();
+    virtual void v06();
+    virtual int v07();
+    virtual int v08();
+};
+
+extern "C" void func_0030A060(void* self, void* a1, void* a2, cObj_A060* a3)
+{
+    char* s = (char*)self;
+    func_00309C88_sValue arg;
+    func_00309C88_sValue ret;
+    sCall_A060 call;
+    int saved = *(int*)s;
+    *(int*)s = a3->v07();
+    *(int*)(s + 0x290) = *(int*)((char*)a2 + 0x50);
+    *(void**)(s + 0x294) = a1;
+    *(void**)(s + 0x298) = a2;
+    if (a3->v08() != 0) {
+        if (*(int*)(*(char**)(D_004A28A8 + 0x84) + 0x214) != 4) {
+            char* o = a3 ? (char*)a3 - 0x6C0 : 0;
+            if (*(int*)(o + 0x480) != 0) {
+                goto done;
+            }
+        }
+        func_003097E0(self, *(int*)(*(char**)(s + 0x290) + 0x78));
+    }
+    {
+        int idx = func_003A6B78(*(void**)(s + 0x28C), *(int*)(s + 0x290), 2);
+        int ok = idx != -1;
+        int* pidx = &idx;
+        if (ok) {
+            if (*(int*)(s + 0x2A4) == 0 && *(int*)(s + 0x2A8) == 0) {
+                func_00309C88(self, pidx);
+            } else {
+                func_00226600(&arg, func_003A6D18(*(void**)(s + 0x28C), pidx), 0);
+                ret.type = 0;
+                ret.word0 = 0;
+                func_002224A8(&call);
+                char* obj = *(char**)(s + 0x2A8);
+                if (obj != 0) {
+                    obj = *(char**)(obj + 0x3C);
+                } else {
+                    obj = *(char**)(s + 0x2A4);
+                }
+                void* table = *(void**)(obj + 0x1C);
+                if (table != 0) {
+                    func_002224B8(&call, &arg, table, &ret);
+                } else {
+                    table = func_00224DA0(cMemMan_alloc(4, D_004898D8, 0x20000000, 0), 8);
+                    func_002224B8(&call, &arg, table, &ret);
+                    if (table != 0) {
+                        func_00224DF0(table, 3);
+                    }
+                }
+                func_00225B90((func_00309DD0_sValue*)&ret, 2);
+            }
+        }
+    }
+    {
+        char* x = *(char**)(*(char**)(s + 0x290) + 0xC);
+        if (x != 0) {
+            sVEntF_A060* fv = *(sVEntF_A060**)(x + 0xC);
+            fv[41].fn(x + fv[41].delta, 0.5f);
+        }
+    }
+done:
+    *(int*)s = saved;
+    *(int*)(s + 0x294) = 0;
+    *(int*)(s + 0x298) = 0;
+    *(int*)(s + 0x290) = 0;
+}
 
 //100%
 extern "C" int func_003A6B78(void* world, int id, int flag);

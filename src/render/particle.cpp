@@ -5287,7 +5287,69 @@ extern "C" void func_00385C10(sBez_5C10* self, sMat_5C10* mat, int tex, int flag
     self->gfx->bufAddr = addr + 0x10;
 }
 
-INCLUDE_ASM("render/particle", func_00385EB0);
+//100%
+struct sPkEnt_5EB0 {
+    int size;
+    int a;
+    int b;
+};
+struct sPk_5EB0 {
+    char pad0[0xC];
+    sPkEnt_5EB0 e[32];      // 0xC
+    int n;                  // 0x18C
+    char pad190[0x1A8 - 0x190];
+    int total;              // 0x1A8
+};
+
+// Quadword count, as a macro so gcc folds (a*2)/16 to a/8 like the target.
+#define QW_5EB0(x) ((x) / 16 + (((x) & 15) ? 1 : 0))
+
+extern "C" int func_00385EB0(sPk_5EB0* self, int count, int c)
+{
+    int add = c * 3 + 1;
+    int hdr = 2; // a local declared first gets the target's register for the constant
+    self->n = 0;
+    self->e[0].a = 0;
+    self->e[0].b = 0;
+    do {
+        if (self->n == 0) {
+            self->e[self->n].size = 0x1D;
+        } else {
+            self->e[self->n].size = hdr;
+        }
+        self->e[self->n].size += self->e[self->n].a;
+        self->e[self->n].size += self->e[self->n].b * 3;
+        int t = self->e[self->n].size + add;
+        if (t < 0xDB) {
+            self->e[self->n].size = t;
+            count--;
+            self->e[self->n].a++;
+            self->e[self->n].b += c;
+            if (count == 0) {
+                self->n++;
+            }
+        } else {
+            self->n++;
+            self->e[self->n].a = 0;
+            self->e[self->n].b = 0;
+        }
+    } while (count > 0);
+    self->total = 1;
+    for (int i = 0; i < self->n; i++) {
+        int s = 6;
+        s += QW_5EB0(self->e[i].a * 2);
+        s++;
+        s += QW_5EB0(self->e[i].b * 4);
+        s++;
+        s += QW_5EB0(self->e[i].b * 2);
+        s++;
+        s += QW_5EB0(self->e[i].b * 6);
+        s++;
+        self->total += s;
+    }
+    self->total += 2;
+    return self->total << 4;
+}
 
 INCLUDE_ASM("render/particle", func_00386128);
 

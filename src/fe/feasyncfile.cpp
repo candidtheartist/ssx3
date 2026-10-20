@@ -2046,7 +2046,26 @@ extern "C" void func_001A6E70(sOwner1A6E70* self)
     }
 }
 
-INCLUDE_ASM("fe/feasyncfile", func_001A6F70);
+//100%
+extern "C" int func_00263128(void* self, const char* name);
+extern "C" int func_00262A38(void* self, int a1);
+extern "C" void func_00261EF8(void* self, int a1, int a2, int a3);
+
+extern "C" void func_001A6F70()
+{
+    int n = func_00262598(GetSession_001A6E70());
+    for (int i = 0; i < n; i++) {
+        const char* name = func_002625C8(GetSession_001A6E70(), i);
+        if (name == 0) continue;
+        if (func_00262400(GetSession_001A6E70(), i) == 0) continue;
+        int a = func_00263128(GetSession_001A6E70(), name);
+        int b = func_00262A38(GetSession_001A6E70(), (int)name);
+        if (a == 0 && b == 0) {
+            int buf[4];
+            func_00261EF8(GetSession_001A6E70(), (int)name, 2, (int)buf);
+        }
+    }
+}
 
 //100% - objdiff report; single-function view differs only in a relocation name
 extern "C" void func_00260F80();
@@ -19261,7 +19280,67 @@ extern "C" int func_001C32B8(cFEVObj_001C32B8* self, int a1)
     return 1;
 }
 
-INCLUDE_ASM("fe/feasyncfile", func_001C3310);
+//100%
+extern "C" int func_0025F338(void* a);
+extern char D_00465D90[];
+extern char D_00465DA0[];
+extern char D_00465DB0[];
+extern char D_004A1C20[];
+extern char D_004A1390_C3310[8] __asm__("D_004A1390");
+extern "C" char* func_0025F388(void* a, int idx, int* pa, int* pb);
+extern "C" void func_001C4F58(void* self, char* buf, int frames);
+
+extern "C" void func_001C3310(void* selfp)
+{
+    char* self = (char*)selfp;
+    if (*(void**)(self + 0x40) == 0) return;
+    int n = func_0025F338(D_004A3028);
+    cUIText* obj = cUIScreen_getObjectByHashName(*(void**)(self + 0x40), GetHashValue32(D_00465D50));
+    if (obj != 0) {
+        if (*(unsigned char*)((char*)obj + 0x96) != n) {
+            func_0039B760(obj, n);
+            if (n == 0) func_0039B760(obj, 1);
+        }
+    }
+    int start = *(int*)(self + 0x6E8);
+    if (n > 10 && n - start < 10) start = n - 10;
+    char buf[32];
+    char buf2[64];
+    // Declared in this order (and pointed at after) for the target's stack slots.
+    int a, b;
+    int* pb;
+    int* pa;
+    pa = &a;
+    pb = &b;
+    for (int i = 0; i < 10; i++, start++) {
+        sprintf(buf, D_00465D90, i);
+        cUIText* t1 = cUIScreen_getObjectByHashName(*(void**)(self + 0x40), GetHashValue32(buf));
+        sprintf(buf, D_00465DA0, i);
+        cUIText* t2 = cUIScreen_getObjectByHashName(*(void**)(self + 0x40), GetHashValue32(buf));
+        sprintf(buf, D_00465DB0, i);
+        cUIText* t3 = cUIScreen_getObjectByHashName(*(void**)(self + 0x40), GetHashValue32(buf));
+        char* e = func_0025F388(D_004A3028, start, pa, pb);
+        if (e != 0 && n > 0) {
+            if (t3 != 0) {
+                if (*(int*)(self + 0x6EC) != 0) {
+                    func_001C4F58(self, buf2, a);
+                } else {
+                    sprintf(buf2, D_004A12C0, a);
+                }
+                cUIText_setAsciiString(t3, buf2);
+            }
+            if (t1 != 0) cUIText_setAsciiString(t1, e + 8);
+            if (t2 != 0) {
+                sprintf(buf2, D_004A1C20, *(int*)(e + 4));
+                cUIText_setAsciiString(t2, buf2);
+            }
+        } else {
+            cUIText_setAsciiString(t2, D_004A1390_C3310);
+            cUIText_setAsciiString(t3, D_004A1390_C3310);
+            cUIText_setAsciiString(t1, D_004A1390_C3310);
+        }
+    }
+}
 
 //100%
 int GetHashValue32(char* str);

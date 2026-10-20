@@ -3480,7 +3480,48 @@ extern "C" void func_002B35A0(sBmTrack35A0*** self, int a1, int a2, int a3, int 
     t3->sub.cur--;
 }
 
-INCLUDE_ASM("sound/bankmonitor", func_002B3838);
+//100%
+extern "C" void func_002B3AC0(char* self);
+extern "C" void func_002B43D8(void* self);
+extern "C" int func_004165A8(const char* a, const char* b);
+
+extern "C" void func_002B3838(void* selfp, int a1, int a2, int a3)
+{
+    char* self = (char*)selfp;
+    func_002B3AC0(self);
+    sBmTrack35A0* t = **(sBmTrack35A0***)self;
+    sBmSub35A0* s = &t->sub;
+    signed char vol = *(signed char*)&s->p38[s->cur];
+    float* scale = (float*)s->p3C[s->cur];
+    if (scale != 0) {
+        float f = (float)vol * *scale;
+        f = f <? 127.0f;
+        f = f >? 0.0f;
+        s->p38[t->sub.cur] = (signed char)(int)f;
+        sBmEnt35A0* e = (sBmEnt35A0*)(t->sub.cur * 0x18 + (int)s->ents);
+        // Clamped again to 0..127 with each read going back through the volatile cur index.
+        e->b0 = ((s->p38[s->cur] < 127 ? s->p38[s->cur] : 127) < 0) ? 0 : (s->p38[s->cur] < 127 ? s->p38[s->cur] : 127);
+    }
+    if (a1 != 0) {
+        int i;
+        for (i = *(int*)(self + 0x3E4) - 1; i >= 0; i--) {
+            if (func_004165A8(self + 0x124 + i * 11, (const char*)a1) == 0) break;
+        }
+        *(int*)(self + 0x3F0) = i;
+        char* head = self + 0x104;
+        int* q = (int*)(self + 4);
+        q += i;
+        *(void**)(self + 0x408) = func_002B1B98((int)head, a1, *q, (int)&(**(sBmTrack35A0***)self)->sub, vol, (int)scale, a2, a3);
+    } else {
+        int i = *(int*)(self + 0x3F0);
+        char* q = self;
+        q += i * 4;
+        *(void**)(self + 0x408) = func_002B1B98((int)(self + 0x104), (int)(self + 0x124 + i * 11), *(int*)(q + 4), (int)&(**(sBmTrack35A0***)self)->sub, vol, (int)scale, a2, a3);
+    }
+    func_002B43D8(self);
+    *(int*)(self + 0x41C) = -1;
+    *(int*)(self + 0x418) = 1;
+}
 
 //100% - objdiff report; single-function view differs only in a relocation name
 extern "C" void func_002B2018(void*);

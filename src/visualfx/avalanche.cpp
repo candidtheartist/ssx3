@@ -1164,7 +1164,87 @@ extern "C" void func_002D9C00(int id, sAvMatrix* out)
 
 INCLUDE_ASM("visualfx/avalanche", func_002D9CB0);
 
-INCLUDE_ASM("visualfx/avalanche", cAvalanche_readFromReplayFrame);
+//100%
+struct sAvPair_RF { float v; int f4; };
+struct sAvIdx_RF { unsigned short a; unsigned short b; };
+struct sAvGroup_RF {
+    int f0;
+    void* nodes;
+    sAvGroup_RF* next;
+    unsigned short nPairs;
+    unsigned short nIdx;
+    sAvPair_RF pairs[32];
+    sAvIdx_RF idx[1];
+};
+struct sAvData_RF {
+    char pad[0xF2];
+    unsigned char emit;
+};
+struct sAvAct_RF {
+    char pad[0x2E0];
+    sAvData_RF* data;
+    sAvAct_RF* next;
+    int pad2E8;
+    int f2EC;
+};
+struct sAvSlot_RF {
+    sAvGroup_RF* group;
+    sAvAct_RF* active;
+    void* arr;
+    int fC;
+    int f10;
+    int f14;
+    float time;
+};
+extern sAvSlot_RF D_slots_RF[] __asm__("D_00538938");
+extern "C" void tActiveAvalancheNode_getFrameData(void* out, void* act, float t);
+extern "C" void tActiveAvalancheNode_calculateScale(void* self, float t);
+extern "C" int cAvalanche_triggerAvalanche(int id);
+extern "C" void func_002D81B0(void* self);
+struct sVEnt_RF {
+    short delta;
+    short index;
+    void (*fn)(void*, void*, int);
+};
+
+extern "C" void cAvalanche_readFromReplayFrame(void* reader)
+{
+    int ids[16];
+    float times[16];
+    char frame[0x60];
+    int i;
+    for (i = 0; i < 16; i++) {
+        // The unit's own slot table symbol here, a separate alias below: the target loads the table address twice.
+        freeSlot_9A80(&D_slots_9A80[i]);
+    }
+    sVEnt_RF* vt = *(sVEnt_RF**)reader;
+    vt[2].fn((char*)reader + vt[2].delta, ids, 0x80);
+    for (i = 0; i < 16; i++) {
+        if (ids[i] >= 0) {
+            int n = cAvalanche_triggerAvalanche(ids[i]);
+            if (n >= 0) {
+                sAvSlot_RF* s = &D_slots_RF[n];
+                s->time = times[i];
+                if (times[i] != 0.0f) {
+                    sAvAct_RF* act;
+                    for (act = s->active; act != 0; act = act->next) {
+                        if (act->data->emit) {
+                            act->f2EC = 1;
+                        }
+                        tActiveAvalancheNode_calculateScale(act, times[i]);
+                        tActiveAvalancheNode_getFrameData(frame, act, s->time);
+                    }
+                    while (s->f10 < s->group->nPairs && s->group->pairs[s->f10].v <= s->time) {
+                        s->f10++;
+                    }
+                    while (s->f14 < s->group->nIdx && (float)s->group->idx[s->f14].a <= s->time) {
+                        s->f14++;
+                    }
+                }
+            }
+        }
+    }
+}
 
 //100%
 void cMemMan_free(void*);

@@ -1049,7 +1049,99 @@ extern "C" void func_0019FF00(int* self, sItemListFF00* list, sItemFF00* prev, i
     func_0019DF20(mgr, self[0]);
 }
 
-INCLUDE_ASM("fe/feridermanager", func_001A0100);
+//100%
+void* cMdfArchive_cMdfArchive(void* self);
+void cMdfArchive_attachData(void* self, void* data) __asm__("cMdfArchive_attachData__FPv");
+extern "C" void cMdfArchive__cMdfArchive(void* self, int flags);
+extern "C" void* cMdfArchive_getModelPart(void* self, const char* name);
+extern "C" void cAnimModel_addModelPartLOD(void* model, int lod, void* part, int a3);
+
+struct sItemA100 {
+    short id;
+    unsigned short flags;
+};
+struct sItemListA100 {
+    char pad_0x0[0x28C];
+    int count;              // 0x28C
+    sItemA100 items[1];     // 0x290
+};
+struct sBoneEntA100 {
+    char f0;
+    signed char lod;
+    char pad_0x2[0x16];
+    char* part;             // 0x18
+    char pad_0x1C[0x38 - 0x1C];
+};
+struct sBoneDbA100 {
+    int f0;
+    sBoneEntA100* entries;  // 0x4
+};
+struct sMdfArchiveA100 {
+    int a[4];
+};
+
+static inline sBoneEntA100* getEntA100(sBoneDbA100* db, int i)
+{
+    if (i < 0)
+        return 0;
+    // The stride goes through a variable so the product lands in the constant's register.
+    int o = 0x38;
+    o *= i;
+    return (sBoneEntA100*)((char*)db->entries + o);
+}
+
+extern "C" int func_001A0100(int* self)
+{
+    if (*(int*)((char*)self + 0xCBC) != 0) {
+        return 1;
+    }
+    int ok = 1;
+    void* iface = cBE_getInterface_Fv(cBE_getBE(), 9);
+    sItemListA100* list = (sItemListA100*)func_0014AD28(iface, self[1], self[0]);
+    int n = list->count;
+    char* mgr = *(char**)((char*)D_004A28A8 + 0x7C) + 0x1A70;
+    for (int i = 0; i < n; i++) {
+        sItemA100* it = &list->items[i];
+        int r = func_0019CBE0(D_004A1968, self[1], it->id);
+        if (r >= 0) {
+            if (func_0019E238(mgr, self[0], r) == 0) {
+                ok = 0;
+            }
+        }
+    }
+    if (ok) {
+        for (int i = 0; i < n; i++) {
+            sItemA100* it = &list->items[i];
+            int r = func_0019CBE0(D_004A1968, self[1], it->id);
+            if (r >= 0) {
+                sMdfArchiveA100 arc;
+                cMdfArchive_cMdfArchive(&arc);
+                void* pkg = func_0019E2B0(mgr, self[0], r);
+                if (pkg) {
+                    cMdfArchive_attachData(&arc, pkg);
+                }
+                for (int j = i; j < n; j++, it++) {
+                    if (func_0019CBE0(D_004A1968, self[1], it->id) == r) {
+                        if (pkg) {
+                            sBoneDbA100* db = (sBoneDbA100*)func_0014BDB8_noarg();
+                            sBoneEntA100* e = getEntA100(db, func_0014D448(db, self[0], it->id));
+                            if (e->part) {
+                                void* part = cMdfArchive_getModelPart(&arc, e->part);
+                                if (part) {
+                                    cAnimModel_addModelPartLOD((void*)self[2], 0, part, e->lod);
+                                }
+                            }
+                        }
+                        func_0019DC20(mgr, self[0], r);
+                        func_0019CC30(D_004A1968, self[1], it->id, -1);
+                    }
+                }
+                cMdfArchive__cMdfArchive(&arc, 2);
+            }
+        }
+    }
+    return ok;
+}
 
 //100%
 extern "C" void* func_0028B180();
