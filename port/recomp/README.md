@@ -309,7 +309,8 @@ the new lines there and the next build generates code for those blocks too; repe
 the game and window threads leave free, up to 6. `PS2X_VU1_THREAD=0` or `1` turns VIF1, VU1 and the GIF's own
 thread off or on; by default it is on with 6 or more cores.
 
-Keyboard: Enter is START, X is Cross, Z is Square; F1 shows the debug panel.
+Keyboard: Enter is START, X is Cross, Z is Square; F1 shows the debug panel. A gamepad works too, and the
+keyboard keeps working while one is connected.
 
 ## Status
 
