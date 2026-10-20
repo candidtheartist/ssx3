@@ -8282,7 +8282,46 @@ void func_003CD690(char *arg0, int arg1, int arg2) {
     func_003CE410(arg2, buf, arg0 + 0x144, arg0 + (arg1 * 4 + 0x684));
 }
 
-INCLUDE_ASM("ealib/seg_2B4578", func_003CD6F0);
+//100%
+// Starts a bit reader on data and, when asked, reads the header fields and builds the 64-step gain table.
+struct S_D6F0 {
+    unsigned char *ptr;
+    unsigned int bits;
+    int cnt;
+    unsigned int flag;
+    int shift;
+    float gain[64];
+    int a[12];
+    int b[12];
+    int c[0x144];
+};
+extern unsigned int f_D1F8_D6F0(struct S_D6F0 *, int) __asm__("func_003CD1F8");
+
+void func_003CD6F0_impl(int, unsigned char *, struct S_D6F0 *, int) __asm__("func_003CD6F0");
+void func_003CD6F0_impl(int arg0, unsigned char *data, struct S_D6F0 *s, int full) {
+    int i;
+    float k;
+
+    s->cnt = 8;
+    s->ptr = data + 1;
+    s->bits = *data;
+    if (full != 0) {
+        s->flag = f_D1F8_D6F0(s, 1);
+        s->shift = 0x20 - f_D1F8_D6F0(s, 4);
+        s->gain[0] = (float)(f_D1F8_D6F0(s, 4) + 1) * 8.0f;
+        k = (float)f_D1F8_D6F0(s, 6) * 0.001f + 1.04f;
+        for (i = 1; i < 64; i++) {
+            s->gain[i] = s->gain[i - 1] * k;
+        }
+        for (i = 0; i < 12; i++) {
+            s->a[i] = 0;
+            s->b[i] = 0;
+        }
+        for (i = 0x143; i >= 0; i--) {
+            s->c[i] = 0;
+        }
+    }
+}
 
 INCLUDE_ASM("ealib/seg_2B4578", func_003CD878);
 
