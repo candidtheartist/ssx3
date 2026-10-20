@@ -1694,7 +1694,91 @@ extern "C" void initSpeedLimitTable(void)
     }
 }
 
-INCLUDE_ASM("ai/ridermetrix", updateRiderSpeedLimit);
+
+extern "C" float func_001494C0(void *itf, int slot, int level);
+//100%
+// Blends the rider's speed limit table by slope, boost and stat, then eases the stored limit toward it.
+// The slope flag is a char so its copy lands in the target's registers.
+extern "C" void updateRiderSpeedLimit(void *rider)
+{
+  char *r = (char *) rider;
+  float limits[2];
+  int i;
+  float s = func_001494C0(cBE_getInterface_Fv(cBE_getBE(), 3), *((int *) (r + 0x86C)), *((int *) (r + 0xB34))) + 1.0f;
+  float stat = s - 1.0f;
+  char *surf = (*((char **) ((*((char **) (((char *) D_004A28A8) + 0x84))) + 0x44))) + ((*((int *) (r + 0x438))) * 0xB0);
+  int mode = cRider_getMotionMode(rider);
+  float slope = 1.0f;
+  if (mode == 0)
+  {
+    slope = *((float *) (surf + 4));
+  }
+  int pos = 0.0f < slope;
+  char up = pos;
+  float u = slope;
+  if (!pos)
+  {
+    u += 1.0f;
+  }
+  float boost = *((float *) (r + 0x2FC));
+  int k;
+  if (!(boost >= 0.1f))
+  {
+    k = 0;
+  }
+  else if (!(boost >= 0.4f))
+  {
+    k = 1;
+  }
+  else if (boost < 0.8f)
+  {
+    k = 2;
+  }
+  else
+  {
+    k = 3;
+  }
+  float t = 1.0f;
+  if (mode == 0)
+  {
+    t = *((float *) (r + 0x220));
+  }
+  float w00 = (1.0f - u) * (1.0f - t);
+  float w10 = u * (1.0f - t);
+  float w01 = (1.0f - u) * t;
+  float w11 = u * t;
+  for (i = 0; i < 2; i++)
+  {
+    limits[i] = (((w00 * D_004A6310[i][up][k][0]) + (w10 * D_004A6310[i][up + 1][k][0])) + (w01 * D_004A6310[i][up][k][1])) + (w11 * D_004A6310[i][up + 1][k][1]);
+  }
+
+  float limit;
+  if (mode == 1)
+  {
+    limit = 3333.3335f;
+  }
+  else
+  {
+    *((int *) (r + 0x5A0)) = 0;
+    float target = ((stat * limits[1]) + ((1.0f - stat) * limits[0])) * 27.777779f;
+    float a = 0.9f;
+    if (((*((int *) (r + 0x320))) != (*((int *) (r + 0x324)))) && ((*((float *) (r + 0x2FC))) <= 0.0f))
+    {
+      target *= 0.98f;
+    }
+    float cur = *((float *) (r + 0x2E4));
+    if (target < cur)
+    {
+      a = 0.97f;
+    }
+    limit = ((1.0f - a) * target) + (a * cur);
+  }
+  *((float *) (r + 0x2E4)) = limit;
+  if (((*((int *) (r + 0x2F4))) >= 11) && (0.0f < (*((float *) (r + 0x2FC)))))
+  {
+    *((float *) (r + 0x2E4)) = (*((float *) (r + 0x30C))) >? limit;
+  }
+}
 
 extern "C" void* func_0041AA88(void* self);
 
