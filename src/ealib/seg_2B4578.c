@@ -5706,7 +5706,32 @@ void func_003C6320(void *arg0, void *arg1) {
     (*(int *)((char*)(arg0) + (8))) = (int) ((*(int *)((char*)(arg0) + (8))) - 1);
 }
 
-INCLUDE_ASM("ealib/seg_2B4578", func_003C6380);
+//100%
+// 32x32 -> 64-bit unsigned multiply built from four 16x16 partial products; returns a by-value {lo, hi} pair.
+typedef struct { unsigned int lo, hi; } U64_6380;
+extern unsigned long f_14D0_6380(unsigned long, unsigned long) __asm__("func_004114D0");
+
+static inline unsigned long shr_6380(unsigned long x, int n) {
+    return x >> n;
+}
+
+U64_6380 func_003C6380(unsigned int a, unsigned int b) {
+    unsigned long al, ah, bl, bh;
+    unsigned long ll, lh, hl, hh;
+    U64_6380 t, r;
+    al = a & 0xFFFF;
+    bl = b & 0xFFFF;
+    ah = (a >> 16) & 0xFFFF;
+    bh = (b >> 16) & 0xFFFF;
+    ll = f_14D0_6380(al, bl);
+    lh = f_14D0_6380(al, bh);
+    hl = f_14D0_6380(ah, bl);
+    hh = f_14D0_6380(ah, bh);
+    t.hi = shr_6380(lh, 16) + shr_6380(hl, 16) + hh + shr_6380(shr_6380(ll, 16) + (lh & 0xFFFF) + (hl & 0xFFFF), 16);
+    t.lo = ll + (lh << 16) + (hl << 16);
+    r = t;
+    return r;
+}
 
 //100%
 // 64-bit by 32-bit unsigned shift-subtract divide; the dividend arrives as a by-value {lo, hi} pair.
