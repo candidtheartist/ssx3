@@ -258,7 +258,107 @@ extern "C" void tActiveAvalanche_buildArray(tActiveAvalanche* self)
     }
 }
 
-INCLUDE_ASM("visualfx/avalanche", func_002D7EF8);
+extern "C" int func_002D7CA8(void* node, float t);
+extern "C" void* cMemMan_alloc(int size, const char* tag, unsigned int flags, int d);
+extern "C" void cAnimObjectNode_construct(void* self, int a, int b, void* obj, void* def);
+void func_0029E560_2(void* self, void* v) __asm__("func_0029E560__FPv");
+extern int D_004A54C8;
+struct sAvVec_7EF8 { float x, y, z, w; } __attribute__((aligned(16)));
+void func_0029E560_3(void* self, sAvVec_7EF8 v) __asm__("func_0029E560__FPv");
+extern float D_004A3A64;
+extern "C" void* func_0028B180();
+extern "C" void func_002D81B0(void* self);
+extern char D_00487558[];
+
+struct sAvEmpty_7EF8 {};
+struct sAvDef_7EF8 {
+    unsigned int f0;
+    int f4;
+    int f8;
+    float fC;
+    float f10;
+    float f14;
+    int f18;
+    float f1C;
+    int f20;
+    int f24;
+    sAvEmpty_7EF8 e28;
+    void init(int a4, int a8, float aC, float a10, float a14, int a18, float a1C, int a20, int a24)
+    {
+        f0 = 0xFFFFFFFF;
+        f4 = a4;
+        f8 = a8;
+        fC = aC;
+        f10 = a10;
+        f14 = a14;
+        f18 = a18;
+        f1C = a1C;
+        f20 = a20;
+        f24 = a24;
+        e28 = sAvEmpty_7EF8();
+    }
+};
+extern sAvDef_7EF8 D_004D5770;
+struct sAvObj_7EF8 { char pad[0xC]; int fC; char pad10[0x30]; sAvVec_7EF8 v40; };
+struct sAvKey_7EF8 { float time; sAvObj_7EF8* obj; };
+struct sAvTrig_7EF8 { unsigned short frame; unsigned short index; };
+struct sAvHdr_7EF8 {
+    char pad[0xC];
+    unsigned short nKeys;
+    unsigned short nTrigs;
+    sAvKey_7EF8 keys[32];
+    sAvTrig_7EF8 trigs[1];
+};
+struct sAvNode_7EF8 { char pad[0x2E4]; sAvNode_7EF8* next; };
+struct sAvActive_7EF8 {
+    sAvHdr_7EF8* hdr;
+    sAvNode_7EF8* head;
+    char** array;
+    int pad;
+    int key;
+    int trig;
+    float time;
+};
+
+static inline sAvHdr_7EF8* H_7EF8(sAvActive_7EF8* s) { return s->hdr; }
+static inline int T_7EF8(sAvActive_7EF8* s) { return s->trig; }
+static inline float N_7EF8(sAvActive_7EF8* s) { return s->time; }
+//100%
+// Steps the avalanche: updates nodes, spawns keyed objects and fires triggers.
+// The inline accessors in the trigger loop keep its exit test from being copied to the top.
+extern "C" void func_002D7EF8(void* selfv)
+{
+    sAvActive_7EF8* self = (sAvActive_7EF8*)selfv;
+    if (self->hdr == 0) return;
+    int any = 0;
+    self->time += D_004A3A64;
+    int i = 0;
+    for (sAvNode_7EF8* n = self->head; n != 0; n = n->next, i++) {
+        int r = func_002D7CA8(n, self->time);
+        int a = r != 0;
+        int t = a | any;
+        any = t;
+        if (!r) self->array[i] = 0;
+    }
+    while (self->key < self->hdr->nKeys && self->hdr->keys[self->key].time <= self->time) {
+        if (self->hdr->keys[self->key].obj->fC == 0) {
+            if (D_004A54C8 == 0) {
+                D_004D5770.init(1, 0, -1.0f, -1.0f, 30.0f, 0, -1.0f, 0, 1);
+                D_004A54C8 = 1;
+            }
+            cAnimObjectNode_construct(cMemMan_alloc(0x6C, D_00487558, 0x20000000, 0), 1, 1,
+                                      self->hdr->keys[self->key].obj, &D_004D5770);
+        }
+        func_0029E560_3(func_0028B180(), self->hdr->keys[self->key].obj->v40);
+        self->key++;
+    }
+    while (self->trig < self->hdr->nTrigs && (float)H_7EF8(self)->trigs[T_7EF8(self)].frame <= N_7EF8(self) * 30.0f) {
+        char* p = self->array[self->hdr->trigs[self->trig].index];
+        if (p) func_0029E560_2(func_0028B180(), p + 0x60);
+        self->trig++;
+    }
+    if (!any) func_002D81B0(self);
+}
 
 //100%
 void cMemMan_free(void*);

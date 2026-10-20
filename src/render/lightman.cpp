@@ -863,7 +863,64 @@ extern "C" int func_0038FC48(void* self, int w, int h, unsigned char* src, unsig
 
 INCLUDE_ASM("render/lightman", func_0038FED0);
 
-INCLUDE_ASM("render/lightman", func_00390198);
+extern "C" void* func_0041605C(void* dst, const void* src, int n);
+
+//100%
+// Copies a power-of-two texture through 128x64 tiles, converting each one; -1 on a bad size.
+extern "C" int func_00390198(void* self, int w, int h, unsigned char* in, unsigned char* out)
+{
+    unsigned char buf0[0x2000];
+    unsigned char buf1[0x2000];
+    int i;
+    int x;
+    for (i = 0; i < 11; i++) {
+        if (w == (0x400 >> i)) break;
+    }
+    if (i == 11) return -1;
+    for (i = 0; i < 11; i++) {
+        if (h == (0x400 >> i)) break;
+    }
+    if (i == 11) return -1;
+    func_00416210(buf0, 0, 0x2000);
+    func_00416210(buf1, 0, 0x2000);
+    int nx = (w - 1) / 128 + 1;
+    int ny = (h - 1) / 64 + 1;
+    int cw, cw2, rows, rows2;
+    if (nx == 1) {
+        cw = w;
+        cw2 = cw * 2;
+    } else {
+        cw = 0x80;
+        cw2 = 0x100;
+    }
+    if (ny == 1) {
+        rows = h;
+        rows2 = h / 2;
+    } else {
+        rows = 0x40;
+        rows2 = 0x20;
+    }
+    for (i = 0; i < ny; i++) {
+        for (x = 0; x < nx; x++) {
+            unsigned char* s = in + cw * (nx << 6) * i + cw * x;
+            unsigned char* d = buf0;
+            for (int k = 0; k < rows; k++) {
+                func_0041605C(d, s, cw);
+                s += cw * nx;
+                d += 0x80;
+            }
+            func_0038FC48(self, 0x80, 0x40, buf0, buf1);
+            unsigned char* s2 = buf1;
+            unsigned char* d2 = out + cw2 * rows2 * nx * i + cw2 * x;
+            for (int k = 0; k < rows2; k++) {
+                func_0041605C(d2, s2, cw2);
+                d2 += cw2 * nx;
+                s2 += 0x100;
+            }
+        }
+    }
+    return 0;
+}
 
 //100%
 extern float D_004A45E4;
