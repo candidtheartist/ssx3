@@ -374,8 +374,8 @@ extern "C" int func_002B63D0(void* self, int idx, int* type, int* a, int* b, int
 extern "C" int func_002B6740(void* self, void* obj);
 struct sTriggerIdCache;
 extern "C" void func_002B6868(sTriggerIdCache* self, int id);
-extern "C" int func_00287968(void* self, int a1, int a2);
-extern "C" int func_00288A20(void* self, void* rider);
+extern "C" int cSSXAudio_getBusVolumePtr(void* self, int a1, int a2);
+extern "C" int cSSXAudio_getRiderListener(void* self, void* rider);
 extern "C" int func_002906B8(void* self);
 extern "C" void* func_00416210(void* dst, int c, int n);
 
@@ -486,7 +486,7 @@ extern "C" int func_002B5F60(char* self, void* evt, int id, char* rider, int vol
         }
         {
             sWtTrack5F60** pt = ((sWtSnd5F60*)func_0028B180())->cur;
-            int h = func_00287968(func_0028B180(), 7, 0);
+            int h = cSSXAudio_getBusVolumePtr(func_0028B180(), 7, 0);
             (*pt)->sub.p3C[(*pt)->sub.cur] = h;
         }
         if (rider != 0)
@@ -494,7 +494,7 @@ extern "C" int func_002B5F60(char* self, void* evt, int id, char* rider, int vol
             sWtTrack5F60* t3 = *((sWtSnd5F60*)func_0028B180())->cur;
             t3->sub.arr24[t3->sub.cur] = (int)(rider + 0x110);
             sWtTrack5F60** pt = ((sWtSnd5F60*)func_0028B180())->cur;
-            int h = func_00288A20(func_0028B180(), rider);
+            int h = cSSXAudio_getRiderListener(func_0028B180(), rider);
             (*pt)->sub.p64[(*pt)->sub.cur] = h;
             sWtTrack5F60* t4 = *((sWtSnd5F60*)func_0028B180())->cur;
             t4->sub.p34[t4->sub.cur] = 1;

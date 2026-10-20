@@ -1013,7 +1013,7 @@ extern "C" void* cBE_getBE();
 void* cBE_getInterface_Fv(void* be, int kind) __asm__("cBE_getInterface__Fv");
 void func_001547D8_AE68(void* self, int a, void* p, int v) __asm__("func_001547D8__FPv");
 extern "C" void* func_0028B180();
-extern "C" void func_00286CA8(void* self, unsigned int arg, void* obj);
+extern "C" void cSSXAudio_loadLocalBank(void* self, unsigned int arg, void* obj);
 extern "C" void func_002105D0(void* obj);
 extern "C" void func_002D9FB8(void* obj);
 
@@ -1126,7 +1126,7 @@ extern "C" void* func_003AAE68(void* self, int msg, unsigned int arg, char* obj)
         func_00278A10(D_004A28A4, arg & 0xFF, obj);
         break;
     case 20:
-        func_00286CA8(func_0028B180(), arg, obj);
+        cSSXAudio_loadLocalBank(func_0028B180(), arg, obj);
         break;
     case 19:
         func_001547D8_AE68(cBE_getInterface_Fv(cBE_getBE(), 0xA), arg & 0xFF, obj + 4, *(int*)obj);
@@ -1196,7 +1196,7 @@ void* cBE_getInterface_Fv(void* be, int kind) __asm__("cBE_getInterface__Fv");
 // PORT: func_001547E0__FPv is called with (iface, slot) here; bind the 2-arg form to that symbol.
 void func_001547E0_B498(void* self, int a) __asm__("func_001547E0__FPv");
 extern "C" void* func_0028B180();
-extern "C" void func_00286D18(void* self, unsigned int arg, void* obj);
+extern "C" void cSSXAudio_unloadLocalBank(void* self, unsigned int arg, void* obj);
 extern "C" void func_00210608(void* obj);
 extern "C" void func_002D9B40();
 void func_0016CF18(void* a);
@@ -1307,7 +1307,7 @@ extern "C" void* func_003AB498(void* self, int msg, unsigned int arg, char* obj)
         func_00278A58(D_004A28A4, arg & 0xFF);
         break;
     case 20:
-        func_00286D18(func_0028B180(), arg, obj);
+        cSSXAudio_unloadLocalBank(func_0028B180(), arg, obj);
         break;
     case 19:
         func_001547E0_B498(cBE_getInterface_Fv(cBE_getBE(), 0xA), arg & 0xFF);

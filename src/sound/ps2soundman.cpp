@@ -137,7 +137,7 @@ struct sSmVtbl97C0 {
 extern const sSmVtbl97C0 D_00483BE0;
 
 // PORT: g++ 2.95 virtual-base destruction with a stack vtable this-adjust fix-up, written out by hand.
-extern "C" void func_002A97C0(char* self, int flags)
+extern "C" void cSndPlayOpts_destroy(char* self, int flags)
 {
     *(const sSmVtbl97C0**)(*(char**)self + 4) = &D_00483BE0;
     if (flags == 0) {

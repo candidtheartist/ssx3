@@ -27,7 +27,7 @@ extern "C" void func_00289DF0(void* self, int a);
 extern "C" void func_003E4FB0(int a);
 void cMemMan_free(void* p);
 
-extern "C" void func_0028A230(cAsyncSys* self)
+extern "C" void cAsyncSys_shutdown(cAsyncSys* self)
 {
     func_00289DF0(self, 1);
     while (*(int*)((char*)self + 4) != 0) {
@@ -81,7 +81,7 @@ struct sAsync_A298 {
     sVE_A298* vt;           // 0x1D4
 };
 
-extern "C" void func_0028A298(void* self)
+extern "C" void cAsyncSys_startNext(void* self)
 {
     sAsync_A298* s = (sAsync_A298*)self;
     if (s->busy != 0) {
@@ -181,7 +181,7 @@ extern "C" void func_0028A298(void* self)
 
 //100% - objdiff report; single-function view differs only in a relocation name
 extern "C" char* strcpy(char* dst, const char* src);
-extern "C" void func_0028A298(void* self);
+extern "C" void cAsyncSys_startNext(void* self);
 
 struct sRing28A558 {
     int size;
@@ -201,7 +201,7 @@ struct sAsync28A558 {
     sRing28A558 q1BC;      // 0x1BC
 };
 
-extern "C" void func_0028A558(void* self, int a1, const char* name, int a3, int a4)
+extern "C" void cAsyncSys_addRequest(void* self, int a1, const char* name, int a3, int a4)
 {
     sAsync28A558* s = (sAsync28A558*)self;
     {
@@ -245,10 +245,10 @@ extern "C" void func_0028A558(void* self, int a1, const char* name, int a3, int 
     if (s->slot >= 6) {
         s->slot = 0;
     }
-    func_0028A298(self);
+    cAsyncSys_startNext(self);
 }
 
-INCLUDE_ASM("sound/asyncsys", func_0028A728);
+INCLUDE_ASM("sound/asyncsys", cAsyncSys_cancelRequest);
 
 INCLUDE_ASM("sound/asyncsys", func_0028AAF8);
 
@@ -379,13 +379,13 @@ extern "C" void* func_0028B248(void* self)
 
 //100%
 void operator_delete(int* ptr);
-extern "C" void func_0028B528(void* self);
+extern "C" void cBankInstance_unload(void* self);
 extern "C" void func_0028B730(void* self);
 extern "C" void func_0028B650(void* self);
 
-extern "C" void func_0028B278(void* self, int flags)
+extern "C" void cBankInstance_destroy(void* self, int flags)
 {
-    func_0028B528(self);
+    cBankInstance_unload(self);
     func_0028B730(self);
     func_0028B650(self);
     if (flags & 1) {
@@ -394,13 +394,13 @@ extern "C" void func_0028B278(void* self, int flags)
 }
 
 //100%
-extern "C" void func_0028B528(void* self);
+extern "C" void cBankInstance_unload(void* self);
 
 extern "C" void func_0028B2D0(void* self)
 {
     if (*(void**)((char*)self + 0x18) != 0) {
         for (void* p = *(void**)((char*)self + 0x18); p != self; p = *(void**)((char*)p + 0x18)) {
-            func_0028B528(p);
+            cBankInstance_unload(p);
         }
     }
 }
@@ -411,7 +411,7 @@ extern "C" void* FILE_loadsizez(const char* name, int* size, int align);
 extern "C" void* MEM_free(void* self);
 extern "C" void* func_00252FA0(void* a0, int a1, int a2);
 extern "C" void func_0028B2D0(void* self);
-extern "C" void func_0028B528(void* self);
+extern "C" void cBankInstance_unload(void* self);
 extern "C" int func_003B6098(void* sema, int a1);
 extern "C" int func_003B6528(int id);
 extern "C" void func_003B6548(void* data, int id);
@@ -430,10 +430,10 @@ public:
 };
 
 // PORT: data pointers are passed through int parameters of the semaphore/bank helpers
-extern "C" void func_0028B320(void* self, const char* file, int align)
+extern "C" void cBankInstance_load(void* self, const char* file, int align)
 {
     void* data = 0;
-    func_0028B528(self);
+    cBankInstance_unload(self);
     func_0028B2D0(self);
     int size = 0;
     switch (*(int*)((char*)self + 0x8)) {
@@ -497,7 +497,7 @@ extern "C" void func_0028B320(void* self, const char* file, int align)
 extern "C" int func_003B6300(int id);
 extern "C" void* MEM_free(void* self);
 
-extern "C" void func_0028B528(void* self)
+extern "C" void cBankInstance_unload(void* self)
 {
     if (*(int*)self == 1) {
         *(int*)self = 0;
