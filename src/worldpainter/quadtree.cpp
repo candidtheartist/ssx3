@@ -530,7 +530,48 @@ extern "C" void func_002C2BB8()
     MUTEX_unlock();
 }
 
-INCLUDE_ASM("worldpainter/quadtree", func_002C2BD8);
+//100%
+// PORT: PS2-only inline asm; needs a C fallback off-PS2.
+extern "C" void func_004165A8();
+extern "C" char* strcpy(char* dst, const char* src);
+extern "C" void func_002C29D0();
+extern "C" void func_002C2AA8();
+extern "C" void func_002C2B08();
+extern "C" void func_002C2B28_p3() __asm__("func_002C2B28");
+extern void func_002C28C0_2BD8() __asm__("func_002C28C0");
+extern void func_002C2940_2BD8() __asm__("func_002C2940");
+extern "C" void func_0041610C();
+extern "C" void func_00415FC8();
+extern "C" void func_0041605C();
+extern "C" void func_002C28A0();
+extern "C" void func_004187A0();
+extern "C" void func_004187C0();
+extern "C" void func_004187E8();
+extern "C" void func_00418EF8();
+extern "C" void func_002C2BD8(char* self) {
+    *(void**)(self + 0x3C) = (void*)&func_002C28C0_2BD8;
+    *(void**)(self + 0x40) = (void*)&func_002C2940_2BD8;
+    *(void**)(self + 0x44) = (void*)&func_002C28F8;
+    *(void**)(self + 0x48) = (void*)&func_00416210;
+    *(void**)(self + 0x50) = (void*)&func_0041610C;
+    *(void**)(self + 0x54) = (void*)&func_00415FC8;
+    *(void**)(self + 0x4C) = (void*)&func_0041605C;
+    *(void**)(self + 0x58) = (void*)&func_002C28A0;
+    *(void**)(self + 0x14) = (void*)&func_004187A0;
+    *(void**)(self + 0x10) = (void*)&func_004187C0;
+    *(void**)(self + 0x1C) = (void*)&func_004187E8;
+    *(void**)(self + 0x18) = (void*)&func_00418EF8;
+    *(void**)(self + 0xC) = (void*)&func_004165A8;
+    *(void**)(self + 0x8) = (void*)&strcpy;
+    *(void**)(self + 0x4) = (void*)&strlen;
+    *(void**)(self + 0x20) = (void*)&func_002C29D0;
+    *(void**)(self + 0x24) = (void*)&func_002C2AA8;
+    *(void**)(self + 0x28) = (void*)&func_002C2B08;
+    *(void**)(self + 0x2C) = (void*)&func_002C2B28_p3;
+    *(void**)(self + 0x30) = (void*)&func_002C2B68;
+    *(void**)(self + 0x34) = (void*)&func_002C2B98;
+    *(void**)(self + 0x38) = (void*)&func_002C2BB8;
+}
 
 extern char D_00486098[];
 
