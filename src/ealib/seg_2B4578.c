@@ -3358,7 +3358,101 @@ void func_003BD078(int a0, signed char *out, signed char *out8) {
     }
 }
 
-INCLUDE_ASM("ealib/seg_2B4578", func_003BD220);
+// Decodes one macroblock: fetch the coefficients (by IPU DMA when the work
+// buffer is in scratchpad), dequantize, run the four IDCT passes per block
+// row, color-convert into the output and send the result back.
+struct C_D220 {
+    char pad0[0x600];
+    char b600[0x200];
+    char b800[0x220];
+    char *pA20;
+    char *pA24;
+    char *pA28;
+    char *pA2C;
+    char *pA30;
+    char *pA34;
+    char *pA38;
+    unsigned char flagA3C;
+};
+struct S_D220 { char pad0[4]; unsigned short n4; };
+extern struct S_D220 *D_0050AC68_D220 __asm__("D_0050AC68");
+extern struct C_D220 *D_0050AC6C_D220 __asm__("D_0050AC6C");
+extern void func_003BC968_D220(int, char *, int, int) __asm__("func_003BC968");
+extern void func_003BCA28_D220(char *, int, int, int) __asm__("func_003BCA28");
+extern void func_003BF3E0_D220(int, char *, int) __asm__("func_003BF3E0");
+extern void func_003BF440_D220(int, char *, int) __asm__("func_003BF440");
+extern void func_003BF4C0_D220(char *, char *, char *) __asm__("func_003BF4C0");
+extern void func_003BF5A0_D220(char *, char *, char *) __asm__("func_003BF5A0");
+extern void func_003BF6B0_D220(char *, char *, char *) __asm__("func_003BF6B0");
+extern void func_003BF800_D220(char *) __asm__("func_003BF800");
+extern void func_003BF8D0_D220(char *, char *) __asm__("func_003BF8D0");
+extern void func_003BF960_D220(char *, char *) __asm__("func_003BF960");
+extern void func_003BFAC0_D220(char *, char *) __asm__("func_003BFAC0");
+extern void func_003BFB90_D220(char *, char *) __asm__("func_003BFB90");
+extern void func_003BFC50_D220(char *, char *) __asm__("func_003BFC50");
+extern void func_003BFD60_D220(char *, char *, char *) __asm__("func_003BFD60");
+extern void func_003BFE80_D220(char *, char *, char *) __asm__("func_003BFE80");
+extern void func_003BFFA0_D220(char *, char *, char *) __asm__("func_003BFFA0");
+extern void func_003C01A0_D220(char *, char *, int, int) __asm__("func_003C01A0");
+
+void func_003BD220(int src, int dst, int out) {
+    int dma;
+    int i;
+
+    if (D_0050AC6C_D220->flagA3C) {
+        dma = (src & 0x70000000) != 0x70000000 && (out & 0x70000000) != 0x70000000;
+    } else {
+        dma = 0;
+    }
+    if (dma) {
+        func_003BC968_D220(out, D_0050AC6C_D220->pA20, D_0050AC68_D220->n4 >> 2, 0);
+        func_003BF440_D220(src, D_0050AC6C_D220->pA20 + D_0050AC68_D220->n4 * 4, 0x200);
+        if (*(volatile int *)0x1000D400 & 0x100) {
+            do {
+            } while (*(volatile int *)0x1000D400 & 0x100);
+        }
+    } else {
+        func_003BF3E0_D220(out, D_0050AC6C_D220->pA20, D_0050AC68_D220->n4);
+    }
+    for (i = 0; i < 4; i++) {
+        if (dma) {
+            if (D_0050AC68_D220->n4 == 0xE0) {
+                func_003BF4C0_D220(D_0050AC6C_D220->pA20 + (i << 9), D_0050AC6C_D220->pA24, D_0050AC6C_D220->b600);
+            } else if (D_0050AC68_D220->n4 == 0x160) {
+                func_003BF5A0_D220(D_0050AC6C_D220->pA20 + (i << 9), D_0050AC6C_D220->pA24, D_0050AC6C_D220->b600);
+            } else {
+                func_003BF6B0_D220(D_0050AC6C_D220->pA20 + (i << 9), D_0050AC6C_D220->pA24, D_0050AC6C_D220->b600);
+            }
+        } else {
+            func_003BF440_D220(src, D_0050AC6C_D220->pA20 + D_0050AC68_D220->n4 * 4, 0x80);
+            if (D_0050AC68_D220->n4 == 0xE0) {
+                func_003BF4C0_D220(D_0050AC6C_D220->pA20, D_0050AC6C_D220->pA24, D_0050AC6C_D220->b600);
+            } else if (D_0050AC68_D220->n4 == 0x160) {
+                func_003BF5A0_D220(D_0050AC6C_D220->pA20, D_0050AC6C_D220->pA24, D_0050AC6C_D220->b600);
+            } else {
+                func_003BF6B0_D220(D_0050AC6C_D220->pA20, D_0050AC6C_D220->pA24, D_0050AC6C_D220->b600);
+            }
+            func_003BF3E0_D220((int)(D_0050AC6C_D220->pA20 + 0x200), D_0050AC6C_D220->pA20, D_0050AC68_D220->n4);
+        }
+        src += 0x100;
+        func_003BF800_D220(D_0050AC6C_D220->b600);
+        func_003BF8D0_D220(D_0050AC6C_D220->b600, D_0050AC6C_D220->b800);
+        func_003BF960_D220(D_0050AC6C_D220->b800, D_0050AC6C_D220->b600);
+        func_003BFAC0_D220(D_0050AC6C_D220->b600, D_0050AC6C_D220->b800);
+        func_003BFB90_D220(D_0050AC6C_D220->b800, D_0050AC6C_D220->b600);
+        func_003BFC50_D220(D_0050AC6C_D220->b600, D_0050AC6C_D220->pA28);
+        func_003BFD60_D220(D_0050AC6C_D220->b600, D_0050AC6C_D220->pA2C, D_0050AC6C_D220->b800);
+        func_003BFE80_D220(D_0050AC6C_D220->b800, D_0050AC6C_D220->pA30, D_0050AC6C_D220->b600);
+        func_003BFFA0_D220(D_0050AC6C_D220->b600, D_0050AC6C_D220->pA34, D_0050AC6C_D220->b800);
+        func_003C01A0_D220(D_0050AC6C_D220->b800, D_0050AC6C_D220->pA38, dst, 0x40);
+        dst += 0x10;
+    }
+    if (dma) {
+        func_003BCA28_D220(D_0050AC6C_D220->pA20 + 0x800, out, D_0050AC68_D220->n4 >> 2, 0x10000);
+    } else {
+        func_003BF3E0_D220((int)D_0050AC6C_D220->pA20, (char *)out, D_0050AC68_D220->n4);
+    }
+}
 
 INCLUDE_ASM("ealib/seg_2B4578", func_003BD5B8);
 
