@@ -1410,6 +1410,29 @@ index 0485d50..9a44ba3 100644
  #define FPU_CVT_L_S(a) ((int64_t)(float)(a))
  #define FPU_C_F_S(a, b) (0)
  #define FPU_C_UN_S(a, b) (isnan((float)(a)) || isnan((float)(b)))
+diff --git a/ps2xRuntime/include/runtime/ee_scheduler.h b/ps2xRuntime/include/runtime/ee_scheduler.h
+index f247ff9..b1c7bd9 100644
+--- a/ps2xRuntime/include/runtime/ee_scheduler.h
++++ b/ps2xRuntime/include/runtime/ee_scheduler.h
+@@ -1,6 +1,7 @@
+ #pragma once
+ 
+ #include "ps2_runtime.h"
++#include "runtime/ps2_host_sync.h"
+ 
+ #include <array>
+ #include <atomic>
+@@ -434,8 +435,8 @@ private:
+     std::atomic<bool> m_checkpointPending{false};
+     uint32_t m_debugPublishCountdown = 0u;
+ 
+-    mutable std::mutex m_eventMutex;
+-    std::condition_variable m_eventCv;
++    mutable ps2_host_sync::Mutex m_eventMutex;
++    ps2_host_sync::CondVar m_eventCv;
+     std::deque<EeEvent> m_events;
+     std::vector<ScheduledEvent> m_deadlines;
+     std::deque<GuestInvocation> m_pendingInvocations;
 diff --git a/ps2xRuntime/include/runtime/gs/gs_cpu_backend.h b/ps2xRuntime/include/runtime/gs/gs_cpu_backend.h
 index 2421f9e..1be49f9 100644
 --- a/ps2xRuntime/include/runtime/gs/gs_cpu_backend.h
@@ -2415,13 +2438,14 @@ index 0000000..f7c76fc
 +}
 diff --git a/ps2xRuntime/include/runtime/ps2_host_sync.h b/ps2xRuntime/include/runtime/ps2_host_sync.h
 new file mode 100644
-index 0000000..d5ab2ac
+index 0000000..bf12500
 --- /dev/null
 +++ b/ps2xRuntime/include/runtime/ps2_host_sync.h
-@@ -0,0 +1,118 @@
+@@ -0,0 +1,142 @@
 +#pragma once
 +
 +#include <atomic>
++#include <chrono>
 +#include <condition_variable>
 +#include <cstddef>
 +#include <cstdint>
@@ -2429,7 +2453,7 @@ index 0000000..d5ab2ac
 +#include <utility>
 +
 +// The mutex and condition variable of the threads that hand each other work many times
-+// a frame: the VU1 thread and the GS workers. MinGW's std::mutex and
++// a frame: the EE scheduler, the VU1 thread and the GS workers. MinGW's std::mutex and
 +// std::condition_variable are winpthreads', whose condition variable sleeps on a
 +// semaphore through WaitForMultipleObjects and wakes through ReleaseSemaphore, both
 +// system calls every time; on a Windows PC the GS workers spent about a fifth of a core
@@ -2471,7 +2495,30 @@ index 0000000..d5ab2ac
 +                wait(lock);
 +        }
 +
++        // Like std::condition_variable::wait_until: false if the deadline passed with
++        // pred still false. Windows sleeps in whole milliseconds, so the last part of a
++        // millisecond is waited out by yielding, which keeps the EE's vblank pacing exact.
++        template <class Clock, class Duration, class Predicate>
++        bool wait_until(std::unique_lock<Mutex> &lock,
++                        const std::chrono::time_point<Clock, Duration> &deadline, Predicate pred)
++        {
++            while (!pred())
++            {
++                const auto now = Clock::now();
++                if (now >= deadline)
++                    return pred();
++                const auto left = std::chrono::duration_cast<std::chrono::milliseconds>(deadline - now).count();
++                waitMs(lock, left > static_cast<long long>(kMaxWaitMs) ? kMaxWaitMs
++                                                                        : static_cast<unsigned long>(left));
++            }
++            return true;
++        }
++
 +    private:
++        static constexpr unsigned long kMaxWaitMs = 0x7FFFFFFFul;
++        // Sleeps at most ms milliseconds, or only yields when ms is 0.
++        void waitMs(std::unique_lock<Mutex> &lock, unsigned long ms);
++
 +        void *m_cv = nullptr; // a CONDITION_VARIABLE
 +    };
 +#else
@@ -7389,10 +7436,10 @@ index 0000000..a8752e8
 +#endif
 diff --git a/ps2xRuntime/src/lib/ps2_host_sync.cpp b/ps2xRuntime/src/lib/ps2_host_sync.cpp
 new file mode 100644
-index 0000000..a3f404d
+index 0000000..d3f7a85
 --- /dev/null
 +++ b/ps2xRuntime/src/lib/ps2_host_sync.cpp
-@@ -0,0 +1,72 @@
+@@ -0,0 +1,85 @@
 +#include "runtime/ps2_host_sync.h"
 +
 +#include <cstdlib>
@@ -7441,6 +7488,19 @@ index 0000000..a3f404d
 +    {
 +        SleepConditionVariableSRW(reinterpret_cast<PCONDITION_VARIABLE>(&m_cv),
 +                                  reinterpret_cast<PSRWLOCK>(&lock.mutex()->m_lock), INFINITE, 0);
++    }
++
++    void CondVar::waitMs(std::unique_lock<Mutex> &lock, unsigned long ms)
++    {
++        if (ms == 0)
++        {
++            lock.unlock();
++            std::this_thread::yield();
++            lock.lock();
++            return;
++        }
++        SleepConditionVariableSRW(reinterpret_cast<PCONDITION_VARIABLE>(&m_cv),
++                                  reinterpret_cast<PSRWLOCK>(&lock.mutex()->m_lock), ms, 0);
 +    }
 +#endif
 +

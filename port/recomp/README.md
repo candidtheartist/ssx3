@@ -238,6 +238,9 @@ or any disc file.
     a worker that waits there or runs out of commands checks again for a while before it sleeps
     (`PS2X_GS_SPIN` checks, 2000 by default), since the others or the next commands are usually microseconds
     away;
+  - the same Windows waits for the EE scheduler, whose timed waits keep the game at 60 vblanks a second. With
+    winpthreads they took 36 to 42% of the game thread on the Windows PC. Windows sleeps in whole
+    milliseconds, so the last part of a millisecond before a deadline is waited out by yielding;
   - a fix for a picture that stopped changing while the game went on. A presentation request queued while the
     thread that queues draws was waiting for room in a full queue was overwritten by that thread's next draw, so
     the window kept its last frame for the rest of the session. A 4-core Linux machine, where the queue is often
