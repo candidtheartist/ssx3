@@ -400,7 +400,7 @@ extern "C" void* MEM_free(void* p)
     return (void*)1;
 }
 
-INCLUDE_ASM("mem/memstd", func_002523D0);
+INCLUDE_ASM("mem/memstd", MEM_HeapFreeBlock);
 
 extern "C" void MUTEX_lock(void* mutex);
 extern "C" void MUTEX_unlock(void* mutex);
@@ -476,7 +476,7 @@ extern "C" void* MEM_resize(void* p, int size)
     return r;
 }
 
-INCLUDE_ASM("mem/memstd", func_00252718);
+INCLUDE_ASM("mem/memstd", MEM_HeapShrinkBlock);
 
 // Extra header bytes per block of class id (the first argument is unused).
 extern "C" int MEMCLASS_hdrsize(void* unused, int id)
@@ -500,25 +500,25 @@ void* func_00252980_6(void* tag, int size, int align, int d, int flags, int unus
 
 extern "C" void* func_00252980(void*);
 
-INCLUDE_ASM("mem/memstd", func_00252A10);
+INCLUDE_ASM("mem/memstd", MEM_HeapAllocAligned);
 
 //100% - objdiff report; single-function view differs only in a relocation name
 void* func_00252980_6(void*, int, int, int, int, int) __asm__("func_00252980");
 
 // PORT: the project's symbol name says (void*), but callers pass and this
-// forwards 5 args (see func_00253AD0); the real body is bound by asm label.
-void* func_00252F60_impl(void* a0, int a1, int a2, int a3, int a4) __asm__("func_00252F60__FPv");
+// forwards 5 args (see VidEngine_MemAlloc); the real body is bound by asm label.
+void* MEM_AllocNamedAlignedHook_impl(void* a0, int a1, int a2, int a3, int a4) __asm__("MEM_AllocNamedAlignedHook__FPv");
 
-void* func_00252F60_impl(void* a0, int a1, int a2, int a3, int a4)
+void* MEM_AllocNamedAlignedHook_impl(void* a0, int a1, int a2, int a3, int a4)
 {
     return func_00252980_6(a0, a1, a2, a3, a4, 1);
 }
 
-void* func_00252A10_6(void*, int, int, int, int, int) __asm__("func_00252A10");
+void* MEM_HeapAllocAligned_6(void*, int, int, int, int, int) __asm__("MEM_HeapAllocAligned");
 
 extern "C" void* func_00252F80(void* a0, int a1, int a2, int a3, int a4)
 {
-    return func_00252A10_6(a0, a1, a2, a3, a4, 1);
+    return MEM_HeapAllocAligned_6(a0, a1, a2, a3, a4, 1);
 }
 
 //100% - objdiff report; single-function view differs only in a relocation name
@@ -530,19 +530,19 @@ extern "C" void* func_00252FA0(void* a0, int a1, int a2)
     return func_00252980_6(a0, a1, 0x80, 0, a2, 1);
 }
 
-extern "C" void* func_00252FC8(void* a0, int a1, int a2)
+extern "C" void* MEM_HeapAllocNamed128(void* a0, int a1, int a2)
 {
-    return func_00252A10_6(a0, a1, 0x80, 0, a2, 1);
+    return MEM_HeapAllocAligned_6(a0, a1, 0x80, 0, a2, 1);
 }
 
-extern "C" void* func_00252FF0(void* a0, int a1, int a2)
+extern "C" void* MEM_AllocNamedUnaligned(void* a0, int a1, int a2)
 {
     return func_00252980_6(a0, a1, 0, 0, a2, 0);
 }
 
-extern "C" void* func_00253018(void* a0, int a1, int a2)
+extern "C" void* MEM_HeapAllocNamedUnaligned(void* a0, int a1, int a2)
 {
-    return func_00252A10_6(a0, a1, 0, 0, a2, 0);
+    return MEM_HeapAllocAligned_6(a0, a1, 0, 0, a2, 0);
 }
 
 extern "C" void* func_00253040(int size)
@@ -552,17 +552,17 @@ extern "C" void* func_00253040(int size)
 
 extern "C" void* func_00253070(int size)
 {
-    return func_00252A10_6(0, size, 0, 0, 0, 1);
+    return MEM_HeapAllocAligned_6(0, size, 0, 0, 0, 1);
 }
 
-extern "C" void* func_002530A0(int size)
+extern "C" void* MEM_AllocAnon(int size)
 {
     return func_00252980_6(0, size, 0, 0, 0, 0);
 }
 
-extern "C" void* func_002530D0(int size)
+extern "C" void* MEM_HeapAllocAnon(int size)
 {
-    return func_00252A10_6(0, size, 0, 0, 0, 0);
+    return MEM_HeapAllocAligned_6(0, size, 0, 0, 0, 0);
 }
 
 // First free block of at least size bytes, walking the free list forward or
@@ -731,7 +731,7 @@ struct sParams00253460 {
 
 extern "C" void func_002534A8(void* self, sParams00253460* params);
 
-extern "C" void func_00253460(void* self, int a1)
+extern "C" void VidEnginePlayer_Reopen(void* self, int a1)
 {
     sParams00253460 params;
     func_002535F8(self);
@@ -823,11 +823,11 @@ extern "C" void func_002535F8(void* self)
 extern int D_004A2E9C;
 extern int D_004A5B80;
 extern "C" int func_003AE450(void* p, int a, int b);
-extern "C" void* func_00254368(void* a0, int a1, int a2, int a3);
+extern "C" void* VD_CreateTextureSink(void* a0, int a1, int a2, int a3);
 int func_003AE938(void*);
 int func_003AE958_i(void*) __asm__("func_003AE958__FPv");
 
-extern "C" void func_002536C8(void* self)
+extern "C" void VidEnginePlayer_StartPlayback(void* self)
 {
     char* s = (char*)self;
     *(int*)(s + 0x0) = 0;
@@ -836,7 +836,7 @@ extern "C" void func_002536C8(void* self)
     *(int*)(s + 0xC) = func_003AE450(*(void**)(s + 0x38), 1, 0x21);
     *(int*)(s + 0x40) = 1;
     func_003AE938(*(void**)(s + 0x38));
-    *(void**)(s + 0x3C) = func_00254368(*(void**)(*(char**)(s + 0x38) + 0x64), *(int*)(s + 0xC), D_004A5B80, *(int*)(s + 0x30));
+    *(void**)(s + 0x3C) = VD_CreateTextureSink(*(void**)(*(char**)(s + 0x38) + 0x64), *(int*)(s + 0xC), D_004A5B80, *(int*)(s + 0x30));
     func_003AE958_i(*(void**)(s + 0x38));
     D_004A2E9C++;
 }
@@ -877,12 +877,12 @@ extern "C" int func_003AE6C8(void* self, float f);
 extern "C" int func_003AE860(void* self);
 
 // Streams the whole file through obj, running the sync tasks between reads.
-extern "C" void func_00253748(sStream_253748* s)
+extern "C" void VidEnginePlayer_PlayBlocking(sStream_253748* s)
 {
     if (s->file == 0) {
         return;
     }
-    func_002536C8(s);
+    VidEnginePlayer_StartPlayback(s);
     do {
         if (s->idle != 0) {
             sVEntry_253748* e = &s->obj->vt[5];
@@ -913,14 +913,14 @@ extern "C" void func_00253748(sStream_253748* s)
 }
 
 //100% - objdiff report; single-function view differs only in a relocation name
-extern "C" void func_002536C8(void* self);
+extern "C" void VidEnginePlayer_StartPlayback(void* self);
 
 extern "C" int func_00253860(void* self)
 {
     if (*(void**)((char*)self + 0x38) == 0) {
         return 0;
     }
-    func_002536C8(self);
+    VidEnginePlayer_StartPlayback(self);
     return 1;
 }
 
@@ -1017,8 +1017,8 @@ extern "C" void func_00253A40(void* self)
 }
 
 //100%
-extern "C" void* func_00253AD0(int size);
-void* func_00253AF8(void* self);
+extern "C" void* VidEngine_MemAlloc(int size);
+void* VidEngine_MemFree(void* self);
 
 struct sMemAllocFuncs {
     void* (*alloc)(int);    // 0x0
@@ -1029,28 +1029,28 @@ extern sMemAllocFuncs D_00509430;
 
 extern "C" void func_00253AA0()
 {
-    D_00509430.alloc = func_00253AD0;
-    D_00509430.free = func_00253AF8;
+    D_00509430.alloc = VidEngine_MemAlloc;
+    D_00509430.free = VidEngine_MemFree;
     D_00509430.field_0x8 = 0x400;
 }
 
 //100% - objdiff report; single-function view differs only in a relocation name
-void* func_00252F60_5(void* a0, int a1, int a2, int a3, int a4) __asm__("func_00252F60__FPv");
+void* MEM_AllocNamedAlignedHook_5(void* a0, int a1, int a2, int a3, int a4) __asm__("MEM_AllocNamedAlignedHook__FPv");
 
 // PORT: the unit declares this as (int size); the body uses 5 args (prototype mismatch).
-void* func_00253AD0_impl(void* a0, int a1, int align, int a3, int a4) __asm__("func_00253AD0");
+void* VidEngine_MemAlloc_impl(void* a0, int a1, int align, int a3, int a4) __asm__("VidEngine_MemAlloc");
 
-void* func_00253AD0_impl(void* a0, int a1, int align, int a3, int a4)
+void* VidEngine_MemAlloc_impl(void* a0, int a1, int align, int a3, int a4)
 {
     if (align < 64) {
         align = 64;
     }
-    return func_00252F60_5(a0, a1, align, a3, a4);
+    return MEM_AllocNamedAlignedHook_5(a0, a1, align, a3, a4);
 }
 
 
 //99.29%
-void* func_00253AF8(void* self)
+void* VidEngine_MemFree(void* self)
 {
     return MEM_free(self);
 }
@@ -1060,18 +1060,18 @@ extern "C" void* func_00253B18(void* self, ...)
     return self;
 }
 
-INCLUDE_ASM("mem/memstd", func_00253B58);
+INCLUDE_ASM("mem/memstd", VidEnginePlayer_StaticInit);
 
-extern "C" void* func_00253B58(int, int);
+extern "C" void* VidEnginePlayer_StaticInit(int, int);
 
 //99.38%
 void* func_00254330(void* self)
 {
-    return func_00253B58(1, 0xffff);
+    return VidEnginePlayer_StaticInit(1, 0xffff);
 }
 
 //100%
-extern "C" int func_00254350(int x)
+extern "C" int VD_FloorLog2(int x)
 {
     float fv = (float)x;
     int bits = *(int*)&fv;
@@ -1080,16 +1080,16 @@ extern "C" int func_00254350(int x)
 
 //100%
 extern char D_004A2EA0[];
-extern "C" void* func_00254410(void* self, void* a0, int a1, int a2, int a3);
+extern "C" void* VD_TextureSink_ctor(void* self, void* a0, int a1, int a2, int a3);
 
 // PORT: the unit's sMemAllocFuncs declares alloc as `void* (*)(int)`; it really
-// takes (tag, size, align, d, flags) (see func_00252F60 / func_00253AD0).
+// takes (tag, size, align, d, flags) (see MEM_AllocNamedAlignedHook / VidEngine_MemAlloc).
 typedef void* (*tMemAlloc5_00254368)(void*, int, int, int, int);
 
-extern "C" void* func_00254368(void* a0, int a1, int a2, int a3)
+extern "C" void* VD_CreateTextureSink(void* a0, int a1, int a2, int a3)
 {
     void* p = ((tMemAlloc5_00254368)D_00509430.alloc)(D_004A2EA0, 0x54, 0, 0, D_00509430.field_0x8);
-    return func_00254410(p, a0, a1, a2, a3);
+    return VD_TextureSink_ctor(p, a0, a1, a2, a3);
 }
 
 //100%
@@ -1107,7 +1107,7 @@ void func_00254400(void* self, float f0, float f1)
     *(float*)((char*)self + 0x50) = f1;
 }
 
-INCLUDE_ASM("mem/memstd", func_00254410);
+INCLUDE_ASM("mem/memstd", VD_TextureSink_ctor);
 
 //100%
 // PORT: PS2-only inline asm; needs a C fallback off-PS2.
@@ -1136,7 +1136,7 @@ struct sTexCache_2547B8 {
     int count;
 };
 
-extern "C" void func_002547B8(sTexCache_2547B8* self, int flags)
+extern "C" void VD_TextureSink_dtor(sTexCache_2547B8* self, int flags)
 {
     self->vt = D_00480270;
     for (int i = 0; i < self->count; i++) {
@@ -1283,10 +1283,10 @@ struct sMesh_2548D0 {
     float ch;               // 0x50
 };
 
-// PORT: the unit declares func_002548D0 as returning void*, but it returns nothing (v0 is left as is); bind the real signature.
-extern "C" void func_002548D0_impl(void* p) __asm__("func_002548D0");
-INCLUDE_ASM("mem/memstd", func_002548D0);
-extern "C" void func_002548D0_impl(void* p);
+// PORT: the unit declares VD_TextureSink_DrawFrame as returning void*, but it returns nothing (v0 is left as is); bind the real signature.
+extern "C" void VD_TextureSink_DrawFrame_impl(void* p) __asm__("VD_TextureSink_DrawFrame");
+INCLUDE_ASM("mem/memstd", VD_TextureSink_DrawFrame);
+extern "C" void VD_TextureSink_DrawFrame_impl(void* p);
 
 //100% - objdiff report; single-function view differs only in a relocation name
 // PORT: PS2-only inline asm; needs a C fallback off-PS2.
@@ -1343,7 +1343,7 @@ public:
     virtual void v48();
     virtual void v49(int a, char* p, int b, int c, int d, int e, int f, int g, int h);
 };
-extern "C" void* func_002548D0(void* self);
+extern "C" void* VD_TextureSink_DrawFrame(void* self);
 extern cWorld_254C48* D_004A5B80_254C48 __asm__("D_004A5B80");
 
 struct sMesh_254C48 {
@@ -1359,7 +1359,7 @@ struct sMesh_254C48 {
     int widths[1];
 };
 
-extern "C" void func_00254C48(sMesh_254C48* self, void* res)
+extern "C" void VD_TextureSink_UploadFrame(sMesh_254C48* self, void* res)
 {
     if (res != 0) {
         self->res = res;
@@ -1383,15 +1383,15 @@ extern "C" void func_00254C48(sMesh_254C48* self, void* res)
             off += self->widths[j];
         }
     }
-    func_002548D0(self);
+    VD_TextureSink_DrawFrame(self);
 }
 
-extern "C" void* func_002548D0(void* self);
+extern "C" void* VD_TextureSink_DrawFrame(void* self);
 
 //99.29%
-void* func_00254DA0(void* self)
+void* VD_TextureSink_Redraw(void* self)
 {
-    return func_002548D0(self);
+    return VD_TextureSink_DrawFrame(self);
 }
 
 //100%
@@ -1423,13 +1423,13 @@ extern "C" void* func_00254E20(void* self, ...)
     return self;
 }
 
-INCLUDE_ASM("mem/memstd", func_00254E60);
+INCLUDE_ASM("mem/memstd", VD_StaticInit);
 
 //100%
 extern void* D_004802B0[];
 void operator_delete(int*);
 
-extern "C" void func_00255638(void* self, int flags)
+extern "C" void VD_SinkBase_dtor(void* self, int flags)
 {
     *(void***)((char*)self + 0x4) = D_004802B0;
     if (flags & 1) {
@@ -1442,7 +1442,7 @@ void VD_SinkBase_Flush(void* self)
 {
 }
 
-extern "C" void* func_00254E60(int, int);
+extern "C" void* VD_StaticInit(int, int);
 
 extern char D_004A2EA0[];
 
@@ -1497,13 +1497,13 @@ extern "C" void func_002557B8()
 //99.38%
 void* VD_GlobalCtors(void* self)
 {
-    return func_00254E60(1, 0xffff);
+    return VD_StaticInit(1, 0xffff);
 }
 
 extern void* D_00481320[];
 
 //100%
-void* func_002557E0(void* self)
+void* cDSockChannel_Base_ctor(void* self)
 {
     int t0 = 0;
     *(int*)self = t0;
@@ -1515,7 +1515,7 @@ void* func_002557E0(void* self)
 //100%
 void operator_delete(int*);
 
-extern "C" void func_00255800(void* self, int flags)
+extern "C" void cDSockChannel_Base_dtor(void* self, int flags)
 {
     *(void***)((char*)self + 0x8) = D_00481320;
     if (flags & 1) {
@@ -1524,7 +1524,7 @@ extern "C" void func_00255800(void* self, int flags)
 }
 
 //100%
-int func_00255830(void* self)
+int cDSockChannel_SetOpen(void* self)
 {
     int t0 = 1;
     *(int*)((char*)self + 0x4) = 0;
@@ -1533,7 +1533,7 @@ int func_00255830(void* self)
 }
 
 //100%
-extern "C" void func_00255840(void* self)
+extern "C" void cDSockChannel_ResetState(void* self)
 {
     if (*(int*)self != 0) {
         *(int*)self = 0;

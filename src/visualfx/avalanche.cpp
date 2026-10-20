@@ -363,7 +363,7 @@ extern "C" void func_002D7EF8(void* selfv)
 //100%
 void cMemMan_free(void*);
 extern "C" void* func_0028B180();
-extern "C" void func_0029DEF0(void* self, int a1);
+extern "C" void cSSXAudio_SetAvalancheSound(void* self, int a1);
 extern char* D_004A28A8;
 
 extern "C" void func_002D81B0(void* self)
@@ -379,7 +379,7 @@ extern "C" void func_002D81B0(void* self)
             n = *(char**)(n + 0x2E4);
         }
         *(int*)self = 0;
-        func_0029DEF0(func_0028B180(), 0);
+        cSSXAudio_SetAvalancheSound(func_0028B180(), 0);
         char* p = *(char**)(*(char**)(*(char**)(D_004A28A8 + 0x84) + 0xC) + 0xA8);
         if (*(int*)(p + 0x708) != 0) {
             *(int*)(p + 0x708) = *(int*)(p + 0x708) - 1;
@@ -958,7 +958,7 @@ extern "C" float cRenderStateMan_SnowFlakeColourB(int a);
 extern "C" void func_00370DC8(void* self, void* node, float k);
 extern "C" void tActiveAvalancheNode_calculateScale(void* self, float t);
 
-extern "C" void func_0029DEF0(void* self, int a1);
+extern "C" void cSSXAudio_SetAvalancheSound(void* self, int a1);
 extern char* D_004A28A8;
 extern void* D_004A3AB0;
 
@@ -1103,7 +1103,7 @@ extern "C" int cAvalanche_triggerAvalanche(int id)
                 }
             }
             tActiveAvalanche_buildArray((tActiveAvalanche*)slot);
-            func_0029DEF0(func_0028B180(), 1);
+            cSSXAudio_SetAvalancheSound(func_0028B180(), 1);
             (*(int*)(*(char**)(*(char**)(*(char**)(D_004A28A8 + 0x84) + 0xC) + 0xA8) + 0x708))++;
             return slot - D_slots_D97A8;
         }

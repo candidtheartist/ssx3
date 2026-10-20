@@ -107,7 +107,7 @@ struct cGameViewMan22E550 {
     sRect22E550 rects[2];    // 0x18
 };
 
-extern "C" void func_0022E550(cGameViewMan22E550* self)
+extern "C" void cGameViewMan_UpdateSplitScreen(cGameViewMan22E550* self)
 {
     char* game = *(char**)((char*)D_004A28A8 + 0x84);
     int mode = *(int*)(game + 0x214);
@@ -202,7 +202,7 @@ struct sVEntry_0022E7C8 {
     void (*fn)(void*);
 };
 
-extern "C" void func_0022E7C8(void* self)
+extern "C" void cGameViewMan_ResetCameras(void* self)
 {
     unsigned int i;
     for (i = 0; i < *(unsigned int*)((char*)self + 0x10); i++) {

@@ -152,12 +152,12 @@ extern "C" void RaceStateCountdown_Exit(void *arg0, void *arg1) {
 }
 
 //100%
-extern "C" void func_00258988(int);
+extern "C" void cGameComm_OnRaceStart(int);
 extern int D_004A2EEC;
 
 extern "C" void func_00113D88(void) {
     if (D_004A2EEC != 0) {
-        func_00258988(D_004A2EEC);
+        cGameComm_OnRaceStart(D_004A2EEC);
     }
 }
 
@@ -176,12 +176,12 @@ extern "C" void func_00113DB0(void *arg0, void *arg1) {
 }
 
 //100%
-extern "C" void func_00258A48(int);
+extern "C" void cGameComm_OnRaceEnd(int);
 extern int D_004A2EEC;
 
 extern "C" void func_00113E18(void) {
     if (D_004A2EEC != 0) {
-        func_00258A48(D_004A2EEC);
+        cGameComm_OnRaceEnd(D_004A2EEC);
     }
 }
 
@@ -284,9 +284,9 @@ INCLUDE_ASM("seg/seg_14B10", func_00113F88);
 //100%
 extern "C" int func_0028B180();
 extern "C" void func_002F6AC8(char *, int);
-extern "C" void func_00298D90(int mgr, char* rider, int b);
-extern "C" void func_00299368(int mgr, char* rider);
-extern "C" void func_002992D8(int mgr, char* rider);
+extern "C" void cSSXAudio_StartBoostSound(int mgr, char* rider, int b);
+extern "C" void cSSXAudio_PlayBoostEmptySound(int mgr, char* rider);
+extern "C" void cSSXAudio_StopBoostSound(int mgr, char* rider);
 
 extern "C" void func_00114130(char* s, int a, int b)
 {
@@ -298,16 +298,16 @@ extern "C" void func_00114130(char* s, int a, int b)
                 if (x > 0.6666666865348816f) *(float*)(s + 0x2FC) = 1.0f;
                 else if (x > 0.3333333432674408f) *(float*)(s + 0x2FC) = 0.625f;
                 else *(float*)(s + 0x2FC) = 0.25f;
-                func_00298D90(func_0028B180(), s, b);
+                cSSXAudio_StartBoostSound(func_0028B180(), s, b);
             }
             if (*(float*)(s + 0x2E8) == 0.0f && *(int*)(s + 0x304) != 0 && *(int*)(s + 0x2F4) < 10) {
                 *(float*)(s + 0x2F8) -= 0.00150679936632514f;
             }
             return;
         }
-        if (b) func_00299368(func_0028B180(), s);
+        if (b) cSSXAudio_PlayBoostEmptySound(func_0028B180(), s);
     }
-    if (*(float*)(s + 0x2FC) > 0.0f) func_002992D8(func_0028B180(), s);
+    if (*(float*)(s + 0x2FC) > 0.0f) cSSXAudio_StopBoostSound(func_0028B180(), s);
     *(float*)(s + 0x2FC) = 0.0f;
 }
 
@@ -509,7 +509,7 @@ extern "C" int cRiderAnimBase_getChannelAnimClass(void*, int);
 extern "C" int getGameTick();
 extern "C" int cRiderAnimBase_play_5B58(void* self, int anim, int flags, float blend) __asm__("cRiderAnimBase_play");
 extern "C" void* func_0028B180_5B58() __asm__("func_0028B180");
-extern "C" void func_0029FF80(void* snd, void* self, int a);
+extern "C" void cSSXAudio_RiderSay2082(void* snd, void* self, int a);
 extern "C" int cRider_getControlState_5B58(void*) __asm__("cRider_getControlState__FPv");
 
 extern "C" void func_00115B58(char* self)
@@ -536,13 +536,13 @@ extern "C" void func_00115B58(char* self)
             *(long*)(*(char**)(self + 0x784) + 0x20) = *(long*)(self + 0x8C8);
             cRiderAnimBase_play_5B58(*(void**)(self + 0x784), 0x13B, 0, -1.0f);
             *(long*)(*(char**)(self + 0x784) + 0x20) = -1;
-            func_0029FF80(func_0028B180_5B58(), self, 0);
+            cSSXAudio_RiderSay2082(func_0028B180_5B58(), self, 0);
             break;
         case 2:
             *(long*)(*(char**)(self + 0x784) + 0x20) = *(long*)(self + 0x8C8);
             cRiderAnimBase_play_5B58(*(void**)(self + 0x784), 0x13B, 0, -1.0f);
             *(long*)(*(char**)(self + 0x784) + 0x20) = -1;
-            func_0029FF80(func_0028B180_5B58(), self, 1);
+            cSSXAudio_RiderSay2082(func_0028B180_5B58(), self, 1);
             break;
         case 3:
             *(long*)(*(char**)(self + 0x784) + 0x20) = *(long*)(self + 0x8C8);
@@ -576,8 +576,8 @@ void cRiderMetrix_evAutoResetSurface(void *);
 extern "C" void cRider_setMotionMode_6120(void *, int) __asm__("cRider_setMotionMode__FPv");
 extern "C" void cRider_setControlState_6120(void *, int) __asm__("cRider_setControlState__FPv");
 extern "C" int func_0028B180();
-extern "C" void func_0029A220(int, void *);
-extern "C" void func_00270970(int, int);
+extern "C" void cSSXAudio_OnRiderReset(int, void *);
+extern "C" void Replay_OnRiderReset(int, int);
 extern void *D_004A28A8;
 
 extern "C" int func_00116120(char *self, int arg1, int arg2) {
@@ -589,8 +589,8 @@ extern "C" int func_00116120(char *self, int arg1, int arg2) {
         *(int *)(*(char **)(self + 0x77C) + 0x350) = (arg2 != 0);
         cRider_setControlState_6120(self, 9);
         cRider_setMotionMode_6120(self, 3);
-        func_0029A220(func_0028B180(), self);
-        func_00270970(*(int *)(*(char **)((char *)D_004A28A8 + 0x84) + 0x28), *(int *)(self + 0x86C));
+        cSSXAudio_OnRiderReset(func_0028B180(), self);
+        Replay_OnRiderReset(*(int *)(*(char **)((char *)D_004A28A8 + 0x84) + 0x28), *(int *)(self + 0x86C));
         return 1;
     }
     return 0;

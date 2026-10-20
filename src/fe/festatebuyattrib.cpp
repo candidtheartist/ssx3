@@ -547,7 +547,7 @@ int GetHashValue32(char* str);
 extern char D_0046F168[];
 extern "C" void* cUIEngine_addScreenByHashName(void* engine, void* owner, int hash, int a3);
 extern "C" void* cUIScreen_playFrame(void* self, unsigned short frame, int flag);
-extern "C" void func_001F6F30(void* self);
+extern "C" void cFEStateCareerStats_CountMedals(void* self);
 extern "C" void func_001F5A38(void* self);
 extern "C" void* func_0028B180();
 extern "C" void func_0028F140(void* self, int a1);
@@ -572,7 +572,7 @@ extern "C" void cFEStateCareerStats_onCreateScreen(void* self)
     *(int*)((char*)self + 0x6C) = 0;
     *(int*)((char*)self + 0x74) = 0;
     *(int*)((char*)self + 0x48) = 0;
-    func_001F6F30(self);
+    cFEStateCareerStats_CountMedals(self);
     func_001F5A38(self);
     func_0028F140(func_0028B180(), 8);
 }
@@ -1263,7 +1263,7 @@ int cBERewardInterface_getTrackMedal(void* self, int a, int charID, int mode, in
 extern int D_004780D0[];
 extern int D_00478110[];
 
-extern "C" void func_001F6F30(void* vself)
+extern "C" void cFEStateCareerStats_CountMedals(void* vself)
 {
     char* self = (char*)vself;
     void* reward = cBE_getInterface_Fv(cBE_getBE(), 0xD);

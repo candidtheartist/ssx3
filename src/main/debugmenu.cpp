@@ -1891,7 +1891,7 @@ extern "C" void func_00251630(void* self, int flags)
 extern "C" void* func_00250CB0(int, int);
 
 //99.38%
-void* func_00251690(void* self)
+void* AIVisualEffectsMenus_GlobalCtors(void* self)
 {
     return func_00250CB0(1, 0xffff);
 }
@@ -1899,7 +1899,7 @@ void* func_00251690(void* self)
 extern "C" void* func_00250CB0(int, int);
 
 //99.38%
-void* func_002516B0(void* self)
+void* AIVisualEffectsMenus_GlobalDtors(void* self)
 {
     return func_00250CB0(0, 0xffff);
 }
@@ -1920,7 +1920,7 @@ extern "C" void func_003E6448(void* p, int v, int n);
 extern char D_004D2438[0x100];
 
 //100%
-void func_002516F0()
+void MEM_ClearHeapTable()
 {
     func_003E6448(D_004D2438, 0, 0x100);
 }

@@ -253,7 +253,7 @@ extern "C" int func_00245EC0(int* a, int* b)
 void operator_delete(int* ptr);
 extern char D_0047DB28[];
 
-extern "C" void func_00245F00(void* self, int flags)
+extern "C" void GenericStreamPause_dtor(void* self, int flags)
 {
     *(void**)self = D_0047DB28;
     if (flags & 1) {
@@ -759,7 +759,7 @@ extern "C" void cFELoadState_widgetCreateQP(void* self, void* widget)
 extern "C" void* func_00242EB8(int, int);
 
 //100%
-void* func_00247E20(void* self)
+void* cSSXApp_GlobalCtors(void* self)
 {
     return func_00242EB8(1, 0xffff);
 }
@@ -767,7 +767,7 @@ void* func_00247E20(void* self)
 extern "C" void* func_00242EB8(int, int);
 
 //100%
-void* func_00247E40(void* self)
+void* cSSXApp_GlobalDtors(void* self)
 {
     return func_00242EB8(0, 0xffff);
 }

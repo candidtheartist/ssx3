@@ -100,7 +100,7 @@ struct sPathSys {
     sPathEntry3C* entries3C; // 0x14
 };
 
-extern "C" int func_0026B508(sPathSys* self, sPathEntry3C* entry)
+extern "C" int cPathSys_GetTrackPathIndex(sPathSys* self, sPathEntry3C* entry)
 {
     int i;
     if (entry != 0) {
@@ -114,7 +114,7 @@ extern "C" int func_0026B508(sPathSys* self, sPathEntry3C* entry)
 }
 
 //100%
-extern "C" int func_0026B550(sPathSys* self, sPathEntry40* entry)
+extern "C" int cPathSys_GetAIPathIndex(sPathSys* self, sPathEntry40* entry)
 {
     int i;
     if (entry != 0) {
@@ -128,7 +128,7 @@ extern "C" int func_0026B550(sPathSys* self, sPathEntry40* entry)
 }
 
 //100%
-extern "C" int func_0026B598(sPathSys* self, int a, int b)
+extern "C" int cPathSys_HasMarker(sPathSys* self, int a, int b)
 {
     int i;
     int count = self->count28;
@@ -152,7 +152,7 @@ struct sPathEntryList {
     sPathEntry* entries;    // 0x4
 };
 
-extern "C" sPathEntry* func_0026B5E0(sPathEntryList* list, int type, int id)
+extern "C" sPathEntry* cPathSys_FindMarker(sPathEntryList* list, int type, int id)
 {
     int i;
     for (i = 0; i < list->count; i++) {
@@ -252,7 +252,7 @@ struct sPathSys_B7D8 {
     sPathPair_B7D8 pairs[1];    // 0x18
 };
 
-extern "C" int func_0026B7D8(sPathSys_B7D8* self, char* p)
+extern "C" int cPathSys_ReadFloatIntPairs(sPathSys_B7D8* self, char* p)
 {
     int count;
     char* start = p;
@@ -291,7 +291,7 @@ struct sPathSys_B880 {
     char* f14;                  // 0x14
 };
 
-extern "C" int func_0026B880(sPathSys_B880* self, char* p)
+extern "C" int cPathSys_ReadMarkers(sPathSys_B880* self, char* p)
 {
     int tmp;
     int a;
@@ -358,7 +358,7 @@ extern "C" void* func_0026BAA8(void* p, ...)
     return p;
 }
 
-INCLUDE_ASM("path/pathsys", func_0026BAE8);
+INCLUDE_ASM("path/pathsys", cPathSys_StaticInit);
 
 struct sPathVec4 {
     float x, y, z, w;
@@ -384,16 +384,16 @@ extern "C" int func_0026C408(void* self)
 }
 
 //100%
-void func_0026C410(void* self)
+void Path_InitFields(void* self)
 {
 }
 
 //100%
-void func_0026C418(void* self)
+void Path_ReadField(void* self)
 {
 }
 
-extern "C" void* func_0026BAE8(int, int);
+extern "C" void* cPathSys_StaticInit(int, int);
 
 extern "C" int func_0026C420(void* self)
 {
@@ -411,8 +411,8 @@ extern "C" float func_0026C430(void* self)
 }
 
 //99.38%
-void* func_0026C438(void* self)
+void* cPathSys_GlobalCtors(void* self)
 {
-    return func_0026BAE8(1, 0xffff);
+    return cPathSys_StaticInit(1, 0xffff);
 }
 

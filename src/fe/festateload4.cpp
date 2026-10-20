@@ -28,7 +28,7 @@ INCLUDE_ASM("fe/festateload4", func_00245E78);
 
 INCLUDE_ASM("fe/festateload4", func_00245EC0);
 
-INCLUDE_ASM("fe/festateload4", func_00245F00);
+INCLUDE_ASM("fe/festateload4", GenericStreamPause_dtor);
 
 INCLUDE_ASM("fe/festateload4", cFEStateProgressiveVerifyPS2_dtor);
 
@@ -50,7 +50,7 @@ INCLUDE_ASM("fe/festateload4", cFELoadState_InitwidgetMultiP);
 
 INCLUDE_ASM("fe/festateload4", cFELoadState_widgetCreateQP);
 
-INCLUDE_ASM("fe/festateload4", func_00247E20);
+INCLUDE_ASM("fe/festateload4", cSSXApp_GlobalCtors);
 
-INCLUDE_ASM("fe/festateload4", func_00247E40);
+INCLUDE_ASM("fe/festateload4", cSSXApp_GlobalDtors);
 

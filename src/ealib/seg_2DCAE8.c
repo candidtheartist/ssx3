@@ -5429,7 +5429,7 @@ void *func_003E7718(char *arg0, int arg1, int arg2, int arg3) {
 // PORT: PS2-only inline asm; needs a C fallback off-PS2.
 typedef struct N_77F0 { int pad0; int key; int w[14]; struct N_77F0 *next; } N_77F0;
 extern void *memset_77F0(void *, int, unsigned int) __asm__("func_00416210");
-extern void func_00259210_77F0(void *) __asm__("func_00259210");
+extern void Lobby_MemFree_77F0(void *) __asm__("Lobby_MemFree");
 int func_003E77F0(char *self, N_77F0 *dst, int key) {
     N_77F0 *n;
     memset_77F0(dst, 0, 0x44);
@@ -5437,7 +5437,7 @@ int func_003E77F0(char *self, N_77F0 *dst, int key) {
     if (n != 0 && (n->key == key || key == 0x44515545)) {
         *(N_77F0 **)(self + 0x53C) = n->next;
         *dst = *n;
-        func_00259210_77F0(n);
+        Lobby_MemFree_77F0(n);
     }
     return *(int *)(self + 0x53C) != 0;
 }
@@ -5447,7 +5447,7 @@ int func_003E77F0(char *self, N_77F0 *dst, int key) {
 struct N_7918 { int f0; int tag; int id; int fC; int f10; int f14; char name[0x28]; struct N_7918 *next; };
 struct L_7918 { char pad[0x53C]; struct N_7918 *head; int cnt; };
 extern int func_004165A8_7918(char *, char *) __asm__("func_004165A8");
-extern void func_00259210_7918(void *) __asm__("func_00259210");
+extern void Lobby_MemFree_7918(void *) __asm__("Lobby_MemFree");
 
 int func_003E7918(struct L_7918 *l, struct N_7918 *out, char *name, int id, int t) {
     struct N_7918 **pp = &l->head;
@@ -5459,7 +5459,7 @@ int func_003E7918(struct L_7918 *l, struct N_7918 *out, char *name, int id, int 
             ((n->id == id && func_004165A8_7918(name, n->name) == 0) || (id == -1 && n->fC < t))) {
             *pp = n->next;
             *out = *n;
-            func_00259210_7918(n);
+            Lobby_MemFree_7918(n);
             l->cnt--;
             return 1;
         }
@@ -5695,7 +5695,7 @@ void *LobbyApi_Create(char *arg0, int arg1, int arg2) {
 
 //100%
 // PORT: PS2-only inline asm; needs a C fallback off-PS2.
-extern void func_00259210_80C0(void *) __asm__("func_00259210");
+extern void Lobby_MemFree_80C0(void *) __asm__("Lobby_MemFree");
 extern void func_003E7F58_80C0(void *) __asm__("func_003E7F58");
 extern void *func_003EE480_80C0(int, int) __asm__("func_003EE480");
 extern int func_003EE9A0_80C0(int) __asm__("func_003EE9A0");
@@ -5712,14 +5712,14 @@ void func_003E80C0(struct S_80C0 *s) {
     for (i = 0; i < 8; i++) {
         if (s->e[i].a != 0) {
             while ((t = func_003EE9A0_80C0(s->e[i].a)) != 0) {
-                func_00259210_80C0(func_003EE480_80C0(s->e[i].b, t));
+                Lobby_MemFree_80C0(func_003EE480_80C0(s->e[i].b, t));
             }
         }
     }
     while (s->f53C != 0) {
         p = s->f53C;
         s->f53C = *(char **)(p + 0x40);
-        func_00259210_80C0(p);
+        Lobby_MemFree_80C0(p);
     }
     func_003E7F58_80C0(s);
     s->f540 = 0;
@@ -5734,7 +5734,7 @@ extern void func_003EE820_81C8(int) __asm__("func_003EE820");
 extern void func_003EE260_81C8(int) __asm__("func_003EE260");
 extern void ProtoPingDestroy_81C8(int) __asm__("ProtoPingDestroy");
 extern void ProtoAriesDestroy_81C8(int) __asm__("ProtoAriesDestroy");
-extern void func_00259210_81C8(void *) __asm__("func_00259210");
+extern void Lobby_MemFree_81C8(void *) __asm__("Lobby_MemFree");
 
 void LobbyApi_Destroy(T_81C8 *self) {
     int i;
@@ -5747,7 +5747,7 @@ void LobbyApi_Destroy(T_81C8 *self) {
     }
     ProtoPingDestroy_81C8(self->p1);
     ProtoAriesDestroy_81C8(self->p0);
-    func_00259210_81C8(self);
+    Lobby_MemFree_81C8(self);
 }
 
 //100%
@@ -5810,7 +5810,7 @@ extern void func_004162D0_8368(char *, char *) __asm__("func_004162D0");
 extern void ProtoAriesSend_8368(int, int, int, char *, int) __asm__("ProtoAriesSend");
 extern int func_003EE9A0_8368(int) __asm__("func_003EE9A0");
 extern void *func_003EE480_8368(int, int) __asm__("func_003EE480");
-extern void func_00259210_8368(void *) __asm__("func_00259210");
+extern void Lobby_MemFree_8368(void *) __asm__("Lobby_MemFree");
 extern void func_003EE820_8368(int) __asm__("func_003EE820");
 extern void func_003EE260_8368(int) __asm__("func_003EE260");
 
@@ -5838,7 +5838,7 @@ int func_003E8368(Self_8368 *self, unsigned int idx, int enable) {
     }
     if (!enable && self->t[idx].h != 0) {
         while ((e = func_003EE9A0_8368(self->t[idx].h)) != 0) {
-            func_00259210_8368(func_003EE480_8368(self->t[idx].f4, e));
+            Lobby_MemFree_8368(func_003EE480_8368(self->t[idx].f4, e));
         }
         func_003EE820_8368(self->t[idx].h);
         self->t[idx].h = 0;
@@ -5892,7 +5892,7 @@ typedef struct { char pad[0x310]; E_8688 e[8]; } T_8688;
 extern int func_003EE770_8688(int) __asm__("func_003EE770");
 extern int func_003EE9A0_8688(int) __asm__("func_003EE9A0");
 extern void *func_003EE480_8688(int, int) __asm__("func_003EE480");
-extern void func_00259210_8688(void *) __asm__("func_00259210");
+extern void Lobby_MemFree_8688(void *) __asm__("Lobby_MemFree");
 extern void func_003EE820_8688(int) __asm__("func_003EE820");
 extern void func_003EE260_8688(int) __asm__("func_003EE260");
 
@@ -5902,7 +5902,7 @@ void func_003E8688(T_8688 *self, unsigned int i, int h) {
     if (i < 8 && h != 0) {
         m = func_003EE770_8688(h);
         while ((p = func_003EE9A0_8688(m)) != 0) {
-            func_00259210_8688(func_003EE480_8688(h, p));
+            Lobby_MemFree_8688(func_003EE480_8688(h, p));
         }
         func_003EE820_8688(m);
         func_003EE260_8688(h);
@@ -5960,7 +5960,7 @@ typedef struct { char pad[0x310]; E_8968 e[8]; } T_8968;
 extern int func_003EEC88_8968(int, int) __asm__("func_003EEC88");
 extern int func_003EED08_8968(int, int) __asm__("func_003EED08");
 extern void *func_003EE480_8968(int, int) __asm__("func_003EE480");
-extern void func_00259210_8968(void *) __asm__("func_00259210");
+extern void Lobby_MemFree_8968(void *) __asm__("Lobby_MemFree");
 int func_003E8968(T_8968 *self, unsigned int i, int x) {
     E_8968 *e;
     int p;
@@ -5972,7 +5972,7 @@ int func_003E8968(T_8968 *self, unsigned int i, int x) {
         p = func_003EEC88_8968(e->a, x);
         if (p == 0) return 0;
         func_003EED08_8968(e->a, x);
-        func_00259210_8968(func_003EE480_8968(self->e[i].b, p));
+        Lobby_MemFree_8968(func_003EE480_8968(self->e[i].b, p));
         return 1;
     }
     return -1;
@@ -6036,7 +6036,7 @@ extern int cDirtysock_tag_TagFieldGetNumber_8B10(char *, int) __asm__("cDirtysoc
 extern void func_003F35D0_8B10(char *, int, char *, char *, int, int) __asm__("func_003F35D0");
 extern int func_003EE9A0_8B10(int) __asm__("func_003EE9A0");
 extern void *func_003EE480_8B10(int, int) __asm__("func_003EE480");
-extern void func_00259210_8B10(void *) __asm__("func_00259210");
+extern void Lobby_MemFree_8B10(void *) __asm__("Lobby_MemFree");
 extern void ProtoAriesSend_8B10(int, int, int, char *, int) __asm__("ProtoAriesSend");
 extern char D_004A48D8_8B10[] __asm__("D_004A48D8");
 extern char D_004A4888_8B10[] __asm__("D_004A4888");
@@ -6073,7 +6073,7 @@ int func_003E8B10(Self_8B10 *self, int kind, char *data, int a3, int a4) {
         n = cDirtysock_tag_TagFieldGetNumber_8B10(cDirtysock_tag_TagFieldFind_8B10(data, D_004A48E8_8B10), 0);
         if ((unsigned int)(n - 4) < 4 && self->t[n].h != 0) {
             while ((e = func_003EE9A0_8B10(self->t[n].h)) != 0) {
-                func_00259210_8B10(func_003EE480_8B10(self->t[n].f4, e));
+                Lobby_MemFree_8B10(func_003EE480_8B10(self->t[n].f4, e));
             }
         }
         self->f508 = 0;

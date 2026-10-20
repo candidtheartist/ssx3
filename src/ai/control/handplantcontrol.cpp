@@ -497,7 +497,7 @@ extern "C" void cRider_updateQueryBounds_v(void* rider, int a1) __asm__("cRider_
 extern "C" void func_00105398(void* rider, int a1);
 extern "C" void func_00107888(void* rider);
 extern "C" void cRailSlideMotion_collideBody(void* self);
-extern "C" void func_00294170(void* snd, void* rider);
+extern "C" void cSSXAudio_PlayTakeoffSound(void* snd, void* rider);
 int cRider_getControlState(void* rider);
 int cRider_getMotionMode(void* rider);
 // PORT: cRider_setMotionMode is defined with one parameter but this caller passes (rider, 1).
@@ -573,7 +573,7 @@ extern "C" void cRailSlideMotion_postUpdate(void* self)
     func_00107888(RIDER_BFA8);
     if (*(int*)((char*)self + 0x20) != 0 && cRider_getMotionMode(RIDER_BFA8) == 4) {
         cRider_setMotionMode_impl_BFA8(RIDER_BFA8, 1);
-        func_00294170(D_004A3500, RIDER_BFA8);
+        cSSXAudio_PlayTakeoffSound(D_004A3500, RIDER_BFA8);
     }
     char* r = RIDER_BFA8;
     float len = vu0Length_BFA8(*(sVec4_BFA8*)(r + 0x1E0));
@@ -1134,7 +1134,7 @@ extern "C" void func_00105398(void* rider, int a1);
 extern "C" void func_00107888(void* rider);
 extern "C" void func_00116120(void* rider, int a, int b);
 extern "C" void cGroundMotion_collideBody(void* self);
-extern "C" void func_00294170(void* snd, void* rider);
+extern "C" void cSSXAudio_PlayTakeoffSound(void* snd, void* rider);
 int cRider_getMotionMode(void* rider);
 // PORT: cRider_setMotionMode is defined with one parameter but this caller passes (rider, 1).
 void cRider_setMotionMode_impl_13F178(void* rider, int v) __asm__("cRider_setMotionMode__FPv");
@@ -1277,7 +1277,7 @@ extern "C" void cGroundMotion_postUpdate(void* self)
     func_00107888(RIDER_13F178);
     if (*(int*)((char*)self + 0xC) != 0 && cRider_getMotionMode(RIDER_13F178) == 0) {
         cRider_setMotionMode_impl_13F178(RIDER_13F178, 1);
-        func_00294170(D_004A3500, RIDER_13F178);
+        cSSXAudio_PlayTakeoffSound(D_004A3500, RIDER_13F178);
     }
     char* r = RIDER_13F178;
     *(sVec4HP*)(r + 0x390) = vu0Normalize_13F178(vu0Add_13F178(*(sVec4HP*)(RIDER_13F178 + 0x390), vu0Scale_13F178(*(sVec4HP*)(r + 0x370), 0.5f)));
@@ -1329,7 +1329,7 @@ extern "C" void func_00106538(void* rider, void* v);
 extern "C" void func_001065B0(void* rider, void* hit);
 extern "C" void func_00105D98(void* rider, void* info, int id);
 extern "C" void* func_0028B180();
-extern "C" void func_002989A8(void* snd, void* rider);
+extern "C" void cSSXAudio_PlayGroundWallHitSound(void* snd, void* rider);
 extern "C" void* cWorldRider_cWorldRider(void* self, void* tree, int flag);
 extern "C" void cWorldRider_destroy(void* self, int flags);
 
@@ -1523,7 +1523,7 @@ extern "C" void cGroundMotion_collideBody(void* self)
         info.normal = hit.normal;
         info.depth = dot2;
         func_00105D98(RIDER, &info, hit.m4C);
-        func_002989A8(func_0028B180(), RIDER);
+        cSSXAudio_PlayGroundWallHitSound(func_0028B180(), RIDER);
     }
     cWorldRider_destroy(&sph, 2);
 }

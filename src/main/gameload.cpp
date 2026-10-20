@@ -156,7 +156,7 @@ extern void* D_004A3DD8;
 // The unit declares D_004A5988 later as sGp2898 (8 bytes); bind a small-data alias here.
 extern char D_004A5988_bm __asm__("D_004A5988");
 
-extern "C" void func_002300F0(void* self)
+extern "C" void cGame_ResetScriptsAndWorld(void* self)
 {
     void* bm = &D_004A5988_bm;
     func_0026CA90(*(void**)((char*)self + 0x34));
@@ -172,11 +172,11 @@ extern "C" void func_002300F0(void* self)
 }
 
 //100%
-extern "C" void func_0022E7C8(void* self);
+extern "C" void cGameViewMan_ResetCameras(void* self);
 extern "C" void func_0026F228(void* self);
-extern "C" void func_002789E0(void* self);
+extern "C" void ScriptEngine_StopLists(void* self);
 extern "C" void func_0015DB58(void);
-extern "C" void func_00229498(void* self);
+extern "C" void CrowdMan2d_Clear(void* self);
 extern "C" void func_00343BC0(void* self);
 extern "C" void func_00357B38(void* self);
 extern "C" void* func_0039F9D8(void* list, int hash);
@@ -208,12 +208,12 @@ extern "C" void func_00230180(void* self)
     sVEntry_230180a* vt = *(sVEntry_230180a**)(o + 0xCC);
     vt[5].fn(o + vt[5].delta, 3);
     func_002D9B40();
-    func_0022E7C8(*(void**)((char*)self + 0x84));
+    cGameViewMan_ResetCameras(*(void**)((char*)self + 0x84));
     cWorld_resetMap(*(void**)((char*)self + 0x10));
     func_0026F228(*(void**)((char*)self + 0x28));
-    func_002789E0(D_004A28A4);
+    ScriptEngine_StopLists(D_004A28A4);
     func_0015DB58();
-    func_00229498(*(void**)((char*)self + 0x38));
+    CrowdMan2d_Clear(*(void**)((char*)self + 0x38));
     func_00343BC0(*(void**)((char*)self + 0x3C));
     func_00357B38(*(void**)((char*)self + 0x40));
     void* list = *(char**)((char*)self + 0x48) + 0x18;
@@ -281,7 +281,7 @@ extern void* D_004A2A00;
 extern void* D_004A3FF0;
 extern void* D_004A4028;
 
-extern "C" void func_00230360(void* self, int id)
+extern "C" void cGame_OnSectionUnload(void* self, int id)
 {
     void* bm = &D_004A5988_bm;
     func_00358700(id);
@@ -307,7 +307,7 @@ INCLUDE_ASM("main/gameload", func_00230430);
 //100%
 struct cAppMan;
 void cReplay_stopAutoReplay(void* self);
-extern "C" void func_00258AE0(void* p);
+extern "C" void cGameComm_QuitRace(void* p);
 extern "C" void func_00266DF8(void* p);
 extern "C" void* cMemMan_alloc(int size, const char* tag, unsigned int flags, int d);
 void* func_00232720(void* self);
@@ -323,7 +323,7 @@ extern "C" void cGame_exit(void* self, int toFrontEnd)
     cReplay_stopAutoReplay(*(void**)((char*)self + 0x28));
     func_00231250(self, 6, 0, 0);
     if (D_004A2EEC != 0) {
-        func_00258AE0(D_004A2EEC);
+        cGameComm_QuitRace(D_004A2EEC);
     }
     if (D_004A33F4 != 0) {
         func_00266DF8(D_004A33F4);
@@ -335,7 +335,7 @@ extern "C" void cGame_exit(void* self, int toFrontEnd)
     }
 }
 
-INCLUDE_ASM("main/gameload", func_00230558);
+INCLUDE_ASM("main/gameload", cGame_BeginReplayPlayback);
 
 //100%
 extern "C" void func_0026F980(void* a);
@@ -346,7 +346,7 @@ extern int D_004A2A50;
 extern int D_005366E8[];
 extern int D_004428F0[];
 
-extern "C" void func_002305C8(void* self)
+extern "C" void cGame_EndReplayPlayback(void* self)
 {
     func_0026F980(*(void**)((char*)self + 0x28));
     func_002CC0B8(*(void**)((char*)self + 0xA4), 1);
@@ -360,7 +360,7 @@ struct sGp2898 { int a, b; };
 extern sGp2898 D_004A5988; // target: raw $gp+0x2898 (splat doesn't symbolize it)
 extern int D_004428D8[];
 
-extern "C" void func_00230640(void)
+extern "C" void cGame_RenderProcessLists(void)
 {
     int i;
     sGp2898* mgr = &D_004A5988;
@@ -447,7 +447,7 @@ extern "C" int func_00230E98(void* self)
 extern void* D_004A28A8;
 extern int D_004A2A50;
 extern int D_00534B30[];
-extern "C" void func_0022E550(void* p);
+extern "C" void cGameViewMan_UpdateSplitScreen(void* p);
 
 struct cGLState_0F40 {
     int f0, f4, f8;
@@ -552,7 +552,7 @@ extern "C" void func_00230F40(void* self_)
         self->sub = 0;
     }
     if (self->cur != 0) {
-        func_0022E550(self->f84);
+        cGameViewMan_UpdateSplitScreen(self->f84);
         self->cur->start(arg);
     }
 }
@@ -578,7 +578,7 @@ void func_00231278(void* self, int val)
 
 typedef void (*fnGL1280)(char*);
 
-extern "C" void func_00231280(char* self)
+extern "C" void cGame_CancelOverlayState(char* self)
 {
     if (*(int*)(self + 0x208) != 0) {
         *(int*)(self + 0x208) = 0;
@@ -615,7 +615,7 @@ extern "C" int func_002312D8(void* self)
 //100%
 extern "C" void GameState_GotoNext(void* p);
 
-extern "C" void func_00231320(void* self)
+extern "C" void cGame_AdvanceState(void* self)
 {
     void* p = *(void**)((char*)self + 0x200);
     if (p != 0) {
@@ -644,21 +644,21 @@ struct cStream_00231348 {
 };
 
 // PORT: these serializers take (self, stream); their mangled names say (void*).
-void func_00233B90_s(void* p, void* s) __asm__("func_00233B90__FPv");
-void func_00233BD0_s(void* p, void* s) __asm__("func_00233BD0__FPv");
-void func_00234DE0_s(void* p, void* s) __asm__("func_00234DE0__FPv");
-void func_00234EB8_s(void* p, void* s) __asm__("func_00234EB8__FPv");
-void func_002361C8_s(void* p, void* s) __asm__("func_002361C8__FPv");
-void func_00236AF8_s(void* p, void* s) __asm__("func_00236AF8__FPv");
+void GameStateQuit_SaveState_s(void* p, void* s) __asm__("GameStateQuit_SaveState__FPv");
+void GameStateIdle_SaveState_s(void* p, void* s) __asm__("GameStateIdle_SaveState__FPv");
+void cGFGateState_SaveState_s(void* p, void* s) __asm__("cGFGateState_SaveState__FPv");
+void GameStateRace_SaveState_s(void* p, void* s) __asm__("GameStateRace_SaveState__FPv");
+void GameStateWarpToEvent_SaveState_s(void* p, void* s) __asm__("GameStateWarpToEvent_SaveState__FPv");
+void GameStateEventSwitchLoad_SaveState_s(void* p, void* s) __asm__("GameStateEventSwitchLoad_SaveState__FPv");
 void func_00236B70_s(void* p, void* s) __asm__("func_00236B70__FPv");
-void func_00236D60_s(void* p, void* s) __asm__("func_00236D60__FPv");
-void func_00236EC8_s(void* p, void* s) __asm__("func_00236EC8__FPv");
-void func_00236FA8_s(void* p, void* s) __asm__("func_00236FA8__FPv");
-extern "C" void func_002340B8(void* p, void* s);
-extern "C" void func_00234990(void* p, void* s);
-extern "C" void func_00235990(void* p, void* s);
-extern "C" void func_00235F48(void* p, void* s);
-extern "C" void func_00236728(void* p, void* s);
+void GameStatePreRaceMenu_SaveState_s(void* p, void* s) __asm__("GameStatePreRaceMenu_SaveState__FPv");
+void GameStateResults_SaveState_s(void* p, void* s) __asm__("GameStateResults_SaveState__FPv");
+void GameStateFinishCinematic_SaveState_s(void* p, void* s) __asm__("GameStateFinishCinematic_SaveState__FPv");
+extern "C" void GameStateFinish_SaveState(void* p, void* s);
+extern "C" void GameStatePreRaceLoad_SaveState(void* p, void* s);
+extern "C" void GameStateReset_SaveState(void* p, void* s);
+extern "C" void GameStateRestartRace_SaveState(void* p, void* s);
+extern "C" void GameStateEventSelect_SaveState(void* p, void* s);
 
 extern "C" void cGame_SaveState(void* self, cStream_00231348* stream)
 {
@@ -668,39 +668,39 @@ extern "C" void cGame_SaveState(void* self, cStream_00231348* stream)
     stream->write((char*)self + 0x218, 4);
     stream->write((char*)self + 0x210, 4);
     stream->write((char*)self + 0x21C, 4);
-    func_00234990((char*)self + 0xB0, stream);
-    func_00236D60_s((char*)self + 0xD0, stream);
-    func_00234DE0_s((char*)self + 0xE0, stream);
-    func_00234EB8_s((char*)self + 0xF0, stream);
-    func_002340B8((char*)self + 0x100, stream);
-    func_00233B90_s((char*)self + 0x118, stream);
-    func_00236EC8_s((char*)self + 0x128, stream);
-    func_00233BD0_s((char*)self + 0x138, stream);
+    GameStatePreRaceLoad_SaveState((char*)self + 0xB0, stream);
+    GameStatePreRaceMenu_SaveState_s((char*)self + 0xD0, stream);
+    cGFGateState_SaveState_s((char*)self + 0xE0, stream);
+    GameStateRace_SaveState_s((char*)self + 0xF0, stream);
+    GameStateFinish_SaveState((char*)self + 0x100, stream);
+    GameStateQuit_SaveState_s((char*)self + 0x118, stream);
+    GameStateResults_SaveState_s((char*)self + 0x128, stream);
+    GameStateIdle_SaveState_s((char*)self + 0x138, stream);
     func_00236B70_s((char*)self + 0x148, stream);
-    func_00235990((char*)self + 0x158, stream);
-    func_00236AF8_s((char*)self + 0x178, stream);
-    func_00236FA8_s((char*)self + 0x18C, stream);
-    func_00235F48((char*)self + 0x19C, stream);
-    func_00236728((char*)self + 0x1B8, stream);
-    func_002361C8_s((char*)self + 0x1DC, stream);
+    GameStateReset_SaveState((char*)self + 0x158, stream);
+    GameStateEventSwitchLoad_SaveState_s((char*)self + 0x178, stream);
+    GameStateFinishCinematic_SaveState_s((char*)self + 0x18C, stream);
+    GameStateRestartRace_SaveState((char*)self + 0x19C, stream);
+    GameStateEventSelect_SaveState((char*)self + 0x1B8, stream);
+    GameStateWarpToEvent_SaveState_s((char*)self + 0x1DC, stream);
 }
 
 //100%
-extern "C" void func_00234A30(void* self, void* stream);
-void func_00236D80_s(void* self, void* stream) __asm__("func_00236D80__FPv");
-void func_00234E00_s(void* self, void* stream) __asm__("func_00234E00__FPv");
-void func_00234ED8_s(void* self, void* stream) __asm__("func_00234ED8__FPv");
-extern "C" void func_00234120(void* self, void* stream);
-void func_00233BB0_s(void* self, void* stream) __asm__("func_00233BB0__FPv");
-void func_00236EE8_s(void* self, void* stream) __asm__("func_00236EE8__FPv");
-void func_00233BF0_s(void* self, void* stream) __asm__("func_00233BF0__FPv");
+extern "C" void GameStatePreRaceLoad_LoadState(void* self, void* stream);
+void GameStatePreRaceMenu_LoadState_s(void* self, void* stream) __asm__("GameStatePreRaceMenu_LoadState__FPv");
+void cGFGateState_LoadState_s(void* self, void* stream) __asm__("cGFGateState_LoadState__FPv");
+void GameStateRace_LoadState_s(void* self, void* stream) __asm__("GameStateRace_LoadState__FPv");
+extern "C" void GameStateFinish_LoadState(void* self, void* stream);
+void GameStateQuit_LoadState_s(void* self, void* stream) __asm__("GameStateQuit_LoadState__FPv");
+void GameStateResults_LoadState_s(void* self, void* stream) __asm__("GameStateResults_LoadState__FPv");
+void GameStateIdle_LoadState_s(void* self, void* stream) __asm__("GameStateIdle_LoadState__FPv");
 void func_00236B90_s(void* self, void* stream) __asm__("func_00236B90__FPv");
-extern "C" void func_00235A18(void* self, void* stream);
-void func_00236B18_s(void* self, void* stream) __asm__("func_00236B18__FPv");
-void func_00236FC8_s(void* self, void* stream) __asm__("func_00236FC8__FPv");
-extern "C" void func_00235FD0(void* self, void* stream);
-extern "C" void func_002367C8(void* self, void* stream);
-void func_002361E8_s(void* self, void* stream) __asm__("func_002361E8__FPv");
+extern "C" void GameStateReset_LoadState(void* self, void* stream);
+void GameStateEventSwitchLoad_LoadState_s(void* self, void* stream) __asm__("GameStateEventSwitchLoad_LoadState__FPv");
+void GameStateFinishCinematic_LoadState_s(void* self, void* stream) __asm__("GameStateFinishCinematic_LoadState__FPv");
+extern "C" void GameStateRestartRace_LoadState(void* self, void* stream);
+extern "C" void GameStateEventSelect_LoadState(void* self, void* stream);
+void GameStateWarpToEvent_LoadState_s(void* self, void* stream) __asm__("GameStateWarpToEvent_LoadState__FPv");
 
 struct sVE_14D0 {
     short delta;
@@ -729,21 +729,21 @@ extern "C" void cGame_LoadState(void* self_, char* stream)
     SerInt_14D0(stream, &self->prevId);
     SerInt_14D0(stream, &self->req);
     SerInt_14D0(stream, &self->reqArg);
-    func_00234A30(State_0F40(self, 0xB0), stream);
-    func_00236D80_s(State_0F40(self, 0xD0), stream);
-    func_00234E00_s(State_0F40(self, 0xE0), stream);
-    func_00234ED8_s(State_0F40(self, 0xF0), stream);
-    func_00234120(State_0F40(self, 0x100), stream);
-    func_00233BB0_s(State_0F40(self, 0x118), stream);
-    func_00236EE8_s(State_0F40(self, 0x128), stream);
-    func_00233BF0_s(State_0F40(self, 0x138), stream);
+    GameStatePreRaceLoad_LoadState(State_0F40(self, 0xB0), stream);
+    GameStatePreRaceMenu_LoadState_s(State_0F40(self, 0xD0), stream);
+    cGFGateState_LoadState_s(State_0F40(self, 0xE0), stream);
+    GameStateRace_LoadState_s(State_0F40(self, 0xF0), stream);
+    GameStateFinish_LoadState(State_0F40(self, 0x100), stream);
+    GameStateQuit_LoadState_s(State_0F40(self, 0x118), stream);
+    GameStateResults_LoadState_s(State_0F40(self, 0x128), stream);
+    GameStateIdle_LoadState_s(State_0F40(self, 0x138), stream);
     func_00236B90_s(State_0F40(self, 0x148), stream);
-    func_00235A18(State_0F40(self, 0x158), stream);
-    func_00236B18_s(State_0F40(self, 0x178), stream);
-    func_00236FC8_s(State_0F40(self, 0x18C), stream);
-    func_00235FD0(State_0F40(self, 0x19C), stream);
-    func_002367C8(State_0F40(self, 0x1B8), stream);
-    func_002361E8_s(State_0F40(self, 0x1DC), stream);
+    GameStateReset_LoadState(State_0F40(self, 0x158), stream);
+    GameStateEventSwitchLoad_LoadState_s(State_0F40(self, 0x178), stream);
+    GameStateFinishCinematic_LoadState_s(State_0F40(self, 0x18C), stream);
+    GameStateRestartRace_LoadState(State_0F40(self, 0x19C), stream);
+    GameStateEventSelect_LoadState(State_0F40(self, 0x1B8), stream);
+    GameStateWarpToEvent_LoadState_s(State_0F40(self, 0x1DC), stream);
     switch (self->id) {
     case 0: self->cur = 0; break;
     case 1: self->cur = State_0F40(self, 0xB0); break;

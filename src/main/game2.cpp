@@ -8,7 +8,7 @@ INCLUDE_ASM("main/game2", func_0022FA98);
 
 INCLUDE_ASM("main/game2", func_00230050);
 
-INCLUDE_ASM("main/game2", func_002300F0);
+INCLUDE_ASM("main/game2", cGame_ResetScriptsAndWorld);
 
 INCLUDE_ASM("main/game2", func_00230180);
 
@@ -16,15 +16,15 @@ INCLUDE_ASM("main/game2", cGame_restart);
 
 INCLUDE_ASM("main/game2", func_00230338);
 
-INCLUDE_ASM("main/game2", func_00230360);
+INCLUDE_ASM("main/game2", cGame_OnSectionUnload);
 
 INCLUDE_ASM("main/game2", func_00230430);
 
 INCLUDE_ASM("main/game2", cGame_exit);
 
-INCLUDE_ASM("main/game2", func_002305C8);
+INCLUDE_ASM("main/game2", cGame_EndReplayPlayback);
 
-INCLUDE_ASM("main/game2", func_00230640);
+INCLUDE_ASM("main/game2", cGame_RenderProcessLists);
 
 INCLUDE_ASM("main/game2", func_00230698);
 
@@ -42,7 +42,7 @@ INCLUDE_ASM("main/game2", func_00231278);
 
 INCLUDE_ASM("main/game2", func_002312D8);
 
-INCLUDE_ASM("main/game2", func_00231320);
+INCLUDE_ASM("main/game2", cGame_AdvanceState);
 
 INCLUDE_ASM("main/game2", cGame_SaveState);
 

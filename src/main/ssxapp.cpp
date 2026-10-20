@@ -275,7 +275,7 @@ int cSSXApp_flush()
 //100%
 extern "C" int func_00326B48(void* pad);
 extern "C" void func_00255A20(void* p);
-extern "C" void func_002668E8(void* p);
+extern "C" void cUsbKeyboard_Update(void* p);
 extern "C" int func_00326CA0(void* self, int i);
 extern "C" void* func_00326CC8(void* self, int i);
 extern "C" void func_00321298(void* target, int a, void* data);
@@ -290,7 +290,7 @@ extern "C" int cSSXApp_preUpdate(void* self)
             func_00255A20(D_004A2EB8);
         }
         if (D_004A33F0 != 0) {
-            func_002668E8(D_004A33F0);
+            cUsbKeyboard_Update(D_004A33F0);
         }
         int i;
         for (i = 0; i < 2; i++) {
@@ -321,11 +321,11 @@ extern "C" void* func_00227F80()
     return cMCOverlayManager_getManager();
 }
 
-extern "C" void func_0023C850();
+extern "C" void cMCOverlayManager_Exists();
 
 extern "C" void func_00227FA0()
 {
-    func_0023C850();
+    cMCOverlayManager_Exists();
 }
 
 //100%
@@ -833,7 +833,7 @@ extern "C" void func_002292E0(void* self)
 }
 
 //100%
-extern "C" void func_00229B90(void* self, int a1);
+extern "C" void CrowdMan2d_ClearSlot(void* self, int a1);
 
 extern "C" void func_00229398(void* self)
 {
@@ -841,7 +841,7 @@ extern "C" void func_00229398(void* self)
     for (i = 0; i < 0x80; i++) {
         unsigned* e = (unsigned*)((char*)self + 0x8) + i;
         if (*e != 0xFFFFFFFF) {
-            func_00229B90(self, i);
+            CrowdMan2d_ClearSlot(self, i);
         }
     }
 }
@@ -854,7 +854,7 @@ extern "C" void func_00229408(void* self, int id)
     for (i = 0; i < 0x80; i++) {
         unsigned* e = (unsigned*)((char*)self + 0x8) + i;
         if (*e != 0xFFFFFFFF && *(unsigned char*)e == id) {
-            func_00229B90(self, i);
+            CrowdMan2d_ClearSlot(self, i);
         }
     }
 }
@@ -863,7 +863,7 @@ extern "C" void func_00229408(void* self, int id)
 extern "C" void func_00229398(void* self);
 extern "C" void func_002292E0(void* self);
 
-extern "C" void func_00229498(void* self)
+extern "C" void CrowdMan2d_Clear(void* self)
 {
     func_00229398(self);
     func_002292E0(self);
@@ -898,7 +898,7 @@ extern "C" int func_002A77C8(void* self, int a1);
 extern void* D_004A3500;
 struct sRingOwner;
 struct sQuad229;
-extern "C" void func_00229738(sRingOwner* self, sQuad229* q, int value);
+extern "C" void CrowdMan2d_AddSprite(sRingOwner* self, sQuad229* q, int value);
 
 struct sVec4_229530 {
     float x, y, z, w;
@@ -984,7 +984,7 @@ extern "C" void func_00229530(void* selfp)
                 float r2 = rands_229530(-1.0f, 1.0f);
                 sVec4_229530 p = Add_229530(Add_229530(self->slots[i].pos, Scale_229530(self->slots[i].dx, r1)),
                                             Scale_229530(self->slots[i].dy, r2));
-                func_00229738((sRingOwner*)self, (sQuad229*)&p, 3);
+                CrowdMan2d_AddSprite((sRingOwner*)self, (sQuad229*)&p, 3);
                 self->slots[i].delay = BXrand() % 300 + 300;
             }
         }
@@ -1009,7 +1009,7 @@ struct sRingOwner {
     sRingEntry entries[40]; // 0x2220
 };
 
-extern "C" void func_00229738(sRingOwner* self, sQuad229* q, int value)
+extern "C" void CrowdMan2d_AddSprite(sRingOwner* self, sQuad229* q, int value)
 {
     self->entries[self->index].q = *q;
     self->entries[self->index].value = value;
@@ -1018,28 +1018,28 @@ extern "C" void func_00229738(sRingOwner* self, sQuad229* q, int value)
 }
 
 //100%
-extern "C" void func_00229910(void* self, int slot, int a1);
+extern "C" void CrowdMan2d_InitSlot(void* self, int slot, int a1);
 
-extern "C" void func_00229788(void* self, int a1)
+extern "C" void CrowdMan2d_Add(void* self, int a1)
 {
     int i;
     for (i = 0; i < 0x40; i++) {
         if (((unsigned int*)((char*)self + 0x8))[i] == 0xFFFFFFFF) {
-            func_00229910(self, i, a1);
+            CrowdMan2d_InitSlot(self, i, a1);
             break;
         }
     }
 }
 
 //100%
-extern "C" void func_00229B90(void* self, int a1);
+extern "C" void CrowdMan2d_ClearSlot(void* self, int a1);
 
-extern "C" void func_002297D8(void* self, int val)
+extern "C" void CrowdMan2d_Remove(void* self, int val)
 {
     int i;
     for (i = 0; i < 0x40; i++) {
         if (((int*)self)[i + 2] == val) {
-            func_00229B90(self, i);
+            CrowdMan2d_ClearSlot(self, i);
             break;
         }
     }
@@ -1127,15 +1127,15 @@ extern "C" void func_00229820(void* self, unsigned int handle, int a, int b)
     }
 }
 
-INCLUDE_ASM("main/ssxapp", func_00229910);
+INCLUDE_ASM("main/ssxapp", CrowdMan2d_InitSlot);
 
 //100%
-extern "C" void func_00229B90(void* self, int a1)
+extern "C" void CrowdMan2d_ClearSlot(void* self, int a1)
 {
     ((unsigned int*)self)[a1 + 2] = 0xFFFFFFFFU;
 }
 
-INCLUDE_ASM("main/ssxapp", func_00229BA8);
+INCLUDE_ASM("main/ssxapp", CrowdMan2d_RenderSprites);
 
 //100%
 // Serialisation stream: v01 = read(buf, size), v02 = write(buf, size).
@@ -1153,7 +1153,7 @@ extern "C" void func_00229E20(void* self, cSSXAppStream* s)
 //100%
 extern "C" void func_00229398(void* self);
 extern "C" void func_002292E0(void* self);
-extern "C" void func_00229910(void* self, int slot, int a1);
+extern "C" void CrowdMan2d_InitSlot(void* self, int slot, int a1);
 
 // Serialisation stream: v01 = read(buf, size), v02 = write(buf, size).
 class cSSXAppStream_229E58 {
@@ -1176,7 +1176,7 @@ extern "C" void func_00229E58(void* self, cSSXAppStream_229E58* s)
     int i;
     for (i = 0; i < 128; i++) {
         if (ids[i].id != 0xFFFFFFFF) {
-            func_00229910(self, i, ids[i].id);
+            CrowdMan2d_InitSlot(self, i, ids[i].id);
         }
     }
 }
@@ -1184,8 +1184,8 @@ extern "C" void func_00229E58(void* self, cSSXAppStream_229E58* s)
 //100%
 // Upload two 4x4 matrices (a, b) to VU0 data memory starting at qword 4 (address 0x40).
 // PORT: PS2-only VU0 inline asm (ctc2/lqc2/vsqi); the PC port needs its own matrix store.
-INCLUDE_ASM("main/ssxapp", func_00229F30);
-extern "C" void func_00229F30(void* a, void* b);
+INCLUDE_ASM("main/ssxapp", Vu0_UploadMatrixPair);
+extern "C" void Vu0_UploadMatrixPair(void* a, void* b);
 
 //100%
 void func_00229F80(void* self)
@@ -1196,17 +1196,17 @@ void func_00229F80(void* self)
 // Upload a vector plus a 4x4 matrix (5 qwords) to VU0 data memory slot `index`,
 // starting at qword 0x50 + index * 5.
 // PORT: PS2-only VU0 inline asm (ctc2/lqc2/vsqi); the PC port needs its own store.
-INCLUDE_ASM("main/ssxapp", func_00229F88);
-extern "C" void func_00229F88(int index, void* v, void* m);
+INCLUDE_ASM("main/ssxapp", Vu0_UploadOccluder);
+extern "C" void Vu0_UploadOccluder(int index, void* v, void* m);
 
-INCLUDE_ASM("main/ssxapp", func_00229FC8);
+INCLUDE_ASM("main/ssxapp", cSpaceHash_ClassifyInstance);
 
-INCLUDE_ASM("main/ssxapp", func_0022A128);
+INCLUDE_ASM("main/ssxapp", cSpaceHash_ClassifyPatch);
 
-INCLUDE_ASM("main/ssxapp", func_0022A270);
+INCLUDE_ASM("main/ssxapp", cSpaceHash_ClassifyEffect);
 
 //100% - objdiff report; single-function view differs only in a relocation name
-extern "C" void func_00229FC8(void* self, void* node, int frustum);
+extern "C" void cSpaceHash_ClassifyInstance(void* self, void* node, int frustum);
 
 struct sNode_A368 {
     sNode_A368* next;
@@ -1222,22 +1222,22 @@ struct sList_A368 {
     int vuFrustum;
 };
 
-extern "C" void func_0022A368(void* self, sList_A368* list, int count)
+extern "C" void cSpaceHash_ClassifyInstances(void* self, sList_A368* list, int count)
 {
     for (; count > 0; count--, list++) {
         sNode_A368* n = list->src->head;
         while (n != 0) {
-            func_00229FC8(self, n, list->vuFrustum);
+            cSpaceHash_ClassifyInstance(self, n, list->vuFrustum);
             n = n->next;
         }
     }
     if (*(int*)((char*)self + 0x50A4) != 0) {
-        func_00229FC8(self, 0, 0);
+        cSpaceHash_ClassifyInstance(self, 0, 0);
     }
 }
 
 //100% - objdiff report; single-function view differs only in a relocation name
-extern "C" void func_0022A128(void* self, void* node, int frustum);
+extern "C" void cSpaceHash_ClassifyPatch(void* self, void* node, int frustum);
 
 struct sNode_A408 {
     sNode_A408* next;
@@ -1253,17 +1253,17 @@ struct sList_A408 {
     int vuFrustum;
 };
 
-extern "C" void func_0022A408(void* self, sList_A408* list, int count)
+extern "C" void cSpaceHash_ClassifyPatches(void* self, sList_A408* list, int count)
 {
     for (; count > 0; count--, list++) {
         sNode_A408* n = list->src->head;
         while (n != 0) {
-            func_0022A128(self, n, list->vuFrustum);
+            cSpaceHash_ClassifyPatch(self, n, list->vuFrustum);
             n = n->next;
         }
     }
     if (*(int*)((char*)self + 0x78B0) != 0) {
-        func_0022A128(self, 0, 0);
+        cSpaceHash_ClassifyPatch(self, 0, 0);
     }
 }
 
@@ -1279,7 +1279,7 @@ struct sItem_22A4A8 {
     int arg;
 };
 
-extern "C" void func_0022A270(void* self, sNode_22A4A8* node, int arg);
+extern "C" void cSpaceHash_ClassifyEffect(void* self, sNode_22A4A8* node, int arg);
 
 struct sWorld_22A4A8 {
     char pad[0x7AB8];
@@ -1289,25 +1289,25 @@ struct sWorld_22A4A8 {
     sNode_22A4A8* nodes[1];
 };
 
-extern "C" void func_0022A4A8(sWorld_22A4A8* self, sItem_22A4A8* items, int n)
+extern "C" void cSpaceHash_ClassifyEffects(sWorld_22A4A8* self, sItem_22A4A8* items, int n)
 {
     for (; n > 0; n--, items++) {
         for (sNode_22A4A8* p = *(sNode_22A4A8**)(items->list + 0x28); p != 0; p = p->next) {
             if (p->type == 7) {
-                func_0022A270(self, p, items->arg);
+                cSpaceHash_ClassifyEffect(self, p, items->arg);
             } else if (p->type == 8) {
                 self->nodes[self->count++] = p;
             }
         }
     }
     if (self->f7AB8 != 0) {
-        func_0022A270(self, 0, 0);
+        cSpaceHash_ClassifyEffect(self, 0, 0);
     }
 }
 
-INCLUDE_ASM("main/ssxapp", func_0022A5A0);
+INCLUDE_ASM("main/ssxapp", cSpaceHash_CollectInstances);
 
-INCLUDE_ASM("main/ssxapp", func_0022A698);
+INCLUDE_ASM("main/ssxapp", cSpaceHash_CollectPatches);
 
 //100%
 struct sVisNode_A770 {
@@ -1370,16 +1370,16 @@ extern "C" void func_0022A770(sVisOwner_A770* self, sVisList_A770* list, int cou
     }
 }
 
-INCLUDE_ASM("main/ssxapp", func_0022A830);
+INCLUDE_ASM("main/ssxapp", cSpaceHash_CullNode);
 
 //100% - objdiff report; single-function view differs only in a relocation name
 extern void* D_004A289C;
 extern "C" void func_002425C0(void* a, void* b);
-extern "C" void func_00229F30(void* a, void* b);
+extern "C" void Vu0_UploadMatrixPair(void* a, void* b);
 void func_00229F80(void* p);
-extern "C" void func_0022A830(void* ctx, void* data, void* cfg);
-extern "C" void func_0022A698(void* self, void* list, int n);
-extern "C" void func_0022A5A0(void* self, void* list, int n);
+extern "C" void cSpaceHash_CullNode(void* ctx, void* data, void* cfg);
+extern "C" void cSpaceHash_CollectPatches(void* self, void* list, int n);
+extern "C" void cSpaceHash_CollectInstances(void* self, void* list, int n);
 
 struct sMat_22ADD8 {
     float m[4][4];
@@ -1452,11 +1452,11 @@ struct sWorldInit_22ADD8 {
 static inline void Load_22ADD8(sCtx_22ADD8* ctx, void* data, sCfg_22ADD8* c)
 {
     if (data) {
-        func_0022A830(ctx, data, c);
+        cSpaceHash_CullNode(ctx, data, c);
     }
 }
 
-extern "C" char* func_0022ADD8(char* self, sCfg_22ADD8* cfg, void* a2, void* a3, int a4)
+extern "C" char* cSpaceHash_GatherVisible(char* self, sCfg_22ADD8* cfg, void* a2, void* a3, int a4)
 {
     sWorldInit_22ADD8* w = (sWorldInit_22ADD8*)self;
     w->f0 = a2;
@@ -1483,7 +1483,7 @@ extern "C" char* func_0022ADD8(char* self, sCfg_22ADD8* cfg, void* a2, void* a3,
     }
     MatCopy_22ADD8((sMat_22ADD8*)(self + 0x50), (sMat_22ADD8*)((char*)D_004A289C + 0x5800));
     func_002425C0(*(void**)(self + 0x0), *(void**)(self + 0x4));
-    func_00229F30(self + 0x10, self + 0x50);
+    Vu0_UploadMatrixPair(self + 0x10, self + 0x50);
     func_00229F80(*(void**)(self + 0x4));
     sCtx_22ADD8 ctx;
     char* f0 = *(char**)(self + 0x0);
@@ -1500,12 +1500,12 @@ extern "C" char* func_0022ADD8(char* self, sCfg_22ADD8* cfg, void* a2, void* a3,
     Load_22ADD8(&ctx, cfg[5].data, &cfg[5]);
     Load_22ADD8(&ctx, cfg[6].data, &cfg[6]);
     Load_22ADD8(&ctx, cfg[7].data, &cfg[7]);
-    func_0022A698(self, self + 0x98, *(int*)(self + 0x94));
-    func_0022A5A0(self, self + 0x98, *(int*)(self + 0x94));
+    cSpaceHash_CollectPatches(self, self + 0x98, *(int*)(self + 0x94));
+    cSpaceHash_CollectInstances(self, self + 0x98, *(int*)(self + 0x94));
     func_0022A770((sVisOwner_A770*)self, (sVisList_A770*)(self + 0x98), *(int*)(self + 0x94));
-    func_0022A408(self, (sList_A408*)(self + 0x109C), *(int*)(self + 0x1098));
-    func_0022A368(self, (sList_A368*)(self + 0x109C), *(int*)(self + 0x1098));
-    func_0022A4A8((sWorld_22A4A8*)self, (sItem_22A4A8*)(self + 0x109C), *(int*)(self + 0x1098));
+    cSpaceHash_ClassifyPatches(self, (sList_A408*)(self + 0x109C), *(int*)(self + 0x1098));
+    cSpaceHash_ClassifyInstances(self, (sList_A368*)(self + 0x109C), *(int*)(self + 0x1098));
+    cSpaceHash_ClassifyEffects((sWorld_22A4A8*)self, (sItem_22A4A8*)(self + 0x109C), *(int*)(self + 0x1098));
     return self;
 }
 

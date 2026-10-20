@@ -4,55 +4,55 @@ INCLUDE_ASM("bx/bxstring2", cBXString_cBXString__FP10cBXString2);
 
 INCLUDE_ASM("bx/bxstring2", cChallenger_dtor);
 
-INCLUDE_ASM("bx/bxstring2", func_002689B8);
+INCLUDE_ASM("bx/bxstring2", BuddyMan_dtor);
 
-INCLUDE_ASM("bx/bxstring2", func_00268A90);
+INCLUDE_ASM("bx/bxstring2", LobbyMan_OnUserListChanged_Thunk);
 
-INCLUDE_ASM("bx/bxstring2", func_00268AB8);
+INCLUDE_ASM("bx/bxstring2", LobbyMan_OnRoomListChanged_Thunk);
 
-INCLUDE_ASM("bx/bxstring2", func_00268AE0);
+INCLUDE_ASM("bx/bxstring2", LobbyMan_OnRankListChanged_Thunk);
 
-INCLUDE_ASM("bx/bxstring2", func_00268B08);
+INCLUDE_ASM("bx/bxstring2", LobbyMan_OnRecvDebug_Thunk);
 
-INCLUDE_ASM("bx/bxstring2", func_00268B30);
+INCLUDE_ASM("bx/bxstring2", LobbyMan_OnMessage_Thunk);
 
-INCLUDE_ASM("bx/bxstring2", func_00268B58);
+INCLUDE_ASM("bx/bxstring2", LobbyMan_OnDisconnect_Thunk);
 
-INCLUDE_ASM("bx/bxstring2", func_00268B80);
+INCLUDE_ASM("bx/bxstring2", LobbyMan_OnGameStart_Thunk);
 
-INCLUDE_ASM("bx/bxstring2", func_00268BA8);
+INCLUDE_ASM("bx/bxstring2", LobbyMan_OnConnectReply_Thunk);
 
-INCLUDE_ASM("bx/bxstring2", func_00268BD0);
+INCLUDE_ASM("bx/bxstring2", LobbyMan_OnCreateAccountReply_Thunk);
 
-INCLUDE_ASM("bx/bxstring2", func_00268BF8);
+INCLUDE_ASM("bx/bxstring2", LobbyMan_OnEditAccountReply_Thunk);
 
-INCLUDE_ASM("bx/bxstring2", func_00268C20);
+INCLUDE_ASM("bx/bxstring2", LobbyMan_OnLostByEmailReply_Thunk);
 
-INCLUDE_ASM("bx/bxstring2", func_00268C48);
+INCLUDE_ASM("bx/bxstring2", LobbyMan_OnLostByNameReply_Thunk);
 
-INCLUDE_ASM("bx/bxstring2", func_00268C70);
+INCLUDE_ASM("bx/bxstring2", LobbyMan_OnLoginReply_Thunk);
 
-INCLUDE_ASM("bx/bxstring2", func_00268C98);
+INCLUDE_ASM("bx/bxstring2", LobbyMan_OnSelectPersonaReply_Thunk);
 
-INCLUDE_ASM("bx/bxstring2", func_00268CC0);
+INCLUDE_ASM("bx/bxstring2", LobbyMan_OnOwnStatsReply_Thunk);
 
-INCLUDE_ASM("bx/bxstring2", func_00268CE8);
+INCLUDE_ASM("bx/bxstring2", LobbyMan_OnCreatePersonaReply_Thunk);
 
-INCLUDE_ASM("bx/bxstring2", func_00268D10);
+INCLUDE_ASM("bx/bxstring2", LobbyMan_OnDeletePersonaReply_Thunk);
 
-INCLUDE_ASM("bx/bxstring2", func_00268D38);
+INCLUDE_ASM("bx/bxstring2", LobbyMan_OnMoveToRoomReply_Thunk);
 
-INCLUDE_ASM("bx/bxstring2", func_00268D60);
+INCLUDE_ASM("bx/bxstring2", LobbyMan_OnCreateRoomReply_Thunk);
 
-INCLUDE_ASM("bx/bxstring2", func_00268D88);
+INCLUDE_ASM("bx/bxstring2", LobbyMan_OnPingReply_Thunk);
 
-INCLUDE_ASM("bx/bxstring2", func_00268DB0);
+INCLUDE_ASM("bx/bxstring2", LobbyMan_OnReportUserReply_Thunk);
 
-INCLUDE_ASM("bx/bxstring2", func_00268DD8);
+INCLUDE_ASM("bx/bxstring2", LobbyMan_OnNewsReply_Thunk);
 
-INCLUDE_ASM("bx/bxstring2", func_00268E00);
+INCLUDE_ASM("bx/bxstring2", LobbyMan_OnSnapshotReply_Thunk);
 
-INCLUDE_ASM("bx/bxstring2", func_00268E28);
+INCLUDE_ASM("bx/bxstring2", LobbyMan_OnLookupUserReply_Thunk);
 
 INCLUDE_ASM("bx/bxstring2", func_00268E78);
 
@@ -74,41 +74,41 @@ INCLUDE_ASM("bx/bxstring2", func_00268FB8);
 
 INCLUDE_ASM("bx/bxstring2", func_00268FE0);
 
-INCLUDE_ASM("bx/bxstring2", func_00269008);
+INCLUDE_ASM("bx/bxstring2", cSetupMan_ClientRecvMsg1);
 
-INCLUDE_ASM("bx/bxstring2", func_002690C8);
+INCLUDE_ASM("bx/bxstring2", cSetupMan_ClientRecvMsg3);
 
-INCLUDE_ASM("bx/bxstring2", func_00269188);
+INCLUDE_ASM("bx/bxstring2", cSetupMan_ClientRecvMsg5);
 
-INCLUDE_ASM("bx/bxstring2", func_00269240);
+INCLUDE_ASM("bx/bxstring2", cSetupMan_ClientRecvMsg0);
 
-INCLUDE_ASM("bx/bxstring2", func_00269300);
+INCLUDE_ASM("bx/bxstring2", cSetupMan_ClientRecvMsg2);
 
-INCLUDE_ASM("bx/bxstring2", func_002693C0);
+INCLUDE_ASM("bx/bxstring2", cSetupMan_ClientRecvMsg4);
 
-INCLUDE_ASM("bx/bxstring2", func_00269478);
+INCLUDE_ASM("bx/bxstring2", cSetupMan_HostRecvMsg7);
 
-INCLUDE_ASM("bx/bxstring2", func_00269538);
+INCLUDE_ASM("bx/bxstring2", cSetupMan_HostRecvMsg9);
 
-INCLUDE_ASM("bx/bxstring2", func_00269608);
+INCLUDE_ASM("bx/bxstring2", cSetupMan_HostRecvMsg11);
 
-INCLUDE_ASM("bx/bxstring2", func_002696F8);
+INCLUDE_ASM("bx/bxstring2", cSetupMan_HostRecvMsg13);
 
-INCLUDE_ASM("bx/bxstring2", func_002697D0);
+INCLUDE_ASM("bx/bxstring2", cSetupMan_ClientRecvMsg6);
 
-INCLUDE_ASM("bx/bxstring2", func_00269890);
+INCLUDE_ASM("bx/bxstring2", cSetupMan_ClientRecvMsg7);
 
-INCLUDE_ASM("bx/bxstring2", func_00269948);
+INCLUDE_ASM("bx/bxstring2", cSetupMan_ClientRecvMsg8);
 
-INCLUDE_ASM("bx/bxstring2", func_00269A18);
+INCLUDE_ASM("bx/bxstring2", cSetupMan_ClientRecvMsg9);
 
-INCLUDE_ASM("bx/bxstring2", func_00269AE0);
+INCLUDE_ASM("bx/bxstring2", cSetupMan_ClientRecvMsg10);
 
-INCLUDE_ASM("bx/bxstring2", func_00269B90);
+INCLUDE_ASM("bx/bxstring2", cSetupMan_ClientRecvMsg11);
 
-INCLUDE_ASM("bx/bxstring2", func_00269C40);
+INCLUDE_ASM("bx/bxstring2", cSetupMan_ClientRecvMsg12);
 
-INCLUDE_ASM("bx/bxstring2", func_00269CF0);
+INCLUDE_ASM("bx/bxstring2", cSetupMan_ClientRecvMsg13);
 
 INCLUDE_ASM("bx/bxstring2", func_00269DA0);
 
@@ -118,43 +118,43 @@ INCLUDE_ASM("bx/bxstring2", func_00269E20);
 
 INCLUDE_ASM("bx/bxstring2", func_00269E40);
 
-INCLUDE_ASM("bx/bxstring2", func_00269EA0);
+INCLUDE_ASM("bx/bxstring2", LobbyMan_GlobalCtors);
 
-INCLUDE_ASM("bx/bxstring2", func_00269EC0);
+INCLUDE_ASM("bx/bxstring2", Path_InitAIFields);
 
 INCLUDE_ASM("bx/bxstring2", func_00269ED8);
 
 INCLUDE_ASM("bx/bxstring2", func_00269F18);
 
-INCLUDE_ASM("bx/bxstring2", func_0026A068);
+INCLUDE_ASM("bx/bxstring2", Path_InitTrackFields);
 
 INCLUDE_ASM("bx/bxstring2", func_0026A070);
 
-INCLUDE_ASM("bx/bxstring2", func_0026A090);
+INCLUDE_ASM("bx/bxstring2", Path_QueryEventsReversed);
 
-INCLUDE_ASM("bx/bxstring2", func_0026A0B8);
+INCLUDE_ASM("bx/bxstring2", Path_HasEventInRangeReversed);
 
 INCLUDE_ASM("bx/bxstring2", func_0026A180);
 
-INCLUDE_ASM("bx/bxstring2", func_0026A338);
+INCLUDE_ASM("bx/bxstring2", Path_ReadSegment);
 
-INCLUDE_ASM("bx/bxstring2", func_0026A378);
+INCLUDE_ASM("bx/bxstring2", Path_ReadEvent);
 
-INCLUDE_ASM("bx/bxstring2", func_0026A428);
+INCLUDE_ASM("bx/bxstring2", Path_GetClosestPoint);
 
-INCLUDE_ASM("bx/bxstring2", func_0026A638);
+INCLUDE_ASM("bx/bxstring2", Path_GetClosestPointFrom);
 
-INCLUDE_ASM("bx/bxstring2", func_0026A8B8);
+INCLUDE_ASM("bx/bxstring2", Path_GetDirAtDistance);
 
-INCLUDE_ASM("bx/bxstring2", func_0026A9B0);
+INCLUDE_ASM("bx/bxstring2", Path_BoundsDistance);
 
-INCLUDE_ASM("bx/bxstring2", func_0026AA80);
+INCLUDE_ASM("bx/bxstring2", Path_QueryEvents);
 
-INCLUDE_ASM("bx/bxstring2", func_0026AB20);
+INCLUDE_ASM("bx/bxstring2", Path_GetPointAtDistance);
 
-INCLUDE_ASM("bx/bxstring2", func_0026AC48);
+INCLUDE_ASM("bx/bxstring2", Path_GetLength);
 
-INCLUDE_ASM("bx/bxstring2", func_0026AC88);
+INCLUDE_ASM("bx/bxstring2", Path_HasEventInRange);
 
 INCLUDE_ASM("bx/bxstring2", func_0026AD70);
 
@@ -164,13 +164,13 @@ INCLUDE_ASM("bx/bxstring2", func_0026ADF0);
 
 INCLUDE_ASM("bx/bxstring2", func_0026AF00);
 
-INCLUDE_ASM("bx/bxstring2", func_0026AF70);
+INCLUDE_ASM("bx/bxstring2", cPathSys_GetTrackPath);
 
-INCLUDE_ASM("bx/bxstring2", func_0026AF88);
+INCLUDE_ASM("bx/bxstring2", cPathSys_GetAIPath);
 
 INCLUDE_ASM("bx/bxstring2", func_0026AF98);
 
-INCLUDE_ASM("bx/bxstring2", func_0026AFB8);
+INCLUDE_ASM("bx/bxstring2", cPathSys_FindNearAIPaths);
 
-INCLUDE_ASM("bx/bxstring2", func_0026B178);
+INCLUDE_ASM("bx/bxstring2", cPathSys_FindNearTrackPaths);
 

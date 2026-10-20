@@ -102,7 +102,7 @@ extern int D_004A276C;
 extern int D_004A2768;
 void operator_delete(int*);
 
-extern "C" void func_0020EB08(void* self, int flags)
+extern "C" void HUDMeter_dtor(void* self, int flags)
 {
     int n = D_004A276C - 1;
     *(void**)((char*)self + 0x38) = D_00474230;
@@ -132,7 +132,7 @@ struct sTex_20EB50 {
 };
 extern sTex_20EB50 D_004C8C58[];
 
-extern "C" void func_0020EB50(void* self, sRect20EAA0* a, sRect20EAA0* r)
+extern "C" void cOVStateHUD1P_LoadMeterAssets(void* self, sRect20EAA0* a, sRect20EAA0* r)
 {
     if (D_004A2768 == 0) {
         char* res = *(char**)(*(char**)((char*)D_004A28A8 + 0x84) + 0x48);
@@ -200,24 +200,24 @@ extern sPad16 D_004C8BC8;
 extern char* D_004A2750;
 extern int D_004A2760;
 extern void* D_004A28A8;
-extern "C" void func_00210618(int i);
+extern "C" void RaceProgress_UpdateRider(int i);
 
-extern "C" void func_0020ED20(void)
+extern "C" void cOVStateHUD1P_UpdateRaceProgress(void)
 {
     if (D_004A2750 != 0) {
         char* race = *(char**)(*(char**)((char*)D_004A28A8 + 0x84) + 0xC);
         int i;
         for (i = 0; i < *(int*)(race + 0x78); i++) {
-            func_00210618(i);
+            RaceProgress_UpdateRider(i);
             ((sTrophySlot20ED20*)&D_004C8BC8)[i].active = 0;
         }
         D_004A2760 = 0;
     }
 }
 
-INCLUDE_ASM("fe/ovstatetrophy", func_0020EDA0);
+INCLUDE_ASM("fe/ovstatetrophy", cOVStateHUD1P_DrawProgressMeter);
 
-INCLUDE_ASM("fe/ovstatetrophy", func_0020FB40);
+INCLUDE_ASM("fe/ovstatetrophy", cOVStateHUD1P_DrawProgressMeterMP);
 
 struct sPad16 { char x; int pad[3]; };
 extern sPad16 D_004C8BC8;
@@ -263,7 +263,7 @@ extern char* D_004A2750;
 extern char* D_004A2754;
 extern void* D_004A28A8;
 float cRider_getRemainingDistance(void* rider);
-extern "C" float func_00210820(int i);
+extern "C" float RaceProgress_ProjectRider(int i);
 
 struct sTrophyEntry_210618 {
     int active;
@@ -281,7 +281,7 @@ struct sTrophySeg_210618 {
 // The unit declares D_004C8BC8 as a 16-byte pad struct; view it as the per-rider table by asm label.
 extern sTrophyEntry_210618 D_004C8BC8_210618[] __asm__("D_004C8BC8");
 
-extern "C" void func_00210618(int i)
+extern "C" void RaceProgress_UpdateRider(int i)
 {
     char* course = D_004A2750;
     sTrophySeg_210618* segs = (sTrophySeg_210618*)D_004A2754;
@@ -305,7 +305,7 @@ extern "C" void func_00210618(int i)
     {
         D_004C8BC8_210618[i].seg = 0;
         D_004C8BC8_210618[i].dist = 0.0f;
-        D_004C8BC8_210618[i].pos = func_00210820(i);
+        D_004C8BC8_210618[i].pos = RaceProgress_ProjectRider(i);
     }
     else
     {
@@ -314,7 +314,7 @@ extern "C" void func_00210618(int i)
         {
             D_004C8BC8_210618[i].seg = last;
             D_004C8BC8_210618[i].dist = *(float*)(course + 0x10);
-            D_004C8BC8_210618[i].pos = func_00210820(i);
+            D_004C8BC8_210618[i].pos = RaceProgress_ProjectRider(i);
         }
         else
         {
@@ -325,7 +325,7 @@ extern "C" void func_00210618(int i)
                 k--;
             D_004C8BC8_210618[i].seg = k;
             D_004C8BC8_210618[i].dist = d;
-            D_004C8BC8_210618[i].pos = func_00210820(i);
+            D_004C8BC8_210618[i].pos = RaceProgress_ProjectRider(i);
         }
     }
 }
@@ -373,7 +373,7 @@ static inline float sy_210820(sZone_210820* z)
     return z->sy;
 }
 
-extern "C" float func_00210820(int idx)
+extern "C" float RaceProgress_ProjectRider(int idx)
 {
     sZone_210820* zones = (sZone_210820*)D_004A2754;
     char* world = *(char**)(*(char**)((char*)D_004A28A8 + 0x84) + 0xC);
@@ -502,18 +502,18 @@ extern "C" void func_00210940(void* self)
 extern int D_004A2EEC;
 extern char D_004A2560[];
 extern "C" int func_00258160(int a, char* name, int len);
-extern "C" void func_00210BD8(void* self, char* name, int a);
-extern "C" void func_00210F40(void* self, int a1, int a2, int a3, int a4, int a5, int a6);
+extern "C" void OVScreenReadPrivateMessage_SetMessageText(void* self, char* name, int a);
+extern "C" void OVScreenReadPrivateMessage_OpenKeyboard(void* self, int a1, int a2, int a3, int a4, int a5, int a6);
 
 extern "C" int func_00210B58(void* self, int ok)
 {
     if (ok != 0) {
         char* name = (char*)self + 0x9C;
         if (func_00258160(D_004A2EEC, name, 0x41) != 0) {
-            func_00210BD8(self, name, 0);
+            OVScreenReadPrivateMessage_SetMessageText(self, name, 0);
         } else {
-            // PORT: func_00210F40's unit definition takes these string pointers as int.
-            func_00210F40(self, 0, (int)D_004A2560, (int)D_004A2560, 0, 0, 0x3D);
+            // PORT: OVScreenReadPrivateMessage_OpenKeyboard's unit definition takes these string pointers as int.
+            OVScreenReadPrivateMessage_OpenKeyboard(self, 0, (int)D_004A2560, (int)D_004A2560, 0, 0, 0x3D);
         }
     }
     return 1;
@@ -541,7 +541,7 @@ struct sBXString_00210BD8 {
     sBXString_00210BD8(const sBXString_00210BD8& o);
 };
 
-extern "C" void func_00210BD8(void* self, char* name, int a)
+extern "C" void OVScreenReadPrivateMessage_SetMessageText(void* self, char* name, int a)
 {
     char* obj = (char*)cUIScreen_getObjectByHashName(*(void**)((char*)self + 0x40), GetHashValue32(D_0046E808));
     if (obj == 0) {
@@ -576,7 +576,7 @@ extern char* D_net210D20 __asm__("D_004A2EEC");
 extern "C" void* func_0020E900(void* self);
 extern "C" void* func_0039F698(void* list);
 extern "C" int func_00258160(int a, char* name, int len);
-extern "C" void func_00210BD8(void* self, char* name, int a);
+extern "C" void OVScreenReadPrivateMessage_SetMessageText(void* self, char* name, int a);
 
 extern "C" void func_00210D20(void* self)
 {
@@ -592,7 +592,7 @@ extern "C" void func_00210D20(void* self)
     if (*(int*)((char*)self + 0x40) != 0) {
         char* name = (char*)self + 0x9C;
         if (func_00258160(D_004A2EEC, name, 0x41) != 0) {
-            func_00210BD8(self, name, 0);
+            OVScreenReadPrivateMessage_SetMessageText(self, name, 0);
         }
     }
 }
@@ -631,20 +631,20 @@ extern "C" void func_00210DF0(void* self, void* item, unsigned int key)
         break;
     case 5:
         if (*(int*)((char*)self + 0xE0) == 0) {
-            // PORT: func_00210F40's unit definition takes these string pointers as int.
-            func_00210F40(self, 0, (int)D_004A2560, (int)D_004A2560, 0, 0, 0x3D);
+            // PORT: OVScreenReadPrivateMessage_OpenKeyboard's unit definition takes these string pointers as int.
+            OVScreenReadPrivateMessage_OpenKeyboard(self, 0, (int)D_004A2560, (int)D_004A2560, 0, 0, 0x3D);
             func_001CE3C8(*(void**)((char*)self + 0xE0), 0x4B, 1, 2);
         }
         break;
     case 0xD: {
         char* name = (char*)self + 0x9C;
         if (func_00258160(D_004A2EEC, name, 0x41) != 0) {
-            func_00210BD8(self, name, 0);
+            OVScreenReadPrivateMessage_SetMessageText(self, name, 0);
         }
         char* p = *(char**)((char*)self + 0xE0) + 0x74;
         if (strlen(p) != 0) {
             func_00258C50(D_004A2EEC, p);
-            func_00210BD8(self, p, 1);
+            OVScreenReadPrivateMessage_SetMessageText(self, p, 1);
         }
         break;
     }
@@ -655,13 +655,13 @@ extern "C" void func_00210DF0(void* self, void* item, unsigned int key)
 }
 
 //100%
-extern "C" void func_00210FA0(void* self, int a1, int a2, int a3, int a4);
+extern "C" void OVScreenReadPrivateMessage_CreateKeyboardPopup(void* self, int a1, int a2, int a3, int a4);
 extern "C" void func_001CCF00(void* p, int a);
 extern "C" void func_001CB418(void* p, int a);
 
-extern "C" void func_00210F40(void* self, int a1, int a2, int a3, int a4, int a5, int a6)
+extern "C" void OVScreenReadPrivateMessage_OpenKeyboard(void* self, int a1, int a2, int a3, int a4, int a5, int a6)
 {
-    func_00210FA0(self, a1, a4, a5, a6);
+    OVScreenReadPrivateMessage_CreateKeyboardPopup(self, a1, a4, a5, a6);
     func_001CCF00(*(void**)((char*)self + 0xE0), a2);
     func_001CB418(*(void**)((char*)self + 0xE0), a3);
 }
@@ -675,7 +675,7 @@ extern "C" void func_001CE3C8(void* self, int i, int v, int mode);
 extern "C" void func_001CE468(void* self, int v);
 extern char D_0046EFD0[];
 
-extern "C" void func_00210FA0(void* self, int a1, int a2, int a3, int a4)
+extern "C" void OVScreenReadPrivateMessage_CreateKeyboardPopup(void* self, int a1, int a2, int a3, int a4)
 {
     void* w = func_001CB030(cMemMan_alloc(0x444, D_0046EFD0, 0x100, 0), *(void**)((char*)self + 0x10), self, a2, 0xF);
     *(void**)((char*)self + 0xE0) = w;

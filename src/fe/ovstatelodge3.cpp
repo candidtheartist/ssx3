@@ -30,7 +30,7 @@ INCLUDE_ASM("fe/ovstatelodge3", func_001F7770);
 
 INCLUDE_ASM("fe/ovstatelodge3", OVScreenBCFail_OnWidgetNotify);
 
-INCLUDE_ASM("fe/ovstatelodge3", func_001F7800);
+INCLUDE_ASM("fe/ovstatelodge3", OVScreenBCFail_OnWidgetAction);
 
 INCLUDE_ASM("fe/ovstatelodge3", func_001F7958);
 

@@ -293,7 +293,7 @@ void operator_delete(int* ptr);
 
 extern char D_0047D6E8[];
 
-extern "C" void func_00243C80(int* self, int flags)
+extern "C" void GameState_dtor(int* self, int flags)
 {
     *(void**)((char*)self + 0xC) = D_0047D6E8;
     if (flags & 1) {
@@ -347,7 +347,7 @@ void operator_delete(int* ptr);
 
 extern char D_0047D6E8[];
 
-extern "C" void func_00243CF0(int* self, int flags)
+extern "C" void GameStateQuit_dtor(int* self, int flags)
 {
     *(void**)((char*)self + 0xC) = D_0047D6E8;
     if (flags & 1) {
@@ -375,7 +375,7 @@ void operator_delete(int* ptr);
 
 extern char D_0047D6E8[];
 
-extern "C" void func_00243D58(int* self, int flags)
+extern "C" void GameStateIdle_dtor(int* self, int flags)
 {
     *(void**)((char*)self + 0xC) = D_0047D6E8;
     if (flags & 1) {
@@ -388,7 +388,7 @@ void operator_delete(int* ptr);
 
 extern char D_0047D6E8[];
 
-extern "C" void func_00243D88(int* self, int flags)
+extern "C" void GameStateFinish_dtor(int* self, int flags)
 {
     *(void**)((char*)self + 0xC) = D_0047D6E8;
     if (flags & 1) {
@@ -429,7 +429,7 @@ void operator_delete(int* ptr);
 
 extern char D_0047D6E8[];
 
-extern "C" void func_00243E20(int* self, int flags)
+extern "C" void GameStatePreRaceLoad_dtor(int* self, int flags)
 {
     *(void**)((char*)self + 0xC) = D_0047D6E8;
     if (flags & 1) {
@@ -442,7 +442,7 @@ void operator_delete(int* ptr);
 
 extern char D_0047D6E8[];
 
-extern "C" void func_00243E50(int* self, int flags)
+extern "C" void cGFGateState_dtor(int* self, int flags)
 {
     *(void**)((char*)self + 0xC) = D_0047D6E8;
     if (flags & 1) {
@@ -470,7 +470,7 @@ void operator_delete(int* ptr);
 
 extern char D_0047D6E8[];
 
-extern "C" void func_00243EB8(int* self, int flags)
+extern "C" void GameStateRace_dtor(int* self, int flags)
 {
     *(void**)((char*)self + 0xC) = D_0047D6E8;
     if (flags & 1) {
@@ -498,7 +498,7 @@ void operator_delete(int* ptr);
 
 extern char D_0047D6E8[];
 
-extern "C" void func_00243F20(int* self, int flags)
+extern "C" void GameStateReset_dtor(int* self, int flags)
 {
     *(void**)((char*)self + 0xC) = D_0047D6E8;
     if (flags & 1) {
@@ -511,7 +511,7 @@ void operator_delete(int* ptr);
 
 extern char D_0047D6E8[];
 
-extern "C" void func_00243F50(int* self, int flags)
+extern "C" void GameStateRestartRace_dtor(int* self, int flags)
 {
     *(void**)((char*)self + 0xC) = D_0047D6E8;
     if (flags & 1) {
@@ -541,7 +541,7 @@ void operator_delete(int* ptr);
 
 extern char D_0047D6E8[];
 
-extern "C" void func_00243FC0(int* self, int flags)
+extern "C" void GameStateWarpToEvent_dtor(int* self, int flags)
 {
     *(void**)((char*)self + 0xC) = D_0047D6E8;
     if (flags & 1) {
@@ -569,7 +569,7 @@ void operator_delete(int* ptr);
 
 extern char D_0047D6E8[];
 
-extern "C" void func_00244028(int* self, int flags)
+extern "C" void GameStateEventSelect_dtor(int* self, int flags)
 {
     *(void**)((char*)self + 0xC) = D_0047D6E8;
     if (flags & 1) {
@@ -587,7 +587,7 @@ void operator_delete(int* ptr);
 
 extern char D_0047D6E8[];
 
-extern "C" void func_00244060(int* self, int flags)
+extern "C" void GameStateEventSwitchLoad_dtor(int* self, int flags)
 {
     *(void**)((char*)self + 0xC) = D_0047D6E8;
     if (flags & 1) {
@@ -600,7 +600,7 @@ void operator_delete(int* ptr);
 
 extern char D_0047D6E8[];
 
-extern "C" void func_00244090(int* self, int flags)
+extern "C" void GameStatePreRaceMenu_dtor(int* self, int flags)
 {
     *(void**)((char*)self + 0xC) = D_0047D6E8;
     if (flags & 1) {
@@ -628,7 +628,7 @@ void operator_delete(int* ptr);
 
 extern char D_0047D6E8[];
 
-extern "C" void func_002440F8(int* self, int flags)
+extern "C" void GameStateResults_dtor(int* self, int flags)
 {
     *(void**)((char*)self + 0xC) = D_0047D6E8;
     if (flags & 1) {
@@ -656,7 +656,7 @@ void operator_delete(int* ptr);
 
 extern char D_0047D6E8[];
 
-extern "C" void func_00244160(int* self, int flags)
+extern "C" void GameStateFinishCinematic_dtor(int* self, int flags)
 {
     *(void**)((char*)self + 0xC) = D_0047D6E8;
     if (flags & 1) {
@@ -684,7 +684,7 @@ void operator_delete(int* ptr);
 
 extern char D_0047D6E8[];
 
-extern "C" void func_002441C8(int* self, int flags)
+extern "C" void GameStateReplayPlayback_dtor(int* self, int flags)
 {
     *(void**)((char*)self + 0xC) = D_0047D6E8;
     if (flags & 1) {
@@ -915,7 +915,7 @@ void operator_delete(int* ptr);
 
 extern char D_0047DB28[];
 
-extern "C" void func_002443C0(int* self, int flags)
+extern "C" void GenericStreamPause_v01(int* self, int flags)
 {
     *(void**)self = D_0047DB28;
     if (flags & 1) {
@@ -956,7 +956,7 @@ struct sVEntry_func_00244410 {
     void (*fn)(void*, int);
 };
 
-extern "C" void func_00244410(void* self, int flags)
+extern "C" void VfxProcess_dtor(void* self, int flags)
 {
     *(void***)((char*)self + 0xC) = D_0047D070;
     void* obj = *(void**)((char*)self + 0x10);
@@ -978,13 +978,13 @@ public:
     virtual void v03();
 };
 
-extern "C" void func_00244478(void* self)
+extern "C" void VfxProcess_Update(void* self)
 {
     (*(cAppDtorVirt44**)((char*)self + 0x10))->v02();
 }
 
 //100%
-extern "C" void func_002444A8(void* self)
+extern "C" void VfxProcess_Render(void* self)
 {
     (*(cAppDtorVirt44**)((char*)self + 0x10))->v03();
 }
@@ -1059,7 +1059,7 @@ void operator_delete(int* ptr);
 
 extern char D_0047D008[];
 
-extern "C" void func_00244560(int* self, int flags)
+extern "C" void GMHandler0_dtor(int* self, int flags)
 {
     *(void**)self = D_0047D008;
     if (flags & 1) {
@@ -1072,7 +1072,7 @@ void operator_delete(int* ptr);
 
 extern char D_0047D008[];
 
-extern "C" void func_00244590(int* self, int flags)
+extern "C" void GMHandler1_dtor(int* self, int flags)
 {
     *(void**)self = D_0047D008;
     if (flags & 1) {
@@ -1085,7 +1085,7 @@ void operator_delete(int* ptr);
 
 extern char D_0047D008[];
 
-extern "C" void func_002445C0(int* self, int flags)
+extern "C" void GMHandler8_dtor(int* self, int flags)
 {
     *(void**)self = D_0047D008;
     if (flags & 1) {
@@ -1098,7 +1098,7 @@ void operator_delete(int* ptr);
 
 extern char D_0047D008[];
 
-extern "C" void func_002445F0(int* self, int flags)
+extern "C" void GMHandler9_dtor(int* self, int flags)
 {
     *(void**)self = D_0047D008;
     if (flags & 1) {
@@ -1121,7 +1121,7 @@ void operator_delete(int* ptr);
 
 extern char D_0047D008[];
 
-extern "C" void func_00244630(int* self, int flags)
+extern "C" void GMHandler2_dtor(int* self, int flags)
 {
     *(void**)self = D_0047D008;
     if (flags & 1) {
@@ -1134,7 +1134,7 @@ void operator_delete(int* ptr);
 
 extern char D_0047D008[];
 
-extern "C" void func_00244660(int* self, int flags)
+extern "C" void GMHandler4_dtor(int* self, int flags)
 {
     *(void**)self = D_0047D008;
     if (flags & 1) {
@@ -1147,7 +1147,7 @@ void operator_delete(int* ptr);
 
 extern char D_0047D008[];
 
-extern "C" void func_00244690(int* self, int flags)
+extern "C" void GMHandler5_dtor(int* self, int flags)
 {
     *(void**)self = D_0047D008;
     if (flags & 1) {
@@ -1160,7 +1160,7 @@ void operator_delete(int* ptr);
 
 extern char D_0047D008[];
 
-extern "C" void func_002446C0(int* self, int flags)
+extern "C" void GMHandler6_dtor(int* self, int flags)
 {
     *(void**)self = D_0047D008;
     if (flags & 1) {
@@ -1173,7 +1173,7 @@ void operator_delete(int* ptr);
 
 extern char D_0047D008[];
 
-extern "C" void func_002446F0(int* self, int flags)
+extern "C" void GMHandler7_dtor(int* self, int flags)
 {
     *(void**)self = D_0047D008;
     if (flags & 1) {
@@ -1292,24 +1292,24 @@ extern "C" void func_00244858(void* self, int value)
 }
 
 //100%
-void func_00244860(void* self)
+void cMCOverlayManager_NullCallback(void* self)
 {
 }
 
 //100%
-int func_00244868(void* self)
+int cMCOverlayManager_NullCallbackRet0(void* self)
 {
     return 0;
 }
 
 //100%
-int func_00244870(void* self)
+int cMCOverlayManager_NullCallbackRet1(void* self)
 {
     return 0x1;
 }
 
 //100%
-int func_00244878(void* self)
+int cMCOverlayManager_NullChunkCallback(void* self)
 {
     return 0;
 }
@@ -1346,7 +1346,7 @@ struct sVEntry_func_002448E0 {
     void (*fn)(void*, int);
 };
 
-extern "C" void func_002448E0(void* self, int flags)
+extern "C" void AIVfxProcess_dtor(void* self, int flags)
 {
     *(void***)((char*)self + 0xC) = D_0047CB60;
     void* obj = *(void**)((char*)self + 0x10);
@@ -1368,13 +1368,13 @@ public:
     virtual void v03();
 };
 
-extern "C" void func_00244948(void* self)
+extern "C" void AIVfxProcess_Update(void* self)
 {
     (*(cAppDtorVirt04**)((char*)self + 0x10))->v02();
 }
 
 //100%
-extern "C" void func_00244978(void* self)
+extern "C" void AIVfxProcess_Render(void* self)
 {
     (*(cAppDtorVirt04**)((char*)self + 0x10))->v03();
 }
@@ -1383,7 +1383,7 @@ extern "C" void func_00244978(void* self)
 extern "C" void func_003546C8(void* self, int flags);
 extern void* D_0047CAE8[];
 
-extern "C" void func_002449A8(void* self, int flags)
+extern "C" void StatsProcess_dtor(void* self, int flags)
 {
     *(void***)((char*)self + 0xC) = D_0047CAE8;
     operator_delete(*(int**)((char*)self + 0x10));
@@ -1393,7 +1393,7 @@ extern "C" void func_002449A8(void* self, int flags)
 void func_002D21B0(void*);
 
 //100%
-extern "C" void func_002449F8(void* self)
+extern "C" void StatsProcess_Update(void* self)
 {
     func_002D21B0(*(void**)((char*)self + 0x10));
 }
@@ -1401,7 +1401,7 @@ extern "C" void func_002449F8(void* self)
 void func_002D21B8(void*);
 
 //100%
-extern "C" void func_00244A18(void* self)
+extern "C" void StatsProcess_Render(void* self)
 {
     func_002D21B8(*(void**)((char*)self + 0x10));
 }
@@ -1490,7 +1490,7 @@ extern "C" int func_00244A40(sApp_44A40* self)
 }
 
 
-INCLUDE_ASM("main/ssxappdtor", func_00244B48);
+INCLUDE_ASM("main/ssxappdtor", cGame_UpdatePauseAndUI);
 
 struct sVE_4E60 {
     short delta;
@@ -1498,13 +1498,13 @@ struct sVE_4E60 {
     void (*fn)(void*, ...);
 };
 
-extern "C" int func_00237950(void* p);
-extern "C" int func_002379C8(void* p);
+extern "C" int InputSync_IsReady(void* p);
+extern "C" int InputSync_ApplyInput(void* p);
 extern "C" void func_00354C98(void* p, int n);
 extern "C" void func_00354F98(void* p, int n);
 extern "C" void func_00355028(void* p, int n);
 extern "C" void func_0026F4A8(void* p);
-extern "C" int func_00270280(void* p);
+extern "C" int Replay_IsPaused(void* p);
 extern "C" int func_0026CE50(void* p);
 extern "C" void func_00309270(void* p);
 extern "C" void CrowdMan2d_Update(void* p);
@@ -1525,7 +1525,7 @@ static inline bool Is3(int st) { return st == 3; }
 extern "C" void func_00244E60(char* self)
 {
     int skip;
-    if (F(0x7C, void*) == 0 || func_00237950(F(0x7C, void*)) != 0) {
+    if (F(0x7C, void*) == 0 || InputSync_IsReady(F(0x7C, void*)) != 0) {
         if (F(0x214, int) == 3) {
             func_00230F40(self);
             func_00354C98(GetSnd(), 1);
@@ -1533,16 +1533,16 @@ extern "C" void func_00244E60(char* self)
             func_00230F40(self);
         }
         if ((D_004A2A50 & 1) == 0) func_0026F4A8(F(0x28, void*));
-        if (func_00270280(F(0x28, void*)) == 0 && !(D_004A2A50 & 8)) {
+        if (Replay_IsPaused(F(0x28, void*)) == 0 && !(D_004A2A50 & 8)) {
             char* g = (char*)D_004A28A4;
             sVE_4E60* vt = *(sVE_4E60**)(g + 0x2A8);
             vt[5].fn(g + vt[5].delta);
         }
     }
     skip = 0;
-    if ((D_004A2A50 & 1) || func_00270280(F(0x28, void*))) skip = 1;
+    if ((D_004A2A50 & 1) || Replay_IsPaused(F(0x28, void*))) skip = 1;
     if (!skip) {
-        if ((F(0x7C, void*) != 0 && func_002379C8(F(0x7C, void*)) == 0) || func_0026CE50(F(0x34, void*))) skip = 1;
+        if ((F(0x7C, void*) != 0 && InputSync_ApplyInput(F(0x7C, void*)) == 0) || func_0026CE50(F(0x34, void*))) skip = 1;
     }
     if (!skip) {
         if (!(D_004A2A50 & 2)) func_00354F98(GetSnd(), 1);
@@ -1581,7 +1581,7 @@ extern "C" void func_00244E60(char* self)
 extern void* D_004A2EEC;
 extern "C" void func_002570D8(void* p);
 
-extern "C" void func_00245118()
+extern "C" void cGameComm_UpdateIfActive()
 {
     if (D_004A2EEC)
         func_002570D8(D_004A2EEC);
@@ -1590,7 +1590,7 @@ extern "C" void func_00245118()
 extern void* D_004A2EB8;
 extern "C" void func_003F42A0();
 
-extern "C" void func_00245140()
+extern "C" void NetConn_IdleIfActive()
 {
     if (D_004A2EB8)
         func_003F42A0();

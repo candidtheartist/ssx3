@@ -8,7 +8,7 @@ extern "C" void* cUIScreen_getObjectByHashName(void* self, int hash);
 struct sSelf0020A380;
 extern "C" void func_0020A380(sSelf0020A380* self);
 extern "C" int func_001A3BF0(void* mgr);
-extern "C" void func_00208F10(void* self);
+extern "C" void cOVState_MAP_LoadMapImage(void* self);
 extern "C" void cOVState_MAP_setupPopup(void* self);
 extern "C" void cOVState_MAP_setupPlayerIndicator(void* self);
 extern "C" void cOVState_MAP_setupLocalSessionList(void* self);
@@ -80,7 +80,7 @@ extern "C" void cOVState_MAP_onCreateScreen(sMap_86A8* self)
         self->c[i] = 0;
         self->d[i] = 0;
     }
-    func_00208F10(self);
+    cOVState_MAP_LoadMapImage(self);
     cOVState_MAP_setupPopup(self);
     cOVState_MAP_setupPlayerIndicator(self);
     cOVState_MAP_setupLocalSessionList(self);
@@ -141,7 +141,7 @@ extern "C" void* cBE_getBE();
 void* cBE_getInterface_Fv(void* be, int kind) __asm__("cBE_getInterface__Fv");
 extern "C" int* func_00144BC0(void*);
 extern "C" int sprintf(char* buf, const char* fmt, ...);
-extern "C" void func_00209E78(void* self);
+extern "C" void cOVState_MAP_UpdateIndicators(void* self);
 extern char D_004C8B58[];
 struct cUIText;
 void cUIText_setUnicodeStringByID(cUIText* t, int id);
@@ -217,7 +217,7 @@ extern "C" int cOVState_MAP_onGainTransition(void* selfp, int on)
             }
             cUIMenu_setSelectedByIndex(menu, idx);
         }
-        func_00209E78(self);
+        cOVState_MAP_UpdateIndicators(self);
         t = (sUIObj_87F0*)cUIScreen_getObjectByHashName(*(void**)(self + 0xD4), GetHashValue32(D_004706B8));
         if (t != 0) {
             t->f18 = 0;
@@ -263,13 +263,13 @@ extern "C" void func_00208B00(void* self, int a1)
 //100%
 extern void* D_004A28A8;
 extern "C" void cFEAsyncManager_UnloadFEAsyncFile(void* mgr, int file);
-extern "C" void func_0020A088(void* self);
+extern "C" void cOVState_MAP_DestroyIndicators(void* self);
 extern "C" void func_0020A430(void* self);
 
 extern "C" void func_00208B78(void* self)
 {
     cFEAsyncManager_UnloadFEAsyncFile(*(void**)((char*)D_004A28A8 + 0x11C), *(int*)((char*)self + 0xC4));
-    func_0020A088(self);
+    cOVState_MAP_DestroyIndicators(self);
     func_0020A430(self);
 }
 
@@ -285,7 +285,7 @@ struct sObj00208BB8 {
     sVEntry00208BB8* vt;
 };
 
-extern "C" void func_00208BB8(void* self)
+extern "C" void cOVState_MAP_HideMapPic(void* self)
 {
     sObj00208BB8* o;
     *(int*)((char*)self + 0xDC) = 1;
@@ -303,8 +303,8 @@ extern "C" void func_00208BB8(void* self)
 //100%
 extern "C" void cUIState_showObjSafe(void* self, char* name);
 extern "C" void cUIState_hideObjSafe(void* self, char* name);
-extern "C" void func_002095E8(void* self, void* obj, int on);
-extern "C" void func_00209648(void* self, void* obj, int on);
+extern "C" void cOVState_MAP_SetHighlightColor(void* self, void* obj, int on);
+extern "C" void cOVState_MAP_SetUnlockedColor(void* self, void* obj, int on);
 extern "C" void* func_0039F190(void* list, int a1);
 extern "C" void* func_0028B180();
 extern "C" void func_0028FAE0(void* snd);
@@ -355,8 +355,8 @@ extern "C" void func_00208C28(char* self, char* item, int id)
                 D_004A2A54 = n;
                 D_004A2A50 = D_004428F0[D_005366E8[n]];
                 func_00231250(w, 0xF, 0, 0);
-                func_0020A088(self);
-                func_00208BB8(self);
+                cOVState_MAP_DestroyIndicators(self);
+                cOVState_MAP_HideMapPic(self);
             }
         } else {
             *(int*)(self + 0xBC) = 1;
@@ -378,8 +378,8 @@ extern "C" void func_00208C28(char* self, char* item, int id)
             *(int*)(self + 0xBC) = 0;
             cOVState_MAP_setupPopup(self);
         } else {
-            func_0020A088(self);
-            func_00208BB8(self);
+            cOVState_MAP_DestroyIndicators(self);
+            cOVState_MAP_HideMapPic(self);
             func_0039F190(*(char**)(self + 0x10) + 0x18, 1);
             int f = *(int*)(self + 0x1C);
             *(int*)(self + 0x1C) = (f & ~0x3F00) | 0x780;
@@ -388,7 +388,7 @@ extern "C" void func_00208C28(char* self, char* item, int id)
     }
     case 1:
         if (*(int*)(self + 0xBC) != 0) {
-            func_002095E8(self, item, 1);
+            cOVState_MAP_SetHighlightColor(self, item, 1);
             if (*(int*)(item + 0x18) == 0) {
                 cUIState_showObjSafe(self, D_004706E8);
                 cUIState_hideObjSafe(self, D_00470700);
@@ -408,7 +408,7 @@ extern "C" void func_00208C28(char* self, char* item, int id)
         break;
     case 2:
         if (*(int*)(self + 0xBC) != 0) {
-            func_00209648(self, item, 1);
+            cOVState_MAP_SetUnlockedColor(self, item, 1);
         }
         break;
     case 7:
@@ -431,7 +431,7 @@ extern "C" void cFEAsyncManager_UnloadFEAsyncFile(void* mgr, int file);
 extern "C" int* func_00144BC0(void*);
 extern "C" void func_001A37F8(void* mgr, int a1, int file, int a3);
 
-extern "C" void func_00208F10(void* self)
+extern "C" void cOVState_MAP_LoadMapImage(void* self)
 {
     void* iface = cBE_getInterface_Fv(cBE_getBE(), 0);
     void* mgr = *(void**)((char*)D_004A28A8 + 0x11C);
@@ -577,12 +577,12 @@ struct sObj00209300 {
     sVEntry00209300* vt;
 };
 
-extern "C" void func_00209E78(void* self);
+extern "C" void cOVState_MAP_UpdateIndicators(void* self);
 
 extern "C" void func_00209300(void* self, sObj00209300* o)
 {
     if (o->vt[17].fn((char*)o + o->vt[17].delta) != 0 || o->vt[18].fn((char*)o + o->vt[18].delta) != 0) {
-        func_00209E78(self);
+        cOVState_MAP_UpdateIndicators(self);
     }
 }
 
@@ -722,7 +722,7 @@ struct sVEntry_func_002095E8 {
 extern char D_004C8B38[];
 extern char D_004C8B28[];
 
-extern "C" void func_002095E8(void* self, void* obj, int on)
+extern "C" void cOVState_MAP_SetHighlightColor(void* self, void* obj, int on)
 {
     if (on != 0) {
         sVEntry_func_002095E8* vt = *(sVEntry_func_002095E8**)((char*)obj + 0x8);
@@ -742,7 +742,7 @@ struct sVEntry_func_00209648 {
 extern char D_004C8B58[];
 extern char D_004C8B48[];
 
-extern "C" void func_00209648(void* self, void* obj, int on)
+extern "C" void cOVState_MAP_SetUnlockedColor(void* self, void* obj, int on)
 {
     if (on != 0) {
         sVEntry_func_00209648* vt = *(sVEntry_func_00209648**)((char*)obj + 0x8);
@@ -909,7 +909,7 @@ struct sMap_9E78 {
     cUIObj_9E78* b[8];      // 0x104
 };
 
-extern "C" void func_00209E78(void* p)
+extern "C" void cOVState_MAP_UpdateIndicators(void* p)
 {
     sMap_9E78* self = (sMap_9E78*)p;
     if (self->cursor != 0) {
@@ -956,7 +956,7 @@ struct sMap_9FD0 {
     sObj00208BB8* b[8];
 };
 
-extern "C" void func_00209FD0(void* self)
+extern "C" void cOVState_MAP_HideIndicators(void* self)
 {
     char* s = (char*)self;
     hide_9FD0(*(sObj00208BB8**)(s + 0xE0));
@@ -989,7 +989,7 @@ struct sMap_A088 {
     cUIObj_A088* b[8];      // 0x104
 };
 
-extern "C" void func_0020A088(void* p)
+extern "C" void cOVState_MAP_DestroyIndicators(void* p)
 {
     sMap_A088* self = (sMap_A088*)p;
     if (self->cursor != 0) {
@@ -1158,7 +1158,7 @@ static inline void show_A4E0(char* o, int on)
 }
 
 // PORT: the session pointer is passed through func_00258160's int parameter.
-extern "C" int func_0020A4E0(char* self)
+extern "C" int OVScreenFinalStandings_RecvChatMessage(char* self)
 {
     int ret = 0;
     cBE_getInterface_Fv(*(void**)((char*)D_004A28A8 + 0x78), 7);

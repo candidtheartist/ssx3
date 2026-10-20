@@ -5,7 +5,7 @@ INCLUDE_ASM("scripter/all_in_one_scripter", __sti__all_in_one_scripter_cpp);
 extern "C" void func_002847A8(void) {
 }
 
-extern "C" void func_002847B0(void) {
+extern "C" void DataInstanceMan_OnDataRemoved(void) {
 }
 
 extern "C" void DataInstanceMan_v04(void) {
@@ -29,10 +29,10 @@ extern "C" int func_002847D8(void *arg0) {
     return (*(int *)((char*)(arg0) + (8))) > 0;
 }
 
-extern "C" void func_002847E8(void) {
+extern "C" void ScriptEngine_SeqListenerOnAdvance(void) {
 }
 
-extern "C" void func_002847F0(void) {
+extern "C" void ScriptEngine_SeqListenerOnEnd(void) {
 }
 
 //100%
@@ -61,10 +61,10 @@ extern "C" int func_00284820(void) {
     return 0;
 }
 
-extern "C" void func_00284828(void) {
+extern "C" void ScriptEngine_ScriptDbCancelBank(void) {
 }
 
-extern "C" void func_00284830(void) {
+extern "C" void ScriptEngine_ScriptDbUnloadBank(void) {
 }
 
 extern "C" void ScriptEngine_ScriptDb_v10(void) {
@@ -96,14 +96,14 @@ extern "C" void func_00284868(void *arg0) {
     (*(int *)((char*)(arg0) + (4))) = -1;
 }
 
-extern "C" void func_00284878(void) {
+extern "C" void ScriptBinding_Apply(void) {
 }
 
-extern "C" void func_00284880(void) {
+extern "C" void ScriptBinding_Tick(void) {
 }
 
 //100%
-extern "C" int func_00284888(void) {
+extern "C" int ScriptBinding_AcceptCommand(void) {
     return 1;
 }
 
@@ -151,7 +151,7 @@ extern "C" void ScriptDummyObj_dtor(void *arg0, int arg1) {
 }
 
 //100%
-extern "C" int func_00284940(void) {
+extern "C" int ScriptDummyObj_GetBindingCount(void) {
     return 1;
 }
 
@@ -177,12 +177,12 @@ extern "C" void ScriptAudioObj_dtor(void *arg0, int arg1) {
 }
 
 //100%
-extern "C" int func_002849B8(void) {
+extern "C" int ScriptAudioObj_GetBindingCount(void) {
     return 1;
 }
 
 //100%
-extern "C" int func_002849C0(int arg0) {
+extern "C" int ScriptAudioObj_GetBinding(int arg0) {
     return arg0;
 }
 
@@ -265,12 +265,12 @@ extern "C" int func_00284A80(void *arg0) {
 }
 
 //100%
-extern "C" int func_00284A88(void) {
+extern "C" int ScriptObjCam_GetBindingCount(void) {
     return 0;
 }
 
 //100%
-extern "C" int func_00284A90(void) {
+extern "C" int ScriptObjCam_GetBinding(void) {
     return 0;
 }
 
@@ -302,12 +302,12 @@ extern "C" int func_00284AD0(void *arg0) {
 }
 
 //100%
-extern "C" int func_00284AD8(void) {
+extern "C" int cTransitionMan_ScriptGetBindingCount(void) {
     return 0;
 }
 
 //100%
-extern "C" int func_00284AE0(void) {
+extern "C" int cTransitionMan_ScriptGetBinding(void) {
     return 0;
 }
 
@@ -318,7 +318,7 @@ void operator_delete(int *);
 extern char D_00481FD8[];
 extern char D_00482018[];
 
-extern "C" void func_00284AE8(void *arg0, int arg1) {
+extern "C" void RiderScriptObj_dtor(void *arg0, int arg1) {
     *(char **)((char*)arg0 + 0x18) = D_00482018;
     *(char **)((char*)arg0 + 0x0) = D_00481FD8;
     func_00283228_4AE8((char*)arg0 + 0xC, 0);
@@ -328,12 +328,12 @@ extern "C" void func_00284AE8(void *arg0, int arg1) {
 }
 
 //100%
-extern "C" int func_00284B50(void) {
+extern "C" int RiderScriptObj_GetBindingCount(void) {
     return 1;
 }
 
 //100%
-extern "C" int func_00284B58(int arg0) {
+extern "C" int RiderScriptObj_GetBinding(int arg0) {
     return arg0;
 }
 
@@ -360,7 +360,7 @@ extern "C" float func_00284B78(void *arg0) {
 //100% - objdiff report; single-function view differs only in a relocation name
 extern "C" void __sti__all_in_one_scripter_cpp(int, int);
 
-extern "C" void func_00284B80(void) {
+extern "C" void ScriptEngine_GlobalCtors(void) {
     __sti__all_in_one_scripter_cpp(1, 0xFFFF);
 }
 

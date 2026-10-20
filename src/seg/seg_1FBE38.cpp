@@ -2646,7 +2646,7 @@ extern "C" V3_F5E8 func_002FF5E8(int n, Ent_F5E8 *e) {
 //100%
 // PORT: PS2-only inline asm; needs a C fallback off-PS2.
 extern "C" void func_003E6574(void*, void*, int);
-int* func_00226610(void*);
+int* LunoVMRegister_AsInt(void*);
 struct Flag_F850 { char c; Flag_F850() {} Flag_F850(const Flag_F850& o) : c(o.c) {} };
 struct Ent_F850 { int idx; int val; int pad; int kind; };
 struct R12_F850 { int a; int b; int c; };
@@ -2874,7 +2874,7 @@ extern char *D_004A28A8_FF00 __asm__("D_004A28A8");
 static inline char *refToPtr_FF00(unsigned i) { return (char*)(i << 2); }
 static inline char *conv_FF00(unsigned i) { if (i == 0) return 0; return refToPtr_FF00(i); }
 extern "C" void *func_0028B180_FF00(void) __asm__("func_0028B180");
-extern "C" void func_002974A0_FF00(void*, void*, int) __asm__("func_002974A0");
+extern "C" void cSSXAudio_PlayObjectSound_FF00(void*, void*, int) __asm__("cSSXAudio_PlayObjectSound");
 struct V3_FF00 { float x, y, z; };
 extern V3_FF00 D_004C9098_FF00 __asm__("D_004C9098");
 struct Tag_FF00 { char c; Tag_FF00() {} Tag_FF00(const Tag_FF00 &o) : c(o.c) {} };
@@ -2923,7 +2923,7 @@ extern "C" V3_FF00 func_002FFF00(int n, Ent_FF00 *e) {
     }
     if (obj) {
         int b1 = buf[1];
-        func_002974A0_FF00(func_0028B180_FF00(), obj, b1);
+        cSSXAudio_PlayObjectSound_FF00(func_0028B180_FF00(), obj, b1);
     }
     return D_004C9098_FF00;
 }
@@ -2936,7 +2936,7 @@ extern char *D_004A28A8_00A8 __asm__("D_004A28A8");
 static inline char *refToPtr_00A8(unsigned i) { return (char*)(i << 2); }
 static inline char *conv_00A8(unsigned i) { if (i == 0) return 0; return refToPtr_00A8(i); }
 extern "C" void *func_0028B180_00A8(void) __asm__("func_0028B180");
-extern "C" void func_00297950_00A8(void*, void*, int, int) __asm__("func_00297950");
+extern "C" void cSSXAudio_StartObjectLoop_00A8(void*, void*, int, int) __asm__("cSSXAudio_StartObjectLoop");
 struct V3_00A8 { float x, y, z; };
 extern V3_00A8 D_004C9098_00A8 __asm__("D_004C9098");
 struct Tag_00A8 { char c; Tag_00A8() {} Tag_00A8(const Tag_00A8 &o) : c(o.c) {} };
@@ -2987,7 +2987,7 @@ extern "C" V3_00A8 func_003000A8(int n, Ent_00A8 *e) {
     if (obj) {
         int b1 = buf[1];
         int b2 = buf[2];
-        func_00297950_00A8(func_0028B180_00A8(), obj, b1, b2);
+        cSSXAudio_StartObjectLoop_00A8(func_0028B180_00A8(), obj, b1, b2);
     }
     return D_004C9098_00A8;
 }
@@ -3000,7 +3000,7 @@ extern char *D_004A28A8_0260 __asm__("D_004A28A8");
 static inline char *refToPtr_0260(unsigned i) { return (char*)(i << 2); }
 static inline char *conv_0260(unsigned i) { if (i == 0) return 0; return refToPtr_0260(i); }
 extern "C" void *func_0028B180_0260(void) __asm__("func_0028B180");
-extern "C" void func_00297EB8_0260(void*, void*, int, int) __asm__("func_00297EB8");
+extern "C" void cSSXAudio_StopObjectLoop_0260(void*, void*, int, int) __asm__("cSSXAudio_StopObjectLoop");
 struct V3_0260 { float x, y, z; };
 extern V3_0260 D_004C9098_0260 __asm__("D_004C9098");
 struct Tag_0260 { char c; Tag_0260() {} Tag_0260(const Tag_0260 &o) : c(o.c) {} };
@@ -3051,7 +3051,7 @@ extern "C" V3_0260 func_00300260(int n, Ent_0260 *e) {
     if (obj) {
         int b1 = buf[1];
         int b2 = buf[2];
-        func_00297EB8_0260(func_0028B180_0260(), obj, b1, b2);
+        cSSXAudio_StopObjectLoop_0260(func_0028B180_0260(), obj, b1, b2);
     }
     return D_004C9098_0260;
 }
@@ -3308,7 +3308,7 @@ extern "C" V3_0948 func_00300948(int n, Ent_0948 *e) {
 //100%
 // PORT: PS2-only inline asm; needs a C fallback off-PS2.
 extern "C" void func_003E6574(void*, void*, int);
-int* func_00226610(void*);
+int* LunoVMRegister_AsInt(void*);
 struct Flag_0B20 { char c; Flag_0B20() {} Flag_0B20(const Flag_0B20& o) : c(o.c) {} };
 struct Ent_0B20 { int idx; int val; int pad; int kind; };
 struct R12_0B20 { int a; int b; int c; };
@@ -3353,10 +3353,10 @@ extern "C" R12_0B20 func_00300B20(int n, Ent_0B20* e) {
 //100%
 // PORT: PS2-only inline asm; needs a C fallback off-PS2.
 extern int D_004A28A4_0C78 __asm__("D_004A28A4");
-extern "C" void func_00278E50_0C78(int, int, int, int, int, int, int, int) __asm__("func_00278E50");
-extern "C" void func_00278ED0_0C78(int, int, int, int, int, int, int) __asm__("func_00278ED0");
-extern "C" void func_00278F38_0C78(int, int) __asm__("func_00278F38");
-extern "C" void func_00278F68_0C78(int, int, int, int) __asm__("func_00278F68");
+extern "C" void ScriptEngine_ListAddChoice_0C78(int, int, int, int, int, int, int, int) __asm__("ScriptEngine_ListAddChoice");
+extern "C" void ScriptEngine_ListAddMovieById_0C78(int, int, int, int, int, int, int) __asm__("ScriptEngine_ListAddMovieById");
+extern "C" void ScriptEngine_ListPrepare_0C78(int, int) __asm__("ScriptEngine_ListPrepare");
+extern "C" void ScriptEngine_ListStart_0C78(int, int, int, int) __asm__("ScriptEngine_ListStart");
 struct V3_0C78 { float x, y, z; };
 extern V3_0C78 D_004C9098_0C78 __asm__("D_004C9098");
 struct Tag_0C78 { char c; Tag_0C78() {} Tag_0C78(const Tag_0C78 &o) : c(o.c) {} };
@@ -3388,15 +3388,15 @@ extern "C" V3_0C78 func_00300C78(int n, Ent_0C78 *e) {
     unsigned id = buf[0];
     switch ((int)buf[1]) {
     case 0:
-        func_00278ED0_0C78(D_004A28A4_0C78, 0, id, 3, -1, -1, -1);
-        func_00278F38_0C78(D_004A28A4_0C78, 0);
+        ScriptEngine_ListAddMovieById_0C78(D_004A28A4_0C78, 0, id, 3, -1, -1, -1);
+        ScriptEngine_ListPrepare_0C78(D_004A28A4_0C78, 0);
         break;
     case 1:
-        func_00278E50_0C78(D_004A28A4_0C78, 0, id, 3, 0, -1, -1, -1);
-        func_00278F38_0C78(D_004A28A4_0C78, 0);
+        ScriptEngine_ListAddChoice_0C78(D_004A28A4_0C78, 0, id, 3, 0, -1, -1, -1);
+        ScriptEngine_ListPrepare_0C78(D_004A28A4_0C78, 0);
         break;
     case 2:
-        func_00278F68_0C78(D_004A28A4_0C78, 0, 1, 0);
+        ScriptEngine_ListStart_0C78(D_004A28A4_0C78, 0, 1, 0);
         break;
     }
     return D_004C9098_0C78;
@@ -3522,7 +3522,7 @@ extern "C" V3_0F50 func_00300F50(int n, Ent_0F50 *e) {
 //100%
 // PORT: PS2-only inline asm; needs a C fallback off-PS2.
 extern "C" void func_003E6574(void*, void*, int);
-int* func_00226610(void*);
+int* LunoVMRegister_AsInt(void*);
 struct Flag_1120 { char c; Flag_1120() {} Flag_1120(const Flag_1120& o) : c(o.c) {} };
 struct Ent_1120 { int idx; int val; int pad; int kind; };
 extern int D_004A3C68_1120[2] __asm__("D_004A3C68");
@@ -3576,19 +3576,19 @@ extern "C" void* func_00301120(void* self, int n, Ent_1120* e) {
             unsigned b0 = vp[0];
             func_0030B9A0_1120(D_004A3DD8_1120, slot, b0, b1);
             *(int*)((char*)self + 8) = 1;
-            *func_00226610(self) = 1;
+            *LunoVMRegister_AsInt(self) = 1;
             return self;
         }
     }
     *(int*)((char*)self + 8) = 1;
-    *func_00226610(self) = 0;
+    *LunoVMRegister_AsInt(self) = 0;
     return self;
 }
 
 //100%
 // PORT: PS2-only inline asm; needs a C fallback off-PS2.
 extern "C" void func_003E6574(void*, void*, int);
-int* func_00226610(void*);
+int* LunoVMRegister_AsInt(void*);
 struct Flag_12F0 { char c; Flag_12F0() {} Flag_12F0(const Flag_12F0& o) : c(o.c) {} };
 struct Ent_12F0 { int idx; int val; int pad; int kind; };
 struct R12_12F0 { int a; int b; int c; };
@@ -3624,7 +3624,7 @@ extern "C" void* func_003012F0(void* self, int n, Ent_12F0* e) {
     if (x != 0xFFFFFFFFu) {
         int r = func_0030A868_12F0(D_004A3DD8_12F0, x, vp[1], -1);
         *(int*)((char*)self + 8) = 1;
-        *func_00226610(self) = r;
+        *LunoVMRegister_AsInt(self) = r;
     } else {
         *(R12_12F0*)self = D_004C9098_12F0;
     }
@@ -3636,7 +3636,7 @@ INCLUDE_ASM("seg/seg_1FBE38", func_00301440);
 //100%
 // PORT: PS2-only inline asm; needs a C fallback off-PS2.
 extern "C" void func_003E6574(void*, void*, int);
-int* func_00226610(void*);
+int* LunoVMRegister_AsInt(void*);
 struct Flag_1560 { char c; Flag_1560() {} Flag_1560(const Flag_1560& o) : c(o.c) {} };
 struct Ent_1560 { int idx; int val; int pad; int kind; };
 struct R12_1560 { int a; int b; int c; };
@@ -3671,10 +3671,10 @@ extern "C" void* func_00301560(void* self, int n, Ent_1560* e) {
     if (x != 0xFFFFFFFFu) {
         int r = func_0030BA80(D_004A3DD8_1560, x);
         *(int*)((char*)self + 8) = 1;
-        *func_00226610(self) = r;
+        *LunoVMRegister_AsInt(self) = r;
     } else {
         *(int*)((char*)self + 8) = 1;
-        *func_00226610(self) = 0;
+        *LunoVMRegister_AsInt(self) = 0;
     }
     return self;
 }
@@ -3694,7 +3694,7 @@ static inline char *look_1680(unsigned id) {
     return (char*)(i << 2);
 }
 
-float *func_00226618_1680(void*) __asm__("func_00226618__FPv");
+float *LunoVMRegister_AsFloat_1680(void*) __asm__("LunoVMRegister_AsFloat__FPv");
 struct O_1680 { int p0, p1, p2; virtual void v01(); virtual void v02(); virtual void v03(); virtual void v04(); virtual void v05(); virtual void v06(); virtual void v07(); virtual void v08(); virtual void v09(); virtual void v10(); virtual void v11(); virtual void v12(); virtual void v13(); virtual void v14(); virtual void v15(); virtual void v16(); virtual void v17(); virtual void v18(); virtual void v19(); virtual void v20(); virtual void v21(); virtual void v22(); virtual void v23(); virtual void v24(); virtual void v25(); virtual void v26(); virtual void v27(); virtual void v28(); virtual void v29(); virtual float v30(); };
 struct V3_1680 { int w0, w1, w2; };
 struct Tag_1680 { char c; Tag_1680() {} Tag_1680(const Tag_1680 &o) : c(o.c) {} };
@@ -3733,11 +3733,11 @@ extern "C" V3_1680* func_00301680(V3_1680 *ret, int n, Ent_1680 *e) {
         else
             v = -1.0f;
         ((int*)ret)[2] = 2;
-        *func_00226618_1680(ret) = v;
+        *LunoVMRegister_AsFloat_1680(ret) = v;
     } else {
         v = -1.0f;
         ((int*)ret)[2] = 2;
-        *func_00226618_1680(ret) = v;
+        *LunoVMRegister_AsFloat_1680(ret) = v;
     }
     return ret;
 }
@@ -3757,7 +3757,7 @@ static inline char *look_1830(unsigned id) {
     return (char*)(i << 2);
 }
 
-int *func_00226610(void*);
+int *LunoVMRegister_AsInt(void*);
 struct O_1830 { int p0, p1, p2; virtual void v01(); virtual void v02(); virtual void v03(); virtual void v04(); virtual void v05(); virtual void v06(); virtual void v07(); virtual void v08(); virtual void v09(); virtual void v10(); virtual void v11(); virtual void v12(); virtual void v13(); virtual void v14(); virtual void v15(); virtual void v16(); virtual void v17(); virtual void v18(); virtual void v19(); virtual void v20(); virtual void v21(); virtual void v22(); virtual void v23(); virtual void v24(); virtual void v25(); virtual void v26(); virtual void v27(); virtual void v28(); virtual void v29(); virtual void v30(); virtual int v31(); };
 struct V3_1830 { int w0, w1, w2; };
 struct Tag_1830 { char c; Tag_1830() {} Tag_1830(const Tag_1830 &o) : c(o.c) {} };
@@ -3809,10 +3809,10 @@ extern "C" V3_1830* func_00301830(V3_1830 *ret, int n, Ent_1830 *e) {
         else
             v = 0;
         ((int*)ret)[2] = 1;
-        *func_00226610(ret) = v;
+        *LunoVMRegister_AsInt(ret) = v;
     } else {
         ((int*)ret)[2] = 1;
-        *func_00226610(ret) = 0;
+        *LunoVMRegister_AsInt(ret) = 0;
     }
     return ret;
 }
@@ -3822,7 +3822,7 @@ extern "C" V3_1830* func_00301830(V3_1830 *ret, int n, Ent_1830 *e) {
 extern char *D_004A3DD8_19C8 __asm__("D_004A3DD8");
 extern char **D_004A47B8_19C8 __asm__("D_004A47B8");
 extern char *D_004A28A8_19C8 __asm__("D_004A28A8");
-int *func_00226610(void*);
+int *LunoVMRegister_AsInt(void*);
 struct O_19C8 { int p0, p1, p2; virtual void v01(); virtual void v02(); virtual void v03(); virtual void v04(); virtual void v05(); virtual void v06(); virtual void v07(); virtual void v08(); virtual void v09(); virtual void v10(); virtual void v11(); virtual void v12(); virtual void v13(); virtual void v14(); virtual void v15(); virtual void v16(); virtual void v17(); virtual void v18(); virtual void v19(); virtual void v20(); virtual void v21(); virtual void v22(); virtual void v23(); virtual void v24(); virtual void v25(); virtual void v26(); virtual void v27(); virtual void v28(); virtual void v29(); virtual void v30(); virtual void v31(); virtual int v32(float); };
 struct V3_19C8 { int w0, w1, w2; };
 struct Tag_19C8 { char c; Tag_19C8() {} Tag_19C8(const Tag_19C8 &o) : c(o.c) {} };
@@ -3873,10 +3873,10 @@ extern "C" V3_19C8* func_003019C8(V3_19C8 *ret, int n, Ent_19C8 *e) {
         else
             v = 0;
         ((int*)ret)[2] = 1;
-        *func_00226610(ret) = v;
+        *LunoVMRegister_AsInt(ret) = v;
     } else {
         ((int*)ret)[2] = 1;
-        *func_00226610(ret) = 0;
+        *LunoVMRegister_AsInt(ret) = 0;
     }
     return ret;
 }
@@ -3891,7 +3891,7 @@ extern int D_004A3CA0_1B88[2] __asm__("D_004A3CA0");
 extern int D_004A3DD8_1B88 __asm__("D_004A3DD8");
 extern "C" void func_003E6574(void*, void*, int);
 extern "C" void func_0030A6D8(int, int);
-int* func_00226610(void*);
+int* LunoVMRegister_AsInt(void*);
 
 struct Ent_1B88 { int idx; int val; int pad; int kind; };
 
@@ -3916,7 +3916,7 @@ extern "C" void* func_00301B88(void* self, int n, Ent_1B88* e) {
     }
     func_0030A6D8(D_004A3DD8_1B88, vp[0]);
     *(int*)((char*)self + 8) = 1;
-    *func_00226610(self) = 0;
+    *LunoVMRegister_AsInt(self) = 0;
     return self;
 }
 
@@ -3930,7 +3930,7 @@ extern int D_004A3CA8_1C80[2] __asm__("D_004A3CA8");
 extern int D_004A3DD8_1C80 __asm__("D_004A3DD8");
 extern "C" void func_003E6574(void*, void*, int);
 extern "C" void func_0030A700(int, int);
-int* func_00226610(void*);
+int* LunoVMRegister_AsInt(void*);
 
 struct Ent_1C80 { int idx; int val; int pad; int kind; };
 
@@ -3955,7 +3955,7 @@ extern "C" void* func_00301C80(void* self, int n, Ent_1C80* e) {
     }
     func_0030A700(D_004A3DD8_1C80, vp[0]);
     *(int*)((char*)self + 8) = 1;
-    *func_00226610(self) = 0;
+    *LunoVMRegister_AsInt(self) = 0;
     return self;
 }
 
@@ -3978,7 +3978,7 @@ struct V3_1D78 { float x, y, z; };
 extern V3_1D78 D_004C9098_1D78 __asm__("D_004C9098");
 extern "C" void* func_003E6574_1D78(void*, void*, int) __asm__("func_003E6574");
 struct Chk_1D78 { virtual void v01(); virtual void v02(); virtual int v03(char*); };
-int* func_00226610_1D78(void*) __asm__("func_00226610__FPv");
+int* LunoVMRegister_AsInt_1D78(void*) __asm__("LunoVMRegister_AsInt__FPv");
 struct Ent_1D78 { int idx; int val; int pad; int type; };
 extern "C" void* func_00301D78(void* self, int n, Ent_1D78 *e) {
     if (D_004A5718_1D78 == 0) {
@@ -4027,12 +4027,12 @@ extern "C" void* func_00301D78(void* self, int n, Ent_1D78 *e) {
         Chk_1D78 *c = (Chk_1D78*)(r + 0x6C0);
         if (c->v03(obj)) {
             *(int*)((char*)self + 8) = found;
-            *func_00226610_1D78(self) = found;
+            *LunoVMRegister_AsInt_1D78(self) = found;
             goto done;
         }
     }
     *(int*)((char*)self + 8) = 1;
-    *func_00226610_1D78(self) = 0;
+    *LunoVMRegister_AsInt_1D78(self) = 0;
 done:
     return self;
 }
@@ -4080,7 +4080,7 @@ extern int *D_004A3DD8_2048 __asm__("D_004A3DD8");
 extern char *D_004A28A8_2048 __asm__("D_004A28A8");
 extern int D_00445E40_2048[] __asm__("D_00445E40");
 extern "C" void func_0030B7F8_2048(int*, int) __asm__("func_0030B7F8");
-extern "C" void func_0022D6C8_2048(int, int) __asm__("func_0022D6C8");
+extern "C" void SectionMan_OnEventTrigger_2048(int, int) __asm__("SectionMan_OnEventTrigger");
 struct Sh_2048 { virtual void v01(); virtual void v02(); virtual void v03(); virtual void v04(); virtual void v05(); virtual void v06(); virtual void v07(); virtual void v08(); virtual int v09(); };
 struct V3_2048 { float x, y, z; };
 extern V3_2048 D_004C9098_2048 __asm__("D_004C9098");
@@ -4133,7 +4133,7 @@ extern "C" V3_2048 func_00302048(int n, Ent_2048 *e) {
         if (b1 == 0) {
             if (v16 != 1)
                 func_0030B7F8_2048(D_004A3DD8_2048, id);
-            func_0022D6C8_2048(w, v16);
+            SectionMan_OnEventTrigger_2048(w, v16);
         }
     }
     return D_004C9098_2048;
@@ -4314,7 +4314,7 @@ INCLUDE_ASM("seg/seg_1FBE38", func_00302870);
 //100%
 // PORT: PS2-only inline asm; needs a C fallback off-PS2.
 extern "C" void func_003E6574(void*, void*, int);
-int* func_00226610(void*);
+int* LunoVMRegister_AsInt(void*);
 struct Flag_2968 { char c; Flag_2968() {} Flag_2968(const Flag_2968& o) : c(o.c) {} };
 struct Ent_2968 { int idx; int val; int pad; int kind; };
 struct R12_2968 { int a; int b; int c; };
@@ -4363,7 +4363,7 @@ extern "C" R12_2968 func_00302968(int n, Ent_2968* e) {
 //100%
 // PORT: PS2-only inline asm; needs a C fallback off-PS2.
 extern "C" void func_003E6574(void*, void*, int);
-int* func_00226610(void*);
+int* LunoVMRegister_AsInt(void*);
 struct Flag_2AC0 { char c; Flag_2AC0() {} Flag_2AC0(const Flag_2AC0& o) : c(o.c) {} };
 struct Ent_2AC0 { int idx; int val; int pad; int kind; };
 struct R12_2AC0 { int a; int b; int c; };
@@ -4402,7 +4402,7 @@ extern "C" R12_2AC0 func_00302AC0(int n, Ent_2AC0* e) {
 //100%
 // PORT: PS2-only inline asm; needs a C fallback off-PS2.
 extern "C" void func_003E6574(void*, void*, int);
-int* func_00226610(void*);
+int* LunoVMRegister_AsInt(void*);
 struct Flag_2BD8 { char c; Flag_2BD8() {} Flag_2BD8(const Flag_2BD8& o) : c(o.c) {} };
 struct Ent_2BD8 { int idx; int val; int pad; int kind; };
 struct R12_2BD8 { int a; int b; int c; };
@@ -4440,7 +4440,7 @@ extern "C" R12_2BD8 func_00302BD8(int n, Ent_2BD8* e) {
 //100%
 // PORT: PS2-only inline asm; needs a C fallback off-PS2.
 extern "C" void func_003E6574(void*, void*, int);
-int* func_00226610(void*);
+int* LunoVMRegister_AsInt(void*);
 struct Flag_2CE8 { char c; Flag_2CE8() {} Flag_2CE8(const Flag_2CE8& o) : c(o.c) {} };
 struct Ent_2CE8 { int idx; int val; int pad; int kind; };
 struct R12_2CE8 { int a; int b; int c; };
@@ -4478,7 +4478,7 @@ extern "C" R12_2CE8 func_00302CE8(int n, Ent_2CE8* e) {
 //100%
 // PORT: PS2-only inline asm; needs a C fallback off-PS2.
 extern "C" void func_003E6574(void*, void*, int);
-int* func_00226610(void*);
+int* LunoVMRegister_AsInt(void*);
 struct Flag_2DF0 { char c; Flag_2DF0() {} Flag_2DF0(const Flag_2DF0& o) : c(o.c) {} };
 struct Ent_2DF0 { int idx; int val; int pad; int kind; };
 struct R12_2DF0 { int a; int b; int c; };
@@ -4514,7 +4514,7 @@ extern "C" R12_2DF0 func_00302DF0(int n, Ent_2DF0* e) {
 }
 
 extern "C" void func_003E6574(void*, void*, int);
-int* func_00226610(void*);
+int* LunoVMRegister_AsInt(void*);
 struct Flag_2EF8 { char c; Flag_2EF8() {} Flag_2EF8(const Flag_2EF8& o) : c(o.c) {} };
 struct Ent_2EF8 { int idx; int val; int pad; int kind; };
 extern int D_004A3D10_2EF8[2] __asm__("D_004A3D10");
@@ -4575,7 +4575,7 @@ extern "C" void* func_00302EF8(void* self, int n, Ent_2EF8* e) {
     default: res = 0; break;
     }
     *(int*)((char*)self + 8) = 1;
-    *func_00226610(self) = res;
+    *LunoVMRegister_AsInt(self) = res;
     return self;
 }
 
@@ -4594,7 +4594,7 @@ static inline char *look_3130(unsigned id) {
     return (char*)(i << 2);
 }
 
-int *func_00226610(void*);
+int *LunoVMRegister_AsInt(void*);
 struct V3_3130 { int w0, w1, w2; };
 struct Tag_3130 { char c; Tag_3130() {} Tag_3130(const Tag_3130 &o) : c(o.c) {} };
 extern unsigned D_3130[] __asm__("D_004FBC50");
@@ -4626,17 +4626,17 @@ extern "C" V3_3130* func_00303130(V3_3130 *ret, int n, Ent_3130 *e) {
     char *obj = look_3130(buf[0]);
     if (obj && *(int*)(obj + 0xC)) {
         ((int*)ret)[2] = 1;
-        *func_00226610(ret) = 1;
+        *LunoVMRegister_AsInt(ret) = 1;
     } else {
         ((int*)ret)[2] = 1;
-        *func_00226610(ret) = 0;
+        *LunoVMRegister_AsInt(ret) = 0;
     }
     return ret;
 }
 
 //100%
 // PORT: PS2-only VU0 inline asm (vector length).
-void* func_00226618(void*);
+void* LunoVMRegister_AsFloat(void*);
 extern char *D_004A3DD8_32C0 __asm__("D_004A3DD8");
 extern char *D_004A28A8_32C0 __asm__("D_004A28A8");
 struct Vec_32C0 { float x, y, z, w; } __attribute__((aligned(16)));
@@ -4669,13 +4669,13 @@ extern "C" void* func_003032C0(void* self) {
     float len = len_32C0(*d->v02());
     float res = len * *(float*)(D_004A28A8_32C0 + 0x14);
     *(int*)((char*)self + 8) = 2;
-    *(float*)func_00226618(self) = res;
+    *(float*)LunoVMRegister_AsFloat(self) = res;
     return self;
 }
 
 //100%
 // PORT: PS2-only VU0 inline asm (vector length).
-void* func_00226618(void*);
+void* LunoVMRegister_AsFloat(void*);
 extern char *D_004A3DD8_3380 __asm__("D_004A3DD8");
 extern char *D_004A28A8_3380 __asm__("D_004A28A8");
 struct Vec_3380 { float x, y, z, w; } __attribute__((aligned(16)));
@@ -4707,7 +4707,7 @@ extern "C" void* func_00303380(void* self) {
     D_3380 *d = (D_3380*)b;
     float len = len_3380(*d->v02());
     *(int*)((char*)self + 8) = 2;
-    *(float*)func_00226618(self) = len;
+    *(float*)LunoVMRegister_AsFloat(self) = len;
     return self;
 }
 
@@ -4732,7 +4732,7 @@ extern "C" void* func_00303490(void* self) {
 
 //100%
 // PORT: PS2-only inline asm; needs a C fallback off-PS2.
-int* func_00226610(void*);
+int* LunoVMRegister_AsInt(void*);
 extern char *D_004A3DD8_34F8 __asm__("D_004A3DD8");
 extern char *D_004A28A8_34F8 __asm__("D_004A28A8");
 struct A_34F8 { char pad[0x6C0]; };
@@ -4750,14 +4750,14 @@ extern "C" void* func_003034F8(void* self) {
     else
         v = 0xFFFFFFFF;
     *(int*)((char*)self + 8) = 1;
-    *func_00226610(self) = v;
+    *LunoVMRegister_AsInt(self) = v;
     return self;
 }
 
 //100%
 // PORT: PS2-only inline asm; needs a C fallback off-PS2.
 extern "C" void func_003E6574(void*, void*, int);
-int* func_00226610(void*);
+int* LunoVMRegister_AsInt(void*);
 struct Flag_3598 { char c; Flag_3598() {} Flag_3598(const Flag_3598& o) : c(o.c) {} };
 struct Ent_3598 { int idx; int val; int pad; int kind; };
 struct R12_3598 { int a; int b; int c; };
@@ -4765,7 +4765,7 @@ extern R12_3598 D_004C9098_3598 __asm__("D_004C9098");
 
 extern int D_004A3D20_3598[2] __asm__("D_004A3D20");
 float AIrandf(float, float);
-void* func_00226618(void*);
+void* LunoVMRegister_AsFloat(void*);
 extern int D_004A57B8_3598 __asm__("D_004A57B8");
 struct T12_3598 { float a; float b; Flag_3598 f; };
 extern T12_3598 D_004FBC60_3598 __asm__("D_004FBC60");
@@ -4791,7 +4791,7 @@ extern "C" void* WScriptFn_RandRange(void* self, int n, Ent_3598* e) {
     }
     float r = AIrandf(vp[0], vp[1]);
     *(int*)((char*)self + 8) = 2;
-    *(float*)func_00226618(self) = r;
+    *(float*)LunoVMRegister_AsFloat(self) = r;
     return self;
 }
 
@@ -4805,7 +4805,7 @@ extern int D_004A3D28_36B0[2] __asm__("D_004A3D28");
 extern "C" void func_003E6574(void*, void*, int);
 extern "C" int func_0030AF08(int*, int, int);
 extern int* D_004A3DD8_36B0 __asm__("D_004A3DD8");
-int* func_00226610(void*);
+int* LunoVMRegister_AsInt(void*);
 
 struct Ent_36B0 { int idx; int val; int pad; int kind; };
 
@@ -4830,12 +4830,12 @@ extern "C" void* func_003036B0(void* self, int n, Ent_36B0* e) {
     }
     int r = func_0030AF08(D_004A3DD8_36B0, *D_004A3DD8_36B0, vp[0]);
     *(int*)((char*)self + 8) = 1;
-    *func_00226610(self) = r;
+    *LunoVMRegister_AsInt(self) = r;
     return self;
 }
 
 extern "C" void func_003E6574(void*, void*, int);
-int* func_00226610(void*);
+int* LunoVMRegister_AsInt(void*);
 struct Flag_37B0 { char c; Flag_37B0() {} Flag_37B0(const Flag_37B0& o) : c(o.c) {} };
 struct Ent_37B0 { int idx; int val; int pad; int kind; };
 extern int D_004A3D30_37B0[2] __asm__("D_004A3D30");
@@ -4896,7 +4896,7 @@ extern "C" void* func_003037B0(void* self, int n, Ent_37B0* e) {
     default: res = 0; break;
     }
     *(int*)((char*)self + 8) = 1;
-    *func_00226610(self) = res;
+    *LunoVMRegister_AsInt(self) = res;
     return self;
 }
 
@@ -4974,8 +4974,8 @@ extern int D_57E0_3BA0 __asm__("D_004A57E0");
 extern const int D_004465D8_3BA0[] __asm__("D_004465D8");
 extern "C" void* func_003E6574_3BA0(void*, void*, int) __asm__("func_003E6574");
 extern "C" void func_00229820_3BA0(int, unsigned, int, int) __asm__("func_00229820");
-extern "C" void func_00229788_3BA0(int, unsigned, int, int) __asm__("func_00229788");
-extern "C" void func_002297D8_3BA0(int, unsigned, int, int) __asm__("func_002297D8");
+extern "C" void CrowdMan2d_Add_3BA0(int, unsigned, int, int) __asm__("CrowdMan2d_Add");
+extern "C" void CrowdMan2d_Remove_3BA0(int, unsigned, int, int) __asm__("CrowdMan2d_Remove");
 struct Ent_3BA0 { int idx; int val; int pad; int type; };
 extern "C" V3_3BA0 func_00303BA0(int n, Ent_3BA0 *e) {
     if (D_57E0_3BA0 == 0) {
@@ -5022,9 +5022,9 @@ extern "C" V3_3BA0 func_00303BA0(int n, Ent_3BA0 *e) {
             func_00229820_3BA0(D_004A2A00_3BA0, h, a, b);
         else if (mode == 1) {
         } else if (mode == 2)
-            func_00229788_3BA0(D_004A2A00_3BA0, h, a, b);
+            CrowdMan2d_Add_3BA0(D_004A2A00_3BA0, h, a, b);
         else if (mode == 3)
-            func_002297D8_3BA0(D_004A2A00_3BA0, h, a, b);
+            CrowdMan2d_Remove_3BA0(D_004A2A00_3BA0, h, a, b);
     }
     return D_004C9098_3BA0;
 }
@@ -5076,7 +5076,7 @@ extern "C" int func_00303E60(unsigned i) {
 
 //100%
 // PORT: PS2-only inline asm; needs a C fallback off-PS2.
-int* func_00226610(void*);
+int* LunoVMRegister_AsInt(void*);
 extern char *D_004A3DD8_3EC8 __asm__("D_004A3DD8");
 extern char *D_004A28A8_3EC8 __asm__("D_004A28A8");
 struct A_3EC8 { char pad[0x6C0]; };
@@ -5095,10 +5095,10 @@ static inline bool isIdle_3EC8(int slot) {
 extern "C" void* func_00303EC8(void* self) {
     if (isIdle_3EC8(*(int*)D_004A3DD8_3EC8)) {
         *(int*)((char*)self + 8) = 1;
-        *func_00226610(self) = 1;
+        *LunoVMRegister_AsInt(self) = 1;
     } else {
         *(int*)((char*)self + 8) = 1;
-        *func_00226610(self) = 0;
+        *LunoVMRegister_AsInt(self) = 0;
     }
     return self;
 }
@@ -5127,7 +5127,7 @@ extern "C" V3_3F80 func_00303F80(void) {
 //100%
 // PORT: PS2-only inline asm; needs a C fallback off-PS2.
 extern "C" void func_003E6574(void*, void*, int);
-int* func_00226610(void*);
+int* LunoVMRegister_AsInt(void*);
 struct Flag_3FF0 { char c; Flag_3FF0() {} Flag_3FF0(const Flag_3FF0& o) : c(o.c) {} };
 struct Ent_3FF0 { int idx; int val; int pad; int kind; };
 struct R12_3FF0 { int a; int b; int c; };
@@ -5166,7 +5166,7 @@ extern "C" R12_3FF0 func_00303FF0(int n, Ent_3FF0* e) {
 //100%
 // PORT: PS2-only inline asm; needs a C fallback off-PS2.
 extern "C" void func_003E6574(void*, void*, int);
-int* func_00226610(void*);
+int* LunoVMRegister_AsInt(void*);
 struct Flag_4100 { char c; Flag_4100() {} Flag_4100(const Flag_4100& o) : c(o.c) {} };
 struct Ent_4100 { int idx; int val; int pad; int kind; };
 struct R12_4100 { int a; int b; int c; };
@@ -5205,7 +5205,7 @@ extern "C" R12_4100 func_00304100(int n, Ent_4100* e) {
 //100%
 // PORT: PS2-only inline asm; needs a C fallback off-PS2.
 extern "C" void func_003E6574(void*, void*, int);
-int* func_00226610(void*);
+int* LunoVMRegister_AsInt(void*);
 struct Flag_4210 { char c; Flag_4210() {} Flag_4210(const Flag_4210& o) : c(o.c) {} };
 struct Ent_4210 { int idx; int val; int pad; int kind; };
 struct R12_4210 { int a; int b; int c; };
@@ -5246,14 +5246,14 @@ INCLUDE_ASM("seg/seg_1FBE38", func_00304320);
 //100%
 // PORT: PS2-only inline asm; needs a C fallback off-PS2.
 extern "C" void func_003E6574(void*, void*, int);
-int* func_00226610(void*);
+int* LunoVMRegister_AsInt(void*);
 struct Flag_44A8 { char c; Flag_44A8() {} Flag_44A8(const Flag_44A8& o) : c(o.c) {} };
 struct Ent_44A8 { int idx; int val; int pad; int kind; };
 struct R12_44A8 { int a; int b; int c; };
 extern R12_44A8 D_004C9098_44A8 __asm__("D_004C9098");
 
 extern int D_004A3D60_44A8[2] __asm__("D_004A3D60");
-extern "C" void func_00238550(int, int, int);
+extern "C" void cGameModeMan_HandlerV07(int, int, int);
 extern int* D_004A3DD8_44A8 __asm__("D_004A3DD8");
 extern char* D_004A28A8_44A8 __asm__("D_004A28A8");
 extern int D_004A5808_44A8 __asm__("D_004A5808");
@@ -5279,7 +5279,7 @@ extern "C" R12_44A8 func_003044A8(int n, Ent_44A8* e) {
             *d = p->val;
     }
     int b = *D_004A3DD8_44A8;
-    func_00238550(*(int*)(D_004A28A8_44A8 + 0xC0), b, vp[0]);
+    cGameModeMan_HandlerV07(*(int*)(D_004A28A8_44A8 + 0xC0), b, vp[0]);
     return D_004C9098_44A8;
 }
 
@@ -5425,7 +5425,7 @@ extern "C" V3_4980 func_00304980(int n, Ent_4980 *e) {
 //100%
 // PORT: PS2-only inline asm; needs a C fallback off-PS2.
 extern "C" void func_003E6574(void*, void*, int);
-int* func_00226610(void*);
+int* LunoVMRegister_AsInt(void*);
 struct Flag_4B38 { char c; Flag_4B38() {} Flag_4B38(const Flag_4B38& o) : c(o.c) {} };
 struct Ent_4B38 { int idx; int val; int pad; int kind; };
 struct R12_4B38 { int a; int b; int c; };
@@ -5463,7 +5463,7 @@ extern "C" R12_4B38 func_00304B38(int n, Ent_4B38* e) {
 
 //100%
 // PORT: PS2-only inline asm; needs a C fallback off-PS2.
-void* func_00226618(void*);
+void* LunoVMRegister_AsFloat(void*);
 extern "C" void func_003E6574(void*, void*, int);
 struct Tag_4C50 { char c; Tag_4C50() {} Tag_4C50(const Tag_4C50 &o) : c(o.c) {} };
 struct Ent_4C50 { int idx; int val; int pad; int type; };
@@ -5528,10 +5528,10 @@ extern "C" void* func_00304C50(void* self, int n, Ent_4C50 *e) {
         else
             v = 0.0f;
         *(int*)((char*)self + 8) = 2;
-        *(float*)func_00226618(self) = v;
+        *(float*)LunoVMRegister_AsFloat(self) = v;
     } else {
         *(int*)((char*)self + 8) = 2;
-        *(int*)func_00226618(self) = 0;
+        *(int*)LunoVMRegister_AsFloat(self) = 0;
     }
     return self;
 }
@@ -5808,7 +5808,7 @@ INCLUDE_ASM("seg/seg_1FBE38", func_003059A0);
 //100%
 // PORT: PS2-only inline asm; needs a C fallback off-PS2.
 extern "C" void func_003E6574(void*, void*, int);
-int* func_00226610(void*);
+int* LunoVMRegister_AsInt(void*);
 struct Flag_5C88 { char c; Flag_5C88() {} Flag_5C88(const Flag_5C88& o) : c(o.c) {} };
 struct Ent_5C88 { int idx; int val; int pad; int kind; };
 struct R12_5C88 { int a; int b; int c; };
@@ -6027,7 +6027,7 @@ INCLUDE_ASM("seg/seg_1FBE38", func_003061B0);
 //100%
 // PORT: PS2-only inline asm; needs a C fallback off-PS2.
 extern "C" void func_003E6574(void*, void*, int);
-int* func_00226610(void*);
+int* LunoVMRegister_AsInt(void*);
 struct Flag_6300 { char c; Flag_6300() {} Flag_6300(const Flag_6300& o) : c(o.c) {} };
 struct Ent_6300 { int idx; int val; int pad; int kind; };
 struct R12_6300 { int a; int b; int c; };
@@ -6469,8 +6469,8 @@ extern int D_004A3DD8_6E68 __asm__("D_004A3DD8");
 extern char **D_004A47B8_6E68 __asm__("D_004A47B8");
 extern "C" int func_0030BFC0_6E68(int, int, int, int) __asm__("func_0030BFC0");
 extern "C" void *func_0028B180_6E68() __asm__("func_0028B180");
-extern "C" void func_002974A0_6E68(void*, void*, int) __asm__("func_002974A0");
-int *func_00226610(void*);
+extern "C" void cSSXAudio_PlayObjectSound_6E68(void*, void*, int) __asm__("cSSXAudio_PlayObjectSound");
+int *LunoVMRegister_AsInt(void*);
 static inline char *refToPtr_6E68(unsigned i) { return (char*)(i << 2); }
 static inline char *conv_6E68(unsigned i) { if (i == 0) return 0; return refToPtr_6E68(i); }
 struct V3_6E68 { int w0, w1, w2; };
@@ -6519,17 +6519,17 @@ extern "C" V3_6E68* func_00306E68(V3_6E68 *ret, int n, Ent_6E68 *e) {
             obj = t;
         }
         if (obj)
-            func_002974A0_6E68(func_0028B180_6E68(), obj, 0x5C);
+            cSSXAudio_PlayObjectSound_6E68(func_0028B180_6E68(), obj, 0x5C);
     }
     ((int*)ret)[2] = 1;
-    *func_00226610(ret) = r;
+    *LunoVMRegister_AsInt(ret) = r;
     return ret;
 }
 
 //100%
 // PORT: PS2-only inline asm; needs a C fallback off-PS2.
 extern "C" void func_003E6574(void*, void*, int);
-int* func_00226610(void*);
+int* LunoVMRegister_AsInt(void*);
 struct Flag_7020 { char c; Flag_7020() {} Flag_7020(const Flag_7020& o) : c(o.c) {} };
 struct Ent_7020 { int idx; int val; int pad; int kind; };
 struct R12_7020 { int a; int b; int c; };
@@ -6562,7 +6562,7 @@ extern "C" void* func_00307020(void* self, int n, Ent_7020* e) {
     }
     bool r = func_001E3570(vp[0], vp[1]) != 0;
     *(int*)((char*)self + 8) = 1;
-    *func_00226610(self) = r;
+    *LunoVMRegister_AsInt(self) = r;
     return self;
 }
 

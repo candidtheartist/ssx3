@@ -133,10 +133,10 @@ static inline sMat_C1B0* viewMat_C1B0()
     return c->vt[35].fn((char*)c + c->vt[35].delta);
 }
 
-// PORT: the unit declares func_0022C1B0 as void(void*); the body returns self, bound by asm label.
-sRenderCam_C1B0* func_0022C1B0_impl(sRenderCam_C1B0* self) __asm__("func_0022C1B0");
+// PORT: the unit declares cGame_BeginBezierPass as void(void*); the body returns self, bound by asm label.
+sRenderCam_C1B0* cGame_BeginBezierPass_impl(sRenderCam_C1B0* self) __asm__("cGame_BeginBezierPass");
 
-sRenderCam_C1B0* func_0022C1B0_impl(sRenderCam_C1B0* self)
+sRenderCam_C1B0* cGame_BeginBezierPass_impl(sRenderCam_C1B0* self)
 {
     self->cam = (sCamObj_C1B0*)D_004A4248;
     self->pos = Scale_C1B0(sVec_C1B0(*(sVec_C1B0*)viewMat_C1B0()->m[3]), -1.0f);
@@ -169,7 +169,7 @@ struct sVEntry_func_0022C3B8 {
     void (*fn)(void*);
 };
 
-extern "C" void func_0022C3B8(void* self, int flags)
+extern "C" void cGame_EndBezierPass(void* self, int flags)
 {
     void* obj = *(void**)self;
     sVEntry_func_0022C3B8* vt = *(sVEntry_func_0022C3B8**)((char*)obj + 0x4);
@@ -179,12 +179,12 @@ extern "C" void func_0022C3B8(void* self, int flags)
     }
 }
 
-INCLUDE_ASM("main/game", func_0022C410);
+INCLUDE_ASM("main/game", cGame_DrawBezierPatch);
 
 //100% - objdiff report; single-function view differs only in a relocation name
-extern "C" void func_0022C1B0(void* ctx);
-extern "C" void func_0022C410(void* ctx, int patch, int flag);
-extern "C" void func_0022C3B8(void* self, int flags);
+extern "C" void cGame_BeginBezierPass(void* ctx);
+extern "C" void cGame_DrawBezierPatch(void* ctx, int patch, int flag);
+extern "C" void cGame_EndBezierPass(void* self, int flags);
 extern void* D_004A4248;
 
 struct sVEntry0022C620 {
@@ -196,23 +196,23 @@ struct sVEntry0022C620 {
 extern "C" void cGame_renderPatches(void* self, void* world)
 {
     char ctx[0x30];
-    func_0022C1B0(ctx);
+    cGame_BeginBezierPass(ctx);
     int n = *(int*)((char*)world + 0x50A8);
     int* items = (int*)((char*)world + 0x50AC);
     for (int i = 0; i < n; i++) {
-        func_0022C410(ctx, items[i], 0);
+        cGame_DrawBezierPatch(ctx, items[i], 0);
     }
     n = *(int*)((char*)world + 0x70AC);
     items = (int*)((char*)world + 0x70B0);
     for (int i = 0; i < n; i++) {
-        func_0022C410(ctx, items[i], 1);
+        cGame_DrawBezierPatch(ctx, items[i], 1);
     }
     if (*(int*)(*(char**)((char*)self + 0x84) + 0x14) == 0) {
         void* obj = D_004A4248;
         sVEntry0022C620* vt = *(sVEntry0022C620**)((char*)obj + 4);
         vt[5].fn((char*)obj + vt[5].delta);
     }
-    func_0022C3B8(ctx, 2);
+    cGame_EndBezierPass(ctx, 2);
 }
 
 //100%
@@ -350,9 +350,9 @@ struct sPair_CEA8 {
 };
 extern sGroup_CEA8 D_00442488_CEA8[] __asm__("D_00442488");
 extern sPair_CEA8 D_00442820[];
-extern "C" void func_0022D3D8(void* self, int i);
-extern "C" void func_0022D598(void* self, int i);
-extern "C" void func_0022D640(void* self, int a1);
+extern "C" void SectionMan_RequestLoad(void* self, int i);
+extern "C" void SectionMan_RequestUnload(void* self, int i);
+extern "C" void SectionMan_StartEventSwitch(void* self, int a1);
 
 extern "C" void func_0022CEA8(char* self, int s, int k)
 {
@@ -377,29 +377,29 @@ extern "C" void func_0022CEA8(char* self, int s, int k)
         if (i >= 0x2C && i <= 0x30) keep = 0;
         if (i == 0x2B) keep = 0;
         if (keep) {
-            func_0022D598(self, i);
+            SectionMan_RequestUnload(self, i);
         }
     }
     *(int*)(self + 0x1BC) = s;
     *(int*)(self + 0x1C0) = 0;
     for (int j = 0; j < D_00442488_CEA8[s].count; j++) {
-        func_0022D3D8(self, D_00442488_CEA8[s].ids[j]);
+        SectionMan_RequestLoad(self, D_00442488_CEA8[s].ids[j]);
     }
     // Picking the sky after the loops, from inputs set up before them, keeps gcse from hoisting the xor.
     int sky = neg ? def : a;
     int t = sky ^ 0x31;
     if (t) {
         *(int*)(self + 0x1A4) = 0;
-        func_0022D3D8(self, sky);
+        SectionMan_RequestLoad(self, sky);
     }
     if (D_00442488_CEA8[s].b >= 0) {
-        func_0022D3D8(self, D_00442488_CEA8[s].b);
+        SectionMan_RequestLoad(self, D_00442488_CEA8[s].b);
     }
-    func_0022D640(self, arg);
+    SectionMan_StartEventSwitch(self, arg);
 }
 
 //100%
-extern "C" void func_0022D478(void* self, int i);
+extern "C" void SectionMan_RequestActivate(void* self, int i);
 extern "C" void func_0022D668(char* self, int a1);
 extern "C" void cSectionMan_setSky(void* self, int sky);
 void func_0022D088_impl(char* self, int s, int k) __asm__("func_0022D088");
@@ -427,23 +427,23 @@ void func_0022D088_impl(char* self, int s, int k)
         if (i >= 0x2C && i <= 0x30) keep = 0;
         if (i == 0x2B) keep = 0;
         if (keep) {
-            func_0022D598(self, i);
+            SectionMan_RequestUnload(self, i);
         }
     }
     *(int*)(self + 0x1C0) = 1;
     *(int*)(self + 0x1BC) = s;
     for (int j = 0; j < D_00442488_CEA8[s].count; j++) {
-        func_0022D478(self, D_00442488_CEA8[s].ids[j]);
+        SectionMan_RequestActivate(self, D_00442488_CEA8[s].ids[j]);
     }
     cSectionMan_setSky(self, s);
     // Same sky setup as func_0022CEA8.
     int sky = neg ? def : a;
     int t = sky ^ 0x31;
     if (t) {
-        func_0022D478(self, sky);
+        SectionMan_RequestActivate(self, sky);
     }
     if (D_00442488_CEA8[s].b >= 0) {
-        func_0022D478(self, D_00442488_CEA8[s].b);
+        SectionMan_RequestActivate(self, D_00442488_CEA8[s].b);
     }
     func_0022D668(self, arg);
 }
@@ -457,7 +457,7 @@ struct sGroup_D278 {
     int ids[6];
 };
 extern sGroup_D278 D_00442488_D278[] __asm__("D_00442488");
-extern "C" int func_0022E078(void* self, int id);
+extern "C" int SectionMan_IsSectionLoaded(void* self, int id);
 
 // PORT: the unit declares func_0022D278(void*) for its callers; the body reads a1, bound by asm label
 int func_0022D278_impl(void* self, int idx) __asm__("func_0022D278");
@@ -466,20 +466,20 @@ int func_0022D278_impl(void* self, int idx)
 {
     int ok = 1;
     for (int i = 0; i < D_00442488_D278[idx].count; i++) {
-        if (func_0022E078(self, D_00442488_D278[idx].ids[i]) == 0) {
+        if (SectionMan_IsSectionLoaded(self, D_00442488_D278[idx].ids[i]) == 0) {
             ok = 0;
             break;
         }
     }
     int a = D_00442488_D278[idx].a;
     if (a >= 0 && D_00442168[a].field_0x4 >= 0) {
-        if (func_0022E078(self, a) == 0) {
+        if (SectionMan_IsSectionLoaded(self, a) == 0) {
             ok = 0;
         }
     }
     int b = D_00442488_D278[idx].b;
     if (b >= 0 && D_00442168[b].field_0x4 >= 0) {
-        if (func_0022E078(self, b) == 0) {
+        if (SectionMan_IsSectionLoaded(self, b) == 0) {
             ok = 0;
         }
     }
@@ -489,7 +489,7 @@ int func_0022D278_impl(void* self, int idx)
 //100% - objdiff report; single-function view differs only in a relocation name
 extern "C" int func_0022D278(void* self);
 
-extern "C" int func_0022D390(void* self)
+extern "C" int SectionMan_IsEventReady(void* self)
 {
     int r = 0;
     if (func_0022D278(self) != 0) {
@@ -501,7 +501,7 @@ extern "C" int func_0022D390(void* self)
 //100%
 extern "C" void func_0022E298(void*);
 
-extern "C" void func_0022D3D8(void* self, int i)
+extern "C" void SectionMan_RequestLoad(void* self, int i)
 {
     int changed;
     if (D_00442168[i].field_0x4 < 0)
@@ -527,7 +527,7 @@ extern "C" void func_0022D3D8(void* self, int i)
 void func_0022E298_478(void* self, int i) __asm__("func_0022E298");
 void func_003A99D8_478(void* mgr, int handle) __asm__("func_003A99D8");
 
-extern "C" void func_0022D478(void* self_, int i)
+extern "C" void SectionMan_RequestActivate(void* self_, int i)
 {
     char* self = (char*)self_;
     int changed;
@@ -567,7 +567,7 @@ extern "C" void func_0022D478(void* self_, int i)
 //100%
 extern "C" void func_0022E298(void*);
 
-extern "C" void func_0022D598(void* self, int i)
+extern "C" void SectionMan_RequestUnload(void* self, int i)
 {
     int changed;
     if (D_00442168[i].field_0x4 < 0)
@@ -590,7 +590,7 @@ extern "C" void func_0022D598(void* self, int i)
 }
 
 //100%
-extern "C" void func_0022D640(void* self, int a1)
+extern "C" void SectionMan_StartEventSwitch(void* self, int a1)
 {
     if (a1 != 0 && *(int*)((char*)self + 0x1B4) == 0) {
         *(int*)((char*)self + 0x1B4) = 1;
@@ -646,7 +646,7 @@ struct sVE_D6C8 {
     void (*fn)(void*);
 };
 
-extern "C" void func_0022D6C8(char* self, int mode)
+extern "C" void SectionMan_OnEventTrigger(char* self, int mode)
 {
     char* iface = (char*)cBE_getInterface_Fv(cBE_getBE(), 0);
     int skip = 0;
@@ -708,9 +708,9 @@ extern "C" void func_0022D6C8(char* self, int mode)
 //100%
 extern "C" void func_0022DE58(void* self, int v);
 extern "C" void func_0022DE98(void* self);
-extern "C" void func_0022DF50(void* self);
-void* func_0022DFD0(void* self);
-extern "C" void func_0022DFF0(void* self);
+extern "C" void SectionMan_BeginEventSwitch(void* self);
+void* SectionMan_IsEventSwitchOverlayDone(void* self);
+extern "C" void SectionMan_FinishEventSwitch(void* self);
 struct sSectionNode_D8D8 {
     int id;
     sSectionNode_D8D8* next;
@@ -722,7 +722,7 @@ extern "C" int func_003A9958(cWorldView* view, int section);
 extern "C" int func_003A98C8(cWorldView* view, int section, float t);
 int cWorldView_isSectionLoaded(cWorldView* view, int section);
 extern "C" void func_00230338_D8D8(void* gm, int section) __asm__("func_00230338");
-extern "C" void func_00230360_D8D8(void* gm, int section) __asm__("func_00230360");
+extern "C" void cGame_OnSectionUnload_D8D8(void* gm, int section) __asm__("cGame_OnSectionUnload");
 extern "C" int func_00144D50(void* iface, int i);
 extern "C" void func_003A7058(void* self, int rate);
 extern "C" int sprintf(char* buf, const char* fmt, ...);
@@ -776,7 +776,7 @@ extern "C" void func_0022D8D8(void* self_)
         case 5:
             if (func_003A9958(gameWorldView_22CD40(self), section)) {
                 D_00442168[idx].field_0x8 = 7;
-                func_00230360_D8D8(*(void**)(self + 0x1B0), section);
+                cGame_OnSectionUnload_D8D8(*(void**)(self + 0x1B0), section);
             }
             changed = 1;
             break;
@@ -880,19 +880,19 @@ extern "C" void func_0022D8D8(void* self_)
     case 2:
         break;
     case 1:
-        func_0022DF50(self);
+        SectionMan_BeginEventSwitch(self);
         *(int*)(self + 0x1B4) = 2;
         break;
     case 3:
-        func_0022DF50(self);
+        SectionMan_BeginEventSwitch(self);
         r = 1;
         *(int*)(self + 0x1B4) = 4;
         break;
     case 4:
         if (flag104) {
             r = 1;
-        } else if (func_0022DFD0(self)) {
-            func_0022DFF0(self);
+        } else if (SectionMan_IsEventSwitchOverlayDone(self)) {
+            SectionMan_FinishEventSwitch(self);
             *(int*)(self + 0x1B4) = 0;
             *(int*)(self + 0x1B8) = 0;
         } else {
@@ -910,19 +910,19 @@ extern "C" void func_0022D8D8(void* self_)
 }
 
 //100%
-extern "C" void func_0022D478(void* self, int v);
+extern "C" void SectionMan_RequestActivate(void* self, int v);
 
 extern "C" void func_0022DE58(void* self, int v)
 {
     if (*(int*)((char*)self + 0x1AC) != v) {
         *(int*)((char*)self + 0x1AC) = v;
-        func_0022D478(self, v);
+        SectionMan_RequestActivate(self, v);
         *(int*)((char*)self + 0x1A8) = 1;
     }
 }
 
 //100%
-extern "C" void func_0022D598(void* self, int id);
+extern "C" void SectionMan_RequestUnload(void* self, int id);
 void func_00353D98(void* self);
 extern "C" void func_00353CF0(void* self, int id);
 
@@ -937,7 +937,7 @@ extern "C" void func_0022DE98(void* self)
     int i;
     for (i = 0x2C; i < 0x31; i++) {
         if (i != *(int*)((char*)self + 0x1AC)) {
-            func_0022D598(self, i);
+            SectionMan_RequestUnload(self, i);
         }
     }
     int id = D_00442168[*(int*)((char*)self + 0x1AC)].field_0x4;
@@ -965,7 +965,7 @@ void func_00231278(void* gm, int state);
 extern int D_00535C08[];
 extern int D_004A11B8;
 
-extern "C" void func_0022DF50(void* self)
+extern "C" void SectionMan_BeginEventSwitch(void* self)
 {
     func_00231250(*(void**)((char*)self + 0x1B0), 0xB, 0, 1);
     cBEIface22DF50* iface = (cBEIface22DF50*)cBE_getInterface_Fv(cBE_getBE(), 0);
@@ -978,7 +978,7 @@ extern "C" void func_0022DF50(void* self)
 extern "C" void* func_002312D8(int);
 
 //100%
-void* func_0022DFD0(void* self)
+void* SectionMan_IsEventSwitchOverlayDone(void* self)
 {
     return func_002312D8(*(int*)((char*)self + 0x1b0));
 }
@@ -1001,7 +1001,7 @@ extern "C" void cSectionMan_setSky(void* self, int sky);
 extern "C" void func_00231250(void* gm, int state, int a, int b);
 extern void* D_004A28A8;
 
-extern "C" void func_0022DFF0(void* self)
+extern "C" void SectionMan_FinishEventSwitch(void* self)
 {
     cSectionMan_setSky(self, *func_00144BC0(cBE_getInterface_Fv(cBE_getBE(), 0)));
     if (*(int*)((char*)self + 0x1CC) != 0) {
@@ -1012,7 +1012,7 @@ extern "C" void func_0022DFF0(void* self)
 }
 
 //100%
-extern "C" int func_0022E078(void* self, int a1)
+extern "C" int SectionMan_IsSectionLoaded(void* self, int a1)
 {
     int v = D_00442168[a1].field_0x8;
     return (unsigned int)(v - 1) < 2;
@@ -1033,13 +1033,13 @@ struct sGameEntry2 {
 };
 extern sGameEntry2 D_00442488[];
 
-extern "C" int func_0022E098(void* self, int a1)
+extern "C" int SectionMan_GetEventWorldSection(void* self, int a1)
 {
     return D_00442168[D_00442488[a1].field_0x10].field_0x4;
 }
 
 //100%
-extern "C" int func_0022E0C8(void* self, int a1)
+extern "C" int SectionMan_GetWorldSectionIndex(void* self, int a1)
 {
     return D_00442168[a1].field_0x4;
 }
@@ -1060,7 +1060,7 @@ extern "C" int func_0022E0E0(void* self, int a1)
 extern signed char D_00535C11[];
 extern "C" void func_0022D088(void* self, void* a1, int a2);
 
-extern "C" void func_0022E118(void* self, void* a1)
+extern "C" void SectionMan_ReloadEventAndRestart(void* self, void* a1)
 {
     cBE_getInterface_Fv(cBE_getBE(), 0);
     if (D_00535C11[0] == 0) {

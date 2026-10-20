@@ -33,7 +33,7 @@ struct cLunoTableRef {
 
 void operator_delete(int* ptr);
 void cMemMan_free(void* ptr);
-extern "C" void func_00224F30(cLunoTableRef* ref);
+extern "C" void luno_cLunoTable_FreeData(cLunoTableRef* ref);
 extern "C" void func_00224DF0(cLunoTableRef* ref, int flags);
 
 INCLUDE_ASM("luno/lunovm", luno_cLunoVM_execute);
@@ -45,7 +45,7 @@ struct sVEntry00224C00 {
     void (*fn)(void*, void*, int);
 };
 
-extern "C" void func_00224C00(void* self, sVEntry00224C00** stream, int base)
+extern "C" void LunoVMRegister_WritePtr(void* self, sVEntry00224C00** stream, int base)
 {
     int off;
     int v;
@@ -62,7 +62,7 @@ struct sVEntry00224C78 {
     void (*fn)(void*, void*, int);
 };
 
-extern "C" void func_00224C78(void* self, sVEntry00224C78** stream, int base)
+extern "C" void LunoVMRegister_ReadPtr(void* self, sVEntry00224C78** stream, int base)
 {
     int buf[2];
     (*stream)[2].fn((char*)stream + (*stream)[2].delta, &buf[0], 4);
@@ -72,7 +72,7 @@ extern "C" void func_00224C78(void* self, sVEntry00224C78** stream, int base)
 }
 
 //100%
-extern "C" void func_00224D00(cLunoTable* self, int flags)
+extern "C" void LunoTable_dtor(cLunoTable* self, int flags)
 {
     cLunoTableEntry* nodes = self->nodes;
 
@@ -112,7 +112,7 @@ extern "C" cLunoTableRef* func_00224DD0(cLunoTableRef* self, cLunoTableRef* othe
 extern "C" void func_00224DF0(cLunoTableRef* self, int flags)
 {
     if (--self->table->refCount == 0) {
-        func_00224F30(self);
+        luno_cLunoTable_FreeData(self);
     }
     if (flags & 1) {
         operator_delete((int*)self);
@@ -122,13 +122,13 @@ extern "C" void func_00224DF0(cLunoTableRef* self, int flags)
 INCLUDE_ASM("luno/lunovm", luno_cLunoTable_constructTable);
 
 //100% - objdiff report; single-function view differs only in a relocation name
-extern "C" void func_00224D00(cLunoTable* table, int flags);
+extern "C" void LunoTable_dtor(cLunoTable* table, int flags);
 
-extern "C" void func_00224F30(cLunoTableRef* ref)
+extern "C" void luno_cLunoTable_FreeData(cLunoTableRef* ref)
 {
     cLunoTable* t = ref->table;
     if (t != 0) {
-        func_00224D00(t, 3);
+        LunoTable_dtor(t, 3);
     }
     ref->table = 0;
 }
@@ -171,12 +171,12 @@ extern "C" void func_00224F68(cLunoTableRef* ref)
 }
 
 //100%
-extern "C" cLunoTableRef* func_00225068(cLunoTableRef* self, cLunoTableRef* other)
+extern "C" cLunoTableRef* luno_cLunoTable_Assign(cLunoTableRef* self, cLunoTableRef* other)
 {
     if (self->table != other->table) {
         if (self->table != 0) {
             if (--self->table->refCount == 0) {
-                func_00224F30(self);
+                luno_cLunoTable_FreeData(self);
             }
         }
         self->table = other->table;
@@ -215,7 +215,7 @@ static inline int lunoKeyEquals_50E0(cLunoValue* a, cLunoValue* b)
 }
 
 // Table lookup by symbol id (key type 3).
-extern "C" cLunoValue* func_002250E0(cLunoTableRef* self, unsigned int id)
+extern "C" cLunoValue* luno_cLunoTable_FindInt(cLunoTableRef* self, unsigned int id)
 {
     cLunoTable* t = self->table;
     cLunoNode_50E0* n = (cLunoNode_50E0*)t->nodes + id % (unsigned int)t->modulus;
@@ -309,7 +309,7 @@ struct cLunoNode_set {
         d->type = 0;                                                       \
         (D).word0 = 0;                                                     \
         if ((S)->type == 4) {                                              \
-            func_00225068((cLunoTableRef*)d, (cLunoTableRef*)(S));         \
+            luno_cLunoTable_Assign((cLunoTableRef*)d, (cLunoTableRef*)(S));         \
         } else if ((S)->type == 5) {                                       \
             *(sLunoPair_set*)&(D) = *(sLunoPair_set*)(S);                  \
         } else {                                                           \
@@ -366,7 +366,7 @@ extern "C" void luno_cLunoTable_set(cLunoTableRef* self, cLunoValue* key, cLunoV
                     n->value.word0 = 0;
                 } while (0);
                 if (val->type == 4) {
-                    func_00225068((cLunoTableRef*)d, (cLunoTableRef*)val);
+                    luno_cLunoTable_Assign((cLunoTableRef*)d, (cLunoTableRef*)val);
                 } else if (val->type == 5) {
                     *(sLunoPair_set*)&n->value = *(sLunoPair_set*)val;
                 } else {
@@ -399,7 +399,7 @@ extern "C" void luno_cLunoTable_set(cLunoTableRef* self, cLunoValue* key, cLunoV
 }
 
 //100%
-extern "C" void func_00225BE8(cLunoValue* self, sVEntry00224C00** stream, int base);
+extern "C" void LunoVMRegister_Write(cLunoValue* self, sVEntry00224C00** stream, int base);
 
 extern "C" void func_002257E0(void* vself, sVEntry00224C00** stream, int base)
 {
@@ -427,16 +427,16 @@ extern "C" void func_002257E0(void* vself, sVEntry00224C00** stream, int base)
             cLunoValue* v = &n->value;
             if (n->value.type != 0) {
                 cnt--;
-                func_00225BE8(&n->key, stream, base);
-                func_00225BE8(v, stream, base);
+                LunoVMRegister_Write(&n->key, stream, base);
+                LunoVMRegister_Write(v, stream, base);
             }
             cLunoNode* next = n + 1;
             for (cLunoNode* m = n->next; m != 0; m = m->next) {
                 cLunoValue* mv = &m->value;
                 if (m->value.type != 0) {
                     cnt--;
-                    func_00225BE8(&m->key, stream, base);
-                    func_00225BE8(mv, stream, base);
+                    LunoVMRegister_Write(&m->key, stream, base);
+                    LunoVMRegister_Write(mv, stream, base);
                 }
             }
             n = next;
@@ -446,7 +446,7 @@ extern "C" void func_002257E0(void* vself, sVEntry00224C00** stream, int base)
 
 //100%
 extern "C" void func_00225B90(cLunoValue* self, int flags);
-extern "C" void func_00225CA0(cLunoValue* self, sVEntry00224C00** stream, int base);
+extern "C" void LunoVMRegister_Read(cLunoValue* self, sVEntry00224C00** stream, int base);
 extern "C" void luno_cLunoTable_set(cLunoTableRef* self, cLunoValue* key, cLunoValue* val);
 
 
@@ -488,10 +488,10 @@ extern "C" void func_002259A8(cLunoTableRef* self, sVEntry00224C00** stream, int
     for (i = 0; i < cnt; i++) {
         key.type = 0;
         key.word0 = 0;
-        func_00225CA0(&key, stream, base);
+        LunoVMRegister_Read(&key, stream, base);
         val.type = 0;
         val.word0 = 0;
-        func_00225CA0(&val, stream, base);
+        LunoVMRegister_Read(&val, stream, base);
         luno_cLunoTable_set(self, &key, &val);
         func_00225B90(&val, 2);
         func_00225B90(&key, 2);
@@ -511,14 +511,14 @@ extern "C" void func_00225B90(cLunoValue* self, int flags)
 }
 
 //100% - objdiff report; single-function view differs only in a relocation name
-extern "C" void func_00224C00(void* self, sVEntry00224C00** stream, int base);
+extern "C" void LunoVMRegister_WritePtr(void* self, sVEntry00224C00** stream, int base);
 extern "C" void func_002257E0(void* self, sVEntry00224C00** stream, int base);
 
-extern "C" void func_00225BE8(cLunoValue* self, sVEntry00224C00** stream, int base)
+extern "C" void LunoVMRegister_Write(cLunoValue* self, sVEntry00224C00** stream, int base)
 {
     (*stream)[1].fn((char*)stream + (*stream)[1].delta, &self->type, 4);
     if (self->type == 5) {
-        func_00224C00(self, stream, base);
+        LunoVMRegister_WritePtr(self, stream, base);
     } else if (self->type == 4) {
         func_002257E0(self, stream, base);
     } else {
@@ -549,14 +549,14 @@ static inline int lunoReadInt_225CA0(sVEntry00224C00** stream)
     return v;
 }
 
-extern "C" void func_00225CA0(cLunoValue* self, sVEntry00224C00** stream, int base)
+extern "C" void LunoVMRegister_Read(cLunoValue* self, sVEntry00224C00** stream, int base)
 {
     int type = lunoReadInt_225CA0(stream);
     if (type == 5) {
         sLunoPair_225CA0 tmp;
         tmp.word0 = 0;
         tmp.word1 = 0;
-        func_00224C78(&tmp, (sVEntry00224C78**)stream, base);
+        LunoVMRegister_ReadPtr(&tmp, (sVEntry00224C78**)stream, base);
         if (self->type == 4) {
             func_00224DF0((cLunoTableRef*)self, 2);
         }
@@ -573,7 +573,7 @@ extern "C" void func_00225CA0(cLunoValue* self, sVEntry00224C00** stream, int ba
         }
         self->type = 0;
         self->word0 = 0;
-        func_00225068((cLunoTableRef*)self, (cLunoTableRef*)&ref);
+        luno_cLunoTable_Assign((cLunoTableRef*)self, (cLunoTableRef*)&ref);
         self->type = type;
         func_00224DF0((cLunoTableRef*)&ref, 2);
     } else {
@@ -592,13 +592,13 @@ void func_00226600(void* self, int a1, int a2)
 }
 
 //100%
-void* func_00226610(void* self)
+void* LunoVMRegister_AsInt(void* self)
 {
     return self;
 }
 
 //100%
-void* func_00226618(void* self)
+void* LunoVMRegister_AsFloat(void* self)
 {
     return self;
 }
@@ -614,17 +614,17 @@ extern cLunoValue D_004C9098;
 //100%
 // Value add (for-loop step): same-type int/float/symbol add, float+int
 // gives float, int+float gives int; anything else gives nil.
-extern "C" cLunoValue* func_00226628(cLunoValue* self, const cLunoValue& a, const cLunoValue& b)
+extern "C" cLunoValue* LunoVMRegister_Add(cLunoValue* self, const cLunoValue& a, const cLunoValue& b)
 {
     if (b.type == a.type) {
         if (a.type == 2) {
             float f = *(float*)&a.word0 + *(float*)&b.word0;
             self->type = a.type;
-            *(float*)func_00226618(self) = f;
+            *(float*)LunoVMRegister_AsFloat(self) = f;
         } else if (a.type == 1) {
             int i = a.word0 + b.word0;
             self->type = a.type;
-            *(int*)func_00226610(self) = i;
+            *(int*)LunoVMRegister_AsInt(self) = i;
         } else if (a.type == 3) {
             int i = a.word0 + b.word0;
             self->type = a.type;
@@ -635,11 +635,11 @@ extern "C" cLunoValue* func_00226628(cLunoValue* self, const cLunoValue& a, cons
     } else if (a.type == 2 && b.type == 1) {
         float f = *(float*)&a.word0 + (float)b.word0;
         self->type = a.type;
-        *(float*)func_00226618(self) = f;
+        *(float*)LunoVMRegister_AsFloat(self) = f;
     } else if (a.type == 1 && b.type == 2) {
         int i = a.word0 + (int)*(float*)&b.word0;
         self->type = a.type;
-        *(int*)func_00226610(self) = i;
+        *(int*)LunoVMRegister_AsInt(self) = i;
     } else {
         *self = D_004C9098;
     }
@@ -672,7 +672,7 @@ extern "C" void cLunoTableEntry_dtor(void* self, int flags)
 extern "C" void* func_00225DE8(int, int);
 
 //99.38%
-void* func_002267F0(void* self)
+void* LunoVM_GlobalCtors(void* self)
 {
     return func_00225DE8(1, 0xffff);
 }
@@ -680,7 +680,7 @@ void* func_002267F0(void* self)
 extern "C" void* func_00225DE8(int, int);
 
 //99.38%
-void* func_00226810(void* self)
+void* LunoVM_GlobalDtors(void* self)
 {
     return func_00225DE8(0, 0xffff);
 }

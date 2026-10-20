@@ -113,7 +113,7 @@ extern "C" void func_00270238(void* self, void* node)
     func_0026E5D0((char*)self + 0x3BC, node);
 }
 
-extern "C" int func_00270280(int* self)
+extern "C" int Replay_IsPaused(int* self)
 {
     int r = 0;
     switch (*self) {
@@ -154,7 +154,7 @@ struct sReplay002702F8 {
     int unk_0x604;
 };
 
-extern "C" void func_002702F8(sReplay002702F8* self, void* frame)
+extern "C" void Replay_SeekToSnapshot(sReplay002702F8* self, void* frame)
 {
     int i;
     self->unk_0x604 = 0;
@@ -227,7 +227,7 @@ struct sReplay002703F0 {
     int loop;               // 0x61C
 };
 
-extern "C" void func_002703F0(sReplay002703F0* self, int reset)
+extern "C" void Replay_StepFrame(sReplay002703F0* self, int reset)
 {
     int i;
     if (reset) {
@@ -249,8 +249,8 @@ extern "C" void func_002703F0(sReplay002703F0* self, int reset)
     }
     if (self->pos >= self->end) {
         if (self->loop != 0) {
-            func_002702F8((sReplay002702F8*)self, 0);
-            func_002703F0(self, 1);
+            Replay_SeekToSnapshot((sReplay002702F8*)self, 0);
+            Replay_StepFrame(self, 1);
             void* list = *(void**)(*(char**)(D_004A28A8 + 0x84) + 0x84);
             char* obj = *(char**)(*(char**)((char*)list + 0x4) + 0xA8);
             func_001620D0(obj);
@@ -276,7 +276,7 @@ struct sReplayNode270538 {
     unsigned char b;
 };
 
-extern "C" void func_00270538(void* self)
+extern "C" void Replay_PruneSnapshots(void* self)
 {
     sReplayNode270538* node = *(sReplayNode270538**)((char*)self + 0x3B0);
     while (node != 0) {
@@ -296,9 +296,9 @@ void func_002705A8(void* self)
 {
 }
 
-extern "C" void func_00270658(void* self);
+extern "C" void Replay_RequestInstantReplay(void* self);
 
-extern "C" void func_002705B0(void* self, int id, int flag)
+extern "C" void Replay_CheckInstantReplay(void* self, int id, int flag)
 {
     char* s = (char*)self;
     char* r = (char*)id;
@@ -308,16 +308,16 @@ extern "C" void func_002705B0(void* self, int id, int flag)
             if (flag != 0) { t = *(int*)(r + 0x9C); u = *(int*)(s + 0x474); }
             else { t = *(int*)(r + 0xA4); u = *(int*)(s + 0x47C); }
             t -= u;
-            if (t >= 1000) func_00270658(self);
+            if (t >= 1000) Replay_RequestInstantReplay(self);
             else *(int*)(s + 0x3D4) = 0;
         }
     }
 }
 
-INCLUDE_ASM("replay/replaycache", func_00270628);
+INCLUDE_ASM("replay/replaycache", Replay_CancelInstantReplay);
 
 //100%
-extern "C" void func_00270658(void* self)
+extern "C" void Replay_RequestInstantReplay(void* self)
 {
     if (*(int*)((char*)self + 0x620) == 0) {
         *(int*)((char*)self + 0x624) = 1;
@@ -329,7 +329,7 @@ extern "C" void func_0026F980(void* self);
 extern "C" void cRiderMetrix_clearAllMsgs(void* p);
 extern char* D_004A28A8;
 
-extern "C" void func_00270670(void* self)
+extern "C" void Replay_EndInstantReplay(void* self)
 {
     if (*(int*)((char*)self + 0x620) != 0) {
         func_0026F980(self);
@@ -391,7 +391,7 @@ static inline sRcWorld_0730* world_0730()
     return *(sRcWorld_0730**)(*(char**)(D_004A28A8 + 0x84) + 0xC);
 }
 
-extern "C" int func_00270730(int id)
+extern "C" int Replay_FindRiderIndex(int id)
 {
     int i;
     for (i = 0; i < world_0730()->numRiders; i++) {
@@ -403,80 +403,80 @@ extern "C" int func_00270730(int id)
 }
 
 //100% - objdiff report; single-function view differs only in a relocation name
-extern "C" int func_00270730(int id);
-extern "C" void func_00270B88(void* self, int slot, int id);
+extern "C" int Replay_FindRiderIndex(int id);
+extern "C" void Replay_BeginHighlight(void* self, int slot, int id);
 // PORT: the unit defines func_002705A8(void*) (an empty stub), but this caller
 // passes (self, id); bind the 2-arg call by asm label.
 void func_002705A8_2(void* self, int id) __asm__("func_002705A8__FPv");
 
-extern "C" void func_002707E0(void* self, int key, int id)
+extern "C" void Replay_OnRiderLaunch(void* self, int key, int id)
 {
     if (*(int*)((char*)self + 0x61C) == 0 && *(int*)((char*)self + 0x620) == 0 &&
         *(int*)((char*)self + 0x610) == 0 && *(int*)((char*)self + 0x60C) == 0 &&
         *(int*)((char*)self + 0x0) == 0) {
-        int slot = func_00270730(key);
+        int slot = Replay_FindRiderIndex(key);
         if (slot >= 0) {
-            func_00270B88(self, slot, id);
+            Replay_BeginHighlight(self, slot, id);
             func_002705A8_2(self, id);
         }
     }
 }
 
 //100% - objdiff report; single-function view differs only in a relocation name
-extern "C" int func_00270730(int id);
-extern "C" void func_00270CE8(void* self, int slot, int id, int flag);
-extern "C" void func_002705B0(void* self, int id, int flag);
+extern "C" int Replay_FindRiderIndex(int id);
+extern "C" void Replay_EndHighlight(void* self, int slot, int id, int flag);
+extern "C" void Replay_CheckInstantReplay(void* self, int id, int flag);
 
-extern "C" void func_00270870(void* self, int key, int id)
+extern "C" void Replay_OnRiderLand(void* self, int key, int id)
 {
     if (*(int*)((char*)self + 0x61C) == 0 && *(int*)((char*)self + 0x620) == 0 &&
         *(int*)((char*)self + 0x0) == 0) {
-        int slot = func_00270730(key);
+        int slot = Replay_FindRiderIndex(key);
         if (slot >= 0) {
-            func_00270CE8(self, slot, id, 1);
-            func_002705B0(self, id, 1);
+            Replay_EndHighlight(self, slot, id, 1);
+            Replay_CheckInstantReplay(self, id, 1);
         }
     }
 }
 
 //100% - objdiff report; single-function view differs only in a relocation name
-extern "C" int func_00270730(int id);
-extern "C" void func_00270CE8(void* self, int slot, int id, int flag);
-extern "C" void func_002705B0(void* self, int id, int flag);
+extern "C" int Replay_FindRiderIndex(int id);
+extern "C" void Replay_EndHighlight(void* self, int slot, int id, int flag);
+extern "C" void Replay_CheckInstantReplay(void* self, int id, int flag);
 
-extern "C" void func_002708F0(void* self, int key, int id)
+extern "C" void Replay_OnRiderWipeout(void* self, int key, int id)
 {
     if (*(int*)((char*)self + 0x61C) == 0 && *(int*)((char*)self + 0x620) == 0 &&
         *(int*)((char*)self + 0x0) == 0) {
-        int slot = func_00270730(key);
+        int slot = Replay_FindRiderIndex(key);
         if (slot >= 0) {
-            func_00270CE8(self, slot, id, 0);
-            func_002705B0(self, id, 0);
+            Replay_EndHighlight(self, slot, id, 0);
+            Replay_CheckInstantReplay(self, id, 0);
         }
     }
 }
 
 //100% - objdiff report; single-function view differs only in a relocation name
-extern "C" int func_00270730(int id);
+extern "C" int Replay_FindRiderIndex(int id);
 struct sRcSlots;
-extern "C" void func_00270DE0(sRcSlots* self, int i);
-extern "C" void func_00270628(void* self);
+extern "C" void Replay_CancelHighlight(sRcSlots* self, int i);
+extern "C" void Replay_CancelInstantReplay(void* self);
 
-extern "C" void func_00270970(void* self, int key)
+extern "C" void Replay_OnRiderReset(void* self, int key)
 {
     if (*(int*)((char*)self + 0x61C) == 0 && *(int*)((char*)self + 0x620) == 0 &&
         *(int*)((char*)self + 0x0) == 0) {
-        int slot = func_00270730(key);
+        int slot = Replay_FindRiderIndex(key);
         if (slot >= 0) {
-            func_00270DE0((sRcSlots*)self, slot);
-            func_00270628(self);
+            Replay_CancelHighlight((sRcSlots*)self, slot);
+            Replay_CancelInstantReplay(self);
         }
     }
 }
 
 //100%
-extern "C" int func_00270730(int id);
-extern "C" void func_00270B88(void* self, int slot, int id);
+extern "C" int Replay_FindRiderIndex(int id);
+extern "C" void Replay_BeginHighlight(void* self, int slot, int id);
 // PORT: the unit defines func_002705A8(void*) (an empty stub), but this caller
 // passes (self, id); bind the 2-arg call by asm label.
 void func_002705A8_2(void* self, int id) __asm__("func_002705A8__FPv");
@@ -487,7 +487,7 @@ extern "C" void func_002709D8(void* self, int key, int mode)
     if (*(int*)((char*)self + 0x61C) == 0 && *(int*)((char*)self + 0x620) == 0 &&
         *(int*)((char*)self + 0x610) == 0 && *(int*)((char*)self + 0x60C) == 0 &&
         *(int*)((char*)self + 0x0) == 0) {
-        int slot = func_00270730(key);
+        int slot = Replay_FindRiderIndex(key);
         if (slot >= 0) {
             char* world = *(char**)(*(char**)(D_004A28A8 + 0x84) + 0xC);
             char* rider = *(char**)(world + (key << 2) + 0x28);
@@ -496,7 +496,7 @@ extern "C" void func_002709D8(void* self, int key, int mode)
                 func_002705A8_2(self, *(int*)(rider + 0x790) + 0xFC);
                 break;
             case 1:
-                func_00270B88(self, slot, *(int*)(rider + 0x790) + 0xFC);
+                Replay_BeginHighlight(self, slot, *(int*)(rider + 0x790) + 0xFC);
                 break;
             }
         }
@@ -504,22 +504,22 @@ extern "C" void func_002709D8(void* self, int key, int mode)
 }
 
 //100% - objdiff report; single-function view differs only in a relocation name
-static inline int func_00270AB0_isClear(int v, int bit)
+static inline int Replay_OnRiderCheckpoint_isClear(int v, int bit)
 {
     return !((v >> bit) & 1);
 }
 
-extern "C" void func_00270AB0(void* self, int key, int bit)
+extern "C" void Replay_OnRiderCheckpoint(void* self, int key, int bit)
 {
     if (*(int*)((char*)self + 0x61C) == 0 && *(int*)((char*)self + 0x620) == 0 &&
         *(int*)((char*)self + 0x610) == 0 && *(int*)((char*)self + 0x60C) == 0 &&
         *(int*)((char*)self + 0x0) == 0) {
-        int slot = func_00270730(key);
+        int slot = Replay_FindRiderIndex(key);
         if (slot >= 0 && bit >= 0 && bit < *(int*)((char*)self + 0x10)) {
             int off = slot << 2;
             char* base = (char*)self + 0x5FC;
             int* p = (int*)(base + off);
-            if (func_00270AB0_isClear(*p, bit)) {
+            if (Replay_OnRiderCheckpoint_isClear(*p, bit)) {
                 unsigned char* q = *(unsigned char**)((char*)self + 0x3B4);
                 q[0x1F] |= 1 << slot;
                 *p |= 1 << bit;
@@ -528,7 +528,7 @@ extern "C" void func_00270AB0(void* self, int key, int bit)
     }
 }
 
-INCLUDE_ASM("replay/replaycache", func_00270B88);
+INCLUDE_ASM("replay/replaycache", Replay_BeginHighlight);
 
 //100%
 struct sReplayCacheNode {
@@ -540,7 +540,7 @@ struct sReplayCacheNode {
     int values[1];
 };
 
-extern "C" int func_00270BD8(void* self, int i, int positive)
+extern "C" int Replay_CountHighlights(void* self, int i, int positive)
 {
     int count = 0;
     sReplayCacheNode* n = *(sReplayCacheNode**)((char*)self + 0x3B0);
@@ -576,7 +576,7 @@ struct sReplayCacheNode2 {
     int values[1];
 };
 
-extern "C" sReplayCacheNode2* func_00270C58(void* self, int i, sReplayCacheNode2* best, int positive)
+extern "C" sReplayCacheNode2* Replay_FindWeakestHighlight(void* self, int i, sReplayCacheNode2* best, int positive)
 {
     sReplayCacheNode2* result = best;
     sReplayCacheNode2* n = *(sReplayCacheNode2**)((char*)self + 0x3B0);
@@ -597,7 +597,7 @@ extern "C" sReplayCacheNode2* func_00270C58(void* self, int i, sReplayCacheNode2
     return result;
 }
 
-INCLUDE_ASM("replay/replaycache", func_00270CE8);
+INCLUDE_ASM("replay/replaycache", Replay_EndHighlight);
 
 //100%
 extern "C" void func_0026E800(void* p);
@@ -612,7 +612,7 @@ struct sRcSlots {
     sRcSlot slots[1];
 };
 
-extern "C" void func_00270DE0(sRcSlots* self, int i)
+extern "C" void Replay_CancelHighlight(sRcSlots* self, int i)
 {
     if (self->state == 0) {
         func_0026E800(&self->slots[i]);
@@ -620,7 +620,7 @@ extern "C" void func_00270DE0(sRcSlots* self, int i)
 }
 
 //100%
-extern "C" void func_00270E18(sRcSlots* self)
+extern "C" void Replay_ClearAllHighlights(sRcSlots* self)
 {
     if (self->state == 0) {
         for (int i = 0; i < 2; i++) {
@@ -653,18 +653,18 @@ extern "C" void func_00270E68(void* self)
     *(unsigned int*)((char*)self + 0x684) = 0xDEADBEEF;
 }
 
-extern "C" void* func_00270F78(void* self);
+extern "C" void* Replay_FreeSaveBuffers(void* self);
 
 //100%
 void* func_00270ED8(void* self)
 {
-    return func_00270F78(self);
+    return Replay_FreeSaveBuffers(self);
 }
 
 extern "C" void* func_0026F228(void* self);
 
 //100%
-void* func_00270EF8(void* self)
+void* Replay_ResetOnLoad(void* self)
 {
     return func_0026F228(self);
 }
@@ -693,7 +693,7 @@ void operator_delete(int* p);
 
 // The unit declares this as returning void* (line ~198, used by the tail-call
 // wrapper func_00270ED8); nothing meaningful is returned.
-extern "C" void* func_00270F78(void* self)
+extern "C" void* Replay_FreeSaveBuffers(void* self)
 {
     operator_delete(*(int**)((char*)self + 0x63C));
     void* p = *(void**)((char*)self + 0x640);
@@ -715,7 +715,7 @@ struct sRcStream0FC0 {
     char* dst;      // 0x650
 };
 
-extern "C" void func_00270FC0(sRcStream0FC0* self)
+extern "C" void Replay_FlushSaveOutput(sRcStream0FC0* self)
 {
     if (self->src != 0) {
         if (self->left > 0) {
@@ -733,7 +733,7 @@ extern "C" void func_00270FC0(sRcStream0FC0* self)
 }
 
 //100%
-extern "C" void func_00271058(void* self, signed char* data, int size)
+extern "C" void Replay_SaveEmit(void* self, signed char* data, int size)
 {
     *(int*)((char*)self + 0x680) += size;
     for (int i = 0; i < size; i++) {
@@ -744,16 +744,16 @@ extern "C" void func_00271058(void* self, signed char* data, int size)
     *(int*)((char*)self + 0x678) += size;
 }
 
-extern "C" void func_00271228(void* self);
-extern "C" void func_002712C0(void* self);
-extern "C" void func_00271348(void* self);
-extern "C" void func_00271380_v(void* self) __asm__("func_00271380");
-extern "C" void func_002714E0(void* self);
-extern "C" void func_00271510_v(void* self) __asm__("func_00271510");
-extern "C" void func_00271620(void* self);
-extern "C" void func_00271688(void* self);
+extern "C" void Replay_SaveBuildHeader(void* self);
+extern "C" void Replay_SaveWriteHeader(void* self);
+extern "C" void Replay_SaveBeginSnapshots(void* self);
+extern "C" void Replay_SaveWriteSnapshot_v(void* self) __asm__("Replay_SaveWriteSnapshot");
+extern "C" void Replay_SaveBeginCaches(void* self);
+extern "C" void Replay_SaveWriteCache_v(void* self) __asm__("Replay_SaveWriteCache");
+extern "C" void Replay_SaveComputePadding(void* self);
+extern "C" void Replay_SaveWritePadding(void* self);
 void* func_002716F0(void* self);
-extern "C" void func_00271708(void* self);
+extern "C" void Replay_SaveWriteFooter(void* self);
 
 struct sRcSave10A8 {
     char pad_0x000[0x638];
@@ -765,7 +765,7 @@ struct sRcSave10A8 {
 };
 
 // Runs the save state machine until the 0x4000-byte buffer is full or saving is done; returns the filled buffer.
-extern "C" int func_002710A8(sRcSave10A8* self, char** buf, int* size)
+extern "C" int Replay_WriteSaveBlock(sRcSave10A8* self, char** buf, int* size)
 {
     if (self->state == 11) {
         *size = 0;
@@ -774,20 +774,20 @@ extern "C" int func_002710A8(sRcSave10A8* self, char** buf, int* size)
     self->used = 0;
     self->dst = self->buf;
     for (;;) {
-        func_00270FC0((sRcStream0FC0*)self);
+        Replay_FlushSaveOutput((sRcStream0FC0*)self);
         if (self->used >= 0x4000)
             goto done;
         switch (self->state) {
-        case 0: func_00271228(self); break;
-        case 1: func_002712C0(self); break;
-        case 2: func_00271348(self); break;
-        case 3: func_00271380_v(self); break;
-        case 4: func_002714E0(self); break;
-        case 5: func_00271510_v(self); break;
-        case 6: func_00271620(self); break;
-        case 7: func_00271688(self); break;
+        case 0: Replay_SaveBuildHeader(self); break;
+        case 1: Replay_SaveWriteHeader(self); break;
+        case 2: Replay_SaveBeginSnapshots(self); break;
+        case 3: Replay_SaveWriteSnapshot_v(self); break;
+        case 4: Replay_SaveBeginCaches(self); break;
+        case 5: Replay_SaveWriteCache_v(self); break;
+        case 6: Replay_SaveComputePadding(self); break;
+        case 7: Replay_SaveWritePadding(self); break;
         case 8: func_002716F0(self); break;
-        case 9: func_00271708(self); break;
+        case 9: Replay_SaveWriteFooter(self); break;
         case 10: self->state++; break;
         case 11: break;
         }
@@ -805,7 +805,7 @@ done:
 
 //100%
 struct sReplayCache;
-extern "C" int func_002712F8(sReplayCache* self);
+extern "C" int Replay_CountSaveSnapshots(sReplayCache* self);
 extern "C" void cAI_getActorCharIDs(void* self, int* dst);
 extern char* D_004A28A8;
 
@@ -821,10 +821,10 @@ struct sReplayHdr_1228 {
     int data[2]; // 0x20
 };
 
-extern "C" void func_00271228(void* self)
+extern "C" void Replay_SaveBuildHeader(void* self)
 {
     sReplayHdr_1228* hdr = *(sReplayHdr_1228**)((char*)self + 0x640);
-    hdr->count = func_002712F8((sReplayCache*)self);
+    hdr->count = Replay_CountSaveSnapshots((sReplayCache*)self);
     char* g = D_004A28A8;
     hdr->a = *(int*)((char*)self + 0x18);
     hdr->b = *(int*)((char*)self + 0x610);
@@ -840,9 +840,9 @@ extern "C" void func_00271228(void* self)
 }
 
 //100% - objdiff report; single-function view differs only in a relocation name
-extern "C" void func_002712C0(void* self)
+extern "C" void Replay_SaveWriteHeader(void* self)
 {
-    func_00271058(self, *(signed char**)((char*)self + 0x640), 0x28);
+    Replay_SaveEmit(self, *(signed char**)((char*)self + 0x640), 0x28);
     *(int*)((char*)self + 0x638) += 1;
 }
 
@@ -861,7 +861,7 @@ struct sReplayCache {
     sCacheNode* iter;
 };
 
-extern "C" int func_002712F8(sReplayCache* self)
+extern "C" int Replay_CountSaveSnapshots(sReplayCache* self)
 {
     int count = 0;
     self->iter = self->head;
@@ -879,7 +879,7 @@ extern "C" int func_002712F8(sReplayCache* self)
 }
 
 //100%
-extern "C" void func_00271348(void* self)
+extern "C" void Replay_SaveBeginSnapshots(void* self)
 {
     void* p = *(void**)((char*)self + 0x3b0);
     *(void**)((char*)self + 0x65c) = p;
@@ -895,7 +895,7 @@ extern "C" void func_00271348(void* self)
 
 //100%
 extern "C" int HUFF_encode(void* src, int size, void* dst, int* state);
-extern "C" void func_00271058(void* self, signed char* data, int size);
+extern "C" void Replay_SaveEmit(void* self, signed char* data, int size);
 // PORT: cReplayFramePtr_getFrameBlock is mangled with no parameters (__Fv) but is
 // called with (frame, n); bind the 2-arg form to the symbol.
 void cReplayFramePtr_getFrameBlock_2(void* frame, int n) __asm__("cReplayFramePtr_getFrameBlock__Fv");
@@ -931,13 +931,13 @@ struct sReplayCache1380 {
     int frames;             // 0x668
 };
 
-extern "C" void func_00271380(sReplayCache1380* self)
+extern "C" void Replay_SaveWriteSnapshot(sReplayCache1380* self)
 {
     if (self->pending != 0) {
         int state = 0;
         int n = HUFF_encode(self->pending, self->pendingSize, self->out + 1, &state);
         *self->out = n;
-        func_00271058(self, (signed char*)self->out, n + 4);
+        Replay_SaveEmit(self, (signed char*)self->out, n + 4);
         self->pending = 0;
         return;
     }
@@ -956,7 +956,7 @@ extern "C" void func_00271380(sReplayCache1380* self)
         hdr[8] = self->frame->f2C;
         hdr[7] = self->frame->f28;
         hdr[8] = self->frame->f2C;
-        func_00271058(self, (signed char*)hdr, 0x28);
+        Replay_SaveEmit(self, (signed char*)hdr, 0x28);
         sRcFrame1380* f = self->frame;
         self->pending = f->data;
         self->pendingSize = f->size;
@@ -973,7 +973,7 @@ extern "C" void func_00271380(sReplayCache1380* self)
 }
 
 //100%
-extern "C" void func_002714E0(void* self)
+extern "C" void Replay_SaveBeginCaches(void* self)
 {
     *(int*)((char*)self + 0x658) = 2;
     *(int*)((char*)self + 0x638) += 1;
@@ -1011,10 +1011,10 @@ struct sReplayCache1510 {
     int* header;            // 0x674
 };
 
-extern "C" void func_00271510(sReplayCache1510* self)
+extern "C" void Replay_SaveWriteCache(sReplayCache1510* self)
 {
     if (self->header != 0) {
-        func_00271058(self, (signed char*)self->header, 8);
+        Replay_SaveEmit(self, (signed char*)self->header, 8);
         self->header = 0;
         return;
     }
@@ -1022,7 +1022,7 @@ extern "C" void func_00271510(sReplayCache1510* self)
         int state = 0;
         int n = HUFF_encode(self->pending, self->pendingSize, self->out + 1, &state);
         *self->out = n;
-        func_00271058(self, (signed char*)self->out, n + 4);
+        Replay_SaveEmit(self, (signed char*)self->out, n + 4);
         self->pending = 0;
         return;
     }
@@ -1056,7 +1056,7 @@ extern "C" void func_003E6448(void* dst, int c, int n);
 extern "C" void* cBE_getBE();
 extern "C" int func_0014E048(void* be);
 
-extern "C" void func_00271620(void* self)
+extern "C" void Replay_SaveComputePadding(void* self)
 {
     func_003E6448(*(void**)((char*)self + 0x640), 0, 0xC800);
     int used = func_0014E048(cBE_getBE()) + *(int*)((char*)self + 0x678);
@@ -1065,12 +1065,12 @@ extern "C" void func_00271620(void* self)
 }
 
 //100% - objdiff report; single-function view differs only in a relocation name
-extern "C" void func_00271688(void* self)
+extern "C" void Replay_SaveWritePadding(void* self)
 {
     int left = *(int*)((char*)self + 0x67C);
     if (left > 0) {
         int n = (left < 0x4001) ? left : 0x4000;
-        func_00271058(self, *(signed char**)((char*)self + 0x640), n);
+        Replay_SaveEmit(self, *(signed char**)((char*)self + 0x640), n);
         *(int*)((char*)self + 0x67C) -= n;
     } else {
         *(int*)((char*)self + 0x638) += 1;
@@ -1090,23 +1090,23 @@ void* func_002716F0(void* self)
 
 //100% - objdiff report; single-function view differs only in a relocation name
 extern "C" void func_003E6574(void* dst, void* src, int size);
-extern "C" void func_00271058(void* self, signed char* data, int size);
+extern "C" void Replay_SaveEmit(void* self, signed char* data, int size);
 
-extern "C" void func_00271708(void* self)
+extern "C" void Replay_SaveWriteFooter(void* self)
 {
     func_003E6574(*(void**)((char*)self + 0x640), (char*)self + 0x680, 8);
-    func_00271058(self, *(signed char**)((char*)self + 0x640), 8);
+    Replay_SaveEmit(self, *(signed char**)((char*)self + 0x640), 8);
     *(int*)((char*)self + 0x638) += 1;
 }
 
-INCLUDE_ASM("replay/replaycache", func_00271758);
+INCLUDE_ASM("replay/replaycache", Replay_LoadSaved);
 
 extern "C" void* func_002718A8(void* p, ...)
 {
     return p;
 }
 
-INCLUDE_ASM("replay/replaycache", func_002718E8);
+INCLUDE_ASM("replay/replaycache", Replay_StaticInitDestroy);
 
 //100%
 void operator_delete(int* p);
@@ -1178,23 +1178,23 @@ extern "C" void func_00272258(int* self, int flags)
 
 extern "C" void func_003E6448(void* dst, int value, int size);
 
-extern "C" void func_00272288(int* self)
+extern "C" void Replay_HighlightSlotInit(int* self)
 {
     self[0] = -1;
     *(int*)((char*)self + 0xB0) = 0;
     func_003E6448(self + 1, 0, 0xAC);
 }
 
-extern "C" void* func_002718E8(int, int);
+extern "C" void* Replay_StaticInitDestroy(int, int);
 
 //99.38%
 void* Replay_GlobalCtors(void* self)
 {
-    return func_002718E8(1, 0xffff);
+    return Replay_StaticInitDestroy(1, 0xffff);
 }
 
 //100%
-void* func_002722E0(void* self, void* a1, void* a2)
+void* InSeq_HeapInit(void* self, void* a1, void* a2)
 {
     *(int*)((char*)self + 0x8) = (int)a1;
     *(int*)self = (int)a1;
@@ -1217,8 +1217,8 @@ struct sHeap_2308 {
 
 // First-fit allocation from the heap's free list (8-byte block headers); splits a block that has room to spare.
 // PORT: the unit declares it as void*(void*, int); defined under its own name bound to the symbol.
-extern "C" void* func_00272308_impl(sHeap_2308* h, unsigned int size) __asm__("func_00272308");
-extern "C" void* func_00272308_impl(sHeap_2308* h, unsigned int size)
+extern "C" void* InSeq_HeapAlloc_impl(sHeap_2308* h, unsigned int size) __asm__("InSeq_HeapAlloc");
+extern "C" void* InSeq_HeapAlloc_impl(sHeap_2308* h, unsigned int size)
 {
     size = (size + 3) & ~3;
     sBlk_2308* prev = 0;
@@ -1262,7 +1262,7 @@ struct sRcHeap {
     sRcBlock* freeList;
 };
 
-extern "C" void func_002723A8(sRcHeap* h, void* p)
+extern "C" void InSeq_HeapFree(sRcHeap* h, void* p)
 {
     if (p) {
         sRcBlock* b = (sRcBlock*)((char*)p - 8);
@@ -1319,61 +1319,61 @@ extern "C" void func_002723A8(sRcHeap* h, void* p)
 }
 
 //100% - objdiff report; single-function view differs only in a relocation name
-extern "C" void* func_00272308(void* heap, int size);
+extern "C" void* InSeq_HeapAlloc(void* heap, int size);
 extern int D_004A3488;
 
-// PORT: real arity is (size, heap); the unit declares func_00272488(void*) for its callers.
-extern "C" void* func_00272488_impl(int size, void* heap) __asm__("func_00272488");
-extern "C" void* func_00272488_impl(int size, void* heap)
+// PORT: real arity is (size, heap); the unit declares InSeq_HeapNew(void*) for its callers.
+extern "C" void* InSeq_HeapNew_impl(int size, void* heap) __asm__("InSeq_HeapNew");
+extern "C" void* InSeq_HeapNew_impl(int size, void* heap)
 {
-    void** p = (void**)func_00272308(heap, size + D_004A3488);
+    void** p = (void**)InSeq_HeapAlloc(heap, size + D_004A3488);
     *p = heap;
     return (char*)p + D_004A3488;
 }
 
-extern "C" void* func_00272488(void* self);
+extern "C" void* InSeq_HeapNew(void* self);
 
 //99.29%
-void* func_002724C8(void* self)
+void* InSeq_HeapNewArray(void* self)
 {
-    return func_00272488(self);
+    return InSeq_HeapNew(self);
 }
 
 //100%
 extern int D_004A3488;
 
-// PORT: returns void; the unit declares func_002724E8 as returning void*.
-extern "C" void func_002724E8_impl(void* p) __asm__("func_002724E8");
-extern "C" void func_002724E8_impl(void* p)
+// PORT: returns void; the unit declares InSeq_HeapDelete as returning void*.
+extern "C" void InSeq_HeapDelete_impl(void* p) __asm__("InSeq_HeapDelete");
+extern "C" void InSeq_HeapDelete_impl(void* p)
 {
     char* h = (char*)p - D_004A3488;
-    func_002723A8(*(sRcHeap**)h, h);
+    InSeq_HeapFree(*(sRcHeap**)h, h);
 }
 
-extern "C" void* func_002724E8(void* self);
+extern "C" void* InSeq_HeapDelete(void* self);
 
 //99.29%
-void* func_00272510(void* self)
+void* InSeq_HeapDeleteArray(void* self)
 {
-    return func_002724E8(self);
+    return InSeq_HeapDelete(self);
 }
 
-extern "C" void* func_002724E8(void* self);
+extern "C" void* InSeq_HeapDelete(void* self);
 
 extern "C" void* func_00272530(void* self)
 {
-    return func_002724E8(self);
+    return InSeq_HeapDelete(self);
 }
 
-extern "C" void* func_002724E8(void* self);
+extern "C" void* InSeq_HeapDelete(void* self);
 
 extern "C" void* func_00272550(void* self)
 {
-    return func_002724E8(self);
+    return InSeq_HeapDelete(self);
 }
 
 //100%
-extern "C" float func_00272570(float* p, float t)
+extern "C" float Math_EvalCubic(float* p, float t)
 {
     float r;
     if (t != 0.0f) {
@@ -1390,7 +1390,7 @@ extern "C" float func_00272570(float* p, float t)
 //100%
 extern void* D_00481A10[];
 
-extern "C" void* func_002725B8(void* self)
+extern "C" void* InSeq_CurveTrack_ctor(void* self)
 {
     *(void***)((char*)self + 0x4) = D_00481A10;
     *(int*)((char*)self + 0x8) = 0;
@@ -1405,7 +1405,7 @@ extern "C" void* func_002725B8(void* self)
 }
 
 //100% - objdiff report; single-function view differs only in a relocation name
-extern "C" float func_00272570(float* coef, float t);
+extern "C" float Math_EvalCubic(float* coef, float t);
 
 struct sRcTrack25F0 {
     char pad_0x00[0x8];
@@ -1419,7 +1419,7 @@ struct sRcTrack25F0 {
     char* next;             // 0x24
 };
 
-extern "C" int func_002725F0(sRcTrack25F0* self, unsigned int* data, int key)
+extern "C" int InSeq_CurveTrackStart(sRcTrack25F0* self, unsigned int* data, int key)
 {
     char* body = (char*)data + 4;
     self->data = data;
@@ -1432,7 +1432,7 @@ extern "C" int func_002725F0(sRcTrack25F0* self, unsigned int* data, int key)
     } else {
         self->next = 0;
     }
-    self->value = func_00272570((float*)(self->body + 4), 0.0f);
+    self->value = Math_EvalCubic((float*)(self->body + 4), 0.0f);
     char* b = self->body;
     if (*(unsigned short*)b >= 0x15) {
         self->extra = b + 0x14;
@@ -1456,7 +1456,7 @@ void InSeq_CurveTrackStop(void* self)
 }
 
 //100% - objdiff report; single-function view differs only in a relocation name
-extern "C" int func_002726A8(sRcTrack25F0* self, float t)
+extern "C" int InSeq_CurveTrackUpdate(sRcTrack25F0* self, float t)
 {
     char* n = self->next;
     if (n == 0) return 0;
@@ -1467,20 +1467,20 @@ extern "C" int func_002726A8(sRcTrack25F0* self, float t)
         if (*(unsigned short*)n >= 0x15) self->extra = n + 0x14;
         if (self->field_0x18 == self->cur[0] - 1) {
             self->next = 0;
-            self->value = func_00272570((float*)(self->body + 4), 0.0f);
+            self->value = Math_EvalCubic((float*)(self->body + 4), 0.0f);
             return 0;
         }
         self->next = self->body + *(unsigned short*)self->body;
     }
     char* b = self->body;
-    self->value = func_00272570((float*)(b + 4), t - (float)*(unsigned short*)(b + 2));
+    self->value = Math_EvalCubic((float*)(b + 4), t - (float)*(unsigned short*)(b + 2));
     return 1;
 }
 
 //100%
-extern "C" void* func_00274518(void* self);
-// PORT: array new[] with a heap argument; same symbol as the unit's func_002724C8(void*).
-void* operator new[](unsigned int size, void* heap) __asm__("func_002724C8__FPv");
+extern "C" void* InSeq_Instance_ctor(void* self);
+// PORT: array new[] with a heap argument; same symbol as the unit's InSeq_HeapNewArray(void*).
+void* operator new[](unsigned int size, void* heap) __asm__("InSeq_HeapNewArray__FPv");
 
 struct sRcItem2788 {
     int field_0x0;              // 0x0
@@ -1488,7 +1488,7 @@ struct sRcItem2788 {
     char body[0x48];            // 0x8
     sRcItem2788* next;          // 0x50
     sRcItem2788* prev;          // 0x54
-    sRcItem2788() { func_00274518(body); }
+    sRcItem2788() { InSeq_Instance_ctor(body); }
     void operator delete[](void* p, unsigned int size);
 };
 
@@ -1503,7 +1503,7 @@ struct sRcPool2788 {
 
 extern "C" sRcPool2788* func_00272788(sRcPool2788* self, void* a1, void* a2, unsigned int count, int tag)
 {
-    func_002722E0(self->heap, a1, a2);
+    InSeq_HeapInit(self->heap, a1, a2);
     self->tag = tag;
     self->count = count;
     self->items = 0;
@@ -1546,7 +1546,7 @@ extern "C" void func_002728F8(void* self)
 }
 
 //100%
-extern "C" void* func_002745C0(void* data, void* src, void* owner, int id);
+extern "C" void* InSeq_InstanceSetup(void* data, void* src, void* owner, int id);
 
 struct sRcNode272938 {
     int unk_0x0;
@@ -1570,7 +1570,7 @@ extern "C" int func_00272938(sRcList272938* self, void* src)
     if (self->freeHead != 0) {
         self->freeHead->prev = 0;
     }
-    func_002745C0(n->data, src, self, n->id);
+    InSeq_InstanceSetup(n->data, src, self, n->id);
     n->next = self->usedHead;
     if (self->usedHead != 0) {
         self->usedHead->prev = n;
@@ -1581,14 +1581,14 @@ extern "C" int func_00272938(sRcList272938* self, void* src)
 
 //100%
 extern "C" void func_00272B58(void* self, int a1);
-extern "C" void func_002746F8(void* p);
+extern "C" void InSeq_InstanceRelease(void* p);
 
 extern "C" void func_002729A8(sRcList272938* self, int i)
 {
     func_00272B58(self, i);
     char* base = *(char**)((char*)self + 0x14);
     sRcNode272938* n = (sRcNode272938*)(base + i * 0x58);
-    func_002746F8(n->data);
+    InSeq_InstanceRelease(n->data);
     if (n->prev == 0) {
         self->usedHead = n->next;
         n->next = 0;
@@ -1610,7 +1610,7 @@ extern "C" void func_002729A8(sRcList272938* self, int i)
     self->freeHead = n;
 }
 
-extern "C" void func_00272A50(sRcList272938* self)
+extern "C" void InSeq_FreeAll(sRcList272938* self)
 {
     char* p = *(char**)((char*)self + 0x1C);
     while (p != 0) {
@@ -1621,23 +1621,23 @@ extern "C" void func_00272A50(sRcList272938* self)
 }
 
 extern "C" void* func_00272CC0(void* self, int a);
-extern "C" void func_00274868(void* p, int a);
+extern "C" void InSeq_InstanceRunToEnd(void* p, int a);
 
-extern "C" void func_00272AA0(void* self, int a, int b)
+extern "C" void InSeq_RunToEnd(void* self, int a, int b)
 {
-    func_00274868(func_00272CC0(self, a), b);
+    InSeq_InstanceRunToEnd(func_00272CC0(self, a), b);
 }
 
 //100%
-extern "C" void* func_00274830(void*, int);
+extern "C" void* InSeq_InstanceStart(void*, int);
 extern "C" void* func_00272CC0(void* self, int a1);
 
 extern "C" void* func_00272AD0(void* self, int a1, int a2)
 {
-    return func_00274830(func_00272CC0(self, a1), a2);
+    return InSeq_InstanceStart(func_00272CC0(self, a1), a2);
 }
 
-extern "C" void func_00272B00(void* self, int a)
+extern "C" void InSeq_PlayAll(void* self, int a)
 {
     char* p;
     for (p = *(char**)((char*)self + 0x1C); p != 0; p = *(char**)(p + 0x50)) {
@@ -1647,14 +1647,14 @@ extern "C" void func_00272B00(void* self, int a)
 
 //100%
 extern "C" void* func_00272CC0(void* self, int a1);
-extern "C" void func_00274918(void* p);
+extern "C" void InSeq_InstanceStop(void* p);
 
 extern "C" void func_00272B58(void* self, int a1)
 {
-    func_00274918(func_00272CC0(self, a1));
+    InSeq_InstanceStop(func_00272CC0(self, a1));
 }
 
-extern "C" void func_00272B80(void* self)
+extern "C" void InSeq_StopAll(void* self)
 {
     char* p;
     for (p = *(char**)((char*)self + 0x1C); p != 0; p = *(char**)(p + 0x50)) {
@@ -1665,7 +1665,7 @@ extern "C" void func_00272B80(void* self)
 extern "C" void* func_00272CC0(void* self, int a);
 extern "C" void func_002749E8(void* p);
 
-extern "C" void func_00272BD0(void* self, int a)
+extern "C" void InSeq_Pause(void* self, int a)
 {
     func_002749E8(func_00272CC0(self, a));
 }
@@ -1674,13 +1674,13 @@ extern "C" void func_00272BF8(void* self)
 {
     char* p;
     for (p = *(char**)((char*)self + 0x1C); p != 0; p = *(char**)(p + 0x50)) {
-        func_00272BD0(self, *(int*)(p + 0x4));
+        InSeq_Pause(self, *(int*)(p + 0x4));
     }
 }
 
 extern "C" void func_00274A08(void* p);
 
-extern "C" void func_00272C48(void* self, int a)
+extern "C" void InSeq_Resume(void* self, int a)
 {
     func_00274A08(func_00272CC0(self, a));
 }
@@ -1689,7 +1689,7 @@ extern "C" void func_00272C70(void* self)
 {
     char* p;
     for (p = *(char**)((char*)self + 0x1C); p != 0; p = *(char**)(p + 0x50)) {
-        func_00272C48(self, *(int*)(p + 0x4));
+        InSeq_Resume(self, *(int*)(p + 0x4));
     }
 }
 
@@ -1701,40 +1701,40 @@ extern "C" void* func_00272CC0(void* self, int a1)
     return *(int*)(p + 0xc) != 0 ? p + 0x8 : 0;
 }
 
-extern "C" int func_00274C58(void* self);
+extern "C" int InSeq_InstanceGetData(void* self);
 
 extern "C" int func_00272CE0(void* self)
 {
-    return func_00274C58(self);
+    return InSeq_InstanceGetData(self);
 }
 
-extern "C" int func_00274C60(void* self);
+extern "C" int InSeq_InstanceGetOwner(void* self);
 
 extern "C" int func_00272D00(void* self)
 {
-    return func_00274C60(self);
+    return InSeq_InstanceGetOwner(self);
 }
 
-extern "C" unsigned char func_00274C68(void* self);
+extern "C" unsigned char InSeq_GetChannelCount(void* self);
 
 extern "C" unsigned char func_00272D20(void* self)
 {
-    return func_00274C68(self);
+    return InSeq_GetChannelCount(self);
 }
 
 // Called here with the caller's own args passed through.
-void* func_00274D90_passthru() __asm__("func_00274D90");
+void* InSeq_FindChannelData_passthru() __asm__("InSeq_FindChannelData");
 extern "C" int func_00274398(void* p);
 
 extern "C" void func_00272D40()
 {
-    func_00274398(func_00274D90_passthru());
+    func_00274398(InSeq_FindChannelData_passthru());
 }
 
 //100%
 extern void* D_004819B0[];
 
-extern "C" void* func_00272D68(void* self)
+extern "C" void* InSeq_SpanTrack_ctor(void* self)
 {
     *(void***)((char*)self + 0x4) = D_004819B0;
     *(int*)((char*)self + 0x8) = 0;
@@ -1749,41 +1749,41 @@ extern "C" void* func_00272D68(void* self)
 }
 
 //100% - objdiff report; single-function view differs only in a relocation name
-extern "C" void func_00272EC0(void* self);
-extern "C" void* func_002724E8(void* self);
+extern "C" void InSeq_SpanTrackStop(void* self);
+extern "C" void* InSeq_HeapDelete(void* self);
 extern void* D_004819B0[];
 
-extern "C" void func_00272DA0(void* self, int flags)
+extern "C" void InSeq_SpanTrack_dtor(void* self, int flags)
 {
     *(void***)((char*)self + 0x4) = D_004819B0;
-    func_00272EC0(self);
+    InSeq_SpanTrackStop(self);
     if (flags & 1) {
-        func_002724E8(self);
+        InSeq_HeapDelete(self);
     }
 }
 
 //100% - objdiff report; single-function view differs only in a relocation name
 struct sCacheRecord;
 struct sCacheEntry;
-extern "C" void* func_00272308(void* heap, int size);
-extern "C" sCacheEntry* func_002730C0(void* self, sCacheRecord* rec);
-extern "C" void func_00273140(void* self);
+extern "C" void* InSeq_HeapAlloc(void* heap, int size);
+extern "C" sCacheEntry* InSeq_SpanTrackActivateKey(void* self, sCacheRecord* rec);
+extern "C" void InSeq_SpanTrackNextKey(void* self);
 
-extern "C" int func_00272DF0(void* self, unsigned short* data, void* owner, int* flags)
+extern "C" int InSeq_SpanTrackStart(void* self, unsigned short* data, void* owner, int* flags)
 {
     *(unsigned short**)((char*)self + 0x8) = data;
     *(void**)((char*)self + 0xC) = owner;
     *(unsigned short**)((char*)self + 0x10) = data;
     if (data[0] != 0) {
         char* heap = *(char**)(*(char**)((char*)owner + 0x8) + 0x8);
-        *(void**)((char*)self + 0x20) = func_00272308(heap + 8, data[1] * 0x1C);
+        *(void**)((char*)self + 0x20) = InSeq_HeapAlloc(heap + 8, data[1] * 0x1C);
         *(int*)((char*)self + 0x18) = 0;
         char* base = *(char**)((char*)self + 0x10);
         *(char**)((char*)self + 0x14) = base + 4;
         if (base + 4 != 0 && *(unsigned short*)(base + 8) == 0) do {
             *flags |= 4;
-            func_002730C0(self, *(sCacheRecord**)((char*)self + 0x14));
-            func_00273140(self);
+            InSeq_SpanTrackActivateKey(self, *(sCacheRecord**)((char*)self + 0x14));
+            InSeq_SpanTrackNextKey(self);
         } while (*(char**)((char*)self + 0x14) != 0 &&
                *(unsigned short*)(*(char**)((char*)self + 0x14) + 4) == 0);
     }
@@ -1791,13 +1791,13 @@ extern "C" int func_00272DF0(void* self, unsigned short* data, void* owner, int*
 }
 
 //100% - objdiff report; single-function view differs only in a relocation name
-extern "C" void func_00272EC0(void* self)
+extern "C" void InSeq_SpanTrackStop(void* self)
 {
     char* owner = *(char**)((char*)self + 0xC);
     if (owner != 0) {
         void* p = *(void**)((char*)self + 0x20);
         if (p != 0) {
-            func_002723A8((sRcHeap*)(*(char**)(*(char**)(owner + 0x8) + 0x8) + 0x8), p);
+            InSeq_HeapFree((sRcHeap*)(*(char**)(*(char**)(owner + 0x8) + 0x8) + 0x8), p);
         }
         *(int*)((char*)self + 0x8) = 0;
         *(int*)((char*)self + 0xC) = 0;
@@ -1832,7 +1832,7 @@ struct sCacheTrack_2F28 {
 };
 
 // Drops finished events and plays every record whose start time has been reached.
-extern "C" int func_00272F28(sCacheTrack_2F28* self, int* flags, float t)
+extern "C" int InSeq_SpanTrackUpdate(sCacheTrack_2F28* self, int* flags, float t)
 {
     float zero;
     sCacheEvent_2F28* prev = 0;
@@ -1857,8 +1857,8 @@ loop:
     do {
         if (self->rec != 0 && t - (float)self->rec->time >= zero) {
             *flags |= 4;
-            func_002730C0(self, (sCacheRecord*)self->rec);
-            func_00273140(self);
+            InSeq_SpanTrackActivateKey(self, (sCacheRecord*)self->rec);
+            InSeq_SpanTrackNextKey(self);
             goto loop;
         }
     } while (0);
@@ -1875,7 +1875,7 @@ struct sCacheTimeNode {
     sCacheTimeNode* next;
 };
 
-extern "C" int func_00273040(void* self)
+extern "C" int InSeq_SpanTrackGetNextEventTime(void* self)
 {
     if (*(int*)((char*)self + 0x8) == 0) {
         return -1;
@@ -1921,7 +1921,7 @@ struct sCacheEntry {
     sCacheEntry* next;
 };
 
-extern "C" sCacheEntry* func_002730C0(void* self, sCacheRecord* rec)
+extern "C" sCacheEntry* InSeq_SpanTrackActivateKey(void* self, sCacheRecord* rec)
 {
     sCacheEntry* e = (sCacheEntry*)(*(char**)((char*)self + 0x20) + rec->id * 0x1C);
     e->x = rec->x;
@@ -1940,7 +1940,7 @@ extern "C" sCacheEntry* func_002730C0(void* self, sCacheRecord* rec)
 }
 
 //100%
-extern "C" void func_00273140(void* self)
+extern "C" void InSeq_SpanTrackNextKey(void* self)
 {
     int idx = *(int*)((char*)self + 0x18);
     if (idx == **(unsigned short**)((char*)self + 0x10) - 1) {
@@ -1955,7 +1955,7 @@ extern "C" void func_00273140(void* self)
 //100%
 extern void* D_00481950[];
 
-extern "C" void* func_00273180(void* self)
+extern "C" void* InSeq_EventTrack_ctor(void* self)
 {
     *(void***)((char*)self + 0x4) = D_00481950;
     *(int*)((char*)self + 0x8) = 0;
@@ -1970,41 +1970,41 @@ extern "C" void* func_00273180(void* self)
 }
 
 //100% - objdiff report; single-function view differs only in a relocation name
-extern "C" void func_002732C8(void* self);
-extern "C" void* func_002724E8(void* self);
+extern "C" void InSeq_EventTrackStop(void* self);
+extern "C" void* InSeq_HeapDelete(void* self);
 extern void* D_00481950[];
 
-extern "C" void func_002731B8(void* self, int flags)
+extern "C" void InSeq_EventTrack_dtor(void* self, int flags)
 {
     *(void***)((char*)self + 0x4) = D_00481950;
-    func_002732C8(self);
+    InSeq_EventTrackStop(self);
     if (flags & 1) {
-        func_002724E8(self);
+        InSeq_HeapDelete(self);
     }
 }
 
 //100% - objdiff report; single-function view differs only in a relocation name
 struct sCacheRec;
 struct sCacheRef;
-extern "C" void* func_00272308(void* heap, int size);
-extern "C" sCacheRef* func_00273418(void* self, sCacheRec* rec);
-extern "C" void func_00273468(void* self);
+extern "C" void* InSeq_HeapAlloc(void* heap, int size);
+extern "C" sCacheRef* InSeq_EventTrackFireKey(void* self, sCacheRec* rec);
+extern "C" void InSeq_EventTrackNextKey(void* self);
 
-extern "C" int func_00273208(void* self, unsigned short* data, void* owner, int* flags)
+extern "C" int InSeq_EventTrackStart(void* self, unsigned short* data, void* owner, int* flags)
 {
     *(unsigned short**)((char*)self + 0x8) = data;
     *(void**)((char*)self + 0xC) = owner;
     *(unsigned short**)((char*)self + 0x10) = data;
     if (data[0] != 0) {
         char* heap = *(char**)(*(char**)((char*)owner + 0x8) + 0x8);
-        *(void**)((char*)self + 0x1C) = func_00272308(heap + 8, data[1] * 8);
+        *(void**)((char*)self + 0x1C) = InSeq_HeapAlloc(heap + 8, data[1] * 8);
         *(int*)((char*)self + 0x18) = 0;
         char* base = *(char**)((char*)self + 0x10);
         *(char**)((char*)self + 0x14) = base + 4;
         if (base + 4 != 0 && *(unsigned short*)(base + 6) == 0) do {
             *flags |= 0x10;
-            func_00273418(self, *(sCacheRec**)((char*)self + 0x14));
-            func_00273468(self);
+            InSeq_EventTrackFireKey(self, *(sCacheRec**)((char*)self + 0x14));
+            InSeq_EventTrackNextKey(self);
             *(int*)((char*)self + 0x24) = 0;
         } while (*(char**)((char*)self + 0x14) != 0 &&
                *(unsigned short*)(*(char**)((char*)self + 0x14) + 2) == 0);
@@ -2013,13 +2013,13 @@ extern "C" int func_00273208(void* self, unsigned short* data, void* owner, int*
 }
 
 //100% - objdiff report; single-function view differs only in a relocation name
-extern "C" void func_002732C8(void* self)
+extern "C" void InSeq_EventTrackStop(void* self)
 {
     char* owner = *(char**)((char*)self + 0xC);
     if (owner != 0) {
         void* p = *(void**)((char*)self + 0x1C);
         if (p != 0) {
-            func_002723A8((sRcHeap*)(*(char**)(*(char**)(owner + 0x8) + 0x8) + 0x8), p);
+            InSeq_HeapFree((sRcHeap*)(*(char**)(*(char**)(owner + 0x8) + 0x8) + 0x8), p);
         }
         *(int*)((char*)self + 0x8) = 0;
         *(int*)((char*)self + 0xC) = 0;
@@ -2035,10 +2035,10 @@ extern "C" void func_002732C8(void* self)
 //100%
 struct sCacheRec;
 struct sCacheRef;
-extern "C" sCacheRef* func_00273418(void* self, sCacheRec* rec);
-extern "C" void func_00273468(void* self);
+extern "C" sCacheRef* InSeq_EventTrackFireKey(void* self, sCacheRec* rec);
+extern "C" void InSeq_EventTrackNextKey(void* self);
 
-extern "C" int func_00273330(void* self, int* flags, float t)
+extern "C" int InSeq_EventTrackUpdate(void* self, int* flags, float t)
 {
     if (*(float*)((char*)self + 0x24) != t) {
         *(int*)((char*)self + 0x20) = 0;
@@ -2047,15 +2047,15 @@ extern "C" int func_00273330(void* self, int* flags, float t)
         float v = (float)*(unsigned short*)(*(char**)((char*)self + 0x14) + 2);
         if (t < v) break;
         *flags |= 0x10;
-        func_00273418(self, *(sCacheRec**)((char*)self + 0x14));
+        InSeq_EventTrackFireKey(self, *(sCacheRec**)((char*)self + 0x14));
         *(float*)((char*)self + 0x24) = v;
-        func_00273468(self);
+        InSeq_EventTrackNextKey(self);
     }
     return *(char**)((char*)self + 0x14) != 0;
 }
 
 //100%
-extern "C" int func_002733E0(void* self)
+extern "C" int InSeq_EventTrackGetNextEventTime(void* self)
 {
     if (*(int*)((char*)self + 0x8) == 0) {
         return -1;
@@ -2083,7 +2083,7 @@ struct sCacheRec {
     int key;
 };
 
-extern "C" sCacheRef* func_00273418(void* self, sCacheRec* rec)
+extern "C" sCacheRef* InSeq_EventTrackFireKey(void* self, sCacheRec* rec)
 {
     sCacheRef* e = &(*(sCacheRef**)((char*)self + 0x1c))[*(int*)((char*)self + 0x20)];
     e->key = rec->key;
@@ -2096,7 +2096,7 @@ extern "C" sCacheRef* func_00273418(void* self, sCacheRec* rec)
 }
 
 //100%
-extern "C" void func_00273468(void* self)
+extern "C" void InSeq_EventTrackNextKey(void* self)
 {
     int idx = *(int*)((char*)self + 0x18);
     if (idx == **(unsigned short**)((char*)self + 0x10) - 1) {
@@ -2111,7 +2111,7 @@ extern "C" void func_00273468(void* self)
 //100%
 extern void* D_004818F0[];
 
-extern "C" void* func_002734A8(void* self)
+extern "C" void* InSeq_RampTrack_ctor(void* self)
 {
     *(void***)((char*)self + 0x4) = D_004818F0;
     *(int*)((char*)self + 0x8) = 0;
@@ -2126,34 +2126,34 @@ extern "C" void* func_002734A8(void* self)
 }
 
 //100% - objdiff report; single-function view differs only in a relocation name
-extern "C" void func_00273630(void* self);
-extern "C" void* func_002724E8(void* self);
+extern "C" void InSeq_RampTrackStop(void* self);
+extern "C" void* InSeq_HeapDelete(void* self);
 extern void* D_004818F0[];
 
-extern "C" void func_002734E0(void* self, int flags)
+extern "C" void InSeq_RampTrack_dtor(void* self, int flags)
 {
     *(void***)((char*)self + 0x4) = D_004818F0;
-    func_00273630(self);
+    InSeq_RampTrackStop(self);
     if (flags & 1) {
-        func_002724E8(self);
+        InSeq_HeapDelete(self);
     }
 }
 
 //100% - objdiff report; single-function view differs only in a relocation name
-extern "C" void* func_00272308(void* heap, int size);
+extern "C" void* InSeq_HeapAlloc(void* heap, int size);
 struct sCacheRecord2;
 struct sCacheEntry2;
-extern "C" sCacheEntry2* func_00273860(void* self, sCacheRecord2* rec);
-extern "C" void func_002738F8(void* self);
+extern "C" sCacheEntry2* InSeq_RampTrackActivateKey(void* self, sCacheRecord2* rec);
+extern "C" void InSeq_RampTrackNextKey(void* self);
 
-extern "C" int func_00273530(void* self, unsigned short* data, void* owner, int* flags)
+extern "C" int InSeq_RampTrackStart(void* self, unsigned short* data, void* owner, int* flags)
 {
     *(unsigned short**)((char*)self + 0x8) = data;
     *(void**)((char*)self + 0xC) = owner;
     *(unsigned short**)((char*)self + 0x10) = data;
     if (data[0] != 0) {
         char* heap = *(char**)(*(char**)((char*)owner + 0x8) + 0x8);
-        *(void**)((char*)self + 0x1C) = func_00272308(heap + 8, data[1] * 0x24);
+        *(void**)((char*)self + 0x1C) = InSeq_HeapAlloc(heap + 8, data[1] * 0x24);
         for (int i = 0; i < (*(unsigned short**)((char*)self + 0x10))[1]; i++) {
         }
         *(int*)((char*)self + 0x18) = 0;
@@ -2161,8 +2161,8 @@ extern "C" int func_00273530(void* self, unsigned short* data, void* owner, int*
         *(char**)((char*)self + 0x14) = base + 4;
         if (base + 4 != 0 && *(unsigned short*)(base + 8) == 0) do {
             *flags |= 1;
-            func_00273860(self, *(sCacheRecord2**)((char*)self + 0x14));
-            func_002738F8(self);
+            InSeq_RampTrackActivateKey(self, *(sCacheRecord2**)((char*)self + 0x14));
+            InSeq_RampTrackNextKey(self);
         } while (*(char**)((char*)self + 0x14) != 0 &&
                *(unsigned short*)(*(char**)((char*)self + 0x14) + 4) == 0);
     }
@@ -2170,13 +2170,13 @@ extern "C" int func_00273530(void* self, unsigned short* data, void* owner, int*
 }
 
 //100% - objdiff report; single-function view differs only in a relocation name
-extern "C" void func_00273630(void* self)
+extern "C" void InSeq_RampTrackStop(void* self)
 {
     char* owner = *(char**)((char*)self + 0xC);
     if (owner != 0) {
         void* p = *(void**)((char*)self + 0x1C);
         if (p != 0) {
-            func_002723A8((sRcHeap*)(*(char**)(*(char**)(owner + 0x8) + 0x8) + 0x8), p);
+            InSeq_HeapFree((sRcHeap*)(*(char**)(*(char**)(owner + 0x8) + 0x8) + 0x8), p);
         }
         *(int*)((char*)self + 0x8) = 0;
         *(int*)((char*)self + 0xC) = 0;
@@ -2214,7 +2214,7 @@ struct sCacheTrack_3698 {
 };
 
 // Advances running events by dt, drops finished ones and starts every record that is due.
-extern "C" int func_00273698(sCacheTrack_3698* self, int* flags, float t, float dt)
+extern "C" int InSeq_RampTrackUpdate(sCacheTrack_3698* self, int* flags, float t, float dt)
 {
     float zero;
     sCacheEvent_3698* prev = 0;
@@ -2242,9 +2242,9 @@ loop:
             float d = t - (float)self->rec->time;
             if (d >= zero) {
                 *flags |= 1;
-                sCacheEvent_3698* n = (sCacheEvent_3698*)func_00273860(self, (sCacheRecord2*)self->rec);
+                sCacheEvent_3698* n = (sCacheEvent_3698*)InSeq_RampTrackActivateKey(self, (sCacheRecord2*)self->rec);
                 n->value += d * n->speed;
-                func_002738F8(self);
+                InSeq_RampTrackNextKey(self);
                 goto loop;
             }
         }
@@ -2262,7 +2262,7 @@ struct sCacheTimeNode2 {
     sCacheTimeNode2* next;
 };
 
-extern "C" int func_002737E0(void* self)
+extern "C" int InSeq_RampTrackGetNextEventTime(void* self)
 {
     if (*(int*)((char*)self + 0x8) == 0) {
         return -1;
@@ -2312,7 +2312,7 @@ struct sCacheEntry2 {
     sCacheEntry2* next;
 };
 
-extern "C" sCacheEntry2* func_00273860(void* self, sCacheRecord2* rec)
+extern "C" sCacheEntry2* InSeq_RampTrackActivateKey(void* self, sCacheRecord2* rec)
 {
     sCacheEntry2* e = (sCacheEntry2*)(*(char**)((char*)self + 0x1C) + rec->id * 0x24);
     e->x = rec->x;
@@ -2333,7 +2333,7 @@ extern "C" sCacheEntry2* func_00273860(void* self, sCacheRecord2* rec)
 }
 
 //100%
-extern "C" void func_002738F8(void* self)
+extern "C" void InSeq_RampTrackNextKey(void* self)
 {
     int idx = *(int*)((char*)self + 0x18);
     if (idx == **(unsigned short**)((char*)self + 0x10) - 1) {
@@ -2346,7 +2346,7 @@ extern "C" void func_002738F8(void* self)
 }
 
 //100%
-extern "C" void* func_00273938(void* self)
+extern "C" void* InSeq_Channel_ctor(void* self)
 {
     *(int*)((char*)self + 0x4) = 0;
     *(int*)((char*)self + 0x8) = 0;
@@ -2363,18 +2363,18 @@ extern "C" void* func_00273938(void* self)
 }
 
 //100% - objdiff report; single-function view differs only in a relocation name
-extern "C" void func_00273A00(void* self);
+extern "C" void InSeq_ChannelRelease(void* self);
 
-extern "C" void func_00273970(void* self, int flags)
+extern "C" void InSeq_Channel_dtor(void* self, int flags)
 {
-    func_00273A00(self);
+    InSeq_ChannelRelease(self);
     if (flags & 1) {
-        func_002724E8(self);
+        InSeq_HeapDelete(self);
     }
 }
 
 //100%
-extern "C" int func_002739B8(void* self, char* data, int size)
+extern "C" int InSeq_ChannelSetup(void* self, char* data, int size)
 {
     *(char**)((char*)self + 0x4) = data;
     *(char**)((char*)self + 0x10) = data;
@@ -2392,12 +2392,12 @@ extern "C" int func_002739B8(void* self, char* data, int size)
 }
 
 //100%
-extern "C" void func_00273DC0(void* self);
+extern "C" void InSeq_ChannelStop(void* self);
 
-extern "C" void func_00273A00(void* self)
+extern "C" void InSeq_ChannelRelease(void* self)
 {
     if (*(int*)((char*)self + 0x4) != 0) {
-        func_00273DC0(self);
+        InSeq_ChannelStop(self);
         *(int*)((char*)self + 0x4) = 0;
         *(int*)((char*)self + 0x8) = 0;
         *(int*)((char*)self + 0xC) = 0;
@@ -2426,14 +2426,14 @@ extern "C" void func_00273A60(void* self, int idx)
 }
 
 //100% - objdiff report; single-function view differs only in a relocation name
-extern "C" void* func_00272308(void* heap, int size);
-// PORT: real arity is (size, heap); the unit declares func_00272488(void*) for its callers.
-extern "C" void* func_00272488_impl(int size, void* heap) __asm__("func_00272488");
-extern "C" void* func_002725B8(void* self);
-extern "C" void* func_00272D68(void* self);
-extern "C" void* func_00273180(void* self);
-extern "C" void* func_002734A8(void* self);
-extern "C" int func_00274D70(void* self);
+extern "C" void* InSeq_HeapAlloc(void* heap, int size);
+// PORT: real arity is (size, heap); the unit declares InSeq_HeapNew(void*) for its callers.
+extern "C" void* InSeq_HeapNew_impl(int size, void* heap) __asm__("InSeq_HeapNew");
+extern "C" void* InSeq_CurveTrack_ctor(void* self);
+extern "C" void* InSeq_SpanTrack_ctor(void* self);
+extern "C" void* InSeq_EventTrack_ctor(void* self);
+extern "C" void* InSeq_RampTrack_ctor(void* self);
+extern "C" int InSeq_InstanceGetListener(void* self);
 
 struct sRcVE_273AA8 {
     short delta;
@@ -2483,13 +2483,13 @@ struct sRcCache_273AA8 {
     int started;            // 0x38
 };
 
-extern "C" int func_00273AA8(sRcCache_273AA8* self)
+extern "C" int InSeq_ChannelStart(sRcCache_273AA8* self)
 {
     self->done = 0;
     self->flags = 0;
     if (self->hdr->count) {
         void* heap = *(char**)(self->owner + 8) + 8;
-        self->objs = (sRcObj_273AA8**)func_00272308(heap, self->hdr->count * 4);
+        self->objs = (sRcObj_273AA8**)InSeq_HeapAlloc(heap, self->hdr->count * 4);
         char* p = (char*)self->hdr + self->hdr->first;
         for (int i = 0; i < self->hdr->count; i++) {
             sRcRec_273AA8* e = (sRcRec_273AA8*)p;
@@ -2497,22 +2497,22 @@ extern "C" int func_00273AA8(sRcCache_273AA8* self)
             switch (e->type) {
             case 0: {
                 sRcObj_273AA8** slot = (sRcObj_273AA8**)((i << 2) + (int)self->objs);
-                *slot = (sRcObj_273AA8*)func_002725B8(func_00272488_impl(0x28, heap));
+                *slot = (sRcObj_273AA8*)InSeq_CurveTrack_ctor(InSeq_HeapNew_impl(0x28, heap));
                 break;
             }
             case 1: {
                 sRcObj_273AA8** slot = (sRcObj_273AA8**)((i << 2) + (int)self->objs);
-                *slot = (sRcObj_273AA8*)func_002734A8(func_00272488_impl(0x28, heap));
+                *slot = (sRcObj_273AA8*)InSeq_RampTrack_ctor(InSeq_HeapNew_impl(0x28, heap));
                 break;
             }
             case 2: {
                 sRcObj_273AA8** slot = (sRcObj_273AA8**)((i << 2) + (int)self->objs);
-                *slot = (sRcObj_273AA8*)func_00272D68(func_00272488_impl(0x2C, heap));
+                *slot = (sRcObj_273AA8*)InSeq_SpanTrack_ctor(InSeq_HeapNew_impl(0x2C, heap));
                 break;
             }
             case 3: {
                 sRcObj_273AA8** slot = (sRcObj_273AA8**)((i << 2) + (int)self->objs);
-                *slot = (sRcObj_273AA8*)func_00273180(func_00272488_impl(0x28, heap));
+                *slot = (sRcObj_273AA8*)InSeq_EventTrack_ctor(InSeq_HeapNew_impl(0x28, heap));
                 break;
             }
             }
@@ -2528,7 +2528,7 @@ extern "C" int func_00273AA8(sRcCache_273AA8* self)
         }
     }
     self->ready = 1;
-    char* x = (char*)func_00274D70(self->owner);
+    char* x = (char*)InSeq_InstanceGetListener(self->owner);
     if (x) {
         sRcVE2_273AA8* vt = *(sRcVE2_273AA8**)x;
         self->player = (char*)vt[6].fn(x + vt[6].delta, self, self->hdr->kind);
@@ -2573,8 +2573,8 @@ extern "C" int func_00273D20(void* self)
 
 //100%
 // PORT: PS2-only inline asm; needs a C fallback off-PS2.
-extern "C" void func_002724E8_impl(void* p) __asm__("func_002724E8");
-extern "C" void func_002723A8(sRcHeap* h, void* p);
+extern "C" void InSeq_HeapDelete_impl(void* p) __asm__("InSeq_HeapDelete");
+extern "C" void InSeq_HeapFree(sRcHeap* h, void* p);
 
 class cRcObj_3DC0 {
 public:
@@ -2599,7 +2599,7 @@ public:
     virtual void v02(void* src, int id);
 };
 
-extern "C" void func_00273DC0(void* self)
+extern "C" void InSeq_ChannelStop(void* self)
 {
     if (*(int*)((char*)self + 0x28) == 0)
         return;
@@ -2616,7 +2616,7 @@ extern "C" void func_00273DC0(void* self)
             switch ((*(cRcObj_3DC0***)((char*)self + 0x24))[i]->v07())
             {
             case 0:
-                func_002724E8_impl((*(cRcObj_3DC0***)((char*)self + 0x24))[i]);
+                InSeq_HeapDelete_impl((*(cRcObj_3DC0***)((char*)self + 0x24))[i]);
                 break;
             case 1:
             {
@@ -2641,7 +2641,7 @@ extern "C" void func_00273DC0(void* self)
             }
             }
         }
-        func_002723A8((sRcHeap*)(*(char**)(*(char**)((char*)self + 0x8) + 0x8) + 8), *(void**)((char*)self + 0x24));
+        InSeq_HeapFree((sRcHeap*)(*(char**)(*(char**)((char*)self + 0x8) + 0x8) + 8), *(void**)((char*)self + 0x24));
         *(void**)((char*)self + 0x24) = 0;
     }
     *(int*)((char*)self + 0x28) = 0;
@@ -2656,7 +2656,7 @@ public:
     virtual void v02();
 };
 
-extern "C" int func_00273F68(void* self)
+extern "C" int InSeq_ChannelRestart(void* self)
 {
     if (*(int*)((char*)self + 0x28) == 0)
         return 0;
@@ -2692,7 +2692,7 @@ extern "C" int func_00273F68(void* self)
 }
 
 //100%
-extern "C" int func_002743E8(void* self, float t, float dt);
+extern "C" int InSeq_ChannelUpdateTracks(void* self, float t, float dt);
 
 class cChan_274100 {
 public:
@@ -2720,7 +2720,7 @@ struct sTrack_274100 {
 };
 
 // Plays the track from prev to time; when jumping, stops at every channel event in between.
-extern "C" int func_00274100(void* self_, float prev, float time, float speed, int jump)
+extern "C" int InSeq_ChannelAdvance(void* self_, float prev, float time, float speed, int jump)
 {
     sTrack_274100* self = (sTrack_274100*)self_;
     if (self->active == 0) {
@@ -2736,16 +2736,16 @@ extern "C" int func_00274100(void* self_, float prev, float time, float speed, i
                 }
             }
             if (next == time) {
-                return func_002743E8(self, time, time - prev);
+                return InSeq_ChannelUpdateTracks(self, time, time - prev);
             }
             float d = next - prev;
             prev = next;
-            if (!func_002743E8(self, prev, d)) {
+            if (!InSeq_ChannelUpdateTracks(self, prev, d)) {
                 return 0;
             }
         }
     }
-    return func_002743E8(self, time, speed);
+    return InSeq_ChannelUpdateTracks(self, time, speed);
 }
 
 // Sets the field at +0xC, returning its old value
@@ -2778,7 +2778,7 @@ extern "C" cRcListener4240* func_00274240(void* self, cRcListener4240* l)
 }
 
 //100%
-int func_002742C8(void* self, int a1)
+int InSeq_ChannelGetTrack(void* self, int a1)
 {
     return *(int*)((char*)*(void**)((char*)self + 0x24) + a1 * 4);
 }
@@ -2805,7 +2805,7 @@ extern "C" void* func_00274318(char* self, int i)
 }
 
 //100%
-int func_00274348(void* self)
+int InSeq_ChannelGetLength(void* self)
 {
     return *(int*)((char*)*(void**)((char*)self + 0x1c) + 0x4);
 }
@@ -2859,10 +2859,10 @@ extern "C" unsigned char func_002743D8(void* self)
     return ((unsigned char*)self + *(int*)((char*)self + 0x8))[3];
 }
 
-INCLUDE_ASM("replay/replaycache", func_002743E8);
+INCLUDE_ASM("replay/replaycache", InSeq_ChannelUpdateTracks);
 
 //100%
-extern "C" void* func_00274518(void* self)
+extern "C" void* InSeq_Instance_ctor(void* self)
 {
     *(int*)((char*)self + 0x0) = -1;
     *(int*)((char*)self + 0x4) = 0;
@@ -2885,24 +2885,24 @@ extern "C" void* func_00274518(void* self)
     return self;
 }
 
-extern "C" void func_002746F8(void* self);
+extern "C" void InSeq_InstanceRelease(void* self);
 void operator_delete(int* p);
 
-extern "C" void func_00274578(int* self, int flags)
+extern "C" void InSeq_Instance_dtor(int* self, int flags)
 {
-    func_002746F8(self);
+    InSeq_InstanceRelease(self);
     if (flags & 1) {
         operator_delete(self);
     }
 }
 
 //100%
-// PORT: array new[] with a heap argument; same symbol as the unit's func_002724C8(void*).
-void* operator new[](unsigned int size, void* heap) __asm__("func_002724C8__FPv");
+// PORT: array new[] with a heap argument; same symbol as the unit's InSeq_HeapNewArray(void*).
+void* operator new[](unsigned int size, void* heap) __asm__("InSeq_HeapNewArray__FPv");
 
 struct sRcElem45C0 {
     char pad_0x0[0x3C];
-    sRcElem45C0() { func_00273938(this); }
+    sRcElem45C0() { InSeq_Channel_ctor(this); }
     void operator delete[](void* p, unsigned int size);
 };
 
@@ -2928,10 +2928,10 @@ struct sRcStream45C0 {
     int field_0x38;         // 0x38
 };
 
-// PORT: func_002739B8's third argument receives the owning stream pointer as an int.
-// PORT: the unit declares func_002745C0 as returning void*; it returns the header word.
-extern "C" int func_002745C0_impl(sRcStream45C0* self, sRcHdr45C0* data, char* owner, int a3) __asm__("func_002745C0");
-extern "C" int func_002745C0_impl(sRcStream45C0* self, sRcHdr45C0* data, char* owner, int a3)
+// PORT: InSeq_ChannelSetup's third argument receives the owning stream pointer as an int.
+// PORT: the unit declares InSeq_InstanceSetup as returning void*; it returns the header word.
+extern "C" int InSeq_InstanceSetup_impl(sRcStream45C0* self, sRcHdr45C0* data, char* owner, int a3) __asm__("InSeq_InstanceSetup");
+extern "C" int InSeq_InstanceSetup_impl(sRcStream45C0* self, sRcHdr45C0* data, char* owner, int a3)
 {
     self->field_0x0 = a3;
     self->owner = owner;
@@ -2948,15 +2948,15 @@ extern "C" int func_002745C0_impl(sRcStream45C0* self, sRcHdr45C0* data, char* o
         sRcElem45C0** slot = &self->elems;
         *slot = new (owner + 8) sRcElem45C0[self->hdr->count];
         for (int i = 0; i < self->hdr->count; i++) {
-            p += func_002739B8(&self->elems[i], p, (int)self);
+            p += InSeq_ChannelSetup(&self->elems[i], p, (int)self);
         }
     }
     return self->hdr->result;
 }
 
 //100%
-extern "C" void func_00273970(void* self, int flags);
-void* func_00272510(void* self);
+extern "C" void InSeq_Channel_dtor(void* self, int flags);
+void* InSeq_HeapDeleteArray(void* self);
 
 struct sRcElem46F8 {
     char pad_0x0[0x3C];
@@ -2985,15 +2985,15 @@ struct sRcStream46F8 {
     int field_0x38;         // 0x38
 };
 
-extern "C" void func_002746F8(void* p)
+extern "C" void InSeq_InstanceRelease(void* p)
 {
     sRcStream46F8* self = (sRcStream46F8*)p;
     if (self->data == 0) {
         return;
     }
-    func_00274918(self);
+    InSeq_InstanceStop(self);
     for (int i = 0; i < self->hdr->count; i++) {
-        func_00273A00(&self->elems[i]);
+        InSeq_ChannelRelease(&self->elems[i]);
     }
     // delete[] self->elems (element count in the 16-byte array cookie)
     sRcElem46F8* e = self->elems;
@@ -3001,9 +3001,9 @@ extern "C" void func_002746F8(void* p)
         sRcElem46F8* q = e + *(int*)((char*)e - 0x10);
         while (self->elems != q) {
             q--;
-            func_00273970(q, 0);
+            InSeq_Channel_dtor(q, 0);
         }
-        func_00272510((char*)self->elems - 0x10);
+        InSeq_HeapDeleteArray((char*)self->elems - 0x10);
     }
     self->field_0x38 = 0;
     self->field_0x0 = -1;
@@ -3028,21 +3028,21 @@ void func_00274808(void* self, float val)
     *(float*)((char*)self + 0x24) = val;
 }
 
-extern "C" void* func_00274830(void*, int);
+extern "C" void* InSeq_InstanceStart(void*, int);
 
 //100%
-void* func_00274810(void* self)
+void* InSeq_InstanceRestart(void* self)
 {
-    return func_00274830(self, *(int*)((char*)self + 0x1c));
+    return InSeq_InstanceStart(self, *(int*)((char*)self + 0x1c));
 }
 
 //100%
 // PORT: PS2-only inline asm; needs a C fallback off-PS2.
 // the unit declares this as returning void*; the body returns nothing,
 // so bind a void body to the symbol
-void func_00274830_impl(void* self, int a1) __asm__("func_00274830");
+void InSeq_InstanceStart_impl(void* self, int a1) __asm__("InSeq_InstanceStart");
 
-void func_00274830_impl(void* self, int a1)
+void InSeq_InstanceStart_impl(void* self, int a1)
 {
     if (*(int*)((char*)self + 0x20) != 0) {
         if (*(int*)((char*)self + 0x3c) != 0) {
@@ -3059,14 +3059,14 @@ extern "C" void func_00274860(void* self, int value)
     *(int*)((char*)self + 0x1C) = value;
 }
 
-extern "C" void func_00274868(void* self, int v)
+extern "C" void InSeq_InstanceRunToEnd(void* self, int v)
 {
     char* s = (char*)self;
     float save = *(float*)(s + 0x24);
     *(int*)(s + 0x44) = v;
     *(float*)(s + 0x24) = 1.0f;
     int k = *(int*)(s + 0x1C);
-    func_00274830_impl(self, 0);
+    InSeq_InstanceStart_impl(self, 0);
     while (*(int*)(s + 0x20) != 0) {
         *(float*)(s + 0x24) = 1.0f;
         func_00274A30(self);
@@ -3088,8 +3088,8 @@ extern "C" void func_00274908(void* self)
 }
 
 //100%
-extern "C" void func_00273DC0(void* self);
-extern "C" int func_00274D70(void* self);
+extern "C" void InSeq_ChannelStop(void* self);
+extern "C" int InSeq_InstanceGetListener(void* self);
 
 class cRcListener4918 {
 public:
@@ -3099,7 +3099,7 @@ public:
     virtual void v04(void* src);
 };
 
-extern "C" void func_00274918(void* self)
+extern "C" void InSeq_InstanceStop(void* self)
 {
     if (*(int*)((char*)self + 0x20) == 0) return;
     if (*(int*)((char*)self + 0x3C) != 0) {
@@ -3107,7 +3107,7 @@ extern "C" void func_00274918(void* self)
         return;
     }
     for (int i = 0; i < *(unsigned char*)(*(char**)((char*)self + 0x10) + 1); i++) {
-        func_00273DC0(*(char**)((char*)self + 0x18) + i * 0x3C);
+        InSeq_ChannelStop(*(char**)((char*)self + 0x18) + i * 0x3C);
     }
     *(int*)((char*)self + 0x20) = 0;
     *(int*)((char*)self + 0x28) = 0;
@@ -3115,7 +3115,7 @@ extern "C" void func_00274918(void* self)
     *(int*)((char*)self + 0x38) = 0;
     *(int*)((char*)self + 0x30) = -1;
     *(int*)((char*)self + 0x34) = -1;
-    cRcListener4918* l = (cRcListener4918*)func_00274D70(self);
+    cRcListener4918* l = (cRcListener4918*)InSeq_InstanceGetListener(self);
     if (l != 0) {
         l->v04(self);
     }
@@ -3142,10 +3142,10 @@ extern "C" void func_00274A08(void* self)
 }
 
 //100% - objdiff report; single-function view differs only in a relocation name
-extern "C" int func_00274C70(void* self);
-extern "C" void func_00274918(void* p);
-void* func_00274810(void* self);
-extern "C" void func_00274DE0(void* self);
+extern "C" int InSeq_InstanceGetLength(void* self);
+extern "C" void InSeq_InstanceStop(void* p);
+void* InSeq_InstanceRestart(void* self);
+extern "C" void InSeq_InstanceTick(void* self);
 extern "C" void func_002749E8(void* self);
 
 struct sRcPlay_4A30 {
@@ -3168,21 +3168,21 @@ extern "C" void func_00274A30(void* p)
     {
         int target = self->seekTo;
         self->seekTo = -1;
-        int len = func_00274C70(self);
+        int len = InSeq_InstanceGetLength(self);
         int saved = self->f2C;
         self->f2C = 0;
         if (self->loop != 0)
             target = target % len;
         float ft = (float)target;
         if (self->playing == 1)
-            func_00274DE0(self);
+            InSeq_InstanceTick(self);
         if (ft != self->pos)
         {
             if (ft < self->pos)
             {
-                func_00274918(self);
-                func_00274810(self);
-                func_00274DE0(self);
+                InSeq_InstanceStop(self);
+                InSeq_InstanceRestart(self);
+                InSeq_InstanceTick(self);
             }
             float one = 1.0f;
             float pos = self->pos;
@@ -3191,11 +3191,11 @@ extern "C" void func_00274A30(void* p)
             if (frac < one)
             {
                 self->speed = frac;
-                func_00274DE0(self);
+                InSeq_InstanceTick(self);
             }
             self->speed = one;
             while (self->playing != 0 && self->pos < ft)
-                func_00274DE0(self);
+                InSeq_InstanceTick(self);
             self->speed = speed;
         }
         if (self->playing != 0)
@@ -3212,7 +3212,7 @@ extern "C" void func_00274A30(void* p)
         {
             do
             {
-                func_00274DE0(self);
+                InSeq_InstanceTick(self);
                 steps--;
                 if (self->playing == 0)
                     goto skip;
@@ -3225,7 +3225,7 @@ extern "C" void func_00274A30(void* p)
         need = 0;
     }
     if (need)
-        func_00274DE0(self);
+        InSeq_InstanceTick(self);
 }
 
 //100%
@@ -3237,7 +3237,7 @@ int func_00274C10(void* self, int a1)
 }
 
 //100%
-extern "C" void* func_00274C20(void* self, int a1)
+extern "C" void* InSeq_InstanceGetChannel(void* self, int a1)
 {
     return *(char**)((char*)self + 0x18) + a1 * 0x3c;
 }
@@ -3251,17 +3251,17 @@ extern "C" void* func_00274C38(void* self)
     return 0;
 }
 
-extern "C" int func_00274C58(void* self)
+extern "C" int InSeq_InstanceGetData(void* self)
 {
     return *(int*)((char*)self + 0x4);
 }
 
-extern "C" int func_00274C60(void* self)
+extern "C" int InSeq_InstanceGetOwner(void* self)
 {
     return *(int*)((char*)self + 0x8);
 }
 
-extern "C" unsigned char func_00274C68(void* self)
+extern "C" unsigned char InSeq_GetChannelCount(void* self)
 {
     return *(unsigned char*)((char*)self + 0x1);
 }
@@ -3271,14 +3271,14 @@ struct sRcTrack4C70 {
     char pad[0x3C];
 };
 
-extern "C" int func_00274C70(void* self)
+extern "C" int InSeq_InstanceGetLength(void* self)
 {
     int r = *(int*)((char*)self + 0x30);
     if (r < 0) {
         int best = 0;
         int i;
         for (i = 0; i < *(unsigned char*)(*(char**)((char*)self + 0x10) + 1); i++) {
-            int v = func_00274348(&(*(sRcTrack4C70**)((char*)self + 0x18))[i]);
+            int v = InSeq_ChannelGetLength(&(*(sRcTrack4C70**)((char*)self + 0x18))[i]);
             if (best < v) {
                 best = v;
             }
@@ -3292,7 +3292,7 @@ extern "C" int func_00274C70(void* self)
 }
 
 //100%
-extern "C" int func_00274C70(void* self);
+extern "C" int InSeq_InstanceGetLength(void* self);
 
 // PORT: PS2-only inline asm (EE cvt.w.s truncates in the FPU; the C cast goes through a GPR).
 static inline float ftrunc_00274D08(float x)
@@ -3304,7 +3304,7 @@ static inline float ftrunc_00274D08(float x)
 
 extern "C" int func_00274D08(void* self)
 {
-    float x = ((float)func_00274C70(self) - *(float*)((char*)self + 0x28)) / *(float*)((char*)self + 0x24);
+    float x = ((float)InSeq_InstanceGetLength(self) - *(float*)((char*)self + 0x28)) / *(float*)((char*)self + 0x24);
     float c = ftrunc_00274D08(x);
     if (c < x) {
         c += 1.0f;
@@ -3313,7 +3313,7 @@ extern "C" int func_00274D08(void* self)
 }
 
 //100%
-extern "C" int func_00274D70(void* self)
+extern "C" int InSeq_InstanceGetListener(void* self)
 {
     int v = *(int*)((char*)self + 0x44);
     if (v != 0) {
@@ -3322,7 +3322,7 @@ extern "C" int func_00274D70(void* self)
     return **(int**)((char*)self + 0x8);
 }
 
-extern "C" char* func_00274D90(char* self, int n)
+extern "C" char* InSeq_FindChannelData(char* self, int n)
 {
     char* p = self + *(unsigned short*)(self + 0x2);
     for (; n != 0; n--) {
@@ -3331,11 +3331,11 @@ extern "C" char* func_00274D90(char* self, int n)
     return p;
 }
 
-INCLUDE_ASM("replay/replaycache", func_00274DE0);
+INCLUDE_ASM("replay/replaycache", InSeq_InstanceTick);
 
 //100% - objdiff report; single-function view differs only in a relocation name
-extern "C" int func_00274100(void* track, float prev, float time, float speed, int jump);
-extern "C" int func_00274D70(void* self);
+extern "C" int InSeq_ChannelAdvance(void* track, float prev, float time, float speed, int jump);
+extern "C" int InSeq_InstanceGetListener(void* self);
 
 class cRcListener51A0 {
 public:
@@ -3352,7 +3352,7 @@ struct sRcAnim51A0 {
     float time;             // 0x28
 };
 
-extern "C" int func_002751A0(sRcAnim51A0* self, float time, float prev, float speed)
+extern "C" int InSeq_InstanceAdvance(sRcAnim51A0* self, float time, float prev, float speed)
 {
     int changed = 0;
     int jump = 0;
@@ -3368,12 +3368,12 @@ extern "C" int func_002751A0(sRcAnim51A0* self, float time, float prev, float sp
     }
     for (int i = 0; i < self->hdr[1]; i++) {
         int c = 0;
-        if (func_00274100(self->tracks + i * 0x3C, prev, self->time, speed, jump) != 0 || changed != 0) {
+        if (InSeq_ChannelAdvance(self->tracks + i * 0x3C, prev, self->time, speed, jump) != 0 || changed != 0) {
             c = 1;
         }
         changed = c;
     }
-    cRcListener51A0* l = (cRcListener51A0*)func_00274D70(self);
+    cRcListener51A0* l = (cRcListener51A0*)InSeq_InstanceGetListener(self);
     if (l != 0) {
         l->v02(self, self->time, speed);
     }
@@ -3381,7 +3381,7 @@ extern "C" int func_002751A0(sRcAnim51A0* self, float time, float prev, float sp
 }
 
 //100%
-void* func_002752F0(void* self)
+void* InSeq_CurveTrackGetValuePtr(void* self)
 {
     return (char*)self + 0x1C;
 }
@@ -3393,31 +3393,31 @@ int InSeq_CurveTrack_v05(void* self)
 }
 
 //100%
-int func_00275300(void* self)
+int InSeq_CurveTrackGetNextEventTime(void* self)
 {
     return -0x1;
 }
 
 //100%
-int func_00275308(void* self)
+int InSeq_CurveTrackGetType(void* self)
 {
     return 0;
 }
 
 //100%
-int func_00275310(void* self)
+int InSeq_CurveTrackGetChannel(void* self)
 {
     return *(int*)((char*)self + 0xC);
 }
 
 //100%
-int func_00275318(void* self)
+int InSeq_CurveTrackIsStarted(void* self)
 {
     return (*(int*)((char*)self + 0x8) != 0);
 }
 
 //100%
-void* func_00275328(void* self)
+void* InSeq_SpanTrackGetValuePtr(void* self)
 {
     return (char*)self + 0x28;
 }
@@ -3429,25 +3429,25 @@ int InSeq_SpanTrack_v05(void* self)
 }
 
 //100%
-int func_00275338(void* self)
+int InSeq_SpanTrackGetType(void* self)
 {
     return 0x2;
 }
 
 //100%
-int func_00275340(void* self)
+int InSeq_SpanTrackGetChannel(void* self)
 {
     return *(int*)((char*)self + 0xC);
 }
 
 //100%
-int func_00275348(void* self)
+int InSeq_SpanTrackIsStarted(void* self)
 {
     return (*(int*)((char*)self + 0x8) != 0);
 }
 
 //100%
-void* func_00275358(void* self)
+void* InSeq_EventTrackGetValuePtr(void* self)
 {
     return (char*)self + 0x20;
 }
@@ -3459,25 +3459,25 @@ int InSeq_EventTrack_v05(void* self)
 }
 
 //100%
-int func_00275368(void* self)
+int InSeq_EventTrackGetType(void* self)
 {
     return 0x3;
 }
 
 //100%
-int func_00275370(void* self)
+int InSeq_EventTrackGetChannel(void* self)
 {
     return *(int*)((char*)self + 0xC);
 }
 
 //100%
-int func_00275378(void* self)
+int InSeq_EventTrackIsStarted(void* self)
 {
     return (*(int*)((char*)self + 0x8) != 0);
 }
 
 //100%
-void* func_00275388(void* self)
+void* InSeq_RampTrackGetValuePtr(void* self)
 {
     return (char*)self + 0x24;
 }
@@ -3489,19 +3489,19 @@ int InSeq_RampTrack_v05(void* self)
 }
 
 //100%
-int func_00275398(void* self)
+int InSeq_RampTrackGetType(void* self)
 {
     return 0x1;
 }
 
 //100%
-int func_002753A0(void* self)
+int InSeq_RampTrackGetChannel(void* self)
 {
     return *(int*)((char*)self + 0xC);
 }
 
 //100%
-int func_002753A8(void* self)
+int InSeq_RampTrackIsStarted(void* self)
 {
     return (*(int*)((char*)self + 0x8) != 0);
 }

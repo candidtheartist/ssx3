@@ -176,14 +176,14 @@ extern "C" int func_00255D38(void *arg0, int arg1) {
 }
 
 //100%
-extern "C" int func_00255D50(void *arg0, int arg1) {
+extern "C" int cCommSystem_IsChannelConnected(void *arg0, int arg1) {
     char *obj = *(char **)((char*)arg0 + (arg1 << 2));
     char *vt = *(char **)(obj + 8);
     return (*(int (**)(void *))(vt + 0x24))(obj + *(short *)(vt + 0x20));
 }
 
 //100%
-extern "C" float func_00255D88(int arg0, int arg1) {
+extern "C" float cCommSystem_GetChannelLatency(int arg0, int arg1) {
     char *obj = *(char **)(arg0 + (arg1 << 2));
     char *vt = *(char **)(obj + 8);
     return (*(float (**)(void *))(vt + 0x2C))(obj + *(short *)(vt + 0x28));
@@ -359,10 +359,10 @@ extern "C" void func_00256188(void) {
 }
 
 //100%
-extern "C" void func_00256228();
+extern "C" void DNASAuth_Init();
 
 extern "C" int func_002561B8(int arg0) {
-    func_00256228();
+    DNASAuth_Init();
     return arg0;
 }
 
@@ -379,7 +379,7 @@ extern "C" void func_002561E0(int *arg0, int arg1) {
 }
 
 //100%
-extern "C" void func_00256228(void *arg0) {
+extern "C" void DNASAuth_Init(void *arg0) {
     (*(int *)((char*)(arg0) + (4))) = 0;
     (*(int *)((char*)(arg0) + (8))) = 0;
     (*(int *)((char*)(arg0) + (0xC))) = 0;
@@ -541,11 +541,11 @@ extern "C" void func_002565E0(char *self) {
 }
 
 //100%
-void func_002557E0(void *);
+void cDSockChannel_Base_ctor(void *);
 extern char D_004812D0[];
 
 extern "C" void *cDSockChannel_ctor(void *arg0) {
-    func_002557E0(arg0);
+    cDSockChannel_Base_ctor(arg0);
     (*(char **)((char*)(arg0) + (8))) = D_004812D0;
     (*(float *)((char*)(arg0) + (0x10))) = 0.10000000149011612f;
     (*(int *)((char*)(arg0) + (0xC))) = 0;
@@ -557,14 +557,14 @@ extern "C" void *cDSockChannel_ctor(void *arg0) {
 
 //100%
 // PORT: PS2-only inline asm; needs a C fallback off-PS2.
-extern "C" void func_00255800_66E8(void *, int) __asm__("func_00255800");
+extern "C" void cDSockChannel_Base_dtor_66E8(void *, int) __asm__("cDSockChannel_Base_dtor");
 extern "C" void func_00256998(void *);
 extern char D_004812D0[];
 
 extern "C" void func_002566E8(void *arg0, int arg1) {
     (*(char **)((char*)(arg0) + (8))) = D_004812D0;
     func_00256998(arg0);
-    func_00255800_66E8(arg0, arg1);
+    cDSockChannel_Base_dtor_66E8(arg0, arg1);
 }
 
 //100%
@@ -611,7 +611,7 @@ extern "C" int func_002567E0(char *self, int a1, int len) {
 
 //100%
 // PORT: PS2-only inline asm; needs a C fallback off-PS2.
-extern "C" void func_00255830__FPv_6860(void *) __asm__("func_00255830__FPv");
+extern "C" void cDSockChannel_SetOpen__FPv_6860(void *) __asm__("cDSockChannel_SetOpen__FPv");
 extern "C" int NetGameUtilCreate_6860() __asm__("NetGameUtilCreate");
 extern "C" int NetGameUtilConnect_6860(int, int, void *) __asm__("NetGameUtilConnect");
 extern "C" int sprintf_6860(char *, const char *, ...) __asm__("sprintf");
@@ -622,7 +622,7 @@ extern "C" void func_00256860(char *self, int a1, int a2) {
     char buf[0x100];
     char *vt = *(char **)(self + 8);
     (*(void (**)(void *))(vt + 0x14))(self + *(short *)(vt + 0x10));
-    func_00255830__FPv_6860(self);
+    cDSockChannel_SetOpen__FPv_6860(self);
     int h = NetGameUtilCreate_6860();
     *(int *)(self + 0x18) = h;
     if (h != 0) {
@@ -634,7 +634,7 @@ extern "C" void func_00256860(char *self, int a1, int a2) {
 
 //100%
 // PORT: PS2-only inline asm; needs a C fallback off-PS2.
-extern "C" void func_00255830__FPv_68F8(void *) __asm__("func_00255830__FPv");
+extern "C" void cDSockChannel_SetOpen__FPv_68F8(void *) __asm__("cDSockChannel_SetOpen__FPv");
 extern "C" int NetGameUtilCreate_68F8() __asm__("NetGameUtilCreate");
 extern "C" int NetGameUtilConnect_68F8(int, int, void *) __asm__("NetGameUtilConnect");
 extern "C" int sprintf_68F8(char *, const char *, ...) __asm__("sprintf");
@@ -646,7 +646,7 @@ extern "C" void func_002568F8(char *self, int a1, int a2) {
     *(int *)(self + 4) = 0;
     char *vt = *(char **)(self + 8);
     (*(void (**)(void *))(vt + 0x14))(self + *(short *)(vt + 0x10));
-    func_00255830__FPv_68F8(self);
+    cDSockChannel_SetOpen__FPv_68F8(self);
     int h = NetGameUtilCreate_68F8();
     *(int *)(self + 0x18) = h;
     if (h != 0) {
@@ -657,7 +657,7 @@ extern "C" void func_002568F8(char *self, int a1, int a2) {
 }
 
 //100%
-extern "C" void func_00255840();
+extern "C" void cDSockChannel_ResetState();
 extern "C" void NetGameLinkDestroy(int);
 extern "C" void NetGameUtilDestroy(int);
 
@@ -666,7 +666,7 @@ extern "C" void func_00256998(void *arg0) {
     int temp_4_2;
 
     if ((*(int *)((char*)(arg0) + (0xC))) != 0) {
-        func_00255840();
+        cDSockChannel_ResetState();
         temp_4 = (*(int *)((char*)(arg0) + (0x1C)));
         if (temp_4 != 0) {
             NetGameLinkDestroy(temp_4);
@@ -1037,16 +1037,16 @@ extern "C" void func_00256EE0(int self, int flags)
 }
 
 //100%
-extern "C" void func_00258330(void* self);
-extern "C" void func_00258870(void*, int, int);
+extern "C" void cGameComm_UpdateMaxLatency(void* self);
+extern "C" void cGameComm_SetTimeoutTimer(void*, int, int);
 extern "C" void func_0031AD18();
 
 extern "C" void func_00257038(char* self, int v)
 {
     switch (v) {
     case 14:
-        func_00258330(self);
-        func_00258870(self, 0xE10, 0);
+        cGameComm_UpdateMaxLatency(self);
+        cGameComm_SetTimeoutTimer(self, 0xE10, 0);
         func_0031AD18();
         break;
     case 15:
@@ -1054,7 +1054,7 @@ extern "C" void func_00257038(char* self, int v)
         *(int*)(self + 0x78) = 0;
         break;
     case 1: case 3: case 5: case 7: case 9: case 11: case 13:
-        func_00258870(self, 0x708, 0);
+        cGameComm_SetTimeoutTimer(self, 0x708, 0);
         break;
     case 2: case 4: case 6: case 8: case 10: case 12:
         break;
@@ -1066,21 +1066,21 @@ extern "C" int ProtoPingResponse_70D8(int, char *, int *, void *) __asm__("Proto
 extern "C" int func_00416B18_70D8(const char *, const char *, int) __asm__("func_00416B18");
 extern "C" int ProtoPingRequest_70D8(int, int, char *, int) __asm__("ProtoPingRequest");
 extern "C" void func_00258CB0_70D8(void *) __asm__("func_00258CB0");
-extern "C" void func_00257750_70D8(void *) __asm__("func_00257750");
-extern "C" int func_002577C8_70D8(void *) __asm__("func_002577C8");
+extern "C" void cGameComm_TickCountdowns_70D8(void *) __asm__("cGameComm_TickCountdowns");
+extern "C" int cGameComm_CheckConnection_70D8(void *) __asm__("cGameComm_CheckConnection");
 extern "C" void func_00257CD8_70D8(void *) __asm__("func_00257CD8");
 extern "C" void func_00257DC0_70D8(void *) __asm__("func_00257DC0");
 extern "C" void func_002581F8_70D8(void *) __asm__("func_002581F8");
 extern "C" void func_002582A0_70D8(void *) __asm__("func_002582A0");
 extern "C" void func_00257F98_70D8(void *) __asm__("func_00257F98");
-extern "C" void func_00257A80_70D8(void *) __asm__("func_00257A80");
+extern "C" void cGameComm_CheckPeerTimeout_70D8(void *) __asm__("cGameComm_CheckPeerTimeout");
 extern "C" int func_002581D8_70D8(void *) __asm__("func_002581D8");
 extern "C" int func_00258280_70D8(void *) __asm__("func_00258280");
 extern "C" void func_002581E8_70D8(void *, int, int) __asm__("func_002581E8");
 extern "C" void func_00258290_70D8(void *, int, int) __asm__("func_00258290");
 extern "C" void func_0014E2C8_70D8(void *, int, int) __asm__("func_0014E2C8");
 extern "C" void func_0014E5C8_70D8(void *, int, int) __asm__("func_0014E5C8");
-extern "C" float func_00255D88_70D8(int, int) __asm__("func_00255D88");
+extern "C" float cCommSystem_GetChannelLatency_70D8(int, int) __asm__("cCommSystem_GetChannelLatency");
 void *cBE_getInterface_70D8(int, int) __asm__("cBE_getInterface__Fv");
 extern char D_00481380[];
 extern int D_004A2EB8;
@@ -1151,14 +1151,14 @@ extern "C" void func_002570D8(void *self)
     if (s->xB0 < 0.0f) s->xB0 = 0.0f;
     if (s->x3FC > 0) s->x3FC--;
     func_00258CB0_70D8(s);
-    func_00257750_70D8(s);
-    if (func_002577C8_70D8(s) != 0) return;
+    cGameComm_TickCountdowns_70D8(s);
+    if (cGameComm_CheckConnection_70D8(s) != 0) return;
     func_00257CD8_70D8(s);
     func_00257DC0_70D8(s);
     func_002581F8_70D8(s);
     func_002582A0_70D8(s);
     func_00257F98_70D8(s);
-    if (func_002577C8_70D8(s) != 0) return;
+    if (cGameComm_CheckConnection_70D8(s) != 0) return;
     iface = cBE_getInterface_70D8(*(int *)((char *)D_004A28A8 + 0x78), 7);
     st = s->x70;
     if (s->x44 != 0) {
@@ -1199,7 +1199,7 @@ extern "C" void func_002570D8(void *self)
             }
             break;
         case 9:
-            s->x114 = func_00255D88_70D8(D_004A2EB8, s->x6C);
+            s->x114 = cCommSystem_GetChannelLatency_70D8(D_004A2EB8, s->x6C);
             func_00258290_70D8(s, (int)&s->x114, 4);
             func_00257038((char *)s, 10);
             break;
@@ -1217,7 +1217,7 @@ extern "C" void func_002570D8(void *self)
             func_00257038((char *)s, 14);
             break;
         case 14:
-            func_00257A80_70D8(s);
+            cGameComm_CheckPeerTimeout_70D8(s);
             break;
         case 15:
             break;
@@ -1267,7 +1267,7 @@ extern "C" void func_002570D8(void *self)
             if (func_002581D8_70D8(s)) func_00257038((char *)s, 9);
             break;
         case 9:
-            s->x118 = func_00255D88_70D8(D_004A2EB8, s->x6C);
+            s->x118 = cCommSystem_GetChannelLatency_70D8(D_004A2EB8, s->x6C);
             func_00258290_70D8(s, (int)&s->x118, 4);
             func_00257038((char *)s, 10);
             break;
@@ -1278,7 +1278,7 @@ extern "C" void func_002570D8(void *self)
             func_00257038((char *)s, 14);
             break;
         case 14:
-            func_00257A80_70D8(s);
+            cGameComm_CheckPeerTimeout_70D8(s);
             break;
         case 15:
             break;
@@ -1300,7 +1300,7 @@ extern "C" void func_00257610(void *arg0, int arg1) {
 }
 
 //100%
-extern "C" void func_00257678(char *self) {
+extern "C" void cGameComm_LatchResultFlags(char *self) {
     if (*(int *)(self + 0x30) == 0) {
         *(int *)(self + 0x30) = 1;
         int *p = (int *)(self + 0x18);
@@ -1318,7 +1318,7 @@ extern "C" void func_00257678(char *self) {
 }
 
 //100%
-extern "C" void func_00257750(char *p) {
+extern "C" void cGameComm_TickCountdowns(char *p) {
     if (*(int *)(p + 8) == 0 && *(int *)(p + 0x48) == 0 && (*(int *)(p + 4) == 0 || *(int *)(p + 0x80) == 0)) {
         int a = *(int *)(p + 0x64);
         if (a > 0) {
@@ -1336,69 +1336,69 @@ extern "C" void func_00257750(char *p) {
 //100%
 // PORT: PS2-only inline asm; needs a C fallback off-PS2.
 extern "C" int func_00255E40_77C8(int sys, int port) __asm__("func_00255E40");
-extern "C" void func_00257678(char *self);
-extern "C" void func_002578F8(char *self);
-extern "C" void func_002579C8(char *self);
+extern "C" void cGameComm_LatchResultFlags(char *self);
+extern "C" void cGameComm_EndSession(char *self);
+extern "C" void cGameComm_TickQuitCountdown(char *self);
 extern int D_004A2EB8;
 
-extern "C" int func_002577C8(char* s)
+extern "C" int cGameComm_CheckConnection(char* s)
 {
     if (*(int*)(s + 0x8) > 0) {
-        func_002579C8(s);
+        cGameComm_TickQuitCountdown(s);
         return 1;
     }
     if (*(int*)(s + 0x4) != 0) return 1;
     if (*(int*)(s + 0x8C) != 0) {
-        func_002578F8(s);
+        cGameComm_EndSession(s);
         return 1;
     }
     if (func_00255E40_77C8(D_004A2EB8, *(int*)(s + 0x6C)) != 0) {
-        func_00257678(s);
-        func_002578F8(s);
+        cGameComm_LatchResultFlags(s);
+        cGameComm_EndSession(s);
         return 1;
     }
     if (*(int*)(s + 0x54) >= 3) {
         *(int*)(s + 0x24) = 3;
-        func_002578F8(s);
+        cGameComm_EndSession(s);
         return 1;
     }
     if (*(int*)(s + 0x4C) >= 6) {
         *(int*)(s + 0x24) = 2;
-        func_002578F8(s);
+        cGameComm_EndSession(s);
         return 1;
     }
     if (*(int*)(s + 0x58) >= 3) {
         *(int*)(s + 0x28) = 3;
-        func_002578F8(s);
+        cGameComm_EndSession(s);
         return 1;
     }
     if (*(int*)(s + 0x50) >= 6) {
         *(int*)(s + 0x28) = 2;
-        func_002578F8(s);
+        cGameComm_EndSession(s);
         return 1;
     }
     if (*(float*)(s + 0xB0) >= 3600.0f) {
-        func_00257678(s);
-        func_002578F8(s);
+        cGameComm_LatchResultFlags(s);
+        cGameComm_EndSession(s);
         return 1;
     }
     if (*(int*)(s + 0x94) <= 0) return 0;
     if (--*(int*)(s + 0x94) > 0) return 0;
     *(int*)(s + 0x2C) = 1;
-    func_00257678(s);
-    func_002578F8(s);
+    cGameComm_LatchResultFlags(s);
+    cGameComm_EndSession(s);
     return 1;
 }
 
 //100%
 // PORT: PS2-only inline asm; needs a C fallback off-PS2.
-extern "C" void func_002579C8_78F8(void *) __asm__("func_002579C8");
+extern "C" void cGameComm_TickQuitCountdown_78F8(void *) __asm__("cGameComm_TickQuitCountdown");
 extern "C" void func_00258CB0_78F8(void *) __asm__("func_00258CB0");
 extern "C" void func_00266DF8_78F8(int) __asm__("func_00266DF8");
 extern void *D_004A28A8;
 extern int D_004A33F4;
 
-extern "C" void func_002578F8(char *self) {
+extern "C" void cGameComm_EndSession(char *self) {
     *(int *)(self + 0x84) = 0;
     *(int *)(self + 0x78) = 0;
     *(int *)(self + 0x3F8) = 0;
@@ -1419,7 +1419,7 @@ extern "C" void func_002578F8(char *self) {
         *(int *)(self + 0) = 0;
         *(int *)(self + 4) = 1;
         *(int *)(self + 8) = 1;
-        func_002579C8_78F8(self);
+        cGameComm_TickQuitCountdown_78F8(self);
     }
 }
 
@@ -1433,7 +1433,7 @@ extern int D_004A2A54;
 extern int D_00442924[];
 extern int D_005366E8[];
 
-extern "C" void func_002579C8(char *self) {
+extern "C" void cGameComm_TickQuitCountdown(char *self) {
     if (*(int *)(self + 0xAC) == 0 && *(int *)(self + 8) > 0) {
         char *p = *(char **)(*(char **)((char*)D_004A28A8 + 0x84) + 0x48);
         char *st;
@@ -1452,12 +1452,12 @@ extern "C" void func_002579C8(char *self) {
 }
 
 //100%
-extern "C" void func_00257678(char *self);
-extern "C" void func_002578F8(char *self);
+extern "C" void cGameComm_LatchResultFlags(char *self);
+extern "C" void cGameComm_EndSession(char *self);
 extern void *D_004A28A8;
 extern int D_004A3ED0;
 
-extern "C" void func_00257A80(char* s)
+extern "C" void cGameComm_CheckPeerTimeout(char* s)
 {
     if (*(int*)(s + 0x24) != 0) return;
     if (*(int*)(s + 0x74) == 0) {
@@ -1476,22 +1476,22 @@ extern "C" void func_00257A80(char* s)
         }
         if (*(int*)(s + 0x80) != 0) {
             if (*(int*)(s + 0xC) != 0) {
-                func_00257678(s);
-                func_002578F8(s);
+                cGameComm_LatchResultFlags(s);
+                cGameComm_EndSession(s);
                 return;
             }
             if (*(int*)(s + 0x78) == 0) ++*(int*)(s + 0x5C);
             if (*(int*)(s + 0x5C) >= 1800) {
                 *(int*)(s + 0x2C) = 1;
-                func_00257678(s);
-                func_002578F8(s);
+                cGameComm_LatchResultFlags(s);
+                cGameComm_EndSession(s);
                 return;
             }
         }
     }
     if (D_004A3ED0 != 0) {
         *(int*)(s + 0x24) = 1;
-        func_002578F8(s);
+        cGameComm_EndSession(s);
     }
 }
 
@@ -1531,7 +1531,7 @@ struct Conn_7BD8 {
 
 extern "C" void func_00257CD8(Conn_7BD8* c);
 extern "C" void func_002581B8(void *arg0, int *arg1);
-extern "C" void func_00258870(void *, int, int);
+extern "C" void cGameComm_SetTimeoutTimer(void *, int, int);
 extern "C" void func_003E6574_7BD8(void* dst, const void* src, int n) __asm__("func_003E6574");
 
 // PORT: the unit declares this as (void*, int, int, int); dst is a pointer passed as int
@@ -1552,7 +1552,7 @@ extern "C" int func_00257BD8(void* self, int ch, int dst, int unused)
             c->unkA8 = 0;
             c->unk84 = 0;
         }
-        if (c->unk94 > 0) func_00258870(c, 0x708, 0);
+        if (c->unk94 > 0) cGameComm_SetTimeoutTimer(c, 0x708, 0);
         return len;
     }
     return 0;
@@ -1655,7 +1655,7 @@ extern "C" int func_00257E98_impl(char* self, int type, const void* data, int le
 //100%
 extern "C" int func_00257BD8_7F98(void* self, int ch, void* dst, int n) __asm__("func_00257BD8");
 extern "C" void func_002588A8_7F98(void* self) __asm__("func_002588A8");
-extern "C" void func_00258870(void*, int, int);
+extern "C" void cGameComm_SetTimeoutTimer(void*, int, int);
 extern void* D_004A28A8;
 
 struct sMsg_7F98 {
@@ -1677,7 +1677,7 @@ extern "C" void func_00257F98(char* self)
         switch (msg.type) {
         case 0:
             if (*(int*)(self + 0x7C) == 0) {
-                func_00258870(self, 0xE4C, 1);
+                cGameComm_SetTimeoutTimer(self, 0xE4C, 1);
             } else {
                 *(int*)(self + 0x3F8) = 1;
             }
@@ -1696,7 +1696,7 @@ extern "C" void func_00257F98(char* self)
             *(int*)(self + 0x60) = 0;
             *(int*)(self + 0x84) = 0;
             if (*(int*)(self + 0x7C) == 0) {
-                func_00258870(self, 0x708, 0);
+                cGameComm_SetTimeoutTimer(self, 0x708, 0);
             } else {
                 func_002588A8_7F98(self);
             }
@@ -1820,7 +1820,7 @@ extern "C" void func_002582A0(char *p) {
 // PORT: g++ >?/<? (min/max) operator, removed in GCC 4.3.
 extern void *D_004A28A8;
 
-extern "C" void func_00258330(void *arg0) {
+extern "C" void cGameComm_UpdateMaxLatency(void *arg0) {
     char *p = (char*)D_004A28A8;
     float b = *(float *)((char*)arg0 + 0x118);
     float a = *(float *)((char*)arg0 + 0x114);
@@ -1833,12 +1833,12 @@ extern "C" void func_00258330(void *arg0) {
 }
 
 //100% - objdiff report; single-function view differs only in a relocation name
-extern "C" float func_00255D88(int, int);
+extern "C" float cCommSystem_GetChannelLatency(int, int);
 extern void *D_004A28A8;
 extern int D_004A2EB8;
 
-extern "C" float func_00258360(void *arg0) {
-    return func_00255D88(D_004A2EB8, (*(int *)((char*)(arg0) + (0x6C)))) + ((float) (*(int *)((char*)(arg0) + (0x120))) * (*(float *)((char*)(D_004A28A8) + (0x14))));
+extern "C" float cGameComm_GetInputDelay(void *arg0) {
+    return cCommSystem_GetChannelLatency(D_004A2EB8, (*(int *)((char*)(arg0) + (0x6C)))) + ((float) (*(int *)((char*)(arg0) + (0x120))) * (*(float *)((char*)(D_004A28A8) + (0x14))));
 }
 
 //100%
@@ -1887,7 +1887,7 @@ extern "C" char* strncpy(char* dst, const char* src, unsigned int n);
 extern "C" void* cBE_getBE();
 extern "C" int func_00147318(void* iface, int a1);
 extern "C" void func_001472C8(void* iface, int a1, int a2);
-extern "C" void func_00237CB0(unsigned int seed);
+extern "C" void GameRand_Seed(unsigned int seed);
 extern "C" void THREAD_yieldticks(int);
 unsigned int AIrand();
 void func_003178E0_8448(void* self) __asm__("func_003178E0__FPv");
@@ -1946,14 +1946,14 @@ extern "C" void cGameComm_syncGame(char* self)
     if (*(int*)(self + 4) == 0) {
         func_0014EA90(iface);
         func_00317908(self + 0xD4);
-        func_00237CB0(AIrand());
+        GameRand_Seed(AIrand());
         ggSetTime_8448(D_00534B30, *(float*)(self + 0x11C));
         if (*(int*)(self + 0xEC) != 0 && *(int*)(self + 0x100) != 0) {
             *(int*)(self + 0x120) = 2;
         }
         if (*(int*)(self + 4) == 0 && func_00416B18_70D8(self + 0xF0, self + 0x104, 9) != 0) {
-            func_00257678(self);
-            func_002578F8(self);
+            cGameComm_LatchResultFlags(self);
+            cGameComm_EndSession(self);
         }
     }
 }
@@ -1962,20 +1962,20 @@ extern "C" void cGameComm_syncGame(char* self)
 // PORT: PS2-only inline asm; needs a C fallback off-PS2.
 void* cBE_getInterface_86B0(int, int) __asm__("cBE_getInterface__Fv");
 extern "C" void func_00257E98(void *, int, int, int);
-extern "C" void func_00258870(void *, int, int);
+extern "C" void cGameComm_SetTimeoutTimer(void *, int, int);
 extern "C" void func_002570D8(void *);
 extern "C" void THREAD_yieldticks(int);
 extern void *D_004A28A8;
 extern char D_00534B30[];
 static inline int rd8(char *p) { return *(int*)(p + 8); }
-extern "C" void func_002586B0(void *self) {
+extern "C" void cGameComm_WaitForPeerReady(void *self) {
     char buf[12];
     cBE_getInterface_86B0(*(int*)((char*)D_004A28A8 + 0x78), 7);
     if (rd8(D_00534B30) != 0) {
         buf[0] = 3;
         func_00257E98(self, 3, (int)buf, 0xC);
     }
-    func_00258870(self, 0xE10, 0);
+    cGameComm_SetTimeoutTimer(self, 0xE10, 0);
     while (*(int*)((char*)self + 0x3F4) == 0 && *(int*)((char*)self + 4) == 0) {
         func_002570D8(self);
         THREAD_yieldticks(1);
@@ -1991,14 +1991,14 @@ extern "C" void func_002586B0(void *self) {
 //100% - objdiff report; single-function view differs only in a relocation name
 // PORT: PS2-only inline asm; needs a C fallback off-PS2.
 extern "C" void func_00257E98(void *, int, int, int);
-extern "C" void func_00258870(void *, int, int);
+extern "C" void cGameComm_SetTimeoutTimer(void *, int, int);
 extern void func_002588A8_8790(void *) __asm__("func_002588A8");
 extern "C" void func_00258790(void *self, int arg1) {
     char buf[12];
     if (*(int*)((char*)self + 4) == 0 && *(int*)self != 0) {
         if (arg1 != 0) {
             if (*(int*)((char*)self + 0x7C) == 0) {
-                func_00258870(self, 0xE4C, 1);
+                cGameComm_SetTimeoutTimer(self, 0xE4C, 1);
             } else {
                 *(int*)((char*)self + 0x3F8) = 1;
             }
@@ -2015,7 +2015,7 @@ extern "C" void func_00258790(void *self, int arg1) {
             *(int*)((char*)self + 0x84) = 0;
             *(int*)((char*)self + 0x5C) = 0;
             if (*(int*)((char*)self + 0x7C) == 0) {
-                func_00258870(self, 0x708, 0);
+                cGameComm_SetTimeoutTimer(self, 0x708, 0);
             } else {
                 func_002588A8_8790(self);
             }
@@ -2025,7 +2025,7 @@ extern "C" void func_00258790(void *self, int arg1) {
 }
 
 //100%
-extern "C" void func_00258870(void *arg0, int arg1, int arg2) {
+extern "C" void cGameComm_SetTimeoutTimer(void *arg0, int arg1, int arg2) {
     if ((arg2 != 0) || (((*(int *)((char*)(arg0) + (0x78))) == 0) && ((*(int *)((char*)(arg0) + (0x74))) == 0)) || ((*(int *)((char*)(arg0) + (0x7C))) != 0)) {
         (*(int *)((char*)(arg0) + (0x94))) = arg1;
     }
@@ -2078,7 +2078,7 @@ extern void *D_004A28A8;
 extern char *D_004A3028;
 extern int D_004A3328;
 
-extern "C" void func_00258988(char *self) {
+extern "C" void cGameComm_OnRaceStart(char *self) {
     if (*(int *)(self + 0x70) < 0xF) {
         if (D_004A3328 == 0) {
             func_00260F80_8988();
@@ -2104,7 +2104,7 @@ extern "C" void func_00258988(char *self) {
 extern "C" void func_00257038_8A48(void *, int) __asm__("func_00257038");
 extern void *D_004A28A8;
 
-extern "C" void func_00258A48(void *arg0) {
+extern "C" void cGameComm_OnRaceEnd(void *arg0) {
     (*(int *)((char*)(arg0) + (0x80))) = 0;
     (*(int *)((char*)(arg0) + (0x40))) = 0;
     if ((*(int *)((char*)(arg0) + (0x70))) < 0xF) {
@@ -2127,15 +2127,15 @@ extern "C" int func_00261460(int);
 extern "C" void func_002613C8(int);
 extern "C" void func_0025B800(int);
 extern "C" void func_00262768(int, int, int, int, int, int);
-extern "C" void func_00258BC8(void *);
-extern "C" void func_00258A48(void *);
+extern "C" void cGameComm_SendQuit(void *);
+extern "C" void cGameComm_OnRaceEnd(void *);
 extern "C" void func_0014E9C0(void *, int, int);
 extern "C" void* cBE_getBE();
 extern int D_004A3328;
 extern int D_004A3028_8AE0 __asm__("D_004A3028");
 extern void *D_004A28A8;
 extern int D_00534B38[];
-extern "C" void func_00258AE0(void *self) {
+extern "C" void cGameComm_QuitRace(void *self) {
     if (D_004A3328 == 0) {
         func_00260F80();
     }
@@ -2149,8 +2149,8 @@ extern "C" void func_00258AE0(void *self) {
     if (t != 0) {
         func_00262768(t, 1, 0, 0, 0, 0);
     }
-    func_00258BC8(self);
-    func_00258A48(self);
+    cGameComm_SendQuit(self);
+    cGameComm_OnRaceEnd(self);
     void *i = cBE_getInterface_8AE0(*(int*)((char*)D_004A28A8 + 0x78), 7);
     if (D_00534B38[0] == 0) {
         func_0014E9C0(i, 1, 0);
@@ -2163,7 +2163,7 @@ extern "C" void func_00258AE0(void *self) {
 // PORT: PS2-only inline asm; needs a C fallback off-PS2.
 extern "C" void func_00257E98_8BC8(void *, int, void *, int) __asm__("func_00257E98");
 
-extern "C" void func_00258BC8(void *arg0) {
+extern "C" void cGameComm_SendQuit(void *arg0) {
     if ((*(int *)((char*)(arg0) + (4))) == 0) {
         char buf[12];
         buf[0] = 5;
@@ -2307,7 +2307,7 @@ static inline int& RingAt_8F20(Ring_8F20* r, int frame)
     return r->v[(frame / 60) % 60];
 }
 
-extern "C" void func_00258F20(char* s, int frame, int value)
+extern "C" void cGameComm_SendSyncCheck(char* s, int frame, int value)
 {
     char* gs = *(char**)((char*)D_004A28A8 + 0x84);
     int st = **(int**)(gs + 0xC);
@@ -2351,7 +2351,7 @@ void* cBE_getInterface_9098(void* be, int kind) __asm__("cBE_getInterface__Fv");
 int cBENewPlayerInterface_getPlayerCharID(void*, int);
 extern "C" void func_0014EBB8(void* iface, int v);
 extern "C" void func_0014EBD8(void* iface, int v);
-extern "C" void func_002639E0(int a, int b, int c, int d, int e);
+extern "C" void Net_StartGameSetup(int a, int b, int c, int d, int e);
 extern void *D_004A28A8;
 extern char* D_004A3028;
 extern int D_00534E58[];
@@ -2362,7 +2362,7 @@ struct VEnt_9098 {
     void (*fn)(char*);
 };
 
-extern "C" void func_00259098(int a0, int a1, int a2)
+extern "C" void LobbyMan_SetupNetRace(int a0, int a1, int a2)
 {
     char* g = D_004A3028;
     int v;
@@ -2377,13 +2377,13 @@ extern "C" void func_00259098(int a0, int a1, int a2)
         VEnt_9098* vt = *(VEnt_9098**)(ri + 0xC);
         vt[1].fn(ri + vt[1].delta);
     }
-    func_002639E0(a0, v, *(int*)(g + 0xB4), a1, a2);
+    Net_StartGameSetup(a0, v, *(int*)(g + 0xB4), a1, a2);
 }
 
 //100%
 extern char D_004A2F18[];
 
-extern "C" char *func_00259198(void) {
+extern "C" char *LobbyMan_GetLanguage(void) {
     return D_004A2F18;
 }
 
@@ -2420,7 +2420,7 @@ extern "C" void *func_002591E8(unsigned int size) {
 //100%
 extern "C" void cMemMan_free__FPv();
 
-extern "C" void func_00259210(int arg0) {
+extern "C" void Lobby_MemFree(int arg0) {
     if (arg0 != 0) {
         cMemMan_free__FPv();
     }
@@ -2430,7 +2430,7 @@ extern "C" void func_00259210(int arg0) {
 extern "C" void *func_0039FAE8(int);
 extern void *D_004A28A8;
 
-extern "C" void func_00259230(int *arg0) {
+extern "C" void LobbyMan_ForwardEventToUI(int *arg0) {
     void *obj = *(void **)((char*)D_004A28A8 + 0x7C);
     if (obj != 0) {
         char *o = (char *)func_0039FAE8(*(int *)((char*)obj + 0xC) + 0x18);

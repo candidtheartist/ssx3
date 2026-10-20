@@ -63,13 +63,13 @@ extern "C" void cChallenger_dtor(void* self, int flags)
     }
 }
 
-INCLUDE_ASM("bx/bxstringctor", func_002689B8);
+INCLUDE_ASM("bx/bxstringctor", BuddyMan_dtor);
 
 // padded past the 8-byte gp-relative threshold so the compiler emits
 // absolute lui/lo addressing like the target
 struct sShortPad16 { short v; int pad[3]; };
 extern sShortPad16 D_004A2FB0;
-extern "C" void func_0025D6C0(int);
+extern "C" void LobbyMan_OnUserListChanged(int);
 
 extern "C" int func_00268A80(void* self)
 {
@@ -82,224 +82,224 @@ extern "C" int func_00268A88(void* self)
 }
 
 //100%
-extern "C" void func_00268A90(void* self, void* a1, int a2)
+extern "C" void LobbyMan_OnUserListChanged_Thunk(void* self, void* a1, int a2)
 {
-    func_0025D6C0(a2 + D_004A2FB0.v);
+    LobbyMan_OnUserListChanged(a2 + D_004A2FB0.v);
 }
 
 extern sShortPad16 D_004A2FB8;
-extern "C" void func_002599B0(int);
+extern "C" void LobbyMan_OnRoomListChanged(int);
 
 //100%
-extern "C" void func_00268AB8(void* self, void* a1, int a2)
+extern "C" void LobbyMan_OnRoomListChanged_Thunk(void* self, void* a1, int a2)
 {
-    func_002599B0(a2 + D_004A2FB8.v);
+    LobbyMan_OnRoomListChanged(a2 + D_004A2FB8.v);
 }
 
 //100%
 extern sShortPad16 D_004A2FC0;
-extern "C" void func_00259A60(int);
+extern "C" void LobbyMan_OnRankListChanged(int);
 
-extern "C" void func_00268AE0(void* self, void* a1, int a2)
+extern "C" void LobbyMan_OnRankListChanged_Thunk(void* self, void* a1, int a2)
 {
-    func_00259A60(a2 + D_004A2FC0.v);
+    LobbyMan_OnRankListChanged(a2 + D_004A2FC0.v);
 }
 
 //100%
 extern sShortPad16 D_004A2FF0;
 void* LobbyMan_OnRecvDebug(void* self);
 
-extern "C" void func_00268B08(void* self, void* a1, char* a2)
+extern "C" void LobbyMan_OnRecvDebug_Thunk(void* self, void* a1, char* a2)
 {
     LobbyMan_OnRecvDebug(a2 + D_004A2FF0.v);
 }
 
 //100%
 extern sShortPad16 D_004A2FF8;
-extern "C" void func_00259B10(int);
+extern "C" void LobbyMan_OnMessage(int);
 
-extern "C" void func_00268B30(void* self, void* a1, int a2)
+extern "C" void LobbyMan_OnMessage_Thunk(void* self, void* a1, int a2)
 {
-    func_00259B10(a2 + D_004A2FF8.v);
+    LobbyMan_OnMessage(a2 + D_004A2FF8.v);
 }
 
 //100%
 extern sShortPad16 D_004A3000;
-extern "C" void func_002598C8(int);
+extern "C" void LobbyMan_OnDisconnect(int);
 
-extern "C" void func_00268B58(void* self, void* a1, int a2)
+extern "C" void LobbyMan_OnDisconnect_Thunk(void* self, void* a1, int a2)
 {
-    func_002598C8(a2 + D_004A3000.v);
+    LobbyMan_OnDisconnect(a2 + D_004A3000.v);
 }
 
 //100%
 extern sShortPad16 D_004A3008;
-extern "C" void func_0025A1D0(int);
+extern "C" void LobbyMan_OnGameStart(int);
 
-extern "C" void func_00268B80(void* self, void* a1, int a2)
+extern "C" void LobbyMan_OnGameStart_Thunk(void* self, void* a1, int a2)
 {
-    func_0025A1D0(a2 + D_004A3008.v);
+    LobbyMan_OnGameStart(a2 + D_004A3008.v);
 }
 
 //100%
 extern sShortPad16 D_004A3020;
-extern "C" void func_0025B848(int);
+extern "C" void LobbyMan_OnConnectReply(int);
 
-extern "C" void func_00268BA8(void* self, void* a1, int a2)
+extern "C" void LobbyMan_OnConnectReply_Thunk(void* self, void* a1, int a2)
 {
-    func_0025B848(a2 + D_004A3020.v);
+    LobbyMan_OnConnectReply(a2 + D_004A3020.v);
 }
 
 //100%
 extern sShortPad16 D_004A3088;
-extern "C" void func_0025BD30(int);
+extern "C" void LobbyMan_OnCreateAccountReply(int);
 
-extern "C" void func_00268BD0(void* self, void* a1, int a2)
+extern "C" void LobbyMan_OnCreateAccountReply_Thunk(void* self, void* a1, int a2)
 {
-    func_0025BD30(a2 + D_004A3088.v);
+    LobbyMan_OnCreateAccountReply(a2 + D_004A3088.v);
 }
 
 //100%
 extern sShortPad16 D_004A30A8;
-extern "C" void func_0025C0C0(int);
+extern "C" void LobbyMan_OnEditAccountReply(int);
 
-extern "C" void func_00268BF8(void* self, void* a1, int a2)
+extern "C" void LobbyMan_OnEditAccountReply_Thunk(void* self, void* a1, int a2)
 {
-    func_0025C0C0(a2 + D_004A30A8.v);
+    LobbyMan_OnEditAccountReply(a2 + D_004A30A8.v);
 }
 
 //100%
 extern sShortPad16 D_004A30B0;
-extern "C" void func_0025C2D8(int);
+extern "C" void LobbyMan_OnLostByEmailReply(int);
 
-extern "C" void func_00268C20(void* self, void* a1, int a2)
+extern "C" void LobbyMan_OnLostByEmailReply_Thunk(void* self, void* a1, int a2)
 {
-    func_0025C2D8(a2 + D_004A30B0.v);
+    LobbyMan_OnLostByEmailReply(a2 + D_004A30B0.v);
 }
 
 //100%
 extern sShortPad16 D_004A30B8;
-extern "C" void func_0025C4F0(int);
+extern "C" void LobbyMan_OnLostByNameReply(int);
 
-extern "C" void func_00268C48(void* self, void* a1, int a2)
+extern "C" void LobbyMan_OnLostByNameReply_Thunk(void* self, void* a1, int a2)
 {
-    func_0025C4F0(a2 + D_004A30B8.v);
+    LobbyMan_OnLostByNameReply(a2 + D_004A30B8.v);
 }
 
 //100%
 extern sShortPad16 D_004A30E8;
-extern "C" void func_0025C8A8(int);
+extern "C" void LobbyMan_OnLoginReply(int);
 
-extern "C" void func_00268C70(void* self, void* a1, int a2)
+extern "C" void LobbyMan_OnLoginReply_Thunk(void* self, void* a1, int a2)
 {
-    func_0025C8A8(a2 + D_004A30E8.v);
+    LobbyMan_OnLoginReply(a2 + D_004A30E8.v);
 }
 
 //100%
 extern sShortPad16 D_004A3118;
-extern "C" void func_0025CEB0(int);
+extern "C" void LobbyMan_OnSelectPersonaReply(int);
 
-extern "C" void func_00268C98(void* self, void* a1, int a2)
+extern "C" void LobbyMan_OnSelectPersonaReply_Thunk(void* self, void* a1, int a2)
 {
-    func_0025CEB0(a2 + D_004A3118.v);
+    LobbyMan_OnSelectPersonaReply(a2 + D_004A3118.v);
 }
 
 //100%
 extern sShortPad16 D_004A3120;
-extern "C" void func_0025D048(int);
+extern "C" void LobbyMan_OnOwnStatsReply(int);
 
-extern "C" void func_00268CC0(void* self, void* a1, int a2)
+extern "C" void LobbyMan_OnOwnStatsReply_Thunk(void* self, void* a1, int a2)
 {
-    func_0025D048(a2 + D_004A3120.v);
+    LobbyMan_OnOwnStatsReply(a2 + D_004A3120.v);
 }
 
 //100%
 extern sShortPad16 D_004A3138;
-extern "C" void func_0025D2D8(int);
+extern "C" void LobbyMan_OnCreatePersonaReply(int);
 
-extern "C" void func_00268CE8(void* self, void* a1, int a2)
+extern "C" void LobbyMan_OnCreatePersonaReply_Thunk(void* self, void* a1, int a2)
 {
-    func_0025D2D8(a2 + D_004A3138.v);
+    LobbyMan_OnCreatePersonaReply(a2 + D_004A3138.v);
 }
 
 //100%
 extern sShortPad16 D_004A3140;
-extern "C" void func_0025D538(int);
+extern "C" void LobbyMan_OnDeletePersonaReply(int);
 
-extern "C" void func_00268D10(void* self, void* a1, int a2)
+extern "C" void LobbyMan_OnDeletePersonaReply_Thunk(void* self, void* a1, int a2)
 {
-    func_0025D538(a2 + D_004A3140.v);
+    LobbyMan_OnDeletePersonaReply(a2 + D_004A3140.v);
 }
 
 //100%
 extern sShortPad16 D_004A3148;
-extern "C" void func_0025D8F8(int);
+extern "C" void LobbyMan_OnMoveToRoomReply(int);
 
-extern "C" void func_00268D38(void* self, void* a1, int a2)
+extern "C" void LobbyMan_OnMoveToRoomReply_Thunk(void* self, void* a1, int a2)
 {
-    func_0025D8F8(a2 + D_004A3148.v);
+    LobbyMan_OnMoveToRoomReply(a2 + D_004A3148.v);
 }
 
 //100%
 extern sShortPad16 D_004A3158;
-extern "C" void func_0025DB80(int);
+extern "C" void LobbyMan_OnCreateRoomReply(int);
 
-extern "C" void func_00268D60(void* self, void* a1, int a2)
+extern "C" void LobbyMan_OnCreateRoomReply_Thunk(void* self, void* a1, int a2)
 {
-    func_0025DB80(a2 + D_004A3158.v);
+    LobbyMan_OnCreateRoomReply(a2 + D_004A3158.v);
 }
 
 //100%
 extern sShortPad16 D_004A3160;
-extern "C" void func_0025DDE0(int);
+extern "C" void LobbyMan_OnPingReply(int);
 
-extern "C" void func_00268D88(void* self, void* a1, int a2)
+extern "C" void LobbyMan_OnPingReply_Thunk(void* self, void* a1, int a2)
 {
-    func_0025DDE0(a2 + D_004A3160.v);
+    LobbyMan_OnPingReply(a2 + D_004A3160.v);
 }
 
 //100%
 extern sShortPad16 D_004A3170;
-extern "C" void func_0025DF98(int);
+extern "C" void LobbyMan_OnReportUserReply(int);
 
-extern "C" void func_00268DB0(void* self, void* a1, int a2)
+extern "C" void LobbyMan_OnReportUserReply_Thunk(void* self, void* a1, int a2)
 {
-    func_0025DF98(a2 + D_004A3170.v);
+    LobbyMan_OnReportUserReply(a2 + D_004A3170.v);
 }
 
 //100%
 extern sShortPad16 D_004A3178;
-extern "C" void func_0025E138(int);
+extern "C" void LobbyMan_OnNewsReply(int);
 
-extern "C" void func_00268DD8(void* self, void* a1, int a2)
+extern "C" void LobbyMan_OnNewsReply_Thunk(void* self, void* a1, int a2)
 {
-    func_0025E138(a2 + D_004A3178.v);
+    LobbyMan_OnNewsReply(a2 + D_004A3178.v);
 }
 
 //100%
 extern sShortPad16 D_004A31B0;
-extern "C" void func_0025E590(int);
+extern "C" void LobbyMan_OnSnapshotReply(int);
 
-extern "C" void func_00268E00(void* self, void* a1, int a2)
+extern "C" void LobbyMan_OnSnapshotReply_Thunk(void* self, void* a1, int a2)
 {
-    func_0025E590(a2 + D_004A31B0.v);
+    LobbyMan_OnSnapshotReply(a2 + D_004A31B0.v);
 }
 
 //100%
 extern sShortPad16 D_004A31B8;
-extern "C" void func_0025E7F0(int);
+extern "C" void LobbyMan_OnLookupUserReply(int);
 
-extern "C" void func_00268E28(void* self, void* a1, int a2)
+extern "C" void LobbyMan_OnLookupUserReply_Thunk(void* self, void* a1, int a2)
 {
-    func_0025E7F0(a2 + D_004A31B8.v);
+    LobbyMan_OnLookupUserReply(a2 + D_004A31B8.v);
 }
 
 extern sShortPad16 D_004A31D0;
-extern "C" void func_0025EB00(int);
+extern "C" void LobbyMan_OnUserStatsReply(int);
 
-extern "C" void func_00268E50(void* self, void* a1, int a2)
+extern "C" void LobbyMan_OnUserStatsReply_Thunk(void* self, void* a1, int a2)
 {
-    func_0025EB00(a2 + D_004A31D0.v);
+    LobbyMan_OnUserStatsReply(a2 + D_004A31D0.v);
 }
 
 //100%
@@ -313,20 +313,20 @@ extern "C" void func_00268E78(void* self, void* a1, int a2)
 
 //100%
 extern sShortPad16 D_004A3248;
-extern "C" void func_0025F8A0(int);
+extern "C" void LobbyMan_OnChalReply(int);
 
 extern "C" void func_00268EA0(void* self, void* a1, int a2)
 {
-    func_0025F8A0(a2 + D_004A3248.v);
+    LobbyMan_OnChalReply(a2 + D_004A3248.v);
 }
 
 //100%
 extern sShortPad16 D_004A3268;
-void func_0025FC20(void* self);
+void LobbyMan_OnMesgReply(void* self);
 
 extern "C" void func_00268EC8(void* self, void* a1, char* a2)
 {
-    func_0025FC20(a2 + D_004A3268.v);
+    LobbyMan_OnMesgReply(a2 + D_004A3268.v);
 }
 
 //100%
@@ -349,11 +349,11 @@ extern "C" void func_00268F18(void* self, void* a1, int a2)
 
 //100%
 extern sShortPad16 D_004A3348;
-extern "C" void func_00261A28(int);
+extern "C" void BuddyMan_OnMessageReceived(int);
 
 extern "C" void func_00268F40(void* self, void* a1, int a2)
 {
-    func_00261A28(a2 + D_004A3348.v);
+    BuddyMan_OnMessageReceived(a2 + D_004A3348.v);
 }
 
 //100%
@@ -367,29 +367,29 @@ extern "C" void func_00268F68(void* self, void* a1, int a2)
 
 //100%
 extern sShortPad16 D_004A3380;
-extern "C" void func_00261970(int);
+extern "C" void BuddyMan_OnRosterRemoveReply(int);
 
 extern "C" void func_00268F90(void* self, void* a1, int a2)
 {
-    func_00261970(a2 + D_004A3380.v);
+    BuddyMan_OnRosterRemoveReply(a2 + D_004A3380.v);
 }
 
 //100%
 extern sShortPad16 D_004A3388;
-extern "C" void func_002618C0(int);
+extern "C" void BuddyMan_OnRosterAddReply(int);
 
 extern "C" void func_00268FB8(void* self, void* a1, int a2)
 {
-    func_002618C0(a2 + D_004A3388.v);
+    BuddyMan_OnRosterAddReply(a2 + D_004A3388.v);
 }
 
 //100%
 extern sShortPad16 D_004A33A0;
-void func_00261A20(void* self);
+void BuddyMan_OnSendMessageReply(void* self);
 
 extern "C" void func_00268FE0(void* self, void* a1, char* a2)
 {
-    func_00261A20(a2 + D_004A33A0.v);
+    BuddyMan_OnSendMessageReply(a2 + D_004A33A0.v);
 }
 
 //100%
@@ -397,7 +397,7 @@ extern "C" void* cMemMan_alloc(int size, const char* tag, unsigned int flags, in
 // PORT: cMemMan_alloc called as the game's operator new(size, tag, flags, align): gcc then treats the
 // result as malloc-like (no aliasing), as the target shows. On PC use a real operator new.
 void* operator new(unsigned int size, const char* tag, unsigned int flags, int d) __asm__("cMemMan_alloc");
-extern "C" void func_00264CF0(void* self, int a1);
+extern "C" void cSetupMan_SetLocalCharacter(void* self, int a1);
 extern const char D_00480488[];
 extern const char D_004804A8[];
 extern void* D_004812B0[];
@@ -428,11 +428,11 @@ static inline sMsgListIter_00269008 sMsgList_00269008_insert(sMsgListIter_002690
     return tmp;
 }
 
-extern "C" void func_00269008(void* self, int a1, int a2)
+extern "C" void cSetupMan_ClientRecvMsg1(void* self, int a1, int a2)
 {
     int kind = 0xF3;
     *(int*)self = a2;
-    func_00264CF0(self, a1);
+    cSetupMan_SetLocalCharacter(self, a1);
     char* g = D_004A3028;
     int* m = (int*)cMemMan_alloc(8, D_00480488, 0x20000000, 0);
     m[0] = kind;
@@ -446,7 +446,7 @@ extern "C" void* cMemMan_alloc(int size, const char* tag, unsigned int flags, in
 // PORT: cMemMan_alloc called as the game's operator new(size, tag, flags, align): gcc then treats the
 // result as malloc-like (no aliasing), as the target shows. On PC use a real operator new.
 void* operator new(unsigned int size, const char* tag, unsigned int flags, int d) __asm__("cMemMan_alloc");
-extern "C" void func_00264CF0(void* self, int a1);
+extern "C" void cSetupMan_SetLocalCharacter(void* self, int a1);
 extern const char D_00480488[];
 extern const char D_004804A8[];
 extern void* D_004812B0[];
@@ -477,11 +477,11 @@ static inline sMsgListIter_002690C8 sMsgList_002690C8_insert(sMsgListIter_002690
     return tmp;
 }
 
-extern "C" void func_002690C8(void* self, int a1, int a2)
+extern "C" void cSetupMan_ClientRecvMsg3(void* self, int a1, int a2)
 {
     int kind = 0xF4;
     *(int*)self = a2;
-    func_00264CF0(self, a1);
+    cSetupMan_SetLocalCharacter(self, a1);
     char* g = D_004A3028;
     int* m = (int*)cMemMan_alloc(8, D_00480488, 0x20000000, 0);
     m[0] = kind;
@@ -530,7 +530,7 @@ struct sMsgSelf_00269188 {
     int f0;
 };
 
-extern "C" void func_00269188(void* self, int a1)
+extern "C" void cSetupMan_ClientRecvMsg5(void* self, int a1)
 {
     int kind = 0xF7;
     ((sMsgSelf_00269188*)self)->f0 = a1;
@@ -547,7 +547,7 @@ extern "C" void* cMemMan_alloc(int size, const char* tag, unsigned int flags, in
 // PORT: cMemMan_alloc called as the game's operator new(size, tag, flags, align): gcc then treats the
 // result as malloc-like (no aliasing), as the target shows. On PC use a real operator new.
 void* operator new(unsigned int size, const char* tag, unsigned int flags, int d) __asm__("cMemMan_alloc");
-extern "C" void func_00264D80(void* self, int a1, void* a2);
+extern "C" void cSetupMan_SetRemoteCharacter(void* self, int a1, void* a2);
 extern const char D_00480488[];
 extern const char D_004804A8[];
 extern void* D_004812B0[];
@@ -578,11 +578,11 @@ static inline sMsgListIter_00269240 sMsgList_00269240_insert(sMsgListIter_002692
     return tmp;
 }
 
-extern "C" void func_00269240(void* self, int a1, int a2, void* a3)
+extern "C" void cSetupMan_ClientRecvMsg0(void* self, int a1, int a2, void* a3)
 {
     int kind = 0xF3;
     *(int*)self = a2;
-    func_00264D80(self, a1, a3);
+    cSetupMan_SetRemoteCharacter(self, a1, a3);
     char* g = D_004A3028;
     int* m = (int*)cMemMan_alloc(8, D_00480488, 0x20000000, 0);
     m[0] = kind;
@@ -596,7 +596,7 @@ extern "C" void* cMemMan_alloc(int size, const char* tag, unsigned int flags, in
 // PORT: cMemMan_alloc called as the game's operator new(size, tag, flags, align): gcc then treats the
 // result as malloc-like (no aliasing), as the target shows. On PC use a real operator new.
 void* operator new(unsigned int size, const char* tag, unsigned int flags, int d) __asm__("cMemMan_alloc");
-extern "C" void func_00264D80(void* self, int a1, void* a2);
+extern "C" void cSetupMan_SetRemoteCharacter(void* self, int a1, void* a2);
 extern const char D_00480488[];
 extern const char D_004804A8[];
 extern void* D_004812B0[];
@@ -627,11 +627,11 @@ static inline sMsgListIter_00269300 sMsgList_00269300_insert(sMsgListIter_002693
     return tmp;
 }
 
-extern "C" void func_00269300(void* self, int a1, int a2)
+extern "C" void cSetupMan_ClientRecvMsg2(void* self, int a1, int a2)
 {
     int kind = 0xF5;
     *(int*)self = a2;
-    func_00264D80(self, a1, 0);
+    cSetupMan_SetRemoteCharacter(self, a1, 0);
     char* g = D_004A3028;
     int* m = (int*)cMemMan_alloc(8, D_00480488, 0x20000000, 0);
     m[0] = kind;
@@ -680,7 +680,7 @@ struct sMsgSelf_002693C0 {
     int f0;
 };
 
-extern "C" void func_002693C0(void* self, int a1)
+extern "C" void cSetupMan_ClientRecvMsg4(void* self, int a1)
 {
     int kind = 0xF7;
     ((sMsgSelf_002693C0*)self)->f0 = a1;
@@ -734,7 +734,7 @@ struct sMsg_00269478 {
     int fC;
 };
 
-extern "C" void func_00269478(void* self, int a1)
+extern "C" void cSetupMan_HostRecvMsg7(void* self, int a1)
 {
     sMsg_00269478* m = (sMsg_00269478*)cMemMan_alloc(0x10, D_00480F18, 0x20000000, 0);
     m->kind = 0xFB;
@@ -788,7 +788,7 @@ struct sMsg_00269538 {
     int f10;
 };
 
-extern "C" void func_00269538(void* self, int a1, int a2)
+extern "C" void cSetupMan_HostRecvMsg9(void* self, int a1, int a2)
 {
     sMsg_00269538* m = (sMsg_00269538*)cMemMan_alloc(0x14, D_00480F18, 0x20000000, 0);
     m->kind = 0xFC;
@@ -806,7 +806,7 @@ extern "C" void* cMemMan_alloc(int size, const char* tag, unsigned int flags, in
 // result as malloc-like (no aliasing), as the target shows. On PC use a real operator new.
 void* operator new(unsigned int size, const char* tag, unsigned int flags, int d) __asm__("cMemMan_alloc");
 extern const char D_00480F18[];
-extern "C" void func_00264E50(void* self, int event, int a2, int state);
+extern "C" void cSetupMan_SendCharacterMsg(void* self, int event, int a2, int state);
 extern const char D_004804A8[];
 extern char D_004813E0[];
 extern char* D_004A3028;
@@ -842,7 +842,7 @@ struct sMsg_00269608 {
     int f8;
 };
 
-extern "C" void func_00269608(void* self)
+extern "C" void cSetupMan_HostRecvMsg11(void* self)
 {
     switch (*(int*)self)
     {
@@ -854,7 +854,7 @@ extern "C" void func_00269608(void* self)
         *(int*)self = 10;
         break;
     }
-    func_00264E50(self, 0xB, *(int*)self, 0);
+    cSetupMan_SendCharacterMsg(self, 0xB, *(int*)self, 0);
     sMsg_00269608* m = (sMsg_00269608*)cMemMan_alloc(0xC, D_00480F18, 0x20000000, 0);
     m->kind = 0xFD;
     m->vt = D_004813E0;
@@ -869,7 +869,7 @@ extern "C" void* cMemMan_alloc(int size, const char* tag, unsigned int flags, in
 // result as malloc-like (no aliasing), as the target shows. On PC use a real operator new.
 void* operator new(unsigned int size, const char* tag, unsigned int flags, int d) __asm__("cMemMan_alloc");
 extern const char D_00480F18[];
-extern "C" void func_00264E50(void* self, int event, int a2, int state);
+extern "C" void cSetupMan_SendCharacterMsg(void* self, int event, int a2, int state);
 extern const char D_004804A8[];
 extern char D_004813C0[];
 extern char* D_004A3028;
@@ -905,11 +905,11 @@ struct sMsg_002696F8 {
     int f8;
 };
 
-extern "C" void func_002696F8(void* self)
+extern "C" void cSetupMan_HostRecvMsg13(void* self)
 {
     if (*(int*)self == 8)
         *(int*)self = 7;
-    func_00264E50(self, 0xC, *(int*)self, 0);
+    cSetupMan_SendCharacterMsg(self, 0xC, *(int*)self, 0);
     sMsg_002696F8* m = (sMsg_002696F8*)cMemMan_alloc(0xC, D_00480F18, 0x20000000, 0);
     m->kind = 0xFE;
     m->vt = D_004813C0;
@@ -960,7 +960,7 @@ struct sMsg_002697D0 {
     int fC;
 };
 
-extern "C" void func_002697D0(void* self, int a1)
+extern "C" void cSetupMan_ClientRecvMsg6(void* self, int a1)
 {
     sMsg_002697D0* m = (sMsg_002697D0*)cMemMan_alloc(0x10, D_00480F18, 0x20000000, 0);
     m->kind = 0xFB;
@@ -1013,7 +1013,7 @@ struct sMsg_00269890 {
     int fC;
 };
 
-extern "C" void func_00269890(void* self, int a1)
+extern "C" void cSetupMan_ClientRecvMsg7(void* self, int a1)
 {
     sMsg_00269890* m = (sMsg_00269890*)cMemMan_alloc(0x10, D_00480F18, 0x20000000, 0);
     m->kind = 0xFB;
@@ -1067,7 +1067,7 @@ struct sMsg_00269948 {
     int f10;
 };
 
-extern "C" void func_00269948(void* self, int a1, int a2)
+extern "C" void cSetupMan_ClientRecvMsg8(void* self, int a1, int a2)
 {
     sMsg_00269948* m = (sMsg_00269948*)cMemMan_alloc(0x14, D_00480F18, 0x20000000, 0);
     m->kind = 0xFC;
@@ -1122,7 +1122,7 @@ struct sMsg_00269A18 {
     int f10;
 };
 
-extern "C" void func_00269A18(void* self, int a1, int a2)
+extern "C" void cSetupMan_ClientRecvMsg9(void* self, int a1, int a2)
 {
     sMsg_00269A18* m = (sMsg_00269A18*)cMemMan_alloc(0x14, D_00480F18, 0x20000000, 0);
     m->kind = 0xFC;
@@ -1175,7 +1175,7 @@ struct sMsg_00269AE0 {
     int f8;
 };
 
-extern "C" void func_00269AE0(void* self, int a1)
+extern "C" void cSetupMan_ClientRecvMsg10(void* self, int a1)
 {
     *(int*)self = a1;
     sMsg_00269AE0* m = (sMsg_00269AE0*)cMemMan_alloc(0xC, D_00480F18, 0x20000000, 0);
@@ -1227,7 +1227,7 @@ struct sMsg_00269B90 {
     int f8;
 };
 
-extern "C" void func_00269B90(void* self, int a1)
+extern "C" void cSetupMan_ClientRecvMsg11(void* self, int a1)
 {
     *(int*)self = a1;
     sMsg_00269B90* m = (sMsg_00269B90*)cMemMan_alloc(0xC, D_00480F18, 0x20000000, 0);
@@ -1279,7 +1279,7 @@ struct sMsg_00269C40 {
     int f8;
 };
 
-extern "C" void func_00269C40(void* self, int a1)
+extern "C" void cSetupMan_ClientRecvMsg12(void* self, int a1)
 {
     *(int*)self = a1;
     sMsg_00269C40* m = (sMsg_00269C40*)cMemMan_alloc(0xC, D_00480F18, 0x20000000, 0);
@@ -1331,7 +1331,7 @@ struct sMsg_00269CF0 {
     int f8;
 };
 
-extern "C" void func_00269CF0(void* self, int a1)
+extern "C" void cSetupMan_ClientRecvMsg13(void* self, int a1)
 {
     *(int*)self = a1;
     sMsg_00269CF0* m = (sMsg_00269CF0*)cMemMan_alloc(0xC, D_00480F18, 0x20000000, 0);
@@ -1398,16 +1398,16 @@ extern "C" sNode00269E40* func_00269E40(void* self)
     return n;
 }
 
-extern "C" void* func_00267468(int, int);
+extern "C" void* LobbyMan_StaticInit(int, int);
 
 //100%
-void* func_00269EA0(void* self)
+void* LobbyMan_GlobalCtors(void* self)
 {
-    return func_00267468(1, 0xffff);
+    return LobbyMan_StaticInit(1, 0xffff);
 }
 
 //100%
-int func_00269EC0(void* self)
+int Path_InitAIFields(void* self)
 {
     int t0 = 0x2e;
     *(int*)((char*)self + 0x38) = t0;
@@ -1433,7 +1433,7 @@ struct sBXVec4K2 {
 } __attribute__((aligned(16)));
 struct sBXPath;
 // sBXVec4 (defined later in the unit) has this layout.
-sBXVec4K2 func_0026AB20_K2(sBXPath* self, int* inRange, float t) __asm__("func_0026AB20");
+sBXVec4K2 Path_GetPointAtDistance_K2(sBXPath* self, int* inRange, float t) __asm__("Path_GetPointAtDistance");
 
 struct sBXRangeK2 {
     int type;   // 0x0
@@ -1471,7 +1471,7 @@ extern "C" sBXVec4K2 func_00269F18(sBXPath* path, float* t)
         *t = lo;
     else
         *t = hi;
-    return func_0026AB20_K2(path, 0, *t);
+    return Path_GetPointAtDistance_K2(path, 0, *t);
 }
 
 struct sBXRange16 { int type; int f4; float lo; float hi; };
@@ -1492,7 +1492,7 @@ extern "C" int func_0026A000(sBXRangeList16* self, float x)
 }
 
 //100%
-void func_0026A068(void* self)
+void Path_InitTrackFields(void* self)
 {
     *(int*)((char*)self + 0x38) = 0;
 }
@@ -1522,19 +1522,19 @@ struct sBXRangeList {
     float field_0x38;   // 0x38
 };
 
-extern "C" int func_0026AA80(sBXRangeList* self, sBXRange* out, int maxOut, float lo, float hi);
+extern "C" int Path_QueryEvents(sBXRangeList* self, sBXRange* out, int maxOut, float lo, float hi);
 
-extern "C" int func_0026A090(sBXRangeList* self, sBXRange* out, int maxOut, float a, float b)
+extern "C" int Path_QueryEventsReversed(sBXRangeList* self, sBXRange* out, int maxOut, float a, float b)
 {
     float base = self->field_0x38;
-    return func_0026AA80(self, out, maxOut, base - a, base - b);
+    return Path_QueryEvents(self, out, maxOut, base - a, base - b);
 }
 
 //100%
-extern "C" float func_0026AC48(void* self);
-extern "C" int func_0026AC88(sBXRangeList* self, float lo, float hi);
+extern "C" float Path_GetLength(void* self);
+extern "C" int Path_HasEventInRange(sBXRangeList* self, float lo, float hi);
 
-extern "C" int func_0026A0B8(sBXRangeList* self, float a, float b)
+extern "C" int Path_HasEventInRangeReversed(sBXRangeList* self, float a, float b)
 {
     float lo;
     float hi;
@@ -1543,10 +1543,10 @@ extern "C" int func_0026A0B8(sBXRangeList* self, float a, float b)
     else
         lo = 0.0f;
     if (b < 0.0f)
-        hi = func_0026AC48(self);
+        hi = Path_GetLength(self);
     else
         hi = self->field_0x38 - b;
-    return func_0026AC88(self, lo, hi);
+    return Path_HasEventInRange(self, lo, hi);
 }
 
 // lo of the first type-1 range, or -1.
@@ -1564,8 +1564,8 @@ extern "C" float func_0026A138(sBXRangeList* self)
 // PORT: func_0026BA68 takes (dst, src); the unit declares it with one arg
 void func_0026BA68_A180(void* dst, void* src) __asm__("func_0026BA68");
 extern "C" void func_0026BA48(void* p, void* q);
-extern "C" void func_0026A338(void* self, void* src, void* dst);
-extern "C" void func_0026A378(void* self, char* src, int* dst);
+extern "C" void Path_ReadSegment(void* self, void* src, void* dst);
+extern "C" void Path_ReadEvent(void* self, char* src, int* dst);
 
 struct sVE0_26A180 { short delta; short index; void (*fn)(void*); };
 struct sVE1_26A180 { short delta; short index; void (*fn)(void*, char*, int, int); };
@@ -1618,13 +1618,13 @@ extern "C" int func_0026A180(sBXStr_26A180* self, char* src)
     self->items1 = src;
     for (int i = 0; i < self->count1; i++)
     {
-        func_0026A338(self, src, self->items1 + i * 16);
+        Path_ReadSegment(self, src, self->items1 + i * 16);
         src += 16;
     }
     self->items2 = src;
     for (int i = 0; i < self->count2; i++)
     {
-        func_0026A378(self, src, (int*)(self->items2 + i * 16));
+        Path_ReadEvent(self, src, (int*)(self->items2 + i * 16));
         src += 16;
     }
     return src - start;
@@ -1635,7 +1635,7 @@ extern "C" void func_0026BA48(void* p, void* q);
 // PORT: func_0026BA88 takes (dst, src); the unit declares it with one arg
 void func_0026BA88_2(void* dst, void* src) __asm__("func_0026BA88");
 
-extern "C" void func_0026A338(void* self, void* src, void* dst)
+extern "C" void Path_ReadSegment(void* self, void* src, void* dst)
 {
     func_0026BA48(dst, src);
     func_0026BA88_2((char*)dst + 0xC, (char*)src + 0xC);
@@ -1646,7 +1646,7 @@ extern "C" void func_0026A338(void* self, void* src, void* dst)
 void func_0026BA68_K2(void* dst, void* src) __asm__("func_0026BA68");
 extern int D_004453D0[];
 
-extern "C" void func_0026A378(void* self, char* src, int* dst)
+extern "C" void Path_ReadEvent(void* self, char* src, int* dst)
 {
     int key;
     int i;
@@ -1665,9 +1665,9 @@ extern "C" void func_0026A378(void* self, char* src, int* dst)
     func_0026BA88_2(dst + 3, src + 4);
 }
 
-INCLUDE_ASM("bx/bxstringctor", func_0026A428);
+INCLUDE_ASM("bx/bxstringctor", Path_GetClosestPoint);
 
-INCLUDE_ASM("bx/bxstringctor", func_0026A638);
+INCLUDE_ASM("bx/bxstringctor", Path_GetClosestPointFrom);
 
 //100%
 struct sBXSeg16 {
@@ -1677,7 +1677,7 @@ struct sBXSeg16 {
     float fC;
 };
 
-extern "C" sBXSeg16* func_0026A8B8(sBXSeg16* out, void* self, float t)
+extern "C" sBXSeg16* Path_GetDirAtDistance(sBXSeg16* out, void* self, float t)
 {
     int i = 0;
     for (;;) {
@@ -1731,7 +1731,7 @@ struct sBXBox {
 };
 
 // Largest per-axis distance from point p to the box.
-extern "C" float func_0026A9B0(sBXBox* self, float* p)
+extern "C" float Path_BoundsDistance(sBXBox* self, float* p)
 {
     float dx = 0.0f;
     float dy = 0.0f;
@@ -1764,7 +1764,7 @@ extern "C" float func_0026A9B0(sBXBox* self, float* p)
 }
 
 //100%
-extern "C" int func_0026AA80(sBXRangeList* self, sBXRange* out, int maxOut, float lo, float hi)
+extern "C" int Path_QueryEvents(sBXRangeList* self, sBXRange* out, int maxOut, float lo, float hi)
 {
     int n;
     int i;
@@ -1850,7 +1850,7 @@ static inline sBXVec4 bxVu0Add(const sBXVec4& a, sBXVec4 b)
     return r;
 }
 
-extern "C" sBXVec4 func_0026AB20(sBXPath* self, int* inRange, float t)
+extern "C" sBXVec4 Path_GetPointAtDistance(sBXPath* self, int* inRange, float t)
 {
     sBXVec4 pos;
     pos.x = self->x;
@@ -1886,7 +1886,7 @@ struct sBXElem16 {
     float fC;
 };
 
-extern "C" float func_0026AC48(void* self)
+extern "C" float Path_GetLength(void* self)
 {
     int n = *(int*)((char*)self + 0x8);
     float sum = 0.0f;
@@ -1898,7 +1898,7 @@ extern "C" float func_0026AC48(void* self)
 }
 
 //100%
-extern "C" int func_0026AC88(sBXRangeList* self, float lo, float hi)
+extern "C" int Path_HasEventInRange(sBXRangeList* self, float lo, float hi)
 {
     int i;
     for (i = 0; i < self->count; i++) {
@@ -1966,8 +1966,8 @@ extern "C" int func_0026ADE8(void* self)
 void func_0026BA68_2(void* dst, void* src) __asm__("func_0026BA68");
 extern "C" int func_0026B410(void* self, char* p);
 extern "C" int cPathSys_resolvePaths(void* self, char* p);
-extern "C" int func_0026B7D8(void* self, char* p);
-extern "C" void func_0026B880(void* self, char* p);
+extern "C" int cPathSys_ReadFloatIntPairs(void* self, char* p);
+extern "C" void cPathSys_ReadMarkers(void* self, char* p);
 
 extern "C" void func_0026ADF0(void* self)
 {
@@ -1980,8 +1980,8 @@ extern "C" void func_0026ADF0(void* self)
     p += 4;
     p += func_0026B410(self, p);
     p += cPathSys_resolvePaths(self, p);
-    p += func_0026B7D8(self, p);
-    func_0026B880(self, p);
+    p += cPathSys_ReadFloatIntPairs(self, p);
+    cPathSys_ReadMarkers(self, p);
 }
 
 //100%
@@ -2024,38 +2024,38 @@ extern "C" void func_0026AF00(void* self)
 }
 
 //100%
-extern "C" int func_0026AF70(void* self, int a1)
+extern "C" int cPathSys_GetTrackPath(void* self, int a1)
 {
     return *(int*)((char*)self + 0x14) + a1 * 0x3c;
 }
 
 //100%
-extern "C" int func_0026AF88(void* self, int a1)
+extern "C" int cPathSys_GetAIPath(void* self, int a1)
 {
     return *(int*)((char*)self + 0xc) + (a1 << 6);
 }
 
-extern "C" void* func_0026AFB8(void*);
+extern "C" void* cPathSys_FindNearAIPaths(void*);
 
 //100%
-// PORT: the unit declares func_0026AFB8(void*) and this symbol's mangling says (void*),
+// PORT: the unit declares cPathSys_FindNearAIPaths(void*) and this symbol's mangling says (void*),
 // but both really take more arguments (callers pass $5-$7, and this passes a 5th arg in $8).
 // Bind the real signatures to the existing symbol names with asm labels.
-int func_0026AFB8_impl(void* self, void* a1, void** out, int maxOut, int flag) __asm__("func_0026AFB8");
+int cPathSys_FindNearAIPaths_impl(void* self, void* a1, void** out, int maxOut, int flag) __asm__("cPathSys_FindNearAIPaths");
 int func_0026AF98_impl(void* self, void* a1, void** out, int maxOut) __asm__("func_0026AF98__FPv");
 
 int func_0026AF98_impl(void* self, void* a1, void** out, int maxOut)
 {
-    return func_0026AFB8_impl(self, a1, out, maxOut, 1);
+    return cPathSys_FindNearAIPaths_impl(self, a1, out, maxOut, 1);
 }
 
-INCLUDE_ASM("bx/bxstringctor", func_0026AFB8);
+INCLUDE_ASM("bx/bxstringctor", cPathSys_FindNearAIPaths);
 
 //100%
 // Collects up to maxOut boxes nearest to pos: first the ones containing it, then by distance.
 static inline int Min_0026B178(int a, int b) { return a < b ? a : b; }
 
-extern "C" int func_0026B178(void* self, float* pos, char** out, int maxOut)
+extern "C" int cPathSys_FindNearTrackPaths(void* self, float* pos, char** out, int maxOut)
 {
     float dist[52];
     int found = 0;
@@ -2064,7 +2064,7 @@ extern "C" int func_0026B178(void* self, float* pos, char** out, int maxOut)
 
     for (; i < *(int*)((char*)self + 0x10); i++)
     {
-        float d = func_0026A9B0((sBXBox*)(*(char**)((char*)self + 0x14) + i * 0x3C), pos);
+        float d = Path_BoundsDistance((sBXBox*)(*(char**)((char*)self + 0x14) + i * 0x3C), pos);
         dist[i] = d;
         if (d == 0.0f)
         {

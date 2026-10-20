@@ -166,7 +166,7 @@ extern "C" void func_002009D0_r(void* self, void* menu)
 //100%
 extern "C" void cUITemplate_MAP_setupMenuFocus(void* self, int focus);
 extern "C" void cUITemplate_MAP_setupMenus(void* self);
-extern "C" void func_00207430(void* self);
+extern "C" void cUITemplate_MAP_RefreshEventList(void* self);
 extern "C" void cUITemplate_MAP_setShowInfo(void* self, int show);
 extern int D_004A259C;
 // PORT: the unit declares func_00200A70(void*); the body also takes a flag in $5.
@@ -177,7 +177,7 @@ extern "C" int func_00200A70_r(void* self, int on)
     if (on != 0) {
         cUITemplate_MAP_setupMenuFocus(self, D_004A259C);
         cUITemplate_MAP_setupMenus(self);
-        func_00207430(self);
+        cUITemplate_MAP_RefreshEventList(self);
         cUITemplate_MAP_setShowInfo(self, *(int*)self);
     }
     return 0;
@@ -303,7 +303,7 @@ struct sVEntry00201868 {
     void (*fn)(void*, int);
 };
 
-extern "C" void func_00201868(void* self)
+extern "C" void cUITemplate_MAP_HideMapPic(void* self)
 {
     *(int*)((char*)self + 0x2F0) = 1;
     *(int*)((char*)self + 0x2DC) = 0;
@@ -335,7 +335,7 @@ int func_00202768(void* self)
 extern "C" void cUITemplate_MAP_setupPeakInfo(void* self);
 extern "C" void cUITemplate_MAP_setupPeakGoals(void* self);
 extern "C" void cUITemplate_MAP_setupLayout(void* self);
-extern "C" void func_00207430(void* self);
+extern "C" void cUITemplate_MAP_RefreshEventList(void* self);
 extern int D_004A259C;
 
 struct sVEntry00202770 {
@@ -365,7 +365,7 @@ extern "C" void func_00202770_r(void* self, void* menu)
         cUITemplate_MAP_setupLayout(self);
     }
     if (D_004A259C == 2) {
-        func_00207430(self);
+        cUITemplate_MAP_RefreshEventList(self);
     }
 }
 
@@ -620,7 +620,7 @@ static inline int setPic00204FF0(char* name)
     return vt[4].fn((char*)obj + vt[4].delta, GetHashValue32(name));
 }
 
-extern "C" int func_00204FF0(void* self, int peak)
+extern "C" int cUITemplate_MAP_GetMedalText(void* self, int peak)
 {
     switch (peak) {
     case 0:
@@ -732,7 +732,7 @@ static inline void setOne_7430(cUIText* t, cUIText* d, char* s)
     cUIText_setAsciiString(d, D_004A26D8);
 }
 
-extern "C" void func_00207430(void* tmpl)
+extern "C" void cUITemplate_MAP_RefreshEventList(void* tmpl)
 {
     sMapTmpl_7430* self = (sMapTmpl_7430*)tmpl;
     char buf[200];
@@ -935,7 +935,7 @@ extern "C" void func_00207430(void* tmpl)
         int medal = cBERewardInterface_getTrackMedal(reward, 0, ch, info.type, info.track);
         t = (cUIText*)cUIScreen_getObjectByHashName(self->screen, GetHashValue32(D_00471738));
         if (medal != -1)
-            func_003A0E90(t, (const unsigned short*)func_00204FF0(self, medal));
+            func_003A0E90(t, (const unsigned short*)cUITemplate_MAP_GetMedalText(self, medal));
         else
             cUIText_setUnicodeStringByID(t, GetHashValue32(D_00471790));
         cUIText* lbl = (cUIText*)cUIScreen_getObjectByHashName(self->screen, GetHashValue32(D_00471748));
@@ -967,7 +967,7 @@ struct sVEntry_func_002083D8 {
 extern char D_004C8B38[];
 extern char D_004C8B28[];
 
-extern "C" void func_002083D8(void* self, void* obj, int on)
+extern "C" void cUITemplate_MAP_SetHighlightColor(void* self, void* obj, int on)
 {
     if (obj != 0) {
         if (on != 0) {
@@ -989,7 +989,7 @@ struct sVEntry_func_00208438 {
 extern char D_004C8B58[];
 extern char D_004C8B48[];
 
-extern "C" void func_00208438(void* self, void* obj, int on)
+extern "C" void cUITemplate_MAP_SetUnlockedColor(void* self, void* obj, int on)
 {
     if (obj != 0) {
         if (on != 0) {

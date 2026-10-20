@@ -404,7 +404,7 @@ extern "C" int cRider_isInitDone(void* self)
 INCLUDE_ASM("ai/rider", cRider_placeAt);
 
 //100% - objdiff report; single-function view differs only in a relocation name
-extern "C" void* func_0026B5E0(void*, int, int);
+extern "C" void* cPathSys_FindMarker(void*, int, int);
 extern char D_004D33A0[];
 extern "C" float func_00115B08(void* self);
 
@@ -449,7 +449,7 @@ static inline void vu0AddEq_11DD98(sVec4_0011DD98& dst, sVec4_0011DD98 b)
 
 extern "C" void func_0011DD98(void* self)
 {
-    float* p = (float*)func_0026B5E0(D_004D33A0, 2, *(int*)((char*)self + 0x86C));
+    float* p = (float*)cPathSys_FindMarker(D_004D33A0, 2, *(int*)((char*)self + 0x86C));
     sVec4_0011DD98 dir;
     sVec4_0011DD98 pos;
     dir.x = p[5];
@@ -465,7 +465,7 @@ extern "C" void func_0011DD98(void* self)
 }
 
 //100% - objdiff report; single-function view differs only in a relocation name
-extern "C" void* func_0026B5E0(void*, int, int);
+extern "C" void* cPathSys_FindMarker(void*, int, int);
 extern char D_004D33A0[];
 extern "C" void cRiderMetrix_onReset(void* metrix, int flag);
 // PORT: prototype mismatch. The unit defines cRider_setControlState/cRider_setMotionMode with one
@@ -482,7 +482,7 @@ extern "C" void cRider_placeAt(void* self, sVec4_0011DE60* a, sVec4_0011DE60* b,
 
 extern "C" void cRider_placeAtRegion(void* self, int a1, int a2)
 {
-    float* p = (float*)func_0026B5E0(D_004D33A0, a2, a1);
+    float* p = (float*)cPathSys_FindMarker(D_004D33A0, a2, a1);
     sVec4_0011DE60 pos;
     sVec4_0011DE60 dir;
     float px = p[2];
@@ -1790,12 +1790,12 @@ extern "C" void cRider_buildShadow(void* vself)
 }
 
 //100%
-extern "C" void* func_0026B5E0(void*, int, int);
+extern "C" void* cPathSys_FindMarker(void*, int, int);
 extern char D_004D33A0[];
 
 extern "C" float* func_00122C28(float* out, void* rider)
 {
-    float* p = (float*)func_0026B5E0(D_004D33A0, 1, *(int*)((char*)rider + 0x86C));
+    float* p = (float*)cPathSys_FindMarker(D_004D33A0, 1, *(int*)((char*)rider + 0x86C));
     out[0] = p[2];
     out[1] = p[3];
     out[2] = p[4];
@@ -2143,7 +2143,7 @@ extern "C" void cRider_stopNISActor(char* self)
 }
 
 //100%
-extern "C" void func_0027C9B0(int, void*);
+extern "C" void ScriptRider_ReadFields(int, void*);
 extern "C" void cRider_updateNISClip(void*, void*, float, float, int);
 extern "C" void cRider_updateNISSounds(void*, void*, float, float, int);
 
@@ -2152,18 +2152,18 @@ extern "C" void cRider_onNISEvent(void* self, int id, float a, float b, int unus
     int buf[12];
     if (*(int*)((char*)self + 0xAC4))
     {
-        func_0027C9B0(id, buf);
+        ScriptRider_ReadFields(id, buf);
         cRider_updateNISClip(self, buf, a, b, flags);
         cRider_updateNISSounds(self, buf, a, b, flags);
     }
 }
 
 //100%
-extern "C" void func_0027C9B0(int, void*);
+extern "C" void ScriptRider_ReadFields(int, void*);
 extern "C" void* func_0028B180();
 extern "C" int func_002A1B58(void* self, int msg, int a);
 extern "C" int func_002A1B88(void* self, int type, int a, int b);
-extern "C" void* func_00279F18(void* self, int i, int a2);
+extern "C" void* ScriptEngine_GetTargetObject(void* self, int i, int a2);
 extern void* D_004A28A4;
 
 struct sAnimEvent_123E30
@@ -2185,7 +2185,7 @@ extern "C" void cRider_onSpeechEvent(void* self, int id, float a, float b, int u
     sAnimEventInfo_123E30 info;
     if (flags & 0x10)
     {
-        func_0027C9B0(id, &info);
+        ScriptRider_ReadFields(id, &info);
         for (int i = 0; i < info.count; i++)
         {
             sAnimEvent_123E30* e = &info.events[i];
@@ -2201,7 +2201,7 @@ extern "C" void cRider_onSpeechEvent(void* self, int id, float a, float b, int u
                 ev -= 0x64;
                 void* snd = func_0028B180();
                 // PORT: id is a handle that is also read as a pointer here.
-                int v = (int)func_00279F18(D_004A28A4, *e->arg, *(int*)(id + 8));
+                int v = (int)ScriptEngine_GetTargetObject(D_004A28A4, *e->arg, *(int*)(id + 8));
                 func_002A1B88(snd, ev, (int)self, v);
                 *(int*)((char*)self + 0xAC8) = 1;
             }
@@ -2287,7 +2287,7 @@ extern void* D_004A28A8;
 extern char* D_004A2EEC;
 extern "C" float cRiderMetrix_onFinish(void* self);
 extern "C" void func_00162258(void* self);
-extern "C" void func_00238358(void* self, int a1, int a2);
+extern "C" void cGameModeMan_OnRiderFinished(void* self, int a1, int a2);
 extern "C" void cSSXAudio_onRiderFinish(void* self, void* rider);
 extern "C" void* func_0028B180();
 
@@ -2313,7 +2313,7 @@ extern "C" void cRider_finish(char* self)
     if (*(float*)(self + 0x470) < 0.0f) *(float*)(self + 0x470) = 0.0f;
     char* obj = self + 0x6C0;
     sVEntry125108* vt = *(sVEntry125108**)obj;
-    func_00238358(getC0_125108(), vt[7].fn(obj + vt[7].delta), *(int*)(self + 0x790) + 0xFC);
+    cGameModeMan_OnRiderFinished(getC0_125108(), vt[7].fn(obj + vt[7].delta), *(int*)(self + 0x790) + 0xFC);
     unsigned int k = *(unsigned int*)(self + 0x870);
     if (k < 2)
     {
@@ -2335,7 +2335,7 @@ extern "C" void* cBE_getBE();
 void* cBE_getInterface(void* be, int kind) __asm__("cBE_getInterface__Fv");
 extern "C" void cRider_finish(char* self);
 extern "C" void* func_0028B180();
-extern "C" void func_002A3C00(void* a, void* self, int n);
+extern "C" void cSSXAudio_ArcadeSay20A8(void* a, void* self, int n);
 extern "C" unsigned int func_004139F8(float f);
 extern void* D_004A28A8;
 extern signed char D_00535C10[];
@@ -2362,7 +2362,7 @@ extern "C" int cRider_checkTimeLimit(void* selfp)
                 if (secs * 60 < t) {
                     *(int*)(self + 0x480) = 1;
                     cRider_finish(self);
-                    func_002A3C00(func_0028B180(), self, 2);
+                    cSSXAudio_ArcadeSay20A8(func_0028B180(), self, 2);
                     goto end;
                 }
             }

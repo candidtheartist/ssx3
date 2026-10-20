@@ -5418,14 +5418,14 @@ int GetHashValue32(char* str);
 extern char D_0046E510[];
 extern void* D_004A28A8;
 extern "C" void* cUIScreen_getObjectByHashName(void* self, int hash);
-void func_0026F898(void* self, int val);
+void Replay_SetControllerIndex(void* self, int val);
 
 extern "C" int func_001E65B8(void* self, void* a1)
 {
     void* obj = cUIScreen_getObjectByHashName(*(void**)((char*)self + 0x40), GetHashValue32(D_0046E510));
     if (obj != 0) {
         if (*(unsigned char*)((char*)obj + 0x95) == 2) {
-            func_0026F898(*(void**)(*(char**)((char*)D_004A28A8 + 0x84) + 0x28), *(unsigned char*)((char*)a1 + 4));
+            Replay_SetControllerIndex(*(void**)(*(char**)((char*)D_004A28A8 + 0x84) + 0x28), *(unsigned char*)((char*)a1 + 4));
         }
     }
     return 0;
@@ -5592,7 +5592,7 @@ extern int* D_004A2EEC;
 extern void* D_004A5B64;
 extern int D_004A26FC;
 extern int D_004A2700;
-extern "C" int func_0020A4E0(void* self);
+extern "C" int OVScreenFinalStandings_RecvChatMessage(void* self);
 extern char D_0046E660[];
 extern char D_0046E7F8[];
 extern char D_0046E7C8[];
@@ -5604,7 +5604,7 @@ extern "C" void func_001E7928(void* self)
     func_0020E900(self);
     if (D_004A2EEC != 0) {
         if (*D_004A2EEC != 0) {
-            if (func_0020A4E0(self) != 0) {
+            if (OVScreenFinalStandings_RecvChatMessage(self) != 0) {
                 cUIObjK1DEB90* o = (cUIObjK1DEB90*)cUIScreen_getObjectByHashName(*(void**)((char*)self + 0x40), GetHashValue32(D_0046E660));
                 if (o != 0) {
                     o->v09(0);
@@ -5649,7 +5649,7 @@ extern "C" int func_001E7AA8(void* self, void* a1)
     void* obj = cUIScreen_getObjectByHashName(*(void**)((char*)self + 0x40), GetHashValue32(D_0046E510));
     if (obj != 0) {
         if (*(unsigned char*)((char*)obj + 0x95) == 2) {
-            func_0026F898(*(void**)(*(char**)((char*)D_004A28A8 + 0x84) + 0x28), *(unsigned char*)((char*)a1 + 4));
+            Replay_SetControllerIndex(*(void**)(*(char**)((char*)D_004A28A8 + 0x84) + 0x28), *(unsigned char*)((char*)a1 + 4));
         }
     }
     cBE_getInterface_Fv(*(void**)((char*)D_004A28A8 + 0x78), 7);
@@ -5820,7 +5820,7 @@ extern "C" void func_001E7BB0(void* self)
 //100%
 extern "C" int func_00146E98(void* iface, int a1);
 extern "C" void func_0039F840(void* list);
-extern "C" void func_00231320(void* self);
+extern "C" void cGame_AdvanceState(void* self);
 
 extern "C" void func_001E8098(void* self)
 {
@@ -5835,14 +5835,14 @@ extern "C" void func_001E8098(void* self)
     *(float*)((char*)self + 0x9C) += 0.01666666753590107f;
     if (*(int*)((char*)self + 0xA0) != 0 && *(float*)((char*)self + 0x9C) >= limit) {
         func_0039F840(*(char**)(*(char**)((char*)D_004A28A8 + 0x84) + 0x48) + 0x18);
-        func_00231320(*(void**)((char*)D_004A28A8 + 0x84));
+        cGame_AdvanceState(*(void**)((char*)D_004A28A8 + 0x84));
     }
 }
 
 //100%
 extern void* D_004A28A8;
 extern "C" void func_0039F840(void* list);
-extern "C" void func_00231320(void* self);
+extern "C" void cGame_AdvanceState(void* self);
 
 extern "C" void func_001E8160(void* self, void* a1, int a2)
 {
@@ -5850,7 +5850,7 @@ extern "C" void func_001E8160(void* self, void* a1, int a2)
         if (a2 == 5 && *(int*)((char*)self + 0xA0) != 0) {
             char* g = *(char**)((char*)D_004A28A8 + 0x84);
             func_0039F840(*(char**)(g + 0x48) + 0x18);
-            func_00231320(g);
+            cGame_AdvanceState(g);
         }
     }
 }
@@ -6012,7 +6012,7 @@ extern "C" void func_001E8200(void* self)
 //100%
 extern "C" int func_00146E98(void* iface, int a1);
 extern "C" void func_0039F840(void* list);
-extern "C" void func_00231320(void* self);
+extern "C" void cGame_AdvanceState(void* self);
 
 extern "C" void func_001E87B8(void* self)
 {
@@ -6027,14 +6027,14 @@ extern "C" void func_001E87B8(void* self)
     *(float*)((char*)self + 0x9C) += 0.01666666753590107f;
     if (*(int*)((char*)self + 0xA0) != 0 && *(float*)((char*)self + 0x9C) >= limit) {
         func_0039F840(*(char**)(*(char**)((char*)D_004A28A8 + 0x84) + 0x48) + 0x18);
-        func_00231320(*(void**)((char*)D_004A28A8 + 0x84));
+        cGame_AdvanceState(*(void**)((char*)D_004A28A8 + 0x84));
     }
 }
 
 //100%
 extern void* D_004A28A8;
 extern "C" void func_0039F840(void* list);
-extern "C" void func_00231320(void* self);
+extern "C" void cGame_AdvanceState(void* self);
 
 extern "C" void func_001E8880(void* self, void* a1, int a2)
 {
@@ -6042,7 +6042,7 @@ extern "C" void func_001E8880(void* self, void* a1, int a2)
         if (a2 == 5 && *(int*)((char*)self + 0xA0) != 0) {
             char* g = *(char**)((char*)D_004A28A8 + 0x84);
             func_0039F840(*(char**)(g + 0x48) + 0x18);
-            func_00231320(g);
+            cGame_AdvanceState(g);
         }
     }
 }

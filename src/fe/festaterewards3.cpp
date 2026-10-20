@@ -56,5 +56,5 @@ INCLUDE_ASM("fe/festaterewards3", func_001F6840);
 
 INCLUDE_ASM("fe/festaterewards3", cFEStateCareerStats_setupRidersBest);
 
-INCLUDE_ASM("fe/festaterewards3", func_001F6F30);
+INCLUDE_ASM("fe/festaterewards3", cFEStateCareerStats_CountMedals);
 

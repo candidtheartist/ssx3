@@ -78,7 +78,7 @@ extern "C" void *OVScreenOverlayMenu_ctor(void *arg0, int arg1, int arg2) {
 extern "C" void func_0039E390_a(void *) __asm__("func_0039E390");
 extern char D_00474E08[];
 
-extern "C" void func_0021C798(void *arg0) {
+extern "C" void cOVTemplate_Dialog_dtor(void *arg0) {
     *(char **)((char*)arg0 + 8) = D_00474E08;
     func_0039E390_a(arg0);
 }
@@ -89,7 +89,7 @@ extern char D_00474C58[];
 extern char D_00474E08[];
 extern unsigned short D_004A2088[];
 
-extern "C" void *func_0021C7C0(void *arg0, int arg1, int arg2) {
+extern "C" void *cOVTemplate_Dialog_ctor(void *arg0, int arg1, int arg2) {
     func_0039E2A0(arg0);
     (*(int *)((char*)(arg0) + (0x98))) = arg2;
     (*(int *)((char*)(arg0) + (0x48))) = 0;
@@ -105,7 +105,7 @@ extern "C" void *func_0021C7C0(void *arg0, int arg1, int arg2) {
 //100%
 extern "C" void func_0020E900();
 
-extern "C" void func_0021C828(void) {
+extern "C" void cOVTemplate_Dialog_Update(void) {
     func_0020E900();
 }
 
@@ -153,7 +153,7 @@ extern "C" void *cOVState_ctor(void *arg0, int arg1, int arg2) {
 extern "C" void func_0039E390_a(void *) __asm__("func_0039E390");
 extern char D_00474E08[];
 
-extern "C" void func_0021C900(void *arg0) {
+extern "C" void OVScreenYNDialogRestartEvent_dtor(void *arg0) {
     *(char **)((char*)arg0 + 8) = D_00474E08;
     func_0039E390_a(arg0);
 }
@@ -163,7 +163,7 @@ extern "C" void func_0021C900(void *arg0) {
 extern "C" void func_0039E390_a(void *) __asm__("func_0039E390");
 extern char D_00474E08[];
 
-extern "C" void func_0021C928(void *arg0) {
+extern "C" void OVScreenYNDialogQuitGame_dtor(void *arg0) {
     *(char **)((char*)arg0 + 8) = D_00474E08;
     func_0039E390_a(arg0);
 }
@@ -175,7 +175,7 @@ extern char D_004748F8[];
 extern char D_00474E08[];
 extern unsigned short D_004A2088[];
 
-extern "C" void *func_0021C950(void *arg0, int arg1, int arg2) {
+extern "C" void *OVScreenYNDialogQuitGame_ctor(void *arg0, int arg1, int arg2) {
     func_0039E2A0_C950(arg0);
     (*(int *)((char*)(arg0) + (0x98))) = arg2;
     (*(int *)((char*)(arg0) + (0x48))) = 0;
@@ -194,7 +194,7 @@ extern "C" void *func_0021C950(void *arg0, int arg1, int arg2) {
 extern "C" void func_0039E390_a(void *) __asm__("func_0039E390");
 extern char D_00474E08[];
 
-extern "C" void func_0021C9C0(void *arg0) {
+extern "C" void OVScreenYNDialogRestartChal_dtor(void *arg0) {
     *(char **)((char*)arg0 + 8) = D_00474E08;
     func_0039E390_a(arg0);
 }
@@ -204,7 +204,7 @@ extern "C" void func_0021C9C0(void *arg0) {
 extern "C" void func_0039E390_a(void *) __asm__("func_0039E390");
 extern char D_00474E08[];
 
-extern "C" void func_0021C9E8(void *arg0) {
+extern "C" void OVScreenYNDialogQuitChal_dtor(void *arg0) {
     *(char **)((char*)arg0 + 8) = D_00474E08;
     func_0039E390_a(arg0);
 }
@@ -214,7 +214,7 @@ extern "C" void func_0021C9E8(void *arg0) {
 extern "C" void func_0039E390_a(void *) __asm__("func_0039E390");
 extern char D_00474E08[];
 
-extern "C" void func_0021CA10(void *arg0) {
+extern "C" void OVScreenYNDialogQuitEvent_dtor(void *arg0) {
     *(char **)((char*)arg0 + 8) = D_00474E08;
     func_0039E390_a(arg0);
 }
@@ -224,7 +224,7 @@ extern "C" void func_0021CA10(void *arg0) {
 extern "C" void func_0039E390_a(void *) __asm__("func_0039E390");
 extern char D_00474E08[];
 
-extern "C" void func_0021CA38(void *arg0) {
+extern "C" void OVScreenYNDialogGiveUp_dtor(void *arg0) {
     *(char **)((char*)arg0 + 8) = D_00474E08;
     func_0039E390_a(arg0);
 }
@@ -234,7 +234,7 @@ extern "C" void func_0021CA38(void *arg0) {
 extern "C" void func_0039E390_a(void *) __asm__("func_0039E390");
 extern char D_00474E08[];
 
-extern "C" void func_0021CA60(void *arg0) {
+extern "C" void OVScreenYNDialogSaveBeforeQuit_dtor(void *arg0) {
     *(char **)((char*)arg0 + 8) = D_00474E08;
     func_0039E390_a(arg0);
 }
@@ -343,7 +343,7 @@ extern "C" void *cOVStateHUD1P_ctor_2(void *arg0) {
 }
 
 //100%
-extern "C" void func_0020EB08(void *, int);
+extern "C" void HUDMeter_dtor(void *, int);
 extern "C" void func_0039E390(void *, int);
 extern char D_00474160[];
 
@@ -353,7 +353,7 @@ extern "C" void cOVStateHUD1P_dtor(void *arg0, int arg1) {
         char *p = (char*)arg0 + 0x48 + 0x118;
         while ((char*)arg0 + 0x48 != p) {
             p -= 0x8C;
-            func_0020EB08(p + 8, 2);
+            HUDMeter_dtor(p + 8, 2);
         }
     }
     func_0039E390(arg0, arg1);
@@ -458,7 +458,7 @@ extern "C" void *OVScreenPeakChallengeResults_ctor(void *arg0, int arg1, int arg
 extern "C" void func_0039E390_a(void *) __asm__("func_0039E390");
 extern char D_00474E08[];
 
-extern "C" void func_0021CE90(void *arg0) {
+extern "C" void OVScreenFinishOv_dtor(void *arg0) {
     *(char **)((char*)arg0 + 8) = D_00474E08;
     func_0039E390_a(arg0);
 }
@@ -472,7 +472,7 @@ extern char D_00474E08[];
 extern char D_0046E340[];
 extern unsigned short D_004A2088[];
 
-extern "C" void *func_0021CEB8(void *arg0, int arg1, int arg2) {
+extern "C" void *OVScreenFinishOv_ctor(void *arg0, int arg1, int arg2) {
     func_0039E2A0_CEB8(arg0);
     (*(int *)((char*)(arg0) + (0x98))) = arg2;
     (*(int *)((char*)(arg0) + (0x48))) = 0;
@@ -492,7 +492,7 @@ extern "C" void *func_0021CEB8(void *arg0, int arg1, int arg2) {
 extern "C" void func_0039E390_a(void *) __asm__("func_0039E390");
 extern char D_00474E08[];
 
-extern "C" void func_0021CF38(void *arg0) {
+extern "C" void OVScreenFinishOv2_dtor(void *arg0) {
     *(char **)((char*)arg0 + 8) = D_00474E08;
     func_0039E390_a(arg0);
 }
@@ -506,7 +506,7 @@ extern char D_00474E08[];
 extern char D_0046E340[];
 extern unsigned short D_004A2088[];
 
-extern "C" void *func_0021CF60(void *arg0, int arg1, int arg2) {
+extern "C" void *OVScreenFinishOv2_ctor(void *arg0, int arg1, int arg2) {
     func_0039E2A0_CF60(arg0);
     (*(int *)((char*)(arg0) + (0x98))) = arg2;
     (*(int *)((char*)(arg0) + (0x48))) = 0;
@@ -602,14 +602,14 @@ extern "C" void func_0021D138(void *arg0) {
 
 //100%
 // PORT: hand-rolled EE EABI va_start (gcc 2.95 va-mips.h form); use <stdarg.h> off-PS2.
-#define func_0021D160_va_start(ap) \
+#define Font_DrawTextVarargs_2_va_start(ap) \
     (ap = (char*)__builtin_next_arg() \
           - (__builtin_args_info(2) < 8 ? (8 - __builtin_args_info(2)) * 8 : 0))
 extern "C" void func_00391C48(int, int, char*);
 
-extern "C" void func_0021D160(float x, float y, int c, int d, ...) {
+extern "C" void Font_DrawTextVarargs_2(float x, float y, int c, int d, ...) {
     char* ap;
-    func_0021D160_va_start(ap);
+    Font_DrawTextVarargs_2_va_start(ap);
     func_00391C48(c, d, ap);
 }
 
@@ -620,7 +620,7 @@ INCLUDE_ASM("fe/all_in_one_fe", func_0021D9A0);
 INCLUDE_ASM("fe/all_in_one_fe", func_0021E1B0);
 
 //100%
-extern "C" float func_0021E750(int unused, int a, int flags, float x, float y, float z) {
+extern "C" float HUD_AlignX(int unused, int a, int flags, float x, float y, float z) {
     int v = a;
     if (flags & 1) {
         x = 640.0f - x;
@@ -635,7 +635,7 @@ extern "C" float func_0021E750(int unused, int a, int flags, float x, float y, f
 }
 
 //100%
-extern "C" float func_0021E7A8(int arg0, int mode, float a, float b, float c) {
+extern "C" float HUD_AlignY(int arg0, int mode, float a, float b, float c) {
     if (mode == 0) {
         a -= c * b * 0.5f;
     } else if (mode > 0) {
@@ -853,12 +853,12 @@ void func_001E91A8(void*, void*);
 extern "C" void func_001F10F8(void*, void*, void*, void*, void*, int, int, int);
 extern "C" void func_001F1190(void*, int, void*, void*, void*, void*);
 extern "C" int sprintf(char*, const char*, ...);
-extern "C" int func_0022D390(void*, int);
+extern "C" int SectionMan_IsEventReady(void*, int);
 extern "C" int func_00153520(void*, int, int);
 extern "C" int func_00153350(void*, int);
 extern "C" void func_00391CB0(void*, float, float, char*);
 
-extern "C" void func_0021F9B0(char* self, char* obj, char* rider, int x, float t) {
+extern "C" void cOVStateHUD1P_DrawCollectedCount(char* self, char* obj, char* rider, int x, float t) {
     V2_F9B0 scale;
     V2_F9B0 p;
     V4_F9B0 a;
@@ -868,7 +868,7 @@ extern "C" void func_0021F9B0(char* self, char* obj, char* rider, int x, float t
     char buf[64];
     char* m = *(char**)(*(char**)(D_004A28A8 + 0x84) + 0x78);
     int id = *(int*)(m + 0x1BC);
-    if (func_0022D390(m, id)) {
+    if (SectionMan_IsEventReady(m, id)) {
         float s = 1.0f;
         scale.x = 1.0f;
         scale.y = 1.0f;
@@ -913,9 +913,9 @@ extern "C" void func_0021F9B0(char* self, char* obj, char* rider, int x, float t
     }
 }
 
-INCLUDE_ASM("fe/all_in_one_fe", func_0021FD38);
+INCLUDE_ASM("fe/all_in_one_fe", cOVStateHUD1P_DrawMissionStatus);
 
-INCLUDE_ASM("fe/all_in_one_fe", func_002200C0);
+INCLUDE_ASM("fe/all_in_one_fe", HUD_DrawSpeedometer);
 
 INCLUDE_ASM("fe/all_in_one_fe", func_002204A0);
 
@@ -1133,7 +1133,7 @@ extern char D_004735B0[];
 extern char D_00474E08[];
 extern unsigned short D_004A2088[];
 
-extern "C" void *func_00221040(void *arg0) {
+extern "C" void *OVScreenBCFail_ctor(void *arg0) {
     func_0039E2A0(arg0, 0);
     (*(int *)((char*)(arg0) + (0x98))) = 0;
     (*(int *)((char*)(arg0) + (0x48))) = 0;
@@ -1154,7 +1154,7 @@ extern char D_004735B0[];
 extern char D_00474E08[];
 extern unsigned short D_004A2088[];
 
-extern "C" void *func_002210A0(void *arg0, int arg1, int arg2) {
+extern "C" void *OVScreenBCFail_ctor_2(void *arg0, int arg1, int arg2) {
     func_0039E2A0_10A0(arg0);
     (*(int *)((char*)(arg0) + (0x98))) = arg2;
     (*(int *)((char*)(arg0) + (0x48))) = 0;
@@ -1173,7 +1173,7 @@ extern "C" void *func_002210A0(void *arg0, int arg1, int arg2) {
 extern "C" void func_0039E390_a(void *) __asm__("func_0039E390");
 extern char D_00474E08[];
 
-extern "C" void func_00221110(void *arg0) {
+extern "C" void OVScreenBCFail_dtor(void *arg0) {
     *(char **)((char*)arg0 + 8) = D_00474E08;
     func_0039E390_a(arg0);
 }
@@ -1398,7 +1398,7 @@ extern char D_00473098[];
 extern char D_00474E08[];
 extern unsigned short D_004A2088[];
 
-extern "C" void *func_002215F0(void *arg0) {
+extern "C" void *OVScreenPauseMode1_ctor(void *arg0) {
     func_0039E2A0(arg0, 0);
     (*(int *)((char*)(arg0) + (0x98))) = 0;
     (*(int *)((char*)(arg0) + (0x48))) = 0;
@@ -1419,7 +1419,7 @@ extern char D_00473098[];
 extern char D_00474E08[];
 extern unsigned short D_004A2088[];
 
-extern "C" void *func_00221658(void *arg0, int arg1, int arg2) {
+extern "C" void *OVScreenPauseMode1_ctor_2(void *arg0, int arg1, int arg2) {
     func_0039E2A0_1658(arg0);
     (*(int *)((char*)(arg0) + (0x98))) = arg2;
     (*(int *)((char*)(arg0) + (0x48))) = 0;
@@ -1448,7 +1448,7 @@ extern char D_00472FC0[];
 extern char D_00474E08[];
 extern unsigned short D_004A2088[];
 
-extern "C" void *func_002216F0(void *arg0) {
+extern "C" void *OVScreenPauseMode2_ctor(void *arg0) {
     func_0039E2A0(arg0, 0);
     (*(int *)((char*)(arg0) + (0x98))) = 0;
     (*(int *)((char*)(arg0) + (0x48))) = 0;
@@ -1469,7 +1469,7 @@ extern char D_00472FC0[];
 extern char D_00474E08[];
 extern unsigned short D_004A2088[];
 
-extern "C" void *func_00221758(void *arg0, int arg1, int arg2) {
+extern "C" void *OVScreenPauseMode2_ctor_2(void *arg0, int arg1, int arg2) {
     func_0039E2A0_1758(arg0);
     (*(int *)((char*)(arg0) + (0x98))) = arg2;
     (*(int *)((char*)(arg0) + (0x48))) = 0;
@@ -1498,7 +1498,7 @@ extern char D_00472EE8[];
 extern char D_00474E08[];
 extern unsigned short D_004A2088[];
 
-extern "C" void *func_002217F0(void *arg0) {
+extern "C" void *OVScreenPauseMode3_ctor(void *arg0) {
     func_0039E2A0(arg0, 0);
     (*(int *)((char*)(arg0) + (0x98))) = 0;
     (*(int *)((char*)(arg0) + (0x48))) = 0;
@@ -1519,7 +1519,7 @@ extern char D_00472EE8[];
 extern char D_00474E08[];
 extern unsigned short D_004A2088[];
 
-extern "C" void *func_00221858(void *arg0, int arg1, int arg2) {
+extern "C" void *OVScreenPauseMode3_ctor_2(void *arg0, int arg1, int arg2) {
     func_0039E2A0_1858(arg0);
     (*(int *)((char*)(arg0) + (0x98))) = arg2;
     (*(int *)((char*)(arg0) + (0x48))) = 0;
@@ -1548,7 +1548,7 @@ extern char D_00472E10[];
 extern char D_00474E08[];
 extern unsigned short D_004A2088[];
 
-extern "C" void *func_002218F0(void *arg0) {
+extern "C" void *OVScreenPauseMode4_ctor(void *arg0) {
     func_0039E2A0(arg0, 0);
     (*(int *)((char*)(arg0) + (0x98))) = 0;
     (*(int *)((char*)(arg0) + (0x48))) = 0;
@@ -1569,7 +1569,7 @@ extern char D_00472E10[];
 extern char D_00474E08[];
 extern unsigned short D_004A2088[];
 
-extern "C" void *func_00221958(void *arg0, int arg1, int arg2) {
+extern "C" void *OVScreenPauseMode4_ctor_2(void *arg0, int arg1, int arg2) {
     func_0039E2A0_1958(arg0);
     (*(int *)((char*)(arg0) + (0x98))) = arg2;
     (*(int *)((char*)(arg0) + (0x48))) = 0;
@@ -1598,7 +1598,7 @@ extern char D_00472D38[];
 extern char D_00474E08[];
 extern unsigned short D_004A2088[];
 
-extern "C" void *func_002219F0(void *arg0) {
+extern "C" void *OVScreenPauseMode5_ctor(void *arg0) {
     func_0039E2A0(arg0, 0);
     (*(int *)((char*)(arg0) + (0x98))) = 0;
     (*(int *)((char*)(arg0) + (0x48))) = 0;
@@ -1619,7 +1619,7 @@ extern char D_00472D38[];
 extern char D_00474E08[];
 extern unsigned short D_004A2088[];
 
-extern "C" void *func_00221A58(void *arg0, int arg1, int arg2) {
+extern "C" void *OVScreenPauseMode5_ctor_2(void *arg0, int arg1, int arg2) {
     func_0039E2A0_1A58(arg0);
     (*(int *)((char*)(arg0) + (0x98))) = arg2;
     (*(int *)((char*)(arg0) + (0x48))) = 0;
@@ -1648,7 +1648,7 @@ extern char D_00472C60[];
 extern char D_00474E08[];
 extern unsigned short D_004A2088[];
 
-extern "C" void *func_00221AF0(void *arg0) {
+extern "C" void *OVScreenPauseMode6_ctor(void *arg0) {
     func_0039E2A0(arg0, 0);
     (*(int *)((char*)(arg0) + (0x98))) = 0;
     (*(int *)((char*)(arg0) + (0x48))) = 0;
@@ -1669,7 +1669,7 @@ extern char D_00472C60[];
 extern char D_00474E08[];
 extern unsigned short D_004A2088[];
 
-extern "C" void *func_00221B58(void *arg0, int arg1, int arg2) {
+extern "C" void *OVScreenPauseMode6_ctor_2(void *arg0, int arg1, int arg2) {
     func_0039E2A0_1B58(arg0);
     (*(int *)((char*)(arg0) + (0x98))) = arg2;
     (*(int *)((char*)(arg0) + (0x48))) = 0;
@@ -2099,21 +2099,21 @@ extern "C" void* func_002223C0(void *self) {
 
 //100%
 // PORT: hand-rolled EE EABI va_start (gcc 2.95 va-mips.h form); use <stdarg.h> off-PS2.
-#define func_002223E8_va_start(ap) \
+#define Font_DrawTextCenteredVarargs_2_va_start(ap) \
     (ap = (char*)__builtin_next_arg() \
           - (__builtin_args_info(2) < 8 ? (8 - __builtin_args_info(2)) * 8 : 0))
 extern "C" void func_003929F8(int, int, char*);
 
-extern "C" void func_002223E8(float x, float y, int c, int d, ...) {
+extern "C" void Font_DrawTextCenteredVarargs_2(float x, float y, int c, int d, ...) {
     char* ap;
-    func_002223E8_va_start(ap);
+    Font_DrawTextCenteredVarargs_2_va_start(ap);
     func_003929F8(c, d, ap);
 }
 
 //100% - objdiff report; single-function view differs only in a relocation name
 extern "C" void __sti__all_in_one_fe_cpp(int, int);
 
-extern "C" void func_00222428(void) {
+extern "C" void all_in_one_fe_GlobalCtors(void) {
     __sti__all_in_one_fe_cpp(1, 0xFFFF);
 }
 
@@ -2147,7 +2147,7 @@ extern "C" void func_002224B0(void) {
 void* operator new[](unsigned int size, const char* tag, int flags, int d) __asm__("operator_new__FUi");
 struct LV_24B8;
 extern "C" void func_00224DF0_24B8(LV_24B8*, int) __asm__("func_00224DF0");
-extern "C" void func_00225068_24B8(LV_24B8*, const LV_24B8*) __asm__("func_00225068");
+extern "C" void luno_cLunoTable_Assign_24B8(LV_24B8*, const LV_24B8*) __asm__("luno_cLunoTable_Assign");
 extern "C" void luno_cLunoVM_execute_24B8(LV_24B8**, char**, int) __asm__("luno_cLunoVM_execute");
 extern char D_00479780[];
 
@@ -2162,14 +2162,14 @@ struct LV_24B8 {
     void SetTable(const LV_24B8* src) {
         Release();
         Clear();
-        func_00225068_24B8(this, src);
+        luno_cLunoTable_Assign_24B8(this, src);
         type = 4;
     }
     void Assign(const LV_24B8* src) {
         Release();
         Clear();
         if (src->type == 4) {
-            func_00225068_24B8(this, src);
+            luno_cLunoTable_Assign_24B8(this, src);
         } else if (src->type == 5) {
             u.pair = src->u.pair;
         } else {
@@ -2194,7 +2194,7 @@ extern "C" void func_002224B8(LV_24B8** out, char** state, LV_24B8* a, int c) {
     q->type = 0;
     p[1].u.i = 0;
     if (b->type == 4) {
-        func_00225068_24B8(q, b);
+        luno_cLunoTable_Assign_24B8(q, b);
     } else if (b->type == 5) {
         p[1].u.pair = b->u.pair;
     } else {
@@ -2209,7 +2209,7 @@ extern "C" void func_002224B8(LV_24B8** out, char** state, LV_24B8* a, int c) {
 void* operator new[](unsigned int size, const char* tag, int flags, int d) __asm__("operator_new__FUi");
 struct LV_2648;
 extern "C" void func_00224DF0_2648(LV_2648*, int) __asm__("func_00224DF0");
-extern "C" void func_00225068_2648(LV_2648*, const LV_2648*) __asm__("func_00225068");
+extern "C" void luno_cLunoTable_Assign_2648(LV_2648*, const LV_2648*) __asm__("luno_cLunoTable_Assign");
 extern "C" void luno_cLunoVM_execute_2648(LV_2648**, char**, int) __asm__("luno_cLunoVM_execute");
 extern char D_00479780[];
 
@@ -2224,14 +2224,14 @@ struct LV_2648 {
     void SetTable(const LV_2648* src) {
         Release();
         Clear();
-        func_00225068_2648(this, src);
+        luno_cLunoTable_Assign_2648(this, src);
         type = 4;
     }
     void Assign(const LV_2648* src) {
         Release();
         Clear();
         if (src->type == 4) {
-            func_00225068_2648(this, src);
+            luno_cLunoTable_Assign_2648(this, src);
         } else if (src->type == 5) {
             u.pair = src->u.pair;
         } else {
@@ -2241,7 +2241,7 @@ struct LV_2648 {
     }
 };
 
-extern "C" void func_00222648(LV_2648** out, char** state, LV_2648* a, LV_2648* b, int c) {
+extern "C" void luno_cLunoVM_CallWithArg(LV_2648** out, char** state, LV_2648* a, LV_2648* b, int c) {
     char* s = *state;
     int n = *(int*)(s + *(int*)(s + 4) + 8);
     LV_2648* arr = new (D_00479780, 0x20000000, 0) LV_2648[n];
@@ -2253,7 +2253,7 @@ extern "C" void func_00222648(LV_2648** out, char** state, LV_2648* a, LV_2648* 
     q->type = 0;
     p[1].u.i = 0;
     if (b->type == 4) {
-        func_00225068_2648(q, b);
+        luno_cLunoTable_Assign_2648(q, b);
     } else if (b->type == 5) {
         p[1].u.pair = b->u.pair;
     } else {
