@@ -573,12 +573,17 @@ Rider FX boost ribbon state; the boost effect parameter block records give the s
 
 ## Rider query scope (nearby-object cache)
 
-Reached as *(rider+0x860); rebuilt from the rider query bounds.
+Reached as *(rider+0x860); rebuilt from the rider query bounds. This is a cOverlapList (0xA14 bytes,
+`include/intersect/overlaplist.h`), the same object the world light manager allocates per light cache slot.
 
 | Offset | Type | Meaning | Evidence |
 |---|---|---|---|
-| +0x210 | int | Nearby layer count (the lighting notes give +0x210/+0x214 as the light candidate list without the split) | PS2 |
-| +0x214 | array | Nearby layer entries iterated by the rail query 0x00334680; light candidates (extra nodes) consumed by selector 0x002F5B68 | PS2 |
+| +0x0 | ptr | Space hash it was built from (its fwd-diff patch cache at +0xA4 serves the terrain queries) | |
+| +0x4 | int | Space hash change counter (+0xA0) at the last build | |
+| +0x8 | u32 | Instance count; instances at +0xC (64 slots) | |
+| +0x10C | u32 | Terrain patch count; patches at +0x110 (64 slots) | |
+| +0x210 | u32 | Object count (octree list 2: rails of types 1/2/3 and lights of type 6) | PS2 |
+| +0x214 | ptr[512] | Objects iterated by the rail query 0x00334680; type-6 lights picked by selector 0x002F5B68 | PS2 |
 
 ## Rider environment record
 

@@ -1,4 +1,6 @@
 #include "common.h"
+#include "intersect/worldquery.h"
+#include "intersect/overlaplist.h"
 
 //100%
 extern void* D_0048E5F0[];
@@ -7,37 +9,37 @@ extern "C" void* cSphereTree_cSphereTree(void* p);
 extern "C" float cSphereTree_getRadius(void* self);
 extern "C" void* cMemMan_alloc(int size, const char* tag, unsigned int flags, int d);
 
-struct sSphV4 { float x, y, z, w; } __attribute__((aligned(16)));
-
 extern "C" void* cWorldSphTree_cWorldSphTree(void* self, void* a1, int a2)
 {
-    *(void***)((char*)self + 0x50) = D_0048E5F0;
-    *(int*)((char*)self + 0x8) = 0;
-    *(int*)((char*)self + 0x4) = 0;
+    cWorldSphTree* t = (cWorldSphTree*)self;
+    cSphereTree* tree = (cSphereTree*)a1;
+    t->mVtable = D_0048E5F0;
+    t->mUseNormalFilter = 0;
+    t->mTransformed = 0;
     if (a2 != 0) {
-        *(int*)self = 0;
+        t->mKind = 0;
     } else {
-        *(int*)self = 1;
+        t->mKind = 1;
     }
-    *(void**)((char*)self + 0x64) = a1;
-    *(void**)((char*)self + 0x60) = a1;
-    sSphV4 c = *(sSphV4*)((char*)a1 + 0x80);
+    t->mOrigTree = tree;
+    t->mTree = tree;
+    sSphereVec4 c = tree->mCentre;
     float r = cSphereTree_getRadius(a1);
-    sSphV4 t;
-    *(sSphV4*)((char*)self + 0x40) = c;
-    t.x = c.x + r;
-    t.y = c.y + r;
-    t.z = c.z + r;
-    t.w = 1.0f;
-    *(sSphV4*)((char*)self + 0x20) = t;
-    t.x = c.x - r;
-    t.y = c.y - r;
-    t.z = c.z - r;
-    t.w = 1.0f;
-    *(sSphV4*)((char*)self + 0x30) = t;
+    sSphereVec4 v;
+    t->mBoxCentre = c;
+    v.x = c.x + r;
+    v.y = c.y + r;
+    v.z = c.z + r;
+    v.w = 1.0f;
+    t->mMax = v;
+    v.x = c.x - r;
+    v.y = c.y - r;
+    v.z = c.z - r;
+    v.w = 1.0f;
+    t->mMin = v;
     void* p = cMemMan_alloc(0x140, D_0048E550, 0, 0);
     cSphereTree_cSphereTree(p);
-    *(void**)((char*)self + 0x68) = p;
+    t->mScratch = (cSphereTree*)p;
     return self;
 }
 
@@ -47,22 +49,19 @@ extern void* D_0048E5F0[];
 
 extern "C" void cWorldSphTree_destroy(void* self, int flags)
 {
-    *(void***)((char*)self + 0x50) = D_0048E5F0;
-    operator_delete(*(int**)((char*)self + 0x68));
+    cWorldSphTree* t = (cWorldSphTree*)self;
+    t->mVtable = D_0048E5F0;
+    operator_delete((int*)t->mScratch);
     if (flags & 1) {
         operator_delete((int*)self);
     }
 }
 
 //100%
-struct sV4_330540 {
-    float x, y, z, w;
-} __attribute__((aligned(16)));
-
 // PORT: PS2-only VU0 inline asm (vector add).
-static inline sV4_330540 add_330540(const sV4_330540& a, const sV4_330540& b)
+static inline sSphereVec4 add_330540(const sSphereVec4& a, const sSphereVec4& b)
 {
-    sV4_330540 r;
+    sSphereVec4 r;
     __asm__(
         "lqc2      $vf3, %1\n"
         "lqc2      $vf4, %2\n"
@@ -75,9 +74,9 @@ static inline sV4_330540 add_330540(const sV4_330540& a, const sV4_330540& b)
 }
 
 // PORT: PS2-only VU0 inline asm (vector subtract).
-static inline sV4_330540 sub_330540(const sV4_330540& a, const sV4_330540& b)
+static inline sSphereVec4 sub_330540(const sSphereVec4& a, const sSphereVec4& b)
 {
-    sV4_330540 r;
+    sSphereVec4 r;
     __asm__(
         "lqc2      $vf3, %1\n"
         "lqc2      $vf4, %2\n"
@@ -93,16 +92,17 @@ extern "C" float cSphereTree_getRadius(void* self);
 
 extern "C" int cWorldSphTree_overlapsBox(void* self, float* lo, float* hi)
 {
-    sV4_330540 ext;
-    float rx = cSphereTree_getRadius(*(void**)((char*)self + 0x60));
-    float ry = cSphereTree_getRadius(*(void**)((char*)self + 0x60));
-    float rz = cSphereTree_getRadius(*(void**)((char*)self + 0x60));
+    cWorldSphTree* t = (cWorldSphTree*)self;
+    sSphereVec4 ext;
+    float rx = cSphereTree_getRadius(t->mTree);
+    float ry = cSphereTree_getRadius(t->mTree);
+    float rz = cSphereTree_getRadius(t->mTree);
     ext.x = rx;
     ext.y = ry;
     ext.z = rz;
     ext.w = 0.0f;
-    sV4_330540 mx = add_330540(*(sV4_330540*)(*(char**)((char*)self + 0x60) + 0x80), ext);
-    sV4_330540 mn = sub_330540(*(sV4_330540*)(*(char**)((char*)self + 0x60) + 0x80), ext);
+    sSphereVec4 mx = add_330540(t->mTree->mCentre, ext);
+    sSphereVec4 mn = sub_330540(t->mTree->mCentre, ext);
     float lx = lo[0];
     float tx = mx.x;
     if (tx < lx && mn.x < lx) return 0;
@@ -123,9 +123,10 @@ extern "C" float cSphereTree_getRadius(void* self);
 
 extern "C" float cWorldSphTree_getRadius(void* self)
 {
+    cWorldSphTree* t = (cWorldSphTree*)self;
     float r;
-    if (*(int*)self != 0) {
-        r = cSphereTree_getRadius(*(void**)((char*)self + 0x60)) * 2.0f;
+    if (t->mKind != 0) {
+        r = cSphereTree_getRadius(t->mTree) * 2.0f;
     } else {
         r = -1.0f;
     }
@@ -138,28 +139,26 @@ extern "C" void cSphereTree_transform(void* p, void* a, float f);
 
 extern "C" void cWorldSphTree_transform(void* self, void* a1, float f)
 {
-    cSphereTree_assign(*(void**)((char*)self + 0x68), *(void**)((char*)self + 0x60));
-    *(void**)((char*)self + 0x60) = *(void**)((char*)self + 0x68);
-    cSphereTree_transform(*(void**)((char*)self + 0x60), a1, f);
-    *(int*)((char*)self + 0x4) = 1;
+    cWorldSphTree* t = (cWorldSphTree*)self;
+    cSphereTree_assign(t->mScratch, t->mTree);
+    t->mTree = t->mScratch;
+    cSphereTree_transform(t->mTree, a1, f);
+    t->mTransformed = 1;
 }
 
 //100%
 int cWorldSphTree_restore__FPv(void* self)
 {
-    int t0 = *(int*)((char*)self + 0x64);
-    *(int*)((char*)self + 0x4) = 0;
-    *(int*)((char*)self + 0x60) = t0;
+    cWorldSphTree* t = (cWorldSphTree*)self;
+    int t0 = *(int*)&t->mOrigTree;
+    t->mTransformed = 0;
+    *(int*)&t->mTree = t0;
     return t0;
 }
 
 //100%
-struct sWsVec4 {
-    float x, y, z, w;
-} __attribute__((aligned(16)));
-
 // PORT: PS2-only VU0 inline asm (4-component vector length).
-static inline float wsLength_330788(const sWsVec4& v)
+static inline float wsLength_330788(const sSphereVec4& v)
 {
     float r;
     __asm__(
@@ -178,9 +177,9 @@ static inline float wsLength_330788(const sWsVec4& v)
 }
 
 // PORT: PS2-only VU0 inline asm (v / s).
-static inline sWsVec4 wsDiv_330788(const sWsVec4& v, float s)
+static inline sSphereVec4 wsDiv_330788(const sSphereVec4& v, float s)
 {
-    sWsVec4 r;
+    sSphereVec4 r;
     int t;
     __asm__(
         ".set push\n"
@@ -199,12 +198,13 @@ static inline sWsVec4 wsDiv_330788(const sWsVec4& v, float s)
     return r;
 }
 
-extern "C" int cSphereTree_testTriangle(void* tree, int a1, int a2, int a3, int a4, sWsVec4* out, int a6);
+extern "C" int cSphereTree_testTriangle(void* tree, int a1, int a2, int a3, int a4, sSphereVec4* out, int a6);
 
-extern "C" int cWorldSphTree_testTriangle(void* self, int a1, int a2, int a3, int a4, int a5, sWsVec4* outDir, float* outLen)
+extern "C" int cWorldSphTree_testTriangle(void* self, int a1, int a2, int a3, int a4, int a5, sSphereVec4* outDir, float* outLen)
 {
-    sWsVec4 v;
-    int r = cSphereTree_testTriangle(*(void**)((char*)self + 0x60), a1, a2, a3, a4, &v, a5);
+    cWorldSphTree* t = (cWorldSphTree*)self;
+    sSphereVec4 v;
+    int r = cSphereTree_testTriangle(t->mTree, a1, a2, a3, a4, &v, a5);
     if (r != 0) {
         float len = wsLength_330788(v);
         *outLen = len;
@@ -215,7 +215,7 @@ extern "C" int cWorldSphTree_testTriangle(void* self, int a1, int a2, int a3, in
 
 //100%
 // PORT: PS2-only VU0 inline asm (4-component vector length).
-static inline float wsLength_330828(const sWsVec4& v)
+static inline float wsLength_330828(const sSphereVec4& v)
 {
     float r;
     __asm__(
@@ -234,9 +234,9 @@ static inline float wsLength_330828(const sWsVec4& v)
 }
 
 // PORT: PS2-only VU0 inline asm (v / s).
-static inline sWsVec4 wsDiv_330828(const sWsVec4& v, float s)
+static inline sSphereVec4 wsDiv_330828(const sSphereVec4& v, float s)
 {
-    sWsVec4 r;
+    sSphereVec4 r;
     int t;
     __asm__(
         ".set push\n"
@@ -255,12 +255,13 @@ static inline sWsVec4 wsDiv_330828(const sWsVec4& v, float s)
     return r;
 }
 
-extern "C" int cSphereTree_testTriangleTwoSided(void* tree, int a1, int a2, int a3, int a4, sWsVec4* out, int a6);
+extern "C" int cSphereTree_testTriangleTwoSided(void* tree, int a1, int a2, int a3, int a4, sSphereVec4* out, int a6);
 
-extern "C" int cWorldSphTree_testTriangleTwoSided(void* self, int a1, int a2, int a3, int a4, int a5, sWsVec4* outDir, float* outLen)
+extern "C" int cWorldSphTree_testTriangleTwoSided(void* self, int a1, int a2, int a3, int a4, int a5, sSphereVec4* outDir, float* outLen)
 {
-    sWsVec4 v;
-    int r = cSphereTree_testTriangleTwoSided(*(void**)((char*)self + 0x60), a1, a2, a3, a4, &v, a5);
+    cWorldSphTree* t = (cWorldSphTree*)self;
+    sSphereVec4 v;
+    int r = cSphereTree_testTriangleTwoSided(t->mTree, a1, a2, a3, a4, &v, a5);
     if (r != 0) {
         float len = wsLength_330828(v);
         *outLen = len;
@@ -271,7 +272,7 @@ extern "C" int cWorldSphTree_testTriangleTwoSided(void* self, int a1, int a2, in
 
 //100%
 // PORT: PS2-only VU0 inline asm (4-component vector length).
-static inline float wsLength_3308C8(const sWsVec4& v)
+static inline float wsLength_3308C8(const sSphereVec4& v)
 {
     float r;
     int t;
@@ -292,7 +293,7 @@ static inline float wsLength_3308C8(const sWsVec4& v)
 }
 
 // PORT: PS2-only VU0 inline asm (in-place vector divided by scalar).
-static inline void wsDivEq_3308C8(sWsVec4& v, float s)
+static inline void wsDivEq_3308C8(sSphereVec4& v, float s)
 {
     int t;
     __asm__(
@@ -308,21 +309,15 @@ static inline void wsDivEq_3308C8(sWsVec4& v, float s)
         : "memory");
 }
 
-struct sWsHit_3308C8 {
-    char pad_0x00[0x10];
-    sWsVec4 dir;      // 0x10
-    char pad_0x20[0x20];
-    float len;            // 0x40
-};
-
 extern "C" int cSphereTree_testSphereTree(void* self, void* other, void* a2, void* a3);
 
-extern "C" int cWorldSphTree_testSphereTree(void* self, void* a1, sWsHit_3308C8* hit)
+extern "C" int cWorldSphTree_testSphereTree(void* self, void* a1, sWorldHit* hit)
 {
-    if (cSphereTree_testSphereTree(*(void**)((char*)self + 0x60), a1, &hit->dir, hit) != 0) {
-        float len = wsLength_3308C8(hit->dir);
-        hit->len = len;
-        wsDivEq_3308C8(hit->dir, len);
+    cWorldSphTree* t = (cWorldSphTree*)self;
+    if (cSphereTree_testSphereTree(t->mTree, a1, &hit->mNormal, hit) != 0) {
+        float len = wsLength_3308C8(hit->mNormal);
+        hit->mDepth = len;
+        wsDivEq_3308C8(hit->mNormal, len);
         return 1;
     }
     return 0;
@@ -330,7 +325,7 @@ extern "C" int cWorldSphTree_testSphereTree(void* self, void* a1, sWsHit_3308C8*
 
 //100%
 // PORT: PS2-only VU0 inline asm (4-component vector length).
-static inline float wsLength_330950(const sWsVec4& v)
+static inline float wsLength_330950(const sSphereVec4& v)
 {
     float r;
     int t;
@@ -351,7 +346,7 @@ static inline float wsLength_330950(const sWsVec4& v)
 }
 
 // PORT: PS2-only VU0 inline asm (in-place vector divided by scalar).
-static inline void wsDivEq_330950(sWsVec4& v, float s)
+static inline void wsDivEq_330950(sSphereVec4& v, float s)
 {
     int t;
     __asm__(
@@ -367,101 +362,67 @@ static inline void wsDivEq_330950(sWsVec4& v, float s)
         : "memory");
 }
 
-struct sWsHit_330950 {
-    char pad_0x00[0x10];
-    sWsVec4 dir;      // 0x10
-    char pad_0x20[0x20];
-    float len;            // 0x40
-};
-
 extern "C" int cSphereTree_testBox(void* self, void* a1, void* a2, void* a3, void* a4);
 
-extern "C" int cWorldSphTree_testBox(void* self, void* a1, void* a2, sWsHit_330950* hit)
+extern "C" int cWorldSphTree_testBox(void* self, void* a1, void* a2, sWorldHit* hit)
 {
-    if (cSphereTree_testBox(*(void**)((char*)self + 0x60), a1, a2, &hit->dir, hit) != 0) {
-        float len = wsLength_330950(hit->dir);
-        hit->len = len;
-        wsDivEq_330950(hit->dir, len);
+    cWorldSphTree* t = (cWorldSphTree*)self;
+    if (cSphereTree_testBox(t->mTree, a1, a2, &hit->mNormal, hit) != 0) {
+        float len = wsLength_330950(hit->mNormal);
+        hit->mDepth = len;
+        wsDivEq_330950(hit->mNormal, len);
         return 1;
     }
     return 0;
 }
 
 //100%
-struct sVEnt_3309D8 { short delta; short index; void* fn; };
 typedef int (*Test_3309D8)(void*);
+typedef sSpaceHashBox* (*GetBox_3309D8)(void*);
 
-struct sBox_3309D8 {
-    float min[4];
-    float max[4];
-};
-
-struct sBox_3309D8;
-typedef sBox_3309D8* (*GetBox_3309D8)(void*);
-struct sObj_3309D8 {
-    int pad00[3];
-    sVEnt_3309D8* vt;
-};
-
-struct sNode_3309D8 {
-    sNode_3309D8* next;
-    int pad04;
-    int flags;
-    sObj_3309D8* obj;
-    int pad10[20];
-    float bmin[3];
-    float bmax[3];
-};
-
-struct sCtx_3309D8 {
-    sNode_3309D8** list;
-    int* count;
-    int pad08;
-    sBox_3309D8* box;
-};
-
-static inline int overlapNode_3309D8(const sBox_3309D8* b, const sNode_3309D8* n)
+static inline int overlapNode_3309D8(const sSpaceHashBox* b, const sWorldInstance* n)
 {
     int r = 0;
-    if (b->min[0] <= n->bmax[0] && b->max[0] >= n->bmin[0] &&
-        b->min[1] <= n->bmax[1] && b->max[1] >= n->bmin[1] &&
-        b->min[2] <= n->bmax[2] && b->max[2] >= n->bmin[2]) {
+    if (b->mMin.x <= n->mMax[0] && b->mMax.x >= n->mMin[0] &&
+        b->mMin.y <= n->mMax[1] && b->mMax.y >= n->mMin[1] &&
+        b->mMin.z <= n->mMax[2] && b->mMax.z >= n->mMin[2]) {
         r = 1;
     }
     return r;
 }
 
-static inline int overlapBox_3309D8(const sBox_3309D8* b, const sBox_3309D8* o)
+static inline int overlapBox_3309D8(const sSpaceHashBox* b, const sSpaceHashBox* o)
 {
     int r = 0;
-    if (b->min[0] <= o->max[0] && b->max[0] >= o->min[0] &&
-        b->min[1] <= o->max[1] && b->max[1] >= o->min[1] &&
-        b->min[2] <= o->max[2] && b->max[2] >= o->min[2]) {
+    if (b->mMin.x <= o->mMax.x && b->mMax.x >= o->mMin.x &&
+        b->mMin.y <= o->mMax.y && b->mMax.y >= o->mMin.y &&
+        b->mMin.z <= o->mMax.z && b->mMax.z >= o->mMin.z) {
         r = 1;
     }
     return r;
 }
 
-extern "C" void cOverlapList_collectNodeInstances(sCtx_3309D8* ctx, void* tree)
+extern "C" void cOverlapList_collectNodeInstances(sOverlapSink* ctx, void* tree)
 {
-    for (sNode_3309D8* p = *(sNode_3309D8**)((char*)tree + 0x20); p != 0; p = p->next) {
-        int flags = p->flags;
+    cSpaceHashNode* t = (cSpaceHashNode*)tree;
+    for (sWorldInstance* p = (sWorldInstance*)t->mLists[SPACEHASH_INSTANCES].mHead; p != 0; p = (sWorldInstance*)p->mLink.mNext) {
+        int flags = p->mFlags;
         if (flags & 0x20) {
-            if (overlapNode_3309D8(ctx->box, p)) {
-                int* cnt = ctx->count;
+            if (overlapNode_3309D8(ctx->mBox, p)) {
+                unsigned int* cnt = ctx->mCount;
                 int n = *cnt;
-                ctx->list[n] = p;
+                ctx->mItems[n] = p;
                 *cnt = n + 1;
             }
         } else if (flags & 0x40) {
-            sVEnt_3309D8* vt = p->obj->vt;
-            if (((Test_3309D8)vt[44].fn)((char*)p->obj + vt[44].delta)) {
-                sVEnt_3309D8* vt2 = p->obj->vt;
-                sBox_3309D8* b = ((GetBox_3309D8)vt2[45].fn)((char*)p->obj + vt2[45].delta);
-                if (overlapBox_3309D8(ctx->box, b)) {
-                    int* cnt = ctx->count;
+            sWorldVEntry* vt = p->mEntity->mVtable;
+            if (((Test_3309D8)vt[44].mFn)((char*)p->mEntity + vt[44].mDelta)) {
+                sWorldVEntry* vt2 = p->mEntity->mVtable;
+                sSpaceHashBox* b = ((GetBox_3309D8)vt2[45].mFn)((char*)p->mEntity + vt2[45].mDelta);
+                if (overlapBox_3309D8(ctx->mBox, b)) {
+                    unsigned int* cnt = ctx->mCount;
                     int n = *cnt;
-                    ctx->list[n] = p;
+                    ctx->mItems[n] = p;
                     *cnt = n + 1;
                 }
             }
@@ -479,198 +440,117 @@ INCLUDE_ASM("intersect/worldsphtree", cOverlapList_build);
 
 //100%
 // PORT: PS2-only inline asm; needs a C fallback off-PS2.
-struct sVec4_333EF8 {
-    float x, y, z, w;
-} __attribute__((aligned(16)));
+extern sSphereVec4 D_004FF120[];
 
-extern sVec4_333EF8 D_004FF120_333EF8[] __asm__("D_004FF120");
-
-struct sQuery_333EF8 {
-    char pad00[0x20];
-    float max[4];
-    float min[4];
-};
-
-struct sTriObj_333EF8 {
-    char pad00[8];
-    short id;
-    unsigned short flags;
-    char pad0C[0x14C];
-    float bmin[3];
-    float bmax[3];
-};
-
-struct sHit_333EF8 {
-    sVec4_333EF8 pos;   // 0x00
-    sVec4_333EF8 nrm;   // 0x10
-    sVec4_333EF8 v20;   // 0x20
-    sVec4_333EF8 v30;   // 0x30
-    float dist;         // 0x40
-    int type;           // 0x44
-    int pad48;
-    int id;             // 0x4C
-    int f50;            // 0x50
-    void* obj;          // 0x54
-    int f58;            // 0x58
-    int f5C;            // 0x5C
-    int f60;            // 0x60
-    int f64;            // 0x64
-    int f68;            // 0x68
-    float u;            // 0x6C
-    float v;            // 0x70
-    int pad74[3];
-};
-
-struct sVEnt_333EF8 { short delta; short index; void* fn; };
-struct sBox_333EF8;
 typedef int (*Test_333EF8)(void*);
-typedef sBox_333EF8* (*GetBox_333EF8)(void*);
-
-struct sBox_333EF8 {
-    float min[4];
-    float max[4];
-};
-
-struct sObj_333EF8 {
-    int pad00[3];
-    sVEnt_333EF8* vt;
-};
-
-struct sNode_333EF8 {
-    void* next;
-    int pad04;
-    int flags;
-    sObj_333EF8* obj;
-    int pad10[20];
-    float bmin[3];
-    float bmax[3];
-    int pad78[4];
-    int active;
-};
-
-struct sOwner_333EF8 {
-    char pad00[0xA4];
-    void* cache;
-};
-
-struct sTree_333EF8 {
-    sOwner_333EF8* owner;           // 0x0
-    int pad04;
-    unsigned int count;             // 0x8
-    sNode_333EF8* items[0x40];      // 0xC
-    unsigned int ntris;             // 0x10C
-    sTriObj_333EF8* tris[1];        // 0x110
-};
+typedef sSpaceHashBox* (*GetBox_333EF8)(void*);
 
 extern "C" void cAIFwdDiffCache_lookup(void* cache, void* src, void** out);
-struct sVec4_335960;
-struct sHit_003342D0;
-extern "C" int cWorldIntType_testPatch(void* q, void* obj, void* node, sVec4_335960* pos, sVec4_335960* nrm, float* dist, sVec4_335960* uv, int arg);
+extern "C" int cWorldIntType_testPatch(void* q, void* obj, void* node, sSphereVec4* pos, sSphereVec4* nrm, float* dist, sSphereVec4* uv, int arg);
 extern "C" int cWorldIntType_testInstance(void* q, void* node, void* buf, int cap, int mode);
 
-static inline int overlapTri_333EF8(const sQuery_333EF8* q, const sTriObj_333EF8* n)
+static inline int overlapTri_333EF8(const cWorldIntType* q, const sTerrainPatch* n)
 {
     int r = 0;
-    if (q->max[0] > n->bmin[0] && q->min[0] < n->bmax[0] &&
-        q->max[1] > n->bmin[1] && q->min[1] < n->bmax[1] &&
-        q->max[2] > n->bmin[2] && q->min[2] < n->bmax[2]) {
+    if (q->mMax.x > n->mMin[0] && q->mMin.x < n->mMax[0] &&
+        q->mMax.y > n->mMin[1] && q->mMin.y < n->mMax[1] &&
+        q->mMax.z > n->mMin[2] && q->mMin.z < n->mMax[2]) {
         r = 1;
     }
     return r;
 }
 
-static inline int overlapNode_333EF8(const sQuery_333EF8* q, const sNode_333EF8* n)
+static inline int overlapNode_333EF8(const cWorldIntType* q, const sWorldInstance* n)
 {
     int r = 0;
-    if (q->max[0] > n->bmin[0] && q->min[0] < n->bmax[0] &&
-        q->max[1] > n->bmin[1] && q->min[1] < n->bmax[1] &&
-        q->max[2] > n->bmin[2] && q->min[2] < n->bmax[2]) {
+    if (q->mMax.x > n->mMin[0] && q->mMin.x < n->mMax[0] &&
+        q->mMax.y > n->mMin[1] && q->mMin.y < n->mMax[1] &&
+        q->mMax.z > n->mMin[2] && q->mMin.z < n->mMax[2]) {
         r = 1;
     }
     return r;
 }
 
-static inline int overlapBox_333EF8(const sQuery_333EF8* q, const sBox_333EF8* o)
+static inline int overlapBox_333EF8(const cWorldIntType* q, const sSpaceHashBox* o)
 {
     int r = 0;
-    if (q->max[0] > o->min[0] && q->min[0] < o->max[0] &&
-        q->max[1] > o->min[1] && q->min[1] < o->max[1] &&
-        q->max[2] > o->min[2] && o->max[2] > q->min[2]) {
+    if (q->mMax.x > o->mMin.x && q->mMin.x < o->mMax.x &&
+        q->mMax.y > o->mMin.y && q->mMin.y < o->mMax.y &&
+        q->mMax.z > o->mMin.z && o->mMax.z > q->mMin.z) {
         r = 1;
     }
     return r;
 }
 
-static inline void reset_333EF8(sHit_333EF8* h)
+static inline void reset_333EF8(sWorldHit* h)
 {
-    h->type = 2;
-    h->obj = 0;
-    h->f50 = 0;
-    h->f58 = 0;
-    h->f5C = -1;
-    h->f60 = -1;
-    h->f64 = -1;
-    h->id = -1;
-    h->v20 = *D_004FF120_333EF8;
-    h->v30 = *D_004FF120_333EF8;
-    h->f68 = 0;
-    h->u = 0;
-    h->v = 0;
+    h->mType = 2;
+    h->mPatch = 0;
+    h->mInstance = 0;
+    h->mUnk58 = 0;
+    h->mUnk5C = -1;
+    h->mTriangle = -1;
+    h->mUnk64 = -1;
+    h->mSurface = -1;
+    h->mSurfaceVel = *D_004FF120;
+    h->mVec30 = *D_004FF120;
+    h->mUnk68 = 0;
+    h->mU = 0;
+    h->mV = 0;
 }
 
-extern "C" int cOverlapList_collectHits(void* vself, void* vq, sHit_003342D0* vhits, int cap, int arg)
+extern "C" int cOverlapList_collectHits(void* self, void* vq, sWorldHit* hits, int cap, int arg)
 {
-    sTree_333EF8* self = (sTree_333EF8*)vself;
-    sQuery_333EF8* q = (sQuery_333EF8*)vq;
-    sHit_333EF8* hits = (sHit_333EF8*)vhits;
+    cOverlapList* t = (cOverlapList*)self;
+    cWorldIntType* q = (cWorldIntType*)vq;
     int n = 0;
-    for (unsigned int i = 0; i < self->ntris; i++) {
-        sTriObj_333EF8* obj = self->tris[i];
-        if ((obj->flags & 0x41) != 0x41) {
+    for (unsigned int i = 0; i < t->mPatchCount; i++) {
+        sTerrainPatch* obj = t->mPatches[i];
+        if ((obj->mFlags & 0x41) != 0x41) {
             continue;
         }
         if (!overlapTri_333EF8(q, obj)) {
             continue;
         }
-        sVec4_333EF8 uv;
-        sVec4_333EF8 pos;
-        sVec4_333EF8 nrm;
+        sSphereVec4 uv;
+        sSphereVec4 pos;
+        sSphereVec4 nrm;
         void* node;
         float dist;
-        cAIFwdDiffCache_lookup(self->owner->cache, obj, &node);
-        if (!cWorldIntType_testPatch(q, obj, node, (sVec4_335960*)&pos, (sVec4_335960*)&nrm, &dist, (sVec4_335960*)&uv, arg)) {
+        cAIFwdDiffCache_lookup(t->mHash->mFwdDiff, obj, &node);
+        if (!cWorldIntType_testPatch(q, obj, node, &pos, &nrm, &dist, &uv, arg)) {
             continue;
         }
         reset_333EF8(&hits[n]);
-        hits[n].pos = pos;
-        hits[n].nrm = nrm;
-        hits[n].id = obj->id;
-        hits[n].obj = obj;
-        hits[n].dist = dist;
-        hits[n].u = uv.x;
-        hits[n].v = uv.y;
+        hits[n].mPos = pos;
+        hits[n].mNormal = nrm;
+        hits[n].mSurface = obj->mSurface;
+        hits[n].mPatch = obj;
+        hits[n].mDepth = dist;
+        hits[n].mU = uv.x;
+        hits[n].mV = uv.y;
         n++;
     }
-    for (unsigned int j = 0; j < self->count; j++) {
-        sNode_333EF8* node = self->items[j];
-        if (node->active == 0) {
+    for (unsigned int j = 0; j < t->mInstanceCount; j++) {
+        sWorldInstance* node = t->mInstances[j];
+        if (node->mCollision == 0) {
             continue;
         }
-        int flags = node->flags;
+        int flags = node->mFlags;
         if (flags & 0x20) {
             if (overlapNode_333EF8(q, node)) {
-                n += cWorldIntType_testInstance(q, node, (char*)hits + n * 0x80, cap - n, 2);
+                n += cWorldIntType_testInstance(q, node, &hits[n], cap - n, 2);
             }
         } else if (flags & 0x40) {
-            if (node->obj == 0) {
+            if (node->mEntity == 0) {
                 continue;
             }
-            sVEnt_333EF8* vt = node->obj->vt;
-            if (((Test_333EF8)vt[44].fn)((char*)node->obj + vt[44].delta)) {
-                sVEnt_333EF8* vt2 = node->obj->vt;
-                sBox_333EF8* b = ((GetBox_333EF8)vt2[45].fn)((char*)node->obj + vt2[45].delta);
+            sWorldVEntry* vt = node->mEntity->mVtable;
+            if (((Test_333EF8)vt[44].mFn)((char*)node->mEntity + vt[44].mDelta)) {
+                sWorldVEntry* vt2 = node->mEntity->mVtable;
+                sSpaceHashBox* b = ((GetBox_333EF8)vt2[45].mFn)((char*)node->mEntity + vt2[45].mDelta);
                 if (overlapBox_333EF8(q, b)) {
-                    n += cWorldIntType_testInstance(q, node, (char*)hits + n * 0x80, cap - n, 2);
+                    n += cWorldIntType_testInstance(q, node, &hits[n], cap - n, 2);
                 }
             }
         }
@@ -679,19 +559,6 @@ extern "C" int cOverlapList_collectHits(void* vself, void* vq, sHit_003342D0* vh
 }
 
 //100% - objdiff report; single-function view differs only in a relocation name
-struct sHit_003342D0 {
-    float pad0[16];
-    float dist;             // 0x40
-    int pad44[3];
-    char* obj;              // 0x50
-    char* tri;              // 0x54
-    int pad58[10];
-    sHit_003342D0() {}
-} __attribute__((aligned(16)));
-
-struct sVEnt_003342D0 { short delta; short index; float (*fn)(void*); };
-extern "C" int cOverlapList_collectHits(void* self, void* q, sHit_003342D0* hits, int max, int a4);
-
 // PORT: PS2 FPU abs.s via inline asm; use fabsf off-PS2.
 static inline float absf_003342D0(float x)
 {
@@ -700,104 +567,70 @@ static inline float absf_003342D0(float x)
     return r;
 }
 
-static inline int isBetter_003342D0(sHit_003342D0* a, sHit_003342D0* b)
+static inline int isBetter_003342D0(sWorldHit* a, sWorldHit* b)
 {
-    if (a->obj != 0) {
-        if (b->obj == 0) {
+    if (a->mInstance != 0) {
+        if (b->mInstance == 0) {
             return 1;
         }
-        return *(unsigned int*)(a->obj + 0x78) < *(unsigned int*)(b->obj + 0x78);
+        return ((sWorldInstance*)a->mInstance)->mResId < ((sWorldInstance*)b->mInstance)->mResId;
     }
-    if (b->obj != 0) {
+    if (b->mInstance != 0) {
         return 0;
     }
-    return *(unsigned int*)(a->tri + 0x150) < *(unsigned int*)(b->tri + 0x150);
+    return ((sTerrainPatch*)a->mPatch)->mKey < ((sTerrainPatch*)b->mPatch)->mKey;
 }
 
 INCLUDE_ASM("intersect/worldsphtree", cOverlapList_queryNearest);
-extern "C" float cOverlapList_queryNearest(void* self, char* q, sHit_003342D0* out, int a3);
+extern "C" float cOverlapList_queryNearest(void* self, char* q, sWorldHit* out, int a3);
 
 //100%
-struct sVEnt_334458 { short delta; short index; void* fn; };
-struct sBox_334458;
 typedef int (*Test_334458)(void*);
-typedef sBox_334458* (*GetBox_334458)(void*);
-
-struct sBox_334458 {
-    float min[4];
-    float max[4];
-};
-
-struct sQuery_334458 {
-    char pad00[0x20];
-    float max[4];
-    float min[4];
-};
-
-struct sObj_334458 {
-    int pad00[3];
-    sVEnt_334458* vt;
-};
-
-struct sNode_334458 {
-    void* next;
-    int pad04;
-    int flags;
-    sObj_334458* obj;
-    int pad10[20];
-    float bmin[3];
-    float bmax[3];
-};
-
-struct sList_334458 {
-    int pad00[2];
-    unsigned int count;
-    sNode_334458* items[1];
-};
+typedef sSpaceHashBox* (*GetBox_334458)(void*);
 
 extern "C" int cWorldIntType_testInstance(void* q, void* node, void* buf, int cap, int mode);
 
-static inline int overlapNode_334458(const sQuery_334458* q, const sNode_334458* n)
+static inline int overlapNode_334458(const cWorldIntType* q, const sWorldInstance* n)
 {
     int r = 0;
-    if (q->max[0] > n->bmin[0] && q->min[0] < n->bmax[0] &&
-        q->max[1] > n->bmin[1] && q->min[1] < n->bmax[1] &&
-        q->max[2] > n->bmin[2] && q->min[2] < n->bmax[2]) {
+    if (q->mMax.x > n->mMin[0] && q->mMin.x < n->mMax[0] &&
+        q->mMax.y > n->mMin[1] && q->mMin.y < n->mMax[1] &&
+        q->mMax.z > n->mMin[2] && q->mMin.z < n->mMax[2]) {
         r = 1;
     }
     return r;
 }
 
-static inline int overlapBox_334458(const sQuery_334458* q, const sBox_334458* o)
+static inline int overlapBox_334458(const cWorldIntType* q, const sSpaceHashBox* o)
 {
     int r = 0;
-    if (q->max[0] > o->min[0] && q->min[0] < o->max[0] &&
-        q->max[1] > o->min[1] && q->min[1] < o->max[1] &&
-        q->max[2] > o->min[2] && o->max[2] > q->min[2]) {
+    if (q->mMax.x > o->mMin.x && q->mMin.x < o->mMax.x &&
+        q->mMax.y > o->mMin.y && q->mMin.y < o->mMax.y &&
+        q->mMax.z > o->mMin.z && o->mMax.z > q->mMin.z) {
         r = 1;
     }
     return r;
 }
 
-extern "C" int cOverlapList_collectInstanceHits(sList_334458* self, sQuery_334458* q, char* buf, int cap, int full)
+extern "C" int cOverlapList_collectInstanceHits(cOverlapList* self, cWorldIntType* q, sWorldHit* buf, int cap, int full)
 {
     int mode = 1;
     if (full) mode = 2;
     int n = 0;
-    for (unsigned int i = 0; i < self->count; i++) {
-        sNode_334458* node = self->items[i];
-        int flags = node->flags;
+    for (unsigned int i = 0; i < self->mInstanceCount; i++) {
+        sWorldInstance* node = self->mInstances[i];
+        int flags = node->mFlags;
         if (flags & 0x20) {
             if (overlapNode_334458(q, node)) {
-                n += cWorldIntType_testInstance(q, node, buf + n * 0x80, cap - n, mode);
+                n += cWorldIntType_testInstance(q, node, &buf[n], cap - n, mode);
             }
         } else if (flags & 0x40) {
-            sVEnt_334458* vt = node->obj->vt;
-            if (((Test_334458)vt[44].fn)((char*)node->obj + vt[44].delta)) {
-                sVEnt_334458* vt2 = node->obj->vt;
-                sBox_334458* b = ((GetBox_334458)vt2[45].fn)((char*)node->obj + vt2[45].delta);
+            sWorldVEntry* vt = node->mEntity->mVtable;
+            if (((Test_334458)vt[44].mFn)((char*)node->mEntity + vt[44].mDelta)) {
+                sWorldVEntry* vt2 = node->mEntity->mVtable;
+                sSpaceHashBox* b = ((GetBox_334458)vt2[45].mFn)((char*)node->mEntity + vt2[45].mDelta);
                 if (overlapBox_334458(q, b)) {
-                    n += cWorldIntType_testInstance(q, node, buf + n * 0x80, cap - n, mode);
+                    n += cWorldIntType_testInstance(q, node, &buf[n], cap - n, mode);
                 }
             }
         }
@@ -806,16 +639,12 @@ extern "C" int cOverlapList_collectInstanceHits(sList_334458* self, sQuery_33445
 }
 
 //100%
-struct sBox_00334680 {
-    sWsVec4 min;
-    sWsVec4 max;
-};
-extern "C" void func_0035C698(void* a0, sBox_00334680* box, sBox_00334680* box2, sWsVec4* pos, int mask, int* cnt, float* dist, int a7);
-extern "C" void func_00348290(void* a0, sBox_00334680* box, sBox_00334680* box2, sWsVec4* pos, int mask, int* cnt, float* dist, int a7);
-extern "C" void cRailSegment_findClosestPoint(void* obj, sBox_00334680* box, sWsVec4* pos, int* cnt, float* dist, int a5);
+extern "C" void func_0035C698(void* a0, sSpaceHashBox* box, sSpaceHashBox* box2, sSphereVec4* pos, int mask, int* cnt, float* dist, int a7);
+extern "C" void func_00348290(void* a0, sSpaceHashBox* box, sSpaceHashBox* box2, sSphereVec4* pos, int mask, int* cnt, float* dist, int a7);
+extern "C" void cRailSegment_findClosestPoint(void* obj, sSpaceHashBox* box, sSphereVec4* pos, int* cnt, float* dist, int a5);
 
 // PORT: PS2-only VU0 inline asm (in-place vector subtract).
-static inline void wsSubEq_334680(sWsVec4& a, const sWsVec4& b)
+static inline void wsSubEq_334680(sSphereVec4& a, const sSphereVec4& b)
 {
     __asm__(
         "lqc2      $vf3, %0\n"
@@ -828,7 +657,7 @@ static inline void wsSubEq_334680(sWsVec4& a, const sWsVec4& b)
 }
 
 // PORT: PS2-only VU0 inline asm (in-place vector add).
-static inline void wsAddEq_334680(sWsVec4& a, const sWsVec4& b)
+static inline void wsAddEq_334680(sSphereVec4& a, const sSphereVec4& b)
 {
     __asm__(
         "lqc2      $vf3, %0\n"
@@ -840,32 +669,33 @@ static inline void wsAddEq_334680(sWsVec4& a, const sWsVec4& b)
         : "memory");
 }
 
-extern "C" int cOverlapList_findNearestRail(char* self, sWsVec4* pos, int a2, int mask, float r)
+extern "C" int cOverlapList_findNearestRail(char* self, sSphereVec4* pos, int a2, int mask, float r)
 {
-    sBox_00334680 box;
-    sWsVec4 ext;
+    cOverlapList* t = (cOverlapList*)self;
+    sSpaceHashBox box;
+    sSphereVec4 ext;
     int cnt;
     float dist;
     float zero = 0.0f;
     cnt = 0;
     dist = zero;
-    box.min = *pos;
-    box.max = *pos;
+    box.mMin = *pos;
+    box.mMax = *pos;
     ext.x = r;
     ext.y = r;
     ext.z = r;
     ext.w = zero;
-    wsSubEq_334680(box.min, ext);
-    wsAddEq_334680(box.max, ext);
-    for (unsigned int i = 0; i < *(unsigned int*)(self + 0x210); i++) {
-        char* o = ((char**)(self + 0x214))[i];
-        int type = *(int*)(o + 8);
+    wsSubEq_334680(box.mMin, ext);
+    wsAddEq_334680(box.mMax, ext);
+    for (unsigned int i = 0; i < t->mObjectCount; i++) {
+        sSpaceHashObject* o = t->mObjects[i];
+        int type = o->mType;
         if (type == 2) {
-            func_0035C698(*(void**)(o + 0xC), &box, &box, pos, mask, &cnt, &dist, a2);
+            func_0035C698(o->mObject, &box, &box, pos, mask, &cnt, &dist, a2);
         } else if (type == 3) {
-            func_00348290(*(void**)(o + 0xC), &box, &box, pos, mask, &cnt, &dist, a2);
+            func_00348290(o->mObject, &box, &box, pos, mask, &cnt, &dist, a2);
         } else if (type == 1) {
-            if (*(int*)(*(char**)(o + 0x68) + 0x1C) & mask) {
+            if (((sRailSegment*)o)->mSpline->mFlags & mask) {
                 cRailSegment_findClosestPoint(o, &box, pos, &cnt, &dist, a2);
             }
         }
@@ -881,8 +711,9 @@ extern char D_0048E4F8[];
 
 extern "C" void cSpaceHash_createFwdDiffCache(void* self)
 {
+    cSpaceHash* t = (cSpaceHash*)self;
     void* c = func_00327810(cMemMan_alloc(0x10, D_0048E4F8, 0, 0));
-    *(void**)((char*)self + 0xA4) = c;
+    t->mFwdDiff = (cAIFwdDiffCache*)c;
     cAIFwdDiffCache_Init(c, 0x28);
 }
 
@@ -891,11 +722,12 @@ extern "C" void func_00327828(void* p, int flags);
 
 extern "C" void cSpaceHash_destroyFwdDiffCache(void* self)
 {
-    void* p = *(void**)((char*)self + 0xA4);
+    cSpaceHash* t = (cSpaceHash*)self;
+    cAIFwdDiffCache* p = t->mFwdDiff;
     if (p != 0) {
         func_00327828(p, 3);
     }
-    *(void**)((char*)self + 0xA4) = 0;
+    t->mFwdDiff = 0;
 }
 
 INCLUDE_ASM("intersect/worldsphtree", cWorldIntType_testInstance);
@@ -903,200 +735,112 @@ INCLUDE_ASM("intersect/worldsphtree", cWorldIntType_testInstance);
 INCLUDE_ASM("intersect/worldsphtree", cRailSegment_findClosestPoint);
 
 //100%
-struct sVec4_335960 {
-    float x, y, z, w;
-} __attribute__((aligned(16)));
-
-extern sVec4_335960 D_004FF120[];
-
-struct sQuery_335960 {
-    char pad00[0x20];
-    float max[4];
-    float min[4];
-};
-
-struct sTriObj_335960 {
-    char pad00[8];
-    short id;
-    unsigned short flags;
-    char pad0C[0x14C];
-    float bmin[3];
-    float bmax[3];
-};
-
-struct sHit_335960 {
-    sVec4_335960 pos;   // 0x00
-    sVec4_335960 nrm;   // 0x10
-    sVec4_335960 v20;   // 0x20
-    sVec4_335960 v30;   // 0x30
-    float dist;         // 0x40
-    int type;           // 0x44
-    int pad48;
-    int id;             // 0x4C
-    int f50;            // 0x50
-    void* obj;          // 0x54
-    int f58;            // 0x58
-    int f5C;            // 0x5C
-    int f60;            // 0x60
-    int f64;            // 0x64
-    int f68;            // 0x68
-    float u;            // 0x6C
-    float v;            // 0x70
-    int pad74[3];
-};
-
-struct sCtx_335960 {
-    sQuery_335960* q;
-    sHit_335960* hits;
-    int cap;
-    int* count;
-    int arg;
-    void* cache;
-};
-
 extern "C" void cAIFwdDiffCache_lookup(void* cache, void* src, void** out);
-extern "C" int cWorldIntType_testPatch(void* q, void* obj, void* node, sVec4_335960* pos, sVec4_335960* nrm, float* dist, sVec4_335960* uv, int arg);
+extern "C" int cWorldIntType_testPatch(void* q, void* obj, void* node, sSphereVec4* pos, sSphereVec4* nrm, float* dist, sSphereVec4* uv, int arg);
 
-static inline int overlap_335960(const sQuery_335960* q, const sTriObj_335960* n)
+static inline int overlap_335960(const cWorldIntType* q, const sTerrainPatch* n)
 {
     int r = 0;
-    if (q->max[0] > n->bmin[0] && q->min[0] < n->bmax[0] &&
-        q->max[1] > n->bmin[1] && q->min[1] < n->bmax[1] &&
-        q->max[2] > n->bmin[2] && q->min[2] < n->bmax[2]) {
+    if (q->mMax.x > n->mMin[0] && q->mMin.x < n->mMax[0] &&
+        q->mMax.y > n->mMin[1] && q->mMin.y < n->mMax[1] &&
+        q->mMax.z > n->mMin[2] && q->mMin.z < n->mMax[2]) {
         r = 1;
     }
     return r;
 }
 
-static inline void reset_335960(sHit_335960* h)
+static inline void reset_335960(sWorldHit* h)
 {
-    h->type = 2;
-    h->obj = 0;
-    h->f50 = 0;
-    h->f58 = 0;
-    h->f5C = -1;
-    h->f60 = -1;
-    h->f64 = -1;
-    h->id = -1;
-    h->v20 = *D_004FF120;
-    h->v30 = *D_004FF120;
-    h->f68 = 0;
-    h->u = 0;
-    h->v = 0;
+    h->mType = 2;
+    h->mPatch = 0;
+    h->mInstance = 0;
+    h->mUnk58 = 0;
+    h->mUnk5C = -1;
+    h->mTriangle = -1;
+    h->mUnk64 = -1;
+    h->mSurface = -1;
+    h->mSurfaceVel = *D_004FF120;
+    h->mVec30 = *D_004FF120;
+    h->mUnk68 = 0;
+    h->mU = 0;
+    h->mV = 0;
 }
 
 extern "C" void cSpaceHash_collectPatchHit(void* vctx, void* vobj)
 {
-    sCtx_335960* ctx = (sCtx_335960*)vctx;
-    sTriObj_335960* obj = (sTriObj_335960*)vobj;
-    sVec4_335960 pos;
-    sVec4_335960 nrm;
-    sVec4_335960 uv;
+    sSpaceHashCollect* ctx = (sSpaceHashCollect*)vctx;
+    sTerrainPatch* obj = (sTerrainPatch*)vobj;
+    sSphereVec4 pos;
+    sSphereVec4 nrm;
+    sSphereVec4 uv;
     void* node;
     float dist;
-    if ((obj->flags & 0x41) != 0x41) return;
-    if (!overlap_335960(ctx->q, obj)) return;
-    cAIFwdDiffCache_lookup(ctx->cache, obj, &node);
-    if (!cWorldIntType_testPatch(ctx->q, obj, node, &pos, &nrm, &dist, &uv, ctx->arg)) return;
-    reset_335960(&ctx->hits[*ctx->count]);
-    ctx->hits[*ctx->count].pos = pos;
-    ctx->hits[*ctx->count].nrm = nrm;
-    ctx->hits[*ctx->count].id = obj->id;
-    ctx->hits[*ctx->count].obj = obj;
-    ctx->hits[*ctx->count].dist = dist;
-    ctx->hits[*ctx->count].u = uv.x;
-    ctx->hits[*ctx->count].v = uv.y;
-    (*ctx->count)++;
+    if ((obj->mFlags & 0x41) != 0x41) return;
+    if (!overlap_335960(ctx->mQuery, obj)) return;
+    cAIFwdDiffCache_lookup(ctx->mFwdDiff, obj, &node);
+    if (!cWorldIntType_testPatch(ctx->mQuery, obj, node, &pos, &nrm, &dist, &uv, ctx->mArg)) return;
+    reset_335960(&ctx->mHits[*ctx->mCount]);
+    ctx->mHits[*ctx->mCount].mPos = pos;
+    ctx->mHits[*ctx->mCount].mNormal = nrm;
+    ctx->mHits[*ctx->mCount].mSurface = obj->mSurface;
+    ctx->mHits[*ctx->mCount].mPatch = obj;
+    ctx->mHits[*ctx->mCount].mDepth = dist;
+    ctx->mHits[*ctx->mCount].mU = uv.x;
+    ctx->mHits[*ctx->mCount].mV = uv.y;
+    (*ctx->mCount)++;
 }
 
 //100%
-struct sVEnt_335B90 { short delta; short index; void* fn; };
-struct sBox_335B90;
 typedef int (*Test_335B90)(void*);
-typedef sBox_335B90* (*GetBox_335B90)(void*);
-
-struct sBox_335B90 {
-    float min[4];
-    float max[4];
-};
-
-struct sQuery_335B90 {
-    char pad00[0x20];
-    float max[4];
-    float min[4];
-};
-
-struct sObj_335B90 {
-    int pad00[3];
-    sVEnt_335B90* vt;
-};
-
-struct sNode_335B90 {
-    void* next;
-    int pad04;
-    int flags;
-    sObj_335B90* obj;
-    int pad10[20];
-    float bmin[3];
-    float bmax[3];
-    int pad78[4];
-    int active;
-};
-
-struct sCtx_335B90 {
-    sQuery_335B90* q;
-    char* buf;
-    int cap;
-    int* count;
-};
+typedef sSpaceHashBox* (*GetBox_335B90)(void*);
 
 extern "C" int cWorldIntType_testInstance(void* q, void* node, void* buf, int cap, int mode);
 
-static inline int overlapNode_335B90(const sQuery_335B90* q, const sNode_335B90* n)
+static inline int overlapNode_335B90(const cWorldIntType* q, const sWorldInstance* n)
 {
     int r = 0;
-    if (q->max[0] > n->bmin[0] && q->min[0] < n->bmax[0] &&
-        q->max[1] > n->bmin[1] && q->min[1] < n->bmax[1] &&
-        q->max[2] > n->bmin[2] && q->min[2] < n->bmax[2]) {
+    if (q->mMax.x > n->mMin[0] && q->mMin.x < n->mMax[0] &&
+        q->mMax.y > n->mMin[1] && q->mMin.y < n->mMax[1] &&
+        q->mMax.z > n->mMin[2] && q->mMin.z < n->mMax[2]) {
         r = 1;
     }
     return r;
 }
 
-static inline int overlapBox_335B90(const sQuery_335B90* q, const sBox_335B90* o)
+static inline int overlapBox_335B90(const cWorldIntType* q, const sSpaceHashBox* o)
 {
     int r = 0;
-    if (q->max[0] > o->min[0] && q->min[0] < o->max[0] &&
-        q->max[1] > o->min[1] && q->min[1] < o->max[1] &&
-        q->max[2] > o->min[2] && q->min[2] < o->max[2]) {
+    if (q->mMax.x > o->mMin.x && q->mMin.x < o->mMax.x &&
+        q->mMax.y > o->mMin.y && q->mMin.y < o->mMax.y &&
+        q->mMax.z > o->mMin.z && q->mMin.z < o->mMax.z) {
         r = 1;
     }
     return r;
 }
 
-static inline void collect_335B90(sCtx_335B90* ctx, sNode_335B90* node)
+static inline void collect_335B90(sSpaceHashCollect* ctx, sWorldInstance* node)
 {
-    int n = *ctx->count;
-    *ctx->count += cWorldIntType_testInstance(ctx->q, node, ctx->buf + n * 0x80, ctx->cap - n, 2);
+    int n = *ctx->mCount;
+    *ctx->mCount += cWorldIntType_testInstance(ctx->mQuery, node, &ctx->mHits[n], ctx->mCapacity - n, 2);
 }
 
 extern "C" void cSpaceHash_collectInstanceHit(void* vctx, void* vnode)
 {
-    sCtx_335B90* ctx = (sCtx_335B90*)vctx;
-    sNode_335B90* node = (sNode_335B90*)vnode;
-    if (node->active == 0) return;
-    int flags = node->flags;
+    sSpaceHashCollect* ctx = (sSpaceHashCollect*)vctx;
+    sWorldInstance* node = (sWorldInstance*)vnode;
+    if (node->mCollision == 0) return;
+    int flags = node->mFlags;
     if (flags & 0x20) {
-        if (overlapNode_335B90(ctx->q, node)) {
+        if (overlapNode_335B90(ctx->mQuery, node)) {
             collect_335B90(ctx, node);
         }
     } else if (flags & 0x40) {
-        if (node->obj == 0) return;
-        sVEnt_335B90* vt = node->obj->vt;
-        if (((Test_335B90)vt[44].fn)((char*)node->obj + vt[44].delta)) {
-            sVEnt_335B90* vt2 = node->obj->vt;
-            sBox_335B90* b = ((GetBox_335B90)vt2[45].fn)((char*)node->obj + vt2[45].delta);
-            if (overlapBox_335B90(ctx->q, b)) {
+        if (node->mEntity == 0) return;
+        sWorldVEntry* vt = node->mEntity->mVtable;
+        if (((Test_335B90)vt[44].mFn)((char*)node->mEntity + vt[44].mDelta)) {
+            sWorldVEntry* vt2 = node->mEntity->mVtable;
+            sSpaceHashBox* b = ((GetBox_335B90)vt2[45].mFn)((char*)node->mEntity + vt2[45].mDelta);
+            if (overlapBox_335B90(ctx->mQuery, b)) {
                 collect_335B90(ctx, node);
             }
         }
@@ -1106,18 +850,7 @@ extern "C" void cSpaceHash_collectInstanceHit(void* vctx, void* vnode)
 INCLUDE_ASM("intersect/worldsphtree", cSpaceHash_collectHits);
 
 //100% - objdiff report; single-function view differs only in a relocation name
-struct sHit_00336850 {
-    float pad0[16];
-    float dist;             // 0x40
-    int pad44[3];
-    char* obj;              // 0x50
-    char* tri;              // 0x54
-    int pad58[10];
-    sHit_00336850() {}
-} __attribute__((aligned(16)));
-
-struct sVEnt_00336850 { short delta; short index; float (*fn)(void*); };
-extern "C" int cSpaceHash_collectHits(void* self, void* q, sHit_00336850* hits, int max, int a4);
+extern "C" int cSpaceHash_collectHits(void* self, void* q, sWorldHit* hits, int max, int a4);
 
 // PORT: PS2 FPU abs.s via inline asm; use fabsf off-PS2.
 static inline float absf_00336850(float x)
@@ -1127,66 +860,38 @@ static inline float absf_00336850(float x)
     return r;
 }
 
-static inline int isBetter_00336850(sHit_00336850* a, sHit_00336850* b)
+static inline int isBetter_00336850(sWorldHit* a, sWorldHit* b)
 {
-    if (a->obj != 0) {
-        if (b->obj == 0) {
+    if (a->mInstance != 0) {
+        if (b->mInstance == 0) {
             return 1;
         }
-        return *(unsigned int*)(a->obj + 0x78) < *(unsigned int*)(b->obj + 0x78);
+        return ((sWorldInstance*)a->mInstance)->mResId < ((sWorldInstance*)b->mInstance)->mResId;
     }
-    if (b->obj != 0) {
+    if (b->mInstance != 0) {
         return 0;
     }
-    return *(unsigned int*)(a->tri + 0x150) < *(unsigned int*)(b->tri + 0x150);
+    return ((sTerrainPatch*)a->mPatch)->mKey < ((sTerrainPatch*)b->mPatch)->mKey;
 }
 
 INCLUDE_ASM("intersect/worldsphtree", cSpaceHash_queryNearest);
-extern "C" float cSpaceHash_queryNearest(void* self, char* q, sHit_00336850* out, int a3);
+extern "C" float cSpaceHash_queryNearest(void* self, char* q, sWorldHit* out, int a3);
 
 //100%
-struct sQuad_369D8 {
-    float x, y, z, w;
-} __attribute__((aligned(16)));
-
-struct sHit_003369D8 {
-    sQuad_369D8 p;          // 0x00
-    sQuad_369D8 n;          // 0x10
-    float pad20[8];         // 0x20
-    float dist;             // 0x40
-    int pad44[3];
-    char* obj;              // 0x50
-    char* tri;              // 0x54
-    int pad58[10];
-    sHit_003369D8() {}
-} __attribute__((aligned(16)));
-
-struct sQuery_369D8 {
-    void* seg;              // 0x00
-    sHit_003369D8* hits;    // 0x04
-    int max;                // 0x08
-    int* count;             // 0x0C
-    int f10;                // 0x10
-    void* f14;              // 0x14
-};
-
-struct sCell_369D8 {
-    int f0, f4, f8, fC;
-    void* node;             // 0x10
-};
-
-extern "C" void* cWorldLine_cWorldLine(void* seg, const sQuad_369D8& a, const sQuad_369D8& b, int n, float r);
-struct sCtx_369D8 {
-    float* pos;             // 0x0
-    char flags[8];          // 0x4
+extern "C" void* cWorldLine_cWorldLine(void* seg, const sSphereVec4& a, const sSphereVec4& b, int n, float r);
+// Ground probe handed down cSpaceHash_walkColumn (x/y column through the
+// octree at the probe position).
+struct sGroundProbe {
+    float* mPos;            // 0x0
+    char mFlags[8];         // 0x4
 };
 
 struct sTrav_369D8 {
     int count;              // 0x0
-    sCtx_369D8 ctx;         // 0x4
+    sGroundProbe ctx;       // 0x4
 };
 
-extern "C" void cSpaceHash_walkColumn(char* flag, sQuery_369D8* q, sQuery_369D8* q2, sCtx_369D8* ctx, void* node, sCell_369D8* cell);
+extern "C" void cSpaceHash_walkColumn(char* flag, sSpaceHashCollect* q, sSpaceHashCollect* q2, sGroundProbe* ctx, cSpaceHashNode* node, sSpaceHashCell* cell);
 
 // PORT: PS2 FPU abs.s via inline asm; use fabsf off-PS2.
 static inline float absf_003369D8(float x)
@@ -1203,116 +908,78 @@ static inline float clamp_003369D8(float v, float lo, float hi)
     return lo;
 }
 
-static inline int isBetter_003369D8(sHit_003369D8* a, sHit_003369D8* b)
+static inline int isBetter_003369D8(sWorldHit* a, sWorldHit* b)
 {
-    if (a->obj != 0) {
-        if (b->obj == 0) {
+    if (a->mInstance != 0) {
+        if (b->mInstance == 0) {
             return 1;
         }
-        return *(unsigned int*)(a->obj + 0x78) < *(unsigned int*)(b->obj + 0x78);
+        return ((sWorldInstance*)a->mInstance)->mResId < ((sWorldInstance*)b->mInstance)->mResId;
     }
-    if (b->obj != 0) {
+    if (b->mInstance != 0) {
         return 0;
     }
-    return *(unsigned int*)(a->tri + 0x150) < *(unsigned int*)(b->tri + 0x150);
+    return ((sTerrainPatch*)a->mPatch)->mKey < ((sTerrainPatch*)b->mPatch)->mKey;
 }
 
-static inline void visit_003369D8(sCell_369D8* c, char* flag, sQuery_369D8* q, sCtx_369D8* p)
+static inline void visit_003369D8(sSpaceHashRoot* c, char* flag, sSpaceHashCollect* q, sGroundProbe* p)
 {
-    cSpaceHash_walkColumn(flag, q, q, p, c->node, c);
+    cSpaceHash_walkColumn(flag, q, q, p, c->mNode, &c->mCell);
 }
 
 INCLUDE_ASM("intersect/worldsphtree", cSpaceHash_queryGround);
-extern "C" int cSpaceHash_queryGround(sCell_369D8* self, float* pos, sQuad_369D8* outP, sQuad_369D8* outN);
+extern "C" int cSpaceHash_queryGround(sSpaceHashRoot* self, float* pos, sSphereVec4* outP, sSphereVec4* outN);
 
 //100%
-struct sVEnt_336D40 { short delta; short index; void* fn; };
-struct sBox_336D40;
 typedef int (*Test_336D40)(void*);
-typedef sBox_336D40* (*GetBox_336D40)(void*);
-
-struct sBox_336D40 {
-    float min[4];
-    float max[4];
-};
-
-struct sQuery_336D40 {
-    char pad00[0x20];
-    float max[4];
-    float min[4];
-};
-
-struct sObj_336D40 {
-    int pad00[3];
-    sVEnt_336D40* vt;
-};
-
-struct sNode_336D40 {
-    void* next;
-    int pad04;
-    int flags;
-    sObj_336D40* obj;
-    int pad10[20];
-    float bmin[3];
-    float bmax[3];
-    int pad78[4];
-    int active;
-};
-
-struct sCtx_336D40 {
-    sQuery_336D40* q;
-    char* buf;
-    int cap;
-    int* count;
-    int full;
-};
+typedef sSpaceHashBox* (*GetBox_336D40)(void*);
 
 extern "C" int cWorldIntType_testInstance(void* q, void* node, void* buf, int cap, int mode);
 
-static inline int overlapNode_336D40(const sQuery_336D40* q, const sNode_336D40* n)
+static inline int overlapNode_336D40(const cWorldIntType* q, const sWorldInstance* n)
 {
     int r = 0;
-    if (q->max[0] > n->bmin[0] && q->min[0] < n->bmax[0] &&
-        q->max[1] > n->bmin[1] && q->min[1] < n->bmax[1] &&
-        q->max[2] > n->bmin[2] && q->min[2] < n->bmax[2]) {
+    if (q->mMax.x > n->mMin[0] && q->mMin.x < n->mMax[0] &&
+        q->mMax.y > n->mMin[1] && q->mMin.y < n->mMax[1] &&
+        q->mMax.z > n->mMin[2] && q->mMin.z < n->mMax[2]) {
         r = 1;
     }
     return r;
 }
 
-static inline int overlapBox_336D40(const sQuery_336D40* q, const sBox_336D40* o)
+static inline int overlapBox_336D40(const cWorldIntType* q, const sSpaceHashBox* o)
 {
     int r = 0;
-    if (q->max[0] > o->min[0] && q->min[0] < o->max[0] &&
-        q->max[1] > o->min[1] && q->min[1] < o->max[1] &&
-        q->max[2] > o->min[2] && q->min[2] < o->max[2]) {
+    if (q->mMax.x > o->mMin.x && q->mMin.x < o->mMax.x &&
+        q->mMax.y > o->mMin.y && q->mMin.y < o->mMax.y &&
+        q->mMax.z > o->mMin.z && q->mMin.z < o->mMax.z) {
         r = 1;
     }
     return r;
 }
 
-static inline void collect_336D40(sCtx_336D40* ctx, sNode_336D40* node, int mode)
+static inline void collect_336D40(sSpaceHashCollect* ctx, sWorldInstance* node, int mode)
 {
-    int n = *ctx->count;
-    *ctx->count += cWorldIntType_testInstance(ctx->q, node, ctx->buf + n * 0x80, ctx->cap - n, mode);
+    int n = *ctx->mCount;
+    *ctx->mCount += cWorldIntType_testInstance(ctx->mQuery, node, &ctx->mHits[n], ctx->mCapacity - n, mode);
 }
 
 extern "C" void cSpaceHash_collectSceneryHit(void* vctx, void* vnode)
 {
-    sCtx_336D40* ctx = (sCtx_336D40*)vctx;
-    sNode_336D40* node = (sNode_336D40*)vnode;
-    int mode = ctx->full ? 3 : 1;
-    int flags = node->flags;
+    sSpaceHashCollect* ctx = (sSpaceHashCollect*)vctx;
+    sWorldInstance* node = (sWorldInstance*)vnode;
+    int mode = ctx->mArg ? 3 : 1;
+    int flags = node->mFlags;
     if (flags & 0x20) {
-        if (overlapNode_336D40(ctx->q, node)) {
+        if (overlapNode_336D40(ctx->mQuery, node)) {
             collect_336D40(ctx, node, mode);
         }
     } else if (flags & 0x40) {
-        sVEnt_336D40* vt = node->obj->vt;
-        if (((Test_336D40)vt[44].fn)((char*)node->obj + vt[44].delta)) {
-            sVEnt_336D40* vt2 = node->obj->vt;
-            sBox_336D40* b = ((GetBox_336D40)vt2[45].fn)((char*)node->obj + vt2[45].delta);
-            if (overlapBox_336D40(ctx->q, b)) {
+        sWorldVEntry* vt = node->mEntity->mVtable;
+        if (((Test_336D40)vt[44].mFn)((char*)node->mEntity + vt[44].mDelta)) {
+            sWorldVEntry* vt2 = node->mEntity->mVtable;
+            sSpaceHashBox* b = ((GetBox_336D40)vt2[45].mFn)((char*)node->mEntity + vt2[45].mDelta);
+            if (overlapBox_336D40(ctx->mQuery, b)) {
                 collect_336D40(ctx, node, mode);
             }
         }
@@ -1322,18 +989,7 @@ extern "C" void cSpaceHash_collectSceneryHit(void* vctx, void* vnode)
 INCLUDE_ASM("intersect/worldsphtree", cSpaceHash_collectSceneryHits);
 
 //100% - objdiff report; single-function view differs only in a relocation name
-struct sHit_003378C0 {
-    float pad0[16];
-    float dist;             // 0x40
-    int pad44[3];
-    char* obj;              // 0x50
-    char* tri;              // 0x54
-    int pad58[10];
-    sHit_003378C0() {}
-} __attribute__((aligned(16)));
-
-struct sVEnt_003378C0 { short delta; short index; float (*fn)(void*); };
-extern "C" int cSpaceHash_collectSceneryHits(void* self, void* q, sHit_003378C0* hits, int max, int a4);
+extern "C" int cSpaceHash_collectSceneryHits(void* self, void* q, sWorldHit* hits, int max, int a4);
 
 // PORT: PS2 FPU abs.s via inline asm; use fabsf off-PS2.
 static inline float absf_003378C0(float x)
@@ -1343,22 +999,22 @@ static inline float absf_003378C0(float x)
     return r;
 }
 
-static inline int isBetter_003378C0(sHit_003378C0* a, sHit_003378C0* b)
+static inline int isBetter_003378C0(sWorldHit* a, sWorldHit* b)
 {
-    if (a->obj != 0) {
-        if (b->obj == 0) {
+    if (a->mInstance != 0) {
+        if (b->mInstance == 0) {
             return 1;
         }
-        return *(unsigned int*)(a->obj + 0x78) < *(unsigned int*)(b->obj + 0x78);
+        return ((sWorldInstance*)a->mInstance)->mResId < ((sWorldInstance*)b->mInstance)->mResId;
     }
-    if (b->obj != 0) {
+    if (b->mInstance != 0) {
         return 0;
     }
-    return *(unsigned int*)(a->tri + 0x150) < *(unsigned int*)(b->tri + 0x150);
+    return ((sTerrainPatch*)a->mPatch)->mKey < ((sTerrainPatch*)b->mPatch)->mKey;
 }
 
 INCLUDE_ASM("intersect/worldsphtree", cSpaceHash_queryNearestScenery);
-extern "C" float cSpaceHash_queryNearestScenery(void* self, char* q, sHit_003378C0* out, int a3);
+extern "C" float cSpaceHash_queryNearestScenery(void* self, char* q, sWorldHit* out, int a3);
 
 INCLUDE_ASM("intersect/worldsphtree", cSpaceHash_findNearestRail);
 
@@ -1378,134 +1034,111 @@ INCLUDE_ASM("intersect/worldsphtree", cOverlapList_walkAll);
 INCLUDE_ASM("intersect/worldsphtree", cSpaceHash_walkHits);
 
 //100%
-struct sQuery_369D8;
-struct sCtx_369D8;
-struct sCell_369D8;
 extern "C" void cSpaceHash_collectPatchHit(void* ctx, void* obj);
 extern "C" void cSpaceHash_collectInstanceHit(void* ctx, void* obj);
 extern "C" void cSpaceHash_collectSubtreeHits(void* self, void* ctx);
 
-struct sOct_DBE8 {
-    sOct_DBE8* child[8];            // 0x00
-    void** listB;                   // 0x20
-    void** listA;                   // 0x24
-};
-
-struct sCell_DBE8 {
-    int level;                      // 0x0
-    int x;                          // 0x4
-    int y;                          // 0x8
-    int z;                          // 0xC
-};
-
-struct sCtx_DBE8 {
-    float* pos;                     // 0x0
-};
-
-static inline int Classify_DBE8(sCtx_DBE8* ctx, sCell_DBE8* c)
+static inline int Classify_DBE8(sGroundProbe* ctx, sSpaceHashCell* c)
 {
-    int bits = (c->level + 0x7F) << 23;
+    int bits = (c->mLevel + 0x7F) << 23;
     float s = *(float*)&bits;
-    float* p = ctx->pos;
-    if (p[0] < ((float)c->x - 0.2f) * s) {
+    float* p = ctx->mPos;
+    if (p[0] < ((float)c->mX - 0.2f) * s) {
         return 1;
     }
-    if (((float)(c->x + 1) + 0.2f) * s < p[0]) {
+    if (((float)(c->mX + 1) + 0.2f) * s < p[0]) {
         return 1;
     }
-    if (p[1] < ((float)c->y - 0.2f) * s) {
+    if (p[1] < ((float)c->mY - 0.2f) * s) {
         return 1;
     }
-    if (((float)(c->y + 1) + 0.2f) * s < p[1]) {
+    if (((float)(c->mY + 1) + 0.2f) * s < p[1]) {
         return 1;
     }
     return 2;
 }
 
-extern "C" void cSpaceHash_walkColumn(char* flag, sQuery_369D8* q, sQuery_369D8* q2, sCtx_369D8* vctx, void* vnode, sCell_369D8* vcell)
+extern "C" void cSpaceHash_walkColumn(char* flag, sSpaceHashCollect* q, sSpaceHashCollect* q2, sGroundProbe* vctx, cSpaceHashNode* node, sSpaceHashCell* cell)
 {
-    sCtx_DBE8* ctx = (sCtx_DBE8*)vctx;
-    sOct_DBE8* node = (sOct_DBE8*)vnode;
-    sCell_DBE8* cell = (sCell_DBE8*)vcell;
-    int r = Classify_DBE8(ctx, cell);
+    int r = Classify_DBE8(vctx, cell);
     if (r == 0) {
-        void** o;
-        for (o = node->listA; o != 0; o = (void**)*o) {
+        sSpaceHashItem* o;
+        for (o = node->mLists[SPACEHASH_PATCHES].mHead; o != 0; o = o->mNext) {
             cSpaceHash_collectPatchHit(q2, o);
         }
-        for (o = node->listB; o != 0; o = (void**)*o) {
+        for (o = node->mLists[SPACEHASH_INSTANCES].mHead; o != 0; o = o->mNext) {
             cSpaceHash_collectInstanceHit(q2, o);
         }
-        if (node->child[0]) {
-            cSpaceHash_collectSubtreeHits(node->child[0], q2);
+        if (node->mChild[0][0][0]) {
+            cSpaceHash_collectSubtreeHits(node->mChild[0][0][0], q2);
         }
-        if (node->child[1]) {
-            cSpaceHash_collectSubtreeHits(node->child[1], q2);
+        if (node->mChild[0][0][1]) {
+            cSpaceHash_collectSubtreeHits(node->mChild[0][0][1], q2);
         }
-        if (node->child[2]) {
-            cSpaceHash_collectSubtreeHits(node->child[2], q2);
+        if (node->mChild[0][1][0]) {
+            cSpaceHash_collectSubtreeHits(node->mChild[0][1][0], q2);
         }
-        if (node->child[3]) {
-            cSpaceHash_collectSubtreeHits(node->child[3], q2);
+        if (node->mChild[0][1][1]) {
+            cSpaceHash_collectSubtreeHits(node->mChild[0][1][1], q2);
         }
-        if (node->child[4]) {
-            cSpaceHash_collectSubtreeHits(node->child[4], q2);
+        if (node->mChild[1][0][0]) {
+            cSpaceHash_collectSubtreeHits(node->mChild[1][0][0], q2);
         }
-        if (node->child[5]) {
-            cSpaceHash_collectSubtreeHits(node->child[5], q2);
+        if (node->mChild[1][0][1]) {
+            cSpaceHash_collectSubtreeHits(node->mChild[1][0][1], q2);
         }
-        if (node->child[6]) {
-            cSpaceHash_collectSubtreeHits(node->child[6], q2);
+        if (node->mChild[1][1][0]) {
+            cSpaceHash_collectSubtreeHits(node->mChild[1][1][0], q2);
         }
-        if (node->child[7]) {
-            cSpaceHash_collectSubtreeHits(node->child[7], q2);
+        if (node->mChild[1][1][1]) {
+            cSpaceHash_collectSubtreeHits(node->mChild[1][1][1], q2);
         }
     } else if (r == 2) {
-        void** o;
-        for (o = node->listA; o != 0; o = (void**)*o) {
+        sSpaceHashItem* o;
+        for (o = node->mLists[SPACEHASH_PATCHES].mHead; o != 0; o = o->mNext) {
             cSpaceHash_collectPatchHit(q, o);
         }
-        for (o = node->listB; o != 0; o = (void**)*o) {
+        for (o = node->mLists[SPACEHASH_INSTANCES].mHead; o != 0; o = o->mNext) {
             cSpaceHash_collectInstanceHit(q, o);
         }
-        if (cell->level == 11) {
+        if (cell->mLevel == 11) {
             return;
         }
-        sCell_DBE8 sub;
-        sub.level = cell->level - 1;
-        sub.x = cell->x * 2;
-        sub.y = cell->y * 2;
-        sub.z = cell->z * 2;
-        if (node->child[0]) {
-            cSpaceHash_walkColumn(flag, q, q2, vctx, node->child[0], (sCell_369D8*)&sub);
+        sSpaceHashCell sub;
+        sub.mLevel = cell->mLevel - 1;
+        sub.mX = cell->mX * 2;
+        sub.mY = cell->mY * 2;
+        sub.mZ = cell->mZ * 2;
+        if (node->mChild[0][0][0]) {
+            cSpaceHash_walkColumn(flag, q, q2, vctx, node->mChild[0][0][0], &sub);
         }
-        sub.x++;
-        if (node->child[4]) {
-            cSpaceHash_walkColumn(flag, q, q2, vctx, node->child[4], (sCell_369D8*)&sub);
+        sub.mX++;
+        if (node->mChild[1][0][0]) {
+            cSpaceHash_walkColumn(flag, q, q2, vctx, node->mChild[1][0][0], &sub);
         }
-        sub.y++;
-        if (node->child[6]) {
-            cSpaceHash_walkColumn(flag, q, q2, vctx, node->child[6], (sCell_369D8*)&sub);
+        sub.mY++;
+        if (node->mChild[1][1][0]) {
+            cSpaceHash_walkColumn(flag, q, q2, vctx, node->mChild[1][1][0], &sub);
         }
-        sub.x--;
-        if (node->child[2]) {
-            cSpaceHash_walkColumn(flag, q, q2, vctx, node->child[2], (sCell_369D8*)&sub);
+        sub.mX--;
+        if (node->mChild[0][1][0]) {
+            cSpaceHash_walkColumn(flag, q, q2, vctx, node->mChild[0][1][0], &sub);
         }
-        sub.z++;
-        if (node->child[3]) {
-            cSpaceHash_walkColumn(flag, q, q2, vctx, node->child[3], (sCell_369D8*)&sub);
+        sub.mZ++;
+        if (node->mChild[0][1][1]) {
+            cSpaceHash_walkColumn(flag, q, q2, vctx, node->mChild[0][1][1], &sub);
         }
-        sub.x++;
-        if (node->child[7]) {
-            cSpaceHash_walkColumn(flag, q, q2, vctx, node->child[7], (sCell_369D8*)&sub);
+        sub.mX++;
+        if (node->mChild[1][1][1]) {
+            cSpaceHash_walkColumn(flag, q, q2, vctx, node->mChild[1][1][1], &sub);
         }
-        sub.y--;
-        if (node->child[5]) {
-            cSpaceHash_walkColumn(flag, q, q2, vctx, node->child[5], (sCell_369D8*)&sub);
+        sub.mY--;
+        if (node->mChild[1][0][1]) {
+            cSpaceHash_walkColumn(flag, q, q2, vctx, node->mChild[1][0][1], &sub);
         }
-        sub.x--;
-        if (node->child[1]) {
-            cSpaceHash_walkColumn(flag, q, q2, vctx, node->child[1], (sCell_369D8*)&sub);
+        sub.mX--;
+        if (node->mChild[0][0][1]) {
+            cSpaceHash_walkColumn(flag, q, q2, vctx, node->mChild[0][0][1], &sub);
         }
     }
 }
@@ -1526,223 +1159,153 @@ void cWorldIntType_refinePatch__FPv(void* self)
 //100%
 float cWorldLine_getRadius__FPv(void* self)
 {
-    return *(float*)((char*)self + 0xA0);
+    cWorldLine* t = (cWorldLine*)self;
+    return t->mRadius;
 }
 
 //100%
 extern "C" float cWorldSphere_getRadius(void* self)
 {
-    if (*(int*)self == 0) {
+    cWorldSphere* t = (cWorldSphere*)self;
+    if (t->mKind == 0) {
         return -1.0f;
     }
-    return *(float*)((char*)self + 0x70) * 2.0f;
+    return t->mRadius * 2.0f;
 }
 
 //100%
-struct sOctNode_0A40 {
-    sOctNode_0A40* child[8];
-};
-
 // Visits node and every descendant with cOverlapList_collectNodeInstances.
-extern "C" void cOverlapList_collectSubtreeInstances(sOctNode_0A40* self, sCtx_3309D8* ctx)
+extern "C" void cOverlapList_collectSubtreeInstances(cSpaceHashNode* self, sOverlapSink* ctx)
 {
     cOverlapList_collectNodeInstances(ctx, self);
-    if (self->child[0] != 0) {
-        cOverlapList_collectSubtreeInstances(self->child[0], ctx);
+    if (self->mChild[0][0][0] != 0) {
+        cOverlapList_collectSubtreeInstances(self->mChild[0][0][0], ctx);
     }
-    if (self->child[1] != 0) {
-        cOverlapList_collectSubtreeInstances(self->child[1], ctx);
+    if (self->mChild[0][0][1] != 0) {
+        cOverlapList_collectSubtreeInstances(self->mChild[0][0][1], ctx);
     }
-    if (self->child[2] != 0) {
-        cOverlapList_collectSubtreeInstances(self->child[2], ctx);
+    if (self->mChild[0][1][0] != 0) {
+        cOverlapList_collectSubtreeInstances(self->mChild[0][1][0], ctx);
     }
-    if (self->child[3] != 0) {
-        cOverlapList_collectSubtreeInstances(self->child[3], ctx);
+    if (self->mChild[0][1][1] != 0) {
+        cOverlapList_collectSubtreeInstances(self->mChild[0][1][1], ctx);
     }
-    if (self->child[4] != 0) {
-        cOverlapList_collectSubtreeInstances(self->child[4], ctx);
+    if (self->mChild[1][0][0] != 0) {
+        cOverlapList_collectSubtreeInstances(self->mChild[1][0][0], ctx);
     }
-    if (self->child[5] != 0) {
-        cOverlapList_collectSubtreeInstances(self->child[5], ctx);
+    if (self->mChild[1][0][1] != 0) {
+        cOverlapList_collectSubtreeInstances(self->mChild[1][0][1], ctx);
     }
-    if (self->child[6] != 0) {
-        cOverlapList_collectSubtreeInstances(self->child[6], ctx);
+    if (self->mChild[1][1][0] != 0) {
+        cOverlapList_collectSubtreeInstances(self->mChild[1][1][0], ctx);
     }
-    if (self->child[7] != 0) {
-        cOverlapList_collectSubtreeInstances(self->child[7], ctx);
+    if (self->mChild[1][1][1] != 0) {
+        cOverlapList_collectSubtreeInstances(self->mChild[1][1][1], ctx);
     }
 }
 
 //100%
-struct sOctCollect {
-    void** arr;
-    int* count;
-};
-
-extern "C" void cOverlapList_collectSubtreeObjects(void* self, sOctCollect* out)
+extern "C" void cOverlapList_collectSubtreeObjects(void* self, sOverlapSink* out)
 {
-    void** p;
-    for (p = *(void***)((char*)self + 0x28); p != 0; p = (void**)*p) {
-        out->arr[(*out->count)++] = p;
+    cSpaceHashNode* t = (cSpaceHashNode*)self;
+    sSpaceHashItem* p;
+    for (p = t->mLists[SPACEHASH_OBJECTS].mHead; p != 0; p = p->mNext) {
+        out->mItems[(*out->mCount)++] = p;
     }
-    if (*(void**)((char*)self + 0x0)) cOverlapList_collectSubtreeObjects(*(void**)((char*)self + 0x0), out);
-    if (*(void**)((char*)self + 0x4)) cOverlapList_collectSubtreeObjects(*(void**)((char*)self + 0x4), out);
-    if (*(void**)((char*)self + 0x8)) cOverlapList_collectSubtreeObjects(*(void**)((char*)self + 0x8), out);
-    if (*(void**)((char*)self + 0xC)) cOverlapList_collectSubtreeObjects(*(void**)((char*)self + 0xC), out);
-    if (*(void**)((char*)self + 0x10)) cOverlapList_collectSubtreeObjects(*(void**)((char*)self + 0x10), out);
-    if (*(void**)((char*)self + 0x14)) cOverlapList_collectSubtreeObjects(*(void**)((char*)self + 0x14), out);
-    if (*(void**)((char*)self + 0x18)) cOverlapList_collectSubtreeObjects(*(void**)((char*)self + 0x18), out);
-    if (*(void**)((char*)self + 0x1C)) cOverlapList_collectSubtreeObjects(*(void**)((char*)self + 0x1C), out);
+    if (t->mChild[0][0][0]) cOverlapList_collectSubtreeObjects(t->mChild[0][0][0], out);
+    if (t->mChild[0][0][1]) cOverlapList_collectSubtreeObjects(t->mChild[0][0][1], out);
+    if (t->mChild[0][1][0]) cOverlapList_collectSubtreeObjects(t->mChild[0][1][0], out);
+    if (t->mChild[0][1][1]) cOverlapList_collectSubtreeObjects(t->mChild[0][1][1], out);
+    if (t->mChild[1][0][0]) cOverlapList_collectSubtreeObjects(t->mChild[1][0][0], out);
+    if (t->mChild[1][0][1]) cOverlapList_collectSubtreeObjects(t->mChild[1][0][1], out);
+    if (t->mChild[1][1][0]) cOverlapList_collectSubtreeObjects(t->mChild[1][1][0], out);
+    if (t->mChild[1][1][1]) cOverlapList_collectSubtreeObjects(t->mChild[1][1][1], out);
 }
 
 //100%
-struct sCtx_3309D8;
-extern "C" void cOverlapList_collectNodeInstances(sCtx_3309D8* ctx, void* tree);
+extern "C" void cOverlapList_collectNodeInstances(sOverlapSink* ctx, void* tree);
 
-struct sBox_340C20 {
-    float min[4];
-    float max[4];
-};
-
-struct sSub_340C20 {
-    void** list;
-    int* count;
-    int pad08;
-    sBox_340C20* box;
-};
-
-struct sCtx_340C20 {
-    sSub_340C20 nodes;
-    sSub_340C20 objs;
-};
-
-struct sObjNode_340C20 {
-    sObjNode_340C20* next;
-    int pad04[85];
-    float bmin[3];
-    float bmax[3];
-};
-
-struct sTree_340C20 {
-    sTree_340C20* child[8];
-    void* nodes;
-    sObjNode_340C20* objs;
-};
-
-static inline void add_340C20(sSub_340C20* s, void* p)
+static inline void add_340C20(sOverlapSink* s, void* p)
 {
-    int* cnt = s->count;
+    unsigned int* cnt = s->mCount;
     int n = *cnt;
-    s->list[n] = p;
+    s->mItems[n] = p;
     *cnt = n + 1;
 }
 
-static inline int overlap_340C20(const sBox_340C20* b, const sObjNode_340C20* n)
+static inline int overlap_340C20(const sSpaceHashBox* b, const sTerrainPatch* n)
 {
     int r = 0;
-    if (b->min[0] <= n->bmax[0] && b->max[0] >= n->bmin[0] &&
-        b->min[1] <= n->bmax[1] && b->max[1] >= n->bmin[1] &&
-        b->min[2] <= n->bmax[2] && b->max[2] >= n->bmin[2]) {
+    if (b->mMin.x <= n->mMax[0] && b->mMax.x >= n->mMin[0] &&
+        b->mMin.y <= n->mMax[1] && b->mMax.y >= n->mMin[1] &&
+        b->mMin.z <= n->mMax[2] && b->mMax.z >= n->mMin[2]) {
         r = 1;
     }
     return r;
 }
 
-extern "C" void cOverlapList_collectSubtreeInstancesPatches(sTree_340C20* self, sCtx_340C20* ctx)
+extern "C" void cOverlapList_collectSubtreeInstancesPatches(cSpaceHashNode* self, sOverlapBuild* ctx)
 {
-    cOverlapList_collectNodeInstances((sCtx_3309D8*)ctx, self);
-    sSub_340C20* s = &ctx->objs;
-    for (sObjNode_340C20* p = self->objs; p != 0; p = p->next) {
-        if (overlap_340C20(s->box, p)) {
+    cOverlapList_collectNodeInstances(&ctx->mInstances, self);
+    sOverlapSink* s = &ctx->mPatches;
+    for (sTerrainPatch* p = (sTerrainPatch*)self->mLists[SPACEHASH_PATCHES].mHead; p != 0; p = (sTerrainPatch*)p->mLink.mNext) {
+        if (overlap_340C20(s->mBox, p)) {
             add_340C20(s, p);
         }
     }
-    if (self->child[0]) cOverlapList_collectSubtreeInstancesPatches(self->child[0], ctx);
-    if (self->child[1]) cOverlapList_collectSubtreeInstancesPatches(self->child[1], ctx);
-    if (self->child[2]) cOverlapList_collectSubtreeInstancesPatches(self->child[2], ctx);
-    if (self->child[3]) cOverlapList_collectSubtreeInstancesPatches(self->child[3], ctx);
-    if (self->child[4]) cOverlapList_collectSubtreeInstancesPatches(self->child[4], ctx);
-    if (self->child[5]) cOverlapList_collectSubtreeInstancesPatches(self->child[5], ctx);
-    if (self->child[6]) cOverlapList_collectSubtreeInstancesPatches(self->child[6], ctx);
-    if (self->child[7]) cOverlapList_collectSubtreeInstancesPatches(self->child[7], ctx);
+    if (self->mChild[0][0][0]) cOverlapList_collectSubtreeInstancesPatches(self->mChild[0][0][0], ctx);
+    if (self->mChild[0][0][1]) cOverlapList_collectSubtreeInstancesPatches(self->mChild[0][0][1], ctx);
+    if (self->mChild[0][1][0]) cOverlapList_collectSubtreeInstancesPatches(self->mChild[0][1][0], ctx);
+    if (self->mChild[0][1][1]) cOverlapList_collectSubtreeInstancesPatches(self->mChild[0][1][1], ctx);
+    if (self->mChild[1][0][0]) cOverlapList_collectSubtreeInstancesPatches(self->mChild[1][0][0], ctx);
+    if (self->mChild[1][0][1]) cOverlapList_collectSubtreeInstancesPatches(self->mChild[1][0][1], ctx);
+    if (self->mChild[1][1][0]) cOverlapList_collectSubtreeInstancesPatches(self->mChild[1][1][0], ctx);
+    if (self->mChild[1][1][1]) cOverlapList_collectSubtreeInstancesPatches(self->mChild[1][1][1], ctx);
 }
 
 //100%
-struct sCtx_3309D8;
-extern "C" void cOverlapList_collectNodeInstances(sCtx_3309D8* ctx, void* tree);
+extern "C" void cOverlapList_collectNodeInstances(sOverlapSink* ctx, void* tree);
 
-struct sBox_340DC0 {
-    float min[4];
-    float max[4];
-};
-
-struct sSub_340DC0 {
-    void** list;
-    int* count;
-    int pad08;
-    sBox_340DC0* box;
-};
-
-struct sCtx_340DC0 {
-    sSub_340DC0 nodes;
-    sSub_340DC0 objs;
-    sSub_340DC0 all;
-};
-
-struct sObjNode_340DC0 {
-    sObjNode_340DC0* next;
-    int pad04[85];
-    float bmin[3];
-    float bmax[3];
-};
-
-struct sTree_340DC0 {
-    sTree_340DC0* child[8];
-    void* nodes;
-    sObjNode_340DC0* objs;
-    void** all;
-};
-
-static inline void add_340DC0(sSub_340DC0* s, void* p)
+static inline void add_340DC0(sOverlapSink* s, void* p)
 {
-    int* cnt = s->count;
+    unsigned int* cnt = s->mCount;
     int n = *cnt;
-    s->list[n] = p;
+    s->mItems[n] = p;
     *cnt = n + 1;
 }
 
-static inline int overlap_340DC0(const sBox_340DC0* b, const sObjNode_340DC0* n)
+static inline int overlap_340DC0(const sSpaceHashBox* b, const sTerrainPatch* n)
 {
     int r = 0;
-    if (b->min[0] <= n->bmax[0] && b->max[0] >= n->bmin[0] &&
-        b->min[1] <= n->bmax[1] && b->max[1] >= n->bmin[1] &&
-        b->min[2] <= n->bmax[2] && b->max[2] >= n->bmin[2]) {
+    if (b->mMin.x <= n->mMax[0] && b->mMax.x >= n->mMin[0] &&
+        b->mMin.y <= n->mMax[1] && b->mMax.y >= n->mMin[1] &&
+        b->mMin.z <= n->mMax[2] && b->mMax.z >= n->mMin[2]) {
         r = 1;
     }
     return r;
 }
 
-extern "C" void cOverlapList_collectSubtreeAll(sTree_340DC0* self, sCtx_340DC0* ctx)
+extern "C" void cOverlapList_collectSubtreeAll(cSpaceHashNode* self, sOverlapBuild* ctx)
 {
-    cOverlapList_collectNodeInstances((sCtx_3309D8*)ctx, self);
-    sSub_340DC0* s = &ctx->objs;
-    for (sObjNode_340DC0* p = self->objs; p != 0; p = p->next) {
-        if (overlap_340DC0(s->box, p)) {
+    cOverlapList_collectNodeInstances(&ctx->mInstances, self);
+    sOverlapSink* s = &ctx->mPatches;
+    for (sTerrainPatch* p = (sTerrainPatch*)self->mLists[SPACEHASH_PATCHES].mHead; p != 0; p = (sTerrainPatch*)p->mLink.mNext) {
+        if (overlap_340DC0(s->mBox, p)) {
             add_340DC0(s, p);
         }
     }
-    s = &ctx->all;
-    for (void** q = self->all; q != 0; q = (void**)*q) {
+    s = &ctx->mObjects;
+    for (sSpaceHashItem* q = self->mLists[SPACEHASH_OBJECTS].mHead; q != 0; q = q->mNext) {
         add_340DC0(s, q);
     }
-    if (self->child[0]) cOverlapList_collectSubtreeAll(self->child[0], ctx);
-    if (self->child[1]) cOverlapList_collectSubtreeAll(self->child[1], ctx);
-    if (self->child[2]) cOverlapList_collectSubtreeAll(self->child[2], ctx);
-    if (self->child[3]) cOverlapList_collectSubtreeAll(self->child[3], ctx);
-    if (self->child[4]) cOverlapList_collectSubtreeAll(self->child[4], ctx);
-    if (self->child[5]) cOverlapList_collectSubtreeAll(self->child[5], ctx);
-    if (self->child[6]) cOverlapList_collectSubtreeAll(self->child[6], ctx);
-    if (self->child[7]) cOverlapList_collectSubtreeAll(self->child[7], ctx);
+    if (self->mChild[0][0][0]) cOverlapList_collectSubtreeAll(self->mChild[0][0][0], ctx);
+    if (self->mChild[0][0][1]) cOverlapList_collectSubtreeAll(self->mChild[0][0][1], ctx);
+    if (self->mChild[0][1][0]) cOverlapList_collectSubtreeAll(self->mChild[0][1][0], ctx);
+    if (self->mChild[0][1][1]) cOverlapList_collectSubtreeAll(self->mChild[0][1][1], ctx);
+    if (self->mChild[1][0][0]) cOverlapList_collectSubtreeAll(self->mChild[1][0][0], ctx);
+    if (self->mChild[1][0][1]) cOverlapList_collectSubtreeAll(self->mChild[1][0][1], ctx);
+    if (self->mChild[1][1][0]) cOverlapList_collectSubtreeAll(self->mChild[1][1][0], ctx);
+    if (self->mChild[1][1][1]) cOverlapList_collectSubtreeAll(self->mChild[1][1][1], ctx);
 }
 
 //100% - objdiff report; single-function view differs only in a relocation name
@@ -1751,21 +1314,22 @@ extern "C" void cSpaceHash_collectInstanceHit(void* ctx, void* obj);
 
 extern "C" void cSpaceHash_collectSubtreeHits(void* self, void* ctx)
 {
-    void** p;
-    for (p = *(void***)((char*)self + 0x24); p != 0; p = (void**)*p) {
+    cSpaceHashNode* t = (cSpaceHashNode*)self;
+    sSpaceHashItem* p;
+    for (p = t->mLists[SPACEHASH_PATCHES].mHead; p != 0; p = p->mNext) {
         cSpaceHash_collectPatchHit(ctx, p);
     }
-    for (p = *(void***)((char*)self + 0x20); p != 0; p = (void**)*p) {
+    for (p = t->mLists[SPACEHASH_INSTANCES].mHead; p != 0; p = p->mNext) {
         cSpaceHash_collectInstanceHit(ctx, p);
     }
-    if (*(void**)((char*)self + 0x0)) cSpaceHash_collectSubtreeHits(*(void**)((char*)self + 0x0), ctx);
-    if (*(void**)((char*)self + 0x4)) cSpaceHash_collectSubtreeHits(*(void**)((char*)self + 0x4), ctx);
-    if (*(void**)((char*)self + 0x8)) cSpaceHash_collectSubtreeHits(*(void**)((char*)self + 0x8), ctx);
-    if (*(void**)((char*)self + 0xC)) cSpaceHash_collectSubtreeHits(*(void**)((char*)self + 0xC), ctx);
-    if (*(void**)((char*)self + 0x10)) cSpaceHash_collectSubtreeHits(*(void**)((char*)self + 0x10), ctx);
-    if (*(void**)((char*)self + 0x14)) cSpaceHash_collectSubtreeHits(*(void**)((char*)self + 0x14), ctx);
-    if (*(void**)((char*)self + 0x18)) cSpaceHash_collectSubtreeHits(*(void**)((char*)self + 0x18), ctx);
-    if (*(void**)((char*)self + 0x1C)) cSpaceHash_collectSubtreeHits(*(void**)((char*)self + 0x1C), ctx);
+    if (t->mChild[0][0][0]) cSpaceHash_collectSubtreeHits(t->mChild[0][0][0], ctx);
+    if (t->mChild[0][0][1]) cSpaceHash_collectSubtreeHits(t->mChild[0][0][1], ctx);
+    if (t->mChild[0][1][0]) cSpaceHash_collectSubtreeHits(t->mChild[0][1][0], ctx);
+    if (t->mChild[0][1][1]) cSpaceHash_collectSubtreeHits(t->mChild[0][1][1], ctx);
+    if (t->mChild[1][0][0]) cSpaceHash_collectSubtreeHits(t->mChild[1][0][0], ctx);
+    if (t->mChild[1][0][1]) cSpaceHash_collectSubtreeHits(t->mChild[1][0][1], ctx);
+    if (t->mChild[1][1][0]) cSpaceHash_collectSubtreeHits(t->mChild[1][1][0], ctx);
+    if (t->mChild[1][1][1]) cSpaceHash_collectSubtreeHits(t->mChild[1][1][1], ctx);
 }
 
 //100% - objdiff report; single-function view differs only in a relocation name
@@ -1773,54 +1337,56 @@ extern "C" void cSpaceHash_collectSceneryHit(void* ctx, void* obj);
 
 extern "C" void cSpaceHash_collectSubtreeSceneryHits(void* self, void* ctx)
 {
-    void** p;
-    for (p = *(void***)((char*)self + 0x20); p != 0; p = (void**)*p) {
+    cSpaceHashNode* t = (cSpaceHashNode*)self;
+    sSpaceHashItem* p;
+    for (p = t->mLists[SPACEHASH_INSTANCES].mHead; p != 0; p = p->mNext) {
         cSpaceHash_collectSceneryHit(ctx, p);
     }
-    if (*(void**)((char*)self + 0x0)) cSpaceHash_collectSubtreeSceneryHits(*(void**)((char*)self + 0x0), ctx);
-    if (*(void**)((char*)self + 0x4)) cSpaceHash_collectSubtreeSceneryHits(*(void**)((char*)self + 0x4), ctx);
-    if (*(void**)((char*)self + 0x8)) cSpaceHash_collectSubtreeSceneryHits(*(void**)((char*)self + 0x8), ctx);
-    if (*(void**)((char*)self + 0xC)) cSpaceHash_collectSubtreeSceneryHits(*(void**)((char*)self + 0xC), ctx);
-    if (*(void**)((char*)self + 0x10)) cSpaceHash_collectSubtreeSceneryHits(*(void**)((char*)self + 0x10), ctx);
-    if (*(void**)((char*)self + 0x14)) cSpaceHash_collectSubtreeSceneryHits(*(void**)((char*)self + 0x14), ctx);
-    if (*(void**)((char*)self + 0x18)) cSpaceHash_collectSubtreeSceneryHits(*(void**)((char*)self + 0x18), ctx);
-    if (*(void**)((char*)self + 0x1C)) cSpaceHash_collectSubtreeSceneryHits(*(void**)((char*)self + 0x1C), ctx);
+    if (t->mChild[0][0][0]) cSpaceHash_collectSubtreeSceneryHits(t->mChild[0][0][0], ctx);
+    if (t->mChild[0][0][1]) cSpaceHash_collectSubtreeSceneryHits(t->mChild[0][0][1], ctx);
+    if (t->mChild[0][1][0]) cSpaceHash_collectSubtreeSceneryHits(t->mChild[0][1][0], ctx);
+    if (t->mChild[0][1][1]) cSpaceHash_collectSubtreeSceneryHits(t->mChild[0][1][1], ctx);
+    if (t->mChild[1][0][0]) cSpaceHash_collectSubtreeSceneryHits(t->mChild[1][0][0], ctx);
+    if (t->mChild[1][0][1]) cSpaceHash_collectSubtreeSceneryHits(t->mChild[1][0][1], ctx);
+    if (t->mChild[1][1][0]) cSpaceHash_collectSubtreeSceneryHits(t->mChild[1][1][0], ctx);
+    if (t->mChild[1][1][1]) cSpaceHash_collectSubtreeSceneryHits(t->mChild[1][1][1], ctx);
 }
 
 extern "C" void* __sti__worldsphtree_cpp(int, int);
 
 //100%
 struct sCtx_3411B8 {
-    sWsVec4* pos;               // 0x00
+    sSphereVec4* pos;           // 0x00
     int a2;                     // 0x04
     int mask;                   // 0x08
     int* cnt;                   // 0x0C
     float* dist;                // 0x10
-    sBox_00334680* box;         // 0x14
+    sSpaceHashBox* box;         // 0x14
 };
 
 extern "C" void cSpaceHash_collectSubtreeRails(void* self, sCtx_3411B8* ctx)
 {
-    for (char* o = *(char**)((char*)self + 0x28); o != 0; o = *(char**)o) {
-        int type = *(int*)(o + 8);
+    cSpaceHashNode* t = (cSpaceHashNode*)self;
+    for (sSpaceHashObject* o = (sSpaceHashObject*)t->mLists[SPACEHASH_OBJECTS].mHead; o != 0; o = (sSpaceHashObject*)o->mLink.mNext) {
+        int type = o->mType;
         if (type == 2) {
-            func_0035C698(*(void**)(o + 0xC), ctx->box, ctx->box, ctx->pos, ctx->mask, ctx->cnt, ctx->dist, ctx->a2);
+            func_0035C698(o->mObject, ctx->box, ctx->box, ctx->pos, ctx->mask, ctx->cnt, ctx->dist, ctx->a2);
         } else if (type == 3) {
-            func_00348290(*(void**)(o + 0xC), ctx->box, ctx->box, ctx->pos, ctx->mask, ctx->cnt, ctx->dist, ctx->a2);
+            func_00348290(o->mObject, ctx->box, ctx->box, ctx->pos, ctx->mask, ctx->cnt, ctx->dist, ctx->a2);
         } else if (type == 1) {
-            if (*(int*)(*(char**)(o + 0x68) + 0x1C) & ctx->mask) {
+            if (((sRailSegment*)o)->mSpline->mFlags & ctx->mask) {
                 cRailSegment_findClosestPoint(o, ctx->box, ctx->pos, ctx->cnt, ctx->dist, ctx->a2);
             }
         }
     }
-    if (*(void**)((char*)self + 0x0)) cSpaceHash_collectSubtreeRails(*(void**)((char*)self + 0x0), ctx);
-    if (*(void**)((char*)self + 0x4)) cSpaceHash_collectSubtreeRails(*(void**)((char*)self + 0x4), ctx);
-    if (*(void**)((char*)self + 0x8)) cSpaceHash_collectSubtreeRails(*(void**)((char*)self + 0x8), ctx);
-    if (*(void**)((char*)self + 0xC)) cSpaceHash_collectSubtreeRails(*(void**)((char*)self + 0xC), ctx);
-    if (*(void**)((char*)self + 0x10)) cSpaceHash_collectSubtreeRails(*(void**)((char*)self + 0x10), ctx);
-    if (*(void**)((char*)self + 0x14)) cSpaceHash_collectSubtreeRails(*(void**)((char*)self + 0x14), ctx);
-    if (*(void**)((char*)self + 0x18)) cSpaceHash_collectSubtreeRails(*(void**)((char*)self + 0x18), ctx);
-    if (*(void**)((char*)self + 0x1C)) cSpaceHash_collectSubtreeRails(*(void**)((char*)self + 0x1C), ctx);
+    if (t->mChild[0][0][0]) cSpaceHash_collectSubtreeRails(t->mChild[0][0][0], ctx);
+    if (t->mChild[0][0][1]) cSpaceHash_collectSubtreeRails(t->mChild[0][0][1], ctx);
+    if (t->mChild[0][1][0]) cSpaceHash_collectSubtreeRails(t->mChild[0][1][0], ctx);
+    if (t->mChild[0][1][1]) cSpaceHash_collectSubtreeRails(t->mChild[0][1][1], ctx);
+    if (t->mChild[1][0][0]) cSpaceHash_collectSubtreeRails(t->mChild[1][0][0], ctx);
+    if (t->mChild[1][0][1]) cSpaceHash_collectSubtreeRails(t->mChild[1][0][1], ctx);
+    if (t->mChild[1][1][0]) cSpaceHash_collectSubtreeRails(t->mChild[1][1][0], ctx);
+    if (t->mChild[1][1][1]) cSpaceHash_collectSubtreeRails(t->mChild[1][1][1], ctx);
 }
 
 //99.38%

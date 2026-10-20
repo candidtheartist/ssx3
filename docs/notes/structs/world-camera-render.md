@@ -203,7 +203,7 @@ A placed world instance (static or entity-driven); also called stage instance an
 | +0x6C | vec3 | Bounds max | PS2 |
 | +0x78 | u32 | Resource id; stored in rider +0x5B8 by 0x00104E70; tie-break in 0x00336850 (lower first) | PS2 |
 | +0x7D | u8 | Streaming chunk index (with +0x7E) checked by the static draw collector 0x0022A5A0 | |
-| +0x88 | ptr | Instance collision descriptor in the loaded kind16 data | PS2 |
+| +0x88 | ptr | Instance collision descriptor in the loaded kind16 data; the hit collectors (0x00333EF8, 0x00335B90) skip the instance when it is 0 | PS2 |
 
 ## World entity
 
@@ -335,9 +335,15 @@ Terrain patch used by collision and rendering. Patches are listed per octree/sco
 
 ## Octree / scope node
 
+Space hash octree node, 0x2C bytes (`cSpaceHashNode` in `include/intersect/spacehash.h`). List items are linked
+{next, prev} at item +0x0 and pushed at the head.
+
 | Offset | Type | Meaning | Evidence |
 |---|---|---|---|
+| +0x0 | ptr[2][2][2] | Children indexed [x][y][z] (flat index x*4 + y*2 + z) | |
+| +0x20 | list | World instance list | |
 | +0x24 | list | Terrain patch list of the node (scanned by 0x00332DB8) | PS2 |
+| +0x28 | list | Other objects (+0x8 type: 1 static rail segment, 2 object rail, 3 flex rail, 6 light) | |
 
 ## Terrain contact cache payload
 

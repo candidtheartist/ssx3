@@ -198,9 +198,12 @@ through `0x003342D0` with +0x864) share them, and entering control 8 does not cl
 overlapping patches is reported at a seam depends on this cache. **(PS2)**
 
 **Octree.** The walks (`0x00335D78`, `0x0033CCF8`, `0x00340FA0`) visit children in the order
-0,1,3,2,6,7,5,4. `0x00332DB8` builds its scope list in the same Gray order for partially covered cells.
+0,1,3,2,6,7,5,4, numbering a child x + 2y + 4z (in memory child [x][y][z] sits at node + 4 * (4x + 2y + z),
+so the slot order is 0,4,6,2,3,7,5,1). `0x00332DB8` builds its scope list in the same Gray order for partially covered cells.
 Patches and instances are inserted at list heads. Collision ignores texture-streaming chunks:
 `0x00335960`, `0x0033CCF8` and `0x00335D78` test only the patch flags at patch+0x0A.
+Layouts: the space hash, its 0x2C-byte nodes and the list items are in `include/intersect/spacehash.h`; the
+0xA14-byte scope list (cOverlapList) is in `include/intersect/overlaplist.h`.
 
 **Whole-world query `0x00336850`** (used by the crashbag rigid bodies). It keeps the packet whose depth is
 closest to -1; ties go instance before terrain, then lower instance+0x78, then lower
