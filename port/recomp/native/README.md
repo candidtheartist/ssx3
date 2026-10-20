@@ -36,6 +36,8 @@ A function is picked only when its native copy is certain to do what the recompi
   `double` or `bool`, whose sizes differ between the EE and the host.
 - On the host it touches no data its own unit defines, since that copy would not be the game's. It may use globals the
   unit declares `extern`, plus the compiler's own constants and jump tables.
+- It declares every function it calls with the arguments that function takes. On the EE a caller that passes fewer
+  still "works", because the callee reads whatever is left in the argument registers; natively it would not.
 - Everything it calls is picked too, or is a C library function the host does the same job with (`strlen`,
   `memcpy`, ...).
 
