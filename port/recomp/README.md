@@ -244,6 +244,10 @@ or any disc file.
   - idle GS workers woken one by one: the thread that queues draws wakes one, and each woken worker wakes
     the next. That thread is the VU1 thread, which limits the frame rate in busy scenes (93 to 99% busy on the
     Windows PC while the game ran slow), and waking all six at once cost it about an eighth of its time;
+  - draws queued in runs: a primitive with the same draw state and rounding mode as the one before it, which
+    the workers can run straight after it, joins that one's command, up to 64 to a command. SSX 3 queues about
+    1.3 million primitives a second in busy scenes, and each command cost the VU1 thread a queue slot, a lock
+    and a copy of the draw state;
   - a fix for a picture that stopped changing while the game went on. A presentation request queued while the
     thread that queues draws was waiting for room in a full queue was overwritten by that thread's next draw, so
     the window kept its last frame for the rest of the session. A 4-core Linux machine, where the queue is often

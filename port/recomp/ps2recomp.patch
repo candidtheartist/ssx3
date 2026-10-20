@@ -1799,10 +1799,10 @@ index 1cb1540..7d2ac28 100644
  }
 diff --git a/ps2xRuntime/include/runtime/gs/gs_threaded_backend.h b/ps2xRuntime/include/runtime/gs/gs_threaded_backend.h
 new file mode 100644
-index 0000000..a49106d
+index 0000000..1cff8d3
 --- /dev/null
 +++ b/ps2xRuntime/include/runtime/gs/gs_threaded_backend.h
-@@ -0,0 +1,248 @@
+@@ -0,0 +1,282 @@
 +#pragma once
 +
 +#include "runtime/gs/gs_backend.h"
@@ -1907,10 +1907,9 @@ index 0000000..a49106d
 +        std::array<uint32_t, kPageCount> m_layout{};
 +    };
 +
-+    struct Command
++    // How the workers run a command, worked out as it is queued.
++    struct DrawPlan
 +    {
-+        CommandKind kind = CommandKind::Submit;
-+        int roundingMode = 0;
 +        // Every worker finishes the commands before this one first.
 +        bool waitForAll = false;
 +        // Runs once, on the first worker's backend, for all rows, while the others wait.
@@ -1924,7 +1923,28 @@ index 0000000..a49106d
 +        // The draws to them are done by then, and later ones wait for every worker to
 +        // get past this command.
 +        PageTracker::PageSet refresh{};
++    };
++
++    // A primitive drawn with the one before it in the same command.
++    struct RunPrimitive
++    {
++        std::array<GSVertex, 3> vertices{};
++        uint8_t vertexCount = 0;
++        uint32_t workers = ~0u;
++    };
++
++    struct Command : DrawPlan
++    {
++        CommandKind kind = CommandKind::Submit;
++        int roundingMode = 0;
++        // A Submit's first primitive, and the draw state of all of them. Those after it,
++        // drawn with the same state, are m_runPrimitives[runBegin] to [runEnd - 1] (by
++        // their number modulo its size); `workers` covers them all.
 +        GSPrimitiveBatch batch{};
++        uint64_t runBegin = 0;
++        uint64_t runEnd = 0;
++        // The workers that draw a row the first primitive can reach.
++        uint32_t firstWorkers = ~0u;
 +        GSTex0Reg tex0{};
 +        GSTexClutReg texclut{};
 +        GSTransferCommand transfer{};
@@ -1975,11 +1995,17 @@ index 0000000..a49106d
 +    // round hasn't reached yet.
 +    void wakeNextWorker(size_t self) const;
 +    void waitForQueuedWork() const;
-+    void classifySubmit(Command &command);
++    void classifySubmit(const GSPrimitiveBatch &batch, DrawPlan &plan);
 +    // readsOwnPixels: each pixel the draw writes to drawn[0] reads only itself.
-+    void classifyDraw(Command &command, const PageTracker::Access *drawn, size_t count,
++    void classifyDraw(DrawPlan &plan, const PageTracker::Access *drawn, size_t count,
 +                      const PageTracker::PageSet &textured, bool readsOwnPixels);
-+    void markRunAlone(Command &command);
++    void markRunAlone(DrawPlan &plan);
++    // With m_queueMutex held, queues the Submit still taking primitives, if there is one.
++    void closeRun();
++    // Makes the command in the slot after the last queued one visible to the workers.
++    void publishCommand();
++    // With m_queueMutex held, waits until a primitive can be added to m_runPrimitives.
++    void waitForRunRoom(std::unique_lock<ps2_host_sync::Mutex> &lock);
 +    // The workers that draw a row from y0 to y1.
 +    uint32_t workersForRows(int y0, int y1) const;
 +    // The end of the run of commands from the ring's command `begin`, a runAlone one, that
@@ -2023,8 +2049,16 @@ index 0000000..a49106d
 +    uint64_t m_lastTransferCommand = 0;
 +    // Workers waiting for commands, changed with m_wakeMutex held.
 +    std::atomic<size_t> m_idleWorkers{0};
-+    // Commands queued since idle workers were last woken, with m_queueMutex held.
++    // Primitives queued since idle workers were last woken, with m_queueMutex held.
 +    mutable uint64_t m_unwokenCommands = 0;
++    // Primitives drawn with the one before them in their command, and the number of the
++    // next one, with m_queueMutex held. Each Submit takes primitives with the same state
++    // and rounding mode until something else is queued, so a run of a mesh's triangles
++    // costs the VU1 thread, which queues them, one command rather than one each.
++    std::vector<RunPrimitive> m_runPrimitives;
++    uint64_t m_nextRunPrimitive = 0;
++    // The Submit in the slot after the last queued one still takes primitives.
++    bool m_runOpen = false;
 +    // Threads waiting in waitForCompleted, and the lowest count they wait for.
 +    mutable std::atomic<uint32_t> m_completionWaiters{0};
 +    mutable std::atomic<uint64_t> m_completionTarget{UINT64_MAX};
@@ -2051,6 +2085,99 @@ index 0000000..a49106d
 +    bool m_presentQueued = false;
 +    PresentationFrame m_lastPresented;
 +};
+diff --git a/ps2xRuntime/include/runtime/gs/gs_types.h b/ps2xRuntime/include/runtime/gs/gs_types.h
+index 836a3ff..b7c6feb 100644
+--- a/ps2xRuntime/include/runtime/gs/gs_types.h
++++ b/ps2xRuntime/include/runtime/gs/gs_types.h
+@@ -123,6 +123,8 @@ struct GSFrameReg
+     uint32_t fbw = 0;
+     uint8_t psm = 0;
+     uint32_t fbmsk = 0;
++
++    bool operator==(const GSFrameReg &) const = default;
+ };
+ 
+ struct GSZbufReg
+@@ -130,6 +132,8 @@ struct GSZbufReg
+     uint32_t zbp = 0;
+     uint8_t psm = 0;
+     bool zmask = false;
++
++    bool operator==(const GSZbufReg &) const = default;
+ };
+ 
+ struct GSScissorReg
+@@ -138,6 +142,8 @@ struct GSScissorReg
+     uint16_t x1 = 0;
+     uint16_t y0 = 0;
+     uint16_t y1 = 0;
++
++    bool operator==(const GSScissorReg &) const = default;
+ };
+ 
+ struct GSTex0Reg
+@@ -154,12 +160,16 @@ struct GSTex0Reg
+     uint8_t csm = 0;
+     uint8_t csa = 0;
+     uint8_t cld = 0;
++
++    bool operator==(const GSTex0Reg &) const = default;
+ };
+ 
+ struct GSXYOffsetReg
+ {
+     uint16_t ofx = 0;
+     uint16_t ofy = 0;
++
++    bool operator==(const GSXYOffsetReg &) const = default;
+ };
+ 
+ struct GSTexaReg
+@@ -167,6 +177,8 @@ struct GSTexaReg
+     uint8_t ta0 = 0;
+     bool aem = false;
+     uint8_t ta1 = 0;
++
++    bool operator==(const GSTexaReg &) const = default;
+ };
+ 
+ struct GSTexClutReg
+@@ -174,6 +186,8 @@ struct GSTexClutReg
+     uint8_t cbw = 0;
+     uint8_t cou = 0;
+     uint16_t cov = 0;
++
++    bool operator==(const GSTexClutReg &) const = default;
+ };
+ 
+ struct GSContext
+@@ -190,6 +204,8 @@ struct GSContext
+     uint64_t alpha = 0;
+     uint64_t test = 0;
+     uint64_t fba = 0;
++
++    bool operator==(const GSContext &) const = default;
+ };
+ 
+ struct GSPrimReg
+@@ -203,6 +219,8 @@ struct GSPrimReg
+     bool fst = false;
+     bool ctxt = false;
+     bool fix = false;
++
++    bool operator==(const GSPrimReg &) const = default;
+ };
+ 
+ struct GSBitBltBuf
+@@ -247,6 +265,8 @@ struct GSDrawState
+     uint16_t textureWidth = 1;
+     uint16_t textureHeight = 1;
+     bool linearFilter = false;
++
++    bool operator==(const GSDrawState &) const = default;
+ };
+ 
+ struct GSPrimitiveBatch
 diff --git a/ps2xRuntime/include/runtime/gs/ps2_gs_memory.h b/ps2xRuntime/include/runtime/gs/ps2_gs_memory.h
 index c784ff7..d6dc38a 100644
 --- a/ps2xRuntime/include/runtime/gs/ps2_gs_memory.h
@@ -6044,10 +6171,10 @@ index f0ad507..d816ecd 100644
      return false;
 diff --git a/ps2xRuntime/src/lib/gs/gs_threaded_backend.cpp b/ps2xRuntime/src/lib/gs/gs_threaded_backend.cpp
 new file mode 100644
-index 0000000..161e960
+index 0000000..924e8e3
 --- /dev/null
 +++ b/ps2xRuntime/src/lib/gs/gs_threaded_backend.cpp
-@@ -0,0 +1,1138 @@
+@@ -0,0 +1,1233 @@
 +#include "runtime/gs/gs_threaded_backend.h"
 +#include "runtime/gs/ps2_gs_common.h"
 +#include "runtime/ps2_host_fpu.h"
@@ -6073,6 +6200,20 @@ index 0000000..161e960
 +    // one: a race can queue 30,000 draws a frame, and waking several threads costs the
 +    // EE a system call, and the lock it then waits for, each time.
 +    constexpr uint64_t kWakeBatch = 32u;
++    // Primitives a Submit takes at most, and room for the runs of a full queue's worth of
++    // them (each primitive's slot is reused once every worker has run its command).
++    constexpr uint64_t kMaxRunLength = 64u;
++    constexpr uint64_t kRunPrimitives = 65536u;
++
++    bool noPages(const std::array<uint64_t, 8> &pages)
++    {
++        for (uint64_t word : pages)
++        {
++            if (word != 0u)
++                return false;
++        }
++        return true;
++    }
 +
 +    struct PageExtent
 +    {
@@ -6421,6 +6562,7 @@ index 0000000..161e960
 +    m_ring.resize(kRingSize);
 +    m_progress = std::make_unique<WorkerProgress[]>(count);
 +    m_sleep = std::make_unique<WorkerSleep[]>(count);
++    m_runPrimitives.resize(kRunPrimitives);
 +    for (unsigned i = 0; i < count; ++i)
 +    {
 +        m_workers[i].backend = std::make_unique<GSCpuBackend>();
@@ -6448,6 +6590,7 @@ index 0000000..161e960
 +
 +GSThreadedBackend::Command &GSThreadedBackend::beginCommand(std::unique_lock<ps2_host_sync::Mutex> &lock, CommandKind kind, bool mayWait)
 +{
++    closeRun();
 +    const uint64_t submitted = m_submitted.load(std::memory_order_relaxed);
 +    if (mayWait && submitted >= kMaxPendingCommands && completedCommands() + kMaxPendingCommands <= submitted)
 +        waitForCompleted(lock, submitted - kMaxPendingCommands + kRefillCommands);
@@ -6457,19 +6600,54 @@ index 0000000..161e960
 +    command = Command{};
 +    command.kind = kind;
 +    command.roundingMode = ps2_host_fpu::getRounding();
++    command.runBegin = m_nextRunPrimitive;
++    command.runEnd = m_nextRunPrimitive;
 +    return command;
 +}
 +
 +void GSThreadedBackend::endCommand(std::unique_lock<ps2_host_sync::Mutex> &lock)
++{
++    publishCommand();
++    lock.unlock();
++}
++
++void GSThreadedBackend::publishCommand()
 +{
 +    // Workers already awake see the command at once. Idle ones are woken for a batch,
 +    // for a command they all wait at, and before anything waits for them (so a short
 +    // batch never waits long: the presentation request comes every frame and wakes them).
 +    const Command &command = m_ring[m_submitted.load(std::memory_order_relaxed) % kRingSize];
 +    m_submitted.fetch_add(1u);
-+    if (++m_unwokenCommands >= kWakeBatch || command.waitForAll || command.runAlone)
++    m_unwokenCommands += 1u + (command.runEnd - command.runBegin);
++    if (m_unwokenCommands >= kWakeBatch || command.waitForAll || command.runAlone)
 +        wakeIdleWorkers();
-+    lock.unlock();
++}
++
++void GSThreadedBackend::closeRun()
++{
++    if (m_runOpen)
++    {
++        m_runOpen = false;
++        publishCommand();
++    }
++}
++
++void GSThreadedBackend::waitForRunRoom(std::unique_lock<ps2_host_sync::Mutex> &lock)
++{
++    for (;;)
++    {
++        // The oldest primitive still needed is the first of the oldest command a worker
++        // hasn't run yet, or of the open run.
++        const uint64_t submitted = m_submitted.load(std::memory_order_relaxed);
++        const uint64_t completed = completedCommands();
++        uint64_t oldest = m_nextRunPrimitive;
++        if (completed < submitted || m_runOpen)
++            oldest = m_ring[completed % kRingSize].runBegin;
++        if (m_nextRunPrimitive - oldest < kRunPrimitives)
++            return;
++        // The open run holds at most kMaxRunLength of them, so the queued commands do.
++        waitForCompleted(lock, completed + std::max<uint64_t>(1u, (submitted - completed) / 2u));
++    }
 +}
 +
 +void GSThreadedBackend::wakeIdleWorkers() const
@@ -6543,12 +6721,15 @@ index 0000000..161e960
 +void GSThreadedBackend::waitForQueuedWork() const
 +{
 +    std::unique_lock<ps2_host_sync::Mutex> lock(m_queueMutex);
++    // The calls that return VRAM contents are const, but the primitives of an open run
++    // are drawn before them.
++    const_cast<GSThreadedBackend *>(this)->closeRun();
 +    waitForCompleted(lock, m_submitted.load());
 +}
 +
-+void GSThreadedBackend::markRunAlone(Command &command)
++void GSThreadedBackend::markRunAlone(DrawPlan &plan)
 +{
-+    command.runAlone = true;
++    plan.runAlone = true;
 +    m_pages.Clear();
 +}
 +
@@ -6617,7 +6798,7 @@ index 0000000..161e960
 +    return end;
 +}
 +
-+void GSThreadedBackend::classifyDraw(Command &command, const PageTracker::Access *drawn, size_t count,
++void GSThreadedBackend::classifyDraw(DrawPlan &plan, const PageTracker::Access *drawn, size_t count,
 +                                     const PageTracker::PageSet &textured, bool readsOwnPixels)
 +{
 +    if (m_workers.size() <= 1u)
@@ -6638,7 +6819,7 @@ index 0000000..161e960
 +        // The first worker reads its textures from VRAM.
 +        for (size_t i = 0; i < count; ++i)
 +            markDrawn(drawn[i].pages);
-+        markRunAlone(command);
++        markRunAlone(plan);
 +        return;
 +    }
 +
@@ -6647,32 +6828,32 @@ index 0000000..161e960
 +    // what it reads.
 +    static const PageTracker::PageSet kNoPages{};
 +    const PageTracker::PageSet &reads = readsOwnPixels ? kNoPages : textured;
-+    command.texturesFromVram = readsOwnPixels;
++    plan.texturesFromVram = readsOwnPixels;
 +
 +    // Pages drawn to since the copies last had them are copied to each worker's copy
-+    // before it runs the command. Unless Conflicts says to wait, those draws were
++    // before it runs the plan. Unless Conflicts says to wait, those draws were
 +    // before the workers last waited for each other, so they are done.
 +    for (size_t word = 0; word < reads.size(); ++word)
 +    {
-+        command.refresh[word] = reads[word] & m_stale[word];
-+        m_stale[word] &= ~command.refresh[word];
++        plan.refresh[word] = reads[word] & m_stale[word];
++        m_stale[word] &= ~plan.refresh[word];
 +    }
-+    if (m_pages.Conflicts(drawn, count, command.refresh))
++    if (m_pages.Conflicts(drawn, count, plan.refresh))
 +    {
-+        command.waitForAll = true;
++        plan.waitForAll = true;
 +        m_pages.Clear();
 +    }
-+    m_pages.Add(drawn, count, command.refresh);
++    m_pages.Add(drawn, count, plan.refresh);
 +    for (size_t i = 0; i < count; ++i)
 +        markDrawn(drawn[i].pages);
 +}
 +
-+void GSThreadedBackend::classifySubmit(Command &command)
++void GSThreadedBackend::classifySubmit(const GSPrimitiveBatch &batch, DrawPlan &plan)
 +{
 +    if (m_workers.size() <= 1u)
 +        return;
 +
-+    const GSDrawState &state = command.batch.state;
++    const GSDrawState &state = batch.state;
 +    const GSContext &ctx = state.context;
 +
 +    size_t vertexCount = 0;
@@ -6698,14 +6879,14 @@ index 0000000..161e960
 +    // The rows and columns the primitive can touch, with a pixel to spare each side.
 +    const float ofx = static_cast<float>(ctx.xyoffset.ofx >> 4);
 +    const float ofy = static_cast<float>(ctx.xyoffset.ofy >> 4);
-+    float minX = command.batch.vertices[0].x - ofx;
++    float minX = batch.vertices[0].x - ofx;
 +    float maxX = minX;
-+    float minY = command.batch.vertices[0].y - ofy;
++    float minY = batch.vertices[0].y - ofy;
 +    float maxY = minY;
 +    for (size_t i = 1; i < vertexCount; ++i)
 +    {
-+        const float x = command.batch.vertices[i].x - ofx;
-+        const float y = command.batch.vertices[i].y - ofy;
++        const float x = batch.vertices[i].x - ofx;
++        const float y = batch.vertices[i].y - ofy;
 +        minX = std::min(minX, x);
 +        maxX = std::max(maxX, x);
 +        minY = std::min(minY, y);
@@ -6734,16 +6915,16 @@ index 0000000..161e960
 +            PageTracker::AddPages(drawn[drawnCount].pages, zbp, fbw, ctx.zbuf.psm, x0, y0, x1, y1);
 +            ++drawnCount;
 +        }
-+        command.workers = workersForRows(y0, y1);
++        plan.workers = workersForRows(y0, y1);
 +    }
 +    else
 +    {
 +        // Outside the scissor: no worker draws a pixel of it.
-+        command.workers = 0u;
++        plan.workers = 0u;
 +    }
 +
 +    // A copy of the target onto itself reads exactly the pixels it draws.
-+    const bool readsOwnPixels = drawnCount != 0u && readsOnlyItsOwnPixels(command.batch);
++    const bool readsOwnPixels = drawnCount != 0u && readsOnlyItsOwnPixels(batch);
 +    PageTracker::PageSet textured{};
 +    if (readsOwnPixels)
 +    {
@@ -6755,7 +6936,7 @@ index 0000000..161e960
 +        // runs in the rounding mode the draw will).
 +        float minU = 0.0f, maxU = 0.0f, minV = 0.0f, maxV = 0.0f;
 +        int spriteU0, spriteU1, spriteV0, spriteV1;
-+        bool bounded = GSCpuBackend::SpriteTexelRange(command.batch, spriteU0, spriteU1, spriteV0, spriteV1);
++        bool bounded = GSCpuBackend::SpriteTexelRange(batch, spriteU0, spriteU1, spriteV0, spriteV1);
 +        if (bounded)
 +        {
 +            minU = static_cast<float>(spriteU0);
@@ -6765,7 +6946,7 @@ index 0000000..161e960
 +        }
 +        else
 +        {
-+            bounded = texelBounds(command.batch, vertexCount, minU, maxU, minV, maxV);
++            bounded = texelBounds(batch, vertexCount, minU, maxU, minV, maxV);
 +        }
 +        const uint64_t clamp = ctx.clamp;
 +        int u0, u1, v0, v1;
@@ -6776,7 +6957,7 @@ index 0000000..161e960
 +        PageTracker::AddPages(textured, ctx.tex0.tbp0, ctx.tex0.tbw, ctx.tex0.psm, u0, v0, u1, v1);
 +    }
 +
-+    classifyDraw(command, drawn, drawnCount, textured, readsOwnPixels);
++    classifyDraw(plan, drawn, drawnCount, textured, readsOwnPixels);
 +}
 +
 +void GSThreadedBackend::runCommand(size_t worker, const Command &command)
@@ -6787,17 +6968,28 @@ index 0000000..161e960
 +    switch (command.kind)
 +    {
 +    case CommandKind::Submit:
++    {
 +        if (command.texturesFromVram)
-+        {
 +            readTexturesFromVram(worker, true);
++        if (command.runAlone || ((command.firstWorkers >> worker) & 1u))
 +            backend.Submit(command.batch);
-+            readTexturesFromVram(worker, false);
-+        }
-+        else
++        if (command.runEnd != command.runBegin)
 +        {
-+            backend.Submit(command.batch);
++            GSPrimitiveBatch batch = command.batch;
++            for (uint64_t i = command.runBegin; i != command.runEnd; ++i)
++            {
++                const RunPrimitive &primitive = m_runPrimitives[i % kRunPrimitives];
++                if (((primitive.workers >> worker) & 1u) == 0u)
++                    continue;
++                batch.vertices = primitive.vertices;
++                batch.vertexCount = primitive.vertexCount;
++                backend.Submit(batch);
++            }
 +        }
++        if (command.texturesFromVram)
++            readTexturesFromVram(worker, false);
 +        break;
++    }
 +    case CommandKind::LoadClut:
 +        backend.LoadClut(command.tex0, command.texclut);
 +        break;
@@ -6983,10 +7175,40 @@ index 0000000..161e960
 +void GSThreadedBackend::Submit(const GSPrimitiveBatch &batch)
 +{
 +    std::unique_lock<ps2_host_sync::Mutex> lock(m_queueMutex);
++    waitForRunRoom(lock);
++    DrawPlan plan;
++    classifySubmit(batch, plan);
++    const int roundingMode = ps2_host_fpu::getRounding();
++
++    // A primitive joins the open run when the workers would run it straight after the
++    // run's others anyway: no waiting for each other first, no pages to copy first.
++    if (m_runOpen)
++    {
++        Command &run = m_ring[m_submitted.load(std::memory_order_relaxed) % kRingSize];
++        if (!plan.waitForAll && !plan.runAlone && noPages(plan.refresh) &&
++            plan.texturesFromVram == run.texturesFromVram && run.roundingMode == roundingMode &&
++            run.runEnd - run.runBegin + 1u < kMaxRunLength && run.batch.state == batch.state)
++        {
++            RunPrimitive &primitive = m_runPrimitives[m_nextRunPrimitive % kRunPrimitives];
++            primitive.vertices = batch.vertices;
++            primitive.vertexCount = batch.vertexCount;
++            primitive.workers = plan.workers;
++            run.runEnd = ++m_nextRunPrimitive;
++            run.workers |= plan.workers;
++            if (run.runEnd - run.runBegin + 1u >= kMaxRunLength)
++                closeRun();
++            return;
++        }
++    }
++
 +    Command &command = beginCommand(lock, CommandKind::Submit);
++    static_cast<DrawPlan &>(command) = plan;
++    command.firstWorkers = plan.workers;
 +    command.batch = batch;
-+    classifySubmit(command);
-+    endCommand(lock);
++    if (command.runAlone)
++        publishCommand();
++    else
++        m_runOpen = true;
 +}
 +
 +void GSThreadedBackend::LoadClut(const GSTex0Reg &tex0, const GSTexClutReg &texclut)
@@ -13464,7 +13686,7 @@ index 2866d2b..ab51b27 100644
          {
              // _mm_set_ps lists lanes 3..0
 diff --git a/ps2xTest/src/ps2_gs_tests.cpp b/ps2xTest/src/ps2_gs_tests.cpp
-index 0458a8c..849d384 100644
+index 0458a8c..a303306 100644
 --- a/ps2xTest/src/ps2_gs_tests.cpp
 +++ b/ps2xTest/src/ps2_gs_tests.cpp
 @@ -4,6 +4,8 @@
@@ -13567,7 +13789,7 @@ index 0458a8c..849d384 100644
          tc.Run("GS T8 CT32-uploaded CSM1 CLUT follows swizzled palette layout", [](TestCase &t)
          {
              std::vector<uint8_t> vram(PS2_GS_VRAM_SIZE, 0u);
-@@ -3006,6 +3063,321 @@ void register_ps2_gs_tests()
+@@ -3006,6 +3063,336 @@ void register_ps2_gs_tests()
                       "switching raster backends must retain the logical 4 MiB GS local memory");
          });
  
@@ -13643,6 +13865,21 @@ index 0458a8c..849d384 100644
 +                };
 +
 +                drawTriangles(kFrameA);
++                // A mesh: many triangles in one state and rounding mode, which the queue
++                // sends in runs, longer than one run can be.
++                gs.writeRegister(GS_REG_PRIM, static_cast<uint64_t>(GS_PRIM_TRIANGLE) | (1ull << 3));
++                for (int tri = 0; tri < 150; ++tri)
++                {
++                    for (int vertex = 0; vertex < 3; ++vertex)
++                    {
++                        const uint64_t rgba = 0x3F80000080000000ull | next(0x1000000u);
++                        const uint64_t x = next(64u) << 4;
++                        const uint64_t y = next(256u) << 4;
++                        const uint64_t z = next(0x10000u);
++                        gs.writeRegister(GS_REG_RGBAQ, rgba);
++                        gs.writeRegister(GS_REG_XYZ2, x | (y << 16) | (z << 32));
++                    }
++                }
 +                // B reads rows of A that other workers drew.
 +                drawSprite(kFrameB, 0u, true);
 +                // A is drawn over while B's copy may still be reading it.
@@ -13889,7 +14126,7 @@ index 0458a8c..849d384 100644
          tc.Run("GS TEX2 updates CLUT state independently from TEX0", [](TestCase &t)
          {
              std::vector<uint8_t> vram(PS2_GS_VRAM_SIZE, 0u);
-@@ -3278,6 +3650,180 @@ void register_ps2_gs_tests()
+@@ -3278,6 +3665,180 @@ void register_ps2_gs_tests()
                       "TCC=0 MODULATE should still use texture RGB while sourcing alpha from the shaded vertex");
          });
  
