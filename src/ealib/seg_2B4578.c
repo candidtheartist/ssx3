@@ -1971,7 +1971,40 @@ unsigned int func_003B8AB8(void) {
     return func_003BA6E8() >> 0x1F;
 }
 
-INCLUDE_ASM("ealib/seg_2B4578", func_003B8AD8);
+//100%
+// Returns the largest remaining-time estimate over the voices of a handle (0x7FFFFFFF for an f8A of 16 or less); -7 if none.
+struct E_8AD8 { char p0[0x14]; int f14; int f18; char p18[4]; unsigned short f20; char p22[0x48]; unsigned short f6A; char p6C[0x1E]; unsigned short f8A; };
+struct G_8AD8 { char pad[0x1F0]; struct E_8AD8 *tab; };
+extern struct G_8AD8 D_0050A8E8_8AD8 __asm__("D_0050A8E8");
+extern int func_003BAA00_8AD8(int, int *) __asm__("func_003BAA00");
+extern int func_003BA6E8_8AD8(void) __asm__("func_003BA6E8");
+extern int func_003C4318_8AD8(int) __asm__("func_003C4318");
+
+int func_003B8AD8(void) {
+    int best = -7;
+    int h;
+    int sp0;
+    h = func_003BA6E8_8AD8();
+    if (h >= 0) {
+        sp0 = -1;
+        while (func_003BAA00_8AD8(h, &sp0)) {
+            struct E_8AD8 *e = &D_0050A8E8_8AD8.tab[sp0];
+            int p;
+            int t;
+            if (e->f18 > 0) p = -7; else p = func_003C4318_8AD8(sp0);
+            if (p >= 0) {
+                t = (e->f14 - p) * 100 / e->f20;
+                if (e->f8A > 0x10) {
+                    t = ((t << 12) / e->f8A << 12) / e->f6A;
+                } else {
+                    t = 0x7FFFFFFF;
+                }
+                if (best < t) best = t;
+            }
+        }
+    }
+    return best;
+}
 
 //100%
 // PORT: PS2-only inline asm; needs a C fallback off-PS2.
