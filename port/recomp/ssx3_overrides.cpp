@@ -12,6 +12,8 @@
 #include <cstring>
 #include <string>
 
+void ssx3RegisterNative(PS2Runtime &runtime); // ssx3_native.cpp
+
 namespace ps2_syscalls
 {
     int32_t findResidentSifModule(const std::string &name);
@@ -192,6 +194,10 @@ namespace
         // SetupHeap range, so the runtime's own scratch allocations go in the
         // 0x80000-0x100000 gap below the ELF, which the game never uses.
         g_ps2xGuestScratch = {0x00080000u, 0x00100000u};
+
+        // Decompiled functions built as native code, swapped in first so the
+        // overrides below still take precedence.
+        ssx3RegisterNative(runtime);
 
         if (std::getenv("PS2X_FILE_LOG"))
         {
