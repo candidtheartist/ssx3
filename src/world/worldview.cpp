@@ -1580,7 +1580,121 @@ extern "C" char* func_003AC438(int a0, int a1, char* ctx, char* p)
     return p;
 }
 
-INCLUDE_ASM("world/worldview", func_003AC508);
+extern char D_00002270[];
+extern char D_000022C8[];
+extern char D_00509400[];
+
+//100%
+// Patches a model's DMA chain: relocates tag addresses and sets the end MSCAL of each packet.
+extern "C" void* func_003AC508(void* self, void* a1, func_003AC358_sList* list, void* cur)
+{
+    char* ctx = (char*)list;
+    char* p = (char*)cur;
+    int done = 0;
+    int first = 1;
+    long tag;
+    int qwc;
+    int flag;
+    char* e;
+    int* ap;
+    int addr;
+    do {
+        tag = *(long*)p;
+        switch (((int)((tag << 4) >> 32)) & 7) {
+        case 3: {
+            flag = 0;
+            if (*(unsigned int*)(p + 4) & 0x80000000) {
+                flag = 1;
+                *(unsigned int*)(p + 4) &= 0x7FFFFFFF;
+            }
+            *(int*)(p + 4) = *(int*)(ctx + 0x24) + *(int*)(p + 4);
+            p += 0x10;
+            {
+                tag = *(long*)p;
+                ap = (int*)(p + 4);
+                *ap = *(int*)((char*)a1 + 0x98) + *ap;
+                qwc = ((int)tag) & 0xFFFF;
+                p += 0x10;
+                e = *(char**)ap;
+                e += (qwc - 1) * 0x10;
+                if (first) {
+                    *(int*)(e + 8) = ((unsigned int)D_00002270 >> 3) | 0x14000000;
+                } else {
+                    *(int*)(e + 8) = ((unsigned int)D_000022C8 >> 3) | 0x14000000;
+                }
+            }
+            if (flag) {
+                char* next = p + 0x10;
+                if ((((int)((*(long*)next << 4) >> 32)) & 7) == 6) {
+                    tag = *(long*)p;
+                    addr = *(int*)(ctx + 0x24) + *(int*)(p + 4);
+                    qwc = ((int)tag) & 0xFFFF;
+                    e = (char*)addr + (qwc - 1) * 0x10;
+                    if (first) {
+                        *(int*)(e + 8) = ((unsigned int)D_00002270 >> 3) | 0x14000000;
+                    } else {
+                        *(int*)(e + 8) = ((unsigned int)D_000022C8 >> 3) | 0x14000000;
+                    }
+                    *(long*)(p + 0x20) = 0x60000000;
+                    *(long*)(p + 0x10) = (0x30000000 | qwc) | ((long)addr << 32);
+                    *(long*)(p + 0x00) = ((long)(unsigned int)D_00509400 << 32) | 0x30000001;
+                    *(long*)(p + 0x08) = 0;
+                    *(long*)(p + 0x18) = 0;
+                    *(long*)(p + 0x28) = 0;
+                    p += 0x20;
+                } else {
+                    if (*(unsigned int*)(p + 4) & 0x80000000) {
+                        *(unsigned int*)(p + 4) &= 0x7FFFFFFF;
+                    }
+                    *(int*)(p + 4) = *(int*)(ctx + 0x24) + *(int*)(p + 4);
+                    p = next;
+                    {
+                        tag = *(long*)p;
+                        ap = (int*)(p + 4);
+                        *ap = *(int*)((char*)a1 + 0x98) + *ap;
+                        qwc = ((int)tag) & 0xFFFF;
+                        p += 0x10;
+                        e = *(char**)ap;
+                        e += (qwc - 1) * 0x10;
+                        *(int*)(e + 8) = ((unsigned int)D_000022C8 >> 3) | 0x14000000;
+                    }
+                    {
+                        tag = *(long*)p;
+                        ap = (int*)(p + 4);
+                        *ap = *(int*)(ctx + 0x24) + *ap;
+                        qwc = ((int)tag) & 0xFFFF;
+                        p += 0x10;
+                        e = *(char**)ap;
+                        e += (qwc - 1) * 0x10;
+                        if (first) {
+                            *(int*)(e + 8) = ((unsigned int)D_00002270 >> 3) | 0x14000000;
+                        } else {
+                            *(int*)(e + 8) = ((unsigned int)D_000022C8 >> 3) | 0x14000000;
+                        }
+                    }
+                    {
+                        tag = *(long*)p;
+                        ap = (int*)(p + 4);
+                        *ap = *(int*)(ctx + 0x24) + *ap;
+                        qwc = ((int)tag) & 0xFFFF;
+                        p += 0x10;
+                        e = *(char**)ap;
+                        e += (qwc - 1) * 0x10;
+                        *(int*)(e + 8) = ((unsigned int)D_000022C8 >> 3) | 0x14000000;
+                    }
+                }
+            }
+            first = 0;
+            break;
+        }
+        case 6:
+            p += 0x10;
+            done = 1;
+            break;
+        }
+    } while (done == 0);
+    return p;
+}
 
 //100%
 extern "C" void cWScriptCache_init(void* self, int a1);

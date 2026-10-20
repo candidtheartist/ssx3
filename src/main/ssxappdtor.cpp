@@ -1492,7 +1492,91 @@ extern "C" int func_00244A40(sApp_44A40* self)
 
 INCLUDE_ASM("main/ssxappdtor", func_00244B48);
 
-INCLUDE_ASM("main/ssxappdtor", func_00244E60);
+struct sVE_4E60 {
+    short delta;
+    short index;
+    void (*fn)(void*, ...);
+};
+
+extern "C" int func_00237950(void* p);
+extern "C" int func_002379C8(void* p);
+extern "C" void func_00354C98(void* p, int n);
+extern "C" void func_00354F98(void* p, int n);
+extern "C" void func_00355028(void* p, int n);
+extern "C" void func_0026F4A8(void* p);
+extern "C" int func_00270280(void* p);
+extern "C" int func_0026CE50(void* p);
+extern "C" void func_00309270(void* p);
+extern "C" void func_002294C8(void* p);
+extern "C" void func_003440C8(void* p);
+extern "C" void func_00357BF8(void* p);
+extern "C" void func_002B7848(void* p, void* q, int i);
+extern char D_004A5988[8];
+extern void* D_004A28A4;
+
+static inline char* GetSnd() { return D_004A5988; }
+static inline bool IsRun(int st) { return st != 0 && st < 10; }
+static inline bool Is3(int st) { return st == 3; }
+#define F(o, t) (*(t*)((char*)self + (o)))
+
+//100%
+// App frame end: sound channel updates, view update and per-player loop.
+// The unused label stops cse from reusing the loop test's self->0x84 load.
+extern "C" void func_00244E60(char* self)
+{
+    int skip;
+    if (F(0x7C, void*) == 0 || func_00237950(F(0x7C, void*)) != 0) {
+        if (F(0x214, int) == 3) {
+            func_00230F40(self);
+            func_00354C98(GetSnd(), 1);
+        } else {
+            func_00230F40(self);
+        }
+        if ((D_004A2A50 & 1) == 0) func_0026F4A8(F(0x28, void*));
+        if (func_00270280(F(0x28, void*)) == 0 && !(D_004A2A50 & 8)) {
+            char* g = (char*)D_004A28A4;
+            sVE_4E60* vt = *(sVE_4E60**)(g + 0x2A8);
+            vt[5].fn(g + vt[5].delta);
+        }
+    }
+    skip = 0;
+    if ((D_004A2A50 & 1) || func_00270280(F(0x28, void*))) skip = 1;
+    if (!skip) {
+        if ((F(0x7C, void*) != 0 && func_002379C8(F(0x7C, void*)) == 0) || func_0026CE50(F(0x34, void*))) skip = 1;
+    }
+    if (!skip) {
+        if (!(D_004A2A50 & 2)) func_00354F98(GetSnd(), 1);
+        func_00354F98(GetSnd(), 5);
+        func_00354F98(GetSnd(), 6);
+        if (!(D_004A2A50 & 2)) func_00355028(GetSnd(), 1);
+        {
+            char* o = F(0xC, char*);
+            sVE_4E60* vt = *(sVE_4E60**)(o + 0xCC);
+            vt[3].fn(o + vt[3].delta);
+        }
+        if (!(D_004A2A50 & 0x10)) func_00354F98(GetSnd(), 2);
+        if (!(D_004A2A50 & 4)) func_00354F98(GetSnd(), 3);
+        func_00309270(F(0x30, void*));
+        func_002294C8(F(0x38, void*));
+        func_003440C8(F(0x3C, void*));
+        func_00357BF8(F(0x40, void*));
+        func_00354C98(GetSnd(), 1);
+    } else {
+        func_00354F98(GetSnd(), 5);
+        if (!(D_004A2A50 & 4)) func_00354F98(GetSnd(), 3);
+    }
+    func_00354F98(GetSnd(), 4);
+    {
+        int st = **(int**)(self + 0x28);
+        if (!IsRun(st) || !Is3(st)) cGameViewMan_updateAll(F(0x84, void*));
+    }
+    F(0xAC, int)++;
+    for (unsigned int i = 0; i < *(unsigned int*)(F(0x84, char*) + 0x10); i++) {
+    top:
+        func_002B7848(F(0x4C, void*), *(char**)(F(0x84, char*) + (i << 2) + 4) + 0x20, i);
+    }
+}
+#undef F
 
 extern void* D_004A2EEC;
 extern "C" void func_002570D8(void* p);

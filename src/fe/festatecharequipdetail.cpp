@@ -1266,7 +1266,78 @@ extern "C" void func_0019ACA0(void* self)
     func_0019FBE0(rider, func_0014AD28(cBE_getInterface_Fv(cBE_getBE(), 9), *(signed char*)((char*)self + 0x44), *(int*)((char*)self + 0xBC)), 0, 1);
 }
 
-INCLUDE_ASM("fe/festatecharequipdetail", func_0019AD18);
+class cUIObj_AD18 {
+public:
+    int pad[2];
+    virtual void v01();
+    virtual void v02();
+    virtual void v03();
+    virtual void v04();
+    virtual void v05();
+    virtual void v06();
+    virtual void v07();
+    virtual void setEnabled(int v);
+    virtual void setVisible(int v);
+    virtual void v10();
+    virtual void setColor(void* c);
+};
+extern "C" int func_003A0C28(void* self);
+extern "C" void func_003A0E90(void* self, int str);
+extern "C" int func_0019B518(void* self);
+extern "C" int func_0019B598(void* self);
+extern "C" void func_0019B7E0(void* self, int idx);
+extern "C" void func_0019BA60(void* self, int idx);
+
+static inline int isMode1_AD18(void* self)
+{
+    return *(int*)((char*)self + 0xC8) == 1;
+}
+
+static inline void move_AD18(void* self, int dst, int src)
+{
+    cUIObj_AD18** a = (cUIObj_AD18**)((char*)self + 0x8C);
+    cUIObj_AD18** b = (cUIObj_AD18**)((char*)self + 0xA4);
+    a[dst]->setColor((char*)a[src] + 0x1C);
+    func_003A0E90(a[dst], func_003A0C28(a[src]));
+    b[dst]->setVisible((*(int*)((char*)b[src] + 0x14) >> 6) & 1);
+}
+
+//100%
+// Scrolls the equipment detail rows by n, refilling the rows that scroll in.
+extern "C" void func_0019AD18(void* self, int n)
+{
+    int i;
+    if (*(void**)((char*)self + 0x5C) == 0)
+        return;
+    if (n < -6 || n > 6) {
+        if (isMode1_AD18(self))
+            func_0019B598(self);
+        else
+            func_0019B518(self);
+        return;
+    }
+    if (n < 0) {
+        for (int k = 5; k >= -n; k--)
+            move_AD18(self, k, k + n);
+        if (isMode1_AD18(self)) {
+            for (i = 0; i < -n; i++)
+                func_0019BA60(self, i);
+        } else {
+            for (i = 0; i < -n; i++)
+                func_0019B7E0(self, i);
+        }
+    } else if (n > 0) {
+        for (int k = n; k < 6; k++)
+            move_AD18(self, k - n, k);
+        if (isMode1_AD18(self)) {
+            for (i = 6 - n; i < 6; i++)
+                func_0019BA60(self, i);
+        } else {
+            for (i = 6 - n; i < 6; i++)
+                func_0019B7E0(self, i);
+        }
+    }
+}
 
 //100%
 struct sEquipEntry_AFD0 {

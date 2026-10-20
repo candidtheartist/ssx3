@@ -163,7 +163,63 @@ void* func_002CA4A8(void* self)
     return func_002CC318(*(int*)((char*)*(void**)self + 0x124));
 }
 
-INCLUDE_ASM("util/menu", func_002CA4C8);
+extern "C" float func_00391FB0(void* self, const char* str, void* out, int n, float sx, float sy);
+
+struct sRect_2CA4C8 { float x, y, w, h; };
+struct sVec2_2CA4C8 { float x, y; sVec2_2CA4C8() {} sVec2_2CA4C8(float a, float b) : x(a), y(b) {} };
+
+static inline char* font_2CA4C8(char* item)
+{
+    return *(char**)(*(char**)(*(char**)item + 0x124) + 0x58);
+}
+
+static inline float width_2CA4C8(char* item, const char* s)
+{
+    char* f = font_2CA4C8(item);
+    return func_00391FB0(f, s, 0, 0, *(float*)(f + 0x38), *(float*)(f + 0x3C));
+}
+
+static inline float widthOrZero_2CA4C8(char* item, const char* s)
+{
+    float w;
+    if (s) w = width_2CA4C8(item, s);
+    else w = 0.0f;
+    return w;
+}
+// Later code in this unit declares func_002CA4C8 with another signature, so the definition is bound by asm label.
+extern "C" sRect_2CA4C8* func_002CA4C8_impl(sRect_2CA4C8* ret, char* item, const char* s1, const char* s2, const char* s3) __asm__("func_002CA4C8");
+
+//100%
+// Measures a menu item's box from up to three strings in its font.
+extern "C" sRect_2CA4C8* func_002CA4C8_impl(sRect_2CA4C8* ret, char* item, const char* s1, const char* s2, const char* s3)
+{
+    sRect_2CA4C8 r;
+    r.x = r.y = 0.0f;
+    char* f = font_2CA4C8(item);
+    float h = (float)*(int*)(f + 0x14) * *(float*)(f + 0x34);
+    sVec2_2CA4C8 sc(*(float*)(f + 0x38) / *(float*)(f + 0x30), *(float*)(f + 0x3C) / *(float*)(f + 0x34));
+    r.h = h * sc.y;
+    if (s1 && s2 && s3) {
+        float a = width_2CA4C8(item, s2);
+        float b = width_2CA4C8(item, s1);
+        float c = width_2CA4C8(item, s3);
+        float t;
+        if (c < b) t = a + width_2CA4C8(item, s1) * 2.0f + 32.0f; else t = a + width_2CA4C8(item, s3) * 2.0f + 32.0f;
+        r.w = t;
+    } else {
+        float w = widthOrZero_2CA4C8(item, s1);
+        if (s2) w += width_2CA4C8(item, s2);
+        if (s3) w += width_2CA4C8(item, s3);
+        r.w = w;
+        if ((s1 && (s2 || s3)) || (s2 && s3)) {
+            r.w += 16.0f;
+        }
+    }
+    r.h += 12.0f;
+    r.w = (r.w >? 100.0f) + 32.0f;
+    *ret = r;
+    return ret;
+}
 
 //100%
 extern "C" void func_00391CB0(void* self, float x, float y, const char* str);
