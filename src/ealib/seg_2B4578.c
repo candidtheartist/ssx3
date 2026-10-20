@@ -9375,7 +9375,90 @@ int func_003CE378(int key) {
 
 INCLUDE_ASM("ealib/seg_2B4578", func_003CE410);
 
-INCLUDE_ASM("ealib/seg_2B4578", func_003CE7C0);
+// Designs a 9-tap windowed-sinc filter (half kept in c[0..4]): type 2 low
+// pass at f8, type 3 high pass at f4, type 4 band pass between them, then
+// applies a Hamming window and normalizes the gain.
+struct F_CE7C0 {
+    char pad0[0xE0];
+    float c[5];
+    float f4;
+    float f8;
+    unsigned char fC;
+};
+
+void func_003CE7C0(struct F_CE7C0 *f, int type) {
+    int n;
+    int i;
+    int odd;
+    float x;
+    float t;
+    float w;
+    float sum;
+
+    n = 4;
+    f->fC = 1;
+    if ((type == 3 || type == 4) && f->f4 > 0.8f) {
+        f->f4 = 0.8f;
+    }
+    switch (type) {
+    case 2:
+        f->c[n] = f->f8;
+        for (i = 1; i <= n; i++) {
+            x = i * 3.1415927f;
+            f->c[n - i] = func_003BC770(f->f8 * x) / x;
+        }
+        break;
+    case 3:
+        f->c[n] = f->f4;
+        for (i = 1; i <= n; i++) {
+            x = i * 3.1415927f;
+            f->c[n - i] = func_003BC770(f->f4 * x) / x;
+        }
+        break;
+    case 4:
+        f->c[n] = f->f8 - f->f4;
+        for (i = 1; i <= n; i++) {
+            x = i * 3.1415927f;
+            t = func_003BC770((f->f8 - f->f4) * 0.5f * x);
+            f->c[n - i] = 2.0f * t * func_003BC840((f->f8 + f->f4) * 0.5f * x) / x;
+        }
+        break;
+    }
+    x = 0.7853982f;
+    sum = 0.0f;
+    for (i = 0; i <= n; i++) {
+        if (type == 2 || type == 4) {
+            w = f->c[i] * (0.54f - func_003BC840(x * i) * 0.46f);
+            f->c[i] = w;
+            sum += w;
+        } else if (type == 3) {
+            w = f->c[i] * -(0.54f - func_003BC840(x * i) * 0.46f);
+            f->c[i] = w;
+            if (!(i & 1)) {
+                sum += w;
+            } else {
+                sum -= w;
+            }
+        }
+        // Set here rather than up front to match; the loop always runs.
+        odd = 0;
+    }
+    if (type == 3) {
+        sum += 1.0f;
+        f->c[n] += 1.0f;
+    }
+    if (odd) {
+        sum = 2.0f * sum;
+    } else {
+        sum = 2.0f * sum - f->c[n];
+    }
+    if (sum < 0.0f) {
+        sum = -sum;
+    }
+    for (i = 0; i <= n; i++) {
+        f->c[i] /= sum;
+    }
+}
 
 //100%
 void func_003CEB90(void *arg0) {
