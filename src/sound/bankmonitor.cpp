@@ -163,13 +163,13 @@ extern "C" void func_002AD300(void* self)
 }
 
 extern "C" void* func_002AD550(void* self, int idx, int a2);
-extern "C" void func_002ACB80(void* voice, int a, int b, float v);
+extern "C" void cBankMonitorInstance_fadeTo(void* voice, int a, int b, float v);
 
 extern "C" void func_002AD358(void* self, int idx, int a2, float v)
 {
     void* voice = func_002AD550(self, idx, a2);
     if (voice != 0) {
-        func_002ACB80(voice, -1, 0, v);
+        cBankMonitorInstance_fadeTo(voice, -1, 0, v);
     }
 }
 
@@ -252,14 +252,14 @@ extern "C" void* func_002AD550(void* self, int idx, int key)
 //100% - objdiff report; single-function view differs only in a relocation name
 extern "C" void* func_002AD550(void* self, int idx, int a2);
 extern "C" void cBankMonitorInstance_stop(void*);
-extern "C" void func_002ACB80(void* voice, int a, int b, float v);
+extern "C" void cBankMonitorInstance_fadeTo(void* voice, int a, int b, float v);
 
 extern "C" void func_002AD5F0(void* self, int idx, int a2, float v)
 {
     void* voice = func_002AD550(self, idx, a2);
     if (voice != 0) {
         if (v != 0.0f) {
-            func_002ACB80(voice, -1, 1, v);
+            cBankMonitorInstance_fadeTo(voice, -1, 1, v);
         } else {
             cBankMonitorInstance_stop(voice);
         }
@@ -269,9 +269,9 @@ extern "C" void func_002AD5F0(void* self, int idx, int a2, float v)
 //100%
 extern "C" int cBankMonitorInstance_isFree(void*);
 extern "C" void cBankMonitorInstance_stop(void*);
-// PORT: same ABI as the unit's func_002ACB80(void*, int, int, float); the float is
+// PORT: same ABI as the unit's cBankMonitorInstance_fadeTo(void*, int, int, float); the float is
 // the 2nd parameter in the original, which orders the argument moves.
-void func_002ACB80_f(void* voice, float v, int a, int b) __asm__("func_002ACB80");
+void cBankMonitorInstance_fadeTo_f(void* voice, float v, int a, int b) __asm__("cBankMonitorInstance_fadeTo");
 
 struct sVoiceD650 {
     int state;      // 0x0
@@ -288,7 +288,7 @@ extern "C" void func_002AD650(void* self, int id, float v)
             sVoiceD650* e = (sVoiceD650*)(i * 0xC0 + *(int*)((char*)self + 0x8EC));
             if (e->state == 1 && e->id == id) {
                 if (v != 0.0f) {
-                    func_002ACB80_f(e, v, -1, 1);
+                    cBankMonitorInstance_fadeTo_f(e, v, -1, 1);
                 } else {
                     cBankMonitorInstance_stop(e);
                 }
@@ -1965,14 +1965,14 @@ extern "C" void func_002B0088(void* p, int a1, int a2, int a3)
 }
 
 //100%
-extern "C" int func_002AAE08(void* self, int i);
-extern "C" float func_002AAE78(void* self, int i);
+extern "C" int cStreamSys_getState(void* self, int i);
+extern "C" float cStreamSys_getTimeLeft(void* self, int i);
 extern "C" int cStreamSys_isPlaying(void* self, int i);
 extern char* D_004A37B4;
 
 extern "C" int func_002B0290(void* p)
 {
-    int state = func_002AAE08(*(void**)D_004A37B4, *(int*)((char*)p + 0x4));
+    int state = cStreamSys_getState(*(void**)D_004A37B4, *(int*)((char*)p + 0x4));
     if (state == 0) {
         return 1;
     }
@@ -1982,7 +1982,7 @@ extern "C" int func_002B0290(void* p)
     if (cStreamSys_isPlaying(*(void**)D_004A37B4, *(int*)((char*)p + 0x4)) == 0) {
         return 0;
     }
-    int ok = (int)func_002AAE78(*(void**)D_004A37B4, *(int*)((char*)p + 0x4)) < 500;
+    int ok = (int)cStreamSys_getTimeLeft(*(void**)D_004A37B4, *(int*)((char*)p + 0x4)) < 500;
     int r = 0;
     if (ok) {
         r = state;
@@ -2052,10 +2052,10 @@ extern "C" int sprintf(char* buf, const char* fmt, ...);
 extern "C" int func_002AFA58(void* self, int a1);
 extern "C" int func_002B1520_p3(void* sys, int a, int b) __asm__("func_002B1520");
 extern "C" int func_002B03B8(const char* name);
-extern "C" int func_002AAE08(void* self, int i);
-extern "C" float func_002AAE78(void* self, int i);
+extern "C" int cStreamSys_getState(void* self, int i);
+extern "C" float cStreamSys_getTimeLeft(void* self, int i);
 extern "C" int cStreamSys_isPlaying(void* self, int i);
-extern "C" void func_002AB0D0(void* self, int i, int w);
+extern "C" void cStreamSys_setGainPtr(void* self, int i, int w);
 // PORT: func_002ADCA0 takes a 64-bit sound key by value and returns int.
 extern "C" int func_002ADCA0_04D8(void*, int, long, void*, int, int, int, int) __asm__("func_002ADCA0");
 
@@ -2116,9 +2116,9 @@ extern "C" int func_002B04D8_impl(sBmList_04D8* self, sBmArgs_04D8* a)
         sBmVE_04D8* vt0 = *(sBmVE_04D8**)(d0 + 0x1BC);
         int h = ((int (*)(void*, int, int))vt0[2].fn)(d0 + vt0[2].delta, self->f0, (*slot)->f40);
         char* d; sBmVE_04D8* vt;
-        int t = (int)func_002AAE78(*(void**)D_004A37B4, self->f4);
+        int t = (int)cStreamSys_getTimeLeft(*(void**)D_004A37B4, self->f4);
         int r;
-        if (func_002AAE08(*(void**)D_004A37B4, self->f4) != 0) {
+        if (cStreamSys_getState(*(void**)D_004A37B4, self->f4) != 0) {
             if (cStreamSys_isPlaying(*(void**)D_004A37B4, self->f4) != 0) {
                 d = D_004A37B4;
                 vt = *(sBmVE_04D8**)(d + 0x1BC);
@@ -2140,7 +2140,7 @@ extern "C" int func_002B04D8_impl(sBmList_04D8* self, sBmArgs_04D8* a)
         vt = *(sBmVE_04D8**)(d + 0x1BC);
         int w = ((int (*)(void*, int, int, int))vt[3].fn)(d + vt[3].delta, self->f0, h, *(int*)((char*)self + 0x8D0));
         if (w != 0) {
-            func_002AB0D0(*(void**)D_004A37B4, self->f4, w);
+            cStreamSys_setGainPtr(*(void**)D_004A37B4, self->f4, w);
         }
         char* d2 = D_004A37B4;
         sBmVE_04D8* vt2 = *(sBmVE_04D8**)(d2 + 0x1BC);
@@ -2516,8 +2516,8 @@ struct sBankId_1268 {
     long v;
 } __attribute__((packed));
 extern char D_004A37E0[];
-extern "C" int func_002AB150(void* self, int i);
-extern "C" void func_002AB0D0(void* self, int i, int v);
+extern "C" int cStreamSys_getCurrentItem(void* self, int i);
+extern "C" void cStreamSys_setGainPtr(void* self, int i, int v);
 extern "C" void func_002ADCA0(void* p, int a, long b, int c, int d, int e, int f, int g);
 // PORT: func_002B1248 takes the message as an ignored second argument here.
 extern "C" int func_002B1248_m(void* self, void* m) __asm__("func_002B1248");
@@ -2528,7 +2528,7 @@ extern "C" int func_002B1268(void* self_, void* m_)
     char* self = (char*)self_;
     char* m = (char*)m_;
     char* e = *(char**)(m + 0x18);
-    int st = func_002AB150(*(void**)self, func_002B1220(D_004A37B4, *(int*)e));
+    int st = cStreamSys_getCurrentItem(*(void**)self, func_002B1220(D_004A37B4, *(int*)e));
     if (st != *(int*)(m + 0x1C)) {
         func_002ADCA0(**(char***)D_004A37B4 + 0x1D8, 0xC8, ((sBankId_1268*)D_004A37E0)->v,
                       *(int*)(m + 0x18), *(int*)(m + 0x1C), *(int*)(m + 0x20), 0, 0);
@@ -2539,7 +2539,7 @@ extern "C" int func_002B1268(void* self_, void* m_)
         char* vt = *(char**)(self + 0x1BC);
         int r = (*(int (**)(void*, int, int, int))(vt + 0x1C))(self + *(short*)(vt + 0x18), *(int*)e, v, *(int*)(e + 0x8D0));
         if (r != 0) {
-            func_002AB0D0(*(void**)self, *(int*)(e + 0x4), r);
+            cStreamSys_setGainPtr(*(void**)self, *(int*)(e + 0x4), r);
         }
     }
     return func_002B1248_m(self, m);
@@ -2551,14 +2551,14 @@ extern char D_004A37D8[];
 extern "C" int func_002B1348(void* self, void* m)
 {
     int* e = *(int**)((char*)m + 0x18);
-    if (func_002AAE08(*(void**)self, e[1]) - 1 > 0) {
+    if (cStreamSys_getState(*(void**)self, e[1]) - 1 > 0) {
         if (cStreamSys_isPlaying(*(void**)self, e[1]) != 0) {
-            float f = func_002AAE78(*(void**)self, e[1]);
+            float f = cStreamSys_getTimeLeft(*(void**)self, e[1]);
             func_002ADCA0(**(char***)D_004A37B4 + 0x1D8, (int)f,
                           ((sBankId_1268*)D_004A37D8)->v, (int)e, *(int*)((char*)m + 0x1C), *(int*)((char*)m + 0x20), 0, 0);
             return 1;
         }
-        if (func_002AB150(*(void**)self, func_002B1220(D_004A37B4, e[0])) == *(int*)((char*)m + 0x1C)) {
+        if (cStreamSys_getCurrentItem(*(void**)self, func_002B1220(D_004A37B4, e[0])) == *(int*)((char*)m + 0x1C)) {
             return func_002B1268(self, m);
         }
         return 0;

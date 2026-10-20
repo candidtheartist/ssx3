@@ -1383,7 +1383,7 @@ extern "C" void* cBE_getBE();
 void* cBE_getInterface_Fv(void* be, int kind) __asm__("cBE_getInterface__Fv");
 extern "C" void func_002790A0(void* a, int b);
 extern "C" void* func_0028B180(void);
-extern "C" void func_002871B0(void* mgr);
+extern "C" void cSSXAudio_resetRaceAudio(void* mgr);
 extern void* D_004A28A4;
 extern char* D_004A2C68;
 extern signed char D_00535C10[];
@@ -1401,7 +1401,7 @@ extern "C" void func_00236CD8(void* self)
         (*(cRace236CD8**)(D_004A2C68 + 0xC))->v05(3);
         *(int*)(*(char**)(D_004A2C68 + 0xC) + 0x14) = 1;
     }
-    func_002871B0(func_0028B180());
+    cSSXAudio_resetRaceAudio(func_0028B180());
 }
 
 //100%

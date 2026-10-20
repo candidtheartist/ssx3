@@ -170,7 +170,7 @@ extern "C" int func_0028B830(void* self, void* name)
 
 //100%
 extern "C" void cBankInstance_unload(void*);
-extern "C" void func_0028B2D0(void* self);
+extern "C" void cBankInstance_unloadLinked(void* self);
 extern char* D_004A3614;
 
 class cSndStream_B878 {
@@ -186,7 +186,7 @@ public:
 extern "C" void func_0028B878(void* self)
 {
     cBankInstance_unload(self);
-    func_0028B2D0(self);
+    cBankInstance_unloadLinked(self);
     *(int*)self = 2;
     if (*(int*)((char*)self + 0x8) == 2) {
         (**(cSndStream_B878***)(D_004A3614 + 0x1D8))->v6(*(int*)((char*)self + 0xC));
@@ -747,9 +747,9 @@ void func_0028C8C0(void* self, int val)
 //100%
 // PORT: g++ >?/<? (min/max) operator, removed in GCC 4.3.
 // PORT: PS2-only inline asm; needs a C fallback off-PS2.
-// func_00285D98 returns a rider pointer here (the unit declares it int).
+// cSSXAudio_getListenerRider returns a rider pointer here (the unit declares it int).
 struct sRiderC8C8;
-extern "C" sRiderC8C8* func_00285D98_p(void* self, int which) __asm__("func_00285D98");
+extern "C" sRiderC8C8* cSSXAudio_getListenerRider_p(void* self, int which) __asm__("cSSXAudio_getListenerRider");
 int cRider_getMotionMode(void* rider);
 int func_0028D898(void* self);
 extern "C" void* cSSXAudio_getBusVolumePtr(void* self, int a1, int a2);
@@ -822,7 +822,7 @@ extern "C" void func_0028C8C8(sBmC8C8* self)
 {
     if (self->f6250 > 0)
         self->f6250--;
-    sRiderC8C8* rider = func_00285D98_p(self, -1);
+    sRiderC8C8* rider = cSSXAudio_getListenerRider_p(self, -1);
     float spd;
     if (cRider_getMotionMode(rider) == 1) {
         int s = rider->ap->state;
@@ -1064,7 +1064,7 @@ extern "C" void func_0028D5A0(void* self, int id)
 }
 
 //100%
-extern "C" int func_00285D98(void* self, int which);
+extern "C" int cSSXAudio_getListenerRider(void* self, int which);
 
 struct sBmVt630 { short delta; short index; int (*fn)(void*); };
 struct sBmVt630b { short delta; short index; int (*fn)(void*, int); };
@@ -1077,8 +1077,8 @@ extern "C" void func_0028D630(void* self, int id, void* obj)
     if (*(int*)((char*)self + 0x623C) == id) return;
     ok = 0;
     if (*(int*)((char*)self + 0x62A0) == -1) {
-        // PORT: func_00285D98 returns an object pointer as int
-        if ((int)obj == func_00285D98(self, -1)) {
+        // PORT: cSSXAudio_getListenerRider returns an object pointer as int
+        if ((int)obj == cSSXAudio_getListenerRider(self, -1)) {
             char* o = (char*)obj + 0x6C0;
             sBmVt630* e = &(*(sBmVt630**)o)[7];
             ok = 1;
@@ -1452,8 +1452,8 @@ extern "C" void func_0028EF90(void* selfp)
 
 //100%
 // PORT: g++ >?/<? (min/max) operator, removed in GCC 4.3.
-extern "C" int func_00285D98(void* self, int which);
-extern "C" int func_00289C18(void* self, int rider);
+extern "C" int cSSXAudio_getListenerRider(void* self, int which);
+extern "C" int cSSXAudio_getRiderLevelTier(void* self, int rider);
 
 extern "C" void func_0028F000(void* self)
 {
@@ -1468,7 +1468,7 @@ extern "C" void func_0028F000(void* self)
         *(int*)((char*)self + 0x628C) = 0;
     }
     int max = 800;
-    int r = func_00289C18(self, func_00285D98(self, -1));
+    int r = cSSXAudio_getRiderLevelTier(self, cSSXAudio_getListenerRider(self, -1));
     if (r == 1) {
         max = 1000;
     } else if (r == 2) {

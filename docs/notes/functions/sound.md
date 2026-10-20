@@ -10,7 +10,7 @@ Segment `0x00284BB0`-`0x0028A1E8`.
 - **`0x00284C68`** - SSXAudioSystem constructor: sets the speech manager vtable at audio+0x5560 to `0x004836D8` and sets mixer channel 0 (master) once to 10/11. *[static]*
   - `0x00285094`: Sets mixer channel 0 (master) to 10/11 using the float at gp-0x4660 (`0x0049EA90`). *[static]*
 - **`0x002854F8`** - Speech callback that starts a speech stream (speech vtable `0x004836D8` slot +0x08). *[static]*
-- **`0x00285930`** - Sets the audio listener from the camera view matrix: listener 1 m ahead and 25 cm off. *[static]*
+- **`0x00285930`** - Voice position helper: stores a voice's azimuth and elevation relative to the listener (camera view matrix, listener 1 m ahead and 25 cm off) and returns the squared distance. It does not set the listener. *[static]*
 - **`0x00285BF8`** - Per-frame audio system update, run before the frame's game tick: runs the mix fade `0x002887F8`; waits for `0x002AB028` to report the DJ stream playing, then releases the duck (`0x00287F00`(3, 0.5, 1.0)) when it stops; auto-resumes after pause; runs the per-frame dispatchers `0x0029AB40`, `0x0029B738` and `0x0028C8C8`; polls `0x00390EF8` and plays thunder (bank 8, sound 16). *[PS2]*
   - `0x00285D40`: Probably the per-frame call of the Super Uber speech dispatcher `0x0029B738`. *[unconfirmed]*
 - **`0x00285D98`** - Returns a listener/primary rider for the audio system ((audio, -1) = primary player); also used as the local-human check for speech and as a current-rider lookup. *[static]*
@@ -31,12 +31,12 @@ Segment `0x00284BB0`-`0x0028A1E8`.
 - **`0x00287520`** - Character speech volume slider setter (CHARACTER bus, ch4). *[static]*
 - **`0x00287558`** - DJ Speech option setter (options word `0x00535610` bit 17): DJ bus = Music volume only while DJ is enabled (audio+0x62B8) and radio mode != 2, else 0. *[static]*
 - **`0x002875D0`** - Arcade SFX option setter; gates ARCADESFX/ARCADESPEECH via flag audio+0x62B4. *[static]*
-- **`0x00287670`** - Volume slider getter returning round(vol * 11); one of the three music/SFX/speech getters (`0x00287670`, `0x002876A0`, `0x002876D0`), not individually assigned. *[unconfirmed]*
-- **`0x002876A0`** - Volume slider getter returning round(vol * 11); one of the three music/SFX/speech getters (`0x00287670`, `0x002876A0`, `0x002876D0`), not individually assigned. *[unconfirmed]*
-- **`0x002876D0`** - Volume slider getter returning round(vol * 11); one of the three music/SFX/speech getters (`0x00287670`, `0x002876A0`, `0x002876D0`), not individually assigned. *[unconfirmed]*
+- **`0x00287670`** - Music volume slider getter (channel 1): returns (int)(vol * 11), truncated, not rounded. *[static]*
+- **`0x002876A0`** - SFX volume slider getter (channel 5): returns (int)(vol * 11), truncated, not rounded. *[static]*
+- **`0x002876D0`** - Speech volume slider getter (channel 4): returns (int)(vol * 11), truncated, not rounded. *[static]*
 - **`0x00287700`** - Applies mixer channel volumes: effective = slider * base scale * duck * mix; channel 0 goes to `0x003B8160`(vol*127). *[static]*
 - **`0x00287968`** - Returns a pointer to a bus's effective volume (audio, bus[, player/speaker]), used as the voice gain pointer and by the 'bus volume != 0' speech gates. For bus 4 (CHARACTER) with a CHARDB id it returns the per-speaker gain audio+0x636C+4*id; NIS sounds call it as (audio, 4, 0). *[static]*
-- **`0x00287A10`** - Converts a duck channel mask to channels, one bit per bus: 0x1 MUSIC, 0x2 ch5, 0x4 CHARACTER, 0x8 DJ, 0x10 AMBIENT, 0x20 BOARD, 0x40 COLLISION, 0x80 PA, 0x100 ARCADESFX, 0x200 ARCADESPEECH. Each block is governed by the andi in the previous branch's delay slot. *[static]*
+- **`0x00287A10`** - Applies a duck to the channels in a mask: sets the duck directly when the time is 0, otherwise starts a fade. One bit per bus: 0x1 MUSIC, 0x2 ch5, 0x4 CHARACTER, 0x8 DJ, 0x10 AMBIENT, 0x20 BOARD, 0x40 COLLISION, 0x80 PA, 0x100 ARCADESFX, 0x200 ARCADESPEECH. Each block is governed by the andi in the previous branch's delay slot. *[static]*
 - **`0x00287C48`** - Per-frame duck tick. *[static]*
 - **`0x00287F00`** - Duck fade (audio, mode, seconds, level): fades a group of channels through the per-channel duck factor. Mode 0 = mask 0x173 (MUSIC, ch5, AMBIENT, BOARD, COLLISION, ARCADESFX); mode 3 = release whatever is ducked. DJ talk-over uses (0, 0.9999 s, 0.65); release uses (3, 0.5 s, 1.0). *[static]*
 - **`0x00287FC8`** - MIX.INF parser: reads up to 25 [Mix n] records of 0x28 bytes into audio+0x647C (path pointer at gp+0x470 (`0x004A3560`), 'data/config/mix.inf'). Defaults 100 and TIME 0; columns MUSIC, DJ, PA, CHARACTER, BOARD, COLLISION, AMBIENT, ARCADESFX, ARCADESPEECH map to channels 1,2,3,4,6,7,8,9,10; TIME is stored in seconds (ms * 0.001). *[static]*
@@ -57,7 +57,7 @@ Segment `0x00284BB0`-`0x0028A1E8`.
 - **`0x00289BB8`** - Game resume audio: music Resume, SFX resume, cancels queued speech. *[static]*
 - **`0x00289C18`** - Returns the tier selecting the music intensity ramp length N (800/1000/1200 frames). *[static]*
 - **`0x00289C98`** - Selects the mix (SetMix `0x002883B0`) from the tWPIGD_Mix world painter (type 1) at the primary rider's position. In retail only ABC1 (Happiness) uses Mix 1 and BRA2 (Metro-City) Mix 2, both with 3000 ms fades. *[static]*
-- **`0x00289DC0`** - Sound Mode option setter (options word bits 12..13: Stereo/Surround/Mono/DTS). *[static]*
+- **`0x00289DC0`** - Sound Mode option getter (options word bits 12..13: Stereo/Surround/Mono/DTS). *[static]*
 
 ## `src/sound/asyncsys.cpp`
 
@@ -281,7 +281,7 @@ Segment `0x002A99D8`-`0x002ACD08`.
 
 - **`0x002AB028`** - Reports whether the speech stream is playing (state audio+0x63E0). *[static]*
 - **`0x002AB6B0`** - Voice update: runs the per-voice callback, then the 3D update `0x002AC868`. *[PS2]*
-- **`0x002AB958`** - Caller of the per-frame song update `0x002B21E0`. *[static]*
+- **`0x002AB958`** - The whole audio-system tick (voices, timers, streams); reaches the song update `0x002B21E0` only through `0x002B4388`. *[static]*
 - **`0x002ABB38`** - Stops a voice with a 250 ms linear fade. *[static]*
 - **`0x002ABE78`** - Voice pitch bend (voice, bend): 0x1000 = 1.0, max 0x3FFF. *[static]*
 - **`0x002AC868`** - Per-frame 3D voice update: distance volume trunc(base x ((V - max(d - 0.5, 0))/V)^2) with V = 30 m (300 m for stage-script sounds), changes <= 4 not sent; a doppler bend (1 + v/8000) overwrites the callback's bend. Board-loop pitch stays within 4066-4112 in races. *[PS2]*
@@ -327,7 +327,7 @@ Segment `0x002ACD08`-`0x002B4B08`.
 - **`0x002B20C8`** - Sends a Pathfinder event: `0x003D16F0`(-1, e) once the stream runs, else queues it in song+0x30. *[static]*
 - **`0x002B2120`** - Sets the song voices' intensity via `0x003D0D70`. *[static]*
 - **`0x002B2160`** - Applies the song LOWPASS value via `0x003B80A0` (only on change). *[static]*
-- **`0x002B21E0`** - Per-frame song update, called from `0x002B4388`/`0x002AB958`. First call: load via `0x003D2350`, `0x003D25F0`(0x11000001, MUSDATA, latency 500, 2 queue entries) and, if LOOPDATA, `0x003D25F0`(0x11000002, LOOPDATA, latency 10, 1 entry), then sends the pending event song+0x30. Each frame: applies LOWPASS and volume = clamp(pathVol x 0.01 x PathLevel x channelVolume, 0, 127) -> `0x003B7E70`. *[static]*
+- **`0x002B21E0`** - Per-frame song update, called from `0x002B4388`. First call: load via `0x003D2350`, `0x003D25F0`(0x11000001, MUSDATA, latency 500, 2 queue entries) and, if LOOPDATA, `0x003D25F0`(0x11000002, LOOPDATA, latency 10, 1 entry), then sends the pending event song+0x30. Each frame: applies LOWPASS and volume = clamp(pathVol x 0.01 x PathLevel x channelVolume, 0, 127) -> `0x003B7E70`. *[static]*
 - **`0x002B2418`** - Song fade-out body: `0x003B7EB0`(stream, sec x 1000, 0) and song+0x48 = 1. *[static]*
 - **`0x002B2550`** - Returns the song status; -1 = finished (via `0x003D11B8`). *[static]*
 - **`0x002B2850`** - Copies the async delay/echo parameters to the overlay (no effect in retail: DelayCount 0). *[static]*

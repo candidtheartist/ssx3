@@ -152,7 +152,7 @@ line), `0x004A3658` → `0x0028E068` (retry song change), and `0x004A3850` → t
 
 **Sliders.** The setters are `0x00287410` (music), `0x00287488` (effects) and `0x00287520` (speech). A step 0..11
 maps linearly to clamp(step / 11, 0, 1) in `0x002873D8`. The getters `0x00287670` / `0x002876A0` / `0x002876D0`
-return round(vol × 11). The profile default (`0x0014F458`) is step 10.
+return (int)(vol × 11), truncated. The profile default (`0x0014F458`) is step 10.
 
 **Effective volume.** `0x00287700` computes effective = slider × base scale × duck × mix. `0x00288D18` sets the base
 scales through gp+0x414 (`0x004A3504`). The FE table (argument 0) is all 1.0 except CHARACTER 0.6. The world table
@@ -273,7 +273,7 @@ the list (`0x002B4AF0`) or is charsel; hub songs stay.
 1 and last event = -1. `0x0028F478` also shows the Now Playing popup (HUD vfunc 0xC0, argument 5) while MUSIC is
 audible.
 
-**Per frame (`0x002B21E0`, from `0x002B4388` / `0x002AB958`).** The first call loads the Pathfinder data
+**Per frame (`0x002B21E0`, from `0x002B4388`).** The first call loads the Pathfinder data
 (`0x003D2350`) and creates the track-0 voice on MUSDATA (`0x003D25F0`, latency 500 ms, 2 queue entries). If
 LOOPDATA exists it also creates the track-1 overlay (latency 10 ms, 1 entry, so beat-synced). Then it sends a
 queued first event. The tracks are addressed by stream handles with top byte 0x11 and low byte 1 or 2, and
@@ -756,7 +756,7 @@ songs, empty for owned songs and a dollar sign for unowned ones. The text update
 
 | Row | Widget | Options bits | Setter |
 |---|---|---|---|
-| Sound Mode (Stereo/Surround/Mono/DTS) | List | 12-13 | `0x00289DC0` |
+| Sound Mode (Stereo/Surround/Mono/DTS) | List | 12-13 | getter `0x00289DC0` (setter not identified) |
 | Music/MC, SFX, Character speech | Sliders | 0-3, 8-11, not given | `0x00287410`, `0x00287488`, `0x00287520` |
 | DJ Speech / Arcade SFX (Off/On) | Lists | 17 / not given | `0x00287558` / `0x002875D0` |
 | EA SPORTS BIG Talk | List | 18 | Online only |

@@ -111,7 +111,7 @@ void func_00278710(void* a);
 extern "C" void func_00369FF8(void* a);
 extern "C" void func_003A67E0(void* a);
 extern "C" void func_002B68D0(void* a);
-extern "C" void func_002867E8(void* a);
+extern "C" void cSSXAudio_initWorld(void* a);
 extern void* D_004A28A8;
 extern void* D_004A28A4;
 extern void* D_004A289C;
@@ -135,7 +135,7 @@ extern "C" void func_00230050(void* self)
     func_00369FF8(D_004A289C);
     func_003A67E0(*(void**)((char*)self + 0x10));
     func_002B68D0(D_004A52D4);
-    func_002867E8(D_004A3500);
+    cSSXAudio_initWorld(D_004A3500);
     D_004A4324 = 1;
     D_004A45D8 = 1;
     D_004A43C8 = 1;
@@ -180,7 +180,7 @@ extern "C" void func_00229498(void* self);
 extern "C" void func_00343BC0(void* self);
 extern "C" void func_00357B38(void* self);
 extern "C" void* func_0039F9D8(void* list, int hash);
-extern "C" void func_00287108(void* self);
+extern "C" void cSSXAudio_onReset(void* self);
 extern "C" void* func_0028B180(void);
 int GetHashValue32(char* s);
 extern char D_004A2AB0[];
@@ -224,7 +224,7 @@ extern "C" void func_00230180(void* self)
     }
     func_00309F18(D_004A3DD8);
     func_00308C60(*(void**)((char*)self + 0x30));
-    func_00287108(func_0028B180());
+    cSSXAudio_onReset(func_0028B180());
 }
 
 //100% - objdiff report; single-function view differs only in a relocation name
@@ -232,7 +232,7 @@ extern "C" void func_00230180(void* self);
 extern "C" void cGameModeMan_restartHeat(void* gm);
 extern "C" void func_00231250(void* self, int a, int b, int refresh);
 extern "C" void* func_0028B180(void);
-extern "C" void func_002870A0(void* mgr);
+extern "C" void cSSXAudio_onRestart(void* mgr);
 extern void* D_004A28A8;
 
 static inline int numRiders_2302A8(void* game)
@@ -254,7 +254,7 @@ extern "C" void cGame_restart(void* self)
         *(int*)(rider_2302A8(self, i) + 0x2F8) = 0;
     }
     func_00231250(self, 1, 2, 1);
-    func_002870A0(func_0028B180());
+    cSSXAudio_onRestart(func_0028B180());
 }
 
 //100%

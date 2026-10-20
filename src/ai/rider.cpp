@@ -14,8 +14,8 @@ struct sVE_11B978 {
     void (*fn)(void*, int);
 };
 extern "C" void* func_0028B180();
-// PORT: func_00289AF8 takes (mgr, rider); the mangled name says one void* param.
-void func_00289AF8_impl(void* mgr, void* rider) __asm__("func_00289AF8__FPv");
+// PORT: cSSXAudio_removeRider__FPv takes (mgr, rider); the mangled name says one void* param.
+void cSSXAudio_removeRider__FPv_impl(void* mgr, void* rider) __asm__("cSSXAudio_removeRider__FPv__FPv");
 extern "C" void func_002832D8(void* p);
 extern "C" void func_00283228(void* p, int flags);
 extern "C" void func_0030D540(void* p, int flags);
@@ -44,7 +44,7 @@ extern "C" void cRider_destroy(char* self, int flags)
     *(void***)(self + 0x6E8) = D_00459BD0;
     *(void**)(self + 0x6D0) = D_00459B90;
     *(void***)(self + 0x6C0) = D_00459C18;
-    func_00289AF8_impl(func_0028B180(), self);
+    cSSXAudio_removeRider__FPv_impl(func_0028B180(), self);
     func_002832D8(self + 0x6DC);
     char* o = *(char**)(self + 0x784);
     if (o != 0)
