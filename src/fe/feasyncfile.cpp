@@ -2046,7 +2046,26 @@ extern "C" void func_001A6E70(sOwner1A6E70* self)
     }
 }
 
-INCLUDE_ASM("fe/feasyncfile", func_001A6F70);
+//100%
+extern "C" int func_00263128(void* self, const char* name);
+extern "C" int func_00262A38(void* self, int a1);
+extern "C" void func_00261EF8(void* self, int a1, int a2, int a3);
+
+extern "C" void func_001A6F70()
+{
+    int n = func_00262598(GetSession_001A6E70());
+    for (int i = 0; i < n; i++) {
+        const char* name = func_002625C8(GetSession_001A6E70(), i);
+        if (name == 0) continue;
+        if (func_00262400(GetSession_001A6E70(), i) == 0) continue;
+        int a = func_00263128(GetSession_001A6E70(), name);
+        int b = func_00262A38(GetSession_001A6E70(), (int)name);
+        if (a == 0 && b == 0) {
+            int buf[4];
+            func_00261EF8(GetSession_001A6E70(), (int)name, 2, (int)buf);
+        }
+    }
+}
 
 //100% - objdiff report; single-function view differs only in a relocation name
 extern "C" void func_00260F80();
