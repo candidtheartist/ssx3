@@ -65,10 +65,15 @@ ExternalProject_Add(ps2recomp_src
     # LF line endings whatever git's settings, so the patch applies on Windows too.
     GIT_CONFIG core.autocrlf=false
     UPDATE_COMMAND ""
-    PATCH_COMMAND git apply "${CMAKE_CURRENT_SOURCE_DIR}/ps2recomp.patch"
+    PATCH_COMMAND ${CMAKE_COMMAND} "-DSRC=${SRC_DIR}" "-DPATCH=${CMAKE_CURRENT_SOURCE_DIR}/ps2recomp.patch"
+                  -P "${CMAKE_CURRENT_SOURCE_DIR}/apply_patch.cmake"
     CONFIGURE_COMMAND ""
     BUILD_COMMAND ""
     INSTALL_COMMAND "")
+# Re-applied when the patch changes, rewriting only the files it changes, so the next build recompiles only
+# what depends on them.
+ExternalProject_Add_StepDependencies(ps2recomp_src patch
+    "${CMAKE_CURRENT_SOURCE_DIR}/ps2recomp.patch" "${CMAKE_CURRENT_SOURCE_DIR}/apply_patch.cmake")
 
 # 2. The translator, built for the host.
 ExternalProject_Add(ps2recomp_tools

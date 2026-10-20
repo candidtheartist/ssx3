@@ -9,6 +9,8 @@ or any disc file.
 
 - `CMakeLists.txt` fetches PS2Recomp at a fixed commit, applies `ps2recomp.patch`, finds function boundaries
   with spimdisasm, translates the ELF, then builds the runtime 32-bit.
+- `apply_patch.cmake` applies the patch. When a pull changes the patch, the next build rewrites only the files
+  it changes, so only what depends on them recompiles.
 - `ps2recomp.patch` holds our runtime changes. None of them are SSX 3 specific, so they could go upstream:
   - a 32-bit build, with EE RAM identity-mapped at its PS2 addresses;
   - a native 32-bit Windows build with MinGW. The game thread gets a 16 MB stack, and `operator new` returns
