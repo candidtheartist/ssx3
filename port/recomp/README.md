@@ -190,6 +190,14 @@ or any disc file.
     and runs them against the interpreter. In a race every block the game ran had generated code, and VU1 programs
     took 29% less time per block (330 against 460 ns, not counting GS packet hand-off); the GS workers still set the
     frame rate. `PS2X_VU1_GENERATED=0` turns them off;
+  - the GS renderer and VU1 built at -O3 in every optimised build type, with the same results. The runtime is built
+    as RelWithDebInfo, and at its -O2 the compiler left some per-pixel helpers, such as the bilinear filter, as
+    separate calls; these files now get -O3 whatever the build type, except Debug. A primitive also works out once
+    what its alpha and destination alpha tests let a pixel write, and a sprite works out each column's part of its
+    frame and depth addresses once. The 8,000 recorded race packets replay to the same VRAM, also with
+    round-toward-zero and on several workers, in 10% less time on one worker and 26% less on three. The same race on
+    the old and new build ran at a median 13.2 and 16.1 frames a second over its last 5 minutes, and its race clock
+    moved 16% faster;
   - debug switches.
 - `ssx3_overrides.cpp` holds the game-specific replacements: it skips the network and USB keyboard drivers,
   answers the module search, routes `isceSifSendCmd`, and keeps the runtime's scratch buffers in the
