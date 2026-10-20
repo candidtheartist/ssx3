@@ -3537,7 +3537,25 @@ extern "C" void func_002B3D48(void* self, float v)
     }
 }
 
-INCLUDE_ASM("sound/bankmonitor", func_002B3D80);
+//100%
+// PORT: 64-bit `long` (8 bytes on EE, 4 on Windows); use int64_t/uint64_t off-PS2.
+// PORT: PS2-only inline asm; needs a C fallback off-PS2.
+struct sPacked8_3D80 { long v; } __attribute__((packed));
+extern const sPacked8_3D80 D_004A3850_3D80[] __asm__("D_004A3850");
+extern void func_002ADCA0_3D80(int a, int b, long t, int c, int d, int e, int f, int g) __asm__("func_002ADCA0");
+
+extern "C" void func_002B3D80(void* self, signed char target, float duration)
+{
+    signed char cur;
+    void* voice = *(void**)((char*)self + 0x408);
+    if (voice != 0 && target != (cur = *(signed char*)((char*)voice + 0x40))) {
+        int steps = (target - cur) / 25;
+        *(int*)((char*)self + 0x414) = target;
+        *(float*)((char*)self + 0x410) = (float)cur;
+        *(float*)((char*)self + 0x40C) = (float)steps / duration;
+        func_002ADCA0_3D80(**(int**)self + 0x1D8, 0x28, D_004A3850_3D80[0].v, 0, 0, 0, 0, 0);
+    }
+}
 
 //100%
 extern "C" int func_002B3E20(void* self)
@@ -3814,7 +3832,20 @@ extern "C" void func_002B43D8(void* self)
     }
 }
 
-INCLUDE_ASM("sound/bankmonitor", func_002B4470);
+//100%
+struct sPacked8_4470 { long v; } __attribute__((packed));
+extern const sPacked8_4470 D_004A3838_4470[] __asm__("D_004A3838");
+extern void func_002ADCA0_4470(int a, int b, long t, int c, int d, int e, int f, int g) __asm__("func_002ADCA0");
+
+// PORT: 64-bit long sound key, read unaligned from a const table
+extern "C" void func_002B4470(void* self)
+{
+    void* p = *(void**)((char*)self + 0x408);
+    if (p != 0 && *(int*)((char*)p + 0x4C) == 0) {
+        *(int*)((char*)p + 0x4C) = 1;
+        func_002ADCA0_4470(*(int*)(*(int*)self) + 0x1D8, 0, D_004A3838_4470[0].v, 0, 0, 0, 0, 0);
+    }
+}
 
 // 64-bit bank id stored word-aligned; read with an unaligned 64-bit load and
 // passed in a single register.

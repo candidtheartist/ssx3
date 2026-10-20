@@ -1280,7 +1280,198 @@ extern "C" void func_002948A0(void* self)
     }
 }
 
-INCLUDE_ASM("sound/soundsys", func_002948D0);
+//100%
+extern "C" void* func_00416210(void* dst, int c, int n);
+extern "C" void* func_00287968(void* self, int a1, int a2);
+extern "C" int func_002906B8(void* self);
+extern "C" int func_00288A20(void* self, void* obj);
+extern "C" int func_00288AE0(void* self);
+extern "C" int func_00285D98(void* self, int which);
+extern "C" void func_003B58A0();
+extern "C" void func_003B58D8();
+extern "C" int func_003B8AB8(int id);
+extern "C" void func_002AD5F0(void* p, int idx, int a2, float v);
+extern "C" int func_00291710(void* self, int id);
+extern "C" void* cBE_getBE();
+void* cBE_getInterface_Fv(void* be, int kind) __asm__("cBE_getInterface__Fv");
+extern signed char D_00535C11[];
+
+struct sSnd48D0Ch {
+    signed char vol;
+    char pad1[0x17];
+};
+struct sSnd48D0E16 {
+    int f0;
+    int f4;
+    int f8;
+    int fC;
+};
+struct sSnd48D0Sub {
+    char pad0[4];
+    sSnd48D0Ch def;          // 0x04
+    volatile int cur;        // 0x1C
+    sSnd48D0Ch* ch;          // 0x20
+    void* tgt[4];            // 0x24
+    int* p34;                // 0x34
+    int* vals;               // 0x38
+    int* p3C;                // 0x3C
+    char e40[4][8];          // 0x40
+    int* p60;                // 0x60
+    int* p64;                // 0x64
+    int* p68;                // 0x68
+    int* p6C;                // 0x6C
+    sSnd48D0E16* p70;        // 0x70
+    int* p74;                // 0x74
+    int* p78;                // 0x78
+    int* p7C;                // 0x7C
+    int* p80;                // 0x80
+    int* p84;                // 0x84
+};
+struct sSnd48D0Mgr {
+    char pad0[0x1D8];
+    sSnd48D0Sub sub;         // 0x1D8
+};
+struct sSnd48D0Sys {
+    sSnd48D0Mgr* mgr;
+    int* a4;                 // 0x4
+    int* a8;                 // 0x8
+    char padC[0x118 - 0xC];
+    sSnd48D0Mgr** p118;      // 0x118
+    char pad11C[0x5FB8 - 0x11C];
+    int handle;              // 0x5FB8
+};
+
+extern "C" void func_002A7438(void* self, int id);
+extern "C" void func_002A73A8(void* self, int level, int id);
+extern "C" int func_00288B40(void* self, int pos, float range);
+
+struct sCurve_48D0 {
+    float key[5];
+    float value[5];
+};
+extern sCurve_48D0 D_00482D30;
+// The unit declares func_00290B58 with other curve structs; bound by asm label.
+extern "C" float func_00290B58_48D0(sCurve_48D0* c, float x) __asm__("func_00290B58");
+
+struct sVE_48D0 { short delta; short index; int (*fn)(void*); };
+
+static inline int vcall_48D0(char* obj, int slot)
+{
+    char* o = obj + 0x6C0;
+    sVE_48D0* vt = *(sVE_48D0**)o;
+    return vt[slot].fn(o + vt[slot].delta);
+}
+
+static inline void snd48D0AddVoice(sSnd48D0Sys* self, int a, int b)
+{
+    sSnd48D0Mgr* m = self->mgr;
+    sSnd48D0Sub* s = &m->sub;
+    m->sub.cur++;
+    s->ch[m->sub.cur] = m->sub.def;
+    m->sub.tgt[m->sub.cur] = 0;
+    s->p34[m->sub.cur] = 0;
+    s->vals[m->sub.cur] = s->ch[m->sub.cur].vol;
+    s->p3C[m->sub.cur] = 0;
+    func_00416210((char*)s + m->sub.cur * 8 + 0x40, 0, 8);
+    s->p60[m->sub.cur] = 0;
+    s->p64[m->sub.cur] = 0;
+    s->p68[m->sub.cur] = 0;
+    s->p6C[m->sub.cur] = 0;
+    s->p70[m->sub.cur].f4 = 0;
+    s->p70[m->sub.cur].f0 = 100;
+    s->p70[m->sub.cur].f8 = 90;
+    s->p70[m->sub.cur].fC = 50;
+    s->p74[m->sub.cur] = 0;
+    s->p80[m->sub.cur] = 0;
+    s->p84[m->sub.cur] = 0;
+    s->p78[m->sub.cur] = 0x7F;
+    s->p7C[m->sub.cur] = 1;
+    self->a4[self->mgr->sub.cur] = a;
+    self->a8[self->mgr->sub.cur] = b;
+}
+
+#define SND_48D0_MIN(a, b) ((a) < (b) ? (a) : (b))
+#define SND_48D0_MAX(a, b) ((a) > (b) ? (a) : (b))
+
+// Rider speed sound: sets the speed level for the rider's board sound and (re)starts the wind loop with the
+// curve-mapped volume.
+extern "C" void func_002948D0(void* vself, char* obj, float speed)
+{
+    sSnd48D0Sys* self = (sSnd48D0Sys*)vself;
+    int id = -1;
+    if (func_00288AE0(self) != 0) {
+        id = 0;
+    } else {
+        bool ok = *(int*)(obj + 0x874) && *(int*)(obj + 0x87C);
+        if (ok) {
+            id = *(int*)(obj + 0x870);
+        }
+    }
+    if ((char*)func_00285D98(self, id) == obj) {
+        if (speed <= 0.0f) {
+            func_002A7438(self, id);
+        } else if (speed < 0.25f) {
+            func_002A73A8(self, 0, id);
+        } else if (speed < 0.65f) {
+            func_002A73A8(self, 1, id);
+        } else {
+            func_002A73A8(self, 2, id);
+        }
+    }
+    if (vcall_48D0(obj, 9) != 0 || *(int*)(obj + 0x87C) == 0) {
+        if (func_00288B40(self, vcall_48D0(obj, 5), 100.0f) < 0) {
+            return;
+        }
+    }
+    sCurve_48D0 curve = D_00482D30;
+    int vol = (int)func_00290B58_48D0(&curve, *(float*)(obj + 0x770));
+    vol = vol > 127 ? 127 : vol;
+    vol = vol < 0 ? 0 : vol;
+    int b;
+    bool ok = *(int*)(obj + 0x874) && *(int*)(obj + 0x87C);
+    if (ok) {
+        b = func_00291710(self, (int)obj) * 8 + 1;
+    } else {
+        b = func_00291710(self, (int)obj) * 8 + 5;
+    }
+    func_003B58A0();
+    bool playing = func_003B8AB8(self->handle) != 0;
+    func_003B58D8();
+    if (!playing) {
+        func_002AD5F0(&(*self->p118)->sub, self->handle, 1, 0.0f);
+    }
+    int flag = 0;
+    bool ok2 = *(int*)(obj + 0x874) && *(int*)(obj + 0x87C);
+    if (ok2) {
+        cBE_getInterface_Fv(cBE_getBE(), 0);
+        if (D_00535C11[0] == 2) {
+            flag = func_00288AE0(self) == 0;
+        }
+    }
+    snd48D0AddVoice(self, 10, b);
+    sSnd48D0Mgr* m2 = *self->p118;
+    sSnd48D0Sub* s2 = &m2->sub;
+    s2->vals[m2->sub.cur] = vol;
+    s2->ch[m2->sub.cur].vol = SND_48D0_MAX(0, SND_48D0_MIN(s2->vals[s2->cur], 0x7F));
+    sSnd48D0Mgr** pp = self->p118;
+    int r = (int)func_00287968(self, 6, 0);
+    (*pp)->sub.p3C[(*pp)->sub.cur] = r;
+    func_002A9988(&(*self->p118)->sub, 30.0f, -1.0f);
+    {
+        sSnd48D0Mgr* m3 = *self->p118;
+        m3->sub.tgt[m3->sub.cur] = obj + 0x110;
+    }
+    {
+        sSnd48D0Mgr** pq = self->p118;
+        int q = func_00288A20(self, obj);
+        (*pq)->sub.p64[(*pq)->sub.cur] = q;
+    }
+    if (flag) {
+        (*self->p118)->sub.p80[(*self->p118)->sub.cur] = 1;
+        (*self->p118)->sub.p84[(*self->p118)->sub.cur] = *(int*)(obj + 0x870);
+    }
+    self->handle = func_002906B8(self);
+}
 
 //100%
 struct sSndVEntry294F48 {
@@ -1661,7 +1852,165 @@ extern "C" void func_00296308()
 
 INCLUDE_ASM("sound/soundsys", func_00296310);
 
-INCLUDE_ASM("sound/soundsys", func_00296868);
+//100%
+extern "C" void* func_00416210(void* dst, int c, int n);
+extern "C" void* func_00287968(void* self, int a1, int a2);
+extern "C" int func_002906B8(void* self);
+extern "C" int func_00288A20(void* self, void* obj);
+extern "C" int func_00288AE0(void* self);
+extern "C" int func_00288B40(void* self, int which, float f);
+extern "C" float func_00290B58(func_00290B58_sCurve* c, float v);
+extern "C" unsigned int func_002ADF60(void* rng);
+extern "C" void* cBE_getBE();
+void* cBE_getInterface_Fv(void* be, int kind) __asm__("cBE_getInterface__Fv");
+extern signed char D_00535C11[];
+struct sSndKey8_6868 {
+    long v;
+} __attribute__((packed));
+extern sSndKey8_6868 D_004A36B0_6868[] __asm__("D_004A36B0");
+struct sSndOwner_6868 {
+    char pad0[0x80];
+    char* rider;             // 0x80
+};
+extern func_00290B58_sCurve D_00482DA0_6868 __asm__("D_00482DA0");
+
+struct sVE_6868 { short delta; short index; int (*fn)(void*); };
+
+struct sSnd6868Ch {
+    signed char vol;
+    char pad1[0x17];
+};
+struct sSnd6868E16 {
+    int f0;
+    int f4;
+    int f8;
+    int fC;
+};
+struct sSnd6868Sub {
+    char pad0[4];
+    sSnd6868Ch def;          // 0x04
+    volatile int cur;        // 0x1C
+    sSnd6868Ch* ch;          // 0x20
+    void* tgt[4];            // 0x24
+    int* p34;                // 0x34
+    int* vals;               // 0x38
+    int* p3C;                // 0x3C
+    char e40[4][8];          // 0x40
+    int* p60;                // 0x60
+    int* p64;                // 0x64
+    int* p68;                // 0x68
+    int* p6C;                // 0x6C
+    sSnd6868E16* p70;        // 0x70
+    int* p74;                // 0x74
+    int* p78;                // 0x78
+    int* p7C;                // 0x7C
+    int* p80;                // 0x80
+    int* p84;                // 0x84
+};
+struct sSnd6868Mgr {
+    char pad0[0x1D8];
+    sSnd6868Sub sub;         // 0x1D8
+};
+struct sSnd6868Sys {
+    sSnd6868Mgr* mgr;
+    int* a4;                 // 0x4
+    int* a8;                 // 0x8
+    char padC[0x118 - 0xC];
+    sSnd6868Mgr** p118;      // 0x118
+};
+
+static inline int vcall_6868(char* o, int slot)
+{
+    sVE_6868* vt = *(sVE_6868**)o;
+    return vt[slot].fn(o + vt[slot].delta);
+}
+
+// Board slide sound of an owner's rider: started once per rider, volume from the speed curve.
+extern "C" void func_00296868(void* vself, sSndOwner_6868* t)
+{
+    sSnd6868Sys* self = (sSnd6868Sys*)vself;
+    if (*(int*)(t->rider + 0x774) >= 0) {
+        return;
+    }
+    if (vcall_6868(t->rider + 0x6C0, 9) != 0 || *(int*)(t->rider + 0x87C) == 0) {
+        if (func_00288B40(self, vcall_6868(t->rider + 0x6C0, 5), 100.0f) < 0) {
+            return;
+        }
+    }
+    func_00290B58_sCurve curve = D_00482DA0_6868;
+    int vol = (int)func_00290B58(&curve, *(float*)(t->rider + 0x770));
+    int b = 0x33;
+    if (vol > 0x7F) {
+        vol = 0x7F;
+    }
+    if (vol < 0) {
+        vol = 0;
+    }
+    int flag = 0;
+    bool ok = *(int*)(t->rider + 0x874) && *(int*)(t->rider + 0x87C);
+    if (ok) {
+        cBE_getInterface_Fv(cBE_getBE(), 0);
+        if (D_00535C11[0] == 2) {
+            flag = func_00288AE0(self) == 0;
+        }
+    }
+    sSnd6868Mgr* m = self->mgr;
+    sSnd6868Sub* s = &m->sub;
+    m->sub.cur++;
+    s->ch[m->sub.cur] = m->sub.def;
+    m->sub.tgt[m->sub.cur] = 0;
+    s->p34[m->sub.cur] = 0;
+    s->vals[m->sub.cur] = s->ch[m->sub.cur].vol;
+    s->p3C[m->sub.cur] = 0;
+    func_00416210((char*)s + m->sub.cur * 8 + 0x40, 0, 8);
+    s->p60[m->sub.cur] = 0;
+    s->p64[m->sub.cur] = 0;
+    s->p68[m->sub.cur] = 0;
+    s->p6C[m->sub.cur] = 0;
+    s->p70[m->sub.cur].f4 = 0;
+    s->p70[m->sub.cur].f0 = 100;
+    s->p70[m->sub.cur].f8 = 90;
+    s->p70[m->sub.cur].fC = 50;
+    s->p74[m->sub.cur] = 0;
+    s->p80[m->sub.cur] = 0;
+    s->p84[m->sub.cur] = 0;
+    s->p78[m->sub.cur] = 0x7F;
+    s->p7C[m->sub.cur] = 1;
+    self->a4[self->mgr->sub.cur] = 0;
+    self->a8[self->mgr->sub.cur] = b;
+    sSnd6868Mgr* m3 = *self->p118;
+    sSnd6868Sub* s3 = &m3->sub;
+    s3->vals[m3->sub.cur] = vol;
+    s3->ch[m3->sub.cur].vol = (s3->vals[s3->cur] < 0x7F && s3->vals[s3->cur] < 0) ? 0 : (s3->vals[s3->cur] < 0x7F ? (unsigned char)s3->vals[s3->cur] : 0x7F);
+    sSnd6868Mgr** pp = self->p118;
+    int r = (int)func_00287968(self, 5, 0);
+    (*pp)->sub.p3C[(*pp)->sub.cur] = r;
+    {
+        sSnd6868Mgr* m2 = *self->p118;
+        m2->sub.tgt[m2->sub.cur] = t->rider + 0x110;
+    }
+    {
+        sSnd6868Mgr** pq = self->p118;
+        int q = func_00288A20(self, t ? t->rider : 0);
+        (*pq)->sub.p64[(*pq)->sub.cur] = q;
+    }
+    {
+        sSnd6868Mgr* m2 = *self->p118;
+        m2->sub.p60[m2->sub.cur] = (int)t;
+    }
+    {
+        sSnd6868Mgr* m2 = *self->p118;
+        sSndKey8_6868 k = D_004A36B0_6868[0];
+        sSnd6868Sub* s2 = &m2->sub;
+        *(sSndKey8_6868*)((char*)s2 + (m2->sub.cur << 3) + 0x40) = k;
+    }
+    (*self->p118)->sub.p7C[(*self->p118)->sub.cur] = 0;
+    if (flag) {
+        (*self->p118)->sub.p80[(*self->p118)->sub.cur] = 1;
+        (*self->p118)->sub.p84[(*self->p118)->sub.cur] = *(int*)(t->rider + 0x870);
+    }
+    *(int*)(t->rider + 0x774) = func_002906B8(self);
+}
 
 extern "C" void func_00296E18()
 {
@@ -1679,7 +2028,165 @@ extern "C" void func_00296E20(void* self, void* obj)
     }
 }
 
-INCLUDE_ASM("sound/soundsys", func_00296E80);
+//100%
+extern "C" void* func_00416210(void* dst, int c, int n);
+extern "C" void* func_00287968(void* self, int a1, int a2);
+extern "C" int func_002906B8(void* self);
+extern "C" int func_00288A20(void* self, void* obj);
+extern "C" int func_00288AE0(void* self);
+extern "C" int func_00288B40(void* self, int which, float f);
+extern "C" float func_00290B58(func_00290B58_sCurve* c, float v);
+extern "C" unsigned int func_002ADF60(void* rng);
+extern "C" void* cBE_getBE();
+void* cBE_getInterface_Fv(void* be, int kind) __asm__("cBE_getInterface__Fv");
+extern signed char D_00535C11[];
+struct sSndKey8_6E80 {
+    long v;
+} __attribute__((packed));
+extern sSndKey8_6E80 D_004A36B8_6E80[] __asm__("D_004A36B8");
+struct sSndOwner_6E80 {
+    char pad0[0x80];
+    char* rider;             // 0x80
+};
+extern func_00290B58_sCurve D_00482DA0_6E80 __asm__("D_00482DA0");
+
+struct sVE_6E80 { short delta; short index; int (*fn)(void*); };
+
+struct sSnd6E80Ch {
+    signed char vol;
+    char pad1[0x17];
+};
+struct sSnd6E80E16 {
+    int f0;
+    int f4;
+    int f8;
+    int fC;
+};
+struct sSnd6E80Sub {
+    char pad0[4];
+    sSnd6E80Ch def;          // 0x04
+    volatile int cur;        // 0x1C
+    sSnd6E80Ch* ch;          // 0x20
+    void* tgt[4];            // 0x24
+    int* p34;                // 0x34
+    int* vals;               // 0x38
+    int* p3C;                // 0x3C
+    char e40[4][8];          // 0x40
+    int* p60;                // 0x60
+    int* p64;                // 0x64
+    int* p68;                // 0x68
+    int* p6C;                // 0x6C
+    sSnd6E80E16* p70;        // 0x70
+    int* p74;                // 0x74
+    int* p78;                // 0x78
+    int* p7C;                // 0x7C
+    int* p80;                // 0x80
+    int* p84;                // 0x84
+};
+struct sSnd6E80Mgr {
+    char pad0[0x1D8];
+    sSnd6E80Sub sub;         // 0x1D8
+};
+struct sSnd6E80Sys {
+    sSnd6E80Mgr* mgr;
+    int* a4;                 // 0x4
+    int* a8;                 // 0x8
+    char padC[0x118 - 0xC];
+    sSnd6E80Mgr** p118;      // 0x118
+};
+
+static inline int vcall_6E80(char* o, int slot)
+{
+    sVE_6E80* vt = *(sVE_6E80**)o;
+    return vt[slot].fn(o + vt[slot].delta);
+}
+
+// Board slide sound of an owner's rider: started once per rider, volume from the speed curve.
+extern "C" void func_00296E80(void* vself, sSndOwner_6E80* t)
+{
+    sSnd6E80Sys* self = (sSnd6E80Sys*)vself;
+    if (*(int*)(t->rider + 0x778) >= 0) {
+        return;
+    }
+    if (vcall_6E80(t->rider + 0x6C0, 9) != 0 || *(int*)(t->rider + 0x87C) == 0) {
+        if (func_00288B40(self, vcall_6E80(t->rider + 0x6C0, 5), 100.0f) < 0) {
+            return;
+        }
+    }
+    func_00290B58_sCurve curve = D_00482DA0_6E80;
+    int vol = (int)func_00290B58(&curve, *(float*)(t->rider + 0x770));
+    int b = 0x34;
+    if (vol > 0x7F) {
+        vol = 0x7F;
+    }
+    if (vol < 0) {
+        vol = 0;
+    }
+    int flag = 0;
+    bool ok = *(int*)(t->rider + 0x874) && *(int*)(t->rider + 0x87C);
+    if (ok) {
+        cBE_getInterface_Fv(cBE_getBE(), 0);
+        if (D_00535C11[0] == 2) {
+            flag = func_00288AE0(self) == 0;
+        }
+    }
+    sSnd6E80Mgr* m = self->mgr;
+    sSnd6E80Sub* s = &m->sub;
+    m->sub.cur++;
+    s->ch[m->sub.cur] = m->sub.def;
+    m->sub.tgt[m->sub.cur] = 0;
+    s->p34[m->sub.cur] = 0;
+    s->vals[m->sub.cur] = s->ch[m->sub.cur].vol;
+    s->p3C[m->sub.cur] = 0;
+    func_00416210((char*)s + m->sub.cur * 8 + 0x40, 0, 8);
+    s->p60[m->sub.cur] = 0;
+    s->p64[m->sub.cur] = 0;
+    s->p68[m->sub.cur] = 0;
+    s->p6C[m->sub.cur] = 0;
+    s->p70[m->sub.cur].f4 = 0;
+    s->p70[m->sub.cur].f0 = 100;
+    s->p70[m->sub.cur].f8 = 90;
+    s->p70[m->sub.cur].fC = 50;
+    s->p74[m->sub.cur] = 0;
+    s->p80[m->sub.cur] = 0;
+    s->p84[m->sub.cur] = 0;
+    s->p78[m->sub.cur] = 0x7F;
+    s->p7C[m->sub.cur] = 1;
+    self->a4[self->mgr->sub.cur] = 0;
+    self->a8[self->mgr->sub.cur] = b;
+    sSnd6E80Mgr* m3 = *self->p118;
+    sSnd6E80Sub* s3 = &m3->sub;
+    s3->vals[m3->sub.cur] = vol;
+    s3->ch[m3->sub.cur].vol = (s3->vals[s3->cur] < 0x7F && s3->vals[s3->cur] < 0) ? 0 : (s3->vals[s3->cur] < 0x7F ? (unsigned char)s3->vals[s3->cur] : 0x7F);
+    sSnd6E80Mgr** pp = self->p118;
+    int r = (int)func_00287968(self, 5, 0);
+    (*pp)->sub.p3C[(*pp)->sub.cur] = r;
+    {
+        sSnd6E80Mgr* m2 = *self->p118;
+        m2->sub.tgt[m2->sub.cur] = t->rider + 0x110;
+    }
+    {
+        sSnd6E80Mgr** pq = self->p118;
+        int q = func_00288A20(self, t ? t->rider : 0);
+        (*pq)->sub.p64[(*pq)->sub.cur] = q;
+    }
+    {
+        sSnd6E80Mgr* m2 = *self->p118;
+        m2->sub.p60[m2->sub.cur] = (int)t;
+    }
+    {
+        sSnd6E80Mgr* m2 = *self->p118;
+        sSndKey8_6E80 k = D_004A36B8_6E80[0];
+        sSnd6E80Sub* s2 = &m2->sub;
+        *(sSndKey8_6E80*)((char*)s2 + (m2->sub.cur << 3) + 0x40) = k;
+    }
+    (*self->p118)->sub.p7C[(*self->p118)->sub.cur] = 0;
+    if (flag) {
+        (*self->p118)->sub.p80[(*self->p118)->sub.cur] = 1;
+        (*self->p118)->sub.p84[(*self->p118)->sub.cur] = *(int*)(t->rider + 0x870);
+    }
+    *(int*)(t->rider + 0x778) = func_002906B8(self);
+}
 
 extern "C" void func_00297430()
 {
@@ -2160,7 +2667,72 @@ extern "C" int func_00298D88()
     return 0x1;
 }
 
-INCLUDE_ASM("sound/soundsys", func_00298D90);
+//100%
+extern "C" void* func_00416210(void* dst, int c, int n);
+extern "C" void* func_00287968(void* self, int a1, int a2);
+extern "C" int func_002906B8(void* self);
+extern "C" int func_00288AE0(void* self);
+extern "C" void func_002ADDE0(void* bank, long id);
+
+struct sSnd8D90Self {
+    sSnd74A0Sys sys;
+    char pad11C[0x59E0 - sizeof(sSnd74A0Sys)];
+    int handle;              // 0x59E0
+    int count;               // 0x59E4
+};
+
+static inline void snd8D90AddVoice(void* vself, int a, int b)
+{
+    sSnd74A0Sys* self = (sSnd74A0Sys*)vself;
+    sSnd74A0Mgr* m = self->mgr;
+    sSnd74A0Sub* s = &m->sub;
+    m->sub.cur++;
+    s->ch[m->sub.cur] = m->sub.def;
+    m->sub.tgt[m->sub.cur] = 0;
+    s->p34[m->sub.cur] = 0;
+    s->vals[m->sub.cur] = s->ch[m->sub.cur].vol;
+    s->p3C[m->sub.cur] = 0;
+    func_00416210((char*)s + m->sub.cur * 8 + 0x40, 0, 8);
+    s->p60[m->sub.cur] = 0;
+    s->p64[m->sub.cur] = 0;
+    s->p68[m->sub.cur] = 0;
+    s->p6C[m->sub.cur] = 0;
+    s->p70[m->sub.cur].f4 = 0;
+    s->p70[m->sub.cur].f0 = 100;
+    s->p70[m->sub.cur].f8 = 90;
+    s->p70[m->sub.cur].fC = 50;
+    s->p74[m->sub.cur] = 0;
+    s->p80[m->sub.cur] = 0;
+    s->p84[m->sub.cur] = 0;
+    s->p78[m->sub.cur] = 0x7F;
+    s->p7C[m->sub.cur] = 1;
+    self->a4[self->mgr->sub.cur] = a;
+    self->a8[self->mgr->sub.cur] = b;
+    sSnd74A0Mgr** pp = self->p118;
+    int r = (int)func_00287968(self, 9, 0);
+    (*pp)->sub.p3C[(*pp)->sub.cur] = r;
+}
+
+// Landing/trick sting: first call starts the base sting, an extra layer on request; counts the calls.
+extern "C" void func_00298D90(sSnd8D90Self* self, char* obj, int extra)
+{
+    int b7 = 0x7A;
+    if (func_00288AE0(self) == 0) {
+        bool ok = *(int*)(obj + 0x874) && *(int*)(obj + 0x87C);
+        if (ok) {
+            func_002ADDE0(&(*self->sys.p118)->sub, D_004A36A8[0].v);
+            if (self->count == 0) {
+                snd8D90AddVoice(self, 0, b7);
+                self->handle = func_002906B8(self);
+            }
+            if (extra != 0) {
+                snd8D90AddVoice(self, 0, 0x4A);
+                func_002906B8(self);
+            }
+            self->count++;
+        }
+    }
+}
 
 //100%
 extern "C" int func_00288AE0(void* self);
@@ -2183,7 +2755,111 @@ extern "C" void func_002992D8(void* self, void* obj)
     }
 }
 
-INCLUDE_ASM("sound/soundsys", func_00299368);
+//100%
+extern "C" void* func_00416210(void* dst, int c, int n);
+extern "C" void* func_00287968(void* self, int a1, int a2);
+extern "C" int func_002906B8(void* self);
+
+struct sSnd9368Ch {
+    signed char vol;
+    char pad1[0x17];
+};
+struct sSnd9368E16 {
+    int f0;
+    int f4;
+    int f8;
+    int fC;
+};
+struct sSnd9368Sub {
+    char pad0[4];
+    sSnd9368Ch def;          // 0x04
+    volatile int cur;        // 0x1C
+    sSnd9368Ch* ch;          // 0x20
+    void* tgt[4];            // 0x24
+    int* p34;                // 0x34
+    int* vals;               // 0x38
+    int* p3C;                // 0x3C
+    char e40[4][8];          // 0x40
+    int* p60;                // 0x60
+    int* p64;                // 0x64
+    int* p68;                // 0x68
+    int* p6C;                // 0x6C
+    sSnd9368E16* p70;        // 0x70
+    int* p74;                // 0x74
+    int* p78;                // 0x78
+    int* p7C;                // 0x7C
+    int* p80;                // 0x80
+    int* p84;                // 0x84
+};
+struct sSnd9368Mgr {
+    char pad0[0x1D8];
+    sSnd9368Sub sub;         // 0x1D8
+};
+struct sSnd9368Sys {
+    sSnd9368Mgr* mgr;
+    int* a4;                 // 0x4
+    int* a8;                 // 0x8
+    char padC[0x118 - 0xC];
+    sSnd9368Mgr** p118;      // 0x118
+};
+
+struct sSndId299368 {
+    long v;
+} __attribute__((packed));
+extern sSndId299368 D_004A36A8_9368[] __asm__("D_004A36A8");
+extern "C" void func_002ADDE0(void* bank, long id);
+extern "C" int func_00288AE0(void* self);
+
+static inline int IsReady299368(char* obj)
+{
+    return *(int*)(obj + 0x874) != 0 && *(int*)(obj + 0x87C) != 0;
+}
+
+static inline void AddVoice299368(sSnd9368Sys* self, int a, int bb, int type)
+{
+    sSnd9368Mgr* m = self->mgr;
+    sSnd9368Sub* s = &m->sub;
+    m->sub.cur++;
+    s->ch[m->sub.cur] = m->sub.def;
+    m->sub.tgt[m->sub.cur] = 0;
+    s->p34[m->sub.cur] = 0;
+    s->vals[m->sub.cur] = s->ch[m->sub.cur].vol;
+    s->p3C[m->sub.cur] = 0;
+    func_00416210((char*)s + m->sub.cur * 8 + 0x40, 0, 8);
+    s->p60[m->sub.cur] = 0;
+    s->p64[m->sub.cur] = 0;
+    s->p68[m->sub.cur] = 0;
+    s->p6C[m->sub.cur] = 0;
+    s->p70[m->sub.cur].f4 = 0;
+    s->p70[m->sub.cur].f0 = 100;
+    s->p70[m->sub.cur].f8 = 90;
+    s->p70[m->sub.cur].fC = 50;
+    s->p74[m->sub.cur] = 0;
+    s->p80[m->sub.cur] = 0;
+    s->p84[m->sub.cur] = 0;
+    s->p78[m->sub.cur] = 0x7F;
+    s->p7C[m->sub.cur] = 1;
+    self->a4[self->mgr->sub.cur] = a;
+    self->a8[self->mgr->sub.cur] = bb;
+    sSnd9368Mgr** pp = self->p118;
+    int r = (int)func_00287968(self, type, 0);
+    (*pp)->sub.p3C[(*pp)->sub.cur] = r;
+}
+
+// Starts the "crowd cheer" voice for the object if the bank is ready and nothing else is playing.
+// PORT: the 8-byte stream id is passed by value from an unaligned global (64-bit `long`).
+extern "C" void func_00299368(sSnd9368Sys* self, char* obj)
+{
+    if (func_00288AE0(self) != 0) {
+        return;
+    }
+    if (!IsReady299368(obj)) {
+        return;
+    }
+    func_002ADDE0(&(*self->p118)->sub, D_004A36A8_9368[0].v);
+    AddVoice299368(self, 0, 0x6C, 9);
+    func_002906B8(self);
+}
 
 INCLUDE_ASM("sound/soundsys", func_00299638);
 
@@ -4273,7 +4949,181 @@ extern "C" void func_0029DC48(void* self, void* obj)
     }
 }
 
-INCLUDE_ASM("sound/soundsys", func_0029DEF0);
+//100%
+extern "C" void* func_00416210(void* dst, int c, int n);
+extern "C" void* func_00287968(void* self, int a1, int a2);
+extern "C" int func_002906B8(void* self);
+extern "C" int func_00288A20(void* self, void* obj);
+extern "C" int func_00288AE0(void* self);
+extern "C" int func_00285D98(void* self, int which);
+extern "C" void func_002AD5F0(void* p, int idx, int a2, float v);
+extern "C" void func_002A9988(void* self, float a, float b);
+extern "C" int func_0029E438(void* self, char* blk);
+struct sQDEF0 {
+    int w[4];
+} __attribute__((aligned(16)));
+struct sV3DEF0 {
+    float x, y, z;
+};
+struct sOutDEF0 {
+    sQDEF0 q[2];
+};
+extern "C" void func_002DA1C0(sOutDEF0* out, sV3DEF0* in);
+struct sSndKey8_DEF0 {
+    long v;
+} __attribute__((packed));
+extern sSndKey8_DEF0 D_004A36D0_DEF0[] __asm__("D_004A36D0");
+
+struct sVE_DEF0 { short delta; short index; int (*fn)(void*); };
+struct sVEk_DEF0 { short delta; short index; void (*fn)(void*, long); };
+
+static inline int vcall_DEF0(char* o, int slot)
+{
+    sVE_DEF0* vt = *(sVE_DEF0**)o;
+    return vt[slot].fn(o + vt[slot].delta);
+}
+
+struct sSndDEF0Ch {
+    signed char vol;
+    char pad1[0x17];
+};
+struct sSndDEF0E16 {
+    int f0;
+    int f4;
+    int f8;
+    int fC;
+};
+struct sSndDEF0Sub {
+    char pad0[4];
+    sSndDEF0Ch def;          // 0x04
+    volatile int cur;        // 0x1C
+    sSndDEF0Ch* ch;          // 0x20
+    void* tgt[4];            // 0x24
+    int* p34;                // 0x34
+    int* vals;               // 0x38
+    int* p3C;                // 0x3C
+    char e40[4][8];          // 0x40
+    int* p60;                // 0x60
+    int* p64;                // 0x64
+    int* p68;                // 0x68
+    int* p6C;                // 0x6C
+    sSndDEF0E16* p70;        // 0x70
+    int* p74;                // 0x74
+    int* p78;                // 0x78
+    int* p7C;                // 0x7C
+    int* p80;                // 0x80
+    int* p84;                // 0x84
+};
+struct sSndDEF0Mgr {
+    char pad0[0x1D8];
+    sSndDEF0Sub sub;         // 0x1D8
+};
+struct sSndDEF0Sys {
+    sSndDEF0Mgr* mgr;
+    int* a4;                 // 0x4
+    int* a8;                 // 0x8
+    char padC[0x118 - 0xC];
+    sSndDEF0Mgr** p118;      // 0x118
+    char pad11C[0x5FF4 - 0x11C];
+    int handle;              // 0x5FF4
+    char pad5FF8[0x6030 - 0x5FF8];
+    int slots[3];            // 0x6030
+    char pad603C[0x6040 - 0x603C];
+    int users;               // 0x6040
+    char pad6044[0x6050 - 0x6044];
+    sQDEF0 blk[2];           // 0x6050
+    int f6070;               // 0x6070
+};
+
+// Grind/ride loop sound: reference-counted start (pushes the voice at the rider's position) and stop.
+extern "C" void func_0029DEF0(void* vself, int on)
+{
+    sSndDEF0Sys* self = (sSndDEF0Sys*)vself;
+    if (on != 0) {
+        if (++self->users == 1) {
+            int a = 8;
+            int b = 2;
+            int id = -1;
+            if (func_00288AE0(self) != 0) {
+                id = 0;
+            }
+            char* obj = (char*)func_00285D98(self, id);
+            self->f6070 = vcall_DEF0(obj + 0x6C0, 7);
+            {
+                sV3DEF0* p = (sV3DEF0*)vcall_DEF0(obj + 0x6C0, 5);
+                sOutDEF0 out;
+                sV3DEF0 pos;
+                pos.x = p->x;
+                pos.y = p->y;
+                pos.z = p->z;
+                func_002DA1C0(&out, &pos);
+                *(sOutDEF0*)self->blk = out;
+            }
+        sSndDEF0Mgr* m = self->mgr;
+        sSndDEF0Sub* s = &m->sub;
+        m->sub.cur++;
+        s->ch[m->sub.cur] = m->sub.def;
+        m->sub.tgt[m->sub.cur] = 0;
+        s->p34[m->sub.cur] = 0;
+        s->vals[m->sub.cur] = s->ch[m->sub.cur].vol;
+        s->p3C[m->sub.cur] = 0;
+        func_00416210((char*)s + m->sub.cur * 8 + 0x40, 0, 8);
+        s->p60[m->sub.cur] = 0;
+        s->p64[m->sub.cur] = 0;
+        s->p68[m->sub.cur] = 0;
+        s->p6C[m->sub.cur] = 0;
+        s->p70[m->sub.cur].f4 = 0;
+        s->p70[m->sub.cur].f0 = 100;
+        s->p70[m->sub.cur].f8 = 90;
+        s->p70[m->sub.cur].fC = 50;
+        s->p74[m->sub.cur] = 0;
+        s->p80[m->sub.cur] = 0;
+        s->p84[m->sub.cur] = 0;
+        s->p78[m->sub.cur] = 0x7F;
+        s->p7C[m->sub.cur] = 1;
+        self->a4[self->mgr->sub.cur] = a;
+        self->a8[self->mgr->sub.cur] = b;
+            sSndDEF0Mgr** p0 = self->p118;
+            int v = func_0029E438(self, (char*)self->blk);
+            sSndDEF0Mgr* m3 = *p0;
+            sSndDEF0Sub* s3 = &m3->sub;
+            s3->vals[m3->sub.cur] = v;
+            s3->ch[m3->sub.cur].vol = (s3->vals[s3->cur] < 0x7F && s3->vals[s3->cur] < 0) ? 0 : (s3->vals[s3->cur] < 0x7F ? (unsigned char)s3->vals[s3->cur] : 0x7F);
+            sSndDEF0Mgr** pp = self->p118;
+            int r = (int)func_00287968(self, 5, 0);
+            (*pp)->sub.p3C[(*pp)->sub.cur] = r;
+            {
+                sSndDEF0Mgr* m2 = *self->p118;
+                m2->sub.tgt[m2->sub.cur] = self->blk;
+            }
+            func_002A9988(&(*self->p118)->sub, 100.0f, -1.0f);
+            {
+                sSndDEF0Mgr* m2 = *self->p118;
+                sSndKey8_DEF0 k = D_004A36D0_DEF0[0];
+                sSndDEF0Sub* s2 = &m2->sub;
+                *(sSndKey8_DEF0*)((char*)s2 + (m2->sub.cur << 3) + 0x40) = k;
+            }
+            {
+                sSndDEF0Mgr** pq = self->p118;
+                int q = func_00288A20(self, obj);
+                (*pq)->sub.p64[(*pq)->sub.cur] = q;
+            }
+            (*self->p118)->sub.p74[(*self->p118)->sub.cur] = 1;
+            self->handle = func_002906B8(self);
+        }
+    } else {
+        if (--self->users == 0) {
+            func_002AD5F0(&(*self->p118)->sub, self->handle, 1, 2.0f);
+            sSndDEF0Mgr* mg = *self->p118;
+            sVEk_DEF0* vt = *(sVEk_DEF0**)((char*)mg + 0xAB0);
+            char* sub = (char*)&mg->sub;
+            vt[3].fn(sub + vt[3].delta, D_004A36D0_DEF0[0].v);
+            for (int i = 2; i >= 0; i--) {
+                self->slots[i] = -1;
+            }
+        }
+    }
+}
 
 //100%
 // Converts the sound's volume (percent attenuation at 0x14, gain at 0x10) to a 0..127 level.
@@ -5678,7 +6528,54 @@ extern "C" int func_002A1820(void* self, sSs1820Rider* a, sSs1820Rider* b)
     return r;
 }
 
-INCLUDE_ASM("sound/soundsys", func_002A19D8);
+//100%
+extern "C" void func_002A31C0(void* self);
+extern "C" void func_002A32B0(void* self);
+extern "C" void func_002A3358(void* self);
+extern "C" void func_002A3860(void* self);
+extern "C" void func_002A2018(void* self);
+extern "C" void func_002A2188(void* self);
+extern "C" void func_002A2568(void* self, int a1);
+extern "C" void func_002A2638(void* self);
+extern "C" void func_002A39E0(void* self);
+extern "C" void func_002A3708(void* self, char* rider);
+extern sSndKey8 D_004A3648_19D8[] __asm__("D_004A3648");
+
+// PORT: 64-bit long sound key
+// Front-end sound event dispatcher; returns 1 if the event was handled.
+extern "C" int func_002A19D8(void* self, int ev)
+{
+    if (ev == 0) {
+        func_002A31C0(self);
+        if (*(int*)((char*)self + 0x530) == 0) {
+            func_0028D488(self);
+            func_002ADCA0(**(char***)((char*)self + 0x118) + 0x1D8, 10, D_004A3648_19D8[0].v, 0, 3, 1, 0, 0);
+        }
+    } else if (ev == 1) {
+        func_002A32B0(self);
+    } else if (ev == 2) {
+        func_002A3358(self);
+    } else if (ev == 3) {
+        func_002A3400(self);
+    } else if (ev == 7) {
+        func_002A3860(self);
+    } else if (ev == 8) {
+        func_002A2018(self);
+    } else if (ev == 10) {
+        func_002A2188(self);
+    } else if (ev == 12) {
+        func_002A2568(self, -1);
+    } else if (ev == 14) {
+        func_002A2638(self);
+    } else if (ev == 15) {
+        func_002A39E0(self);
+    } else if (ev == 5) {
+        func_002A3708(self, *(char**)((char*)func_0028B1D8() + 0x28));
+    } else {
+        return 0;
+    }
+    return 1;
+}
 
 //100%
 extern "C" void func_002A1400(void* self, int a);
@@ -7284,7 +8181,30 @@ extern "C" int func_002A4A68(void* self)
     return 1;
 }
 
-INCLUDE_ASM("sound/soundsys", func_002A4A78);
+//100%
+struct sSndKey8_4A78 {
+    long v;
+} __attribute__((packed));
+extern sSndKey8_4A78 D_004A3650[];
+extern "C" void func_002ADCA0(void*, int, long, int, int, int, int, int);
+extern "C" int func_0028DEF0(void* self, int a1);
+
+// PORT: 64-bit long sound key
+extern "C" void func_002A4A78(void* self)
+{
+    cBE_getInterface_Fv(cBE_getBE(), 0);
+    if (*(int*)((char*)self + 0x578C) == 0 && D_00535C11[0] == 0) {
+        if (func_002A3F90(self) != 0) {
+            func_0028DEF0(self, 0xD);
+            func_002ADCA0(**(char***)((char*)self + 0x118) + 0x1D8, 2, D_004A3650->v, 0, 2, 0, 0, 0);
+        } else {
+            char* p = **(char***)((char*)self + 0x118) + 0x1D8;
+            sSndKey8_4A78* key = D_004A3650;
+            int r = func_002B4908((char*)self + 0x118);
+            func_002ADCA0(p, 2, key->v, 0, 4, r, 0, 0);
+        }
+    }
+}
 
 //100%
 extern "C" int func_002B49E0(void*);

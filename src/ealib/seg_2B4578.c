@@ -3452,7 +3452,22 @@ void func_003C09B8(void) {
     func_003C4A38_09B8(D_0050A94C_09B8[0], D_0050AD00_09B8.h, D_0050AD00_09B8.rate >> 4, 0x10000);
 }
 
-INCLUDE_ASM("ealib/seg_2B4578", func_003C0A60);
+//100%
+struct D_0A60 { char pad[0x1AAE]; unsigned short s1AAE; char pad2[0x1B1C - 0x1AB0]; int r[7]; int f1B38; };
+extern struct D_0A60 D_0050AD00_0A60 __asm__("D_0050AD00");
+extern int D_0050A94C_0A60 __asm__("D_0050A94C");
+extern void func_003C4978_0A60(int, int, int, int) __asm__("func_003C4978");
+
+void func_003C0A60(void) {
+    func_003C4978_0A60(D_0050AD00_0A60.f1B38, D_0050A94C_0A60, D_0050AD00_0A60.s1AAE >> 4, 0x10000);
+    *(volatile int *)0x1000D010 = D_0050AD00_0A60.r[0];
+    *(volatile int *)0x1000D080 = D_0050AD00_0A60.r[1];
+    *(volatile int *)0x1000D020 = D_0050AD00_0A60.r[2];
+    *(volatile int *)0x1000D410 = D_0050AD00_0A60.r[3];
+    *(volatile int *)0x1000D430 = D_0050AD00_0A60.r[4];
+    *(volatile int *)0x1000D480 = D_0050AD00_0A60.r[5];
+    *(volatile int *)0x1000D420 = D_0050AD00_0A60.r[6];
+}
 
 //100%
 struct S_0B10 { char pad[0xC80]; char buf[1]; };
@@ -3510,7 +3525,146 @@ void func_003C0C18(int arg0, int *arg1, int *arg2) {
 
 INCLUDE_ASM("ealib/seg_2B4578", func_003C0C90);
 
-INCLUDE_ASM("ealib/seg_2B4578", func_003C0E28);
+//100%
+// PORT: PS2-only inline asm; needs a C fallback off-PS2.
+struct Sub_0E28 {
+    char pad00[0xA];
+    unsigned short hA;
+    unsigned short hC;
+    unsigned char bE;
+    unsigned char bF;
+    unsigned char b10;
+    char pad11[0x20 - 0x11];
+    unsigned char b20;
+    unsigned char b21;
+    char pad22[0x26 - 0x22];
+    unsigned char b26;
+    unsigned char b27;
+    unsigned char b28;
+    unsigned char b29;
+    unsigned char b2A;
+    char pad2B[0x44 - 0x2B];
+    unsigned int w44;
+    int w48;
+    char pad4C[0xA0 - 0x4C];
+};
+struct Ch_0E28 {
+    char pad0[0x28];
+    short h28;
+    char pad2A[0x69 - 0x2A];
+    signed char b69;
+    char pad6A[0x8C - 0x6A];
+};
+struct G_0E28 {
+    char pad0[4];
+    unsigned char b4;
+    unsigned char b5;
+    unsigned char b6;
+    unsigned char b7;
+    unsigned char b8;
+    char pad9[0x20 - 9];
+    struct Sub_0E28 sub;
+    char padC0[0xD4 - 0xC0];
+    struct Sub_0E28 saved;
+    char pad174[0x174 - 0x174];
+    signed char f174;
+    char pad175[0x17E - 0x175];
+    short h17E;
+    char pad180[0x1F0 - 0x180];
+    struct Ch_0E28 *chans;
+};
+struct O_0E28 { char pad[0x13]; unsigned char b13; };
+extern struct G_0E28 D_0050A8E8_0E28 __asm__("D_0050A8E8");
+extern struct Sub_0E28 D_0050A908_0E28 __asm__("D_0050A908");
+extern struct O_0E28 *D_0050B9B0_0E28 __asm__("D_0050B9B0");
+extern void f8148_0E28(int) __asm__("func_003C8148");
+extern void f38E0_0E28(int) __asm__("func_003C38E0");
+
+int func_003C0E28(void) {
+    struct Sub_0E28 s;
+    int i;
+
+    s = D_0050A908_0E28;
+    if (D_0050A8E8_0E28.f174) {
+        D_0050A8E8_0E28.sub = D_0050A8E8_0E28.saved;
+        if (D_0050A8E8_0E28.saved.b29 != s.b29) {
+            return 0;
+        }
+    }
+    if (s.hA <= 24000) {
+        s.hA = 24000;
+    } else if (s.hA <= 36000) {
+        s.hA = 36000;
+    } else {
+        s.hA = 48000;
+    }
+    if (s.hC <= 24000) {
+        s.hC = 24000;
+    } else if (s.hC <= 36000) {
+        s.hC = 36000;
+    } else {
+        s.hC = 48000;
+    }
+    if (s.b29 & 2) {
+        s.b10 = 0x18;
+        if (s.b27 < 4) {
+            s.b27 = 4;
+        }
+    }
+    if (s.b29 & 1) {
+        if (s.b27 > 2) {
+            s.b27 = 2;
+        }
+        s.b28 = 0;
+    }
+    if (s.b2A > 100) {
+        s.b2A = 100;
+    }
+    if (s.b27 < D_0050A8E8_0E28.b4) {
+        s.b27 = D_0050A8E8_0E28.b4;
+    } else if (s.b27 > D_0050A8E8_0E28.b5) {
+        s.b27 = D_0050A8E8_0E28.b5;
+    }
+    if (s.b27 == 5) {
+        s.b28 = 1;
+    } else {
+        s.b28 = 0;
+    }
+    if (s.bE > D_0050A8E8_0E28.b6) {
+        s.bE = D_0050A8E8_0E28.b6;
+    }
+    if (s.bF > D_0050A8E8_0E28.b7) {
+        s.bF = D_0050A8E8_0E28.b7;
+    }
+    if (s.b10 > D_0050A8E8_0E28.b8) {
+        s.b10 = D_0050A8E8_0E28.b8;
+    }
+    if (s.b26 > 0x20) {
+        s.b26 = 0x20;
+    }
+    f8148_0E28(s.b20);
+    if (D_0050A8E8_0E28.sub.w44 != 0 && (s.w44 & 0xF)) {
+        s.w44 = ((s.w44 + 0xF) >> 4) << 4;
+        s.w48 -= 0x10;
+    }
+    if (D_0050A8E8_0E28.f174) {
+        D_0050A8E8_0E28.sub.b20 = s.b20;
+        D_0050A8E8_0E28.sub.b21 = s.b21;
+        D_0050B9B0_0E28->b13 = s.b21;
+        if (D_0050A8E8_0E28.saved.b27 != s.b27) {
+            D_0050A8E8_0E28.sub.b27 = s.b27;
+            for (i = 0; i < D_0050A8E8_0E28.h17E; i++) {
+                if (D_0050A8E8_0E28.chans[i].b69 == 1 && D_0050A8E8_0E28.chans[i].h28 < 0) {
+                    f38E0_0E28(i);
+                }
+            }
+        }
+        return 0;
+    }
+    D_0050A8E8_0E28.h17E = s.bE + s.bF + s.b10;
+    D_0050A8E8_0E28.sub = s;
+    return 0;
+}
 
 //100%
 // PORT: PS2-only inline asm; needs a C fallback off-PS2.
@@ -9369,7 +9523,42 @@ int func_003D1D28(int n) {
     return ret;
 }
 
-INCLUDE_ASM("ealib/seg_2B4578", func_003D1E80);
+//100%
+extern void f_1BA8_1E80(int, int) __asm__("func_003D1BA8");
+extern int f_1D28_1E80(int) __asm__("func_003D1D28");
+struct O_1E80 { unsigned int f0; unsigned int f4; char pad8[4]; unsigned int fC; };
+struct T_1E80 { char pad[0xDC]; struct O_1E80 *a[16]; char pad11C[0x91C - 0x11C]; int n; };
+extern struct T_1E80 *D_0044F420_1E80 __asm__("D_0044F420");
+extern unsigned int D_0044F438_1E80 __asm__("D_0044F438");
+
+int func_003D1E80_impl(void) __asm__("func_003D1E80");
+int func_003D1E80_impl(void) {
+    int i;
+    int sum = 0;
+    struct O_1E80 *o;
+    int st;
+    unsigned int v;
+    for (i = 0; i < 16; i++) {
+        if (i >= D_0044F420_1E80->n) {
+            D_0044F420_1E80->a[i] = 0;
+            continue;
+        }
+        o = D_0044F420_1E80->a[i];
+        if (o == 0) break;
+        v = o->fC;
+        st = ((v >> 22) & 0x3F) < ((v >> 16) & 0x3F) ? 0 : 3;
+        if (o->f4 != 0) {
+            if (o->f0 + o->f4 < D_0044F438_1E80) st = 1;
+        }
+        if (st != 0) {
+            f_1BA8_1E80(i, st);
+            i--;
+        } else {
+            sum += f_1D28_1E80(i);
+        }
+    }
+    return sum;
+}
 
 //100%
 // PORT: PS2-only inline asm; needs a C fallback off-PS2.
@@ -10611,7 +10800,22 @@ void func_003D6360(void *arg0, int arg1, int arg2, int arg3) {
     }
 }
 
-INCLUDE_ASM("ealib/seg_2B4578", func_003D6378);
+//100%
+extern int D_0044F438_6378[] __asm__("D_0044F438");
+extern int f_6378_cb(int) __asm__("func_002AF428");
+
+void func_003D6378(char *self, int a, int b) {
+    int t;
+    int q, d;
+    *(int *)(self + 8) = D_0044F438_6378[0];
+    self[0xD] = b;
+    t = f_6378_cb(*(int *)(self + 0x54));
+    self[0xC] = (int)(float)t;
+    self[0xE] = a;
+    self[0x34] = (int)(float)a;
+    d = 0x7F;
+    q = a / d;
+}
 
 //100%
 // PORT: PS2-only inline asm; needs a C fallback off-PS2.
