@@ -4,7 +4,7 @@
 struct sSndPlayerD9C8;
 extern "C" sSndPlayerD9C8* func_002AD9C8(sSndPlayerD9C8* self, int inchrg, int heap);
 extern "C" void* func_002ADE88(void* self, int a);
-extern "C" void* func_002AB9E0(void* self);
+extern "C" void* cBankMonitorInstance_cBankMonitorInstance(void* self);
 // PORT: operator_new__FUi really takes (size, tag, flags, d); bound by asm label
 void* operator new[](unsigned int size, const char* tag, int flags, int d) __asm__("operator_new__FUi");
 extern const char D_00483238[];
@@ -22,7 +22,7 @@ extern const sBmVtblCD08 D_00483B88;
 
 struct sBmVoiceCD08 {
     char pad_0x0[0xC0];
-    sBmVoiceCD08() { func_002AB9E0(this); }
+    sBmVoiceCD08() { cBankMonitorInstance_cBankMonitorInstance(this); }
     void operator delete[](void* p, unsigned int size);
 };
 
@@ -66,7 +66,7 @@ extern "C" sBankMonitorCD08* cBankMonitor_cBankMonitor(sBankMonitorCD08* self, i
 //100%
 void cMemMan_free(void*);
 void operator_delete(int* ptr);
-extern "C" void func_002ABA18(void* self, int flags);
+extern "C" void cBankMonitorInstance_destroy(void* self, int flags);
 struct sSndPlayerDAC8;
 extern "C" void func_002ADAC8(sSndPlayerDAC8* self, int flags);
 extern "C" void func_002ADEE8(void* self, int flags);
@@ -110,7 +110,7 @@ extern "C" void func_002ACE40(sBankMonitorE40* self, int flags)
         sBmVoiceE40* q = self->voices + ((int*)self->voices)[-4];
         while (self->voices != q) {
             q--;
-            func_002ABA18(q, 0);
+            cBankMonitorInstance_destroy(q, 0);
         }
         cMemMan_free((char*)self->voices - 0x10);
     }
@@ -124,12 +124,12 @@ extern "C" void func_002ACE40(sBankMonitorE40* self, int flags)
 }
 
 //100%
-extern "C" int func_002ABB80(void*);
+extern "C" int cBankMonitorInstance_isFree(void*);
 
 extern "C" int func_002ACF60(void* self, int n)
 {
     for (int i = 0; i < 64; i++) {
-        if (func_002ABB80((char*)*(void**)((char*)self + 0x8EC) + i * 0xC0) != 0) {
+        if (cBankMonitorInstance_isFree((char*)*(void**)((char*)self + 0x8EC) + i * 0xC0) != 0) {
             if (--n == 0) {
                 return i;
             }
@@ -141,23 +141,23 @@ extern "C" int func_002ACF60(void* self, int n)
 INCLUDE_ASM("sound/bankmonitor", cBankMonitor_BANKMONITOR_Create);
 
 //100%
-extern "C" void func_002ACAC8(void*);
+extern "C" void cBankMonitorInstance_pause(void*);
 
 extern "C" void func_002AD2A8(void* self)
 {
     *(int*)((char*)self + 0x8E8) = 1;
     for (int i = 0; i < 64; i++) {
-        func_002ACAC8((char*)*(void**)((char*)self + 0x8EC) + i * 0xC0);
+        cBankMonitorInstance_pause((char*)*(void**)((char*)self + 0x8EC) + i * 0xC0);
     }
 }
 
 //100%
-extern "C" void func_002ACB30(void*);
+extern "C" void cBankMonitorInstance_resume(void*);
 
 extern "C" void func_002AD300(void* self)
 {
     for (int i = 0; i < 64; i++) {
-        func_002ACB30((char*)*(void**)((char*)self + 0x8EC) + i * 0xC0);
+        cBankMonitorInstance_resume((char*)*(void**)((char*)self + 0x8EC) + i * 0xC0);
     }
     *(int*)((char*)self + 0x8E8) = 0;
 }
@@ -174,11 +174,11 @@ extern "C" void func_002AD358(void* self, int idx, int a2, float v)
 }
 
 //100%
-extern "C" void func_002ABB38(void*);
+extern "C" void cBankMonitorInstance_stop(void*);
 
 extern "C" void func_002AD398(void* self, int i)
 {
-    func_002ABB38((char*)*(void**)((char*)self + 0x8EC) + i * 0xC0);
+    cBankMonitorInstance_stop((char*)*(void**)((char*)self + 0x8EC) + i * 0xC0);
 }
 
 //100% - objdiff report; single-function view differs only in a relocation name
@@ -193,7 +193,7 @@ extern "C" void func_002AD3C0(void* self)
 }
 
 //100%
-extern "C" void func_002ABB38(void*);
+extern "C" void cBankMonitorInstance_stop(void*);
 
 struct sBmKeyD410 {
     short a;
@@ -219,7 +219,7 @@ extern "C" void func_002AD410(void* self, sBmKeyD410 key)
 {
     for (int i = 0; i < 64; i++) {
         if (func_002AD410_match((char*)*(void**)((char*)self + 0x8EC) + i * 0xC0, key)) {
-            func_002ABB38((char*)*(void**)((char*)self + 0x8EC) + i * 0xC0);
+            cBankMonitorInstance_stop((char*)*(void**)((char*)self + 0x8EC) + i * 0xC0);
         }
     }
 }
@@ -229,7 +229,7 @@ extern "C" void func_002AD4D8(void* self, int id)
 {
     for (int i = 0; i < 64; i++) {
         if (*(int*)((char*)*(void**)((char*)self + 0x8EC) + i * 0xC0 + 0x80) == id) {
-            func_002ABB38((char*)*(void**)((char*)self + 0x8EC) + i * 0xC0);
+            cBankMonitorInstance_stop((char*)*(void**)((char*)self + 0x8EC) + i * 0xC0);
         }
     }
 }
@@ -240,7 +240,7 @@ struct sVoiceC0 { int key; int idx; char pad[0xC0 - 8]; };
 extern "C" void* func_002AD550(void* self, int idx, int key)
 {
     for (int i = 0; i < 64; i++) {
-        if (func_002ABB80((char*)*(void**)((char*)self + 0x8EC) + i * 0xC0) == 0
+        if (cBankMonitorInstance_isFree((char*)*(void**)((char*)self + 0x8EC) + i * 0xC0) == 0
             && (*(sVoiceC0**)((char*)self + 0x8EC))[i].key == key
             && (*(sVoiceC0**)((char*)self + 0x8EC))[i].idx == idx) {
             return &(*(sVoiceC0**)((char*)self + 0x8EC))[i];
@@ -251,7 +251,7 @@ extern "C" void* func_002AD550(void* self, int idx, int key)
 
 //100% - objdiff report; single-function view differs only in a relocation name
 extern "C" void* func_002AD550(void* self, int idx, int a2);
-extern "C" void func_002ABB38(void*);
+extern "C" void cBankMonitorInstance_stop(void*);
 extern "C" void func_002ACB80(void* voice, int a, int b, float v);
 
 extern "C" void func_002AD5F0(void* self, int idx, int a2, float v)
@@ -261,14 +261,14 @@ extern "C" void func_002AD5F0(void* self, int idx, int a2, float v)
         if (v != 0.0f) {
             func_002ACB80(voice, -1, 1, v);
         } else {
-            func_002ABB38(voice);
+            cBankMonitorInstance_stop(voice);
         }
     }
 }
 
 //100%
-extern "C" int func_002ABB80(void*);
-extern "C" void func_002ABB38(void*);
+extern "C" int cBankMonitorInstance_isFree(void*);
+extern "C" void cBankMonitorInstance_stop(void*);
 // PORT: same ABI as the unit's func_002ACB80(void*, int, int, float); the float is
 // the 2nd parameter in the original, which orders the argument moves.
 void func_002ACB80_f(void* voice, float v, int a, int b) __asm__("func_002ACB80");
@@ -283,14 +283,14 @@ struct sVoiceD650 {
 extern "C" void func_002AD650(void* self, int id, float v)
 {
     for (int i = 0; i < 64; i++) {
-        if (func_002ABB80((char*)*(void**)((char*)self + 0x8EC) + i * 0xC0) == 0) {
+        if (cBankMonitorInstance_isFree((char*)*(void**)((char*)self + 0x8EC) + i * 0xC0) == 0) {
             // PORT: pointer arithmetic through int
             sVoiceD650* e = (sVoiceD650*)(i * 0xC0 + *(int*)((char*)self + 0x8EC));
             if (e->state == 1 && e->id == id) {
                 if (v != 0.0f) {
                     func_002ACB80_f(e, v, -1, 1);
                 } else {
-                    func_002ABB38(e);
+                    cBankMonitorInstance_stop(e);
                 }
             }
         }
@@ -301,7 +301,7 @@ extern "C" int func_002AD730(void* self)
 {
     int n = 0;
     for (int i = 0; i < 64; i++) {
-        if (func_002ABB80((char*)*(void**)((char*)self + 0x8EC) + i * 0xC0) == 0) {
+        if (cBankMonitorInstance_isFree((char*)*(void**)((char*)self + 0x8EC) + i * 0xC0) == 0) {
             if (*(int*)((char*)*(void**)((char*)self + 0x8EC) + i * 0xC0 + 0x8) != 0) {
                 n++;
             }
@@ -310,12 +310,12 @@ extern "C" int func_002AD730(void* self)
     return n;
 }
 
-// Number of the 64 voices for which func_002ABB80 returns 0 (free voices).
+// Number of the 64 voices for which cBankMonitorInstance_isFree returns 0 (free voices).
 extern "C" int func_002AD7A8(void* self)
 {
     int n = 0;
     for (int i = 0; i < 64; i++) {
-        if (func_002ABB80((char*)*(void**)((char*)self + 0x8EC) + i * 0xC0) == 0) {
+        if (cBankMonitorInstance_isFree((char*)*(void**)((char*)self + 0x8EC) + i * 0xC0) == 0) {
             n++;
         }
     }
@@ -434,7 +434,7 @@ INCLUDE_ASM("sound/bankmonitor", func_002AD9C8);
 //100%
 void operator_delete(int* ptr);
 extern "C" void func_003B5948(int id);
-extern "C" void func_002A97C0(void* self, int flags);
+extern "C" void cSndPlayOpts_destroy(void* self, int flags);
 extern "C" void func_002ADEE8(void* self, int flags);
 extern void* D_00483BA8[];
 
@@ -482,7 +482,7 @@ extern "C" void func_002ADAC8(sSndPlayerDAC8* self, int flags)
             func_002AD860((int*)p, 0);
         }
     }
-    func_002A97C0(self, 0);
+    cSndPlayOpts_destroy(self, 0);
     if (flags & 2) {
         func_002ADEE8(self->vbase, 0);
     }
@@ -1740,7 +1740,7 @@ extern "C" int func_002AFA58(void* self, int a1)
 
 //100%
 extern char* D_004A37B4;
-extern "C" void func_002AA910(void* sys, int id, int a, int b, int c);
+extern "C" void cStreamSys_createStream(void* sys, int id, int a, int b, int c);
 extern "C" void func_002B0088(void* self, int a, int b, int c);
 
 struct sBmPair_FA68 {
@@ -1787,13 +1787,13 @@ extern "C" void* func_002AFA68(void* mem, int a1, int a2, int a3, int a4, int a5
         self->pairs[i].a = 0;
         self->pairs[i].b = 0;
     }
-    func_002AA910(*(void**)D_004A37B4, self->f4, a4, 0, 0x20000);
+    cStreamSys_createStream(*(void**)D_004A37B4, self->f4, a4, 0, 0x20000);
     func_002B0088(self, a1, a3, a5);
     return self;
 }
 
 //100%
-extern "C" void func_002AABD0(void* self, int i);
+extern "C" void cStreamSys_deleteStream(void* self, int i);
 extern "C" void func_002AF900(int* self, int flags);
 extern char* D_004A37B4;
 extern int D_004A37B8;
@@ -1840,7 +1840,7 @@ extern "C" void func_002AFB38(void* selfp, int flags)
             self->voices[i].handle = 0;
         }
     }
-    func_002AABD0(*(void**)D_004A37B4, self->id);
+    cStreamSys_deleteStream(*(void**)D_004A37B4, self->id);
     if (flags & 1) {
         operator_delete((int*)self);
     }
@@ -1906,7 +1906,7 @@ extern "C" int func_002A7C68(void* parser, int file);
 extern "C" char* func_002A7DA0(void* parser);
 extern "C" int func_002A7F90(void* parser);
 extern "C" int func_002A7FF8(void* parser, const char* key, char* out);
-void func_002AAB98_2B0088(void* self, int i, char* val) __asm__("func_002AAB98");
+void cStreamSys_openBigFile_2B0088(void* self, int i, char* val) __asm__("cStreamSys_openBigFile");
 extern "C" int func_002AFD40(void* self, int a, char* name, int b, int c);
 extern "C" int func_0041AA88(const char* a, const char* b);
 extern void* D_004A37B0;
@@ -1938,7 +1938,7 @@ extern "C" void func_002B0088(void* p, int a1, int a2, int a3)
             if (func_0041AA88(D_004A37C8, key) == 0)
             {
                 func_002A7FF8(parser, D_004A37C8, v40);
-                func_002AAB98_2B0088(*(void**)D_004A37B4, *(int*)(self + 4), v40);
+                cStreamSys_openBigFile_2B0088(*(void**)D_004A37B4, *(int*)(self + 4), v40);
             }
             if (func_0041AA88(D_004828C0, key) == 0)
             {
@@ -1967,7 +1967,7 @@ extern "C" void func_002B0088(void* p, int a1, int a2, int a3)
 //100%
 extern "C" int func_002AAE08(void* self, int i);
 extern "C" float func_002AAE78(void* self, int i);
-extern "C" int func_002AB028(void* self, int i);
+extern "C" int cStreamSys_isPlaying(void* self, int i);
 extern char* D_004A37B4;
 
 extern "C" int func_002B0290(void* p)
@@ -1979,7 +1979,7 @@ extern "C" int func_002B0290(void* p)
     if (state != 1) {
         return 0;
     }
-    if (func_002AB028(*(void**)D_004A37B4, *(int*)((char*)p + 0x4)) == 0) {
+    if (cStreamSys_isPlaying(*(void**)D_004A37B4, *(int*)((char*)p + 0x4)) == 0) {
         return 0;
     }
     int ok = (int)func_002AAE78(*(void**)D_004A37B4, *(int*)((char*)p + 0x4)) < 500;
@@ -1991,12 +1991,12 @@ extern "C" int func_002B0290(void* p)
 }
 
 //100%
-extern "C" void func_002AAE40(void* self, int i);
+extern "C" void cStreamSys_stop(void* self, int i);
 extern char* D_004A37B4;
 
 extern "C" void func_002B0320(void* p)
 {
-    func_002AAE40(*(void**)D_004A37B4, *(int*)((char*)p + 0x4));
+    cStreamSys_stop(*(void**)D_004A37B4, *(int*)((char*)p + 0x4));
 }
 
 //100% - objdiff report; single-function view differs only in a relocation name
@@ -2054,7 +2054,7 @@ extern "C" int func_002B1520_p3(void* sys, int a, int b) __asm__("func_002B1520"
 extern "C" int func_002B03B8(const char* name);
 extern "C" int func_002AAE08(void* self, int i);
 extern "C" float func_002AAE78(void* self, int i);
-extern "C" int func_002AB028(void* self, int i);
+extern "C" int cStreamSys_isPlaying(void* self, int i);
 extern "C" void func_002AB0D0(void* self, int i, int w);
 // PORT: func_002ADCA0 takes a 64-bit sound key by value and returns int.
 extern "C" int func_002ADCA0_04D8(void*, int, long, void*, int, int, int, int) __asm__("func_002ADCA0");
@@ -2119,7 +2119,7 @@ extern "C" int func_002B04D8_impl(sBmList_04D8* self, sBmArgs_04D8* a)
         int t = (int)func_002AAE78(*(void**)D_004A37B4, self->f4);
         int r;
         if (func_002AAE08(*(void**)D_004A37B4, self->f4) != 0) {
-            if (func_002AB028(*(void**)D_004A37B4, self->f4) != 0) {
+            if (cStreamSys_isPlaying(*(void**)D_004A37B4, self->f4) != 0) {
                 d = D_004A37B4;
                 vt = *(sBmVE_04D8**)(d + 0x1BC);
                 r = ((Fn1_04D8)vt[1].fn)(d + vt[1].delta, self->f4, buf, a->f4, *(int*)((char*)self + 0x8CC), -1, *(int*)((char*)self + 0x8D0), *(float*)((char*)self + 0x8F4), *(int*)((char*)self + 0x8F8), *(int*)((char*)self + 0x8FC));
@@ -2150,11 +2150,11 @@ extern "C" int func_002B04D8_impl(sBmList_04D8* self, sBmArgs_04D8* a)
 }
 
 extern char* D_004A37B4;
-extern "C" int func_002AB028(void* self, int i);
+extern "C" int cStreamSys_isPlaying(void* self, int i);
 
 extern "C" int func_002B07C0(void* p)
 {
-    return func_002AB028(*(void**)D_004A37B4, *(int*)((char*)p + 0x4));
+    return cStreamSys_isPlaying(*(void**)D_004A37B4, *(int*)((char*)p + 0x4));
 }
 
 extern "C" void func_002B07E8(void* self, int value)
@@ -2249,7 +2249,7 @@ extern "C" char* func_002B07F8(char* self, int inchrg, int a2, int a3, int heap)
 void cMemMan_free(void*);
 void operator_delete(int* ptr);
 extern "C" void func_0028BB10(void* self, int flags);
-extern "C" void func_002AA648(void* self, int flags);
+extern "C" void cStreamSys_destroy(void* self, int flags);
 extern "C" void func_002ADEE8(void* self, int flags);
 extern char* D_004A37B4;
 extern void* D_00483870[];
@@ -2293,7 +2293,7 @@ extern "C" void func_002B0AE8(char* self, int flags)
     }
     D_004A37B4 = 0;
     if (flags & 2) {
-        func_002AA648(*(void**)self, 0);
+        cStreamSys_destroy(*(void**)self, 0);
         func_0028BB10(**(void***)self, 0);
         func_002ADEE8(*(void**)(**(char***)self + 0x1D8), 0);
     }
@@ -2552,7 +2552,7 @@ extern "C" int func_002B1348(void* self, void* m)
 {
     int* e = *(int**)((char*)m + 0x18);
     if (func_002AAE08(*(void**)self, e[1]) - 1 > 0) {
-        if (func_002AB028(*(void**)self, e[1]) != 0) {
+        if (cStreamSys_isPlaying(*(void**)self, e[1]) != 0) {
             float f = func_002AAE78(*(void**)self, e[1]);
             func_002ADCA0(**(char***)D_004A37B4 + 0x1D8, (int)f,
                           ((sBankId_1268*)D_004A37D8)->v, (int)e, *(int*)((char*)m + 0x1C), *(int*)((char*)m + 0x20), 0, 0);
@@ -2756,11 +2756,11 @@ void* func_002B1758(void* self, int a1)
 INCLUDE_ASM("sound/bankmonitor", func_002B1780);
 
 extern void*** D_004A37EC;
-extern "C" void func_002AAE40(void* self, int i);
+extern "C" void cStreamSys_stop(void* self, int i);
 
 extern "C" void func_002B1A70()
 {
-    func_002AAE40(*D_004A37EC, 2);
+    cStreamSys_stop(*D_004A37EC, 2);
 }
 
 //100%
@@ -2930,7 +2930,7 @@ extern "C" void* func_002B1C50_body(sBankMon_1C50* self, int a0, int a1, int a2,
 }
 
 //100%
-extern "C" void func_0028A728(void* self, int i);
+extern "C" void cAsyncSys_cancelRequest(void* self, int i);
 extern "C" int func_003D2A68(int id);
 void cMemMan_free(void*);
 void operator_delete(int* ptr);
@@ -2938,7 +2938,7 @@ extern void*** D_004A37EC;
 
 extern "C" void func_002B1F78(void* self, int flags)
 {
-    func_0028A728(**D_004A37EC, *(int*)((char*)self + 0x34));
+    cAsyncSys_cancelRequest(**D_004A37EC, *(int*)((char*)self + 0x34));
     func_003D2A68(0x11000001);
     if (*(int*)(*(char**)self + 0x40) > 0) {
         func_003D2A68(0x11000002);
@@ -3335,7 +3335,7 @@ INCLUDE_ASM("sound/bankmonitor", func_002B28C0);
 void cMemMan_free(void*);
 void operator_delete(int* ptr);
 extern "C" void func_0028BB10(void* self, int flags);
-extern "C" void func_002AA648(void* self, int flags);
+extern "C" void cStreamSys_destroy(void* self, int flags);
 extern "C" void func_002ADEE8(void* self, int flags);
 extern "C" void func_002B1F78(void* self, int flags);
 extern void*** D_004A37EC;
@@ -3392,7 +3392,7 @@ extern "C" void func_002B3398(char* self, int flags)
     }
     D_004A37EC = 0;
     if (flags & 2) {
-        func_002AA648(*(void**)self, 0);
+        cStreamSys_destroy(*(void**)self, 0);
         func_0028BB10(**(void***)self, 0);
         func_002ADEE8(*(void**)(**(char***)self + 0x1D8), 0);
     }
@@ -3561,7 +3561,7 @@ extern "C" void func_002B3AC0(char* self)
     func_002ADDE0_3AC0(**(char***)self + 0x1D8, ((sBankId_3AC0*)D_004A3840)->v);
     func_002ADDE0_3AC0(**(char***)self + 0x1D8, ((sBankId_3AC0*)D_004A3848)->v);
     if (*(void**)(self + 0x408) != 0) {
-        func_0028A728(**(void***)self, *(int*)(*(char**)(self + 0x408) + 0x34));
+        cAsyncSys_cancelRequest(**(void***)self, *(int*)(*(char**)(self + 0x408) + 0x34));
         func_0028BCE8(**(void***)self, *(int*)(*(char**)(self + 0x408) + 0x34));
     }
     func_002B3A98(self);

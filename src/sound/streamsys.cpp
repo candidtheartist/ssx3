@@ -54,7 +54,7 @@ extern "C" sStreamInst_99D8* cStreamInstance_cStreamInstance(sStreamInst_99D8* s
 }
 
 //100%
-extern "C" sStreamInst_99D8* func_002A9C00(sStreamInst_99D8* self, sSsPlayer_99D8* p, char* mem, int size, int n, int m)
+extern "C" sStreamInst_99D8* cStreamInstance_cStreamInstance2(sStreamInst_99D8* self, sSsPlayer_99D8* p, char* mem, int size, int n, int m)
 {
     self->scale = p->scales[p->cur];
     self->vol = curVol_99D8(p);
@@ -83,7 +83,7 @@ void operator_delete(int* ptr);
 extern "C" int func_003B7838(int h);
 extern "C" void* MEM_free(void* self);
 
-extern "C" void func_002A9DF0(void* self, int flags)
+extern "C" void cStreamInstance_destroy(void* self, int flags)
 {
     if (*(void**)self != 0) {
         func_003B7838(*(int*)((char*)self + 0x8));
@@ -103,8 +103,8 @@ extern "C" void func_002A9DF0(void* self, int flags)
 extern "C" int BXFILE_exists(const char* name);
 extern "C" int func_003E1EC8(const char* name, int a1);
 
-// PORT: second parameter is a const char* passed as int (unit declares func_002A9E78(void*, int)).
-extern "C" void func_002A9E78(void* self, int name)
+// PORT: second parameter is a const char* passed as int (unit declares cStreamInstance_openBigFile(void*, int)).
+extern "C" void cStreamInstance_openBigFile(void* self, int name)
 {
     if (BXFILE_exists((const char*)name) != 0) {
         strcpy((char*)self + 0x14, (const char*)name);
@@ -117,7 +117,7 @@ extern "C" void func_003B58A0();
 extern "C" void func_003B58D8();
 extern "C" void func_003B7F60(int h, int a, int b);
 
-extern "C" void func_002A9ED8(void* self, int a, int b)
+extern "C" void cStreamInstance_setPan(void* self, int a, int b)
 {
     func_003B58A0();
     func_003B7F60(*(int*)((char*)self + 0x8), a, b);
@@ -125,7 +125,7 @@ extern "C" void func_002A9ED8(void* self, int a, int b)
 }
 
 //100%
-void func_002A9F30(void* self, int val)
+void cStreamInstance_setVolume__FPvi(void* self, int val)
 {
     *(char*)((char*)self + 0xC) = (char)val;
 }
@@ -135,7 +135,7 @@ extern "C" void func_003B58A0();
 extern "C" void func_003B58D8();
 extern "C" void func_003B7FB8(int h, int v);
 
-extern "C" void func_002A9F38(void* self, int v)
+extern "C" void cStreamInstance_setPitch(void* self, int v)
 {
     func_003B58A0();
     func_003B7FB8(*(int*)((char*)self + 0x8), v);
@@ -144,15 +144,15 @@ extern "C" void func_002A9F38(void* self, int v)
 
 //100%
 int func_0028B240(void* self);
-void* func_002AA408(void* self);
+void* cStreamInstance_stop__FPv(void* self);
 extern "C" void func_003B58A0();
 extern "C" void func_003B58D8();
 extern "C" void func_003B7E70(int h, int vol);
 
-extern "C" void func_002A9F80(void* self)
+extern "C" void cStreamInstance_update(void* self)
 {
     if (func_0028B240(self) * 2 < *(int*)((char*)self + 0x80)) {
-        func_002AA408(self);
+        cStreamInstance_stop__FPv(self);
         *(int*)((char*)self + 0x80) = 0;
         return;
     }
@@ -177,9 +177,9 @@ extern "C" void func_003B58D8();
 extern "C" int func_003B7B48(int h, void* out);
 
 // PORT: returns int; the unit declares it void(void*, void*) further down
-int func_002AA020_impl(void* self, void* out) __asm__("func_002AA020");
+int cStreamInstance_getStatus_impl(void* self, void* out) __asm__("cStreamInstance_getStatus");
 
-int func_002AA020_impl(void* self, void* out)
+int cStreamInstance_getStatus_impl(void* self, void* out)
 {
     int r;
     func_003B58A0();
@@ -189,28 +189,28 @@ int func_002AA020_impl(void* self, void* out)
 }
 
 //100% - objdiff report; single-function view differs only in a relocation name
-extern "C" void func_002AA020(void*, void*);
+extern "C" void cStreamInstance_getStatus(void*, void*);
 extern "C" void func_003B58A0();
 extern "C" void func_003B58D8();
 extern "C" int func_003B7C40(int h, int a1);
 
 // PORT: returns int and takes (self, int, out); later callers in this unit declare it void(void*, sStatus*, int)
-int func_002AA068_impl(void* self, int a1, int* out) __asm__("func_002AA068");
+int cStreamInstance_getPlayStatus_impl(void* self, int a1, int* out) __asm__("cStreamInstance_getPlayStatus");
 
-int func_002AA068_impl(void* self, int a1, int* out)
+int cStreamInstance_getPlayStatus_impl(void* self, int a1, int* out)
 {
     int buf[4];
     int* p = out ? out : buf;
     int r;
-    func_002AA020(self, p);
+    cStreamInstance_getStatus(self, p);
     func_003B58A0();
     r = func_003B7C40(p[1], a1);
     func_003B58D8();
     return r;
 }
 
-struct func_002AA1B8_sStatus;
-extern "C" void func_002AA068(void* self, func_002AA1B8_sStatus* out, int flags);
+struct cStreamInstance_isPlaying_sStatus;
+extern "C" void cStreamInstance_getPlayStatus(void* self, cStreamInstance_isPlaying_sStatus* out, int flags);
 
 struct func_002AA108_sStatus {
     int state;
@@ -222,7 +222,7 @@ struct func_002AA108_sStatus {
 extern "C" float func_002AA0C0(void* self)
 {
     func_002AA108_sStatus st;
-    func_002AA068(self, (func_002AA1B8_sStatus*)&st, 0);
+    cStreamInstance_getPlayStatus(self, (cStreamInstance_isPlaying_sStatus*)&st, 0);
     if (st.state == 2) {
         return (float)st.a;
     }
@@ -233,7 +233,7 @@ extern "C" float func_002AA0C0(void* self)
 extern "C" float func_002AA108(void* self)
 {
     func_002AA108_sStatus st;
-    func_002AA068(self, (func_002AA1B8_sStatus*)&st, 0);
+    cStreamInstance_getPlayStatus(self, (cStreamInstance_isPlaying_sStatus*)&st, 0);
     if (st.state == 2) {
         return (float)st.b;
     }
@@ -243,31 +243,31 @@ extern "C" float func_002AA108(void* self)
 extern "C" int func_002AA150(void* self, int n)
 {
     int buf[4];
-    func_002AA020(self, buf);
+    cStreamInstance_getStatus(self, buf);
     return buf[2] >= n;
 }
 
 extern "C" int func_002AA188(void* self)
 {
     func_002AA108_sStatus st;
-    func_002AA068(self, (func_002AA1B8_sStatus*)&st, 0);
+    cStreamInstance_getPlayStatus(self, (cStreamInstance_isPlaying_sStatus*)&st, 0);
     return st.state == 1;
 }
 
 //100% - objdiff report; single-function view differs only in a relocation name
-struct func_002AA1B8_sStatus {
+struct cStreamInstance_isPlaying_sStatus {
     int state;
     int a;
     int b;
     int c;
 };
 
-extern "C" void func_002AA068(void* self, func_002AA1B8_sStatus* out, int flags);
+extern "C" void cStreamInstance_getPlayStatus(void* self, cStreamInstance_isPlaying_sStatus* out, int flags);
 
-extern "C" int func_002AA1B8(void* self)
+extern "C" int cStreamInstance_isPlaying(void* self)
 {
-    func_002AA1B8_sStatus st;
-    func_002AA068(self, &st, 0);
+    cStreamInstance_isPlaying_sStatus st;
+    cStreamInstance_getPlayStatus(self, &st, 0);
     return st.state == 2;
 }
 
@@ -276,14 +276,14 @@ extern "C" void func_003B7D80(int h, int a1);
 extern "C" void func_002AA1E8(void* self)
 {
     int buf[4];
-    func_002AA020(self, buf);
+    cStreamInstance_getStatus(self, buf);
     func_003B7D80(buf[1], 0);
 }
 
 extern "C" int func_002AA210(void* self)
 {
     int buf[2];
-    func_002AA020_impl(self, buf);
+    cStreamInstance_getStatus_impl(self, buf);
     if (buf[0] == 0) {
         return -1;
     }
@@ -298,21 +298,21 @@ extern "C" void func_002AA240(void* self, int h)
 extern "C" float func_002AA260(void* self)
 {
     func_002AA108_sStatus st;
-    func_002AA068(self, (func_002AA1B8_sStatus*)&st, 0);
+    cStreamInstance_getPlayStatus(self, (cStreamInstance_isPlaying_sStatus*)&st, 0);
     if (st.state == 2) {
         return (float)(st.a + st.b);
     }
     return 0.0f;
 }
 
-extern "C" void func_002AA2B0(void* self)
+extern "C" void cStreamInstance_pause(void* self)
 {
     func_003B58A0();
     func_003B7FB8(*(int*)((char*)self + 0x8), 0);
     func_003B58D8();
 }
 
-extern "C" void func_002AA2E8(void* self)
+extern "C" void cStreamInstance_resume(void* self)
 {
     func_003B58A0();
     func_003B7FB8(*(int*)((char*)self + 0x8), 0x1000);
@@ -350,19 +350,19 @@ extern "C" int func_002AA398(void* self, int a, int buf, int off)
 }
 
 //100%
-void* func_002AA408(void* self)
+void* cStreamInstance_stop__FPv(void* self)
 {
     return func_003B78F8(*(int*)((char*)self + 0x8));
 }
 
-extern "C" void func_002AA020(void*, void*);
+extern "C" void cStreamInstance_getStatus(void*, void*);
 
 //99.38% - identical instructions; jal addend differs only because the
 // callee sits at a different .text offset in our object than in the target
 extern "C" int func_002AA428(void* self)
 {
     int buf[4];
-    func_002AA020(self, buf);
+    cStreamInstance_getStatus(self, buf);
     return buf[0];
 }
 
@@ -442,7 +442,7 @@ extern "C" sStreamSysA490* cStreamSys_cStreamSys(sStreamSysA490* self, int inchr
 void cMemMan_free(void*);
 void operator_delete(int* ptr);
 extern "C" void func_0028BB10(void* self, int flags);
-extern "C" void func_002A9DF0(void* e, int a1);
+extern "C" void cStreamInstance_destroy(void* e, int a1);
 extern "C" void func_002ADEE8(void* self, int flags);
 extern void* D_00483B48[];
 
@@ -462,7 +462,7 @@ extern const sSsVtblAA648 D_00483998_A648 __asm__("D_00483998");
 extern const sSsVtblBA648 D_004839B8_A648 __asm__("D_004839B8");
 
 // PORT: g++ 2.95 virtual-base destruction with stack vtable this-adjust fix-ups, written out by hand.
-extern "C" void func_002AA648(void* p, int flags)
+extern "C" void cStreamSys_destroy(void* p, int flags)
 {
     char* self = (char*)p;
     *(const sSsVtblAA648**)(*(char**)(*(char**)self + 0x1D8) + 4) = &D_00483998_A648;
@@ -483,7 +483,7 @@ extern "C" void func_002AA648(void* p, int flags)
     for (int i = 0; i < *(int*)(self + 4); i++) {
         void* e = (*(void***)(self + 8))[i];
         if (e != 0) {
-            func_002A9DF0(e, 3);
+            cStreamInstance_destroy(e, 3);
         }
     }
     if (*(void**)(self + 8) != 0) {
@@ -500,30 +500,30 @@ extern "C" void func_002AA648(void* p, int flags)
 
 extern const char D_00483228[];
 // PORT: cMemMan_alloc is the game's operator new(size, tag, flags, d); the stream
-// instance constructors are bound by asm label (func_002A9C00 is a second overload).
+// instance constructors are bound by asm label (cStreamInstance_cStreamInstance2 is a second overload).
 void* operator new(unsigned int size, const char* tag, unsigned int flags, int d) __asm__("cMemMan_alloc");
 
 struct cStreamInstanceNew_AA7F0 {
     char data[0x84];
     cStreamInstanceNew_AA7F0(void* player, int heap, int extra) __asm__("cStreamInstance_cStreamInstance");
-    cStreamInstanceNew_AA7F0(void* player, int a, int b, int c, int d) __asm__("func_002A9C00");
+    cStreamInstanceNew_AA7F0(void* player, int a, int b, int c, int d) __asm__("cStreamInstance_cStreamInstance2");
 };
 
 // Create the stream instance for slot i.
-extern "C" void func_002AA7F0(void* sys, int i, int heap, int extra)
+extern "C" void cStreamSys_newStream(void* sys, int i, int heap, int extra)
 {
     sStreamSysA490* self = (sStreamSysA490*)sys;
     self->items[i] = new (D_00483228, heap, 0) cStreamInstanceNew_AA7F0(self->vbase + 0x1D8, heap, extra);
 }
 
-extern "C" void func_002AA870(sStreamSysA490* self, int i, int heap, int a3, int a4, int a5, int a6)
+extern "C" void cStreamSys_newStreamWithMem(sStreamSysA490* self, int i, int heap, int a3, int a4, int a5, int a6)
 {
     self->items[i] = new (D_00483228, heap, 0) cStreamInstanceNew_AA7F0(self->vbase + 0x1D8, a3, a4, a5, a6);
 }
 
 //100% - objdiff report; single-function view differs only in a relocation name
 extern "C" void* func_00416210(void* dst, int c, int n);
-extern "C" void func_002AA7F0(void* self, int a1, int a2, int a3);
+extern "C" void cStreamSys_newStream(void* self, int a1, int a2, int a3);
 
 struct sEntry_A910 {
     signed char kind;
@@ -561,7 +561,7 @@ struct sMgr_A910 {
     sStack_A910 st;                 // 0x1D8
 };
 
-extern "C" void func_002AA910(sMgr_A910** self, int a1, int a2, int a3, int a4)
+extern "C" void cStreamSys_createStream(sMgr_A910** self, int a1, int a2, int a3, int a4)
 {
     sMgr_A910* m = *self;
     sStack_A910* st = &m->st;
@@ -586,64 +586,64 @@ extern "C" void func_002AA910(sMgr_A910** self, int a1, int a2, int a3, int a4)
     st->a78[m->st.depth] = 127;
     st->a7C[m->st.depth] = 1;
     (*self)->st.a3C[(*self)->st.depth] = a2;
-    func_002AA7F0(self, a1, a3, a4);
+    cStreamSys_newStream(self, a1, a3, a4);
     (*self)->st.depth--;
 }
 
 //100% - objdiff report; single-function view differs only in a relocation name
-extern "C" void func_002A9E78(void*, int);
+extern "C" void cStreamInstance_openBigFile(void*, int);
 
-extern "C" void func_002AAB98(void* self, int i, int val)
+extern "C" void cStreamSys_openBigFile(void* self, int i, int val)
 {
     void* e = (*(void***)((char*)self + 0x8))[i];
     if (e != 0) {
-        func_002A9E78(e, val);
+        cStreamInstance_openBigFile(e, val);
     }
 }
 
 //100% - objdiff report; single-function view differs only in a relocation name
-extern "C" void func_002A9DF0(void* e, int a1);
+extern "C" void cStreamInstance_destroy(void* e, int a1);
 
-extern "C" void func_002AABD0(void* self, int i)
+extern "C" void cStreamSys_deleteStream(void* self, int i)
 {
     void* e = (*(void***)((char*)self + 0x8))[i];
     if (e != 0) {
-        func_002A9DF0(e, 3);
+        cStreamInstance_destroy(e, 3);
     }
     (*(void***)((char*)self + 0x8))[i] = 0;
 }
 
 //100% - objdiff report; single-function view differs only in a relocation name
-extern "C" void func_002A9F80(void* e);
+extern "C" void cStreamInstance_update(void* e);
 
-extern "C" void func_002AAC28(void* self)
+extern "C" void cStreamSys_update(void* self)
 {
     for (int i = 0; i < *(int*)((char*)self + 0x4); i++) {
         void* e = (*(void***)((char*)self + 0x8))[i];
         if (e != 0) {
-            func_002A9F80(e);
+            cStreamInstance_update(e);
         }
     }
 }
 
-extern "C" void func_002AA2B0(void* self);
+extern "C" void cStreamInstance_pause(void* self);
 
-extern "C" void func_002AAC98(sStreamSysA490* self)
+extern "C" void cStreamSys_pauseAll(sStreamSysA490* self)
 {
     for (int i = 0; i < self->count; i++) {
         if (self->items[i] != 0) {
-            func_002AA2B0(self->items[i]);
+            cStreamInstance_pause(self->items[i]);
         }
     }
 }
 
-extern "C" void func_002AA2E8(void* self);
+extern "C" void cStreamInstance_resume(void* self);
 
-extern "C" void func_002AAD08(sStreamSysA490* self)
+extern "C" void cStreamSys_resumeAll(sStreamSysA490* self)
 {
     for (int i = 0; i < self->count; i++) {
         if (self->items[i] != 0) {
-            func_002AA2E8(self->items[i]);
+            cStreamInstance_resume(self->items[i]);
         }
     }
 }
@@ -651,7 +651,7 @@ extern "C" void func_002AAD08(sStreamSysA490* self)
 //100% - objdiff report; single-function view differs only in a relocation name
 extern "C" int func_002AA320(void* e, int a, int b, int c);
 
-extern "C" int func_002AAD78(void* self, int i, int a, int b, int c)
+extern "C" int cStreamSys_playFile(void* self, int i, int a, int b, int c)
 {
     void* e = (*(void***)((char*)self + 0x8))[i];
     if (e != 0) {
@@ -681,11 +681,11 @@ extern "C" int func_002AAE08(void* self, int i)
 }
 
 //100%
-extern "C" void func_002AAE40(void* self, int i)
+extern "C" void cStreamSys_stop(void* self, int i)
 {
     void* e = (*(void***)((char*)self + 0x8))[i];
     if (e != 0) {
-        func_002AA408(e);
+        cStreamInstance_stop__FPv(e);
     }
 }
 
@@ -750,13 +750,13 @@ extern "C" int func_002AAFD0(void* self, int h)
 }
 
 //100% - objdiff report; single-function view differs only in a relocation name
-extern "C" int func_002AA1B8(void*);
+extern "C" int cStreamInstance_isPlaying(void*);
 
-extern "C" int func_002AB028(void* self, int i)
+extern "C" int cStreamSys_isPlaying(void* self, int i)
 {
     void* e = (*(void***)((char*)self + 0x8))[i];
     if (e != 0) {
-        return func_002AA1B8(e);
+        return cStreamInstance_isPlaying(e);
     }
     return 0;
 }
@@ -786,15 +786,15 @@ extern "C" void func_002AB0D0(void* self, int i, int val)
     }
 }
 
-extern "C" void func_002AB0F0(sStreamSysA490* self, int i, int vol)
+extern "C" void cStreamSys_setVolume(sStreamSysA490* self, int i, int vol)
 {
     void* e = self->items[i];
     if (e != 0) {
-        func_002A9F30(e, vol);
+        cStreamInstance_setVolume__FPvi(e, vol);
     }
 }
 
-extern "C" int func_002AB128(sStreamSysA490* self, int i)
+extern "C" int cStreamSys_getHandle(sStreamSysA490* self, int i)
 {
     void* e = self->items[i];
     if (e != 0) {
@@ -816,7 +816,7 @@ extern "C" int func_002AB150(void* self, int i)
 }
 
 //100%
-int func_002AB188(void* self, int a1)
+int cStreamSys_getStream__FPvi(void* self, int a1)
 {
     return *(int*)((char*)*(void**)((char*)self + 0x8) + a1 * 4);
 }
@@ -912,7 +912,7 @@ extern "C" char* func_002AB200(char* self, int embedded, int a2, int a3, int hea
 void operator_delete(int* ptr);
 extern "C" void func_0028BB10(void* self, int flags);
 extern "C" void func_002A6B50(void* self, int flags);
-extern "C" void func_002AA648(void* self, int flags);
+extern "C" void cStreamSys_destroy(void* self, int flags);
 extern "C" void func_002ADEE8(void* self, int flags);
 extern "C" void func_002B0AE8(char* self, int flags);
 extern "C" void func_002B3398(char* self, int flags);
@@ -969,7 +969,7 @@ extern "C" void func_002AB478(char* self, int flags)
     func_002B3398(mon, 0);
     func_002A6B50(self, 0);
     if (flags & 2) {
-        func_002AA648(*(void**)(self + 0x118), 0);
+        cStreamSys_destroy(*(void**)(self + 0x118), 0);
         func_0028BB10(**(void***)(self + 0x118), 0);
         func_002ADEE8(*(void**)(**(char***)(self + 0x118) + 0x1D8), 0);
     }
@@ -979,8 +979,8 @@ extern "C" void func_002AB478(char* self, int flags)
 }
 
 //100%
-extern "C" int func_002ABB80(void* self);
-extern "C" void func_002AC868(void* voice, void* bm, float v);
+extern "C" int cBankMonitorInstance_isFree(void* self);
+extern "C" void cBankMonitorInstance_update3D(void* voice, void* bm, float v);
 
 class cStrmCbOwner {
 public:
@@ -992,9 +992,9 @@ struct sStrmVoiceCb {
     void (cStrmCbOwner::*cb)(void* voice, float v);
 };
 
-extern "C" void func_002AB6B0(void* voice, void* self, float v)
+extern "C" void cAudioSys_updateVoice(void* voice, void* self, float v)
 {
-    if (func_002ABB80(voice) == 0 && v > 0.0f) {
+    if (cBankMonitorInstance_isFree(voice) == 0 && v > 0.0f) {
         sStrmVoiceCb* sv = (sStrmVoiceCb*)voice;
         if (sv->cb) {
             (((cStrmCbOwner*)self)->*(sv->cb))(voice, v);
@@ -1007,20 +1007,20 @@ extern "C" void func_002AB6B0(void* voice, void* self, float v)
                 bm += 0x1D8;
             }
         }
-        func_002AC868(voice, bm, v);
+        cBankMonitorInstance_update3D(voice, bm, v);
     }
 }
 
 //100% - objdiff report; single-function view differs only in a relocation name
-extern "C" void func_002AB6B0(void* voice, void* self, float v);
+extern "C" void cAudioSys_updateVoice(void* voice, void* self, float v);
 
-extern "C" void func_002AB7A0(void* self, float v)
+extern "C" void cAudioSys_updateVoices(void* self, float v)
 {
     if (*(int*)(**(char***)((char*)self + 0x118) + 0xAC0) != 0) {
         v = 0.0f;
     }
     for (int i = 0; i < 64; i++) {
-        func_002AB6B0(*(char**)(**(char***)((char*)self + 0x118) + 0xAC4) + i * 0xC0, self, v);
+        cAudioSys_updateVoice(*(char**)(**(char***)((char*)self + 0x118) + 0xAC4) + i * 0xC0, self, v);
     }
 }
 
@@ -1039,7 +1039,7 @@ struct sStrmTick {
     int (cStrmTickOwner::*cb)(sStrmTick* e);
 };
 
-extern "C" void func_002AB828(void* e, void* self)
+extern "C" void cAudioSys_tickTimer(void* e, void* self)
 {
     sStrmTick* t = (sStrmTick*)e;
     if (t->active) {
@@ -1055,16 +1055,16 @@ extern "C" void func_002AB828(void* e, void* self)
 
 //100% - objdiff report; single-function view differs only in a relocation name
 extern "C" void func_002ADC10(void* bm);
-extern "C" void func_002AB828(void* e, void* self);
+extern "C" void cAudioSys_tickTimer(void* e, void* self);
 
-extern "C" void func_002AB8E8(void* self)
+extern "C" void cAudioSys_updateTimers(void* self)
 {
     char* snd = **(char***)((char*)self + 0x118);
     char* bm = snd + 0x1D8;
     if (*(int*)(snd + 0x26C) == 0) {
         func_002ADC10(bm);
         for (int i = 0; i < 48; i++) {
-            func_002AB828(**(char***)((char*)self + 0x118) + 0x270 + i * 0x2C, self);
+            cAudioSys_tickTimer(**(char***)((char*)self + 0x118) + 0x270 + i * 0x2C, self);
         }
     }
 }
@@ -1072,13 +1072,13 @@ extern "C" void func_002AB8E8(void* self)
 //100% - objdiff report; single-function view differs only in a relocation name
 extern "C" void func_0028AAF8(void* snd);
 extern "C" void func_002A6D18(void* self);
-extern "C" void func_002AAC28(void* self);
+extern "C" void cStreamSys_update(void* self);
 extern "C" void func_002B0C78(void* self);
 extern "C" void func_002B4388(void* self);
 
 struct sStrmVtEntF { short delta; short index; void (*fn)(void*, float); };
 
-extern "C" void func_002AB958(void* self, float v)
+extern "C" void cAudioSys_update(void* self, float v)
 {
     char** sys = (char**)((char*)self + 0x118);
     func_0028AAF8(*(void**)*sys);
@@ -1089,11 +1089,11 @@ extern "C" void func_002AB958(void* self, float v)
     e->fn(o + e->delta, v);
     func_002B4388(sys);
     func_002B0C78((char*)self + 0x5560);
-    func_002AAC28(*sys);
+    cStreamSys_update(*sys);
 }
 
 //100%
-extern "C" void* func_002AB9E0(void* self)
+extern "C" void* cBankMonitorInstance_cBankMonitorInstance(void* self)
 {
     *(int*)((char*)self + 0xB0) = 0x8000;
     *(float*)((char*)self + 0x90) = -1.0f;
@@ -1108,7 +1108,7 @@ extern "C" void* func_002AB9E0(void* self)
 //100%
 void operator_delete(int* ptr);
 
-extern "C" void func_002ABA18(int* self, int flags)
+extern "C" void cBankMonitorInstance_destroy(int* self, int flags)
 {
     if (flags & 1) {
         operator_delete(self);
@@ -1121,7 +1121,7 @@ extern "C" int func_003B9FC8(int h);
 // PORT: the unit declares func_003B7C40(int, int); its second argument is a status buffer here.
 int func_003B7C40_st(int h, int* st) __asm__("func_003B7C40");
 
-extern "C" int func_002ABA40(void* self)
+extern "C" int cBankMonitorInstance_isFinished(void* self)
 {
     int type = *(int*)self;
     switch (type) {
@@ -1152,11 +1152,11 @@ extern "C" int func_002ABA40(void* self)
 }
 
 //100%
-extern "C" void func_002AC180(void*);
+extern "C" void cBankMonitorInstance_stopPlayback(void*);
 
-extern "C" void func_002ABB38(void* self)
+extern "C" void cBankMonitorInstance_stop(void* self)
 {
-    func_002AC180(self);
+    cBankMonitorInstance_stopPlayback(self);
     *(int*)((char*)self + 0xB0) = 0x8000;
     *(int*)((char*)self + 0xB4) = -1;
     *(int*)((char*)self + 0x0) = 0;
@@ -1166,10 +1166,10 @@ extern "C" void func_002ABB38(void* self)
 }
 
 //100% - objdiff report; single-function view differs only in a relocation name
-extern "C" int func_002ABA40(void* self);
-extern "C" void func_002ABB38(void* self);
+extern "C" int cBankMonitorInstance_isFinished(void* self);
+extern "C" void cBankMonitorInstance_stop(void* self);
 
-extern "C" int func_002ABB80(void* self)
+extern "C" int cBankMonitorInstance_isFree(void* self)
 {
     if (*(int*)self == 0) {
         return 1;
@@ -1177,10 +1177,10 @@ extern "C" int func_002ABB80(void* self)
     if (*(int*)((char*)self + 0x9C) == 0) {
         return 0;
     }
-    if (func_002ABA40(self) == 0) {
+    if (cBankMonitorInstance_isFinished(self) == 0) {
         return 0;
     }
-    func_002ABB38(self);
+    cBankMonitorInstance_stop(self);
     return 1;
 }
 
@@ -1198,10 +1198,10 @@ extern "C" float func_002ABBD8(void* self, sVec3_2ABBD8* a, sVec3_2ABBD8* b)
 }
 
 //100%
-// PORT: the unit declares func_002ABC18 as void*(int); the body takes (int, float, float).
-int func_002ABC18_impl(int vol, float dist, float range) __asm__("func_002ABC18");
+// PORT: the unit declares cBankMonitorInstance_calcDistAttenuation as void*(int); the body takes (int, float, float).
+int cBankMonitorInstance_calcDistAttenuation_impl(int vol, float dist, float range) __asm__("cBankMonitorInstance_calcDistAttenuation");
 
-int func_002ABC18_impl(int vol, float dist, float range)
+int cBankMonitorInstance_calcDistAttenuation_impl(int vol, float dist, float range)
 {
     dist = dist - 0.5f;
     if (dist < 0.0f) {
@@ -1215,16 +1215,16 @@ int func_002ABC18_impl(int vol, float dist, float range)
     return result;
 }
 
-extern "C" void* func_002ABC18(int);
+extern "C" void* cBankMonitorInstance_calcDistAttenuation(int);
 
 //99.29%
-void* func_002ABC80(void* self, int a1)
+void* cBankMonitorInstance_getDistanceVolume__FPvi(void* self, int a1)
 {
-    return func_002ABC18(a1);
+    return cBankMonitorInstance_calcDistAttenuation(a1);
 }
 
 //100%
-extern "C" float func_002ABCA0(float a, float b)
+extern "C" float cBankMonitorInstance_calcDoppler(float a, float b)
 {
     float f = a / b;
     if (f < -894.0799560546875f) {
@@ -1245,7 +1245,7 @@ void func_002ABCE8(void* self, int a1, int a2)
 //100%
 extern "C" char* strcpy(char* dst, const char* src);
 
-extern "C" void func_002ABCF8(void* self, int a, const char* name, int b)
+extern "C" void cBankMonitorInstance_setStreamRef(void* self, int a, const char* name, int b)
 {
     *(int*)((char*)self + 0xC) = a;
     strcpy((char*)self + 0x10, name);
@@ -1283,13 +1283,13 @@ extern "C" void func_002ABD48(void* self, func_002ABD48_cObj* obj)
 }
 
 //100% - objdiff report; single-function view differs only in a relocation name
-extern "C" void func_002A9ED8(void* s, int pos, int a2);
+extern "C" void cStreamInstance_setPan(void* s, int pos, int a2);
 extern "C" void func_003B58A0();
 extern "C" void func_003B58D8();
 extern "C" void func_003B8C00(int h, int pos, int a2);
 extern "C" void func_003B9C20(int h, int pos);
 
-extern "C" void func_002ABD90(void* self, int pos, int a2)
+extern "C" void cBankMonitorInstance_setPan(void* self, int pos, int a2)
 {
     int d = pos - *(int*)((char*)self + 0xB8);
     if (d >= -0x1FF && d <= 0x1FF) {
@@ -1308,19 +1308,19 @@ extern "C" void func_002ABD90(void* self, int pos, int a2)
         func_003B58D8();
         break;
     case 3:
-        func_002A9ED8(*(void**)((char*)self + 0xC), pos, a2);
+        cStreamInstance_setPan(*(void**)((char*)self + 0xC), pos, a2);
         break;
     }
 }
 
 //100% - objdiff report; single-function view differs only in a relocation name
-extern "C" void func_002A9F38(void* s, int vol);
+extern "C" void cStreamInstance_setPitch(void* s, int vol);
 extern "C" void func_003B58A0();
 extern "C" void func_003B58D8();
 extern "C" void func_003B8790(int h, int vol);
 extern "C" void func_003B9B68(int h, int vol);
 
-extern "C" void func_002ABE78(void* self, int vol)
+extern "C" void cBankMonitorInstance_setPitch(void* self, int vol)
 {
     if (vol > 0x3FFF) {
         vol = 0x3FFF;
@@ -1345,14 +1345,14 @@ extern "C" void func_002ABE78(void* self, int vol)
         func_003B58D8();
         break;
     case 3:
-        func_002A9F38(*(void**)((char*)self + 0xC), vol);
+        cStreamInstance_setPitch(*(void**)((char*)self + 0xC), vol);
         break;
     }
 }
 
 //100%
-void func_002A9F30(void* self, int val);
-void* func_002AA408(void* self);
+void cStreamInstance_setVolume__FPvi(void* self, int val);
+void* cStreamInstance_stop__FPv(void* self);
 extern "C" void func_003B58A0();
 extern "C" void func_003B58D8();
 extern "C" void func_003B85F0(int h, int a);
@@ -1360,7 +1360,7 @@ extern "C" void func_003B89E0(int h);
 extern "C" void func_003B9920(int h);
 extern "C" void func_003B9E48(int h, int a);
 
-extern "C" void func_002ABF60(void* self, int vol)
+extern "C" void cBankMonitorInstance_setVolume(void* self, int vol)
 {
     int orig = vol;
     switch (*(int*)self) {
@@ -1423,9 +1423,9 @@ extern "C" void func_002ABF60(void* self, int vol)
         }
         *(int*)((char*)self + 0xB4) = vol;
         if (orig == none)
-            func_002AA408(*(void**)((char*)self + 0xC));
+            cStreamInstance_stop__FPv(*(void**)((char*)self + 0xC));
         else
-            func_002A9F30(*(void**)((char*)self + 0xC), vol);
+            cStreamInstance_setVolume__FPvi(*(void**)((char*)self + 0xC), vol);
         break;
     }
     }
@@ -1437,7 +1437,7 @@ extern "C" void func_003B58D8();
 extern "C" void func_003B8530(int h, int a, int b);
 extern "C" void func_003B9F38(int h, int a, int b);
 
-extern "C" void func_002AC180(void* self)
+extern "C" void cBankMonitorInstance_stopPlayback(void* self)
 {
     if (*(int*)((char*)self + 0x54) != 0) {
         return;
@@ -1461,7 +1461,7 @@ extern "C" void func_002AC180(void* self)
 INCLUDE_ASM("sound/streamsys", func_002AC220);
 
 //100% - objdiff report; single-function view differs only in a relocation name
-extern "C" void func_002AC180(void*);
+extern "C" void cBankMonitorInstance_stopPlayback(void*);
 extern "C" void func_002AC220(void*);
 
 extern "C" int func_002AC7F0(void* self, float t)
@@ -1472,7 +1472,7 @@ extern "C" int func_002AC7F0(void* self, float t)
     }
     if (*(int*)((char*)self + 0x8) != 0) {
         if (th < t) {
-            func_002AC180(self);
+            cBankMonitorInstance_stopPlayback(self);
             return 0;
         }
         return 1;
@@ -1507,13 +1507,13 @@ extern "C" void func_003B58A0();
 extern "C" void func_003B58D8();
 // PORT: the unit declares func_003B7C40(int, int); its second argument is a status buffer here.
 int func_003B7C40_st(int h, int* st) __asm__("func_003B7C40");
-extern "C" int func_002ABA40(void* self);
-extern "C" void func_002ABD90(void* self, int pos, int a2);
-extern "C" void func_002ABE78(void* self, int a1);
-extern "C" void func_002ABF60(void* self, int a1);
+extern "C" int cBankMonitorInstance_isFinished(void* self);
+extern "C" void cBankMonitorInstance_setPan(void* self, int pos, int a2);
+extern "C" void cBankMonitorInstance_setPitch(void* self, int a1);
+extern "C" void cBankMonitorInstance_setVolume(void* self, int a1);
 // PORT: these callees are declared with fewer parameters elsewhere in the unit; the caller passes the extra registers.
-int func_002ABC80_4(void* self, int vol, float dist, float range) __asm__("func_002ABC80__FPvi");
-float func_002ABCA0_3(void* self, float a, float b) __asm__("func_002ABCA0");
+int cBankMonitorInstance_getDistanceVolume__FPvi_4(void* self, int vol, float dist, float range) __asm__("cBankMonitorInstance_getDistanceVolume__FPvi__FPvi");
+float cBankMonitorInstance_calcDoppler_3(void* self, float a, float b) __asm__("cBankMonitorInstance_calcDoppler");
 int func_002AC7F0_3(void* self, void* bm, float t) __asm__("func_002AC7F0");
 
 // PORT: PS2 sqrt.s asm helper; use sqrtf on PC.
@@ -1524,7 +1524,7 @@ static inline float Sqrt_C868(float x)
     return r;
 }
 
-extern "C" void func_002AC868(void* voice, void* bm, float v)
+extern "C" void cBankMonitorInstance_update3D(void* voice, void* bm, float v)
 {
     char* s = (char*)voice;
     char* b = (char*)bm;
@@ -1547,20 +1547,20 @@ extern "C" void func_002AC868(void* voice, void* bm, float v)
         if (*(int*)(s + 0x94) != 0 || func_002AC7F0_3(voice, bm, d) != 0) {
             float f = *(float*)(s + 0x5C);
             if (f != -1.0f && *(int*)(b + 0x8E0) != 0) {
-                v = func_002ABCA0_3(voice, f - d, v);
+                v = cBankMonitorInstance_calcDoppler_3(voice, f - d, v);
             } else {
                 v = 1.0f;
             }
-            func_002ABD90(voice, pos.pos, pos.pos2);
-            func_002ABE78(voice, (int)(v * 4096.0f));
+            cBankMonitorInstance_setPan(voice, pos.pos, pos.pos2);
+            cBankMonitorInstance_setPitch(voice, (int)(v * 4096.0f));
             if (*(int*)(s + 0x94) != 0) {
                 vol = *(int*)(s + 0x64);
             } else {
                 float range = *(float*)(s + 0x88);
                 if (range == 0.0f) {
-                    vol = func_002ABC80_4(voice, *(int*)(s + 0x64), d, 30.0f);
+                    vol = cBankMonitorInstance_getDistanceVolume__FPvi_4(voice, *(int*)(s + 0x64), d, 30.0f);
                 } else {
-                    vol = func_002ABC80_4(voice, *(int*)(s + 0x64), d, range);
+                    vol = cBankMonitorInstance_getDistanceVolume__FPvi_4(voice, *(int*)(s + 0x64), d, range);
                 }
                 int m = *(int*)(s + 0x98);
                 if (m != 0x7F) {
@@ -1589,10 +1589,10 @@ extern "C" void func_002AC868(void* voice, void* bm, float v)
         if (p != 0) {
             vol = (int)((float)vol * *p);
         }
-        func_002ABF60(voice, vol);
+        cBankMonitorInstance_setVolume(voice, vol);
         return;
     }
-    if (func_002ABA40(voice) != 0) {
+    if (cBankMonitorInstance_isFinished(voice) != 0) {
         *(int*)(s + 0x8) = 0;
         *(int*)(s + 0x54) = 0;
         *(int*)(s + 0x4) = -1;
@@ -1600,16 +1600,16 @@ extern "C" void func_002AC868(void* voice, void* bm, float v)
 }
 
 //100% - objdiff report; single-function view differs only in a relocation name
-extern "C" int func_002ABB80(void* self);
-extern "C" void func_002ABE78(void* self, int a1);
-extern "C" void func_002ABF60(void* self, int a1);
+extern "C" int cBankMonitorInstance_isFree(void* self);
+extern "C" void cBankMonitorInstance_setPitch(void* self, int a1);
+extern "C" void cBankMonitorInstance_setVolume(void* self, int a1);
 extern "C" void func_003B9D00(int h);
 
-extern "C" void func_002ACAC8(void* self)
+extern "C" void cBankMonitorInstance_pause(void* self)
 {
-    if (func_002ABB80(self) == 0 && *(int*)((char*)self + 0x54) == 0) {
-        func_002ABE78(self, 0);
-        func_002ABF60(self, 0);
+    if (cBankMonitorInstance_isFree(self) == 0 && *(int*)((char*)self + 0x54) == 0) {
+        cBankMonitorInstance_setPitch(self, 0);
+        cBankMonitorInstance_setVolume(self, 0);
         if (*(int*)((char*)self + 0x0) == 2) {
             func_003B9D00(*(int*)((char*)self + 0x4));
         }
@@ -1617,14 +1617,14 @@ extern "C" void func_002ACAC8(void* self)
 }
 
 //100% - objdiff report; single-function view differs only in a relocation name
-extern "C" int func_002ABB80(void* self);
-extern "C" void func_002ABE78(void* self, int a1);
+extern "C" int cBankMonitorInstance_isFree(void* self);
+extern "C" void cBankMonitorInstance_setPitch(void* self, int a1);
 extern "C" void func_003B9DC8(int h);
 
-extern "C" void func_002ACB30(void* self)
+extern "C" void cBankMonitorInstance_resume(void* self)
 {
-    if (func_002ABB80(self) == 0) {
-        func_002ABE78(self, 0x1000);
+    if (cBankMonitorInstance_isFree(self) == 0) {
+        cBankMonitorInstance_setPitch(self, 0x1000);
         if (*(int*)self == 2) {
             func_003B9DC8(*(int*)((char*)self + 0x4));
         }
@@ -1638,8 +1638,8 @@ extern "C" void func_003B8530(int h, int a, int b);
 extern "C" void func_003B85F0(int h, int a);
 extern "C" void func_003B9E48(int h, int a);
 extern "C" void func_003B9F38(int h, int a, int b);
-void* func_002AA408(void* self);
-void func_002A9F30(void* self, int val);
+void* cStreamInstance_stop__FPv(void* self);
+void cStreamInstance_setVolume__FPvi(void* self, int val);
 
 extern "C" void func_002ACB80(void* self, int n, int a2, float t)
 {
@@ -1681,9 +1681,9 @@ extern "C" void func_002ACB80(void* self, int n, int a2, float t)
         break;
     case 3:
         if (*(int*)((char*)self + 0x54) != 0) {
-            func_002AA408(*(void**)((char*)self + 0xC));
+            cStreamInstance_stop__FPv(*(void**)((char*)self + 0xC));
         } else {
-            func_002A9F30(*(void**)((char*)self + 0xC), n);
+            cStreamInstance_setVolume__FPvi(*(void**)((char*)self + 0xC), n);
         }
         break;
     }

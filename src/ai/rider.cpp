@@ -1113,7 +1113,7 @@ extern "C" void cRider_updateEnvironment(void* self)
 //100%
 extern "C" int cRider_isGrounded(void* self);
 extern "C" void* func_0028B180();
-extern "C" void func_002898A8(void* mgr, void* rider);
+extern "C" void cSSXAudio_updateRiderZones(void* mgr, void* rider);
 extern "C" float func_0031C228(float x);
 extern "C" void func_00122CF0(void* self);
 
@@ -1160,7 +1160,7 @@ static inline float Atan2_121950(float y, float x)
 
 extern "C" void func_00121950(char* self)
 {
-    func_002898A8(func_0028B180(), self);
+    cSSXAudio_updateRiderZones(func_0028B180(), self);
     if (cRider_isGrounded(self))
     {
         sVec2_121950 v(*(float*)(self + 0x370), *(float*)(self + 0x374));
@@ -2288,7 +2288,7 @@ extern char* D_004A2EEC;
 extern "C" float cRiderMetrix_onFinish(void* self);
 extern "C" void func_00162258(void* self);
 extern "C" void func_00238358(void* self, int a1, int a2);
-extern "C" void func_00286EA0(void* self, void* rider);
+extern "C" void cSSXAudio_onRiderFinish(void* self, void* rider);
 extern "C" void* func_0028B180();
 
 struct sVEntry125108 { short delta; short index; int (*fn)(void*); };
@@ -2320,7 +2320,7 @@ extern "C" void cRider_finish(char* self)
         char* tbl = *(char**)(*(char**)((char*)D_004A28A8 + 0x84) + 0x84);
         func_00162258(*(void**)(*(char**)(tbl + (k << 2) + 4) + 0xA8));
     }
-    func_00286EA0(func_0028B180(), self);
+    cSSXAudio_onRiderFinish(func_0028B180(), self);
     if (*(int*)(self + 0x480) == 1) *(int*)(self + 0x100) = 0;
 }
 
@@ -2403,9 +2403,9 @@ extern "C" void cRider_quitEvent(char* self)
 //100%
 extern "C" void* func_0028B180();
 extern "C" void* func_00416210(void* dst, int c, int n);
-extern "C" void* func_00287968(void* self, int a1, int a2);
+extern "C" void* cSSXAudio_getBusVolumePtr(void* self, int a1, int a2);
 extern "C" int func_002906B8(void* self);
-extern "C" int func_00288A20(void* self, void* obj);
+extern "C" int cSSXAudio_getRiderListener(void* self, void* obj);
 extern "C" int func_002AD550(void* bank, int id, int a);
 extern "C" void func_002AD5F0(void* bank, int id, int a, float f);
 void func_00280548(void* self, int a1, void* a2, void* a3);
@@ -2527,12 +2527,12 @@ extern "C" void cRider_updateNISSounds(void* vself, void* vevt, float frame, flo
             s2->vals[m2->sub.cur] = *e->vol;
             s2->ch[m2->sub.cur].vol = SND_5448_MAX(0, SND_5448_MIN(s2->vals[s2->cur], 0x7F));
             sSnd5448Mgr** pp = snd->p118;
-            int r = (int)func_00287968(snd, 4, 0);
+            int r = (int)cSSXAudio_getBusVolumePtr(snd, 4, 0);
             (*pp)->sub.p3C[(*pp)->sub.cur] = r;
             sSnd5448Mgr* m3 = *snd->p118;
             m3->sub.tgt[m3->sub.cur] = pos;
             sSnd5448Mgr** pq = snd->p118;
-            int q = func_00288A20(snd, self);
+            int q = cSSXAudio_getRiderListener(snd, self);
             (*pq)->sub.p64[(*pq)->sub.cur] = q;
             rd->ids[e->slot] = func_002906B8(snd);
         }

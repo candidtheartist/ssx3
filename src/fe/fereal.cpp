@@ -928,7 +928,7 @@ extern "C" void func_00253890(void* h, int a1);
 extern "C" void func_00398018(void* ui);
 extern "C" void func_001A0598(void* p);
 extern "C" void func_00397DF8(void* ui);
-extern "C" void func_00285BF8(void* snd, int a1, float t);
+extern "C" void cSSXAudio_update(void* snd, int a1, float t);
 extern "C" void* func_0028B180();
 extern void* D_004A289C;
 extern int D_004A19CC;

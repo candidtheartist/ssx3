@@ -1009,7 +1009,7 @@ extern "C" unsigned char cUIListBox_addEntryByStringID_p3(void* box, int id, int
 extern "C" void func_0039A670(void* self);
 extern "C" int func_0039A768(void* self, int key, unsigned char* out);
 extern "C" void func_0039A7A8(void* self, int v);
-int func_00289DC0(void* snd);
+int cSSXAudio_getSoundModeOption__FPv(void* snd);
 extern "C" void* func_0028B180();
 extern "C" void func_00287410(void* snd, int v);
 extern "C" void func_00287488(void* snd, int v);
@@ -1080,7 +1080,7 @@ extern "C" void cFEStateOptionsSound_updateWidget(void* self_)
         cUIListBox_addEntryByStringID_p3(lb, GetHashValue32(D_0045E000), 2);
         cUIListBox_addEntryByStringID_p3(lb, GetHashValue32(D_0045E018), 3);
         unsigned char out;
-        if (func_0039A768(lb, func_00289DC0(func_0028B180()), &out))
+        if (func_0039A768(lb, cSSXAudio_getSoundModeOption__FPv(func_0028B180()), &out))
             func_0039A7A8(lb, out);
     }
     sSlider_18B380* s = (sSlider_18B380*)find_18B380(self, D_004A1590);

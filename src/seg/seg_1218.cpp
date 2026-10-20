@@ -1913,14 +1913,14 @@ extern "C" int func_00104CA0(int arg0, void* arg1, void* arg2) {
 
 //100%
 // PORT: PS2-only inline asm; needs a C fallback off-PS2.
-extern "C" void func_00289B18_4CC8(int, int, int) __asm__("func_00289B18");
+extern "C" void cSSXAudio_onAnimEvent_4CC8(int, int, int) __asm__("cSSXAudio_onAnimEvent");
 extern int D_004A3500;
 
 extern "C" void func_00104CC8(void *arg0, int arg1) {
     int temp_2 = (*(int *)((char*)(arg0) + (0x60)));
     int s = arg1 & 0xFFFF;
     if (temp_2 != 0) {
-        func_00289B18_4CC8(D_004A3500, temp_2, s);
+        cSSXAudio_onAnimEvent_4CC8(D_004A3500, temp_2, s);
     }
 }
 

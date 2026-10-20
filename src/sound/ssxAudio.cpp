@@ -2,7 +2,7 @@
 
 //100%
 extern "C" void* cMemMan_alloc(int size, const char* tag, unsigned int flags, int d);
-extern "C" char* func_00284C68(void* mem, int a1, int a2, int a3, int a4);
+extern "C" char* cSSXAudio_cSSXAudio(void* mem, int a1, int a2, int a3, int a4);
 void func_002ADBF0(void*);
 extern const char D_004828B0[];
 extern char* D_004A3500;
@@ -10,7 +10,7 @@ extern char* D_004A3500;
 extern "C" void SSXAUDIO_Init(int a)
 {
     if (D_004A3500 == 0) {
-        D_004A3500 = func_00284C68(cMemMan_alloc(0x7780, D_004828B0, 0x80000400, 0), 1, 0x1C, 3, a);
+        D_004A3500 = cSSXAudio_cSSXAudio(cMemMan_alloc(0x7780, D_004828B0, 0x80000400, 0), 1, 0x1C, 3, a);
     }
     func_002ADBF0(**(char***)(D_004A3500 + 0x118) + 0x1D8);
 }
@@ -32,7 +32,7 @@ extern "C" void func_00284C28()
     D_004A3500 = 0;
 }
 
-INCLUDE_ASM("sound/ssxAudio", func_00284C68);
+INCLUDE_ASM("sound/ssxAudio", cSSXAudio_cSSXAudio);
 
 //100%
 void cMemMan_free(void*);
@@ -43,7 +43,7 @@ extern "C" void func_003B5A60(void (*cb)(void*));
 extern "C" void func_002B0DA0(void* p);
 extern "C" void func_003DEDC0(void* h, int a);
 extern "C" void func_002AB478(void* self, int flags);
-extern "C" void func_002AA648(void* self, int flags);
+extern "C" void cStreamSys_destroy(void* self, int flags);
 extern "C" void func_0028BB10(void* self, int flags);
 extern "C" void func_002ADEE8(void* self, int flags);
 extern void* D_00483688[];
@@ -71,7 +71,7 @@ extern const sSaVtbl7_285210 D_00483728_285210 __asm__("D_00483728");
 #define S_285210 ((char*)self)
 #define BM_285210 (**(char***)(S_285210 + 0x118))
 
-extern "C" void func_00285210(void* self, int flags)
+extern "C" void cSSXAudio_destroy(void* self, int flags)
 {
     char* p5560 = S_285210 + 0x5560;
     *(void***)(S_285210 + 0x5558) = D_00483688;
@@ -110,7 +110,7 @@ extern "C" void func_00285210(void* self, int flags)
         cMemMan_free(*(void**)(S_285210 + 0x5980));
     func_002AB478(self, 0);
     if (flags & 2) {
-        func_002AA648(*(void**)(S_285210 + 0x118), 0);
+        cStreamSys_destroy(*(void**)(S_285210 + 0x118), 0);
         func_0028BB10(BM_285210, 0);
         func_002ADEE8(*(void**)(BM_285210 + 0x1D8), 0);
     }
@@ -138,12 +138,12 @@ extern "C" int func_002854A8(void* self, int value)
 extern "C" void* cBE_getBE();
 void* cBE_getInterface_Fv(void* be, int kind) __asm__("cBE_getInterface__Fv");
 extern "C" void* cBankMonitor_BANKMONITOR_Create(void* sub, int id, int vol, int a3);
-extern "C" int func_00288940(void* self, int id);
-extern "C" int func_00288AE0(void* self);
+extern "C" int cSSXAudio_getNearestListener(void* self, int id);
+extern "C" int cSSXAudio_isReplayPlaying(void* self);
 extern "C" void func_002A9988(void* self, float a, float b);
-extern "C" int func_002AAD78(void* self, int i, int a, int b, int c);
-int func_002AB188(void* self, int a1);
-extern "C" void func_002ABCF8(void* self, int a, const char* name, int b);
+extern "C" int cStreamSys_playFile(void* self, int i, int a, int b, int c);
+int cStreamSys_getStream__FPvi(void* self, int a1);
+extern "C" void cBankMonitorInstance_setStreamRef(void* self, int a, const char* name, int b);
 extern "C" void* func_00416210(void* dst, int c, int n);
 extern signed char D_00535C11[];
 
@@ -190,8 +190,8 @@ struct sSnd54F8Sys {
 extern "C" int func_002854F8(void* vself, int a1, const char* a2, int a3, int a4, int a5, int a6, int a7, float f, int a8)
 {
     sSnd54F8Sys* self = (sSnd54F8Sys*)vself;
-    // PORT: a2 (a name pointer) is passed through func_002AAD78 as an int
-    int r = func_002AAD78(self->p118, a1, a5, (int)a2, a3);
+    // PORT: a2 (a name pointer) is passed through cStreamSys_playFile as an int
+    int r = cStreamSys_playFile(self->p118, a1, a5, (int)a2, a3);
     if (r < 0) {
         return r;
     }
@@ -230,22 +230,22 @@ extern "C" int func_002854F8(void* vself, int a1, const char* a2, int a3, int a4
     if (a4 != 0) {
         (*self->p118)->sub.tgt[(*self->p118)->sub.cur] = a4;
         sSnd54F8Mgr** pp = self->p118;
-        int v = func_00288940(self, a4);
+        int v = cSSXAudio_getNearestListener(self, a4);
         (*pp)->sub.p64[(*pp)->sub.cur] = v;
     }
-    if (cBE_getInterface_Fv(cBE_getBE(), 0) != 0 && D_00535C11[0] == 2 && a7 != 0 && func_00288AE0(self) == 0) {
+    if (cBE_getInterface_Fv(cBE_getBE(), 0) != 0 && D_00535C11[0] == 2 && a7 != 0 && cSSXAudio_isReplayPlaying(self) == 0) {
         (*self->p118)->sub.p80[(*self->p118)->sub.cur] = 1;
         (*self->p118)->sub.p84[(*self->p118)->sub.cur] = a8;
     }
     void* bm = cBankMonitor_BANKMONITOR_Create(&(*self->p118)->sub, r, 0x7F, 3);
     if (bm != 0) {
-        func_002ABCF8(bm, func_002AB188(self->p118, a1), a2, a3);
+        cBankMonitorInstance_setStreamRef(bm, cStreamSys_getStream__FPvi(self->p118, a1), a2, a3);
     }
     (*self->p118)->sub.cur--;
     return r;
 }
 
-INCLUDE_ASM("sound/ssxAudio", func_00285930);
+INCLUDE_ASM("sound/ssxAudio", cSSXAudio_calcVoice3D);
 
 //100%
 extern "C" void func_00285BE0(void* self, int a1)
@@ -261,11 +261,11 @@ extern int D_004A2A50;
 extern "C" int func_00390EF8();
 extern "C" void* func_0028B180();
 extern "C" void func_00291438(void* p, float f);
-extern "C" void func_002AB958(void* self, float dt);
-extern "C" int func_002AB028(void* p, int idx);
-extern "C" void func_00287C48(void* self);
+extern "C" void cAudioSys_update(void* self, float dt);
+extern "C" int cStreamSys_isPlaying(void* p, int idx);
+extern "C" void cSSXAudio_updateDuck(void* self);
 struct sSaMix87F8;
-extern "C" void func_002887F8(sSaMix87F8* self);
+extern "C" void cSSXAudio_updateMixFade(sSaMix87F8* self);
 extern "C" void func_0028C8C8(void* self);
 extern "C" void func_0028F000(void* self);
 extern "C" void func_00295208(void* self);
@@ -278,28 +278,28 @@ extern "C" void func_0029B738(void* self);
 extern "C" void func_0029CCA8(void* self);
 extern "C" void func_0029D610(void* self);
 extern "C" void func_00289688(void* self);
-extern "C" void func_00287F00(void* self, int a1, float f0, float f1);
+extern "C" void cSSXAudio_duck(void* self, int a1, float f0, float f1);
 extern "C" void* func_0028B1C0();
 extern "C" void* func_0028B1C8();
 extern "C" void func_002948A0(void* self);
 extern "C" void func_00289BB8(void* self);
 
-extern "C" void func_00285BF8(char* self, float dt)
+extern "C" void cSSXAudio_update(char* self, float dt)
 {
     if (func_00390EF8() != 0)
         func_00291438(func_0028B180(), 0.0f);
-    func_002AB958(self, dt);
+    cAudioSys_update(self, dt);
     int st = *(int*)(self + 0x63D4);
     if (st != 3) {
         if (*(int*)(self + 0x63E0) == 0) {
-            if (func_002AB028(*(void**)(self + 0x118), st) != 0)
+            if (cStreamSys_isPlaying(*(void**)(self + 0x118), st) != 0)
                 *(int*)(self + 0x63E0) = 1;
-        } else if (func_002AB028(*(void**)(self + 0x118), st) == 0) {
-            func_00287F00(self, 3, 0.5f, 1.0f);
+        } else if (cStreamSys_isPlaying(*(void**)(self + 0x118), st) == 0) {
+            cSSXAudio_duck(self, 3, 0.5f, 1.0f);
         }
     }
-    func_00287C48(self);
-    func_002887F8((sSaMix87F8*)self);
+    cSSXAudio_updateDuck(self);
+    cSSXAudio_updateMixFade((sSaMix87F8*)self);
     if (*(int*)((char*)func_0028B1C0() + 0x84) != 0) {
         func_0028C8C8(self);
         if (*(int*)(self + 0x6474) == 6) {
@@ -325,7 +325,7 @@ extern "C" void func_00285BF8(char* self, float dt)
 }
 
 //100%
-extern "C" int func_00288AE0(void* self);
+extern "C" int cSSXAudio_isReplayPlaying(void* self);
 extern "C" char* func_0028B1D8();
 
 struct sAudVoice5D98 {
@@ -355,7 +355,7 @@ static inline int sAudVoice5D98_isOn(sAudVoice5D98* v)
 // PORT: returns a voice pointer; the unit declares the return type as int.
 extern "C" int func_00285D98(void* self, int which)
 {
-    if (func_00288AE0(self) != 0) {
+    if (cSSXAudio_isReplayPlaying(self) != 0) {
         char* cur = ((sAudSys5D98*)func_0028B1D8())->cur;
         return cur ? *(int*)(cur + 0x18) : 0;
     }
@@ -414,7 +414,7 @@ extern "C" void func_00285F80(void* self, func_00285F80_sPair p)
 }
 
 //100%
-extern "C" void func_00288D18(void* self, int a1);
+extern "C" void cSSXAudio_setGainTable(void* self, int a1);
 extern "C" void func_00285BE0(void* self, int a1);
 // PORT: func_002A77F8/func_002A7FF8 return values (the unit declares them void); bound by asm label.
 extern "C" void* func_002A77F8_r(void* self, char* name, int size) __asm__("func_002A77F8");
@@ -426,8 +426,8 @@ extern "C" int func_0041AA88(const char* a, const char* b);
 extern "C" int sprintf(char* buf, const char* fmt, ...);
 extern "C" char* strcpy(char* dst, const char* src);
 extern "C" void func_0028BC58(void* p, int a1, char* msg, int a3);
-extern "C" void func_00287F00(void* self, int a1, float f0, float f1);
-extern "C" void* func_00287968(void* self, int a1, int a2);
+extern "C" void cSSXAudio_duck(void* self, int a1, float f0, float f1);
+extern "C" void* cSSXAudio_getBusVolumePtr(void* self, int a1, int a2);
 extern "C" void func_002B49C0(void* mon, int id);
 extern "C" void func_00289BB8(void* self);
 extern "C" void func_002A7890(void* self, int flags);
@@ -456,7 +456,7 @@ extern "C" void func_00285FB0(char* self)
     char name[0x80];
     char val[0x60];
     char msg[0x40];
-    func_00288D18(self, 0);
+    cSSXAudio_setGainTable(self, 0);
     func_00285BE0(self, 1);
     func_002A77F8_r(&parser, D_004A3554, 0x100);
     parser.cur = parser.start;
@@ -479,11 +479,11 @@ extern "C" void func_00285FB0(char* self)
             }
         }
     }
-    func_00287F00(self, 3, 0.5f, 1.0f);
+    cSSXAudio_duck(self, 3, 0.5f, 1.0f);
     char* mon = self + 0x118;
     sSaVt5FB0* vt = *(sSaVt5FB0**)(self + 0x5558);
     char* thisp = mon + vt[2].delta;
-    vt[2].fn(thisp, D_004A3598, 0xC, func_00287968(self, 1, 0), 1);
+    vt[2].fn(thisp, D_004A3598, 0xC, cSSXAudio_getBusVolumePtr(self, 1, 0), 1);
     func_002B49C0(mon, 0x12D);
     *(int*)(self + 0x6290) = 10;
     *(int*)(self + 0x6090) = *(int*)(self + 0x608C);
@@ -535,7 +535,7 @@ extern "C" void func_0029D678(void* self, float v);
 extern "C" void func_002A4550(void*);
 extern "C" void func_00292B48(void* self);
 extern "C" void func_002980B0(void* self);
-extern "C" void func_002883B0(void* self, int id);
+extern "C" void cSSXAudio_setMix(void* self, int id);
 extern "C" void func_002ADDA0(void*);
 extern "C" void func_002B11B0(void*, int);
 
@@ -551,7 +551,7 @@ static inline void saDeleteObj(void** slot)
     *slot = 0;
 }
 
-extern "C" void func_00286A80(void* self)
+extern "C" void cSSXAudio_exitWorld(void* self)
 {
     func_00289BB8(self);
     func_00285BE0(self, 0);
@@ -566,7 +566,7 @@ extern "C" void func_00286A80(void* self)
     saDeleteObj((void**)((char*)self + 0x6C80));
     saDeleteObj((void**)((char*)self + 0x6C84));
     func_002980B0(self);
-    func_002883B0(self, 0);
+    cSSXAudio_setMix(self, 0);
     func_002ADDA0(**(char***)((char*)self + 0x118) + 0x1D8);
     char* in = **(char***)((char*)self + 0x118);
     char* obj = in + 0x1D8;
@@ -580,7 +580,7 @@ extern "C" void func_002A6F38(void*);
 extern "C" void func_00289DF0(void*, int);
 extern "C" void func_0028BCE8(void*, int);
 extern "C" void func_0028BDE0(void*, int);
-extern "C" void func_0028A230(void*);
+extern "C" void cAsyncSys_shutdown(void*);
 extern "C" void func_0029F5E0(void*);
 
 extern "C" void func_00286C00(void* self)
@@ -595,7 +595,7 @@ extern "C" void func_00286C00(void* self)
     }
     func_0028BDE0(**(void***)((char*)self + 0x118), 3);
     func_0028BDE0(**(void***)((char*)self + 0x118), 12);
-    func_0028A230(**(void***)((char*)self + 0x118));
+    cAsyncSys_shutdown(**(void***)((char*)self + 0x118));
     func_0029F5E0(self);
 }
 
@@ -607,7 +607,7 @@ struct sSsxAudioBanks {
 };
 extern "C" void func_0028BE60(void* self, int i, int a, int b);
 
-extern "C" void func_00286CA8(sSsxAudioBanks* self, unsigned int id, int on)
+extern "C" void cSSXAudio_loadLocalBank(sSsxAudioBanks* self, unsigned int id, int on)
 {
     unsigned int bank = id >> 8;
     if (on != 0) {
@@ -624,7 +624,7 @@ extern "C" void func_0028BE90(void* mgr, int i);
 
 static inline int saIsOn(char* cfg, int off) { return *(int*)(cfg + off) == 1; }
 
-extern "C" void func_00286D18(void* self, unsigned int handle)
+extern "C" void cSSXAudio_unloadLocalBank(void* self, unsigned int handle)
 {
     unsigned int slot = handle >> 8;
     if (*(unsigned int*)((char*)self + (slot << 2) + 0x6C78) != (handle & 0xFF)) return;
@@ -687,7 +687,7 @@ extern "C" void func_00286E20(void* self)
 // PORT: cBE_getInterface__Fv is called with (be, kind) here; bind the 2-arg form to that symbol.
 void* cBE_getInterface_Fv(void* be, int kind) __asm__("cBE_getInterface__Fv");
 extern "C" int func_00285D98(void* self, int which);
-extern "C" int func_00288AE0(void* self);
+extern "C" int cSSXAudio_isReplayPlaying(void* self);
 extern "C" void func_002A73A8(void* p, int a1, int id);
 extern "C" void func_00296E20(void* self, int id);
 extern "C" void func_00297438(void* self, int id);
@@ -712,11 +712,11 @@ static inline int sa_state6EA0()
 struct sSaVt6EA0 { short delta; short index; int (*fn)(void*, int); };
 
 // PORT: rider pointers passed through int parameters of some callees.
-extern "C" void func_00286EA0(char* self, char* rider)
+extern "C" void cSSXAudio_onRiderFinish(char* self, char* rider)
 {
     if (rider != (char*)func_00285D98(self, *(int*)(rider + 0x870)))
         return;
-    func_002A73A8(D_004A3500, 2, func_00288AE0(self) ? 0 : *(int*)(rider + 0x870));
+    func_002A73A8(D_004A3500, 2, cSSXAudio_isReplayPlaying(self) ? 0 : *(int*)(rider + 0x870));
     int flag = 1;
     func_00296E20(self, (int)rider);
     func_00297438(self, (int)rider);
@@ -799,7 +799,7 @@ extern "C" void func_00287108(void* self)
 //100%
 extern "C" void func_002948A0(void* self);
 extern "C" void func_0029B3C0(void* self, int a1);
-extern "C" void func_00287F00(void* self, int a1, float f0, float f1);
+extern "C" void cSSXAudio_duck(void* self, int a1, float f0, float f1);
 extern "C" char* func_0028B1D8();
 extern "C" void func_00296E20(void* self, int id);
 extern "C" void func_00297438(void* self, int id);
@@ -810,7 +810,7 @@ extern "C" void func_002871B0(void* self)
     int i = 0;
     func_002948A0(self);
     func_0029B3C0(self, 0);
-    func_00287F00(self, 3, 0.5f, 1.0f);
+    cSSXAudio_duck(self, 3, 0.5f, 1.0f);
     func_002B6900(D_004A52D4);
     int n = *(int*)(func_0028B1D8() + 0x78);
     for (; i < n; i++) {
@@ -868,7 +868,7 @@ extern "C" void func_002872A8(void* self)
 }
 
 //100%
-// PORT: real arity is (self, n); the unit declares func_002873D8(void*) for its callers.
+// PORT: real arity is (self, n); the unit declares cSSXAudio_stepToVolume(void*) for its callers.
 // PORT: g++ `<?` (min) operator, removed in GCC 4.3.
 static inline float clamp_73D8(float f, float lo, float hi)
 {
@@ -878,107 +878,107 @@ static inline float clamp_73D8(float f, float lo, float hi)
     return lo;
 }
 
-extern "C" float func_002873D8_impl(void* self, int n) __asm__("func_002873D8");
-extern "C" float func_002873D8_impl(void* self, int n)
+extern "C" float cSSXAudio_stepToVolume_impl(void* self, int n) __asm__("cSSXAudio_stepToVolume");
+extern "C" float cSSXAudio_stepToVolume_impl(void* self, int n)
 {
     return clamp_73D8(n * 0.09090909361839294f, 0.0f, 1.0f);
 }
 
 //100% - objdiff report; single-function view differs only in a relocation name
-extern "C" float func_002873D8(void*);
-// PORT: func_00287700's real parameter order is (self, int, float); the unit declares (self, float, int).
-void func_00287700_if(void*, int, float) __asm__("func_00287700");
+extern "C" float cSSXAudio_stepToVolume(void*);
+// PORT: cSSXAudio_setChannelVolume's real parameter order is (self, int, float); the unit declares (self, float, int).
+void cSSXAudio_setChannelVolume_if(void*, int, float) __asm__("cSSXAudio_setChannelVolume");
 
 extern "C" void func_00287410(void* self)
 {
-    float v = func_002873D8(self);
-    func_00287700_if(self, 1, v);
-    func_00287700_if(self, 8, v);
+    float v = cSSXAudio_stepToVolume(self);
+    cSSXAudio_setChannelVolume_if(self, 1, v);
+    cSSXAudio_setChannelVolume_if(self, 8, v);
     if (*(int*)((char*)self + 0x62B8) != 0 && *(int*)((char*)self + 0x608C) != 2) {
-        func_00287700_if(self, 2, v);
+        cSSXAudio_setChannelVolume_if(self, 2, v);
     }
 }
 
 //100% - objdiff report; single-function view differs only in a relocation name
-extern "C" float func_002873D8(void*);
-// PORT: func_00287700's real parameter order is (self, int, float); the unit declares (self, float, int).
-void func_00287700_if(void*, int, float) __asm__("func_00287700");
+extern "C" float cSSXAudio_stepToVolume(void*);
+// PORT: cSSXAudio_setChannelVolume's real parameter order is (self, int, float); the unit declares (self, float, int).
+void cSSXAudio_setChannelVolume_if(void*, int, float) __asm__("cSSXAudio_setChannelVolume");
 
 extern "C" void func_00287488(void* self)
 {
-    float v = func_002873D8(self);
-    func_00287700_if(self, 5, v);
-    func_00287700_if(self, 3, v);
-    func_00287700_if(self, 6, v);
-    func_00287700_if(self, 7, v);
+    float v = cSSXAudio_stepToVolume(self);
+    cSSXAudio_setChannelVolume_if(self, 5, v);
+    cSSXAudio_setChannelVolume_if(self, 3, v);
+    cSSXAudio_setChannelVolume_if(self, 6, v);
+    cSSXAudio_setChannelVolume_if(self, 7, v);
     if (*(int*)((char*)self + 0x62B4) != 0) {
-        func_00287700_if(self, 9, v);
-        func_00287700_if(self, 10, v);
+        cSSXAudio_setChannelVolume_if(self, 9, v);
+        cSSXAudio_setChannelVolume_if(self, 10, v);
     }
 }
 
 //100% - objdiff report; single-function view differs only in a relocation name
-extern "C" float func_002873D8(void*);
-extern "C" void func_00287700(void*, float, int);
+extern "C" float cSSXAudio_stepToVolume(void*);
+extern "C" void cSSXAudio_setChannelVolume(void*, float, int);
 
 extern "C" void func_00287520(void* self)
 {
-    func_00287700(self, func_002873D8(self), 4);
+    cSSXAudio_setChannelVolume(self, cSSXAudio_stepToVolume(self), 4);
 }
 
 //100%
-extern "C" void func_00287700(void*, float, int);
-extern "C" float func_00287920(void* self, int a1);
+extern "C" void cSSXAudio_setChannelVolume(void*, float, int);
+extern "C" float cSSXAudio_getChannelVolume(void* self, int a1);
 
 extern "C" void func_00287558(void* self, int on)
 {
     if (on != 0 && *(int*)((char*)self + 0x608C) != 2 && *(int*)((char*)self + 0x608C) != 3) {
-        func_00287700(self, func_00287920(self, 1), 2);
+        cSSXAudio_setChannelVolume(self, cSSXAudio_getChannelVolume(self, 1), 2);
         *(int*)((char*)self + 0x62B8) = 1;
     } else {
-        func_00287700(self, 0.0f, 2);
+        cSSXAudio_setChannelVolume(self, 0.0f, 2);
         *(int*)((char*)self + 0x62B8) = 0;
     }
 }
 
 //100%
-extern "C" void func_00287700(void*, float, int);
-extern "C" float func_00287920(void* self, int a1);
+extern "C" void cSSXAudio_setChannelVolume(void*, float, int);
+extern "C" float cSSXAudio_getChannelVolume(void* self, int a1);
 
 extern "C" void func_002875D0(void* self, int on)
 {
     if (on != 0) {
-        func_00287700(self, func_00287920(self, 5), 9);
-        func_00287700(self, func_00287920(self, 5), 10);
+        cSSXAudio_setChannelVolume(self, cSSXAudio_getChannelVolume(self, 5), 9);
+        cSSXAudio_setChannelVolume(self, cSSXAudio_getChannelVolume(self, 5), 10);
     } else {
-        func_00287700(self, 0.0f, 9);
-        func_00287700(self, 0.0f, 10);
+        cSSXAudio_setChannelVolume(self, 0.0f, 9);
+        cSSXAudio_setChannelVolume(self, 0.0f, 10);
     }
     *(int*)((char*)self + 0x62B4) = on;
 }
 
 //100%
-extern "C" float func_00287920(void* self, int a1);
+extern "C" float cSSXAudio_getChannelVolume(void* self, int a1);
 
 extern "C" int func_00287670(void* self)
 {
-    return (int)(func_00287920(self, 1) * 11.0f);
+    return (int)(cSSXAudio_getChannelVolume(self, 1) * 11.0f);
 }
 
 //100%
-extern "C" float func_00287920(void* self, int a1);
+extern "C" float cSSXAudio_getChannelVolume(void* self, int a1);
 
 extern "C" int func_002876A0(void* self)
 {
-    return (int)(func_00287920(self, 5) * 11.0f);
+    return (int)(cSSXAudio_getChannelVolume(self, 5) * 11.0f);
 }
 
 //100%
-extern "C" float func_00287920(void* self, int a1);
+extern "C" float cSSXAudio_getChannelVolume(void* self, int a1);
 
 extern "C" int func_002876D0(void* self)
 {
-    return (int)(func_00287920(self, 4) * 11.0f);
+    return (int)(cSSXAudio_getChannelVolume(self, 4) * 11.0f);
 }
 
 //100%
@@ -1019,7 +1019,7 @@ struct sVol_7700 {
 };
 
 // PORT: g++ `<?` / `>?` (min / max) operators.
-extern "C" void func_00287700(void* self_, float v, int ch)
+extern "C" void cSSXAudio_setChannelVolume(void* self_, float v, int ch)
 {
     char* self = (char*)self_;
     v = (v <? 1.0f) >? 0.0f;
@@ -1096,14 +1096,14 @@ extern "C" void func_00287700(void* self_, float v, int ch)
 }
 
 //100%
-extern "C" float func_00287920(void* self, int a1)
+extern "C" float cSSXAudio_getChannelVolume(void* self, int a1)
 {
     self = (char*)self + (a1 << 4);
     return *(float*)((char*)self + 0x62bc);
 }
 
 //100%
-extern "C" float func_00287930(void* self, int a1, int a2)
+extern "C" float cSSXAudio_getBusVolume(void* self, int a1, int a2)
 {
     if (a1 != 4 || a2 >= 10) {
         return *(float*)((char*)self + (a1 << 4) + 0x62C8);
@@ -1112,7 +1112,7 @@ extern "C" float func_00287930(void* self, int a1, int a2)
 }
 
 //100%
-extern "C" void* func_00287968(void* self, int a1, int a2)
+extern "C" void* cSSXAudio_getBusVolumePtr(void* self, int a1, int a2)
 {
     if (a1 != 4 || a2 >= 10) {
         // PORT: pointer held in int (only spelling found that gives idx-first addu)
@@ -1127,21 +1127,21 @@ struct sAudioEntries {
     float entry[1][4];  // 0x62BC
 };
 
-extern "C" void* func_002879A0(char* self, int i)
+extern "C" void* cSSXAudio_getChannelRecord(char* self, int i)
 {
     return ((sAudioEntries*)self)->entry[i];
 }
 
-void func_00287700_if(void*, int, float) __asm__("func_00287700");
+void cSSXAudio_setChannelVolume_if(void*, int, float) __asm__("cSSXAudio_setChannelVolume");
 
-extern "C" void func_002879B0(char* self, int i)
+extern "C" void cSSXAudio_incChannelVolume(char* self, int i)
 {
-    func_00287700_if(self, i, ((sAudioEntries*)self)->entry[i][0] + 0.09090909f);
+    cSSXAudio_setChannelVolume_if(self, i, ((sAudioEntries*)self)->entry[i][0] + 0.09090909f);
 }
 
-extern "C" void func_002879E0(char* self, int i)
+extern "C" void cSSXAudio_decChannelVolume(char* self, int i)
 {
-    func_00287700_if(self, i, ((sAudioEntries*)self)->entry[i][0] - 0.09090909f);
+    cSSXAudio_setChannelVolume_if(self, i, ((sAudioEntries*)self)->entry[i][0] - 0.09090909f);
 }
 
 //100%
@@ -1189,7 +1189,7 @@ static inline void sSaMix7A10_set(sSaMix7A10* s, int j, float v)
     s->chan[j].out = s->chan[j].gain * s->cur[j - 1];
 }
 
-extern "C" void func_00287A10(void* self_, int mask, float v, float time)
+extern "C" void cSSXAudio_setDuck(void* self_, int mask, float v, float time)
 {
     sSaMix7A10* self = (sSaMix7A10*)self_;
     if (time == 0.0f) {
@@ -1280,7 +1280,7 @@ static inline void sSaMix7C48_set(sSaMix7C48* s, int j, float v)
     s->chan[j].out = s->chan[j].gain * s->cur[j - 1];
 }
 
-extern "C" void func_00287C48(void* self_)
+extern "C" void cSSXAudio_updateDuck(void* self_)
 {
     sSaMix7C48* self = (sSaMix7C48*)self_;
     if (self->fading) {
@@ -1331,20 +1331,20 @@ extern "C" void func_00287C48(void* self_)
 }
 
 //100% - objdiff report; single-function view differs only in a relocation name
-extern "C" void func_00287A10(void* self, int a1, float a2, float a3);
+extern "C" void cSSXAudio_setDuck(void* self, int a1, float a2, float a3);
 extern "C" int func_00284BA0(int);
 
-extern "C" void func_00287F00(void* self, int a1, float f0, float f1)
+extern "C" void cSSXAudio_duck(void* self, int a1, float f0, float f1)
 {
     if (a1 == 3) {
         if (*(int*)((char*)self + 0x63DC) != 0) {
-            func_00287A10(self, func_00284BA0(*(int*)((char*)self + 0x63D4)), 1.0f, f0);
+            cSSXAudio_setDuck(self, func_00284BA0(*(int*)((char*)self + 0x63D4)), 1.0f, f0);
             *(float*)((char*)self + 0x63D8) = f1;
             *(int*)((char*)self + 0x63D4) = a1;
             *(int*)((char*)self + 0x63DC) = 0;
         }
     } else if (*(int*)((char*)self + 0x63DC) == 0) {
-        func_00287A10(self, func_00284BA0(a1), f1, f0);
+        cSSXAudio_setDuck(self, func_00284BA0(a1), f1, f0);
         *(int*)((char*)self + 0x63D4) = a1;
         *(int*)((char*)self + 0x63DC) = 1;
         *(float*)((char*)self + 0x63D8) = f1;
@@ -1399,7 +1399,7 @@ struct sAudio7FC8 {
     sSfxEntry7FC8 entries[25];      // 0x647C
 };
 
-extern "C" void func_00287FC8(sAudio7FC8* self)
+extern "C" void cSSXAudio_loadMixInf(sAudio7FC8* self)
 {
     sIniParser7FC8 parser;
     int val;
@@ -1459,7 +1459,7 @@ extern "C" void func_00287FC8(sAudio7FC8* self)
 }
 
 //100%
-extern "C" float func_00288370(void* self, int i, int pct)
+extern "C" float cSSXAudio_getMixLevel(void* self, int i, int pct)
 {
     if (pct >= 0) {
         return pct * 0.009999999776482582f;
@@ -1471,9 +1471,9 @@ extern "C" float func_00288370(void* self, int i, int pct)
 }
 
 //100%
-extern "C" float func_00288370(void* self, int i, int pct);
+extern "C" float cSSXAudio_getMixLevel(void* self, int i, int pct);
 struct sAudioFade_87A8;
-extern "C" void func_002887A8(sAudioFade_87A8* self, int i, int smooth, float target, float time);
+extern "C" void cSSXAudio_startMixFade(sAudioFade_87A8* self, int i, int smooth, float target, float time);
 extern float D_004A352C;
 extern float D_004A3530;
 extern float D_004A3534;
@@ -1522,7 +1522,7 @@ struct sAudio83B0 {
     sSfxEntry83B0 entries[25];      // 0x647C
 };
 
-extern "C" void func_002883B0(void* vself, int id)
+extern "C" void cSSXAudio_setMix(void* vself, int id)
 {
     sAudio83B0* self = (sAudio83B0*)vself;
     if (id < 0) {
@@ -1532,15 +1532,15 @@ extern "C" void func_002883B0(void* vself, int id)
         return;
     }
     self->preset = id;
-    float v1 = func_00288370(self, 1, self->entries[id].f0);
-    float v2 = func_00288370(self, 2, self->entries[id].f4);
-    float v3 = func_00288370(self, 3, self->entries[id].f8);
-    float v4 = func_00288370(self, 4, self->entries[id].fC);
-    float v6 = func_00288370(self, 6, self->entries[id].f10);
-    float v7 = func_00288370(self, 7, self->entries[id].f14);
-    float v8 = func_00288370(self, 8, self->entries[id].f18);
-    float v9 = func_00288370(self, 9, self->entries[id].f1C);
-    float v10 = func_00288370(self, 10, self->entries[id].f20);
+    float v1 = cSSXAudio_getMixLevel(self, 1, self->entries[id].f0);
+    float v2 = cSSXAudio_getMixLevel(self, 2, self->entries[id].f4);
+    float v3 = cSSXAudio_getMixLevel(self, 3, self->entries[id].f8);
+    float v4 = cSSXAudio_getMixLevel(self, 4, self->entries[id].fC);
+    float v6 = cSSXAudio_getMixLevel(self, 6, self->entries[id].f10);
+    float v7 = cSSXAudio_getMixLevel(self, 7, self->entries[id].f14);
+    float v8 = cSSXAudio_getMixLevel(self, 8, self->entries[id].f18);
+    float v9 = cSSXAudio_getMixLevel(self, 9, self->entries[id].f1C);
+    float v10 = cSSXAudio_getMixLevel(self, 10, self->entries[id].f20);
     float t = self->entries[id].f24;
     if (t == 0.0f) {
         self->cur[1] = v1;
@@ -1569,15 +1569,15 @@ extern "C" void func_002883B0(void* vself, int id)
         o->mix[9] = m * D_004A3550;
     } else {
         sAudioFade_87A8* f = (sAudioFade_87A8*)self;
-        func_002887A8(f, 1, self->entries[id].f0 != -1, v1, t);
-        func_002887A8(f, 2, self->entries[id].f4 != -1, v2, t);
-        func_002887A8(f, 3, self->entries[id].f8 != -1, v3, t);
-        func_002887A8(f, 4, self->entries[id].fC != -1, v4, t);
-        func_002887A8(f, 6, self->entries[id].f10 != -1, v6, t);
-        func_002887A8(f, 7, self->entries[id].f14 != -1, v7, t);
-        func_002887A8(f, 8, self->entries[id].f18 != -1, v8, t);
-        func_002887A8(f, 9, self->entries[id].f1C != -1, v9, t);
-        func_002887A8(f, 10, self->entries[id].f20 != -1, v10, t);
+        cSSXAudio_startMixFade(f, 1, self->entries[id].f0 != -1, v1, t);
+        cSSXAudio_startMixFade(f, 2, self->entries[id].f4 != -1, v2, t);
+        cSSXAudio_startMixFade(f, 3, self->entries[id].f8 != -1, v3, t);
+        cSSXAudio_startMixFade(f, 4, self->entries[id].fC != -1, v4, t);
+        cSSXAudio_startMixFade(f, 6, self->entries[id].f10 != -1, v6, t);
+        cSSXAudio_startMixFade(f, 7, self->entries[id].f14 != -1, v7, t);
+        cSSXAudio_startMixFade(f, 8, self->entries[id].f18 != -1, v8, t);
+        cSSXAudio_startMixFade(f, 9, self->entries[id].f1C != -1, v9, t);
+        cSSXAudio_startMixFade(f, 10, self->entries[id].f20 != -1, v10, t);
         self->faded = 1;
     }
 }
@@ -1590,7 +1590,7 @@ struct sAudioFade_87A8 {
     float target[11];  // 0x6440
 };
 
-extern "C" void func_002887A8(sAudioFade_87A8* self, int i, int smooth, float target, float time)
+extern "C" void cSSXAudio_startMixFade(sAudioFade_87A8* self, int i, int smooth, float target, float time)
 {
     self->target[i] = target;
     float cur = self->cur[i];
@@ -1632,7 +1632,7 @@ struct sSaMixOut87F8 {
     float out[10];              // 0x636C
 };
 
-extern "C" void func_002887F8(sSaMix87F8* self)
+extern "C" void cSSXAudio_updateMixFade(sSaMix87F8* self)
 {
     if (self->dirty == 0) return;
     self->dirty = 0;
@@ -1671,17 +1671,17 @@ extern "C" void func_002887F8(sSaMix87F8* self)
     o->out[9] = m * D_004A3550;
 }
 
-INCLUDE_ASM("sound/ssxAudio", func_00288940);
+INCLUDE_ASM("sound/ssxAudio", cSSXAudio_getNearestListener);
 
 //100%
 extern "C" int func_0028B1B0(void);
-extern "C" int func_00288940(void* self, int id);
-// PORT: callers pass self, but func_00288CE8's body takes no arguments (the unit declares it ()).
-int func_00288CE8_self(void* self) __asm__("func_00288CE8");
+extern "C" int cSSXAudio_getNearestListener(void* self, int id);
+// PORT: callers pass self, but cSSXAudio_getNumListeners's body takes no arguments (the unit declares it ()).
+int cSSXAudio_getNumListeners_self(void* self) __asm__("cSSXAudio_getNumListeners");
 
 struct sAudVtEnt { short delta; short index; int (*fn)(void*); };
 
-extern "C" int func_00288A20(void* self, void* obj)
+extern "C" int cSSXAudio_getRiderListener(void* self, void* obj)
 {
     if (func_0028B1B0() == 0) {
         return 0;
@@ -1690,18 +1690,18 @@ extern "C" int func_00288A20(void* self, void* obj)
     if (ok) {
         return *(int*)((char*)obj + 0x870);
     }
-    if (func_00288CE8_self(self) == 1) {
+    if (cSSXAudio_getNumListeners_self(self) == 1) {
         return 0;
     }
     char* o = (char*)obj + 0x6C0;
     sAudVtEnt* e = &(*(sAudVtEnt**)o)[5];
-    return func_00288940(self, e->fn(o + e->delta));
+    return cSSXAudio_getNearestListener(self, e->fn(o + e->delta));
 }
 
 extern "C" void* func_0028B210(int);
 
 //100%
-void* func_00288AC0(void* self, int a1)
+void* cSSXAudio_getListenerPos__FPvi(void* self, int a1)
 {
     return (char*)func_0028B210(a1) + 0x20;
 }
@@ -1710,7 +1710,7 @@ void* func_00288AC0(void* self, int a1)
 extern "C" int func_0028B1B0(void);
 extern "C" void* func_0028B1C8();
 
-extern "C" int func_00288AE0(void* self)
+extern "C" int cSSXAudio_isReplayPlaying(void* self)
 {
     if (func_0028B1B0() != 0) {
         if (*(int**)((char*)func_0028B1C8() + 0x28) != 0) {
@@ -1729,7 +1729,7 @@ struct sAudV4 {
     float x, y, z, w;
 } __attribute__((aligned(16)));
 
-void* func_00288AC0(void* self, int a1);
+void* cSSXAudio_getListenerPos__FPvi(void* self, int a1);
 
 // PORT: PS2-only VU0 inline asm (vector subtract).
 static inline sAudV4 audVu0Sub(const sAudV4& a, const sAudV4& b)
@@ -1765,13 +1765,13 @@ static inline float audVu0Dot(const sAudV4& a, const sAudV4& b)
     return r;
 }
 
-extern "C" int func_00288B40(void* self, sAudV4* pos, float radius)
+extern "C" int cSSXAudio_findListenerInRange(void* self, sAudV4* pos, float radius)
 {
     float r = radius * 100.0f;
     r = r * r;
     int i;
-    for (i = 0; i < func_00288CE8_self(self); i++) {
-        sAudV4 d = audVu0Sub(*(sAudV4*)func_00288AC0(self, i), *pos);
+    for (i = 0; i < cSSXAudio_getNumListeners_self(self); i++) {
+        sAudV4 d = audVu0Sub(*(sAudV4*)cSSXAudio_getListenerPos__FPvi(self, i), *pos);
         if (audVu0Dot(d, d) < r) {
             return i;
         }
@@ -1780,7 +1780,7 @@ extern "C" int func_00288B40(void* self, sAudV4* pos, float radius)
 }
 
 //100%
-void* func_00288AC0(void* self, int a1);
+void* cSSXAudio_getListenerPos__FPvi(void* self, int a1);
 
 // PORT: PS2-only VU0 inline asm (vector subtract).
 // PORT: PS2-only VU0 inline asm (4-component dot product).
@@ -1789,8 +1789,8 @@ extern "C" int func_00288C08(void* self, sAudV4* pos, float radius)
     float r = radius * 100.0f;
     r = r * r;
     int i;
-    for (i = 0; i < func_00288CE8_self(self); i++) {
-        sAudV4 d = audVu0Sub(*(sAudV4*)func_00288AC0(self, i), *pos);
+    for (i = 0; i < cSSXAudio_getNumListeners_self(self); i++) {
+        sAudV4 d = audVu0Sub(*(sAudV4*)cSSXAudio_getListenerPos__FPvi(self, i), *pos);
         if (audVu0Dot(d, d) < r && 0.0f < d.z) {
             return 1;
         }
@@ -1802,7 +1802,7 @@ extern "C" int func_00288C08(void* self, sAudV4* pos, float radius)
 extern "C" void* func_0028B1C0();
 extern "C" int func_0028B1F8();
 
-extern "C" int func_00288CE8()
+extern "C" int cSSXAudio_getNumListeners()
 {
     if (*(int*)((char*)func_0028B1C0() + 0x84) != 0) {
         return func_0028B1F8();
@@ -1831,10 +1831,10 @@ extern float D_004A3544;
 extern float D_004A3548;
 extern float D_004A354C;
 extern float D_004A3550;
-extern "C" void func_00287700(void*, float, int);
-extern "C" float func_00287920(void* self, int a1);
+extern "C" void cSSXAudio_setChannelVolume(void*, float, int);
+extern "C" float cSSXAudio_getChannelVolume(void* self, int a1);
 
-extern "C" void func_00288D18(void* self, int mode)
+extern "C" void cSSXAudio_setGainTable(void* self, int mode)
 {
     if (mode == 0) {
         D_004A3504 = 1.0f;
@@ -1879,17 +1879,17 @@ extern "C" void func_00288D18(void* self, int mode)
         D_004A354C = 1.0f;
         D_004A3550 = 0.949999988079071f;
     }
-    func_00287700(self, func_00287920(self, 0), 0);
-    func_00287700(self, func_00287920(self, 1), 1);
-    func_00287700(self, func_00287920(self, 2), 2);
-    func_00287700(self, func_00287920(self, 3), 3);
-    func_00287700(self, func_00287920(self, 4), 4);
-    func_00287700(self, func_00287920(self, 5), 5);
-    func_00287700(self, func_00287920(self, 6), 6);
-    func_00287700(self, func_00287920(self, 7), 7);
-    func_00287700(self, func_00287920(self, 8), 8);
-    func_00287700(self, func_00287920(self, 9), 9);
-    func_00287700(self, func_00287920(self, 10), 10);
+    cSSXAudio_setChannelVolume(self, cSSXAudio_getChannelVolume(self, 0), 0);
+    cSSXAudio_setChannelVolume(self, cSSXAudio_getChannelVolume(self, 1), 1);
+    cSSXAudio_setChannelVolume(self, cSSXAudio_getChannelVolume(self, 2), 2);
+    cSSXAudio_setChannelVolume(self, cSSXAudio_getChannelVolume(self, 3), 3);
+    cSSXAudio_setChannelVolume(self, cSSXAudio_getChannelVolume(self, 4), 4);
+    cSSXAudio_setChannelVolume(self, cSSXAudio_getChannelVolume(self, 5), 5);
+    cSSXAudio_setChannelVolume(self, cSSXAudio_getChannelVolume(self, 6), 6);
+    cSSXAudio_setChannelVolume(self, cSSXAudio_getChannelVolume(self, 7), 7);
+    cSSXAudio_setChannelVolume(self, cSSXAudio_getChannelVolume(self, 8), 8);
+    cSSXAudio_setChannelVolume(self, cSSXAudio_getChannelVolume(self, 9), 9);
+    cSSXAudio_setChannelVolume(self, cSSXAudio_getChannelVolume(self, 10), 10);
 }
 
 //100%
@@ -1900,81 +1900,81 @@ extern "C" void func_00288F60(void* self, int mode)
     *(int*)((char*)self + 0x6470) = mode;
     switch (mode) {
     case 0:
-        func_00287700_if(self, 1, 0.90909094f);
-        func_00287700_if(self, 5, 0.90909094f);
-        func_00287700_if(self, 2, 0.90909094f);
-        func_00287700_if(self, 3, 0.90909094f);
-        func_00287700_if(self, 4, 0.90909094f);
-        func_00287700_if(self, 6, 0.90909094f);
-        func_00287700_if(self, 7, 0.90909094f);
-        func_00287700_if(self, 8, 0.90909094f);
-        func_00287700_if(self, 9, 0.90909094f);
-        func_00287700_if(self, 10, 0.90909094f);
+        cSSXAudio_setChannelVolume_if(self, 1, 0.90909094f);
+        cSSXAudio_setChannelVolume_if(self, 5, 0.90909094f);
+        cSSXAudio_setChannelVolume_if(self, 2, 0.90909094f);
+        cSSXAudio_setChannelVolume_if(self, 3, 0.90909094f);
+        cSSXAudio_setChannelVolume_if(self, 4, 0.90909094f);
+        cSSXAudio_setChannelVolume_if(self, 6, 0.90909094f);
+        cSSXAudio_setChannelVolume_if(self, 7, 0.90909094f);
+        cSSXAudio_setChannelVolume_if(self, 8, 0.90909094f);
+        cSSXAudio_setChannelVolume_if(self, 9, 0.90909094f);
+        cSSXAudio_setChannelVolume_if(self, 10, 0.90909094f);
         func_002875D0(self, 1);
         break;
     case 1:
-        func_00287700_if(self, 1, 0.90909094f);
-        func_00287700_if(self, 5, 0.90909094f);
-        func_00287700_if(self, 2, 0.0f);
-        func_00287700_if(self, 3, 0.0f);
-        func_00287700_if(self, 4, 0.0f);
-        func_00287700_if(self, 6, 0.90909094f);
-        func_00287700_if(self, 7, 0.90909094f);
-        func_00287700_if(self, 8, 0.90909094f);
-        func_00287700_if(self, 9, 0.0f);
-        func_00287700_if(self, 10, 0.0f);
+        cSSXAudio_setChannelVolume_if(self, 1, 0.90909094f);
+        cSSXAudio_setChannelVolume_if(self, 5, 0.90909094f);
+        cSSXAudio_setChannelVolume_if(self, 2, 0.0f);
+        cSSXAudio_setChannelVolume_if(self, 3, 0.0f);
+        cSSXAudio_setChannelVolume_if(self, 4, 0.0f);
+        cSSXAudio_setChannelVolume_if(self, 6, 0.90909094f);
+        cSSXAudio_setChannelVolume_if(self, 7, 0.90909094f);
+        cSSXAudio_setChannelVolume_if(self, 8, 0.90909094f);
+        cSSXAudio_setChannelVolume_if(self, 9, 0.0f);
+        cSSXAudio_setChannelVolume_if(self, 10, 0.0f);
         func_002875D0(self, 1);
         break;
     case 2:
-        func_00287700_if(self, 1, 0.0f);
-        func_00287700_if(self, 5, 0.90909094f);
-        func_00287700_if(self, 2, 0.90909094f);
-        func_00287700_if(self, 3, 0.90909094f);
-        func_00287700_if(self, 4, 0.90909094f);
-        func_00287700_if(self, 6, 0.90909094f);
-        func_00287700_if(self, 7, 0.90909094f);
-        func_00287700_if(self, 8, 0.90909094f);
-        func_00287700_if(self, 9, 0.90909094f);
-        func_00287700_if(self, 10, 0.90909094f);
+        cSSXAudio_setChannelVolume_if(self, 1, 0.0f);
+        cSSXAudio_setChannelVolume_if(self, 5, 0.90909094f);
+        cSSXAudio_setChannelVolume_if(self, 2, 0.90909094f);
+        cSSXAudio_setChannelVolume_if(self, 3, 0.90909094f);
+        cSSXAudio_setChannelVolume_if(self, 4, 0.90909094f);
+        cSSXAudio_setChannelVolume_if(self, 6, 0.90909094f);
+        cSSXAudio_setChannelVolume_if(self, 7, 0.90909094f);
+        cSSXAudio_setChannelVolume_if(self, 8, 0.90909094f);
+        cSSXAudio_setChannelVolume_if(self, 9, 0.90909094f);
+        cSSXAudio_setChannelVolume_if(self, 10, 0.90909094f);
         func_002875D0(self, 1);
         break;
     case 3:
-        func_00287700_if(self, 1, 0.0f);
-        func_00287700_if(self, 5, 0.90909094f);
-        func_00287700_if(self, 2, 0.0f);
-        func_00287700_if(self, 3, 0.0f);
-        func_00287700_if(self, 4, 0.0f);
-        func_00287700_if(self, 6, 0.90909094f);
-        func_00287700_if(self, 7, 0.90909094f);
-        func_00287700_if(self, 8, 0.90909094f);
-        func_00287700_if(self, 9, 0.0f);
-        func_00287700_if(self, 10, 0.0f);
+        cSSXAudio_setChannelVolume_if(self, 1, 0.0f);
+        cSSXAudio_setChannelVolume_if(self, 5, 0.90909094f);
+        cSSXAudio_setChannelVolume_if(self, 2, 0.0f);
+        cSSXAudio_setChannelVolume_if(self, 3, 0.0f);
+        cSSXAudio_setChannelVolume_if(self, 4, 0.0f);
+        cSSXAudio_setChannelVolume_if(self, 6, 0.90909094f);
+        cSSXAudio_setChannelVolume_if(self, 7, 0.90909094f);
+        cSSXAudio_setChannelVolume_if(self, 8, 0.90909094f);
+        cSSXAudio_setChannelVolume_if(self, 9, 0.0f);
+        cSSXAudio_setChannelVolume_if(self, 10, 0.0f);
         func_002875D0(self, 1);
         break;
     case 4:
-        func_00287700_if(self, 1, 0.90909094f);
-        func_00287700_if(self, 5, 0.0f);
-        func_00287700_if(self, 2, 0.0f);
-        func_00287700_if(self, 3, 0.0f);
-        func_00287700_if(self, 4, 0.0f);
-        func_00287700_if(self, 6, 0.0f);
-        func_00287700_if(self, 7, 0.0f);
-        func_00287700_if(self, 8, 0.0f);
-        func_00287700_if(self, 9, 0.0f);
-        func_00287700_if(self, 10, 0.0f);
+        cSSXAudio_setChannelVolume_if(self, 1, 0.90909094f);
+        cSSXAudio_setChannelVolume_if(self, 5, 0.0f);
+        cSSXAudio_setChannelVolume_if(self, 2, 0.0f);
+        cSSXAudio_setChannelVolume_if(self, 3, 0.0f);
+        cSSXAudio_setChannelVolume_if(self, 4, 0.0f);
+        cSSXAudio_setChannelVolume_if(self, 6, 0.0f);
+        cSSXAudio_setChannelVolume_if(self, 7, 0.0f);
+        cSSXAudio_setChannelVolume_if(self, 8, 0.0f);
+        cSSXAudio_setChannelVolume_if(self, 9, 0.0f);
+        cSSXAudio_setChannelVolume_if(self, 10, 0.0f);
         func_002875D0(self, 0);
         break;
     case 5:
-        func_00287700_if(self, 1, 0.0f);
-        func_00287700_if(self, 5, 0.0f);
-        func_00287700_if(self, 2, 0.0f);
-        func_00287700_if(self, 3, 0.0f);
-        func_00287700_if(self, 4, 0.0f);
-        func_00287700_if(self, 6, 0.0f);
-        func_00287700_if(self, 7, 0.0f);
-        func_00287700_if(self, 8, 0.0f);
-        func_00287700_if(self, 9, 0.0f);
-        func_00287700_if(self, 10, 0.0f);
+        cSSXAudio_setChannelVolume_if(self, 1, 0.0f);
+        cSSXAudio_setChannelVolume_if(self, 5, 0.0f);
+        cSSXAudio_setChannelVolume_if(self, 2, 0.0f);
+        cSSXAudio_setChannelVolume_if(self, 3, 0.0f);
+        cSSXAudio_setChannelVolume_if(self, 4, 0.0f);
+        cSSXAudio_setChannelVolume_if(self, 6, 0.0f);
+        cSSXAudio_setChannelVolume_if(self, 7, 0.0f);
+        cSSXAudio_setChannelVolume_if(self, 8, 0.0f);
+        cSSXAudio_setChannelVolume_if(self, 9, 0.0f);
+        cSSXAudio_setChannelVolume_if(self, 10, 0.0f);
         func_002875D0(self, 0);
         break;
     }
@@ -2030,7 +2030,7 @@ extern "C" char* strcpy(char* dst, const char* src);
 extern char* D_004A355C;
 struct sAudio_9470 { char pad[0x60A4]; char names[20][0x14]; };
 
-extern "C" void func_00289470(void* self)
+extern "C" void cSSXAudio_loadPlaylistNames(void* self)
 {
     if (BXFILE_exists(D_004A355C) != 0) {
         char parser[0x810];
@@ -2067,7 +2067,7 @@ extern char* D_004A355C;
 extern char D_004A3608[];
 
 // PORT: 64-bit `long` (8 bytes on EE, 4 on Windows); use int64_t off-PS2.
-extern "C" void func_00289520(void* self, const char* name)
+extern "C" void cSSXAudio_loadPlaylist(void* self, const char* name)
 {
     char parser[0x810];
     char buf[0x40];
@@ -2115,7 +2115,7 @@ void func_00289680(void* self)
 //100%
 extern void* D_004A5B64;
 extern "C" int func_0029F088(void* self, int a1);
-extern "C" void func_00289830(void* self, float v);
+extern "C" void cSSXAudio_setMusicDuckLevel(void* self, float v);
 
 struct sAud9688 {
     char pad0[0x6864];
@@ -2191,23 +2191,23 @@ extern "C" void func_00289688(void* self_)
     int c = s->f6C60;
     if (c <= 0) {
         if (c == 0) {
-            func_00289830(self, s->f6C6C);
+            cSSXAudio_setMusicDuckLevel(self, s->f6C6C);
             (s->f6C60)++;
         } else {
             s->f6C68 = s->f6C68 + s->f6C64;
-            func_00289830(self, s->f6C68);
+            cSSXAudio_setMusicDuckLevel(self, s->f6C68);
             (s->f6C60)++;
         }
     }
 }
 
 //100% - objdiff report; single-function view differs only in a relocation name
-extern "C" void func_00287A10(void* self, int a1, float a2, float a3);
+extern "C" void cSSXAudio_setDuck(void* self, int a1, float a2, float a3);
 
-extern "C" void func_00289830(void* self, float v)
+extern "C" void cSSXAudio_setMusicDuckLevel(void* self, float v)
 {
     if (*(float*)((char*)self + 0x6C5C) != v) {
-        func_00287A10(self, 1, v, 0.0f);
+        cSSXAudio_setDuck(self, 1, v, 0.0f);
         *(float*)((char*)self + 0x6C5C) = v;
     }
 }
@@ -2224,9 +2224,9 @@ extern "C" void func_00289880(char* self)
 //100%
 extern "C" int func_0028D960(void* self);
 extern "C" void func_0028D988(void* self, void* rider, void* obj);
-extern "C" int func_002899E8(void* self);
+extern "C" int cSSXAudio_isAmbienceMode(void* self);
 extern "C" void func_002899F8(void* self, void* rider, void* obj);
-extern "C" void func_00289C98(void* self, int id, void* obj);
+extern "C" void cSSXAudio_onMixZone(void* self, int id, void* obj);
 
 struct sSaVec98A8 { float x, y, z, w; } __attribute__((aligned(16)));
 struct sSaVt98A8a { short delta; short index; sSaVec98A8* (*fn)(void*); };
@@ -2241,7 +2241,7 @@ struct sSaObjs98A8 {
     char* b[2];                 // 0x6C80
 };
 
-extern "C" void func_002898A8(void* self, char* rider)
+extern "C" void cSSXAudio_updateRiderZones(void* self, char* rider)
 {
     unsigned int idx = *(unsigned int*)(rider + 0x870);
     if (idx >= 2) return;
@@ -2258,10 +2258,10 @@ extern "C" void func_002898A8(void* self, char* rider)
         func_0028D988(self, rider, va[2].fn(a + va[2].delta, pos.x, pos.y, k));
         char* b = ((sSaObjs98A8*)self)->b[idx];
         sSaVt98A8b* vb = *(sSaVt98A8b**)(b + 4);
-        // PORT: func_00289C98's unit declaration takes the rider as int
-        func_00289C98(self, (int)rider, vb[2].fn(b + vb[2].delta, pos.x, pos.y, k));
+        // PORT: cSSXAudio_onMixZone's unit declaration takes the rider as int
+        cSSXAudio_onMixZone(self, (int)rider, vb[2].fn(b + vb[2].delta, pos.x, pos.y, k));
     }
-    if (func_002899E8(self) != 0) {
+    if (cSSXAudio_isAmbienceMode(self) != 0) {
         char* c = ((sSaObjs98A8*)self)->c[idx];
         sSaVt98A8b* vc = *(sSaVt98A8b**)(c + 4);
         func_002899F8(self, rider, vc[2].fn(c + vc[2].delta, pos.x, pos.y, -99999.0f));
@@ -2269,7 +2269,7 @@ extern "C" void func_002898A8(void* self, char* rider)
 }
 
 //100%
-extern "C" int func_002899E8(void* self)
+extern "C" int cSSXAudio_isAmbienceMode(void* self)
 {
     return *(int*)((char*)self + 0x608c) == 2;
 }
@@ -2324,7 +2324,7 @@ extern "C" void func_0029BCF8(void* a0, void* a1);
 extern "C" void func_0029B968(void* a0, void* a1);
 extern "C" void func_0029C088(void* a0, void* a1);
 
-extern "C" void func_00289B18(void* a0, void* a1, int type)
+extern "C" void cSSXAudio_onAnimEvent(void* a0, void* a1, int type)
 {
     if (type == 0x50) {
         func_0029BCF8(a0, a1);
@@ -2339,7 +2339,7 @@ extern "C" void func_00289B18(void* a0, void* a1, int type)
 extern "C" void func_0029CE28(void* self);
 extern "C" void func_002B3A70(void*);
 
-extern "C" void func_00289B70(void* self)
+extern "C" void cSSXAudio_pause(void* self)
 {
     if (*(int*)((char*)self + 0x5FB4) == 0) {
         func_0029CE28(self);
@@ -2397,7 +2397,7 @@ extern "C" int func_00289C18(void* self, void* src)
 
 //100% - objdiff report; single-function view differs only in a relocation name
 extern "C" int func_00285D98(void* self, int which);
-extern "C" void func_002883B0(void* self, int id);
+extern "C" void cSSXAudio_setMix(void* self, int id);
 
 struct sSsxAudioVEntryP {
     short delta;
@@ -2405,16 +2405,16 @@ struct sSsxAudioVEntryP {
     int* (*fn)(void*);
 };
 
-extern "C" void func_00289C98(void* self, int id, void* obj)
+extern "C" void cSSXAudio_onMixZone(void* self, int id, void* obj)
 {
     if (id == func_00285D98(self, -1) && obj != 0) {
         sSsxAudioVEntryP* vt = *(sSsxAudioVEntryP**)((char*)obj + 0x4);
-        func_002883B0(self, *vt[3].fn((char*)obj + vt[3].delta));
+        cSSXAudio_setMix(self, *vt[3].fn((char*)obj + vt[3].delta));
     }
 }
 
 //100%
-extern "C" int func_00289D08(void* self, unsigned char a1)
+extern "C" int cSSXAudio_optionToSoundMode(void* self, unsigned char a1)
 {
     int r = 1;
     switch (a1) {
@@ -2434,7 +2434,7 @@ extern "C" int func_00289D08(void* self, unsigned char a1)
 }
 
 //100%
-extern "C" void* func_00289D60(void* self, int a1)
+extern "C" void* cSSXAudio_soundModeToOption(void* self, int a1)
 {
     int r = 0;
     switch (a1) {
@@ -2453,12 +2453,12 @@ extern "C" void* func_00289D60(void* self, int a1)
     return (void*)r;
 }
 
-extern "C" void* func_00289D60(void*, int);
+extern "C" void* cSSXAudio_soundModeToOption(void*, int);
 
 //99.29%
-void* func_00289DC0(void* self)
+void* cSSXAudio_getSoundModeOption__FPv(void* self)
 {
-    return func_00289D60(self, *(int*)((char*)self + 0x62b0));
+    return cSSXAudio_soundModeToOption(self, *(int*)((char*)self + 0x62b0));
 }
 
 //100%
@@ -2478,7 +2478,7 @@ extern char D_00483B10[];
 extern char D_00482820[];
 extern void* D_004A3610;
 
-extern "C" void* func_0028A058(void* self)
+extern "C" void* cAsyncSys_cAsyncSys(void* self)
 {
     *(int*)((char*)self + 0x18C) = 6;
     *(int*)((char*)self + 0x4) = 0;
@@ -2506,7 +2506,7 @@ extern "C" void* func_0028A058(void* self)
 }
 
 //100%
-extern "C" void func_0028A230(void*);
+extern "C" void cAsyncSys_shutdown(void*);
 void cMemMan_free(void*);
 void operator_delete(int*);
 extern char D_00483B10[];
@@ -2525,10 +2525,10 @@ struct sAudioSys_A148 {
     void* vtbl;         // 0x1D4
 };
 
-extern "C" void func_0028A148(sAudioSys_A148* self, int flags)
+extern "C" void cAsyncSys_destroy(sAudioSys_A148* self, int flags)
 {
     self->vtbl = D_00483B10;
-    func_0028A230(self);
+    cAsyncSys_shutdown(self);
     D_004A3610 = 0;
     if (self->buf1C0 != 0) {
         cMemMan_free(self->buf1C0);
