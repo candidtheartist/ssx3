@@ -1355,7 +1355,82 @@ void func_003D8CB0(struct H_8CB0 *h, unsigned char *out) {
     }
 }
 
-INCLUDE_ASM("ealib/seg_2D7498", func_003D8E58);
+//100%
+// PORT: PS2-only inline asm; needs a C fallback off-PS2.
+struct E_8E58 { short x; char pad[2]; unsigned char start; unsigned char len; unsigned char cur; unsigned char flag; };
+struct H_8E58 { struct E_8E58 ent[12]; char pad[2]; unsigned char tbl[1]; };
+struct O_8E58 { int len; int start; int n; unsigned char col[4]; };
+struct L_8E58 { char pad[4]; unsigned char cnt; unsigned char n5; unsigned char n6; char pad2; unsigned char list[1]; };
+struct C_8E58 { char pad[4]; signed char n; char pad2[3]; unsigned char a[8]; unsigned char b[8]; };
+extern int func_003DB838_8E58(unsigned char *, int, struct O_8E58 *) __asm__("func_003DB838");
+extern unsigned char **D_004A4824_8E58 __asm__("D_004A4824");
+
+int func_003D8E58_impl(struct H_8E58 *h, struct L_8E58 *l) __asm__("func_003D8E58");
+int func_003D8E58_impl(struct H_8E58 *h, struct L_8E58 *l) {
+    struct O_8E58 o;
+    int ok = 1;
+    int i;
+    int i0;
+    int j;
+    int cnt;
+    int redo;
+    int n;
+    int *tab;
+    unsigned char *lp;
+    struct C_8E58 *c;
+    int bv;
+    int v;
+
+    tab = (int *)((unsigned char *)l + ((((l->cnt >> 2) + 3) & 0x7C) + 8) + l->n6 * 4);
+    for (i0 = 0; i0 < l->n5; i0++) {
+        tab[i0] = 0;
+    }
+    for (i = 11; i >= 0; i--) {
+        h->ent[i].flag = 0;
+    }
+    cnt = l->cnt >> 2;
+    do {
+        redo = 1;
+        i = 0;
+        if (cnt != 0) {
+            lp = (unsigned char *)l + 8;
+            do {
+                if (h->ent[i].flag == 0) {
+                    h->ent[i].flag = 1;
+                    c = (struct C_8E58 *)((int *)l + lp[i]);
+                    n = c->n;
+                    if (!func_003DB838_8E58(D_004A4824_8E58[h->ent[i].x], h->tbl[h->ent[i].cur], &o)) {
+                        ok = 0;
+                        goto out;
+                    }
+                    for (j = 0; j < n; j++) {
+                        bv = c->b[j];
+                        if (bv == 0xFF) continue;
+                        if (!(bv & 0x80)) continue;
+                        bv &= 0x7F;
+                        if (c->a[j] == 0xFF) {
+                            v = tab[bv];
+                            if (v == 0) {
+                                h->ent[i].flag = 0;
+                                redo = 0;
+                                continue;
+                            }
+                            if (!((v >> o.col[j]) & 1)) {
+                                ok = 0;
+                                goto out;
+                            }
+                        } else if (c->a[j] == 0xFE) {
+                            tab[bv] = 1 << o.col[j];
+                        }
+                    }
+                }
+                i++;
+            } while (i < cnt);
+        }
+    } while (!redo);
+out:
+    return ok;
+}
 
 INCLUDE_ASM("ealib/seg_2D7498", func_003D9088);
 
@@ -1965,7 +2040,55 @@ void func_003DACE8(void *a0, struct H_ACE8 *h, struct L_ACE8 *l) {
     }
 }
 
-INCLUDE_ASM("ealib/seg_2D7498", func_003DAE48);
+//100%
+// PORT: 64-bit `long` (8 bytes on EE, 4 on Windows); use int64_t/uint64_t off-PS2.
+// PORT: PS2-only inline asm; needs a C fallback off-PS2.
+struct O_AE48 { int len; int start; int n; unsigned char col[4]; };
+struct L_AE48 { char pad[4]; unsigned char cnt; char pad2[3]; unsigned char list[1]; };
+struct S_AE48 { int pad[2]; void (*cb)(void *, int, int, int); };
+struct X_AE48 { short x; short pad[3]; };
+struct Y_AE48 { unsigned short y; short pad[3]; };
+extern int func_003D8330_AE48(void *, int *) __asm__("func_003D8330");
+extern int func_003DB838_AE48(unsigned char *, int, struct O_AE48 *) __asm__("func_003DB838");
+extern int func_003DB3E0_AE48(int, int) __asm__("func_003DB3E0");
+extern unsigned char **D_004A4824_AE48 __asm__("D_004A4824");
+extern struct S_AE48 D_0044FF90_AE48 __asm__("D_0044FF90");
+extern struct X_AE48 D_0045070C_AE48[] __asm__("D_0045070C");
+extern struct Y_AE48 D_00450710_AE48[] __asm__("D_00450710");
+
+void func_003DAE48(void *a0, int a1, struct L_AE48 *l, int a3) {
+    struct O_AE48 o;
+    int out;
+    int i;
+    int j;
+    int cnt;
+    unsigned char *tbl;
+    unsigned char *shp;
+    unsigned char b;
+    int h;
+    unsigned yy;
+    long m;
+
+    if (D_0044FF90_AE48.cb != 0) {
+        func_003D8330_AE48(a0, &out);
+        cnt = l->cnt >> 2;
+        for (i = 0; i < cnt; i++) {
+            tbl = (unsigned char *)l + l->list[i] * 4 + 0xC;
+            for (j = 0; j < 4; j++) {
+                b = tbl[j];
+                if (b != 0xFF) {
+                    h = func_003DB3E0_AE48(a1, b);
+                    yy = D_00450710_AE48[i + a3].y;
+                    shp = D_004A4824_AE48[D_0045070C_AE48[i + a3].x];
+                    if (func_003DB838_AE48(shp, yy, &o)) {
+                        m = 1 << o.col[j];
+                        D_0044FF90_AE48.cb(a0, h, (int)m, out);
+                    }
+                }
+            }
+        }
+    }
+}
 
 //100%
 void func_003DAFD0(void *arg0) {
@@ -1990,7 +2113,83 @@ int func_003DB008(unsigned char *arg0) {
     return func_003DB5C0(0x64, -1) < (int) arg0[1];
 }
 
-INCLUDE_ASM("ealib/seg_2D7498", func_003DB040);
+//100%
+struct S_B040 {
+    int a;
+    int b;
+    void (*cb)(unsigned char *, int, int, int);
+};
+extern struct S_B040 D_0044FF90_B040 __asm__("D_0044FF90");
+
+/* Sequence data header: +6 entry count, +7 low nibble = event count, +0xC entry offsets (in words). */
+struct Hdr_B040 {
+    unsigned char pad0[0xC];
+    unsigned short offs[1];
+};
+
+struct Ev_B040 {
+    int a;
+    int b;
+    int type;
+};
+
+void func_003DB040(unsigned char *ctx, unsigned char *data, int idx, int *tbl) {
+    struct Ev_B040 ev;
+    int time;
+    int count;
+    int i;
+    unsigned char *track;
+    unsigned char *events;
+    if (D_0044FF90_B040.cb != 0) {
+        func_003D8330(ctx, &time);
+        count = data[7] & 0xF;
+        track = data + ((struct Hdr_B040 *)data)->offs[idx] * 4;
+        events = data + (((data[6] * 2 + 3) & 0x3FC) + 0xC);
+        for (i = 0; i < count; i++) {
+            /* PORT: pointer arithmetic through int (index-first addu); use uintptr_t off-PS2. */
+            unsigned char *e = (unsigned char *)(i * 3 + (int)events);
+            int type;
+            int a;
+            int b;
+            ev.a = e[0];
+            ev.b = e[1];
+            ev.type = e[2];
+            type = ev.type;
+            a = ev.a;
+            b = ev.b;
+            switch (type) {
+            case 0:
+            case 3: {
+                int n = track[4] >> 2;
+                int found = 0;
+                int k;
+                for (k = 0; k < n; k++) {
+                    unsigned char *ent = track + (track + k)[8] * 4;
+                    int m;
+                    if (ent[2] == b) {
+                        found = 1;
+                        break;
+                    }
+                    for (m = 0; m < 4; m++) {
+                        if ((ent + m)[8] == b) {
+                            found = 1;
+                            break;
+                        }
+                    }
+                }
+                if (found)
+                    D_0044FF90_B040.cb(ctx, a, tbl[b], time);
+                break;
+            }
+            case 1:
+            case 2:
+            case 4:
+            case 5:
+                break;
+            }
+        }
+    }
+}
 
 //100%
 // PORT: PS2-only inline asm; needs a C fallback off-PS2.
