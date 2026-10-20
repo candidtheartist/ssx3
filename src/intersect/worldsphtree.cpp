@@ -469,11 +469,11 @@ extern "C" void cOverlapList_collectNodeInstances(sCtx_3309D8* ctx, void* tree)
     }
 }
 
-INCLUDE_ASM("intersect/worldsphtree", func_00330BA8);
+INCLUDE_ASM("intersect/worldsphtree", cOverlapList_buildInstances);
 
 INCLUDE_ASM("intersect/worldsphtree", cOverlapList_buildObjects);
 
-INCLUDE_ASM("intersect/worldsphtree", func_00331E90);
+INCLUDE_ASM("intersect/worldsphtree", cOverlapList_buildInstancesPatches);
 
 INCLUDE_ASM("intersect/worldsphtree", cOverlapList_build);
 
@@ -565,7 +565,7 @@ struct sTree_333EF8 {
 extern "C" void cAIFwdDiffCache_lookup(void* cache, void* src, void** out);
 struct sVec4_335960;
 struct sHit_003342D0;
-extern "C" int func_0032B6E0(void* q, void* obj, void* node, sVec4_335960* pos, sVec4_335960* nrm, float* dist, sVec4_335960* uv, int arg);
+extern "C" int cWorldIntType_testPatch(void* q, void* obj, void* node, sVec4_335960* pos, sVec4_335960* nrm, float* dist, sVec4_335960* uv, int arg);
 extern "C" int cWorldIntType_testInstance(void* q, void* node, void* buf, int cap, int mode);
 
 static inline int overlapTri_333EF8(const sQuery_333EF8* q, const sTriObj_333EF8* n)
@@ -638,7 +638,7 @@ extern "C" int cOverlapList_collectHits(void* vself, void* vq, sHit_003342D0* vh
         void* node;
         float dist;
         cAIFwdDiffCache_lookup(self->owner->cache, obj, &node);
-        if (!func_0032B6E0(q, obj, node, (sVec4_335960*)&pos, (sVec4_335960*)&nrm, &dist, (sVec4_335960*)&uv, arg)) {
+        if (!cWorldIntType_testPatch(q, obj, node, (sVec4_335960*)&pos, (sVec4_335960*)&nrm, &dist, (sVec4_335960*)&uv, arg)) {
             continue;
         }
         reset_333EF8(&hits[n]);
@@ -812,7 +812,7 @@ struct sBox_00334680 {
 };
 extern "C" void func_0035C698(void* a0, sBox_00334680* box, sBox_00334680* box2, sWsVec4* pos, int mask, int* cnt, float* dist, int a7);
 extern "C" void func_00348290(void* a0, sBox_00334680* box, sBox_00334680* box2, sWsVec4* pos, int mask, int* cnt, float* dist, int a7);
-extern "C" void func_00335128(void* obj, sBox_00334680* box, sWsVec4* pos, int* cnt, float* dist, int a5);
+extern "C" void cRailSegment_findClosestPoint(void* obj, sBox_00334680* box, sWsVec4* pos, int* cnt, float* dist, int a5);
 
 // PORT: PS2-only VU0 inline asm (in-place vector subtract).
 static inline void wsSubEq_334680(sWsVec4& a, const sWsVec4& b)
@@ -866,7 +866,7 @@ extern "C" int cOverlapList_findNearestRail(char* self, sWsVec4* pos, int a2, in
             func_00348290(*(void**)(o + 0xC), &box, &box, pos, mask, &cnt, &dist, a2);
         } else if (type == 1) {
             if (*(int*)(*(char**)(o + 0x68) + 0x1C) & mask) {
-                func_00335128(o, &box, pos, &cnt, &dist, a2);
+                cRailSegment_findClosestPoint(o, &box, pos, &cnt, &dist, a2);
             }
         }
     }
@@ -879,7 +879,7 @@ void* func_00327810(void* self);
 extern "C" void cAIFwdDiffCache_Init(void* cache, int n);
 extern char D_0048E4F8[];
 
-extern "C" void func_00334800(void* self)
+extern "C" void cSpaceHash_createFwdDiffCache(void* self)
 {
     void* c = func_00327810(cMemMan_alloc(0x10, D_0048E4F8, 0, 0));
     *(void**)((char*)self + 0xA4) = c;
@@ -889,7 +889,7 @@ extern "C" void func_00334800(void* self)
 //100%
 extern "C" void func_00327828(void* p, int flags);
 
-extern "C" void func_00334850(void* self)
+extern "C" void cSpaceHash_destroyFwdDiffCache(void* self)
 {
     void* p = *(void**)((char*)self + 0xA4);
     if (p != 0) {
@@ -900,7 +900,7 @@ extern "C" void func_00334850(void* self)
 
 INCLUDE_ASM("intersect/worldsphtree", cWorldIntType_testInstance);
 
-INCLUDE_ASM("intersect/worldsphtree", func_00335128);
+INCLUDE_ASM("intersect/worldsphtree", cRailSegment_findClosestPoint);
 
 //100%
 struct sVec4_335960 {
@@ -955,7 +955,7 @@ struct sCtx_335960 {
 };
 
 extern "C" void cAIFwdDiffCache_lookup(void* cache, void* src, void** out);
-extern "C" int func_0032B6E0(void* q, void* obj, void* node, sVec4_335960* pos, sVec4_335960* nrm, float* dist, sVec4_335960* uv, int arg);
+extern "C" int cWorldIntType_testPatch(void* q, void* obj, void* node, sVec4_335960* pos, sVec4_335960* nrm, float* dist, sVec4_335960* uv, int arg);
 
 static inline int overlap_335960(const sQuery_335960* q, const sTriObj_335960* n)
 {
@@ -997,7 +997,7 @@ extern "C" void cSpaceHash_collectPatchHit(void* vctx, void* vobj)
     if ((obj->flags & 0x41) != 0x41) return;
     if (!overlap_335960(ctx->q, obj)) return;
     cAIFwdDiffCache_lookup(ctx->cache, obj, &node);
-    if (!func_0032B6E0(ctx->q, obj, node, &pos, &nrm, &dist, &uv, ctx->arg)) return;
+    if (!cWorldIntType_testPatch(ctx->q, obj, node, &pos, &nrm, &dist, &uv, ctx->arg)) return;
     reset_335960(&ctx->hits[*ctx->count]);
     ctx->hits[*ctx->count].pos = pos;
     ctx->hits[*ctx->count].nrm = nrm;
@@ -1222,8 +1222,8 @@ static inline void visit_003369D8(sCell_369D8* c, char* flag, sQuery_369D8* q, s
     cSpaceHash_walkColumn(flag, q, q, p, c->node, c);
 }
 
-INCLUDE_ASM("intersect/worldsphtree", func_003369D8);
-extern "C" int func_003369D8(sCell_369D8* self, float* pos, sQuad_369D8* outP, sQuad_369D8* outN);
+INCLUDE_ASM("intersect/worldsphtree", cSpaceHash_queryGround);
+extern "C" int cSpaceHash_queryGround(sCell_369D8* self, float* pos, sQuad_369D8* outP, sQuad_369D8* outN);
 
 //100%
 struct sVEnt_336D40 { short delta; short index; void* fn; };
@@ -1360,22 +1360,22 @@ static inline int isBetter_003378C0(sHit_003378C0* a, sHit_003378C0* b)
 INCLUDE_ASM("intersect/worldsphtree", cSpaceHash_queryNearestScenery);
 extern "C" float cSpaceHash_queryNearestScenery(void* self, char* q, sHit_003378C0* out, int a3);
 
-INCLUDE_ASM("intersect/worldsphtree", func_00337A48);
+INCLUDE_ASM("intersect/worldsphtree", cSpaceHash_findNearestRail);
 
 extern "C" void* func_003388E0(void* p, ...)
 {
     return p;
 }
 
-INCLUDE_ASM("intersect/worldsphtree", func_00338920);
+INCLUDE_ASM("intersect/worldsphtree", cOverlapList_walkInstances);
 
-INCLUDE_ASM("intersect/worldsphtree", func_00339598);
+INCLUDE_ASM("intersect/worldsphtree", cOverlapList_walkObjects);
 
-INCLUDE_ASM("intersect/worldsphtree", func_0033A3D8);
+INCLUDE_ASM("intersect/worldsphtree", cOverlapList_walkInstancesPatches);
 
 INCLUDE_ASM("intersect/worldsphtree", cOverlapList_walkAll);
 
-INCLUDE_ASM("intersect/worldsphtree", func_0033CCF8);
+INCLUDE_ASM("intersect/worldsphtree", cSpaceHash_walkHits);
 
 //100%
 struct sQuery_369D8;
@@ -1510,16 +1510,16 @@ extern "C" void cSpaceHash_walkColumn(char* flag, sQuery_369D8* q, sQuery_369D8*
     }
 }
 
-INCLUDE_ASM("intersect/worldsphtree", func_0033DFD8);
+INCLUDE_ASM("intersect/worldsphtree", cSpaceHash_walkSceneryHits);
 
-INCLUDE_ASM("intersect/worldsphtree", func_0033ED60);
+INCLUDE_ASM("intersect/worldsphtree", cSpaceHash_walkRails);
 
-INCLUDE_ASM("intersect/worldsphtree", func_003400D8);
+INCLUDE_ASM("intersect/worldsphtree", __sti__worldsphtree_cpp);
 
-INCLUDE_ASM("intersect/worldsphtree", func_00340970);
+INCLUDE_ASM("intersect/worldsphtree", cAIFwdDiffEntry_cAIFwdDiffEntry);
 
 //100%
-void func_00340A08(void* self)
+void cWorldIntType_refinePatch__FPv(void* self)
 {
 }
 
@@ -1787,7 +1787,7 @@ extern "C" void cSpaceHash_collectSubtreeSceneryHits(void* self, void* ctx)
     if (*(void**)((char*)self + 0x1C)) cSpaceHash_collectSubtreeSceneryHits(*(void**)((char*)self + 0x1C), ctx);
 }
 
-extern "C" void* func_003400D8(int, int);
+extern "C" void* __sti__worldsphtree_cpp(int, int);
 
 //100%
 struct sCtx_3411B8 {
@@ -1809,7 +1809,7 @@ extern "C" void cSpaceHash_collectSubtreeRails(void* self, sCtx_3411B8* ctx)
             func_00348290(*(void**)(o + 0xC), ctx->box, ctx->box, ctx->pos, ctx->mask, ctx->cnt, ctx->dist, ctx->a2);
         } else if (type == 1) {
             if (*(int*)(*(char**)(o + 0x68) + 0x1C) & ctx->mask) {
-                func_00335128(o, ctx->box, ctx->pos, ctx->cnt, ctx->dist, ctx->a2);
+                cRailSegment_findClosestPoint(o, ctx->box, ctx->pos, ctx->cnt, ctx->dist, ctx->a2);
             }
         }
     }
@@ -1824,9 +1824,9 @@ extern "C" void cSpaceHash_collectSubtreeRails(void* self, sCtx_3411B8* ctx)
 }
 
 //99.38%
-void* func_00341368(void* self)
+void* worldsphtreeStaticInit__FPv(void* self)
 {
-    return func_003400D8(1, 0xffff);
+    return __sti__worldsphtree_cpp(1, 0xffff);
 }
 
 //100%
@@ -2198,7 +2198,7 @@ extern "C" void cBoostNode_pushVelocity(sSph_341818* self, cMover_341818* obj)
 }
 
 //100%
-extern "C" void func_00341A30(void* self, int a1)
+extern "C" void cBoostNode_onMessage(void* self, int a1)
 {
     if (a1 == 1) {
         *(int*)((char*)self + 0x3c) = *(int*)((char*)self + 0x38);
@@ -2517,7 +2517,7 @@ extern "C" void cAnimObjectNode_stepClamp(sClampFloat_1F38* s)
 void func_0034FCC0(void*);
 
 //100%
-extern "C" void func_00341FC8(void* self, int a1)
+extern "C" void cAnimObjectNode_onFinished(void* self, int a1)
 {
     if (a1 != 0) {
         func_0034FCC0((char*)self + 0x30);
@@ -2772,7 +2772,7 @@ extern "C" int cAnimTeeterNode_update(sSphCtl_00342358* s)
 }
 
 //100%
-extern "C" float func_003424D0(void* self)
+extern "C" float cAnimTeeterNode_getStep(void* self)
 {
     if (*(float*)((char*)self + 0x30) <= *(float*)((char*)self + 0x10) && *(float*)((char*)self + 0x4) < 0.0f) {
         return 0.0f;
@@ -2783,7 +2783,7 @@ extern "C" float func_003424D0(void* self)
     return *(float*)((char*)self + 0x4);
 }
 
-INCLUDE_ASM("intersect/worldsphtree", func_00342538);
+INCLUDE_ASM("intersect/worldsphtree", cAnimTeeterNode_applyForce);
 
 //100%
 extern "C" void func_0034E3D8(void* p, void* stream);
@@ -2829,7 +2829,7 @@ struct sSph_342768 {
 extern void* D_00490898[];
 extern char* D_004A5B64;
 
-extern "C" void* func_00342768(sSph_342768* self, sSphDef_342768* def, int a2)
+extern "C" void* cBoostModifier_construct(sSph_342768* self, sSphDef_342768* def, int a2)
 {
     self->refs = 1;
     self->vt = D_00490898;
@@ -2862,7 +2862,7 @@ typedef int (*ReadIntFn00342808)(void*);
 
 extern void* D_00490898[];
 
-extern "C" void* func_00342808(void* self, sVEntry00342808** stream)
+extern "C" void* cBoostModifier_cBoostModifier(void* self, sVEntry00342808** stream)
 {
     *(int*)((char*)self + 0x0) = 1;
     *(void***)((char*)self + 0x4) = D_00490898;
@@ -2957,7 +2957,7 @@ extern "C" void cBoostModifier_scaleVelocity(void* self, cMover_3429E0* obj)
 INCLUDE_ASM("intersect/worldsphtree", cBoostModifier_pushVelocity);
 
 //100%
-extern "C" void func_00342B80(void* self, int a1)
+extern "C" void cBoostModifier_onMessage(void* self, int a1)
 {
     if (a1 == 0x258) {
         *(int*)((char*)self + 0x2c) = *(int*)((char*)self + 0x28);

@@ -379,12 +379,12 @@ extern "C" void func_00355BF0(cMoveNode* self, void* desc)
 
 //100% - objdiff report; single-function view differs only in a relocation name
 extern char D_0048E968[];
-extern "C" void* func_00342768(void* mem, void* desc, void* owner);
+extern "C" void* cBoostModifier_construct(void* mem, void* desc, void* owner);
 extern "C" void func_00355600(cMoveNode* self, void* mod);
 
 extern "C" void func_00355C50(cMoveNode* self, void* desc)
 {
-    func_00355600(self, func_00342768(cMemMan_alloc(0x50, D_0048E968, 0x20000000, 0), desc, *(void**)((char*)self + 0x18)));
+    func_00355600(self, cBoostModifier_construct(cMemMan_alloc(0x50, D_0048E968, 0x20000000, 0), desc, *(void**)((char*)self + 0x18)));
 }
 
 //100% - objdiff report; single-function view differs only in a relocation name

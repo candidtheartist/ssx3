@@ -158,10 +158,10 @@ The PS2 chunk resolver (the class name string `cPS2ChunkResolve` is at `0x00494F
 | 20 | per-location sound banks | rid 0 goes to bank slot 8, rid 1 to slot 9 (`0x00286CA8`) **(PS2)** |
 
 - A second type dispatch, `0x0026DED8` (`cReplay_restoreObject`), switches on kinds 0..22 through the table at
-  `0x004816C0` and calls constructors: kind 8 `0x00341548` (rails), 14 `0x0034ED88` (AI paths), 16 `0x00350F08`
-  (collision bindings), 17 `0x00356E60` (course-progress objects), 21 `0x00349DB0` (course spine). One reading calls
-  it the world loader's record dispatch; a later correction describes `0x0026DED8` as a saved-component loading path
-  that reads a type and calls deserialising constructors. How it relates to the resolver is unresolved.
+  `0x004816C0` and calls restore constructors. It is the replay object restore: the memory tags give kind 8
+  `0x00341548` Boost, 14 `0x0034ED88` Floating, 16 `0x00350F08` Hide, 17 `0x00356E60` Object and 21 `0x00349DB0`
+  SpringRail nodes (earlier readings as rails, AI paths, collision bindings, course progress and course spine were
+  wrong).
 
 ### World textures and light pages (kinds 9 and 10)
 

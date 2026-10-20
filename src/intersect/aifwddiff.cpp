@@ -3,7 +3,7 @@
 //100%
 // PORT: operator_new__FUi really takes (size, tag, flags, d); bound by asm label
 void* operator_new_tag(unsigned int size, const char* tag, int flags, int d) __asm__("operator_new__FUi");
-extern "C" void func_00340970(void* self);
+extern "C" void cAIFwdDiffEntry_cAIFwdDiffEntry(void* self);
 extern char D_0048E4F8[];
 extern char D_0048E508[];
 
@@ -25,7 +25,7 @@ extern "C" void cAIFwdDiffCache_Init(sCache_7890* self, int n)
     sCacheEntry_7890* mem = (sCacheEntry_7890*)operator_new_tag(n * sizeof(sCacheEntry_7890), D_0048E4F8, 0, 0);
     sCacheEntry_7890* p = mem;
     for (int k = n - 1; k != -1; k--, p++) {
-        func_00340970(p);
+        cAIFwdDiffEntry_cAIFwdDiffEntry(p);
     }
     self->entries = mem;
     for (int i = 0; i < n; i++) {
@@ -150,7 +150,7 @@ extern "C" void cAIFwdDiffCache_hash(sFwdDiffTable* table, sFwdDiffNode* node)
 
 //100%
 extern "C" void func_00391418(void* t, void* a);
-extern "C" void func_00327C68(void* self, void* a);
+extern "C" void cAIFwdDiffCache_resetCells(void* self, void* a);
 extern "C" void func_003914F8(void* t);
 extern "C" void func_00391480(void* t, void* a);
 struct sGp2930 { int a, b; };
@@ -160,13 +160,13 @@ extern "C" void cAIFwdDiffCache_evaluatePatch(void* self, void* a1, void* a2)
 {
     sGp2930* t = &D_004A5A20;
     func_00391418(t, (char*)a1 + 0x40);
-    func_00327C68(self, a2);
+    cAIFwdDiffCache_resetCells(self, a2);
     func_003914F8(t);
     func_00391480(t, (char*)a2 + 0x10);
 }
 
 //100%
-extern "C" void func_00327C68(void* self, void* a)
+extern "C" void cAIFwdDiffCache_resetCells(void* self, void* a)
 {
     float* p = (float*)((char*)a + 0x650);
     int n = 0x50;
@@ -374,18 +374,18 @@ extern "C" int cSphereTree_testTriangleTwoSided(void* self, sVec4_28030* p, void
 }
 
 //100%
-extern "C" void func_003281D0(void* self, int a1, void* a2, int a3, int a4);
+extern "C" void cSphereTree_debugDrawNode(void* self, int a1, void* a2, int a3, int a4);
 
-extern "C" void func_00328170(void* self)
+extern "C" void cSphereTree_debugDraw(void* self)
 {
     void* m = *(void**)((char*)self + 0x98);
     if (*(int*)((char*)m + 8) != 0) {
         *(int*)(*(char**)((char*)self + 0x98) + 0x28) = cSphereTree_getMasks(m);
     }
-    func_003281D0(self, *(int*)(*(char**)((char*)self + 0x98) + 0xC), (char*)self + 0x80, 0, 0);
+    cSphereTree_debugDrawNode(self, *(int*)(*(char**)((char*)self + 0x98) + 0xC), (char*)self + 0x80, 0, 0);
 }
 
-INCLUDE_ASM("intersect/aifwddiff", func_003281D0);
+INCLUDE_ASM("intersect/aifwddiff", cSphereTree_debugDrawNode);
 
 //100%
 struct sCell_00328360 {
@@ -566,7 +566,7 @@ extern "C" void cSpaceHash_insertItemAt(sNode_00328660* node, int idx, sItem_003
     node->lists[idx].push(item);
 }
 
-INCLUDE_ASM("intersect/aifwddiff", func_00328808);
+INCLUDE_ASM("intersect/aifwddiff", cSpaceHash_moveItemInNode);
 
 //100%
 struct sNode_8C20 {
@@ -757,5 +757,5 @@ extern "C" void func_00328F28(sCell_8F28* c, sBox_8F28* b)
 
 INCLUDE_ASM("intersect/aifwddiff", cSpaceHash_moveItem);
 
-INCLUDE_ASM("intersect/aifwddiff", func_00329590);
+INCLUDE_ASM("intersect/aifwddiff", intersectSphereBox);
 

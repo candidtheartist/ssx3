@@ -1230,8 +1230,8 @@ extern "C" void func_0027BB08_v(char* self, int slot, sVec_27A0D8* pos, int* fla
                                 const sVec_27A0D8* off) __asm__("func_0027BB08");
 // PORT: func_0027C070 is defined returning int, but it returns a pointer here; bound by asm label.
 signed char* func_0027C070_p(void* self) __asm__("func_0027C070__FPv");
-extern "C" int func_003369D8_v(void* cell, sVec_27A0D8* pos, sVec_27A0D8* outP, sVec_27A0D8* outN)
-    __asm__("func_003369D8");
+extern "C" int cSpaceHash_queryGround_v(void* cell, sVec_27A0D8* pos, sVec_27A0D8* outP, sVec_27A0D8* outN)
+    __asm__("cSpaceHash_queryGround");
 
 extern "C" void func_0027A0D8(char* self, int id, void* obj, sVec_27A0D8* pos, int* flag, float* pitch, float* yaw)
 {
@@ -1260,7 +1260,7 @@ extern "C" void func_0027A0D8(char* self, int id, void* obj, sVec_27A0D8* pos, i
         {
             sVec_27A0D8 n;
             sVec_27A0D8 p;
-            if (func_003369D8_v(*(void**)(*(char**)((char*)D_004A28A8 + 0x84) + 0x20), pos, &p, &n))
+            if (cSpaceHash_queryGround_v(*(void**)(*(char**)((char*)D_004A28A8 + 0x84) + 0x20), pos, &p, &n))
                 pos->z = p.z;
         }
         break;
@@ -1269,7 +1269,7 @@ extern "C" void func_0027A0D8(char* self, int id, void* obj, sVec_27A0D8* pos, i
         {
             sVec_27A0D8 n;
             sVec_27A0D8 p;
-            if (func_003369D8_v(*(void**)(*(char**)((char*)D_004A28A8 + 0x84) + 0x20), pos, &p, &n))
+            if (cSpaceHash_queryGround_v(*(void**)(*(char**)((char*)D_004A28A8 + 0x84) + 0x20), pos, &p, &n))
                 pos->z = p.z;
         }
         break;
@@ -1278,7 +1278,7 @@ extern "C" void func_0027A0D8(char* self, int id, void* obj, sVec_27A0D8* pos, i
         {
             sVec_27A0D8 n;
             sVec_27A0D8 p;
-            if (func_003369D8_v(*(void**)(*(char**)((char*)D_004A28A8 + 0x84) + 0x20), pos, &p, &n))
+            if (cSpaceHash_queryGround_v(*(void**)(*(char**)((char*)D_004A28A8 + 0x84) + 0x20), pos, &p, &n))
                 pos->z = p.z;
         }
         break;
@@ -1287,7 +1287,7 @@ extern "C" void func_0027A0D8(char* self, int id, void* obj, sVec_27A0D8* pos, i
         {
             sVec_27A0D8 n;
             sVec_27A0D8 p;
-            if (func_003369D8_v(*(void**)(*(char**)((char*)D_004A28A8 + 0x84) + 0x20), pos, &p, &n))
+            if (cSpaceHash_queryGround_v(*(void**)(*(char**)((char*)D_004A28A8 + 0x84) + 0x20), pos, &p, &n))
                 pos->z = p.z;
         }
         break;
@@ -1312,7 +1312,7 @@ extern "C" void func_0027A0D8(char* self, int id, void* obj, sVec_27A0D8* pos, i
         {
             sVec_27A0D8 n;
             sVec_27A0D8 p;
-            if (func_003369D8_v(*(void**)(*(char**)((char*)D_004A28A8 + 0x84) + 0x20), pos, &p, &n))
+            if (cSpaceHash_queryGround_v(*(void**)(*(char**)((char*)D_004A28A8 + 0x84) + 0x20), pos, &p, &n))
                 pos->z = p.z;
         }
         break;
@@ -1327,7 +1327,7 @@ extern "C" void func_0027A0D8(char* self, int id, void* obj, sVec_27A0D8* pos, i
         {
             sVec_27A0D8 n;
             sVec_27A0D8 p;
-            if (func_003369D8_v(*(void**)(*(char**)((char*)D_004A28A8 + 0x84) + 0x20), pos, &p, &n))
+            if (cSpaceHash_queryGround_v(*(void**)(*(char**)((char*)D_004A28A8 + 0x84) + 0x20), pos, &p, &n))
                 pos->z = p.z;
         }
         break;
@@ -1339,7 +1339,7 @@ extern "C" void func_0027A0D8(char* self, int id, void* obj, sVec_27A0D8* pos, i
         {
             sVec_27A0D8 n;
             sVec_27A0D8 p;
-            if (func_003369D8_v(*(void**)(*(char**)((char*)D_004A28A8 + 0x84) + 0x20), pos, &p, &n))
+            if (cSpaceHash_queryGround_v(*(void**)(*(char**)((char*)D_004A28A8 + 0x84) + 0x20), pos, &p, &n))
                 pos->z = p.z;
         }
         break;
@@ -1366,7 +1366,7 @@ extern "C" void func_0027A0D8(char* self, int id, void* obj, sVec_27A0D8* pos, i
         {
             sVec_27A0D8 n;
             sVec_27A0D8 p;
-            if (func_003369D8_v(*(void**)(*(char**)((char*)D_004A28A8 + 0x84) + 0x20), pos, &p, &n))
+            if (cSpaceHash_queryGround_v(*(void**)(*(char**)((char*)D_004A28A8 + 0x84) + 0x20), pos, &p, &n))
                 pos->z = p.z;
         }
         break;

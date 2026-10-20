@@ -743,7 +743,7 @@ extern "C" void* func_00357358(void* self, sMbStream36D8* s);
 extern "C" void* func_00357798(void* self, sMbStream36D8* s);
 extern "C" void* func_0035F788(void* self, sMbStream36D8* s);
 extern "C" void* func_0035F1A8(void* self, sMbStream36D8* s);
-extern "C" void* func_00342808(void* self, sMbStream36D8* s);
+extern "C" void* cBoostModifier_cBoostModifier(void* self, sMbStream36D8* s);
 extern "C" void* func_003459A8(void* self, sMbStream36D8* s);
 extern "C" void* func_00345D80(void* self, sMbStream36D8* s);
 extern "C" void* func_003461C0(void* self, sMbStream36D8* s);
@@ -800,7 +800,7 @@ extern "C" void tModifierBlock_readFromReplayFrame(tModifierBlock* self, sMbStre
         self->field_0x8 = (int)func_0035F1A8(cMemMan_alloc(0xE8, D_0048E958, 0x20000000, 0), stream);
     }
     if ((hdr.flags & 8) && hdr.kind == 1) {
-        self->field_0xC = (int)func_00342808(cMemMan_alloc(0x50, D_0048E968, 0x20000000, 0), stream);
+        self->field_0xC = (int)cBoostModifier_cBoostModifier(cMemMan_alloc(0x50, D_0048E968, 0x20000000, 0), stream);
     }
     for (i = 0; i < hdr.numA; i++) {
         void* p;

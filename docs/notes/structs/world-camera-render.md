@@ -438,7 +438,7 @@ SSB kind-16 entry after loading (pointed to by world instance +0x88).
 
 ## Rail spline record header
 
-SSB kind 8; 48-byte header followed by 144-byte segments (record size = 48 + 144*count).
+48-byte header followed by 144-byte segments (record size = 48 + 144*count).
 
 | Offset | Type | Meaning | Evidence |
 |---|---|---|---|
@@ -453,7 +453,7 @@ SSB kind 8; 48-byte header followed by 144-byte segments (record size = 48 + 144
 
 ## Rail spline segment
 
-SSB kind 8; 144 bytes. Also used as spline path segments by set pieces.
+144 bytes. Also used as spline path segments by set pieces.
 
 | Offset | Type | Meaning | Evidence |
 |---|---|---|---|

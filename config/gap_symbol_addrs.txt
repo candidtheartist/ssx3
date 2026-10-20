@@ -8645,47 +8645,18 @@ func_00327810__FPv = 0x00327810; //type:func
 func_00327828 = 0x00327828; //type:func
 
 // --- src/intersect/aifwddiff.cpp ---
-func_00327C68 = 0x00327C68; //type:func
 func_003284B8 = 0x003284B8; //type:func
-func_00328808 = 0x00328808; //type:func
 func_00328C20 = 0x00328C20; //type:func
 func_00328F28 = 0x00328F28; //type:func
-func_00329590 = 0x00329590; //type:func
 
 // --- src/intersect/riderspheretree.cpp ---
-func_00329F98 = 0x00329F98; //type:func
-func_0032A1C0 = 0x0032A1C0; //type:func
-func_0032AA28 = 0x0032AA28; //type:func
-func_0032B6E0 = 0x0032B6E0; //type:func
-func_0032D470 = 0x0032D470; //type:func
-func_0032DB40 = 0x0032DB40; //type:func
 func_0032DC10 = 0x0032DC10; //type:func
 func_0032DE20 = 0x0032DE20; //type:func
-func_0032E9A0 = 0x0032E9A0; //type:func
-func_0032FE78 = 0x0032FE78; //type:func
 
 // --- src/intersect/worldsphtree.cpp ---
-func_00334800 = 0x00334800; //type:func
-func_00334850 = 0x00334850; //type:func
-func_00335128 = 0x00335128; //type:func
-func_003369D8 = 0x003369D8; //type:func
-func_00339598 = 0x00339598; //type:func
-func_0033CCF8 = 0x0033CCF8; //type:func
-func_0033DFD8 = 0x0033DFD8; //type:func
-func_003400D8 = 0x003400D8; //type:func
-func_00340970 = 0x00340970; //type:func
-func_00340A08__FPv = 0x00340A08; //type:func
-func_00341368__FPv = 0x00341368; //type:func
 func_00341548 = 0x00341548; //type:func
-func_00341A30 = 0x00341A30; //type:func
 func_00341C80 = 0x00341C80; //type:func
-func_00341FC8 = 0x00341FC8; //type:func
 func_003422E8 = 0x003422E8; //type:func
-func_003424D0 = 0x003424D0; //type:func
-func_00342538 = 0x00342538; //type:func
-func_00342768 = 0x00342768; //type:func
-func_00342808 = 0x00342808; //type:func
-func_00342B80 = 0x00342B80; //type:func
 
 // --- src/object/debouncenode.cpp ---
 func_00342D88 = 0x00342D88; //type:func
