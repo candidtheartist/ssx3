@@ -333,7 +333,7 @@ extern "C" int func_0011C0E0(void* self)
 
 //100% - objdiff report; single-function view differs only in a relocation name
 void* cMdfArchive_cMdfArchive(void* self);
-void func_00314A18(void* self, int a1);
+void cMdfArchive_adoptData(void* self, int a1);
 extern "C" void cMdfArchive__cMdfArchive(int* self, int flags);
 extern "C" void* cMdfArchive_getModelPart(void* self, const char* name);
 extern "C" int cRider_collectEquippedItems(void* self, char** list);
@@ -349,7 +349,7 @@ extern "C" void cRider_addEquippedModelParts(void* self, int a1)
     sMdfArchive_11C138 arc;
     char* list[52];
     cMdfArchive_cMdfArchive(&arc);
-    func_00314A18(&arc, a1);
+    cMdfArchive_adoptData(&arc, a1);
     int n = cRider_collectEquippedItems(self, list);
     for (int i = 0; i < n; i++)
     {
@@ -1647,7 +1647,7 @@ extern int D_004A4C00;
 extern sV3_2898 D_004A5E40;
 
 extern "C" void func_00374D00(void* obj, sV3_2898* a, sV3_2898* b, sV3_2898* dir, sMat_2898* bones, int f);
-extern "C" void func_00310948(void* model, int lod, sV4_2898* a, sV4_2898* b);
+extern "C" void cAnimModel_drawShadow(void* model, int lod, sV4_2898* a, sV4_2898* b);
 extern "C" void func_00375890(void* obj);
 int cRider_getMotionMode(void*);
 
@@ -1776,7 +1776,7 @@ extern "C" void cRider_buildShadow(void* vself)
         c2.y = 0.3f;
         c2.z = 0.3f;
         c2.w = 0.3f;
-        func_00310948(self->model, 3, &c1, &c2);
+        cAnimModel_drawShadow(self->model, 3, &c1, &c2);
         void* g6 = D_004A289C;
         sVEI_2898* vt6 = *(sVEI_2898**)((char*)g6 + 0x10D8);
         vt6[54].fn((char*)g6 + vt6[54].delta);

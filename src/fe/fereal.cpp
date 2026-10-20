@@ -1181,7 +1181,7 @@ extern "C" void cRealFE_loadCharAnimations(void)
 extern void** D_004A3DF8;
 extern void* D_004A3E7C;
 extern "C" void cGameAnimMap_removeBank(void* a, void* b);
-extern "C" void func_00311110(void* a);
+extern "C" void cAnimDataBase_freeChanCaches(void* a);
 extern "C" void cAdfDataSource__cAdfDataSource(void* a, int b);
 
 extern "C" void func_001A2BC0(void* self)
@@ -1194,7 +1194,7 @@ extern "C" void func_001A2BC0(void* self)
             cGameAnimMap_removeBank(D_004A3E7C, p);
             void** tbl = D_004A3DF8;
             *(void**)((char*)tbl + (idx << 2)) = 0;
-            func_00311110(tbl);
+            cAnimDataBase_freeChanCaches(tbl);
             cAdfDataSource__cAdfDataSource(p, 3);
         }
     }

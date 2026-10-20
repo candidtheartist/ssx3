@@ -1114,23 +1114,635 @@ extern "C" void func_00292AE8(void* self, int a1)
     func_002ADDE0_k(**(char***)((char*)self + 0x118) + 0x1D8, D_004A36A8[0].v);
 }
 
-INCLUDE_ASM("sound/soundsys", func_00292B48);
+//100%
+extern "C" void func_002ADDE0(void* bank, long id);
+struct sSndId292AE8 {
+    long v;
+} __attribute__((packed));
+struct sVE292B48 { short delta; short index; void (*fn)(void*, long); };
 
-INCLUDE_ASM("sound/soundsys", func_00292CB8);
+struct sBank292B48 {
+    char pad0[0x8D8];
+    sVE292B48* vt;      // 0x8D8
+};
+struct sSys292B48 {
+    char pad0[0x1D8];
+    sBank292B48 bank;   // 0x1D8
+};
 
-INCLUDE_ASM("sound/soundsys", func_00292DA0);
+extern sSndId292AE8 D_004A3688_2B48[] __asm__("D_004A3688");
+extern sSndId292AE8 D_004A3690_2B48[] __asm__("D_004A3690");
+extern sSndId292AE8 D_004A3698_2B48[] __asm__("D_004A3698");
+extern sSndId292AE8 D_004A36A0_2B48[] __asm__("D_004A36A0");
+extern sSndId292AE8 D_004A36B0_2B48[] __asm__("D_004A36B0");
+extern sSndId292AE8 D_004A36B8_2B48[] __asm__("D_004A36B8");
+extern "C" void func_002AD5F0(void* p, int idx, int a2, float v);
 
-INCLUDE_ASM("sound/soundsys", func_00292EF8);
+// Stops one bank sound (vtable slot 3 of the bank).
+static inline void bankStop292B48(char* self, long id)
+{
+    sSys292B48* sys = **(sSys292B48***)(self + 0x118);
+    sVE292B48* vt = sys->bank.vt;
+    char* b = (char*)&sys->bank;
+    vt[3].fn(b + vt[3].delta, id);
+}
 
-INCLUDE_ASM("sound/soundsys", func_00293018);
+// PORT: the 8-byte sound ids are passed by value from unaligned globals (64-bit `long`).
+// Stops every front-end/ambient sound and the current stream fade.
+extern "C" void func_00292B48(void* vself)
+{
+    char* self = (char*)vself;
+    func_002913D8(self);
+    bankStop292B48(self, D_004A3688_2B48[0].v);
+    bankStop292B48(self, D_004A3690_2B48[0].v);
+    bankStop292B48(self, D_004A3698_2B48[0].v);
+    bankStop292B48(self, D_004A36A0_2B48[0].v);
+    func_002ADDE0(&(**(sSys292B48***)(self + 0x118))->bank, D_004A36A8[0].v);
+    if (*(int*)(self + 0x59E4) > 0) {
+        func_002AD5F0(&(**(sSys292B48***)(self + 0x118))->bank, *(int*)(self + 0x59E0), 1, 0.0f);
+        *(int*)(self + 0x59E4) = 0;
+    }
+    bankStop292B48(self, D_004A36B0_2B48[0].v);
+    bankStop292B48(self, D_004A36B8_2B48[0].v);
+}
 
-INCLUDE_ASM("sound/soundsys", func_00293168);
+//100%
+struct cRiderMetrix;
+struct cAirPredictor;
+struct cRiderAnim;
+struct sAnimModelLodInfo {
+    int unk_00;                 
+    int unk_04;
+};
+struct t4Matrix;
+struct t4Vector {
+    float x, y, z, w;
+} __attribute__((aligned(16)));
+struct sAnimModelBone {
+    t4Vector pos;               
+    t4Vector rot;               
+};
+struct t4Vector;
+struct sAnimModelLodRef {
+    char* part;     
+    char* data;     
+    int unk_08;     
+    int unk_0C;     
+};
+struct sAnimModelLod {
+    int used;                   
+    sAnimModelLodRef* refs;     
+};
+struct sAnimModelPart {
+    int id;                     
+    int firstBone;              
+    int unk_08;
+    int unk_0C;                 
+    unsigned long mask;         
+    sAnimModelLod lods[4];      
+    char* boneNames;            
+    char* unk_3C;               
+    char* unk_40;               
+    int numBones;               
+    int unk_48;                 
+    int unk_4C;                 
+    int refIndex;               
+    int unk_54;
+};
+struct cAnimModel {
+      int unk_000;
+      int numLodRefs;             
+      int numParts;               
+      sAnimModelPart* parts;
+      int numBones;               
+      int maxPartIndex;           
+      int unk_018;                
+      int* partIndex;             
+      int* boneChannelIndex;      
+      t4Vector* localPos;         
+      t4Vector* localRot;         
+      sAnimModelBone* bones;      
+      t4Matrix* unk_030;          
+      t4Matrix* unk_034;          
+      t4Matrix* unk_038;          
+      int unk_03C;
+      sAnimModelLodInfo lodInfo[4];
+      char unk_060[0xE0];
+      t4Vector unk_140;           
+      unsigned long mask;         
+      unsigned long unk_158;      
+};
+struct cRiderHandler;
+struct sRiderChannel {
+    float cur;
+    float rate;
+    float target;
+};
+struct t4Matrix {
+    t4Vector row[4];
+};
+struct sRiderPair {
+    int unk_00;         
+    char unk_04[0xC];
+    int unk_10;         
+    int unk_14;         
+    int unk_18;         
+    char unk_1C[0x8];
+};
+struct cRider {
+      sRiderPair unk_000[6]; 
+      int unk_0D8; 
+      int unk_0DC; 
+      int unk_0E0; 
+      char unk_0E4[0x8];
+      int unk_0EC; 
+      int unk_0F0; 
+      int unk_0F4; 
+      int unk_0F8; 
+      char unk_0FC[0x4];
+      int unk_100; 
+      char unk_104[0xC];
+      t4Vector mPosition; 
+      t4Vector mRotation; 
+      char unk_130[0x20];
+      int unk_150;
+      char unk_154[0x1C];
+      t4Vector unk_170; 
+      t4Vector unk_180; 
+      char unk_190[0x10];
+      t4Matrix mMatrix; 
+      t4Vector mVelocity; 
+      sRiderChannel unk_1F0[19]; 
+      unsigned short unk_2D4; 
+      char unk_2D6[0x2];
+      int unk_2D8; 
+      int unk_2DC; 
+      int unk_2E0; 
+      float unk_2E4; 
+      float unk_2E8; 
+      float unk_2EC;
+      float unk_2F0;
+      int unk_2F4; 
+      float unk_2F8;
+      float unk_2FC; 
+      float unk_300; 
+      int unk_304; 
+      int unk_308; 
+      float unk_30C; 
+      float unk_310; 
+      float unk_314; 
+      float unk_318;
+      int unk_31C; 
+      int unk_320; 
+      int unk_324; 
+      int unk_328; 
+      int unk_32C; 
+      int unk_330; 
+      char unk_334[0xC];
+      t4Vector unk_340; 
+      float unk_350; 
+      int unk_354; 
+      int unk_358; 
+      int unk_35C; 
+      char unk_360[0x10];
+      t4Vector mGroundNormal; 
+      t4Vector unk_380; 
+      char unk_390[0x10];
+      t4Vector unk_3A0; 
+      t4Vector unk_3B0; 
+      char unk_3C0[0x10];
+      t4Vector unk_3D0; 
+      t4Vector unk_3E0; 
+      float unk_3F0;
+      float unk_3F4;
+      char unk_3F8[0x4];
+      int unk_3FC;
+      t4Vector unk_400; 
+      t4Vector unk_410;
+      t4Vector unk_420; 
+      unsigned int unk_430; 
+      int unk_434;
+      int unk_438; 
+      char unk_43C[0x14];
+      int unk_450; 
+      float unk_454; 
+      char unk_458[0x8];
+      t4Vector unk_460; 
+      float mFinishTime; 
+      int mStartTick; 
+      int mFinishTick; 
+      int mPenaltyTicks; 
+      int mDidNotFinish; 
+      char unk_484[0x4C];
+      float unk_4D0;
+      char unk_4D4[0xC8];
+      int unk_59C; 
+      int unk_5A0; 
+      int unk_5A4; 
+      int unk_5A8; 
+      int unk_5AC; 
+      int unk_5B0;
+      float unk_5B4; 
+      unsigned int unk_5B8;
+      char unk_5BC[0x104];
+      void* mVtbl; 
+      char unk_6C4[0xC];
+      void* mScriptObjRiderVtbl; 
+      char unk_6D4[0x4];
+      void* unk_6D8;
+      char unk_6DC[0x8]; 
+      int unk_6E4; 
+      void* mScriptObjectVtbl; 
+      char unk_6EC[0x14];
+      t4Matrix unk_700; 
+      float unk_740; 
+      float unk_744; 
+      float unk_748; 
+      char unk_74C[0x4];
+      float mAudioBraking; 
+      float mAudioEdging; 
+      float mAudioPressure; 
+      float mAudioSpeed; 
+      int unk_760; 
+      int unk_764; 
+      int unk_768; 
+      int unk_76C; 
+      float unk_770; 
+      int mWipeoutSlideHandle; 
+      int mWipeoutTumbleHandle; 
+      cRiderHandler* mRiderHandler; 
+      cAnimModel* mAnimModel; 
+      cRiderAnim* mRiderAnim; 
+      cAirPredictor* mAirPredictor; 
+      void* mFocusBox; 
+      cRiderMetrix* mMetrix; 
+      void* unk_794[8]; 
+      char unk_7B4[0xC];
+      char unk_7C0[0xA0] __attribute__((aligned(16))); 
+      void* unk_860;
+      void* unk_864;
+      void* unk_868;
+      int mAIIndex; 
+      int mViewIndex; 
+      int mIsHuman; 
+      int mIsActor; 
+      int mIsLocal; 
+      int unk_880; 
+      int mRenderFlag; 
+      int mSafeRenderTick; 
+      void* unk_88C; 
+      void* unk_890; 
+      void* unk_894; 
+      int mLOD; 
+      int unk_89C; 
+      int unk_8A0; 
+      char unk_8A4[0x4];
+      int unk_8A8; 
+      char unk_8AC[0x3C];
+      int unk_8E8; 
+      char unk_8EC[0x2C];
+      int unk_918; 
+      char unk_91C[0xB4];
+      t4Vector unk_9D0; 
+      char unk_9E0[0x50];
+      void* unk_A30;
+      char unk_A34[0x2C];
+      char unk_A60[0x40];
+      void* mSphereTree; 
+      int unk_AA4; 
+      void* mShadow; 
+      float unk_AAC; 
+      float unk_AB0; 
+      char unk_AB4[0x8];
+      int* unk_ABC;
+      int* unk_AC0;
+      int mIsInNIS; 
+      int unk_AC8; 
+      char unk_ACC[0x4];
+      int unk_AD0;
+      char unk_AD4[0xC];
+      t4Vector unk_AE0; 
+      float unk_AF0; 
+      float unk_AF4; 
+      float unk_AF8; 
+      int unk_AFC;
+      int unk_B00;
+      float unk_B04; 
+      int unk_B08[4]; 
+      int mIsOnScreen; 
+      int unk_B1C;
+      int unk_B20; 
+      float unk_B24;
+      int unk_B28; 
+      int unk_B2C;
+      int unk_B30; 
+      int unk_B34; 
+};
+extern "C" void func_00293168(void*, void*, int*, int*);
+extern "C" void func_002ABE78(void*, int);
+extern "C" void* func_0028B1C8();
+extern "C" int func_00270280(void* p);
+extern int D_004A2A50;
 
-INCLUDE_ASM("sound/soundsys", func_00293290);
+extern "C" void func_00292CB8(void* self, void* obj) {
+    int a;
+    int b;
+    cRider* rider = *(cRider**)((char*)obj + 0x80);
+    b = 0x40;
+    a = 0;
+    if (cRider_getMotionMode(rider) == 0) {
+        func_00293168(self, rider, &a, &b);
+    }
+    if (cRider_getMotionMode(rider) == 2) {
+        a = 0;
+    }
+    int pos = rider->mFinishTime >= 0.0f;
+    if (pos) {
+        a = 0;
+    }
+    int c = 0;
+    if ((D_004A2A50 & 1) || func_00270280(*(void**)((char*)func_0028B1C8() + 0x28)) != 0) {
+        c = 1;
+    }
+    if (c) {
+        a = 0;
+    }
+    *(int*)((char*)obj + 0x64) = a;
+    func_002ABE78(obj, b);
+}
 
-INCLUDE_ASM("sound/soundsys", func_00293350);
+//100%
+struct cRiderMetrix;
+struct cAirPredictor;
+struct cRiderAnim;
 
-INCLUDE_ASM("sound/soundsys", func_00293410);
+struct t4Matrix;
+
+
+struct t4Vector;
+
+
+
+
+struct cRiderHandler;
+
+
+
+
+extern "C" int func_002934D0_p3(void* self, int id, void* rider) __asm__("func_002934D0");
+extern "C" void func_00293290(void* self, int id, void* rider, int* out, int* size);
+extern "C" void func_002ABB38(void*);
+extern "C" void func_002ABE78(void*, int);
+extern "C" void* func_0028B1C8();
+extern "C" int func_00270280(void* p);
+extern int D_004A2A50;
+
+// PORT: the rider pointer is passed to func_00291710/func_00291C88 as an int (the unit declares them that way).
+extern "C" void func_00292DA0(void* self, void* obj) {
+    int a;
+    int b;
+    cRider* rider = *(cRider**)((char*)obj + 0x80);
+    int st = cRider_getMotionMode(rider);
+    if (st != rider->unk_760) {
+        rider->unk_760 = st;
+    }
+    a = 0;
+    b = 0x40;
+    if (st == 1 || st == 5) {
+        if (func_002934D0_p3(self, rider->unk_768, rider) == 2) {
+            rider->unk_768 = 9;
+        }
+    } else {
+        int id = func_00291710(self, (int)rider);
+        if (id != rider->unk_768) {
+            rider->unk_768 = id;
+            func_002ABB38(obj);
+            func_00291C88(self, (int)rider, id);
+        } else {
+            func_00293290(self, func_00291710(self, (int)rider), rider, &a, &b);
+        }
+    }
+    if (cRider_getMotionMode(rider) == 2) {
+        a = 0;
+    }
+    int c = 0;
+    if ((D_004A2A50 & 1) || func_00270280(*(void**)((char*)func_0028B1C8() + 0x28)) != 0) {
+        c = 1;
+    }
+    if (c) {
+        a = 0;
+    }
+    *(int*)((char*)obj + 0x64) = a;
+    func_002ABE78(obj, b);
+}
+
+//100%
+struct cRiderMetrix;
+struct cAirPredictor;
+struct cRiderAnim;
+
+struct t4Matrix;
+
+
+struct t4Vector;
+
+
+
+
+struct cRiderHandler;
+
+
+
+
+extern "C" void func_00293350(void* self, int id, void* rider, int* out, int* size);
+extern "C" void func_002ABB38(void*);
+extern "C" void func_002ABE78(void*, int);
+extern "C" void* func_0028B1C8();
+extern "C" int func_00270280(void* p);
+extern int D_004A2A50;
+
+// PORT: the rider pointer is passed to func_00291710/func_00291C88 as an int (the unit declares them that way).
+extern "C" void func_00292EF8(void* self, void* obj) {
+    int a;
+    int b;
+    cRider* rider = *(cRider**)((char*)obj + 0x80);
+    int st = cRider_getMotionMode(rider);
+    if (st != rider->unk_760) {
+        rider->unk_760 = st;
+    }
+    a = 0;
+    b = 0x40;
+    if (st == 0 || st == 4) {
+        int id = func_00291710(self, (int)rider);
+        if (id != rider->unk_768) {
+            rider->unk_768 = id;
+            func_002ABB38(obj);
+            func_00291C88(self, (int)rider, func_00291710(self, (int)rider));
+        }
+        func_00293350(self, func_00291710(self, (int)rider), rider, &a, &b);
+    }
+    int c = 0;
+    if ((D_004A2A50 & 1) || func_00270280(*(void**)((char*)func_0028B1C8() + 0x28)) != 0) {
+        c = 1;
+    }
+    if (c) {
+        a = 0;
+    }
+    *(int*)((char*)obj + 0x64) = a;
+    func_002ABE78(obj, b);
+}
+
+//100%
+struct cRiderMetrix;
+struct cAirPredictor;
+struct cRiderAnim;
+
+struct t4Matrix;
+
+
+struct t4Vector;
+
+
+
+
+struct cRiderHandler;
+
+
+
+
+extern "C" int func_002934D0_p3(void* self, int id, void* rider) __asm__("func_002934D0");
+extern "C" void func_00293410(void* self, int id, void* rider, int* out, int* size);
+extern "C" void func_002ABB38(void*);
+extern "C" void func_002ABE78(void*, int);
+extern "C" void* func_0028B1C8();
+extern "C" int func_00270280(void* p);
+extern int D_004A2A50;
+
+// PORT: the rider pointer is passed to func_00291710/func_00292508 as an int (the unit declares them that way).
+extern "C" void func_00293018(void* self, void* obj) {
+    int a;
+    int b;
+    cRider* rider = *(cRider**)((char*)obj + 0x80);
+    b = 0x40;
+    a = 0;
+    int st = cRider_getMotionMode(rider);
+    if (st == 1 || st == 5) {
+        if (func_002934D0_p3(self, rider->unk_76C, rider) == 2) {
+            rider->unk_76C = 9;
+        }
+    } else {
+        int id = func_00291710(self, (int)rider);
+        if (id != rider->unk_76C) {
+            rider->unk_76C = id;
+            func_002ABB38(obj);
+            func_00292508(self, (int)rider, func_00291710(self, (int)rider));
+        } else {
+            func_00293410(self, func_00291710(self, (int)rider), rider, &a, &b);
+        }
+    }
+    if (cRider_getMotionMode(rider) == 2) {
+        a = 0;
+    }
+    int c = 0;
+    if ((D_004A2A50 & 1) || func_00270280(*(void**)((char*)func_0028B1C8() + 0x28)) != 0) {
+        c = 1;
+    }
+    if (c) {
+        a = 0;
+    }
+    *(int*)((char*)obj + 0x64) = a;
+    func_002ABE78(obj, b);
+}
+
+//100%
+struct cRiderMetrix;
+struct cAirPredictor;
+struct cRiderAnim;
+
+struct t4Matrix;
+
+
+struct t4Vector;
+
+
+
+
+struct cRiderHandler;
+
+
+
+
+extern func_00290B58_sCurve D_00482AF8;
+extern func_00290B58_sCurve D_00482B20;
+
+extern "C" void func_00293168(void* self, void* vrider, int* out1, int* out2) {
+    cRider* rider = (cRider*)vrider;
+    float spd = rider->mAudioSpeed;
+    func_00290B58_sCurve c1 = D_00482AF8;
+    func_00290B58_sCurve c2 = D_00482B20;
+    *out1 = (int)func_00290B58(&c1, spd);
+    *out2 = (int)(func_00290B58(&c2, spd) * 4096.0f);
+}
+
+//100%
+// PORT: PS2-only inline asm; needs a C fallback off-PS2.
+extern "C" int func_002934D0_p3(void* self, int id, void* rider) __asm__("func_002934D0");
+void snd_dec_a(void*, void*, int*, int*) __asm__("func_00293538");
+void snd_dec_b(void*, void*, int*, int*) __asm__("func_00293740");
+void snd_dec_c(void*, void*, int*, int*) __asm__("func_00293948");
+
+extern "C" void func_00293290(void* self, int id, void* rider, int* out, int* size) {
+    *out = 0;
+    *size = 0x1000;
+    int t = func_002934D0_p3(self, id, rider);
+    if (t == 0) {
+        snd_dec_a(self, rider, out, size);
+    } else if (t == 1) {
+        snd_dec_b(self, rider, out, size);
+    } else if (t == 2) {
+        snd_dec_c(self, rider, out, size);
+    }
+}
+
+//100%
+// PORT: PS2-only inline asm; needs a C fallback off-PS2.
+extern "C" int func_002934D0_p3(void* self, int id, void* rider) __asm__("func_002934D0");
+void snd_dec_d(void*, void*, int*, int*) __asm__("func_00293B50");
+void snd_dec_e(void*, void*, int*, int*) __asm__("func_00293B70");
+void snd_dec_f(void*, void*, int*, int*) __asm__("func_00293B90");
+
+extern "C" void func_00293350(void* self, int id, void* rider, int* out, int* size) {
+    *out = 0;
+    *size = 0x1000;
+    int t = func_002934D0_p3(self, id, rider);
+    if (t == 0) {
+        snd_dec_d(self, rider, out, size);
+    } else if (t == 1) {
+        snd_dec_e(self, rider, out, size);
+    } else if (t == 2) {
+        snd_dec_f(self, rider, out, size);
+    }
+}
+
+//100%
+// PORT: PS2-only inline asm; needs a C fallback off-PS2.
+extern "C" int func_002934D0_p3(void* self, int id, void* rider) __asm__("func_002934D0");
+void snd_dec_g(void*, void*, int*, int*) __asm__("func_00293BB0");
+void snd_dec_h(void*, void*, int*, int*) __asm__("func_00293DC0");
+void snd_dec_i(void*, void*, int*, int*) __asm__("func_00293FC8");
+
+extern "C" void func_00293410(void* self, int id, void* rider, int* out, int* size) {
+    *out = 0;
+    *size = 0x1000;
+    int t = func_002934D0_p3(self, id, rider);
+    if (t == 0) {
+        snd_dec_g(self, rider, out, size);
+    } else if (t == 1) {
+        snd_dec_h(self, rider, out, size);
+    } else if (t == 2) {
+        snd_dec_i(self, rider, out, size);
+    }
+}
 
 //100%
 extern "C" int func_002934D0(void* self, unsigned int kind, void* rider)
@@ -1154,11 +1766,183 @@ extern "C" int func_002934D0(void* self, unsigned int kind, void* rider)
     return r;
 }
 
-INCLUDE_ASM("sound/soundsys", func_00293538);
+//100%
+enum {
+    kRiderVt_delete = 1,          
+    kRiderVt_getVelocity = 2,
+    kRiderVt_isIntersecting = 3,
+    kRiderVt_applyBoost = 4,      
+    kRiderVt_getPosition = 5,
+    kRiderVt_getTransform = 6,
+    kRiderVt_getAIIndex = 7,
+    kRiderVt_isHuman = 8,
+    kRiderVt_isComputer = 9,
+    kRiderVt_transport = 10,
+    kRiderVt_resetToPath = 11,
+    kRiderVt_vibrationReset = 16,
+    kRiderVt_vibrationBump = 17,
+    kRiderVt_vibrationRumble = 18,
+    kRiderVt_vibrationUpdate = 19
+};
+struct cRiderMetrix;
+struct cAirPredictor;
+struct cRiderAnim;
 
-INCLUDE_ASM("sound/soundsys", func_00293740);
+struct t4Matrix;
 
-INCLUDE_ASM("sound/soundsys", func_00293948);
+
+struct t4Vector;
+
+
+
+
+struct cRiderHandler;
+
+
+
+
+void func_00293538_impl(void* self, cRider* rider, int* volume, int* pitch) __asm__("func_00293538");
+// PORT: PS2-only inline asm; needs a C fallback off-PS2.
+struct sSsVt_3538 { short delta; short index; int (*fn)(void*); };
+extern const func_00290B58_sCurve D_00482B78;
+extern const func_00290B58_sCurve D_00482BA0;
+
+static inline float* getLevels_3538(void* self) { return (float*)((char*)self + 0x59B8); }
+
+void func_00293538_impl(void* self, cRider* rider, int* volume, int* pitch)
+{
+    float level = rider->mAudioPressure;
+    level *= 1.0f - (rider->mAudioEdging + rider->mAudioBraking);
+    float speed = rider->mAudioSpeed;
+    if (speed < 0.1f) {
+        level = level * speed * 10.0f;
+    }
+    char* obj = (char*)&rider->mVtbl;
+    sSsVt_3538* vt = *(sSsVt_3538**)obj;
+    int idx = vt[kRiderVt_getAIIndex].fn(obj + vt[kRiderVt_getAIIndex].delta);
+    float prev = *(float*)((char*)getLevels_3538(self) + (idx << 2));
+    float d = prev - level;
+    if (__builtin_fabsf(d) > 0.1f) {
+        if (level < prev) {
+            level = prev - d * 0.25f;
+        } else if (prev < level) {
+            level = prev + (level - prev) * 0.25f;
+        }
+    }
+    func_00290B58_sCurve c1 = D_00482B78;
+    *(float*)((char*)getLevels_3538(self) + (idx << 2)) = level;
+    func_00290B58_sCurve c2 = D_00482BA0;
+    *volume = (int)func_00290B58(&c1, level);
+    *pitch = (int)(func_00290B58(&c2, level) * 4096.0f);
+}
+
+//100%
+
+struct cRiderMetrix;
+struct cAirPredictor;
+struct cRiderAnim;
+
+struct t4Matrix;
+
+
+struct t4Vector;
+
+
+
+
+struct cRiderHandler;
+
+
+
+
+void func_00293740_impl(void* self, cRider* rider, int* volume, int* pitch) __asm__("func_00293740");
+// PORT: PS2-only inline asm; needs a C fallback off-PS2.
+struct sSsVt_3740 { short delta; short index; int (*fn)(void*); };
+extern const func_00290B58_sCurve D_00482BC8;
+extern const func_00290B58_sCurve D_00482BF0;
+
+static inline float* getLevels_3740(void* self) { return (float*)((char*)self + 0x59B8); }
+
+void func_00293740_impl(void* self, cRider* rider, int* volume, int* pitch)
+{
+    float level = rider->mAudioPressure;
+    level *= 1.0f - (rider->mAudioEdging + rider->mAudioBraking);
+    float speed = rider->mAudioSpeed;
+    if (speed < 0.1f) {
+        level = level * speed * 10.0f;
+    }
+    char* obj = (char*)&rider->mVtbl;
+    sSsVt_3740* vt = *(sSsVt_3740**)obj;
+    int idx = vt[kRiderVt_getAIIndex].fn(obj + vt[kRiderVt_getAIIndex].delta);
+    float prev = *(float*)((char*)getLevels_3740(self) + (idx << 2));
+    float d = prev - level;
+    if (__builtin_fabsf(d) > 0.1f) {
+        if (level < prev) {
+            level = prev - d * 0.25f;
+        } else if (prev < level) {
+            level = prev + (level - prev) * 0.25f;
+        }
+    }
+    func_00290B58_sCurve c1 = D_00482BC8;
+    *(float*)((char*)getLevels_3740(self) + (idx << 2)) = level;
+    func_00290B58_sCurve c2 = D_00482BF0;
+    *volume = (int)func_00290B58(&c1, level);
+    *pitch = (int)(func_00290B58(&c2, level) * 4096.0f);
+}
+
+//100%
+
+struct cRiderMetrix;
+struct cAirPredictor;
+struct cRiderAnim;
+
+struct t4Matrix;
+
+
+struct t4Vector;
+
+
+
+
+struct cRiderHandler;
+
+
+
+
+void func_00293948_impl(void* self, cRider* rider, int* volume, int* pitch) __asm__("func_00293948");
+// PORT: PS2-only inline asm; needs a C fallback off-PS2.
+struct sSsVt_3948 { short delta; short index; int (*fn)(void*); };
+extern const func_00290B58_sCurve D_00482C18;
+extern const func_00290B58_sCurve D_00482C40;
+
+static inline float* getLevels_3948(void* self) { return (float*)((char*)self + 0x59B8); }
+
+void func_00293948_impl(void* self, cRider* rider, int* volume, int* pitch)
+{
+    float level = rider->mAudioPressure;
+    level *= 1.0f - (rider->mAudioEdging + rider->mAudioBraking);
+    float speed = rider->mAudioSpeed;
+    if (speed < 0.1f) {
+        level = level * speed * 10.0f;
+    }
+    char* obj = (char*)&rider->mVtbl;
+    sSsVt_3948* vt = *(sSsVt_3948**)obj;
+    int idx = vt[kRiderVt_getAIIndex].fn(obj + vt[kRiderVt_getAIIndex].delta);
+    float prev = *(float*)((char*)getLevels_3948(self) + (idx << 2));
+    float d = prev - level;
+    if (__builtin_fabsf(d) > 0.1f) {
+        if (level < prev) {
+            level = prev - d * 0.25f;
+        } else if (prev < level) {
+            level = prev + (level - prev) * 0.25f;
+        }
+    }
+    func_00290B58_sCurve c1 = D_00482C18;
+    *(float*)((char*)getLevels_3948(self) + (idx << 2)) = level;
+    func_00290B58_sCurve c2 = D_00482C40;
+    *volume = (int)func_00290B58(&c1, level);
+    *pitch = (int)(func_00290B58(&c2, level) * 4096.0f);
+}
 
 extern "C" void func_00293538(void* self);
 
@@ -1183,9 +1967,107 @@ extern "C" void func_00293B90(void* self)
 
 INCLUDE_ASM("sound/soundsys", func_00293BB0);
 
-INCLUDE_ASM("sound/soundsys", func_00293DC0);
+//100%
 
-INCLUDE_ASM("sound/soundsys", func_00293FC8);
+struct cRiderMetrix;
+struct cAirPredictor;
+struct cRiderAnim;
+
+struct t4Matrix;
+
+
+struct t4Vector;
+
+
+
+
+struct cRiderHandler;
+
+
+
+
+extern "C" void func_00293DC0(void* self, cRider* rider, int* volume, int* pitch);
+struct sSsVt_3DC0 { short delta; short index; int (*fn)(void*); };
+extern const func_00290B58_sCurve D_00482CB8;
+extern const func_00290B58_sCurve D_00482CE0;
+
+static inline float* getLevels_3DC0(void* self) { return (float*)((char*)self + 0x5990); }
+
+extern "C" void func_00293DC0(void* self, cRider* rider, int* volume, int* pitch)
+{
+    float level = rider->mAudioEdging + rider->mAudioBraking;
+    float speed = rider->mAudioSpeed;
+    if (speed < 0.1f) {
+        level = level * speed * 10.0f;
+    }
+    float pressure = rider->mAudioPressure;
+    char* obj = (char*)&rider->mVtbl;
+    sSsVt_3DC0* vt = *(sSsVt_3DC0**)obj;
+    int idx = vt[kRiderVt_getAIIndex].fn(obj + vt[kRiderVt_getAIIndex].delta);
+    float prev = *(float*)((char*)getLevels_3DC0(self) + (idx << 2));
+    float d = prev - level;
+    if (__builtin_fabsf(d) > 0.1f) {
+        if (level < prev) {
+            level = prev - d * 0.5f;
+        } else if (prev < level) {
+            level = prev + (level - prev) * 0.125f;
+        }
+    }
+    func_00290B58_sCurve c1 = D_00482CB8;
+    *(float*)((char*)getLevels_3DC0(self) + (idx << 2)) = level;
+    func_00290B58_sCurve c2 = D_00482CE0;
+    *volume = (int)func_00290B58(&c1, level);
+    *pitch = (int)(func_00290B58(&c2, pressure) * 4096.0f);
+}
+
+//100%
+
+struct cRiderMetrix;
+struct cAirPredictor;
+struct cRiderAnim;
+
+struct t4Matrix;
+
+
+struct t4Vector;
+
+
+
+
+struct cRiderHandler;
+
+
+
+
+extern "C" void func_00293FC8(void* self, cRider* rider, int* volume, int* pitch);
+struct sSsVt_3FC8 { short delta; short index; int (*fn)(void*); };
+extern const func_00290B58_sCurve D_00482D08;
+
+extern "C" void func_00293FC8(void* self, cRider* rider, int* volume, int* pitch)
+{
+    float pressure = rider->mAudioPressure;
+    float level = rider->mAudioEdging + rider->mAudioBraking;
+    char* obj = (char*)&rider->mVtbl;
+    sSsVt_3FC8* vt = *(sSsVt_3FC8**)obj;
+    int idx = vt[kRiderVt_getAIIndex].fn(obj + vt[kRiderVt_getAIIndex].delta);
+    float prev = *(float*)((char*)self + (idx << 2) + 0x5990);
+    float d = prev - level;
+    if (__builtin_fabsf(d) > 0.1f) {
+        if (level < prev) {
+            level = prev - d * 0.5f;
+        } else if (prev < level) {
+            level = prev + (level - prev) * 0.125f;
+        }
+    }
+    *(float*)((char*)self + (idx << 2) + 0x5990) = level;
+    *volume = 0x7F;
+    func_00290B58_sCurve c = D_00482D08;
+    *pitch = (int)(func_00290B58(&c, pressure) * 4096.0f);
+    float speed = rider->mAudioSpeed;
+    if (speed < 0.1f) {
+        *volume = (int)((float)*volume * speed * 10.0f);
+    }
+}
 
 INCLUDE_ASM("sound/soundsys", func_00294170);
 
@@ -2861,7 +3743,45 @@ extern "C" void func_00299368(sSnd9368Sys* self, char* obj)
     func_002906B8(self);
 }
 
-INCLUDE_ASM("sound/soundsys", func_00299638);
+//100%
+extern "C" void func_002A3C00(void* self, void* obj, int flags);
+// PORT: func_002ADCA0 returns int; the unit declares it void elsewhere.
+extern "C" int func_002ADCA0_9638(void*, int, long, int, int, int, int, int) __asm__("func_002ADCA0");
+
+// PORT: 64-bit long sound keys
+// Plays the landing thud for a rider that is airborne-and-dropping, sets its board effect and restarts the ambient loop.
+extern "C" void func_00299638(void* self, char* obj)
+{
+    if (func_00288AE0(self) != 0) {
+        return;
+    }
+    bool ok = *(int*)(obj + 0x874) && *(int*)(obj + 0x87C);
+    if (!ok) {
+        return;
+    }
+    bool up = 0.0f <= *(float*)(obj + 0x470);
+    if (up) {
+        return;
+    }
+    char* p = **(char***)((char*)self + 0x118) + 0x1D8;
+    sSndKey8* key = D_004A3678;
+    int r = (int)func_00287968(self, 9, 0);
+    func_002ADCA0_9638(p, 400, key->v, r, 0, 0x6B, 0x7F, 0);
+    int m = *(int*)(obj + 0x2F4);
+    if (m == 10) {
+        func_002A3C00(self, obj, 0x10);
+    } else if (m >= 5) {
+        func_002A3C00(self, obj, 0x8);
+    } else {
+        func_002A3C00(self, obj, 0x4);
+    }
+    long id = D_004A36A8[0].v;
+    func_002ADDE0(**(char***)((char*)self + 0x118) + 0x1D8, id);
+    if (*(int*)((char*)self + 0x59E4) != 0) {
+        return;
+    }
+    func_002ADCA0_9638(**(char***)((char*)self + 0x118) + 0x1D8, 3000, id, (int)obj, 0, 0, 0, 0);
+}
 
 //100% - objdiff report; single-function view differs only in a relocation name
 extern "C" void* func_00416210(void* dst, int c, int n);
@@ -4734,7 +5654,78 @@ void func_0029D6D0(void* self)
     *(int*)((char*)self + 0x5FD8) = 1;
 }
 
-INCLUDE_ASM("sound/soundsys", func_0029D6E0);
+//100%
+extern "C" void func_00296E20(void* self, void* obj);
+extern "C" void func_00297438(void* self, void* obj);
+extern "C" void func_0029B3C0(void* self, void* obj);
+extern "C" int func_002B46E8(void* monitor);
+extern "C" void func_002B4708(void* monitor);
+extern "C" int func_002B4620(void* monitor);
+extern "C" int func_001547A0(void* iface, int mission);
+extern "C" int func_0028D960(void* self);
+extern "C" void func_0028CF98(void* self, int a1, int a2, int a3, int a4);
+extern "C" void func_0028D488(void* self);
+extern "C" int func_002B49E0(void*);
+extern "C" int func_0028DEF0_D6E0(void* self, int a1) __asm__("func_0028DEF0");
+extern sSndKey8 D_004A3648_D6E0[] __asm__("D_004A3648");
+extern sSndKey8 D_004A3650_D6E0[] __asm__("D_004A3650");
+extern sSndKey8 D_004A3658_D6E0[] __asm__("D_004A3658");
+
+struct sSndVE_D6E0 {
+    short delta;
+    short index;
+    void (*fn)(void*, int);
+};
+
+// PORT: 64-bit long sound keys
+// Mission start: resets the rider sounds, stops the front-end bank loops and picks the mission's music track.
+extern "C" void func_0029D6E0(char* self, int mission)
+{
+    char* bank = self + 0x118;
+    *(int*)(self + 0x5FD8) = 0;
+    func_00296E20(self, *(void**)((char*)func_0028B1D8() + 0x28));
+    func_00297438(self, *(void**)((char*)func_0028B1D8() + 0x28));
+    func_0029B3C0(self, 0);
+    if (func_002B46E8(bank) != 0) {
+        if (func_0028D960(self) != 0) {
+            sSndVE_D6E0* vt = *(sSndVE_D6E0**)(self + 0x5558);
+            vt[3].fn(bank + vt[3].delta, 8);
+        }
+        func_002B4708(bank);
+    }
+    if (*(int*)(self + 0x608C) == 2) {
+        return;
+    }
+    char*** mgr = (char***)(self + 0x118);
+    if ((unsigned int)(func_002B49E0(self + 0x118) - 1) < 3) {
+        func_002ADDE0(**mgr + 0x1D8, D_004A3648_D6E0[0].v);
+        func_002ADDE0(**mgr + 0x1D8, D_004A3650_D6E0[0].v);
+        func_002ADDE0(**mgr + 0x1D8, D_004A3658_D6E0[0].v);
+        func_0028DEF0_D6E0(self, 0x12);
+        func_0028D488(self);
+        func_0028CF98(self, 0, 0, -1, 0);
+        return;
+    }
+    int track = -1;
+    int kind = func_001547A0(cBE_getInterface_Fv(cBE_getBE(), 0xA), mission);
+    *(int*)(self + 0x5FD0) = kind;
+    switch (kind) {
+    case 1: track = 0x21; break;
+    case 2: track = 0x22; break;
+    case 3: track = 0x26; break;
+    case 0:
+    case 4: track = -1; break;
+    }
+    do {
+        if (func_002B4620(self + 0x118) != 0) {
+            sSndVE_D6E0* vt = *(sSndVE_D6E0**)(self + 0x5558);
+            char* mon = self + 0x118;
+            ((int (*)(void*, int))vt[4].fn)(mon + vt[4].delta, track);
+            *(int*)(self + 0x5FD4) = 1;
+        }
+        func_002B4708(self + 0x118);
+    } while (0);
+}
 
 //100% - objdiff report; single-function view differs only in a relocation name
 extern "C" void* func_00416210(void* dst, int c, int n);
@@ -5139,7 +6130,49 @@ extern "C" int func_0029E438(void* self, char* snd)
     return (int)f;
 }
 
-INCLUDE_ASM("sound/soundsys", func_0029E4A0);
+//100%
+
+struct cRiderMetrix;
+struct cAirPredictor;
+struct cRiderAnim;
+
+struct t4Matrix;
+
+
+struct t4Vector;
+
+
+
+
+struct cRiderHandler;
+
+
+
+
+struct sQuad2_29E4A0 { t4Vector a; t4Vector b; };
+extern "C" int func_0029E438_m5722(void *, void *) __asm__("func_0029E438");
+extern "C" void func_002DA1C0_m5723(void *, float *) __asm__("func_002DA1C0");
+
+struct sVEntryP_29E4A0 { short delta; short index; float* (*fn)(void*); };
+struct sSndCam_29E4A0 { char pad[0x6050]; sQuad2_29E4A0 xf; int idx; };
+
+extern "C" void func_0029E4A0(sSndCam_29E4A0 *arg0, void *arg1) {
+    if (arg0->idx < *(int *)((char*)func_0028B1D8() + 0x78)) {
+        sQuad2_29E4A0 q;
+        float v[3];
+        sQuad2_29E4A0* dst = &arg0->xf;
+        cRider* rider = *(cRider**)((char*)func_0028B1D8() + (arg0->idx << 2) + 0x28);
+        char* obj = (char*)&rider->mVtbl;
+        sVEntryP_29E4A0* vt = *(sVEntryP_29E4A0**)obj;
+        float* pos = vt[kRiderVt_getPosition].fn(obj + vt[kRiderVt_getPosition].delta);
+        v[0] = pos[0];
+        v[1] = pos[1];
+        v[2] = pos[2];
+        func_002DA1C0_m5723(&q, v);
+        arg0->xf = q;
+        *(int *)((char*)arg1 + 0x64) = func_0029E438_m5722(arg0, dst);
+    }
+}
 
 //100%
 void func_0029E560(void* self)
@@ -5721,7 +6754,135 @@ extern "C" int func_0029F620(void* self, void* obj)
     return 0xF;
 }
 
-INCLUDE_ASM("sound/soundsys", func_0029F660);
+//100%
+
+struct cRiderMetrix;
+struct cAirPredictor;
+struct cRiderAnim;
+
+struct t4Matrix;
+
+
+struct t4Vector;
+
+
+
+
+struct cRiderHandler;
+
+
+
+
+extern "C" int func_002A10C0(void* self, int id);
+extern "C" int func_002A1028(void* self, int id);
+extern "C" unsigned int func_002ADF60(void* mon);
+extern "C" void func_00295628(void* self, void* evt, int h, int t, int a, int idx);
+extern "C" int func_00295028(void* self, int a, int b);
+extern "C" int func_002906B8(void* self);
+extern "C" int func_00288A20(void* self, void* obj);
+
+struct sSsVtF660 { short delta; short index; void* (*fn)(void*); };
+
+extern "C" void func_0029F660(void* vself, void* vrider, int a, int b)
+{
+    sSnd17D0Sys* self = (sSnd17D0Sys*)vself;
+    cRider* rider = (cRider*)vrider;
+    if (func_0029F0A0(self) == 0) return;
+    if (func_00288AE0(self) != 0) return;
+    int ok = rider->mIsHuman != 0 && rider->mIsLocal != 0;
+    if (!ok && b == 0) {
+        if (func_002A10C0(self, cRider_getCharacterID(rider)) != 0) return;
+    }
+    int past = rider->mFinishTime >= 0.0f;
+    if (past) return;
+    if (func_00295028(self, 3, 0) != 0) return;
+    func_002A1028(self, cRider_getCharacterID(rider));
+    int kind = func_0029F620(self, rider);
+    int prio;
+    if (kind == 0xE) {
+        if (a == 1) {
+            prio = (func_002ADF60(*(void**)((char*)*self->p118 + 0x1D8)) & 0x7FFF) * 3 / 0x7FFF;
+        } else if (a == 0) {
+            prio = (func_002ADF60(*(void**)((char*)*self->p118 + 0x1D8)) & 0x7FFF) * 3 / 0x7FFF + 3;
+        } else {
+            prio = *(int*)((char*)self + 0x5734);
+            *(int*)((char*)self + 0x5734) = prio + 1;
+            if (prio + 1 >= 6) {
+                *(int*)((char*)self + 0x5734) = 0;
+            }
+        }
+    } else if (a == 1) {
+        prio = func_0029F378(self, rider) * 2 + 1;
+    } else {
+        prio = func_0029F378(self, rider) * 2;
+    }
+    int flag = 0;
+    int ok2 = rider->mIsHuman != 0 && rider->mIsLocal != 0;
+    if (ok2) {
+        cBE_getInterface_Fv(cBE_getBE(), 0);
+        if (D_00535C11[0] == 2) {
+            flag = func_00288AE0(self) == 0;
+        }
+    }
+    int vol = func_00290C40(self, rider);
+    sSnd17D0Mgr* m = self->mgr;
+    sSnd17D0Sub* s = &m->sub;
+    m->sub.cur++;
+    s->ch[m->sub.cur] = m->sub.def;
+    m->sub.tgt[m->sub.cur] = 0;
+    s->p34[m->sub.cur] = 0;
+    s->vals[m->sub.cur] = s->ch[m->sub.cur].vol;
+    s->p3C[m->sub.cur] = 0;
+    func_00416210((char*)s + m->sub.cur * 8 + 0x40, 0, 8);
+    s->p60[m->sub.cur] = 0;
+    s->p64[m->sub.cur] = 0;
+    s->p68[m->sub.cur] = 0;
+    s->p6C[m->sub.cur] = 0;
+    s->p70[m->sub.cur].f4 = 0;
+    s->p70[m->sub.cur].f0 = 100;
+    s->p70[m->sub.cur].f8 = 90;
+    s->p70[m->sub.cur].fC = 50;
+    s->p74[m->sub.cur] = 0;
+    s->p80[m->sub.cur] = 0;
+    s->p84[m->sub.cur] = 0;
+    s->p78[m->sub.cur] = 0x7F;
+    s->p7C[m->sub.cur] = 1;
+    self->a4[self->mgr->sub.cur] = kind;
+    self->a8[self->mgr->sub.cur] = prio;
+    sSnd17D0Mgr* m3 = *self->p118;
+    sSnd17D0Sub* s3 = &m3->sub;
+    s3->vals[m3->sub.cur] = vol;
+    s3->ch[m3->sub.cur].vol = (s3->vals[s3->cur] < 0x7F && s3->vals[s3->cur] < 0) ? 0 : (s3->vals[s3->cur] < 0x7F ? (unsigned char)s3->vals[s3->cur] : 0x7F);
+    {
+        sSnd17D0Mgr** pq = self->p118;
+        int q = func_00288A20(self, rider);
+        (*pq)->sub.p64[(*pq)->sub.cur] = q;
+    }
+    {
+        sSnd17D0Mgr** pp = self->p118;
+        int r = (int)func_00287968(self, 4, cRider_getCharacterID(rider));
+        (*pp)->sub.p3C[(*pp)->sub.cur] = r;
+    }
+    int ok3 = rider->mIsHuman != 0 && rider->mIsLocal != 0;
+    if (ok3) {
+        func_002A9988(&(*self->p118)->sub, 29.997713088989258f, -1.0f);
+    } else {
+        func_002A9988(&(*self->p118)->sub, 100.0f, -1.0f);
+    }
+    {
+        sSnd17D0Mgr** pt = self->p118;
+        char* obj = (char*)&rider->mVtbl;
+        sSsVtF660* vt = *(sSsVtF660**)obj;
+        void* pos = vt[kRiderVt_getPosition].fn(obj + vt[kRiderVt_getPosition].delta);
+        (*pt)->sub.tgt[(*pt)->sub.cur] = pos;
+    }
+    if (flag) {
+        (*self->p118)->sub.p80[(*self->p118)->sub.cur] = 1;
+        (*self->p118)->sub.p84[(*self->p118)->sub.cur] = rider->mViewIndex;
+    }
+    int h = func_002906B8(self);
+    func_00295628(self, (void*)3, h, *(int*)(**(char***)((char*)self + 0x118) + 0x260) + 50, 0, 0);
+}
 
 //100%
 extern "C" int func_002A3FE8(void* self);
@@ -8814,7 +9975,37 @@ extern "C" void func_002A6848(void* self)
     }
 }
 
-INCLUDE_ASM("sound/soundsys", func_002A68B0);
+//100%
+extern "C" void func_002ABB38(void*);
+extern "C" void func_003BC6B8(int, int);
+
+extern "C" void func_002A68B0_p3(char* self, char* obj, float dt) __asm__("func_002A68B0");
+extern "C" void func_002A68B0_p3(char* self, char* obj, float dt) {
+    if (*(int*)(obj + 4) < 0) {
+        func_002ABB38(obj);
+        return;
+    }
+    float t = *(float*)(self + 0x188);
+    if (!(t <= 0.0f)) {
+        int idx = *(int*)(self + 0x184);
+        char* base = (char*)D_004A36F8;
+        float rem = t - dt;
+        *(float*)(self + 0x188) = rem;
+        char* e = base + (idx * 0x54 + 0x1C);
+        float f = *(float*)(e + 0x4C);
+        int vol = 0x40;
+        if (f < rem) {
+            float r = *(float*)(e + 0x50) * (*(float*)(e + 0x48) - (rem - f)) / *(float*)(e + 0x48);
+            vol = (int)r + 0x40;
+        } else if (rem > 0.0f) {
+            float r = *(float*)(e + 0x50) * rem / f;
+            vol = (int)r + 0x40;
+        }
+        func_003B58A0();
+        func_003BC6B8(*(int*)(obj + 4), vol);
+        func_003B58D8();
+    }
+}
 
 //100%
 extern "C" void* func_002ADE88(void* self, int heap);

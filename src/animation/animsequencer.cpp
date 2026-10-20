@@ -762,14 +762,14 @@ extern "C" void* cMdfArchive_bind(void*);
 // PORT: asm label (same binding the unit uses for cMdfArchive_bind's two-argument body).
 void cMdfArchive_bind_impl(void* self, char* data) __asm__("cMdfArchive_bind");
 
-void func_00314A18(void* self, int a1)
+void cMdfArchive_adoptData(void* self, int a1)
 {
     *(int*)self = a1;
     cMdfArchive_bind_impl(self, (char*)a1);
 }
 
 //100%
-void* func_00314A40(void* self)
+void* cMdfArchive_attachData(void* self)
 {
     *(int*)self = 0;
     return cMdfArchive_bind(self);
@@ -787,7 +787,7 @@ extern "C" void cMdfArchive_load(void* self, const char* name, int flags)
 }
 
 //100%
-// The original had the same mismatch: callers (func_00314A18/func_00314A40, the
+// The original had the same mismatch: callers (cMdfArchive_adoptData/cMdfArchive_attachData, the
 // latter already 100%) see the one-argument declaration above and leave $5 as-is,
 // while the definition takes two. The asm label binds this two-argument body to
 // the symbol without changing the callers' prototype.
