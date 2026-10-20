@@ -19,7 +19,7 @@ void func_00289AF8_impl(void* mgr, void* rider) __asm__("func_00289AF8__FPv");
 extern "C" void func_002832D8(void* p);
 extern "C" void func_00283228(void* p, int flags);
 extern "C" void func_0030D540(void* p, int flags);
-extern "C" void func_00329970(void* p, int flags);
+extern "C" void cRiderSphereTree_destroy(void* p, int flags);
 extern "C" void cAirPredictor_destroy(void* p, int flags);
 extern "C" void func_001033F8(void* a, void* p);
 extern "C" void func_00117290(void* p, int flags);
@@ -54,7 +54,7 @@ extern "C" void cRider_destroy(char* self, int flags)
         func_0030D540(p, 3);
     p = *(void**)(self + 0xAA0);
     if (p != 0)
-        func_00329970(p, 3);
+        cRiderSphereTree_destroy(p, 3);
     operator_delete(*(int**)(self + 0xAC0));
     operator_delete(*(int**)(self + 0xABC));
     p = *(void**)(self + 0x788);
@@ -814,12 +814,12 @@ extern "C" void cRider_updateFocusBox(void* self)
 }
 
 //100%
-extern "C" void func_00332DB8(void*, void*);
+extern "C" void cOverlapList_build(void*, void*);
 extern "C" void cRider_selectLocalLights(void*);
 
 extern "C" void cRider_refreshLights(void* self)
 {
-    func_00332DB8(*(void**)((char*)self + 0x860), (char*)self + 0x400);
+    cOverlapList_build(*(void**)((char*)self + 0x860), (char*)self + 0x400);
     cRider_selectLocalLights(self);
 }
 
@@ -857,7 +857,7 @@ extern "C" void cRider_rebuildPose(char* self)
 // PORT: PS2-only inline asm; needs a C fallback off-PS2.
 extern "C" int getGameTick();
 extern "C" int func_001448A8(void* obj);
-extern "C" void func_00332DB8(void*, void*);
+extern "C" void cOverlapList_build(void*, void*);
 extern "C" void cRider_selectLocalLights(void*);
 extern "C" void func_001242B0(void* self, void* p);
 extern "C" void updateRiderSpeedLimit(void* self);
@@ -893,7 +893,7 @@ extern "C" void func_00120F20(char* self)
                 goto skip;
         }
     }
-    func_00332DB8(*(void**)(self + 0x860), self + 0x400);
+    cOverlapList_build(*(void**)(self + 0x860), self + 0x400);
     cRider_selectLocalLights(self);
 skip:
     if (*(int*)(self + 0xAC4))

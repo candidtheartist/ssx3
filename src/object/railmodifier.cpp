@@ -21,14 +21,14 @@ struct sObj0035C4E0 {
 
 extern "C" void func_0035C040(void* self);
 extern "C" void* func_002D1BE0();
-extern "C" void func_003291E0(void* world, int type, int id, sBox0035C4E0* box, sBox0035C4E0* old);
+extern "C" void cSpaceHash_moveItem(void* world, int type, int id, sBox0035C4E0* box, sBox0035C4E0* old);
 
 extern "C" void func_0035C4E0(sObj0035C4E0* self)
 {
     sBox0035C4E0* box = &self->box;
     sBox0035C4E0 old = self->box;
     func_0035C040(self);
-    func_003291E0(func_002D1BE0(), 2, self->id, box, &old);
+    cSpaceHash_moveItem(func_002D1BE0(), 2, self->id, box, &old);
 }
 
 //100%
@@ -474,8 +474,8 @@ extern "C" void func_0035DA38(void* self, func_0035DA38_cObj* obj)
 extern void* D_004913F8[];
 extern void* D_0048F080[];
 void* func_0035CFE8(void* self);
-extern "C" void func_0032C508(void* p);
-extern "C" void* func_00327CC8(void* self, void* src);
+extern "C" void cSphereTree_cSphereTree(void* p);
+extern "C" void* cSphereTree_assign(void* self, void* src);
 extern "C" void func_0035E248(void* self);
 
 extern "C" void* func_0035DDE8_DA70(void* self, void* a1, void* a2) __asm__("func_0035DDE8");
@@ -616,10 +616,10 @@ extern "C" char* func_0035DA70(char* self, char* a1, char* a2, char* a3)
     *(void***)self = D_004913F8;
     func_0035CFE8(self + 0x30);
     *(void***)self = D_0048F080;
-    func_0032C508(self + 0xE0);
+    cSphereTree_cSphereTree(self + 0xE0);
     *(int*)(self + 0x20) = 0;
     *(int*)(self + 0xD0) = *(int*)(a2 + 0x50);
-    func_00327CC8(self + 0xE0, *(void**)(a2 + 0x48));
+    cSphereTree_assign(self + 0xE0, *(void**)(a2 + 0x48));
     *(float*)(self + 0x8) = *(float*)(a1 + 0x4);
     char* t = *(char**)(self + 0x178);
     *(float*)(self + 0xC) = *(float*)(a1 + 0x8);
@@ -770,7 +770,7 @@ void func_0035ED88(void* self)
 }
 
 //100%
-extern "C" void func_0032C630(void* p, const sRmVec4* d);
+extern "C" void cSphereTree_translate(void* p, const sRmVec4* d);
 
 // PORT: PS2-only VU0 inline asm (dst += b).
 static inline void vu0AddED90(sRmVec4& dst, const sRmVec4& b)
@@ -790,7 +790,7 @@ static inline void vu0AddED90(sRmVec4& dst, const sRmVec4& b)
 extern "C" void func_0035ED90(sRmBody* self, const sRmVec4* b)
 {
     vu0AddED90(self->pos, *b);
-    func_0032C630((char*)self + 0xE0, b);
+    cSphereTree_translate((char*)self + 0xE0, b);
 }
 
 INCLUDE_ASM("object/railmodifier", func_0035EDC8);
@@ -3341,13 +3341,13 @@ extern "C" int func_00361D90(void* self)
 }
 
 extern void* D_0048EA70[];
-extern "C" void* func_00341CF0(void*);
+extern "C" void* cAnimObjectNode_destroy(void*);
 
 //100%
 void* func_00361DE0(void* self)
 {
     *(int*)((char*)self + 0x3c) = (int)(void*)D_0048EA70;
-    return func_00341CF0(self);
+    return cAnimObjectNode_destroy(self);
 }
 
 //100%

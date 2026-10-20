@@ -667,7 +667,7 @@ INCLUDE_ASM("object/multiparticle", func_00358DB0);
 //100%
 void operator_delete(int* ptr);
 void cMemMan_free(void*);
-extern "C" void func_00341CF0(void* p, int flags);
+extern "C" void cAnimObjectNode_destroy(void* p, int flags);
 extern char D_0048EC28[];
 
 extern "C" void func_00358E50(void* self, int flags)
@@ -677,14 +677,14 @@ extern "C" void func_00358E50(void* self, int flags)
     if (buf != 0) {
         cMemMan_free(buf);
     }
-    func_00341CF0((char*)self + 0x18, 0);
+    cAnimObjectNode_destroy((char*)self + 0x18, 0);
     if (flags & 1) {
         operator_delete((int*)self);
     }
 }
 
 //100%
-extern "C" void func_00341D48(void* p);
+extern "C" void cAnimObjectNode_update(void* p);
 extern "C" int func_0034EBA0(void* p);
 
 extern "C" int func_00358EB8(void* self)
@@ -718,7 +718,7 @@ extern "C" int func_00358EB8(void* self)
                 }
             }
         } else {
-            func_00341D48(s + 0x18);
+            cAnimObjectNode_update(s + 0x18);
             return 1;
         }
         *(unsigned short*)(s + 0x5A) |= 1;
@@ -742,7 +742,7 @@ extern "C" void func_00358F90(void* self, void* out)
 }
 
 //100%
-extern "C" void func_00341FE8(void*);
+extern "C" void cAnimObjectNode_onMessage(void*);
 extern "C" void func_00359030(void*);
 
 extern "C" void func_00358FD0(void* self, int msg)
@@ -755,7 +755,7 @@ extern "C" void func_00358FD0(void* self, int msg)
             *(float*)((char*)self + 0x4) = *(float*)((char*)self + 0x8);
         }
     } else {
-        func_00341FE8((char*)self + 0x18);
+        cAnimObjectNode_onMessage((char*)self + 0x18);
     }
 }
 
@@ -778,11 +778,11 @@ struct sVEntry003590F0 {
     void (*fn)(void*, void*, int);
 };
 
-extern "C" void func_00342150(void* self, void* stream);
+extern "C" void cAnimObjectNode_writeToReplayFrame(void* self, void* stream);
 
 extern "C" void func_003590F0(void* self, void* obj)
 {
-    func_00342150((char*)self + 0x18, obj);
+    cAnimObjectNode_writeToReplayFrame((char*)self + 0x18, obj);
     sVEntry003590F0* vt = *(sVEntry003590F0**)obj;
     vt[1].fn((char*)obj + vt[1].delta, self, 0x18);
 }
@@ -862,12 +862,12 @@ extern "C" void func_00359140(sMp_9140* self)
 }
 
 //100%
-extern "C" void func_00341AA0(void* self, int a, int type, int b, int c);
+extern "C" void cAnimObjectNode_construct(void* self, int a, int type, int b, int c);
 extern void* D_0048EA70[];
 
 extern "C" void* func_00359228(void* self, int a, int b, int c)
 {
-    func_00341AA0(self, a, 2, b, c);
+    cAnimObjectNode_construct(self, a, 2, b, c);
     *(void***)((char*)self + 0x3C) = D_0048EA70;
     *(int*)((char*)self + 0x6C) = 0;
     *(int*)((char*)self + 0x4) = 0;
@@ -894,7 +894,7 @@ extern "C" void* func_00359270(void* self, void* a, void* stream)
 }
 
 //100%
-extern "C" void func_00341D48(void* p);
+extern "C" void cAnimObjectNode_update(void* p);
 
 struct sVEntry_3592D0 {
     short delta;
@@ -919,7 +919,7 @@ extern "C" int func_003592D0(void* self)
                         *(float*)(s + 0x6C) = 0.0f;
                     }
                 }
-                func_00341D48(s);
+                cAnimObjectNode_update(s);
                 if (*(float*)(s + 0x6C) > 0.0f) {
                     *(int*)(s + 0x4) = 1;
                 } else {
@@ -944,15 +944,15 @@ extern "C" int func_003592D0(void* self)
 }
 
 //100%
-// PORT: func_00341FE8 really takes (self, id, value); the unit declares it (void*).
-extern "C" void func_00341FE8_set(void* self, int id, float v) __asm__("func_00341FE8");
+// PORT: cAnimObjectNode_onMessage really takes (self, id, value); the unit declares it (void*).
+extern "C" void cAnimObjectNode_onMessage_set(void* self, int id, float v) __asm__("cAnimObjectNode_onMessage");
 
 extern "C" void func_003593D0(void* self, int id, float v)
 {
     if (id == 0x8C) {
         *(float*)((char*)self + 0x6C) += v * 0.03333333507180214f;
     } else {
-        func_00341FE8_set(self, id, v);
+        cAnimObjectNode_onMessage_set(self, id, v);
     }
 }
 
@@ -963,11 +963,11 @@ struct sSerVEntry_00359410 {
     void (*fn)(void*, void*, int);
 };
 
-extern "C" void func_00342150(void* self, void* stream);
+extern "C" void cAnimObjectNode_writeToReplayFrame(void* self, void* stream);
 
 extern "C" void func_00359410(void* self, void* stream)
 {
-    func_00342150(self, stream);
+    cAnimObjectNode_writeToReplayFrame(self, stream);
     sSerVEntry_00359410* vt = *(sSerVEntry_00359410**)stream;
     vt[1].fn((char*)stream + vt[1].delta, (char*)self + 0x6C, 0x4);
 }

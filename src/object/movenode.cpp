@@ -1036,7 +1036,7 @@ struct sMod_67E0 {
 extern "C" sBox_67E0* func_00352B88_67E0(void*) __asm__("func_00352B88");
 void tModifierBlock_setBoundBox_67E0(void* mb, sBox_67E0* box) __asm__("tModifierBlock_setBoundBox__FP14tModifierBlock");
 extern "C" void* func_002D1BE0();
-extern "C" void func_003291E0_67E0(void* world, int type, void* id, sBox_67E0* box, sBox_67E0* old) __asm__("func_003291E0");
+extern "C" void cSpaceHash_moveItem_67E0(void* world, int type, void* id, sBox_67E0* box, sBox_67E0* old) __asm__("cSpaceHash_moveItem");
 
 static inline int modActive_67E0(sMod_67E0* m)
 {
@@ -1070,7 +1070,7 @@ extern "C" void func_003567E0(void* selfp)
         nb.max = t;
         tModifierBlock_setBoundBox_67E0(self->field_0x1C, &nb);
         void* id = *(void**)((char*)self + 0x18);
-        func_003291E0_67E0(func_002D1BE0(), 0, id, &nb, &old);
+        cSpaceHash_moveItem_67E0(func_002D1BE0(), 0, id, &nb, &old);
     }
 }
 

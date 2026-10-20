@@ -34,7 +34,7 @@ extern "C" void func_0034EF08(cFloatingNode* self)
 //100%
 struct sBox_F048;
 extern "C" void* func_002D1BE0();
-extern "C" void func_003291E0(void* world, int type, void* id, sBox_F048* box, sBox_F048* old);
+extern "C" void cSpaceHash_moveItem(void* world, int type, void* id, sBox_F048* box, sBox_F048* old);
 extern "C" void func_003568B0(void* self);
 
 struct sFlVec4_34EF40 {
@@ -109,7 +109,7 @@ extern "C" void func_0034EF40(char* self)
         nb.max = vu0Add_34EF40(nodePos_34EF40(self), ext);
         (*(sFlInfo_34EF40**)(self + 0x78))->box = nb;
         void* id = *(void**)(self + 0x18);
-        func_003291E0(func_002D1BE0(), 0, id, (sBox_F048*)&nb, (sBox_F048*)&old);
+        cSpaceHash_moveItem(func_002D1BE0(), 0, id, (sBox_F048*)&nb, (sBox_F048*)&old);
     } else {
         func_003568B0(self);
     }
@@ -132,7 +132,7 @@ struct sInst_F048 {
 };
 
 extern "C" void* func_002D1BE0();
-extern "C" void func_003291E0(void* world, int type, void* id, sBox_F048* box, sBox_F048* old);
+extern "C" void cSpaceHash_moveItem(void* world, int type, void* id, sBox_F048* box, sBox_F048* old);
 extern "C" void func_003567E0(void* self);
 
 extern "C" void func_0034F048(cFloatingNode* self)
@@ -154,7 +154,7 @@ extern "C" void func_0034F048(cFloatingNode* self)
         nb.max = t;
         *info = nb;
         void* id = *(void**)((char*)self + 0x18);
-        func_003291E0(func_002D1BE0(), 0, id, &nb, &old);
+        cSpaceHash_moveItem(func_002D1BE0(), 0, id, &nb, &old);
         func_0034EF08(self);
     } else {
         func_003567E0(self);

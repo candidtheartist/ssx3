@@ -3,7 +3,7 @@
 //100%
 struct sBox00348058;
 extern "C" void* func_002D1BE0();
-extern "C" void func_003291E0(void* world, int type, int id, sBox00348058* box, sBox00348058* old);
+extern "C" void cSpaceHash_moveItem(void* world, int type, int id, sBox00348058* box, sBox00348058* old);
 void cMemMan_free(void*);
 // PORT: operator_new__FUi really takes (size, tag, flags, d); bound by asm label
 void* operator new[](unsigned int size, const char* tag, unsigned int flags, int d) __asm__("operator_new__FUi");
@@ -427,7 +427,7 @@ struct sObj00348058 {
 };
 
 extern "C" void* func_002D1BE0();
-extern "C" void func_003291E0(void* world, int type, int id, sBox00348058* box, sBox00348058* old);
+extern "C" void cSpaceHash_moveItem(void* world, int type, int id, sBox00348058* box, sBox00348058* old);
 
 extern "C" void func_00348058(void* p)
 {
@@ -435,7 +435,7 @@ extern "C" void func_00348058(void* p)
     sBox00348058* box = &self->box;
     sBox00348058 old = self->box;
     self->vt[50].fn((char*)self + self->vt[50].delta);
-    func_003291E0(func_002D1BE0(), 2, self->id, box, &old);
+    cSpaceHash_moveItem(func_002D1BE0(), 2, self->id, box, &old);
 }
 
 INCLUDE_ASM("object/flexbridgenode", func_003480C8);

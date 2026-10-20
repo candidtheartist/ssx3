@@ -201,11 +201,11 @@ Patches and instances are inserted at list heads. Collision ignores texture-stre
 `0x00335960`, `0x0033CCF8` and `0x00335D78` test only the patch flags at patch+0x0A.
 
 **Whole-world query `0x00336850`** (used by the crashbag rigid bodies). It keeps the packet whose depth is
-closest to -1 (`0x003306D8`); ties go instance before terrain, then lower instance+0x78, then lower
+closest to -1; ties go instance before terrain, then lower instance+0x78, then lower
 patch+0x150. Terrain goes through `0x00335960` (patch flags 0x41, strict bounds) and `0x0032B6E0` in coarse
 mode (3x3 cells, stride 3, cached cell first). Instances go through `0x00335B90`, which always uses filter 2,
 so every surface -1 node (all crashbags and almost all scenery) is skipped; the surfaced Snow Jam nodes are
-type-1 meshes, handled by `0x00330540` and `0x0032C0F8` → `0x00330828` → `0x00328030` → `0x0032CA78`. There
+type-1 meshes, handled by `0x0032C0F8` → `0x00330828` → `0x00328030` → `0x0032CA78`. There
 is no 64-packet cap on this path. Zero-area terrain cells in savestates carry a (1e11, 0, 0, 0) marker, which
 arises only from VU VRSQRT(0) giving FLT_MAX. **(PS2)**
 

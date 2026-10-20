@@ -728,7 +728,7 @@ struct cMultiSpline_A918 {
 
 struct sBox_F048;
 extern "C" void* func_002D1BE0();
-extern "C" void func_003291E0(void* world, int type, void* id, sBox_F048* box, sBox_F048* old);
+extern "C" void cSpaceHash_moveItem(void* world, int type, void* id, sBox_F048* box, sBox_F048* old);
 
 // PORT: PS2-only VU0 inline asm (a - b).
 static inline sSmVec4_A918 vu0Sub_A918(const sSmVec4_A918& a, const sSmVec4_A918& b)
@@ -803,7 +803,7 @@ extern "C" void func_0035A918(cMultiSpline_A918* self)
         self->elems[i].box.min = vu0Sub_A918(instPos_A918(self, i), ext);
         self->elems[i].box.max = vu0Add_A918(instPos_A918(self, i), ext);
         void* id = self->insts[i];
-        func_003291E0(func_002D1BE0(), 0, id, (sBox_F048*)&self->elems[i].box, (sBox_F048*)&old);
+        cSpaceHash_moveItem(func_002D1BE0(), 0, id, (sBox_F048*)&self->elems[i].box, (sBox_F048*)&old);
         setMin_A918((sSmInst_A918*)self->insts[i], self->elems[i].box.min);
         setMax_A918((sSmInst_A918*)self->insts[i], self->elems[i].box.max);
     }
