@@ -8509,7 +8509,83 @@ int func_003CDDE8(char *arg0, unsigned char *arg1, int arg2, int arg3) {
     return 0;
 }
 
-INCLUDE_ASM("ealib/seg_2B4578", func_003CDE68);
+//100%
+// Copies up to n decoded samples to the caller's buffer, decoding new frames (and reading any inline sample table) as the buffer runs dry.
+struct S_DE68 {
+    unsigned char *ptr;
+    int bits;
+    int nbits;
+    char pC[0x678];
+    float buf[0x1B0];
+    int avail;
+    unsigned char *p;
+    char *out;
+    short n;
+    short off;
+    int remain;
+    char pD58[8];
+    int table;
+    int mode;
+};
+extern void *func_0041605C_DE68(void *, void *, int) __asm__("func_0041605C");
+extern void func_003CD878_DE68(struct S_DE68 *) __asm__("func_003CD878");
+
+static inline void rd16_DE68(unsigned char *d, unsigned char *p) {
+    d[0] = p[1];
+    d[1] = p[0];
+}
+
+int func_003CDE68(struct S_DE68 *s, char **out, int n) {
+    int left = s->avail;
+    int total;
+    int rem;
+
+    if (s->remain == 0) return 0;
+    total = s->remain;
+    if (n < total) total = n;
+    s->out = *out;
+    rem = total;
+    if (rem > 0) do {
+        if (rem < left) left = rem;
+        rem -= left;
+        func_0041605C_DE68(s->out, (void *)((0x1B0 - s->avail) * 4 + (int)s + 0x684), left * 4);
+        s->out += left * 4;
+        s->avail -= left;
+        if (rem <= 0) break;
+        func_003CD878_DE68(s);
+        s->avail = 0x1B0;
+        left = 0x1B0;
+        if (s->mode == 1) {
+            unsigned char *q;
+            s->p = s->ptr - 1;
+            q = s->p;
+            if (s->table) {
+                float *f;
+                short i;
+                rd16_DE68((unsigned char *)&s->off, q);
+                rd16_DE68((unsigned char *)&s->n, q + 2);
+                q += 4;
+                s->p = s->p + s->n * 2 + 4;
+                s->ptr = s->p + 1;
+                f = &s->buf[s->off];
+                for (i = 0; i < s->n; i++) {
+                    short v;
+                    ((unsigned char *)&v)[0] = q[1];
+                    ((unsigned char *)&v)[1] = q[0];
+                    q += 2;
+                    *f++ = v;
+                }
+                s->table = 0;
+            }
+            if (*s->p == 0xEE) s->table = 1;
+            s->nbits = 8;
+            s->bits = *s->ptr;
+            s->ptr++;
+        }
+    } while (rem > 0);
+    s->remain -= total;
+    return total;
+}
 
 //100%
 struct V3_E078 { int a; int b; int c; };
