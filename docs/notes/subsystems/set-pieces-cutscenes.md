@@ -40,7 +40,7 @@ Source files are the decomp's current splits, as reported by the address lookup.
 - `src/object/flagset.cpp`: the flag manager and flag grids (`0x0034C548`, `0x0034BCA0`, `0x0034B228`
   (`cFlagSet_CreateMesh`), `0x0034C668`, `0x0034B818`, `0x0034B9B0`) and the node-matrix compose `0x0034DC90`.
 - `src/object/flexrailnode.cpp`: the flag entity (`0x0034AC88`, ctor `0x0034ADD8`).
-- `src/object/debouncenode.cpp` and `src/object/spline3d.cpp`: the kind-8 spline path helpers (`0x003451C0`,
+- `src/object/debouncenode.cpp` and `src/object/spline3d.cpp`: the spline path helpers (`0x003451C0`,
   `0x00345248`, `0x00345048`) and the length `0x003454E8` (`cSpline_calcLength__FP7cSpline`).
 - `src/object/animnode.cpp`, `src/object/instancenode.cpp`, `src/object/modifierblock.cpp`: handler-slot and
   contact plumbing (`0x0034E698`, `0x0034E600`, `0x0034E798`, `0x0034EBA0`, `0x0034EBE0`, `0x0034FCC0`,

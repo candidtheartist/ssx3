@@ -1,5 +1,7 @@
 #include "common.h"
 #include "animation/rideranimbase.h"
+#include "animation/animsequence.h"
+#include "animation/gameanimmap.h"
 
 //100%
 // PORT: operator_new__FUi really takes (size, tag, flags, d), like cMemMan_alloc.
@@ -79,29 +81,19 @@ struct sRabQuad32 {
 
 extern sRabQuad32 D_004FF230;
 
-struct sRiderAnimBase {
-    int mAnims[6];      // 0x00
-    int m18;            // 0x18
-    float m1C;          // 0x1C
-    long m20;           // 0x20 PORT: 64-bit long (sd)
-    int pad28[2];       // 0x28
-    sRabQuad32 m30;     // 0x30
-    char* mSequencers;  // 0x50
-};
-
 extern "C" void cRiderAnimBase_reset(void* p)
 {
-    sRiderAnimBase* self = (sRiderAnimBase*)p;
+    cRiderAnimBase* self = (cRiderAnimBase*)p;
     for (int i = 0; i < 6; i++)
     {
         cAnimSequencer_removeAll(self->mSequencers + (i << 3));
-        self->mAnims[i] = 0x1B6;
+        self->mRequestedAnim[i] = 0x1B6;
     }
     //START
-    self->m18 = 0;
-    self->m1C = 1.0f;
-    self->m30 = D_004FF230;
-    self->m20 = -1;
+    self->mMirror = 0;
+    self->mPendingRate = 1.0f;
+    *(sRabQuad32*)&self->mDefaultRootPos = D_004FF230; // default root pos + rot
+    self->mBoneMask = -1;
     //END
 }
 
@@ -110,7 +102,7 @@ extern "C" int* cAIAnimEventMap_getBlendInTime(int anim);
 
 extern "C" int cRiderAnimBase_getChannelAnimClass(void* self, int i)
 {
-    int anim = *(int*)((char*)self + (i << 2));
+    int anim = ((cRiderAnimBase*)self)->mRequestedAnim[i];
     if (anim == 0x1B6) {
         return 0;
     }
@@ -118,12 +110,8 @@ extern "C" int cRiderAnimBase_getChannelAnimClass(void* self, int i)
 }
 
 //100%
+// Opaque handle for a cAnimSequence (animation/animsequence.h).
 struct cAnimSequenceNode;
-
-struct cAnimSequencer {
-    int mCount;                        // 0x0
-    cAnimSequenceNode* mFirstSequence; // 0x4
-};
 
 cAnimSequenceNode* cAnimSequencer_getSequence(cAnimSequencer* self, int index);
 
@@ -262,8 +250,8 @@ extern "C" void cRiderAnimBase_changeOrientationOffset(void* self, sRabXform_003
         int j = 0;
         if (j < (*(cAnimSequencer**)&ra->mSequencers)[i].mCount) {
             do {
-            sRabXform_00311B48* src = (sRabXform_00311B48*)((char*)cAnimSequencer_getSequence(&(*(cAnimSequencer**)&ra->mSequencers)[i], j) + 0x60);
-            sRabXform_00311B48* dst = (sRabXform_00311B48*)((char*)cAnimSequencer_getSequence(&(*(cAnimSequencer**)&ra->mSequencers)[i], j) + 0x60);
+            sRabXform_00311B48* src = (sRabXform_00311B48*)&((cAnimSequence*)cAnimSequencer_getSequence(&(*(cAnimSequencer**)&ra->mSequencers)[i], j))->mRootPos;
+            sRabXform_00311B48* dst = (sRabXform_00311B48*)&((cAnimSequence*)cAnimSequencer_getSequence(&(*(cAnimSequencer**)&ra->mSequencers)[i], j))->mRootPos;
             *dst = Combine_00311BF0(*xf, *src);
                 j++;
             } while (j < (*(cAnimSequencer**)&ra->mSequencers)[i].mCount);
@@ -272,26 +260,28 @@ extern "C" void cRiderAnimBase_changeOrientationOffset(void* self, sRabXform_003
 }
 
 //100%
-// Stores v at 0x80 of every sequence in all six sequencers.
+// Sets mMirror of every sequence in all six sequencers.
 extern "C" void cRiderAnimBase_setAllSequencesMirror(void* self, int v)
 {
+    cRiderAnimBase* ra = (cRiderAnimBase*)self;
     for (int i = 0; i < 6; i++) {
         int j = 0;
-        if (j < (*(cAnimSequencer**)((char*)self + 0x50))[i].mCount) {
+        if (j < (*(cAnimSequencer**)&ra->mSequencers)[i].mCount) {
             do {
-                *(int*)((char*)cAnimSequencer_getSequence(&(*(cAnimSequencer**)((char*)self + 0x50))[i], j) + 0x80) = v;
+                ((cAnimSequence*)cAnimSequencer_getSequence(&(*(cAnimSequencer**)&ra->mSequencers)[i], j))->mMirror = v;
                 j++;
-            } while (j < (*(cAnimSequencer**)((char*)self + 0x50))[i].mCount);
+            } while (j < (*(cAnimSequencer**)&ra->mSequencers)[i].mCount);
         }
     }
 }
 
 //100%
-// Resets entry i of the 8-byte table at 0x50 with cAnimSequencer_removeAll and sets slot i to 0x1B6.
+// Empties channel i's sequencer and resets its requested anim to 0x1B6.
 extern "C" void cRiderAnimBase_stopChannel(int* self, int i)
 {
-    cAnimSequencer_removeAll(*(char**)((char*)self + 0x50) + i * 8);
-    *(int*)((char*)self + (i << 2)) = 0x1B6;
+    cRiderAnimBase* ra = (cRiderAnimBase*)self;
+    cAnimSequencer_removeAll(ra->mSequencers + i * 8);
+    ra->mRequestedAnim[i] = 0x1B6;
 }
 
 //100%
@@ -303,7 +293,7 @@ extern "C" void cRiderAnimBase_fadeOutChannel(char* self, int i, float v)
     cRiderAnimBase* ra = (cRiderAnimBase*)self;
     cAnimSequencer_removeEndTriggers(ra->mSequencers + (i << 3), 0x3F);
     cAnimSequencer_fadeOutAll(ra->mSequencers + (i << 3), v);
-    *(int*)(self + (i << 2)) = 0x1B6;
+    ra->mRequestedAnim[i] = 0x1B6;
 }
 
 INCLUDE_ASM("animation/rideranimbase", cRiderAnimBase_startSequence);
@@ -325,7 +315,7 @@ extern "C" void cRiderAnimBase_update(char* self, int a1, float t)
         cAnimSequenceNode* node = cAnimSequencer_getSequence(&(*(cAnimSequencer**)&ra->mSequencers)[i], 0);
         while (node)
         {
-            cAnimSequenceNode* next = *(cAnimSequenceNode**)((char*)node + 0xC8);
+            cAnimSequenceNode* next = (cAnimSequenceNode*)((cAnimSequence*)node)->mNext;
             sVEntry003123C0* vt = *(sVEntry003123C0**)&ra->mVtable;
             vt[2].fn(self + vt[2].delta, &(*(cAnimSequencer**)&ra->mSequencers)[i], node, t);
             node = next;
@@ -335,7 +325,7 @@ extern "C" void cRiderAnimBase_update(char* self, int a1, float t)
 }
 
 //100%
-extern "C" int func_001446A0(void* self, int mask);
+extern "C" int testFlagBit(void* self, int mask);
 
 struct sVEntry00312490 {
     short delta;
@@ -358,13 +348,13 @@ extern "C" void cRiderAnimBase_dispatchCompletions(char* self)
         cAnimSequenceNode* node = cAnimSequencer_getSequence(&(*(cAnimSequencer**)&ra->mSequencers)[i], 0);
         while (node)
         {
-            if (func_001446A0((char*)node + 0xB0, 0x3F) != 0)
+            if (testFlagBit(&((cAnimSequence*)node)->mLatchedFlags, 0x3F) != 0)
             {
                 list[n].node = node;
                 list[n].seq = &(*(cAnimSequencer**)&ra->mSequencers)[i];
                 n++;
             }
-            node = *(cAnimSequenceNode**)((char*)node + 0xC8);
+            node = (cAnimSequenceNode*)((cAnimSequence*)node)->mNext;
         }
     }
     for (int k = 0; k < n; k++)
@@ -405,7 +395,8 @@ extern "C" float cRiderAnimBase_getAnimDuration(char* self, int a1)
     int id = vt[4].fn(self + vt[4].delta, a1);
     if (id == 0x207)
         return 0.0f;
-    unsigned int h = *(unsigned int*)(id * 4 + D_004A3E7C + 0x1030);
+    // id-first addition keeps the original register allocation.
+    unsigned int h = *(id + ((cGameAnimMap*)D_004A3E7C)->mClips);
     char* clip = *(char**)((char*)D_004A3DF8 + ((h & 0xFF) << 2));
     char* q = (char*)((h >> 8) * 0x14 + *(int*)(clip + 0x8));
     return (*(unsigned short*)(q + 0xC) - 1) * 0.03333333507180214f;
@@ -430,7 +421,7 @@ extern "C" float cRiderAnimBase_getAnimEventTime(char* self, int a1, int frame)
     int id = vt[4].fn(self + vt[4].delta, a1);
     if (id == 0x207)
         return 0.0f;
-    unsigned int h = *(unsigned int*)(id * 4 + D_004A3E7C + 0x1030);
+    unsigned int h = *(id + ((cGameAnimMap*)D_004A3E7C)->mClips);
     char* clip = *(char**)((char*)D_004A3DF8 + ((h & 0xFF) << 2));
     char* q = (char*)((h >> 8) * 0x14 + *(int*)(clip + 0x8));
     float r;
@@ -473,9 +464,9 @@ int cRiderAnimBase_play_impl(char* self, int anim, int flags, float blend)
     {
         blend = *(float*)&cAIAnimEventMap_getBlendInTime(anim)[4];
     }
-    int h = *(int*)(id * 4 + D_004A3E7C + 0x1030);
+    int h = *(id + ((cGameAnimMap*)D_004A3E7C)->mClips);
     int slot = cAIAnimEventMap_getBlendInTime(anim)[3];
-    return *(int*)(self + (slot << 2)) = cRiderAnimBase_startSequence(self, ra->mSequencers + (slot << 3), anim, h, flags, D_0048D808[slot], blend);
+    return ra->mRequestedAnim[slot] = cRiderAnimBase_startSequence(self, ra->mSequencers + (slot << 3), anim, h, flags, D_0048D808[slot], blend);
 }
 
 //100% - objdiff report; single-function view differs only in a relocation name
@@ -491,13 +482,13 @@ extern "C" void cRiderAnimBase_playClip(char* self, int anim, int a2, float blen
     {
         blend = *(float*)&cAIAnimEventMap_getBlendInTime(anim)[4];
     }
-    *(int*)(self + (slot << 2)) = cRiderAnimBase_startSequence(self, ra->mSequencers + (slot << 3), anim, a2, 1, D_0048D808[slot], blend);
+    ra->mRequestedAnim[slot] = cRiderAnimBase_startSequence(self, ra->mSequencers + (slot << 3), anim, a2, 1, D_0048D808[slot], blend);
 }
 
 //100%
 int cRiderAnimBase_getChannelAnim(void* self, int i)
 {
-    return *(int*)((char*)self + (i << 2));
+    return ((cRiderAnimBase*)self)->mRequestedAnim[i];
 }
 
 //100%
@@ -506,7 +497,7 @@ extern "C" float cRiderAnimBase_getChannelProgress(void* self, int i)
     cRiderAnimBase* ra = (cRiderAnimBase*)self;
     cAnimSequencer* seqs = *(cAnimSequencer**)&ra->mSequencers;
     cAnimSequenceNode* node = cAnimSequencer_getSequence(&seqs[i], 0);
-    return *(float*)((char*)node + 0x8) / *(float*)((char*)node + 0x10);
+    return ((cAnimSequence*)node)->mSlots[0].mTime / ((cAnimSequence*)node)->mSlots[0].mLength;
 }
 
 //100%
@@ -514,39 +505,39 @@ extern "C" int cRiderAnimBase_isChannelComplete(void* self, int i)
 {
     cRiderAnimBase* ra = (cRiderAnimBase*)self;
     cAnimSequencer* seqs = *(cAnimSequencer**)&ra->mSequencers;
-    return *(int*)((char*)cAnimSequencer_getSequence(&seqs[i], 0) + 0xC0);
+    return ((cAnimSequence*)cAnimSequencer_getSequence(&seqs[i], 0))->mCompleted;
 }
 
 //100% - objdiff report; single-function view differs only in a relocation name
-struct cAnimSequence;
-void cAnimSequence_fadeWeight(cAnimSequence* self, float weight, float target);
+void cAnimSequence_fadeWeight(cAnimSequence* self, float target, float time);
 extern "C" void cAnimSequencer_removeSequence(void* seq, void* node);
 extern "C" void cRiderAnimBase_play(void* self, int anim, int flags, float blend);
 
 extern "C" int cRiderAnimBase_replaceSequence(void* self, cAnimSequencer* seq, char* node, int anim)
 {
-    float w = *(float*)(node + 0x94);
-    float target = *(float*)(node + 0x9C);
-    float weight = *(float*)(node + 0x98);
+    cAnimSequence* old = (cAnimSequence*)node;
+    float w = old->mWeight;
+    float fadeTime = old->mFadeTime;
+    float targetWeight = old->mTargetWeight;
     cAnimSequencer_removeSequence(seq, node);
     cRiderAnimBase_play(self, anim, 0, -1.0f);
-    char* s = (char*)cAnimSequencer_getSequence(seq, 0);
-    *(float*)(s + 0x98) = w;
-    *(float*)(s + 0x94) = w;
-    if (target != 0.0f)
+    cAnimSequence* s = (cAnimSequence*)cAnimSequencer_getSequence(seq, 0);
+    s->mTargetWeight = w;
+    s->mWeight = w;
+    if (fadeTime != 0.0f)
     {
-        cAnimSequence_fadeWeight((cAnimSequence*)s, weight, target);
+        cAnimSequence_fadeWeight(s, targetWeight, fadeTime);
     }
     return anim;
 }
 
 //100% - objdiff report; single-function view differs only in a relocation name
-extern "C" void func_00144670(void* self, int bit);
+extern "C" void moveFlagBit(void* self, int bit);
 extern "C" void cRiderAnimBase_play(void* self, int anim, int flags, float blend);
 
-extern "C" void cRiderAnimBase_playOnComplete(void* self, void* unused, void* rider, int anim)
+extern "C" void cRiderAnimBase_playOnComplete(void* self, void* seq, void* node, int anim)
 {
-    func_00144670((char*)rider + 0xB0, 0x3F);
+    moveFlagBit(&((cAnimSequence*)node)->mLatchedFlags, 0x3F);
     cRiderAnimBase_play(self, anim, 0, -1.0f);
 }
 

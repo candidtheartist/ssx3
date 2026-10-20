@@ -40,7 +40,7 @@ void* func_00353AC0(void* p);
 extern "C" void* func_0022CCE8(void* p, void* game);
 extern "C" void func_002C2F18(void* p);
 extern "C" void* func_002B6AA0(void* p, int a);
-extern "C" void func_00334800(void* p);
+extern "C" void cSpaceHash_createFwdDiffCache(void* p);
 extern "C" void func_0022D088(void* p, int id, int a);
 extern "C" int func_0022D278(void* p, int id);
 extern "C" void func_0022D8D8(void* p);

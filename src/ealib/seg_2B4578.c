@@ -3309,7 +3309,83 @@ void func_003BCAE8(int arg0, int n) {
     }
 }
 
-INCLUDE_ASM("ealib/seg_2B4578", func_003BCBA0);
+//100%
+struct S_CBA0 { unsigned char mode; unsigned char n; char pad2[4]; short pos; unsigned char *out; };
+extern struct S_CBA0 *D_0050AC68_CBA0 __asm__("D_0050AC68");
+
+void func_003BCBA0(void) {
+    int i;
+    int j;
+    int k;
+
+    D_0050AC68_CBA0->pos = 0;
+    func_003BCAE8(0xF8724E1F, 32);
+    func_003BCAE8(0xB3EE8, 32);
+    func_003BCAE8(0x7FFE8001, 32);
+    func_003BCAE8(0x0FC3C7DC, 28);
+    if (D_0050AC68_CBA0->mode == 1)
+        func_003BCAE8(8, 6);
+    else
+        func_003BCAE8(9, 6);
+    func_003BCAE8(0x6E000, 19);
+    func_003BCAE8((D_0050AC68_CBA0->n - 1) | 0x021C0000, 26);
+    for (i = 0; i < D_0050AC68_CBA0->n; i++)
+        func_003BCAE8(0x16, 5);
+    for (i = 0; i < D_0050AC68_CBA0->n; i++)
+        func_003BCAE8(0x17, 5);
+    for (i = 0; i < D_0050AC68_CBA0->n; i++)
+        func_003BCAE8(0, 3);
+    for (i = 0; i < D_0050AC68_CBA0->n; i++)
+        func_003BCAE8(3, 2);
+    for (i = 0; i < D_0050AC68_CBA0->n; i++)
+        func_003BCAE8(6, 3);
+    for (i = 0; i < D_0050AC68_CBA0->n; i++)
+        func_003BCAE8(6, 3);
+    for (i = 0; i < D_0050AC68_CBA0->n; i++)
+        func_003BCAE8(1, 1);
+    for (k = 0; k < 4; k++) {
+        for (i = 0; i < D_0050AC68_CBA0->n; i++)
+            func_003BCAE8(3, 2);
+    }
+    /* Pre-increment in the test keeps k counting up (6..10) to match. */
+    for (k = 5; ++k < 11;) {
+        for (i = 0; i < D_0050AC68_CBA0->n; i++)
+            func_003BCAE8(7, 3);
+    }
+    func_003BCAE8(8, 5);
+    for (i = 0; i < D_0050AC68_CBA0->n; i++)
+        func_003BCAE8(0, 24);
+    for (i = 0; i < D_0050AC68_CBA0->n; i++) {
+        j = 0;
+        if (D_0050AC68_CBA0->mode == 1) {
+            /* Copying j through k stops this loop from being reversed to match. */
+            for (; (k = j) < 14; j++)
+                func_003BCAE8(13, 5);
+            for (; j < 24; j++)
+                func_003BCAE8(11, 5);
+        } else {
+            for (; j < 5; j++)
+                func_003BCAE8(13, 5);
+            for (; j < 14; j++)
+                func_003BCAE8(11, 5);
+            for (; j < 24; j++)
+                func_003BCAE8(8, 5);
+        }
+    }
+    for (i = 0; i < D_0050AC68_CBA0->n; i++) {
+        func_003BCAE8(0, 24);
+        func_003BCAE8(0, 24);
+    }
+    if (D_0050AC68_CBA0->mode == 1) {
+        D_0050AC68_CBA0->out[0xE8] = 0;
+        D_0050AC68_CBA0->out[0x7CB] = 0xFF;
+        D_0050AC68_CBA0->out[0x7CA] = 0xFF;
+    } else {
+        D_0050AC68_CBA0->out[0x7D5] |= 7;
+        D_0050AC68_CBA0->out[0x7D4] = 0xFF;
+        D_0050AC68_CBA0->out[0x7D7] = 0xF8;
+    }
+}
 
 //100%
 // PORT: PS2-only inline asm; needs a C fallback off-PS2.
@@ -3548,7 +3624,100 @@ int func_003BECA0(int a, int b, int *o1, int *o2) {
     return 0;
 }
 
-INCLUDE_ASM("ealib/seg_2B4578", func_003BED30);
+// Sets up the video decoder state in buf: picks the block width from the
+// rate, the component count from the mode, carves the per-component
+// buffers out of buf and fills the quantizer scale tables.
+struct P_BED30 { int *data; };
+struct S_BED30 {
+    char mode;
+    unsigned char n;
+    char pad2[2];
+    unsigned short n4;
+    char pad6[2];
+    int f8;
+    float tbl[24];
+    int arr[6];
+    struct P_BED30 *ptrs[5];
+};
+extern struct S_BED30 *D_0050AC68_BED30 __asm__("D_0050AC68");
+extern float D_0044CA40[];
+extern float D_0044C700[];
+#define ALIGN16_BED30(x) ((((x) - 1) | 0xF) + 1)
+
+int func_003BED30_impl(int mode, int rate, int buf) __asm__("func_003BED30");
+int func_003BED30_impl(int mode, int rate, int buf) {
+    struct S_BED30 *s;
+    struct S_BED30 *t;
+    int p;
+    int a;
+    int i;
+    int j;
+
+    p = ALIGN16_BED30(buf);
+    D_0050AC68_BED30 = (struct S_BED30 *)p;
+    p += 0x98;
+    if (rate < 0) {
+        return -2;
+    }
+    if (rate < 0x22) {
+        D_0050AC68_BED30->n4 = 0xE0;
+    } else if (rate < 0x43) {
+        D_0050AC68_BED30->n4 = 0x160;
+    } else if (rate < 0x65) {
+        D_0050AC68_BED30->n4 = 0x1E0;
+    } else {
+        return -2;
+    }
+    if (mode == 1) {
+        D_0050AC68_BED30->n = 4;
+    } else if (mode == 2) {
+        D_0050AC68_BED30->n = 5;
+    } else {
+        return -1;
+    }
+    s = D_0050AC68_BED30;
+    s->mode = mode;
+    s->f8 = 0;
+    for (i = 0; i < D_0050AC68_BED30->n; i++) {
+        t = D_0050AC68_BED30;
+        p = ALIGN16_BED30(p);
+        t->ptrs[i] = (struct P_BED30 *)p;
+        p = ALIGN16_BED30(p + 0x1C);
+        t->ptrs[i]->data = (int *)p;
+        p += t->n4 * 4;
+        for (j = 0; j < D_0050AC68_BED30->n4; j++) {
+            D_0050AC68_BED30->ptrs[i]->data[j] = 0;
+        }
+    }
+    // Clears arr from the top down and leaves i at 0 for the table loops.
+    for (i = -6; i < 0; i++) {
+        D_0050AC68_BED30->arr[-1 - i] = 0;
+    }
+    if (mode == 1) {
+        for (; i < 14; i++) {
+            D_0050AC68_BED30->tbl[i] = 0.0019569471f;
+            D_0044CA40[i] = D_0044C700[i] / 0.010999918f;
+        }
+        for (; i < 24; i++) {
+            D_0050AC68_BED30->tbl[i] = 0.007874016f;
+            D_0044CA40[i] = D_0044C700[i] / 0.035000086f;
+        }
+    } else {
+        for (; i < 5; i++) {
+            D_0050AC68_BED30->tbl[i] = 0.0019569471f;
+            D_0044CA40[i] = D_0044C700[i] / 0.010999918f;
+        }
+        for (; i < 14; i++) {
+            D_0050AC68_BED30->tbl[i] = 0.007874016f;
+            D_0044CA40[i] = D_0044C700[i] / 0.035000086f;
+        }
+        for (; i < 24; i++) {
+            D_0050AC68_BED30->tbl[i] = 0.06666667f;
+            D_0044CA40[i] = D_0044C700[i] / 0.19000006f;
+        }
+    }
+    return 0;
+}
 
 //100% - objdiff report; single-function view differs only in a relocation name
 // PORT: PS2-only inline asm; needs a C fallback off-PS2.
@@ -9282,7 +9451,90 @@ int func_003CE378(int key) {
 
 INCLUDE_ASM("ealib/seg_2B4578", func_003CE410);
 
-INCLUDE_ASM("ealib/seg_2B4578", func_003CE7C0);
+// Designs a 9-tap windowed-sinc filter (half kept in c[0..4]): type 2 low
+// pass at f8, type 3 high pass at f4, type 4 band pass between them, then
+// applies a Hamming window and normalizes the gain.
+struct F_CE7C0 {
+    char pad0[0xE0];
+    float c[5];
+    float f4;
+    float f8;
+    unsigned char fC;
+};
+
+void func_003CE7C0(struct F_CE7C0 *f, int type) {
+    int n;
+    int i;
+    int odd;
+    float x;
+    float t;
+    float w;
+    float sum;
+
+    n = 4;
+    f->fC = 1;
+    if ((type == 3 || type == 4) && f->f4 > 0.8f) {
+        f->f4 = 0.8f;
+    }
+    switch (type) {
+    case 2:
+        f->c[n] = f->f8;
+        for (i = 1; i <= n; i++) {
+            x = i * 3.1415927f;
+            f->c[n - i] = func_003BC770(f->f8 * x) / x;
+        }
+        break;
+    case 3:
+        f->c[n] = f->f4;
+        for (i = 1; i <= n; i++) {
+            x = i * 3.1415927f;
+            f->c[n - i] = func_003BC770(f->f4 * x) / x;
+        }
+        break;
+    case 4:
+        f->c[n] = f->f8 - f->f4;
+        for (i = 1; i <= n; i++) {
+            x = i * 3.1415927f;
+            t = func_003BC770((f->f8 - f->f4) * 0.5f * x);
+            f->c[n - i] = 2.0f * t * func_003BC840((f->f8 + f->f4) * 0.5f * x) / x;
+        }
+        break;
+    }
+    x = 0.7853982f;
+    sum = 0.0f;
+    for (i = 0; i <= n; i++) {
+        if (type == 2 || type == 4) {
+            w = f->c[i] * (0.54f - func_003BC840(x * i) * 0.46f);
+            f->c[i] = w;
+            sum += w;
+        } else if (type == 3) {
+            w = f->c[i] * -(0.54f - func_003BC840(x * i) * 0.46f);
+            f->c[i] = w;
+            if (!(i & 1)) {
+                sum += w;
+            } else {
+                sum -= w;
+            }
+        }
+        // Set here rather than up front to match; the loop always runs.
+        odd = 0;
+    }
+    if (type == 3) {
+        sum += 1.0f;
+        f->c[n] += 1.0f;
+    }
+    if (odd) {
+        sum = 2.0f * sum;
+    } else {
+        sum = 2.0f * sum - f->c[n];
+    }
+    if (sum < 0.0f) {
+        sum = -sum;
+    }
+    for (i = 0; i <= n; i++) {
+        f->c[i] /= sum;
+    }
+}
 
 //100%
 void func_003CEB90(void *arg0) {

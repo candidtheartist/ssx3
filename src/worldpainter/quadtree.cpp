@@ -475,7 +475,34 @@ extern "C" void* func_002C2940(void* ptr, void* self, int size, int big)
     return ptr;
 }
 
-INCLUDE_ASM("worldpainter/quadtree", func_002C29D0);
+//100%
+extern char D_00486088[];
+extern "C" int func_003E50C8(void* state, void* a, void* b, void* buf, int size, int level);
+
+extern "C" void** func_002C29D0(void* a, void* b, int size)
+{
+    void** h = (void**)func_002C28C0(0, 0xC, 0);
+    *h = 0;
+    *h = func_002C28C0(D_00486088, size, 0);
+    if (*h != 0) {
+        if (func_003E50C8(h + 1, a, b, *h, size, 0x63) == 0) {
+            func_002C28F8(*h);
+            *h = 0;
+        }
+    }
+    // Testing a flag instead of *h keeps gcc from threading the failed-alloc branch past this check.
+    int failed = *h == 0;
+    if (failed) {
+        if (h != 0) {
+            if (*h != 0) {
+                func_002C28F8(*h);
+            }
+            func_002C28F8(h);
+        }
+        return 0;
+    }
+    return h;
+}
 
 extern "C" void func_002C2AA8(void** self)
 {
@@ -534,7 +561,6 @@ extern "C" void func_002C2BB8()
 // PORT: PS2-only inline asm; needs a C fallback off-PS2.
 extern "C" void func_004165A8();
 extern "C" char* strcpy(char* dst, const char* src);
-extern "C" void func_002C29D0();
 extern "C" void func_002C2AA8();
 extern "C" void func_002C2B08();
 extern "C" void func_002C2B28_p3() __asm__("func_002C2B28");
@@ -2965,5 +2991,51 @@ extern "C" int func_002C6DE0(func_002C6DE0_sMap* self, unsigned int key)
     return 0;
 }
 
-INCLUDE_ASM("worldpainter/quadtree", func_002C6E98);
+//100%
+extern "C" void* FILE_load(const char* name, int flags);
+extern "C" unsigned int func_003DB9D8(void* data, int kind);
+extern "C" int func_00416B18(const char* a, const char* b, int n);
+extern const char D_004A3978[];
+// The unit declares func_002C6DC0 with one argument; the caller here passes the entry too.
+int func_002C6DC0_2(void* self, int v) __asm__("func_002C6DC0__FPv");
+
+struct func_002C6E98_sChunk {
+    int tag;
+    int next;
+};
+
+struct func_002C6E98_sEntry {
+    int key;
+    int value;
+};
+
+struct func_002C6E98_sObj {
+    char flag;
+    char pad1[3];
+    char* data;
+    unsigned int count;
+    func_002C6E98_sChunk* header;
+    func_002C6E98_sEntry* entries;
+};
+
+extern "C" void func_002C6E98(func_002C6E98_sObj* self, const char* name, char flag)
+{
+    unsigned int i;
+    // One offset variable shared by both chunk hops (it decides the register choice).
+    int off;
+    self->flag = flag;
+    self->data = (char*)FILE_load(name, 0);
+    self->count = func_003DB9D8(self->data, 2);
+    off = ((func_002C6E98_sChunk*)self->data)->next;
+    self->header = (func_002C6E98_sChunk*)(self->data + off);
+    if (func_00416B18((char*)self->header, D_004A3978, 4) != 0) {
+        self->header = 0;
+        return;
+    }
+    off = self->header->next;
+    self->entries = (func_002C6E98_sEntry*)((char*)self->header + off);
+    for (i = 0; i < self->count; i++) {
+        self->entries[i].value = func_002C6DC0_2(self, self->entries[i].value);
+    }
+}
 

@@ -426,7 +426,7 @@ struct sRadii_7550 {
 };
 extern const sRadii_7550 D_00458220;
 
-extern "C" void func_00329A90(void* tree, int n, sVec4_7550* pos, float* radii, sVec4_7550* center, float radius);
+extern "C" void cRiderSphereTree_setSpheres(void* tree, int n, sVec4_7550* pos, float* radii, sVec4_7550* center, float radius);
 
 // PORT: PS2-only VU0 inline asm (non-volatile) (vector times scalar).
 static inline sVec4_7550 vu0Scale_7550(const sVec4_7550& v, float s)
@@ -543,8 +543,8 @@ INCLUDE_ASM("ai/motion/wipeoutmotion", cWipeoutMotion_updateSliding);
 INCLUDE_ASM("ai/motion/wipeoutmotion", cWipeoutMotion_collideSliding);
 
 //100%
-extern "C" void* func_0032E100(void* seg, const sVec4WG& a, const sVec4WG& b, int n, float r);
-extern "C" float func_003342D0(void* world, void* seg, void* hit, int flags);
+extern "C" void* cWorldLine_cWorldLine(void* seg, const sVec4WG& a, const sVec4WG& b, int n, float r);
+extern "C" float cOverlapList_queryNearest(void* world, void* seg, void* hit, int flags);
 
 // PORT: PS2-only VU0 inline asm (vector times scalar).
 static inline sVec4WG vu0Scale_138960(const sVec4WG& v, float s)
@@ -598,9 +598,9 @@ extern "C" float cWipeoutMotion_probeTerrain(void* self, char* hit, sVec4WG* dir
     char* rider = *(char**)((char*)self + 0x40);
     char seg[0xB0];
     sVec4WG* pt = (sVec4WG*)(rider + 0x110);
-    func_0032E100(seg, vu0Sub_138960(*pt, vu0Scale_138960(*dir, 200.0f)), vu0Add_138960(*pt, vu0Scale_138960(*dir, 200.0f)), 2, 0.574999988079071f);
+    cWorldLine_cWorldLine(seg, vu0Sub_138960(*pt, vu0Scale_138960(*dir, 200.0f)), vu0Add_138960(*pt, vu0Scale_138960(*dir, 200.0f)), 2, 0.574999988079071f);
     char* r2 = *(char**)((char*)self + 0x40);
-    float d = func_003342D0(*(void**)(r2 + 0x860), seg, hit, *(int*)(r2 + 0x864));
+    float d = cOverlapList_queryNearest(*(void**)(r2 + 0x860), seg, hit, *(int*)(r2 + 0x864));
     if (d >= 0.0f)
     {
         char* obj = *(char**)(hit + 0x54);

@@ -1,12 +1,6 @@
 #include "common.h"
-
-struct cAnimSequence {
-    char pad_0x00[0x94];
-    float mWeight;          // 0x94 current blend weight
-    float mTargetWeight;    // 0x98 weight being faded towards
-    float mFadeTime;        // 0x9C fade time remaining
-    int mRemoveWhenFaded;   // 0xA0 drop the sequence once the fade ends
-};
+#include "animation/animsequence.h"
+#include "animation/mdfarchive.h"
 
 //100%
 void cAnimSequence_fadeWeight(cAnimSequence* self, float target, float time)
@@ -32,69 +26,44 @@ extern "C" void cAnimSequence_fadeOut(void* self_, float time)
 extern "C" void* cMemMan_alloc(int size, const char* tag, unsigned int flags, int d);
 extern const char D_0048A5B0[];
 
-struct sSeqNode313A70
-{
-    int key;
-    int active;
-    float weight;
-    sSeqNode313A70* next;
-};
-
 extern "C" void cAnimSequence_addTrigger(void* self, int key, float weight)
 {
-    sSeqNode313A70* n = (sSeqNode313A70*)cMemMan_alloc(0x10, D_0048A5B0, 0x20000000, 0);
-    sSeqNode313A70* old = *(sSeqNode313A70**)((char*)self + 0xAC);
-    *(sSeqNode313A70**)((char*)self + 0xAC) = n;
-    n->key = key;
-    n->weight = weight;
-    n->next = old;
-    n->active = 0;
+    cAnimSequence* seq = (cAnimSequence*)self;
+    cAnimSequenceTrigger* n = (cAnimSequenceTrigger*)cMemMan_alloc(0x10, D_0048A5B0, 0x20000000, 0);
+    cAnimSequenceTrigger* old = seq->mTriggers;
+    seq->mTriggers = n;
+    n->mKey = key;
+    n->mPoint = weight;
+    n->mNext = old;
+    n->mIsEndTrigger = 0;
 }
 
 //100%
-extern "C" void* cMemMan_alloc(int size, const char* tag, unsigned int flags, int d);
-extern const char D_0048A5B0[];
-
-struct sSeqNode313AD8
-{
-    int key;
-    int active;
-    int unk8;
-    sSeqNode313AD8* next;
-};
-
 extern "C" void cAnimSequence_addEndTrigger(void* self, int key)
 {
-    sSeqNode313AD8* n = (sSeqNode313AD8*)cMemMan_alloc(0x10, D_0048A5B0, 0x20000000, 0);
-    sSeqNode313AD8* old = *(sSeqNode313AD8**)((char*)self + 0xAC);
-    *(sSeqNode313AD8**)((char*)self + 0xAC) = n;
-    n->key = key;
-    n->active = 1;
-    n->next = old;
-    n->unk8 = 0;
+    cAnimSequence* seq = (cAnimSequence*)self;
+    cAnimSequenceTrigger* n = (cAnimSequenceTrigger*)cMemMan_alloc(0x10, D_0048A5B0, 0x20000000, 0);
+    cAnimSequenceTrigger* old = seq->mTriggers;
+    seq->mTriggers = n;
+    n->mKey = key;
+    n->mIsEndTrigger = 1;
+    n->mNext = old;
+    n->mPoint = 0;
 }
 
 //100%
 void operator_delete(int* ptr);
 
-struct sSeqNode313B38
-{
-    int key;
-    int active;
-    float weight;
-    sSeqNode313B38* next;
-};
-
-// Removes the first inactive node matching key and weight.
+// Removes the first point trigger matching key and value.
 extern "C" void cAnimSequence_removeTrigger(void* self, int key, float weight)
 {
-    sSeqNode313B38** link = (sSeqNode313B38**)((char*)self + 0xAC);
-    for (; *link != 0; link = &(*link)->next)
+    cAnimSequenceTrigger** link = &((cAnimSequence*)self)->mTriggers;
+    for (; *link != 0; link = &(*link)->mNext)
     {
-        sSeqNode313B38* n = *link;
-        if (n->key == key && n->weight == weight && n->active == 0)
+        cAnimSequenceTrigger* n = *link;
+        if (n->mKey == key && n->mPoint == weight && n->mIsEndTrigger == 0)
         {
-            *link = n->next;
+            *link = n->mNext;
             operator_delete((int*)n);
             return;
         }
@@ -102,26 +71,17 @@ extern "C" void cAnimSequence_removeTrigger(void* self, int key, float weight)
 }
 
 //100%
-void operator_delete(int* ptr);
-struct sSeqNode313BA8
-{
-    int key;
-    int active;
-    int unk8;
-    sSeqNode313BA8* next;
-};
-
 extern "C" void cAnimSequence_removeEndTrigger(void* self, int key)
 {
-    sSeqNode313BA8** pp;
-    for (pp = (sSeqNode313BA8**)((char*)self + 0xAC); *pp != 0; pp = &(*pp)->next)
+    cAnimSequenceTrigger** pp;
+    for (pp = &((cAnimSequence*)self)->mTriggers; *pp != 0; pp = &(*pp)->mNext)
     {
-        if ((*pp)->key == key)
+        if ((*pp)->mKey == key)
         {
-            sSeqNode313BA8* n = *pp;
-            if (n->active != 0)
+            cAnimSequenceTrigger* n = *pp;
+            if (n->mIsEndTrigger != 0)
             {
-                *pp = n->next;
+                *pp = n->mNext;
                 operator_delete((int*)n);
                 return;
             }
@@ -130,14 +90,13 @@ extern "C" void cAnimSequence_removeEndTrigger(void* self, int key)
 }
 
 //100%
-void operator_delete(int* ptr);
-
 extern "C" void cAnimSequence_deleteTriggers(char* self)
 {
-    while (*(char**)(self + 0xAC) != 0)
+    cAnimSequence* seq = (cAnimSequence*)self;
+    while (seq->mTriggers != 0)
     {
-        char* node = *(char**)(self + 0xAC);
-        *(char**)(self + 0xAC) = *(char**)(node + 0xC);
+        cAnimSequenceTrigger* node = seq->mTriggers;
+        seq->mTriggers = node->mNext;
         operator_delete((int*)node);
     }
 }
@@ -145,110 +104,71 @@ extern "C" void cAnimSequence_deleteTriggers(char* self)
 //100%
 extern void** D_004A3DF8;
 
-struct sSeqEntry_00313C50
-{
-    int anim;
-    int t;
-    float w;
-    float len;
-    float speed;
-    int active;
-    int f18;
-};
-
-struct sSeq_00313C50
-{
-    int f0;
-    sSeqEntry_00313C50 e[5];
-    char pad90[0xC4 - 0x90];
-    int dirty;
-};
-
 extern "C" void cAnimSequence_setSlotClip(void* self, int i, int anim)
 {
-    sSeq_00313C50* s = (sSeq_00313C50*)self;
-    (s->e + i)->anim = anim;
+    cAnimSequence* s = (cAnimSequence*)self;
+    (s->mSlots + i)->mClip = anim;
     char* clip = *(char**)((char*)D_004A3DF8 + ((anim & 0xFF) << 2));
     char* q = (char*)(((unsigned)anim >> 8) * 0x14 + *(int*)(clip + 0x8));
-    s->e[i].len = (*(unsigned short*)(q + 0xC) - 1) * 0.03333333507180214f;
-    if (s->e[i].active == 0)
+    s->mSlots[i].mLength = (*(unsigned short*)(q + 0xC) - 1) * 0.03333333507180214f;
+    if (s->mSlots[i].mEnabled == 0)
     {
-        s->e[i].t = 0;
-        s->e[i].w = 1.0f;
-        s->e[i].speed = 1.0f;
-        s->e[i].active = 1;
-        s->e[i].f18 = 0;
-        s->dirty = 1;
+        s->mSlots[i].mTime = 0;
+        s->mSlots[i].mRate = 1.0f;
+        s->mSlots[i].mWeight = 1.0f;
+        s->mSlots[i].mEnabled = 1;
+        s->mSlots[i].mLoop = 0;
+        s->mSeekPending = 1;
     }
 }
 
 //100%
 extern "C" void cAnimSequence_setSlotTime(void* self, int a1, float val)
 {
-    char* p = (char*)self + a1 * 0x1c;
-    *(float*)(p + 0x8) = val;
-    *(int*)((char*)self + 0xc4) = 1;
+    cAnimSequence* seq = (cAnimSequence*)self;
+    seq->mSlots[a1].mTime = val;
+    seq->mSeekPending = 1;
 }
 
 extern "C" void cAnimSequence_setSlotRate(char* self, int i, float value)
 {
-    *(float*)(self + i * 0x1C + 0xC) = value;
+    ((cAnimSequence*)self)->mSlots[i].mRate = value;
 }
 
 //100%
 extern "C" void cAnimSequence_setSlotWeight(void* self, int a1, float val)
 {
-    char* p = (char*)self + a1 * 0x1c;
-    *(float*)(p + 0x14) = val;
+    ((cAnimSequence*)self)->mSlots[a1].mWeight = val;
 }
 
 //100%
 extern "C" void cAnimSequence_setSlotLoop(void* self, int a1, int val)
 {
-    char* p = (char*)self + a1 * 0x1c;
-    *(int*)(p + 0x1c) = val;
+    ((cAnimSequence*)self)->mSlots[a1].mLoop = val;
 }
 
 extern "C" void cAnimSequence_disableSlot(char* self, int i)
 {
-    *(int*)(self + i * 0x1C + 0x18) = 0;
+    ((cAnimSequence*)self)->mSlots[i].mEnabled = 0;
 }
 
 //100%
-struct sSeqTrack_00313D70
-{
-    char pad0[0x8];
-    float time;   // 0x8
-    char pad1[0x4];
-    float end;    // 0x10
-    float weight; // 0x14
-    int flag;     // 0x18
-};
-
-struct sSeq_00313D70
-{
-    sSeqTrack_00313D70 tracks[5]; // 0x0
-    char pad0[0x8];
-    float scale;   // 0x94
-    char pad1[0xC];
-    float fadeOut; // 0xA4
-    float fadeIn;  // 0xA8
-};
-
+// Slot weight: sequence weight x slot weight, ramped in over mFadeInTime and
+// out over the last mFadeOutTime seconds of the slot.
 // PORT: g++ <? (min) operator, removed in GCC 4.3.
-extern "C" float cAnimSequence_getSlotWeight(sSeq_00313D70* self, int i)
+extern "C" float cAnimSequence_getSlotWeight(cAnimSequence* self, int i)
 {
-    float time = self->tracks[i].time;
-    float w = self->scale * self->tracks[i].weight;
-    float end = self->tracks[i].end;
-    if (time < self->fadeIn)
+    float time = self->mSlots[i].mTime;
+    float w = self->mWeight * self->mSlots[i].mWeight;
+    float end = self->mSlots[i].mLength;
+    if (time < self->mFadeInTime)
     {
-        w = (time / self->fadeIn) <? w;
+        w = (time / self->mFadeInTime) <? w;
     }
     float rem = end - time;
-    if (rem < self->fadeOut)
+    if (rem < self->mFadeOutTime)
     {
-        w = (rem / self->fadeOut) <? w;
+        w = (rem / self->mFadeOutTime) <? w;
     }
     return w;
 }
@@ -270,36 +190,36 @@ class cAsStream;
 
 extern "C" void cAnimSequence_save(void* node, cAsStream* stream)
 {
-    char* self = (char*)node;
+    cAnimSequence* self = (cAnimSequence*)node;
     char* s = (char*)stream;
-    Ser_313DD0(s, self + 0x0, 0x4);
-    Ser_313DD0(s, self + 0x4, 0x54);
-    Ser_313DD0(s, self + 0x60, 0x20);
-    Ser_313DD0(s, self + 0x80, 0x4);
-    Ser_313DD0(s, self + 0x84, 0x4);
-    Ser_313DD0(s, self + 0x88, 0x8);
-    Ser_313DD0(s, self + 0x90, 0x4);
-    Ser_313DD0(s, self + 0x94, 0x4);
-    Ser_313DD0(s, self + 0x98, 0x4);
-    Ser_313DD0(s, self + 0x9C, 0x4);
-    Ser_313DD0(s, self + 0xA0, 0x4);
-    Ser_313DD0(s, self + 0xA4, 0x4);
-    Ser_313DD0(s, self + 0xA8, 0x4);
-    Ser_313DD0(s, self + 0xB0, 0x10);
-    Ser_313DD0(s, self + 0xC0, 0x4);
-    Ser_313DD0(s, self + 0xC4, 0x4);
+    Ser_313DD0(s, &self->mSemantic, 0x4);
+    Ser_313DD0(s, self->mSlots, 0x54);
+    Ser_313DD0(s, &self->mRootPos, 0x20);
+    Ser_313DD0(s, &self->mMirror, 0x4);
+    Ser_313DD0(s, &self->mPriority, 0x4);
+    Ser_313DD0(s, &self->mBoneMask, 0x8);
+    Ser_313DD0(s, &self->mRate, 0x4);
+    Ser_313DD0(s, &self->mWeight, 0x4);
+    Ser_313DD0(s, &self->mTargetWeight, 0x4);
+    Ser_313DD0(s, &self->mFadeTime, 0x4);
+    Ser_313DD0(s, &self->mRemoveWhenFaded, 0x4);
+    Ser_313DD0(s, &self->mFadeOutTime, 0x4);
+    Ser_313DD0(s, &self->mFadeInTime, 0x4);
+    Ser_313DD0(s, &self->mLatchedFlags, 0x10);
+    Ser_313DD0(s, &self->mCompleted, 0x4);
+    Ser_313DD0(s, &self->mSeekPending, 0x4);
     int n = 0;
-    char* p = *(char**)(self + 0xAC);
+    cAnimSequenceTrigger* p = self->mTriggers;
     if (p != 0) {
         int c = 0;
         do {
-            p = *(char**)(p + 0xC);
+            p = p->mNext;
             c++;
         } while (p != 0);
         n = c;
     }
     Ser_313DD0(s, &n, 4);
-    for (p = *(char**)(self + 0xAC); p; p = *(char**)(p + 0xC)) {
+    for (p = self->mTriggers; p; p = p->mNext) {
         Ser_313DD0(s, p, 0x10);
     }
 }
@@ -322,34 +242,34 @@ static inline void Read_314050(char* s, void* p, int n)
 
 extern "C" void cAnimSequence_load(void* node, void* stream)
 {
-    char* self = (char*)node;
+    cAnimSequence* self = (cAnimSequence*)node;
     char* s = (char*)stream;
-    Read_314050(s, self + 0x0, 0x4);
-    Read_314050(s, self + 0x4, 0x54);
-    Read_314050(s, self + 0x60, 0x20);
-    Read_314050(s, self + 0x80, 0x4);
-    Read_314050(s, self + 0x84, 0x4);
-    Read_314050(s, self + 0x88, 0x8);
-    Read_314050(s, self + 0x90, 0x4);
-    Read_314050(s, self + 0x94, 0x4);
-    Read_314050(s, self + 0x98, 0x4);
-    Read_314050(s, self + 0x9C, 0x4);
-    Read_314050(s, self + 0xA0, 0x4);
-    Read_314050(s, self + 0xA4, 0x4);
-    Read_314050(s, self + 0xA8, 0x4);
-    Read_314050(s, self + 0xB0, 0x10);
-    Read_314050(s, self + 0xC0, 0x4);
-    Read_314050(s, self + 0xC4, 0x4);
+    Read_314050(s, &self->mSemantic, 0x4);
+    Read_314050(s, self->mSlots, 0x54);
+    Read_314050(s, &self->mRootPos, 0x20);
+    Read_314050(s, &self->mMirror, 0x4);
+    Read_314050(s, &self->mPriority, 0x4);
+    Read_314050(s, &self->mBoneMask, 0x8);
+    Read_314050(s, &self->mRate, 0x4);
+    Read_314050(s, &self->mWeight, 0x4);
+    Read_314050(s, &self->mTargetWeight, 0x4);
+    Read_314050(s, &self->mFadeTime, 0x4);
+    Read_314050(s, &self->mRemoveWhenFaded, 0x4);
+    Read_314050(s, &self->mFadeOutTime, 0x4);
+    Read_314050(s, &self->mFadeInTime, 0x4);
+    Read_314050(s, &self->mLatchedFlags, 0x10);
+    Read_314050(s, &self->mCompleted, 0x4);
+    Read_314050(s, &self->mSeekPending, 0x4);
     int n;
     Read_314050(s, &n, 4);
-    char* tail = *(char**)(self + 0xAC);
+    cAnimSequenceTrigger* tail = self->mTriggers;
     for (int i = 0; i < n; i++) {
-        char* p = (char*)cMemMan_alloc(0x10, D_0048A5B0, 0x20000000, 0);
+        cAnimSequenceTrigger* p = (cAnimSequenceTrigger*)cMemMan_alloc(0x10, D_0048A5B0, 0x20000000, 0);
         Read_314050(s, p, 0x10);
-        if (*(char**)(self + 0xAC) != 0) {
-            *(char**)(tail + 0xC) = p;
+        if (self->mTriggers != 0) {
+            tail->mNext = p;
         } else {
-            *(char**)(self + 0xAC) = p;
+            self->mTriggers = p;
         }
         tail = p;
     }
@@ -358,137 +278,78 @@ extern "C" void cAnimSequence_load(void* node, void* stream)
 //100%
 void cAnimSequencer_cAnimSequencer(void* self)
 {
-    *(int*)self = 0;
-    *(void**)((char*)self + 0x4) = 0;
+    cAnimSequencer* sq = (cAnimSequencer*)self;
+    sq->mCount = 0;
+    sq->mFirstSequence = 0;
 }
 
 //100%
 extern "C" void* cMemMan_alloc(int size, const char* tag, unsigned int flags, int d);
 extern const char D_0048A5C0[];
 
-struct sSeqNode_003142F8 {
-    char pad_0x00[0xC8];
-    sSeqNode_003142F8* next; // 0xC8
-};
-
-struct sSequencer_003142F8 {
-    int mCount;                        // 0x0
-    sSeqNode_003142F8* mFirstSequence; // 0x4
-};
-
 extern "C" void* cAnimSequence_cAnimSequence(void* mem, int arg);
 
 extern "C" void* cAnimSequencer_newSequence(void* seq, int arg)
 {
-    sSequencer_003142F8* self = (sSequencer_003142F8*)seq;
-    sSeqNode_003142F8* node = (sSeqNode_003142F8*)cAnimSequence_cAnimSequence(cMemMan_alloc(0xD0, D_0048A5C0, 0x20000000, 0), arg);
-    node->next = self->mFirstSequence;
+    cAnimSequencer* self = (cAnimSequencer*)seq;
+    cAnimSequence* node = (cAnimSequence*)cAnimSequence_cAnimSequence(cMemMan_alloc(sizeof(cAnimSequence), D_0048A5C0, 0x20000000, 0), arg);
+    node->mNext = self->mFirstSequence;
     self->mFirstSequence = node;
     self->mCount++;
     return node;
 }
 
 //100%
-// Same layout as the unit's cAnimSequenceNode / cAnimSequencer (declared later in the unit).
-struct sSeqNode_00314368 {
-    char pad_0x00[0xC8];
-    sSeqNode_00314368* next; // 0xC8
-};
-
-struct sSequencer_00314368 {
-    int mCount;                      // 0x0
-    sSeqNode_00314368* mFirstSequence; // 0x4
-};
-
-extern "C" void cAnimSequencer_appendSequence(sSequencer_00314368* self, sSeqNode_00314368* node)
+extern "C" void cAnimSequencer_appendSequence(cAnimSequencer* self, cAnimSequence* node)
 {
     if (self->mFirstSequence != 0)
     {
-        sSeqNode_00314368* p = self->mFirstSequence;
-        while (p->next != 0)
+        cAnimSequence* p = self->mFirstSequence;
+        while (p->mNext != 0)
         {
-            p = p->next;
+            p = p->mNext;
         }
-        p->next = node;
+        p->mNext = node;
     }
     else
     {
         self->mFirstSequence = node;
     }
-    node->next = 0;
+    node->mNext = 0;
     self->mCount++;
 }
 
 //100%
-struct sSeqNode_003143C8 {
-    char pad_0x00[0xC8];
-    sSeqNode_003143C8* next; // 0xC8
-};
-
-struct sSeqList_003143C8 {
-    int count;
-    sSeqNode_003143C8* head; // 0x4
-};
-
-extern "C" void cAnimSequencer_unlinkSequence(sSeqList_003143C8* self, sSeqNode_003143C8* node)
+extern "C" void cAnimSequencer_unlinkSequence(cAnimSequencer* self, cAnimSequence* node)
 {
-    if (self->head == node) {
-        self->head = node->next;
+    if (self->mFirstSequence == node) {
+        self->mFirstSequence = node->mNext;
     } else {
-        sSeqNode_003143C8* nxt = node->next;
-        sSeqNode_003143C8* cur;
-        for (cur = self->head; cur != 0; cur = cur->next) {
-            if (cur->next == node)
+        cAnimSequence* nxt = node->mNext;
+        cAnimSequence* cur;
+        for (cur = self->mFirstSequence; cur != 0; cur = cur->mNext) {
+            if (cur->mNext == node)
                 break;
         }
-        cur->next = nxt;
+        cur->mNext = nxt;
     }
-    node->next = 0;
-    self->count--;
+    node->mNext = 0;
+    self->mCount--;
 }
 
 //100%
-struct sSeq_00314418;
-extern "C" float cAnimSequence_getSlotWeight_314418(sSeq_00314418* self, int i) __asm__("cAnimSequence_getSlotWeight");
-
-struct sVec4_314418
-{
-    float x, y, z, w;
-} __attribute__((aligned(16)));
-
-struct sSeqTrack_314418
-{
-    char pad0[0x4];
-    int id;         // 0x4
-    float time;     // 0x8
-    char padC[0xC];
-    int flag;       // 0x18
-};
-
-struct sSeq_00314418
-{
-    sSeqTrack_314418 tracks[3];     // 0x00
-    char pad54[0xC];
-    sVec4_314418 a;                 // 0x60
-    sVec4_314418 b;                 // 0x70
-    int c;                          // 0x80
-    int d;                          // 0x84
-    long e;                         // 0x88
-    char pad90[0x38];
-    sSeq_00314418* next;            // 0xC8
-};
-
+// One sampling descriptor per enabled slot, read by the model sampler.
 struct sSeqState_314418
 {
-    int id;             // 0x00
-    float time;         // 0x04
-    int d;              // 0x08
-    float weight;       // 0x0C
-    long e;             // 0x10
+    int id;             // 0x00 slot clip
+    float time;         // 0x04 slot time
+    int d;              // 0x08 sequence priority
+    float weight;       // 0x0C slot weight (cAnimSequence_getSlotWeight)
+    long e;             // 0x10 sequence bone mask
     char pad18[0x8];
-    sVec4_314418 a;     // 0x20
-    sVec4_314418 b;     // 0x30
-    int c;              // 0x40
+    sAnimVec4 a;        // 0x20 sequence root translation
+    sAnimVec4 b;        // 0x30 sequence root quaternion
+    int c;              // 0x40 sequence mirror flag
     char pad44[0xC];
 };
 
@@ -496,26 +357,26 @@ struct sSeqState_314418
 extern "C" int cAnimSequencer_getSampleStates(void* self, sSeqState_314418* out)
 {
     int count = 0;
-    sSeq_00314418* n = *(sSeq_00314418**)((char*)self + 0x4);
+    cAnimSequence* n = ((cAnimSequencer*)self)->mFirstSequence;
     while (n != 0)
     {
         for (int j = 0; j < 3; j++)
         {
-            if (n->tracks[j].flag != 0)
+            if (n->mSlots[j].mEnabled != 0)
             {
                 sSeqState_314418* o = &out[count];
-                o->id = n->tracks[j].id;
-                o->time = n->tracks[j].time;
-                o->a = n->a;
-                o->b = n->b;
-                o->c = n->c;
-                o->d = n->d;
-                o->weight = cAnimSequence_getSlotWeight_314418(n, j);
-                o->e = n->e;
+                o->id = n->mSlots[j].mClip;
+                o->time = n->mSlots[j].mTime;
+                o->a = n->mRootPos;
+                o->b = n->mRootRot;
+                o->c = n->mMirror;
+                o->d = n->mPriority;
+                o->weight = cAnimSequence_getSlotWeight(n, j);
+                o->e = n->mBoneMask;
                 count++;
             }
         }
-        n = n->next;
+        n = n->mNext;
     }
     return count;
 }
@@ -534,9 +395,6 @@ extern "C" void* cAnimSequencer_addSequence(void* self, int arg, int anim, float
 }
 
 //100% - objdiff report; single-function view differs only in a relocation name
-extern "C" void* cAnimSequencer_newSequence(void* seq, int arg);
-extern "C" void cAnimSequence_setSlotClip(void* self, int i, int anim);
-
 extern "C" void* cAnimSequencer_addLoopingSequence(void* self, int arg, int anim, float val)
 {
     void* node = cAnimSequencer_newSequence(self, arg);
@@ -547,25 +405,15 @@ extern "C" void* cAnimSequencer_addLoopingSequence(void* self, int arg, int anim
 }
 
 //100%
-struct sSeqNode_003145F8 {
-    char pad_0x00[0xC8];
-    sSeqNode_003145F8* next; // 0xC8
-};
-
-struct sSequencer_003145F8 {
-    int mCount;                        // 0x0
-    sSeqNode_003145F8* mFirstSequence; // 0x4
-};
-
-extern "C" void cAnimSequencer_removeSequence(sSequencer_003145F8* self, sSeqNode_003145F8* node)
+extern "C" void cAnimSequencer_removeSequence(cAnimSequencer* self, cAnimSequence* node)
 {
-    sSeqNode_003145F8** pp;
-    for (pp = &self->mFirstSequence; *pp != 0; pp = &(*pp)->next)
+    cAnimSequence** pp;
+    for (pp = &self->mFirstSequence; *pp != 0; pp = &(*pp)->mNext)
     {
-        sSeqNode_003145F8* n = *pp;
+        cAnimSequence* n = *pp;
         if (n == node)
         {
-            *pp = n->next;
+            *pp = n->mNext;
             if (n != 0)
             {
                 cAnimSequence_deleteTriggers((char*)n);
@@ -578,22 +426,12 @@ extern "C" void cAnimSequencer_removeSequence(sSequencer_003145F8* self, sSeqNod
 }
 
 //100%
-struct sSeqNode_00314668 {
-    char pad_0x00[0xC8];
-    sSeqNode_00314668* next; // 0xC8
-};
-
-struct sSequencer_00314668 {
-    int mCount;                        // 0x0
-    sSeqNode_00314668* mFirstSequence; // 0x4
-};
-
-extern "C" void cAnimSequencer_removeAll(sSequencer_00314668* self)
+extern "C" void cAnimSequencer_removeAll(cAnimSequencer* self)
 {
     while (self->mFirstSequence != 0)
     {
-        sSeqNode_00314668* n = self->mFirstSequence;
-        self->mFirstSequence = n->next;
+        cAnimSequence* n = self->mFirstSequence;
+        self->mFirstSequence = n->mNext;
         if (n != 0)
         {
             cAnimSequence_deleteTriggers((char*)n);
@@ -606,61 +444,49 @@ extern "C" void cAnimSequencer_removeAll(sSequencer_00314668* self)
 //100%
 extern "C" void cAnimSequencer_fadeOutAll(void* self, float v)
 {
-    for (char* node = *(char**)((char*)self + 0x4); node != 0; node = *(char**)(node + 0xC8))
+    for (cAnimSequence* node = ((cAnimSequencer*)self)->mFirstSequence; node != 0; node = node->mNext)
     {
         cAnimSequence_fadeOut(node, v);
     }
 }
 
 //100% - objdiff report; single-function view differs only in a relocation name
-extern "C" void cAnimSequence_removeEndTrigger(void* self, int v);
-
 extern "C" void cAnimSequencer_removeEndTriggers(void* self, int v)
 {
-    for (char* node = *(char**)((char*)self + 0x4); node != 0; node = *(char**)(node + 0xC8))
+    for (cAnimSequence* node = ((cAnimSequencer*)self)->mFirstSequence; node != 0; node = node->mNext)
     {
         cAnimSequence_removeEndTrigger(node, v);
     }
 }
 
-struct cAnimSequenceNode {
-    char pad_0x00[0xC8];
-    cAnimSequenceNode* next; // 0xC8
-};
-
-struct cAnimSequencer {
-    char pad_0x00[0x4];
-    cAnimSequenceNode* mFirstSequence; // 0x4
-};
-
 //100%
-cAnimSequenceNode* cAnimSequencer_getSequence(cAnimSequencer* self, int index)
+cAnimSequence* cAnimSequencer_getSequence(cAnimSequencer* self, int index)
 {
-    cAnimSequenceNode* cur = self->mFirstSequence;
+    cAnimSequence* cur = self->mFirstSequence;
     while (cur != 0 && index-- > 0) {
-        cur = cur->next;
+        cur = cur->mNext;
     }
     return cur;
 }
 
-// Whether a node with the given id is in the list
+// Whether a sequence with the given semantic is in the list
 extern "C" int cAnimSequencer_hasAnim(char* self, int id)
 {
-    char* p;
-    for (p = *(char**)(self + 0x4); p; p = *(char**)(p + 0xC8)) {
-        if (*(int*)p == id)
+    cAnimSequence* p;
+    for (p = ((cAnimSequencer*)self)->mFirstSequence; p; p = p->mNext) {
+        if (p->mSemantic == id)
             return 1;
     }
     return 0;
 }
 
-// Index of the node with the given id, or -1
+// Index of the sequence with the given semantic, or -1
 extern "C" int cAnimSequencer_findAnim(char* self, int id)
 {
-    char* p;
+    cAnimSequence* p;
     int i = 0;
-    for (p = *(char**)(self + 0x4); p; p = *(char**)(p + 0xC8)) {
-        if (*(int*)p == id)
+    for (p = ((cAnimSequencer*)self)->mFirstSequence; p; p = p->mNext) {
+        if (p->mSemantic == id)
             return i;
         i++;
     }
@@ -673,26 +499,14 @@ public:
     virtual void serialize(void* data, int size);
 };
 
-struct sSeqNode_003147F0 {
-    char pad_0x00[0xC8];
-    sSeqNode_003147F0* next; // 0xC8
-};
-
-struct sSequencer_003147F0 {
-    int mCount;                        // 0x0
-    sSeqNode_003147F0* mFirstSequence; // 0x4
-};
-
-extern "C" void cAnimSequence_save(void* node, cAsStream* s);
-
-extern "C" void cAnimSequencer_save(sSequencer_003147F0* self, cAsStream* s)
+extern "C" void cAnimSequencer_save(cAnimSequencer* self, cAsStream* s)
 {
     s->serialize(self, 4);
-    sSeqNode_003147F0* n = self->mFirstSequence;
+    cAnimSequence* n = self->mFirstSequence;
     for (int i = 0; i < self->mCount; i++)
     {
         cAnimSequence_save(n, s);
-        n = n->next;
+        n = n->mNext;
     }
 }
 
@@ -724,36 +538,37 @@ extern "C" void cAnimSequencer_load(void* self, void* stream);
 //100%
 void* cMdfArchive_cMdfArchive(void* self)
 {
-    *(int*)self = 0;
+    cMdfArchive* arc = (cMdfArchive*)self;
+    arc->mOwnedData = 0;
     return self;
 }
 
 //100%
 void operator_delete(int* ptr);
-extern "C" void cMdfArchive_close(void** self);
+extern "C" void cMdfArchive_close(cMdfArchive* self);
 
-extern "C" void cMdfArchive__cMdfArchive(int* self, int flags)
+extern "C" void cMdfArchive__cMdfArchive(cMdfArchive* self, int flags)
 {
-    cMdfArchive_close((void**)self);
+    cMdfArchive_close(self);
     if (flags & 1)
     {
-        operator_delete(self);
+        operator_delete((int*)self);
     }
 }
 
 //100%
 void cMemMan_free(void* ptr);
 
-extern "C" void cMdfArchive_close(void** self)
+extern "C" void cMdfArchive_close(cMdfArchive* self)
 {
-    if (self[0] != 0)
+    if (self->mOwnedData != 0)
     {
-        cMemMan_free(self[0]);
+        cMemMan_free(self->mOwnedData);
     }
-    self[0] = 0;
-    self[1] = 0;
-    self[2] = 0;
-    self[3] = 0;
+    self->mOwnedData = 0;
+    self->mHeader = 0;
+    self->mParts = 0;
+    self->mData = 0;
 }
 
 extern "C" void* cMdfArchive_bind(void*);
@@ -764,14 +579,16 @@ void cMdfArchive_bind_impl(void* self, char* data) __asm__("cMdfArchive_bind");
 
 void cMdfArchive_adoptData(void* self, int a1)
 {
-    *(int*)self = a1;
+    cMdfArchive* arc = (cMdfArchive*)self;
+    arc->mOwnedData = (char*)a1;
     cMdfArchive_bind_impl(self, (char*)a1);
 }
 
 //100%
 void* cMdfArchive_attachData(void* self)
 {
-    *(int*)self = 0;
+    cMdfArchive* arc = (cMdfArchive*)self;
+    arc->mOwnedData = 0;
     return cMdfArchive_bind(self);
 }
 
@@ -779,10 +596,10 @@ void* cMdfArchive_attachData(void* self)
 // Loads the archive named name with func_003E22F0, stores it and points self at its tables.
 extern "C" char* func_003E22F0(const char* name, int flags);
 
-extern "C" void cMdfArchive_load(void* self, const char* name, int flags)
+extern "C" void cMdfArchive_load(cMdfArchive* self, const char* name, int flags)
 {
     char* data = func_003E22F0(name, flags);
-    *(char**)self = data;
+    self->mOwnedData = data;
     cMdfArchive_bind_impl(self, data);
 }
 
@@ -795,16 +612,17 @@ extern "C" void cMdfArchive_load(void* self, const char* name, int flags)
 void cMdfArchive_bind_impl(void* self, char* data) __asm__("cMdfArchive_bind");
 void cMdfArchive_bind_impl(void* self, char* data)
 {
-    *(char**)((char*)self + 0x4) = data;
-    *(char**)((char*)self + 0x8) = data + *(short*)(data + 0x6);
-    *(char**)((char*)self + 0xC) = data + *(int*)(data + 0x8);
+    cMdfArchive* arc = (cMdfArchive*)self;
+    arc->mHeader = (cMdfHeader*)data;
+    arc->mParts = (cMdfPartHeader*)(data + ((cMdfHeader*)data)->mPartsOffset);
+    arc->mData = data + ((cMdfHeader*)data)->mDataOffset;
 }
 
-extern "C" int cMdfArchive_getNumModelParts(char* self)
+extern "C" int cMdfArchive_getNumModelParts(cMdfArchive* self)
 {
-    char* p = *(char**)(self + 0x4);
+    cMdfHeader* p = self->mHeader;
     if (p)
-        return *(short*)(p + 0x4);
+        return p->mNumParts;
     return 0;
 }
 
@@ -812,26 +630,11 @@ extern "C" int cMdfArchive_getNumModelParts(char* self)
 // Returns 1 when the archive has a part called name.
 extern "C" int func_0041AA88(const char* a, const char* b);
 
-struct sMdfPart60 {
-    char name[0x60];
-};
-
-struct sMdfHeader {
-    int pad0;
-    short count; // 0x4
-};
-
-struct sMdfArchive {
-    int pad0;
-    sMdfHeader* header; // 0x4
-    sMdfPart60* parts;  // 0x8
-};
-
-extern "C" int cMdfArchive_hasModelPart(sMdfArchive* self, const char* name)
+extern "C" int cMdfArchive_hasModelPart(cMdfArchive* self, const char* name)
 {
-    for (int i = 0; i < self->header->count; i++)
+    for (int i = 0; i < self->mHeader->mNumParts; i++)
     {
-        if (func_0041AA88(name, self->parts[i].name) == 0)
+        if (func_0041AA88(name, self->mParts[i].mName) == 0)
             return 1;
     }
     return 0;
@@ -839,31 +642,31 @@ extern "C" int cMdfArchive_hasModelPart(sMdfArchive* self, const char* name)
 
 //100%
 // Returns the part called name, or null.
-extern "C" sMdfPart60* cMdfArchive_findModelPartHeader(sMdfArchive* self, const char* name)
+extern "C" cMdfPartHeader* cMdfArchive_findModelPartHeader(cMdfArchive* self, const char* name)
 {
-    for (int i = 0; i < self->header->count; i++)
+    for (int i = 0; i < self->mHeader->mNumParts; i++)
     {
-        if (func_0041AA88(name, self->parts[i].name) == 0)
-            return &self->parts[i];
+        if (func_0041AA88(name, self->mParts[i].mName) == 0)
+            return &self->mParts[i];
     }
     return 0;
 }
 
 //100%
-extern "C" void* cMdfArchive_getModelPartByIndex(void* self, int index);
+extern "C" void* cMdfArchive_getModelPartByIndex(cMdfArchive* self, int index);
 
-extern "C" void* cMdfArchive_getModelPart(sMdfArchive* self, const char* name)
+extern "C" void* cMdfArchive_getModelPart(cMdfArchive* self, const char* name)
 {
-    for (int i = 0; i < self->header->count; i++)
+    for (int i = 0; i < self->mHeader->mNumParts; i++)
     {
-        if (func_0041AA88(name, self->parts[i].name) == 0)
+        if (func_0041AA88(name, self->mParts[i].mName) == 0)
             return cMdfArchive_getModelPartByIndex(self, i);
     }
     return 0;
 }
 
 
-extern "C" char* cMdfArchive_getModelPartHeader(char* self, int i)
+extern "C" cMdfPartHeader* cMdfArchive_getModelPartHeader(cMdfArchive* self, int i)
 {
-    return *(char**)(self + 0x8) + i * 0x60;
+    return &self->mParts[i];
 }

@@ -3,8 +3,8 @@
 //100%
 extern void* D_0048E5F0[];
 extern char D_0048E550[];
-extern "C" void* func_0032C508(void* p);
-extern "C" float func_0032C590(void* self);
+extern "C" void* cSphereTree_cSphereTree(void* p);
+extern "C" float cSphereTree_getRadius(void* self);
 extern "C" void* cMemMan_alloc(int size, const char* tag, unsigned int flags, int d);
 
 struct sSphV4 { float x, y, z, w; } __attribute__((aligned(16)));
@@ -22,7 +22,7 @@ extern "C" void* cWorldSphTree_cWorldSphTree(void* self, void* a1, int a2)
     *(void**)((char*)self + 0x64) = a1;
     *(void**)((char*)self + 0x60) = a1;
     sSphV4 c = *(sSphV4*)((char*)a1 + 0x80);
-    float r = func_0032C590(a1);
+    float r = cSphereTree_getRadius(a1);
     sSphV4 t;
     *(sSphV4*)((char*)self + 0x40) = c;
     t.x = c.x + r;
@@ -36,7 +36,7 @@ extern "C" void* cWorldSphTree_cWorldSphTree(void* self, void* a1, int a2)
     t.w = 1.0f;
     *(sSphV4*)((char*)self + 0x30) = t;
     void* p = cMemMan_alloc(0x140, D_0048E550, 0, 0);
-    func_0032C508(p);
+    cSphereTree_cSphereTree(p);
     *(void**)((char*)self + 0x68) = p;
     return self;
 }
@@ -45,7 +45,7 @@ extern "C" void* cWorldSphTree_cWorldSphTree(void* self, void* a1, int a2)
 void operator_delete(int* ptr);
 extern void* D_0048E5F0[];
 
-extern "C" void func_003304E8(void* self, int flags)
+extern "C" void cWorldSphTree_destroy(void* self, int flags)
 {
     *(void***)((char*)self + 0x50) = D_0048E5F0;
     operator_delete(*(int**)((char*)self + 0x68));
@@ -89,14 +89,14 @@ static inline sV4_330540 sub_330540(const sV4_330540& a, const sV4_330540& b)
     return r;
 }
 
-extern "C" float func_0032C590(void* self);
+extern "C" float cSphereTree_getRadius(void* self);
 
-extern "C" int func_00330540(void* self, float* lo, float* hi)
+extern "C" int cWorldSphTree_overlapsBox(void* self, float* lo, float* hi)
 {
     sV4_330540 ext;
-    float rx = func_0032C590(*(void**)((char*)self + 0x60));
-    float ry = func_0032C590(*(void**)((char*)self + 0x60));
-    float rz = func_0032C590(*(void**)((char*)self + 0x60));
+    float rx = cSphereTree_getRadius(*(void**)((char*)self + 0x60));
+    float ry = cSphereTree_getRadius(*(void**)((char*)self + 0x60));
+    float rz = cSphereTree_getRadius(*(void**)((char*)self + 0x60));
     ext.x = rx;
     ext.y = ry;
     ext.z = rz;
@@ -119,13 +119,13 @@ extern "C" int func_00330540(void* self, float* lo, float* hi)
 }
 
 //100%
-extern "C" float func_0032C590(void* self);
+extern "C" float cSphereTree_getRadius(void* self);
 
-extern "C" float func_003306D8(void* self)
+extern "C" float cWorldSphTree_getRadius(void* self)
 {
     float r;
     if (*(int*)self != 0) {
-        r = func_0032C590(*(void**)((char*)self + 0x60)) * 2.0f;
+        r = cSphereTree_getRadius(*(void**)((char*)self + 0x60)) * 2.0f;
     } else {
         r = -1.0f;
     }
@@ -133,19 +133,19 @@ extern "C" float func_003306D8(void* self)
 }
 
 //100%
-extern "C" void* func_00327CC8(void* self, void* src);
-extern "C" void func_0032C770(void* p, void* a, float f);
+extern "C" void* cSphereTree_assign(void* self, void* src);
+extern "C" void cSphereTree_transform(void* p, void* a, float f);
 
-extern "C" void func_00330710(void* self, void* a1, float f)
+extern "C" void cWorldSphTree_transform(void* self, void* a1, float f)
 {
-    func_00327CC8(*(void**)((char*)self + 0x68), *(void**)((char*)self + 0x60));
+    cSphereTree_assign(*(void**)((char*)self + 0x68), *(void**)((char*)self + 0x60));
     *(void**)((char*)self + 0x60) = *(void**)((char*)self + 0x68);
-    func_0032C770(*(void**)((char*)self + 0x60), a1, f);
+    cSphereTree_transform(*(void**)((char*)self + 0x60), a1, f);
     *(int*)((char*)self + 0x4) = 1;
 }
 
 //100%
-int func_00330778(void* self)
+int cWorldSphTree_restore__FPv(void* self)
 {
     int t0 = *(int*)((char*)self + 0x64);
     *(int*)((char*)self + 0x4) = 0;
@@ -199,12 +199,12 @@ static inline sWsVec4 wsDiv_330788(const sWsVec4& v, float s)
     return r;
 }
 
-extern "C" int func_0032CA78(void* tree, int a1, int a2, int a3, int a4, sWsVec4* out, int a6);
+extern "C" int cSphereTree_testTriangle(void* tree, int a1, int a2, int a3, int a4, sWsVec4* out, int a6);
 
-extern "C" int func_00330788(void* self, int a1, int a2, int a3, int a4, int a5, sWsVec4* outDir, float* outLen)
+extern "C" int cWorldSphTree_testTriangle(void* self, int a1, int a2, int a3, int a4, int a5, sWsVec4* outDir, float* outLen)
 {
     sWsVec4 v;
-    int r = func_0032CA78(*(void**)((char*)self + 0x60), a1, a2, a3, a4, &v, a5);
+    int r = cSphereTree_testTriangle(*(void**)((char*)self + 0x60), a1, a2, a3, a4, &v, a5);
     if (r != 0) {
         float len = wsLength_330788(v);
         *outLen = len;
@@ -255,12 +255,12 @@ static inline sWsVec4 wsDiv_330828(const sWsVec4& v, float s)
     return r;
 }
 
-extern "C" int func_00328030(void* tree, int a1, int a2, int a3, int a4, sWsVec4* out, int a6);
+extern "C" int cSphereTree_testTriangleTwoSided(void* tree, int a1, int a2, int a3, int a4, sWsVec4* out, int a6);
 
-extern "C" int func_00330828(void* self, int a1, int a2, int a3, int a4, int a5, sWsVec4* outDir, float* outLen)
+extern "C" int cWorldSphTree_testTriangleTwoSided(void* self, int a1, int a2, int a3, int a4, int a5, sWsVec4* outDir, float* outLen)
 {
     sWsVec4 v;
-    int r = func_00328030(*(void**)((char*)self + 0x60), a1, a2, a3, a4, &v, a5);
+    int r = cSphereTree_testTriangleTwoSided(*(void**)((char*)self + 0x60), a1, a2, a3, a4, &v, a5);
     if (r != 0) {
         float len = wsLength_330828(v);
         *outLen = len;
@@ -315,11 +315,11 @@ struct sWsHit_3308C8 {
     float len;            // 0x40
 };
 
-extern "C" int func_0032CB58(void* self, void* other, void* a2, void* a3);
+extern "C" int cSphereTree_testSphereTree(void* self, void* other, void* a2, void* a3);
 
-extern "C" int func_003308C8(void* self, void* a1, sWsHit_3308C8* hit)
+extern "C" int cWorldSphTree_testSphereTree(void* self, void* a1, sWsHit_3308C8* hit)
 {
-    if (func_0032CB58(*(void**)((char*)self + 0x60), a1, &hit->dir, hit) != 0) {
+    if (cSphereTree_testSphereTree(*(void**)((char*)self + 0x60), a1, &hit->dir, hit) != 0) {
         float len = wsLength_3308C8(hit->dir);
         hit->len = len;
         wsDivEq_3308C8(hit->dir, len);
@@ -374,11 +374,11 @@ struct sWsHit_330950 {
     float len;            // 0x40
 };
 
-extern "C" int func_0032C928(void* self, void* a1, void* a2, void* a3, void* a4);
+extern "C" int cSphereTree_testBox(void* self, void* a1, void* a2, void* a3, void* a4);
 
-extern "C" int func_00330950(void* self, void* a1, void* a2, sWsHit_330950* hit)
+extern "C" int cWorldSphTree_testBox(void* self, void* a1, void* a2, sWsHit_330950* hit)
 {
-    if (func_0032C928(*(void**)((char*)self + 0x60), a1, a2, &hit->dir, hit) != 0) {
+    if (cSphereTree_testBox(*(void**)((char*)self + 0x60), a1, a2, &hit->dir, hit) != 0) {
         float len = wsLength_330950(hit->dir);
         hit->len = len;
         wsDivEq_330950(hit->dir, len);
@@ -442,7 +442,7 @@ static inline int overlapBox_3309D8(const sBox_3309D8* b, const sBox_3309D8* o)
     return r;
 }
 
-extern "C" void func_003309D8(sCtx_3309D8* ctx, void* tree)
+extern "C" void cOverlapList_collectNodeInstances(sCtx_3309D8* ctx, void* tree)
 {
     for (sNode_3309D8* p = *(sNode_3309D8**)((char*)tree + 0x20); p != 0; p = p->next) {
         int flags = p->flags;
@@ -469,13 +469,13 @@ extern "C" void func_003309D8(sCtx_3309D8* ctx, void* tree)
     }
 }
 
-INCLUDE_ASM("intersect/worldsphtree", func_00330BA8);
+INCLUDE_ASM("intersect/worldsphtree", cOverlapList_buildInstances);
 
-INCLUDE_ASM("intersect/worldsphtree", func_00331450);
+INCLUDE_ASM("intersect/worldsphtree", cOverlapList_buildObjects);
 
-INCLUDE_ASM("intersect/worldsphtree", func_00331E90);
+INCLUDE_ASM("intersect/worldsphtree", cOverlapList_buildInstancesPatches);
 
-INCLUDE_ASM("intersect/worldsphtree", func_00332DB8);
+INCLUDE_ASM("intersect/worldsphtree", cOverlapList_build);
 
 //100%
 // PORT: PS2-only inline asm; needs a C fallback off-PS2.
@@ -562,11 +562,11 @@ struct sTree_333EF8 {
     sTriObj_333EF8* tris[1];        // 0x110
 };
 
-extern "C" void func_003279D0(void* cache, void* src, void** out);
+extern "C" void cAIFwdDiffCache_lookup(void* cache, void* src, void** out);
 struct sVec4_335960;
 struct sHit_003342D0;
-extern "C" int func_0032B6E0(void* q, void* obj, void* node, sVec4_335960* pos, sVec4_335960* nrm, float* dist, sVec4_335960* uv, int arg);
-extern "C" int func_00334888(void* q, void* node, void* buf, int cap, int mode);
+extern "C" int cWorldIntType_testPatch(void* q, void* obj, void* node, sVec4_335960* pos, sVec4_335960* nrm, float* dist, sVec4_335960* uv, int arg);
+extern "C" int cWorldIntType_testInstance(void* q, void* node, void* buf, int cap, int mode);
 
 static inline int overlapTri_333EF8(const sQuery_333EF8* q, const sTriObj_333EF8* n)
 {
@@ -618,7 +618,7 @@ static inline void reset_333EF8(sHit_333EF8* h)
     h->v = 0;
 }
 
-extern "C" int func_00333EF8(void* vself, void* vq, sHit_003342D0* vhits, int cap, int arg)
+extern "C" int cOverlapList_collectHits(void* vself, void* vq, sHit_003342D0* vhits, int cap, int arg)
 {
     sTree_333EF8* self = (sTree_333EF8*)vself;
     sQuery_333EF8* q = (sQuery_333EF8*)vq;
@@ -637,8 +637,8 @@ extern "C" int func_00333EF8(void* vself, void* vq, sHit_003342D0* vhits, int ca
         sVec4_333EF8 nrm;
         void* node;
         float dist;
-        func_003279D0(self->owner->cache, obj, &node);
-        if (!func_0032B6E0(q, obj, node, (sVec4_335960*)&pos, (sVec4_335960*)&nrm, &dist, (sVec4_335960*)&uv, arg)) {
+        cAIFwdDiffCache_lookup(self->owner->cache, obj, &node);
+        if (!cWorldIntType_testPatch(q, obj, node, (sVec4_335960*)&pos, (sVec4_335960*)&nrm, &dist, (sVec4_335960*)&uv, arg)) {
             continue;
         }
         reset_333EF8(&hits[n]);
@@ -659,7 +659,7 @@ extern "C" int func_00333EF8(void* vself, void* vq, sHit_003342D0* vhits, int ca
         int flags = node->flags;
         if (flags & 0x20) {
             if (overlapNode_333EF8(q, node)) {
-                n += func_00334888(q, node, (char*)hits + n * 0x80, cap - n, 2);
+                n += cWorldIntType_testInstance(q, node, (char*)hits + n * 0x80, cap - n, 2);
             }
         } else if (flags & 0x40) {
             if (node->obj == 0) {
@@ -670,7 +670,7 @@ extern "C" int func_00333EF8(void* vself, void* vq, sHit_003342D0* vhits, int ca
                 sVEnt_333EF8* vt2 = node->obj->vt;
                 sBox_333EF8* b = ((GetBox_333EF8)vt2[45].fn)((char*)node->obj + vt2[45].delta);
                 if (overlapBox_333EF8(q, b)) {
-                    n += func_00334888(q, node, (char*)hits + n * 0x80, cap - n, 2);
+                    n += cWorldIntType_testInstance(q, node, (char*)hits + n * 0x80, cap - n, 2);
                 }
             }
         }
@@ -690,7 +690,7 @@ struct sHit_003342D0 {
 } __attribute__((aligned(16)));
 
 struct sVEnt_003342D0 { short delta; short index; float (*fn)(void*); };
-extern "C" int func_00333EF8(void* self, void* q, sHit_003342D0* hits, int max, int a4);
+extern "C" int cOverlapList_collectHits(void* self, void* q, sHit_003342D0* hits, int max, int a4);
 
 // PORT: PS2 FPU abs.s via inline asm; use fabsf off-PS2.
 static inline float absf_003342D0(float x)
@@ -714,8 +714,8 @@ static inline int isBetter_003342D0(sHit_003342D0* a, sHit_003342D0* b)
     return *(unsigned int*)(a->tri + 0x150) < *(unsigned int*)(b->tri + 0x150);
 }
 
-INCLUDE_ASM("intersect/worldsphtree", func_003342D0);
-extern "C" float func_003342D0(void* self, char* q, sHit_003342D0* out, int a3);
+INCLUDE_ASM("intersect/worldsphtree", cOverlapList_queryNearest);
+extern "C" float cOverlapList_queryNearest(void* self, char* q, sHit_003342D0* out, int a3);
 
 //100%
 struct sVEnt_334458 { short delta; short index; void* fn; };
@@ -755,7 +755,7 @@ struct sList_334458 {
     sNode_334458* items[1];
 };
 
-extern "C" int func_00334888(void* q, void* node, void* buf, int cap, int mode);
+extern "C" int cWorldIntType_testInstance(void* q, void* node, void* buf, int cap, int mode);
 
 static inline int overlapNode_334458(const sQuery_334458* q, const sNode_334458* n)
 {
@@ -779,7 +779,7 @@ static inline int overlapBox_334458(const sQuery_334458* q, const sBox_334458* o
     return r;
 }
 
-extern "C" int func_00334458(sList_334458* self, sQuery_334458* q, char* buf, int cap, int full)
+extern "C" int cOverlapList_collectInstanceHits(sList_334458* self, sQuery_334458* q, char* buf, int cap, int full)
 {
     int mode = 1;
     if (full) mode = 2;
@@ -789,7 +789,7 @@ extern "C" int func_00334458(sList_334458* self, sQuery_334458* q, char* buf, in
         int flags = node->flags;
         if (flags & 0x20) {
             if (overlapNode_334458(q, node)) {
-                n += func_00334888(q, node, buf + n * 0x80, cap - n, mode);
+                n += cWorldIntType_testInstance(q, node, buf + n * 0x80, cap - n, mode);
             }
         } else if (flags & 0x40) {
             sVEnt_334458* vt = node->obj->vt;
@@ -797,7 +797,7 @@ extern "C" int func_00334458(sList_334458* self, sQuery_334458* q, char* buf, in
                 sVEnt_334458* vt2 = node->obj->vt;
                 sBox_334458* b = ((GetBox_334458)vt2[45].fn)((char*)node->obj + vt2[45].delta);
                 if (overlapBox_334458(q, b)) {
-                    n += func_00334888(q, node, buf + n * 0x80, cap - n, mode);
+                    n += cWorldIntType_testInstance(q, node, buf + n * 0x80, cap - n, mode);
                 }
             }
         }
@@ -812,7 +812,7 @@ struct sBox_00334680 {
 };
 extern "C" void func_0035C698(void* a0, sBox_00334680* box, sBox_00334680* box2, sWsVec4* pos, int mask, int* cnt, float* dist, int a7);
 extern "C" void func_00348290(void* a0, sBox_00334680* box, sBox_00334680* box2, sWsVec4* pos, int mask, int* cnt, float* dist, int a7);
-extern "C" void func_00335128(void* obj, sBox_00334680* box, sWsVec4* pos, int* cnt, float* dist, int a5);
+extern "C" void cRailSegment_findClosestPoint(void* obj, sBox_00334680* box, sWsVec4* pos, int* cnt, float* dist, int a5);
 
 // PORT: PS2-only VU0 inline asm (in-place vector subtract).
 static inline void wsSubEq_334680(sWsVec4& a, const sWsVec4& b)
@@ -840,7 +840,7 @@ static inline void wsAddEq_334680(sWsVec4& a, const sWsVec4& b)
         : "memory");
 }
 
-extern "C" int func_00334680(char* self, sWsVec4* pos, int a2, int mask, float r)
+extern "C" int cOverlapList_findNearestRail(char* self, sWsVec4* pos, int a2, int mask, float r)
 {
     sBox_00334680 box;
     sWsVec4 ext;
@@ -866,7 +866,7 @@ extern "C" int func_00334680(char* self, sWsVec4* pos, int a2, int mask, float r
             func_00348290(*(void**)(o + 0xC), &box, &box, pos, mask, &cnt, &dist, a2);
         } else if (type == 1) {
             if (*(int*)(*(char**)(o + 0x68) + 0x1C) & mask) {
-                func_00335128(o, &box, pos, &cnt, &dist, a2);
+                cRailSegment_findClosestPoint(o, &box, pos, &cnt, &dist, a2);
             }
         }
     }
@@ -879,7 +879,7 @@ void* func_00327810(void* self);
 extern "C" void cAIFwdDiffCache_Init(void* cache, int n);
 extern char D_0048E4F8[];
 
-extern "C" void func_00334800(void* self)
+extern "C" void cSpaceHash_createFwdDiffCache(void* self)
 {
     void* c = func_00327810(cMemMan_alloc(0x10, D_0048E4F8, 0, 0));
     *(void**)((char*)self + 0xA4) = c;
@@ -889,7 +889,7 @@ extern "C" void func_00334800(void* self)
 //100%
 extern "C" void func_00327828(void* p, int flags);
 
-extern "C" void func_00334850(void* self)
+extern "C" void cSpaceHash_destroyFwdDiffCache(void* self)
 {
     void* p = *(void**)((char*)self + 0xA4);
     if (p != 0) {
@@ -898,9 +898,9 @@ extern "C" void func_00334850(void* self)
     *(void**)((char*)self + 0xA4) = 0;
 }
 
-INCLUDE_ASM("intersect/worldsphtree", func_00334888);
+INCLUDE_ASM("intersect/worldsphtree", cWorldIntType_testInstance);
 
-INCLUDE_ASM("intersect/worldsphtree", func_00335128);
+INCLUDE_ASM("intersect/worldsphtree", cRailSegment_findClosestPoint);
 
 //100%
 struct sVec4_335960 {
@@ -954,8 +954,8 @@ struct sCtx_335960 {
     void* cache;
 };
 
-extern "C" void func_003279D0(void* cache, void* src, void** out);
-extern "C" int func_0032B6E0(void* q, void* obj, void* node, sVec4_335960* pos, sVec4_335960* nrm, float* dist, sVec4_335960* uv, int arg);
+extern "C" void cAIFwdDiffCache_lookup(void* cache, void* src, void** out);
+extern "C" int cWorldIntType_testPatch(void* q, void* obj, void* node, sVec4_335960* pos, sVec4_335960* nrm, float* dist, sVec4_335960* uv, int arg);
 
 static inline int overlap_335960(const sQuery_335960* q, const sTriObj_335960* n)
 {
@@ -985,7 +985,7 @@ static inline void reset_335960(sHit_335960* h)
     h->v = 0;
 }
 
-extern "C" void func_00335960(void* vctx, void* vobj)
+extern "C" void cSpaceHash_collectPatchHit(void* vctx, void* vobj)
 {
     sCtx_335960* ctx = (sCtx_335960*)vctx;
     sTriObj_335960* obj = (sTriObj_335960*)vobj;
@@ -996,8 +996,8 @@ extern "C" void func_00335960(void* vctx, void* vobj)
     float dist;
     if ((obj->flags & 0x41) != 0x41) return;
     if (!overlap_335960(ctx->q, obj)) return;
-    func_003279D0(ctx->cache, obj, &node);
-    if (!func_0032B6E0(ctx->q, obj, node, &pos, &nrm, &dist, &uv, ctx->arg)) return;
+    cAIFwdDiffCache_lookup(ctx->cache, obj, &node);
+    if (!cWorldIntType_testPatch(ctx->q, obj, node, &pos, &nrm, &dist, &uv, ctx->arg)) return;
     reset_335960(&ctx->hits[*ctx->count]);
     ctx->hits[*ctx->count].pos = pos;
     ctx->hits[*ctx->count].nrm = nrm;
@@ -1050,7 +1050,7 @@ struct sCtx_335B90 {
     int* count;
 };
 
-extern "C" int func_00334888(void* q, void* node, void* buf, int cap, int mode);
+extern "C" int cWorldIntType_testInstance(void* q, void* node, void* buf, int cap, int mode);
 
 static inline int overlapNode_335B90(const sQuery_335B90* q, const sNode_335B90* n)
 {
@@ -1077,10 +1077,10 @@ static inline int overlapBox_335B90(const sQuery_335B90* q, const sBox_335B90* o
 static inline void collect_335B90(sCtx_335B90* ctx, sNode_335B90* node)
 {
     int n = *ctx->count;
-    *ctx->count += func_00334888(ctx->q, node, ctx->buf + n * 0x80, ctx->cap - n, 2);
+    *ctx->count += cWorldIntType_testInstance(ctx->q, node, ctx->buf + n * 0x80, ctx->cap - n, 2);
 }
 
-extern "C" void func_00335B90(void* vctx, void* vnode)
+extern "C" void cSpaceHash_collectInstanceHit(void* vctx, void* vnode)
 {
     sCtx_335B90* ctx = (sCtx_335B90*)vctx;
     sNode_335B90* node = (sNode_335B90*)vnode;
@@ -1103,7 +1103,7 @@ extern "C" void func_00335B90(void* vctx, void* vnode)
     }
 }
 
-INCLUDE_ASM("intersect/worldsphtree", func_00335D78);
+INCLUDE_ASM("intersect/worldsphtree", cSpaceHash_collectHits);
 
 //100% - objdiff report; single-function view differs only in a relocation name
 struct sHit_00336850 {
@@ -1117,7 +1117,7 @@ struct sHit_00336850 {
 } __attribute__((aligned(16)));
 
 struct sVEnt_00336850 { short delta; short index; float (*fn)(void*); };
-extern "C" int func_00335D78(void* self, void* q, sHit_00336850* hits, int max, int a4);
+extern "C" int cSpaceHash_collectHits(void* self, void* q, sHit_00336850* hits, int max, int a4);
 
 // PORT: PS2 FPU abs.s via inline asm; use fabsf off-PS2.
 static inline float absf_00336850(float x)
@@ -1141,8 +1141,8 @@ static inline int isBetter_00336850(sHit_00336850* a, sHit_00336850* b)
     return *(unsigned int*)(a->tri + 0x150) < *(unsigned int*)(b->tri + 0x150);
 }
 
-INCLUDE_ASM("intersect/worldsphtree", func_00336850);
-extern "C" float func_00336850(void* self, char* q, sHit_00336850* out, int a3);
+INCLUDE_ASM("intersect/worldsphtree", cSpaceHash_queryNearest);
+extern "C" float cSpaceHash_queryNearest(void* self, char* q, sHit_00336850* out, int a3);
 
 //100%
 struct sQuad_369D8 {
@@ -1175,7 +1175,7 @@ struct sCell_369D8 {
     void* node;             // 0x10
 };
 
-extern "C" void* func_0032E100(void* seg, const sQuad_369D8& a, const sQuad_369D8& b, int n, float r);
+extern "C" void* cWorldLine_cWorldLine(void* seg, const sQuad_369D8& a, const sQuad_369D8& b, int n, float r);
 struct sCtx_369D8 {
     float* pos;             // 0x0
     char flags[8];          // 0x4
@@ -1186,7 +1186,7 @@ struct sTrav_369D8 {
     sCtx_369D8 ctx;         // 0x4
 };
 
-extern "C" void func_0033DBE8(char* flag, sQuery_369D8* q, sQuery_369D8* q2, sCtx_369D8* ctx, void* node, sCell_369D8* cell);
+extern "C" void cSpaceHash_walkColumn(char* flag, sQuery_369D8* q, sQuery_369D8* q2, sCtx_369D8* ctx, void* node, sCell_369D8* cell);
 
 // PORT: PS2 FPU abs.s via inline asm; use fabsf off-PS2.
 static inline float absf_003369D8(float x)
@@ -1219,11 +1219,11 @@ static inline int isBetter_003369D8(sHit_003369D8* a, sHit_003369D8* b)
 
 static inline void visit_003369D8(sCell_369D8* c, char* flag, sQuery_369D8* q, sCtx_369D8* p)
 {
-    func_0033DBE8(flag, q, q, p, c->node, c);
+    cSpaceHash_walkColumn(flag, q, q, p, c->node, c);
 }
 
-INCLUDE_ASM("intersect/worldsphtree", func_003369D8);
-extern "C" int func_003369D8(sCell_369D8* self, float* pos, sQuad_369D8* outP, sQuad_369D8* outN);
+INCLUDE_ASM("intersect/worldsphtree", cSpaceHash_queryGround);
+extern "C" int cSpaceHash_queryGround(sCell_369D8* self, float* pos, sQuad_369D8* outP, sQuad_369D8* outN);
 
 //100%
 struct sVEnt_336D40 { short delta; short index; void* fn; };
@@ -1267,7 +1267,7 @@ struct sCtx_336D40 {
     int full;
 };
 
-extern "C" int func_00334888(void* q, void* node, void* buf, int cap, int mode);
+extern "C" int cWorldIntType_testInstance(void* q, void* node, void* buf, int cap, int mode);
 
 static inline int overlapNode_336D40(const sQuery_336D40* q, const sNode_336D40* n)
 {
@@ -1294,10 +1294,10 @@ static inline int overlapBox_336D40(const sQuery_336D40* q, const sBox_336D40* o
 static inline void collect_336D40(sCtx_336D40* ctx, sNode_336D40* node, int mode)
 {
     int n = *ctx->count;
-    *ctx->count += func_00334888(ctx->q, node, ctx->buf + n * 0x80, ctx->cap - n, mode);
+    *ctx->count += cWorldIntType_testInstance(ctx->q, node, ctx->buf + n * 0x80, ctx->cap - n, mode);
 }
 
-extern "C" void func_00336D40(void* vctx, void* vnode)
+extern "C" void cSpaceHash_collectSceneryHit(void* vctx, void* vnode)
 {
     sCtx_336D40* ctx = (sCtx_336D40*)vctx;
     sNode_336D40* node = (sNode_336D40*)vnode;
@@ -1319,7 +1319,7 @@ extern "C" void func_00336D40(void* vctx, void* vnode)
     }
 }
 
-INCLUDE_ASM("intersect/worldsphtree", func_00336F30);
+INCLUDE_ASM("intersect/worldsphtree", cSpaceHash_collectSceneryHits);
 
 //100% - objdiff report; single-function view differs only in a relocation name
 struct sHit_003378C0 {
@@ -1333,7 +1333,7 @@ struct sHit_003378C0 {
 } __attribute__((aligned(16)));
 
 struct sVEnt_003378C0 { short delta; short index; float (*fn)(void*); };
-extern "C" int func_00336F30(void* self, void* q, sHit_003378C0* hits, int max, int a4);
+extern "C" int cSpaceHash_collectSceneryHits(void* self, void* q, sHit_003378C0* hits, int max, int a4);
 
 // PORT: PS2 FPU abs.s via inline asm; use fabsf off-PS2.
 static inline float absf_003378C0(float x)
@@ -1357,33 +1357,33 @@ static inline int isBetter_003378C0(sHit_003378C0* a, sHit_003378C0* b)
     return *(unsigned int*)(a->tri + 0x150) < *(unsigned int*)(b->tri + 0x150);
 }
 
-INCLUDE_ASM("intersect/worldsphtree", func_003378C0);
-extern "C" float func_003378C0(void* self, char* q, sHit_003378C0* out, int a3);
+INCLUDE_ASM("intersect/worldsphtree", cSpaceHash_queryNearestScenery);
+extern "C" float cSpaceHash_queryNearestScenery(void* self, char* q, sHit_003378C0* out, int a3);
 
-INCLUDE_ASM("intersect/worldsphtree", func_00337A48);
+INCLUDE_ASM("intersect/worldsphtree", cSpaceHash_findNearestRail);
 
 extern "C" void* func_003388E0(void* p, ...)
 {
     return p;
 }
 
-INCLUDE_ASM("intersect/worldsphtree", func_00338920);
+INCLUDE_ASM("intersect/worldsphtree", cOverlapList_walkInstances);
 
-INCLUDE_ASM("intersect/worldsphtree", func_00339598);
+INCLUDE_ASM("intersect/worldsphtree", cOverlapList_walkObjects);
 
-INCLUDE_ASM("intersect/worldsphtree", func_0033A3D8);
+INCLUDE_ASM("intersect/worldsphtree", cOverlapList_walkInstancesPatches);
 
-INCLUDE_ASM("intersect/worldsphtree", func_0033B748);
+INCLUDE_ASM("intersect/worldsphtree", cOverlapList_walkAll);
 
-INCLUDE_ASM("intersect/worldsphtree", func_0033CCF8);
+INCLUDE_ASM("intersect/worldsphtree", cSpaceHash_walkHits);
 
 //100%
 struct sQuery_369D8;
 struct sCtx_369D8;
 struct sCell_369D8;
-extern "C" void func_00335960(void* ctx, void* obj);
-extern "C" void func_00335B90(void* ctx, void* obj);
-extern "C" void func_00340FA0(void* self, void* ctx);
+extern "C" void cSpaceHash_collectPatchHit(void* ctx, void* obj);
+extern "C" void cSpaceHash_collectInstanceHit(void* ctx, void* obj);
+extern "C" void cSpaceHash_collectSubtreeHits(void* self, void* ctx);
 
 struct sOct_DBE8 {
     sOct_DBE8* child[8];            // 0x00
@@ -1422,7 +1422,7 @@ static inline int Classify_DBE8(sCtx_DBE8* ctx, sCell_DBE8* c)
     return 2;
 }
 
-extern "C" void func_0033DBE8(char* flag, sQuery_369D8* q, sQuery_369D8* q2, sCtx_369D8* vctx, void* vnode, sCell_369D8* vcell)
+extern "C" void cSpaceHash_walkColumn(char* flag, sQuery_369D8* q, sQuery_369D8* q2, sCtx_369D8* vctx, void* vnode, sCell_369D8* vcell)
 {
     sCtx_DBE8* ctx = (sCtx_DBE8*)vctx;
     sOct_DBE8* node = (sOct_DBE8*)vnode;
@@ -1431,42 +1431,42 @@ extern "C" void func_0033DBE8(char* flag, sQuery_369D8* q, sQuery_369D8* q2, sCt
     if (r == 0) {
         void** o;
         for (o = node->listA; o != 0; o = (void**)*o) {
-            func_00335960(q2, o);
+            cSpaceHash_collectPatchHit(q2, o);
         }
         for (o = node->listB; o != 0; o = (void**)*o) {
-            func_00335B90(q2, o);
+            cSpaceHash_collectInstanceHit(q2, o);
         }
         if (node->child[0]) {
-            func_00340FA0(node->child[0], q2);
+            cSpaceHash_collectSubtreeHits(node->child[0], q2);
         }
         if (node->child[1]) {
-            func_00340FA0(node->child[1], q2);
+            cSpaceHash_collectSubtreeHits(node->child[1], q2);
         }
         if (node->child[2]) {
-            func_00340FA0(node->child[2], q2);
+            cSpaceHash_collectSubtreeHits(node->child[2], q2);
         }
         if (node->child[3]) {
-            func_00340FA0(node->child[3], q2);
+            cSpaceHash_collectSubtreeHits(node->child[3], q2);
         }
         if (node->child[4]) {
-            func_00340FA0(node->child[4], q2);
+            cSpaceHash_collectSubtreeHits(node->child[4], q2);
         }
         if (node->child[5]) {
-            func_00340FA0(node->child[5], q2);
+            cSpaceHash_collectSubtreeHits(node->child[5], q2);
         }
         if (node->child[6]) {
-            func_00340FA0(node->child[6], q2);
+            cSpaceHash_collectSubtreeHits(node->child[6], q2);
         }
         if (node->child[7]) {
-            func_00340FA0(node->child[7], q2);
+            cSpaceHash_collectSubtreeHits(node->child[7], q2);
         }
     } else if (r == 2) {
         void** o;
         for (o = node->listA; o != 0; o = (void**)*o) {
-            func_00335960(q, o);
+            cSpaceHash_collectPatchHit(q, o);
         }
         for (o = node->listB; o != 0; o = (void**)*o) {
-            func_00335B90(q, o);
+            cSpaceHash_collectInstanceHit(q, o);
         }
         if (cell->level == 11) {
             return;
@@ -1477,60 +1477,60 @@ extern "C" void func_0033DBE8(char* flag, sQuery_369D8* q, sQuery_369D8* q2, sCt
         sub.y = cell->y * 2;
         sub.z = cell->z * 2;
         if (node->child[0]) {
-            func_0033DBE8(flag, q, q2, vctx, node->child[0], (sCell_369D8*)&sub);
+            cSpaceHash_walkColumn(flag, q, q2, vctx, node->child[0], (sCell_369D8*)&sub);
         }
         sub.x++;
         if (node->child[4]) {
-            func_0033DBE8(flag, q, q2, vctx, node->child[4], (sCell_369D8*)&sub);
+            cSpaceHash_walkColumn(flag, q, q2, vctx, node->child[4], (sCell_369D8*)&sub);
         }
         sub.y++;
         if (node->child[6]) {
-            func_0033DBE8(flag, q, q2, vctx, node->child[6], (sCell_369D8*)&sub);
+            cSpaceHash_walkColumn(flag, q, q2, vctx, node->child[6], (sCell_369D8*)&sub);
         }
         sub.x--;
         if (node->child[2]) {
-            func_0033DBE8(flag, q, q2, vctx, node->child[2], (sCell_369D8*)&sub);
+            cSpaceHash_walkColumn(flag, q, q2, vctx, node->child[2], (sCell_369D8*)&sub);
         }
         sub.z++;
         if (node->child[3]) {
-            func_0033DBE8(flag, q, q2, vctx, node->child[3], (sCell_369D8*)&sub);
+            cSpaceHash_walkColumn(flag, q, q2, vctx, node->child[3], (sCell_369D8*)&sub);
         }
         sub.x++;
         if (node->child[7]) {
-            func_0033DBE8(flag, q, q2, vctx, node->child[7], (sCell_369D8*)&sub);
+            cSpaceHash_walkColumn(flag, q, q2, vctx, node->child[7], (sCell_369D8*)&sub);
         }
         sub.y--;
         if (node->child[5]) {
-            func_0033DBE8(flag, q, q2, vctx, node->child[5], (sCell_369D8*)&sub);
+            cSpaceHash_walkColumn(flag, q, q2, vctx, node->child[5], (sCell_369D8*)&sub);
         }
         sub.x--;
         if (node->child[1]) {
-            func_0033DBE8(flag, q, q2, vctx, node->child[1], (sCell_369D8*)&sub);
+            cSpaceHash_walkColumn(flag, q, q2, vctx, node->child[1], (sCell_369D8*)&sub);
         }
     }
 }
 
-INCLUDE_ASM("intersect/worldsphtree", func_0033DFD8);
+INCLUDE_ASM("intersect/worldsphtree", cSpaceHash_walkSceneryHits);
 
-INCLUDE_ASM("intersect/worldsphtree", func_0033ED60);
+INCLUDE_ASM("intersect/worldsphtree", cSpaceHash_walkRails);
 
-INCLUDE_ASM("intersect/worldsphtree", func_003400D8);
+INCLUDE_ASM("intersect/worldsphtree", __sti__worldsphtree_cpp);
 
-INCLUDE_ASM("intersect/worldsphtree", func_00340970);
+INCLUDE_ASM("intersect/worldsphtree", cAIFwdDiffEntry_cAIFwdDiffEntry);
 
 //100%
-void func_00340A08(void* self)
+void cWorldIntType_refinePatch__FPv(void* self)
 {
 }
 
 //100%
-float func_00340A10(void* self)
+float cWorldLine_getRadius__FPv(void* self)
 {
     return *(float*)((char*)self + 0xA0);
 }
 
 //100%
-extern "C" float func_00340A18(void* self)
+extern "C" float cWorldSphere_getRadius(void* self)
 {
     if (*(int*)self == 0) {
         return -1.0f;
@@ -1543,33 +1543,33 @@ struct sOctNode_0A40 {
     sOctNode_0A40* child[8];
 };
 
-// Visits node and every descendant with func_003309D8.
-extern "C" void func_00340A40(sOctNode_0A40* self, sCtx_3309D8* ctx)
+// Visits node and every descendant with cOverlapList_collectNodeInstances.
+extern "C" void cOverlapList_collectSubtreeInstances(sOctNode_0A40* self, sCtx_3309D8* ctx)
 {
-    func_003309D8(ctx, self);
+    cOverlapList_collectNodeInstances(ctx, self);
     if (self->child[0] != 0) {
-        func_00340A40(self->child[0], ctx);
+        cOverlapList_collectSubtreeInstances(self->child[0], ctx);
     }
     if (self->child[1] != 0) {
-        func_00340A40(self->child[1], ctx);
+        cOverlapList_collectSubtreeInstances(self->child[1], ctx);
     }
     if (self->child[2] != 0) {
-        func_00340A40(self->child[2], ctx);
+        cOverlapList_collectSubtreeInstances(self->child[2], ctx);
     }
     if (self->child[3] != 0) {
-        func_00340A40(self->child[3], ctx);
+        cOverlapList_collectSubtreeInstances(self->child[3], ctx);
     }
     if (self->child[4] != 0) {
-        func_00340A40(self->child[4], ctx);
+        cOverlapList_collectSubtreeInstances(self->child[4], ctx);
     }
     if (self->child[5] != 0) {
-        func_00340A40(self->child[5], ctx);
+        cOverlapList_collectSubtreeInstances(self->child[5], ctx);
     }
     if (self->child[6] != 0) {
-        func_00340A40(self->child[6], ctx);
+        cOverlapList_collectSubtreeInstances(self->child[6], ctx);
     }
     if (self->child[7] != 0) {
-        func_00340A40(self->child[7], ctx);
+        cOverlapList_collectSubtreeInstances(self->child[7], ctx);
     }
 }
 
@@ -1579,25 +1579,25 @@ struct sOctCollect {
     int* count;
 };
 
-extern "C" void func_00340B18(void* self, sOctCollect* out)
+extern "C" void cOverlapList_collectSubtreeObjects(void* self, sOctCollect* out)
 {
     void** p;
     for (p = *(void***)((char*)self + 0x28); p != 0; p = (void**)*p) {
         out->arr[(*out->count)++] = p;
     }
-    if (*(void**)((char*)self + 0x0)) func_00340B18(*(void**)((char*)self + 0x0), out);
-    if (*(void**)((char*)self + 0x4)) func_00340B18(*(void**)((char*)self + 0x4), out);
-    if (*(void**)((char*)self + 0x8)) func_00340B18(*(void**)((char*)self + 0x8), out);
-    if (*(void**)((char*)self + 0xC)) func_00340B18(*(void**)((char*)self + 0xC), out);
-    if (*(void**)((char*)self + 0x10)) func_00340B18(*(void**)((char*)self + 0x10), out);
-    if (*(void**)((char*)self + 0x14)) func_00340B18(*(void**)((char*)self + 0x14), out);
-    if (*(void**)((char*)self + 0x18)) func_00340B18(*(void**)((char*)self + 0x18), out);
-    if (*(void**)((char*)self + 0x1C)) func_00340B18(*(void**)((char*)self + 0x1C), out);
+    if (*(void**)((char*)self + 0x0)) cOverlapList_collectSubtreeObjects(*(void**)((char*)self + 0x0), out);
+    if (*(void**)((char*)self + 0x4)) cOverlapList_collectSubtreeObjects(*(void**)((char*)self + 0x4), out);
+    if (*(void**)((char*)self + 0x8)) cOverlapList_collectSubtreeObjects(*(void**)((char*)self + 0x8), out);
+    if (*(void**)((char*)self + 0xC)) cOverlapList_collectSubtreeObjects(*(void**)((char*)self + 0xC), out);
+    if (*(void**)((char*)self + 0x10)) cOverlapList_collectSubtreeObjects(*(void**)((char*)self + 0x10), out);
+    if (*(void**)((char*)self + 0x14)) cOverlapList_collectSubtreeObjects(*(void**)((char*)self + 0x14), out);
+    if (*(void**)((char*)self + 0x18)) cOverlapList_collectSubtreeObjects(*(void**)((char*)self + 0x18), out);
+    if (*(void**)((char*)self + 0x1C)) cOverlapList_collectSubtreeObjects(*(void**)((char*)self + 0x1C), out);
 }
 
 //100%
 struct sCtx_3309D8;
-extern "C" void func_003309D8(sCtx_3309D8* ctx, void* tree);
+extern "C" void cOverlapList_collectNodeInstances(sCtx_3309D8* ctx, void* tree);
 
 struct sBox_340C20 {
     float min[4];
@@ -1648,28 +1648,28 @@ static inline int overlap_340C20(const sBox_340C20* b, const sObjNode_340C20* n)
     return r;
 }
 
-extern "C" void func_00340C20(sTree_340C20* self, sCtx_340C20* ctx)
+extern "C" void cOverlapList_collectSubtreeInstancesPatches(sTree_340C20* self, sCtx_340C20* ctx)
 {
-    func_003309D8((sCtx_3309D8*)ctx, self);
+    cOverlapList_collectNodeInstances((sCtx_3309D8*)ctx, self);
     sSub_340C20* s = &ctx->objs;
     for (sObjNode_340C20* p = self->objs; p != 0; p = p->next) {
         if (overlap_340C20(s->box, p)) {
             add_340C20(s, p);
         }
     }
-    if (self->child[0]) func_00340C20(self->child[0], ctx);
-    if (self->child[1]) func_00340C20(self->child[1], ctx);
-    if (self->child[2]) func_00340C20(self->child[2], ctx);
-    if (self->child[3]) func_00340C20(self->child[3], ctx);
-    if (self->child[4]) func_00340C20(self->child[4], ctx);
-    if (self->child[5]) func_00340C20(self->child[5], ctx);
-    if (self->child[6]) func_00340C20(self->child[6], ctx);
-    if (self->child[7]) func_00340C20(self->child[7], ctx);
+    if (self->child[0]) cOverlapList_collectSubtreeInstancesPatches(self->child[0], ctx);
+    if (self->child[1]) cOverlapList_collectSubtreeInstancesPatches(self->child[1], ctx);
+    if (self->child[2]) cOverlapList_collectSubtreeInstancesPatches(self->child[2], ctx);
+    if (self->child[3]) cOverlapList_collectSubtreeInstancesPatches(self->child[3], ctx);
+    if (self->child[4]) cOverlapList_collectSubtreeInstancesPatches(self->child[4], ctx);
+    if (self->child[5]) cOverlapList_collectSubtreeInstancesPatches(self->child[5], ctx);
+    if (self->child[6]) cOverlapList_collectSubtreeInstancesPatches(self->child[6], ctx);
+    if (self->child[7]) cOverlapList_collectSubtreeInstancesPatches(self->child[7], ctx);
 }
 
 //100%
 struct sCtx_3309D8;
-extern "C" void func_003309D8(sCtx_3309D8* ctx, void* tree);
+extern "C" void cOverlapList_collectNodeInstances(sCtx_3309D8* ctx, void* tree);
 
 struct sBox_340DC0 {
     float min[4];
@@ -1722,9 +1722,9 @@ static inline int overlap_340DC0(const sBox_340DC0* b, const sObjNode_340DC0* n)
     return r;
 }
 
-extern "C" void func_00340DC0(sTree_340DC0* self, sCtx_340DC0* ctx)
+extern "C" void cOverlapList_collectSubtreeAll(sTree_340DC0* self, sCtx_340DC0* ctx)
 {
-    func_003309D8((sCtx_3309D8*)ctx, self);
+    cOverlapList_collectNodeInstances((sCtx_3309D8*)ctx, self);
     sSub_340DC0* s = &ctx->objs;
     for (sObjNode_340DC0* p = self->objs; p != 0; p = p->next) {
         if (overlap_340DC0(s->box, p)) {
@@ -1735,59 +1735,59 @@ extern "C" void func_00340DC0(sTree_340DC0* self, sCtx_340DC0* ctx)
     for (void** q = self->all; q != 0; q = (void**)*q) {
         add_340DC0(s, q);
     }
-    if (self->child[0]) func_00340DC0(self->child[0], ctx);
-    if (self->child[1]) func_00340DC0(self->child[1], ctx);
-    if (self->child[2]) func_00340DC0(self->child[2], ctx);
-    if (self->child[3]) func_00340DC0(self->child[3], ctx);
-    if (self->child[4]) func_00340DC0(self->child[4], ctx);
-    if (self->child[5]) func_00340DC0(self->child[5], ctx);
-    if (self->child[6]) func_00340DC0(self->child[6], ctx);
-    if (self->child[7]) func_00340DC0(self->child[7], ctx);
+    if (self->child[0]) cOverlapList_collectSubtreeAll(self->child[0], ctx);
+    if (self->child[1]) cOverlapList_collectSubtreeAll(self->child[1], ctx);
+    if (self->child[2]) cOverlapList_collectSubtreeAll(self->child[2], ctx);
+    if (self->child[3]) cOverlapList_collectSubtreeAll(self->child[3], ctx);
+    if (self->child[4]) cOverlapList_collectSubtreeAll(self->child[4], ctx);
+    if (self->child[5]) cOverlapList_collectSubtreeAll(self->child[5], ctx);
+    if (self->child[6]) cOverlapList_collectSubtreeAll(self->child[6], ctx);
+    if (self->child[7]) cOverlapList_collectSubtreeAll(self->child[7], ctx);
 }
 
 //100% - objdiff report; single-function view differs only in a relocation name
-extern "C" void func_00335960(void* ctx, void* obj);
-extern "C" void func_00335B90(void* ctx, void* obj);
+extern "C" void cSpaceHash_collectPatchHit(void* ctx, void* obj);
+extern "C" void cSpaceHash_collectInstanceHit(void* ctx, void* obj);
 
-extern "C" void func_00340FA0(void* self, void* ctx)
+extern "C" void cSpaceHash_collectSubtreeHits(void* self, void* ctx)
 {
     void** p;
     for (p = *(void***)((char*)self + 0x24); p != 0; p = (void**)*p) {
-        func_00335960(ctx, p);
+        cSpaceHash_collectPatchHit(ctx, p);
     }
     for (p = *(void***)((char*)self + 0x20); p != 0; p = (void**)*p) {
-        func_00335B90(ctx, p);
+        cSpaceHash_collectInstanceHit(ctx, p);
     }
-    if (*(void**)((char*)self + 0x0)) func_00340FA0(*(void**)((char*)self + 0x0), ctx);
-    if (*(void**)((char*)self + 0x4)) func_00340FA0(*(void**)((char*)self + 0x4), ctx);
-    if (*(void**)((char*)self + 0x8)) func_00340FA0(*(void**)((char*)self + 0x8), ctx);
-    if (*(void**)((char*)self + 0xC)) func_00340FA0(*(void**)((char*)self + 0xC), ctx);
-    if (*(void**)((char*)self + 0x10)) func_00340FA0(*(void**)((char*)self + 0x10), ctx);
-    if (*(void**)((char*)self + 0x14)) func_00340FA0(*(void**)((char*)self + 0x14), ctx);
-    if (*(void**)((char*)self + 0x18)) func_00340FA0(*(void**)((char*)self + 0x18), ctx);
-    if (*(void**)((char*)self + 0x1C)) func_00340FA0(*(void**)((char*)self + 0x1C), ctx);
+    if (*(void**)((char*)self + 0x0)) cSpaceHash_collectSubtreeHits(*(void**)((char*)self + 0x0), ctx);
+    if (*(void**)((char*)self + 0x4)) cSpaceHash_collectSubtreeHits(*(void**)((char*)self + 0x4), ctx);
+    if (*(void**)((char*)self + 0x8)) cSpaceHash_collectSubtreeHits(*(void**)((char*)self + 0x8), ctx);
+    if (*(void**)((char*)self + 0xC)) cSpaceHash_collectSubtreeHits(*(void**)((char*)self + 0xC), ctx);
+    if (*(void**)((char*)self + 0x10)) cSpaceHash_collectSubtreeHits(*(void**)((char*)self + 0x10), ctx);
+    if (*(void**)((char*)self + 0x14)) cSpaceHash_collectSubtreeHits(*(void**)((char*)self + 0x14), ctx);
+    if (*(void**)((char*)self + 0x18)) cSpaceHash_collectSubtreeHits(*(void**)((char*)self + 0x18), ctx);
+    if (*(void**)((char*)self + 0x1C)) cSpaceHash_collectSubtreeHits(*(void**)((char*)self + 0x1C), ctx);
 }
 
 //100% - objdiff report; single-function view differs only in a relocation name
-extern "C" void func_00336D40(void* ctx, void* obj);
+extern "C" void cSpaceHash_collectSceneryHit(void* ctx, void* obj);
 
-extern "C" void func_003410C0(void* self, void* ctx)
+extern "C" void cSpaceHash_collectSubtreeSceneryHits(void* self, void* ctx)
 {
     void** p;
     for (p = *(void***)((char*)self + 0x20); p != 0; p = (void**)*p) {
-        func_00336D40(ctx, p);
+        cSpaceHash_collectSceneryHit(ctx, p);
     }
-    if (*(void**)((char*)self + 0x0)) func_003410C0(*(void**)((char*)self + 0x0), ctx);
-    if (*(void**)((char*)self + 0x4)) func_003410C0(*(void**)((char*)self + 0x4), ctx);
-    if (*(void**)((char*)self + 0x8)) func_003410C0(*(void**)((char*)self + 0x8), ctx);
-    if (*(void**)((char*)self + 0xC)) func_003410C0(*(void**)((char*)self + 0xC), ctx);
-    if (*(void**)((char*)self + 0x10)) func_003410C0(*(void**)((char*)self + 0x10), ctx);
-    if (*(void**)((char*)self + 0x14)) func_003410C0(*(void**)((char*)self + 0x14), ctx);
-    if (*(void**)((char*)self + 0x18)) func_003410C0(*(void**)((char*)self + 0x18), ctx);
-    if (*(void**)((char*)self + 0x1C)) func_003410C0(*(void**)((char*)self + 0x1C), ctx);
+    if (*(void**)((char*)self + 0x0)) cSpaceHash_collectSubtreeSceneryHits(*(void**)((char*)self + 0x0), ctx);
+    if (*(void**)((char*)self + 0x4)) cSpaceHash_collectSubtreeSceneryHits(*(void**)((char*)self + 0x4), ctx);
+    if (*(void**)((char*)self + 0x8)) cSpaceHash_collectSubtreeSceneryHits(*(void**)((char*)self + 0x8), ctx);
+    if (*(void**)((char*)self + 0xC)) cSpaceHash_collectSubtreeSceneryHits(*(void**)((char*)self + 0xC), ctx);
+    if (*(void**)((char*)self + 0x10)) cSpaceHash_collectSubtreeSceneryHits(*(void**)((char*)self + 0x10), ctx);
+    if (*(void**)((char*)self + 0x14)) cSpaceHash_collectSubtreeSceneryHits(*(void**)((char*)self + 0x14), ctx);
+    if (*(void**)((char*)self + 0x18)) cSpaceHash_collectSubtreeSceneryHits(*(void**)((char*)self + 0x18), ctx);
+    if (*(void**)((char*)self + 0x1C)) cSpaceHash_collectSubtreeSceneryHits(*(void**)((char*)self + 0x1C), ctx);
 }
 
-extern "C" void* func_003400D8(int, int);
+extern "C" void* __sti__worldsphtree_cpp(int, int);
 
 //100%
 struct sCtx_3411B8 {
@@ -1799,7 +1799,7 @@ struct sCtx_3411B8 {
     sBox_00334680* box;         // 0x14
 };
 
-extern "C" void func_003411B8(void* self, sCtx_3411B8* ctx)
+extern "C" void cSpaceHash_collectSubtreeRails(void* self, sCtx_3411B8* ctx)
 {
     for (char* o = *(char**)((char*)self + 0x28); o != 0; o = *(char**)o) {
         int type = *(int*)(o + 8);
@@ -1809,24 +1809,24 @@ extern "C" void func_003411B8(void* self, sCtx_3411B8* ctx)
             func_00348290(*(void**)(o + 0xC), ctx->box, ctx->box, ctx->pos, ctx->mask, ctx->cnt, ctx->dist, ctx->a2);
         } else if (type == 1) {
             if (*(int*)(*(char**)(o + 0x68) + 0x1C) & ctx->mask) {
-                func_00335128(o, ctx->box, ctx->pos, ctx->cnt, ctx->dist, ctx->a2);
+                cRailSegment_findClosestPoint(o, ctx->box, ctx->pos, ctx->cnt, ctx->dist, ctx->a2);
             }
         }
     }
-    if (*(void**)((char*)self + 0x0)) func_003411B8(*(void**)((char*)self + 0x0), ctx);
-    if (*(void**)((char*)self + 0x4)) func_003411B8(*(void**)((char*)self + 0x4), ctx);
-    if (*(void**)((char*)self + 0x8)) func_003411B8(*(void**)((char*)self + 0x8), ctx);
-    if (*(void**)((char*)self + 0xC)) func_003411B8(*(void**)((char*)self + 0xC), ctx);
-    if (*(void**)((char*)self + 0x10)) func_003411B8(*(void**)((char*)self + 0x10), ctx);
-    if (*(void**)((char*)self + 0x14)) func_003411B8(*(void**)((char*)self + 0x14), ctx);
-    if (*(void**)((char*)self + 0x18)) func_003411B8(*(void**)((char*)self + 0x18), ctx);
-    if (*(void**)((char*)self + 0x1C)) func_003411B8(*(void**)((char*)self + 0x1C), ctx);
+    if (*(void**)((char*)self + 0x0)) cSpaceHash_collectSubtreeRails(*(void**)((char*)self + 0x0), ctx);
+    if (*(void**)((char*)self + 0x4)) cSpaceHash_collectSubtreeRails(*(void**)((char*)self + 0x4), ctx);
+    if (*(void**)((char*)self + 0x8)) cSpaceHash_collectSubtreeRails(*(void**)((char*)self + 0x8), ctx);
+    if (*(void**)((char*)self + 0xC)) cSpaceHash_collectSubtreeRails(*(void**)((char*)self + 0xC), ctx);
+    if (*(void**)((char*)self + 0x10)) cSpaceHash_collectSubtreeRails(*(void**)((char*)self + 0x10), ctx);
+    if (*(void**)((char*)self + 0x14)) cSpaceHash_collectSubtreeRails(*(void**)((char*)self + 0x14), ctx);
+    if (*(void**)((char*)self + 0x18)) cSpaceHash_collectSubtreeRails(*(void**)((char*)self + 0x18), ctx);
+    if (*(void**)((char*)self + 0x1C)) cSpaceHash_collectSubtreeRails(*(void**)((char*)self + 0x1C), ctx);
 }
 
 //99.38%
-void* func_00341368(void* self)
+void* worldsphtreeStaticInit__FPv(void* self)
 {
-    return func_003400D8(1, 0xffff);
+    return __sti__worldsphtree_cpp(1, 0xffff);
 }
 
 //100%
@@ -1925,7 +1925,7 @@ static inline sVec4_341388 vu0Xform_341388(const sVec4_341388& v, const char* m)
     return r;
 }
 
-extern "C" sObj_341388* func_00341388(sObj_341388* self, void* a1, int a2, void* a3, sDef_341388* def)
+extern "C" sObj_341388* cBoostNode_construct(sObj_341388* self, void* a1, int a2, void* a3, sDef_341388* def)
 {
     func_0034FB00(self, a1, a2, a3);
     self->vt = D_004914E0;
@@ -1974,7 +1974,7 @@ extern void* D_004914E0[];
 extern "C" void* func_0034FBF0(void*);
 
 //100%
-void* func_003415A8(void* self)
+void* cBoostNode_destroy__FPv(void* self)
 {
     *(int*)((char*)self + 0xc) = (int)(void*)D_004914E0;
     return func_0034FBF0(self);
@@ -2003,7 +2003,7 @@ struct sNode_003415D0 {
     int type;
 };
 
-extern "C" void func_003415D0(sNode_003415D0* self)
+extern "C" void cBoostNode_update(sNode_003415D0* self)
 {
     int hit = 0;
     if (self->type != 1) {
@@ -2079,7 +2079,7 @@ public:
 
 extern "C" float func_002D1C70();
 
-extern "C" void func_00341770(void* self, cMover_341770* obj)
+extern "C" void cBoostNode_scaleVelocity(void* self, cMover_341770* obj)
 {
     sVec4_341770 u = vu0Scale_341770(vu0Scale_341770(*obj->getVelocity(), *(float*)((char*)self + 0x34) + 1.0f), func_002D1C70());
     obj->setVelocity(&u);
@@ -2176,7 +2176,7 @@ static inline void push_341818(sParams_341818* p, cMover_341818* obj, const sVec
     obj->setVelocity(&u);
 }
 
-extern "C" void func_00341818(sSph_341818* self, cMover_341818* obj)
+extern "C" void cBoostNode_pushVelocity(sSph_341818* self, cMover_341818* obj)
 {
     sVec4_341818 vel = *obj->getVelocity();
     sVec4_341818 dir = self->params.dir;
@@ -2198,7 +2198,7 @@ extern "C" void func_00341818(sSph_341818* self, cMover_341818* obj)
 }
 
 //100%
-extern "C" void func_00341A30(void* self, int a1)
+extern "C" void cBoostNode_onMessage(void* self, int a1)
 {
     if (a1 == 1) {
         *(int*)((char*)self + 0x3c) = *(int*)((char*)self + 0x38);
@@ -2214,7 +2214,7 @@ struct sSerVEntry_00341A50 {
 
 extern "C" void func_0034FE90(void* self, void* stream);
 
-extern "C" void func_00341A50(void* self, void* stream)
+extern "C" void cBoostNode_writeToReplayFrame(void* self, void* stream)
 {
     func_0034FE90(self, stream);
     sSerVEntry_00341A50* vt = *(sSerVEntry_00341A50**)stream;
@@ -2289,7 +2289,7 @@ static inline void setRateMax_1AA0(sFloat_1AA0* dst, float v, char* info)
 }
 
 // Animated float constructor: range and start value (frames -> seconds), optional random start and speed.
-extern "C" void* func_00341AA0(sSphFloat_1AA0* self, int a1, int a2, char* obj, sSphFloatDef_1AA0* def)
+extern "C" void* cAnimObjectNode_construct(sSphFloat_1AA0* self, int a1, int a2, char* obj, sSphFloatDef_1AA0* def)
 {
     func_0034D9B0((char*)self + 0x1C, a1, a2, obj, def->f24 != 0);
     self->vt = D_00490B10;
@@ -2357,7 +2357,7 @@ extern "C" void func_0034DBA8(void* p, int flags);
 void operator_delete(int* ptr);
 extern void* D_00490B10[];
 
-extern "C" void func_00341CF0(void* self, int flags)
+extern "C" void cAnimObjectNode_destroy(void* self, int flags)
 {
     *(void***)((char*)self + 0x3C) = D_00490B10;
     func_0034DBA8((char*)self + 0x1C, 0);
@@ -2370,9 +2370,9 @@ extern "C" void func_00341CF0(void* self, int flags)
 struct sWrapFloat_1E48;
 struct sBounceFloat_1EC0;
 struct sClampFloat_1F38;
-extern "C" void func_00341E48(sWrapFloat_1E48* s);
-extern "C" void func_00341EC0(sBounceFloat_1EC0* s);
-extern "C" void func_00341F38(sClampFloat_1F38* s);
+extern "C" void cAnimObjectNode_stepWrap(sWrapFloat_1E48* s);
+extern "C" void cAnimObjectNode_stepPingPong(sBounceFloat_1EC0* s);
+extern "C" void cAnimObjectNode_stepClamp(sClampFloat_1F38* s);
 extern "C" int func_0034EBA0(void* p);
 
 struct sVEntry_00341D48 {
@@ -2381,7 +2381,7 @@ struct sVEntry_00341D48 {
     void (*fn)(void*, int);
 };
 
-extern "C" int func_00341D48(void* self)
+extern "C" int cAnimObjectNode_update(void* self)
 {
     *(float*)((char*)self + 0x24) = 10000000000.0f;
     *(float*)((char*)self + 0x28) = 10000000000.0f;
@@ -2395,13 +2395,13 @@ extern "C" int func_00341D48(void* self)
             *(float*)((char*)self + 0x24) = *(float*)((char*)self + 0x1C);
             switch (*(short*)self) {
             case 2:
-                func_00341EC0((sBounceFloat_1EC0*)self);
+                cAnimObjectNode_stepPingPong((sBounceFloat_1EC0*)self);
                 break;
             case 1:
-                func_00341E48((sWrapFloat_1E48*)self);
+                cAnimObjectNode_stepWrap((sWrapFloat_1E48*)self);
                 break;
             default:
-                func_00341F38((sClampFloat_1F38*)self);
+                cAnimObjectNode_stepClamp((sClampFloat_1F38*)self);
                 break;
             }
             if (func_0034EBA0((char*)self + 0x1C) == 0) {
@@ -2431,7 +2431,7 @@ struct sWrapFloat_1E48 {
     float last;     // 0x28
 };
 
-extern "C" void func_00341E48(sWrapFloat_1E48* s)
+extern "C" void cAnimObjectNode_stepWrap(sWrapFloat_1E48* s)
 {
     if (s->speed >= 0.0f) {
         s->value += s->speed;
@@ -2459,7 +2459,7 @@ struct sBounceFloat_1EC0 {
     float last;     // 0x28
 };
 
-extern "C" void func_00341EC0(sBounceFloat_1EC0* s)
+extern "C" void cAnimObjectNode_stepPingPong(sBounceFloat_1EC0* s)
 {
     if (s->speed >= 0.0f) {
         s->value += s->speed;
@@ -2491,7 +2491,7 @@ struct sClampFloat_1F38 {
     float last;     // 0x28
 };
 
-extern "C" void func_00341F38(sClampFloat_1F38* s)
+extern "C" void cAnimObjectNode_stepClamp(sClampFloat_1F38* s)
 {
     if (s->speed >= 0.0f) {
         if (s->value == s->max) {
@@ -2517,7 +2517,7 @@ extern "C" void func_00341F38(sClampFloat_1F38* s)
 void func_0034FCC0(void*);
 
 //100%
-extern "C" void func_00341FC8(void* self, int a1)
+extern "C" void cAnimObjectNode_onFinished(void* self, int a1)
 {
     if (a1 != 0) {
         func_0034FCC0((char*)self + 0x30);
@@ -2528,7 +2528,7 @@ extern "C" void func_00341FC8(void* self, int a1)
 extern char* D_004A5B64;
 extern "C" void func_00356B08(void* p);
 
-extern "C" void func_00341FE8(sClampFloat_1F38* self, int msg, float v)
+extern "C" void cAnimObjectNode_onMessage(sClampFloat_1F38* self, int msg, float v)
 {
     if (msg == 0x64) {
         *(int*)((char*)self + 0xC) = (int)(v * (float)*(int*)(D_004A5B64 + 0x10));
@@ -2581,7 +2581,7 @@ struct sVEntry_func_00342150 {
     void (*fn)(void*, void*, int);
 };
 
-extern "C" void func_00342150(void* self, void* stream)
+extern "C" void cAnimObjectNode_writeToReplayFrame(void* self, void* stream)
 {
     func_0034E3D8((char*)self + 0x1C, stream);
     sVEntry_func_00342150* vt = *(sVEntry_func_00342150**)stream;
@@ -2641,7 +2641,7 @@ static inline void setRateMax_003421A0(sFloat_003421A0* dst, float v, char* info
     dst->v = r;
 }
 
-extern "C" void* func_003421A0(sSphCtl_003421A0* self, int a1, char* obj, char* def)
+extern "C" void* cAnimTeeterNode_construct(sSphCtl_003421A0* self, int a1, char* obj, char* def)
 {
     func_0034D9B0((char*)self + 0x30, a1, 4, obj, 0);
     self->vt = D_004908F8;
@@ -2718,7 +2718,7 @@ static inline float absf_00342358(float x)
     return r;
 }
 
-extern "C" int func_00342358(sSphCtl_00342358* s)
+extern "C" int cAnimTeeterNode_update(sSphCtl_00342358* s)
 {
     s->prev = s->pos;
     float dt = func_002D1C70();
@@ -2772,7 +2772,7 @@ extern "C" int func_00342358(sSphCtl_00342358* s)
 }
 
 //100%
-extern "C" float func_003424D0(void* self)
+extern "C" float cAnimTeeterNode_getStep(void* self)
 {
     if (*(float*)((char*)self + 0x30) <= *(float*)((char*)self + 0x10) && *(float*)((char*)self + 0x4) < 0.0f) {
         return 0.0f;
@@ -2783,7 +2783,7 @@ extern "C" float func_003424D0(void* self)
     return *(float*)((char*)self + 0x4);
 }
 
-INCLUDE_ASM("intersect/worldsphtree", func_00342538);
+INCLUDE_ASM("intersect/worldsphtree", cAnimTeeterNode_applyForce);
 
 //100%
 extern "C" void func_0034E3D8(void* p, void* stream);
@@ -2793,7 +2793,7 @@ struct sVEntry_func_00342718 {
     void (*fn)(void*, void*, int);
 };
 
-extern "C" void func_00342718(void* self, void* stream)
+extern "C" void cAnimTeeterNode_writeToReplayFrame(void* self, void* stream)
 {
     func_0034E3D8((char*)self + 0x30, stream);
     sVEntry_func_00342718* vt = *(sVEntry_func_00342718**)stream;
@@ -2829,7 +2829,7 @@ struct sSph_342768 {
 extern void* D_00490898[];
 extern char* D_004A5B64;
 
-extern "C" void* func_00342768(sSph_342768* self, sSphDef_342768* def, int a2)
+extern "C" void* cBoostModifier_construct(sSph_342768* self, sSphDef_342768* def, int a2)
 {
     self->refs = 1;
     self->vt = D_00490898;
@@ -2862,7 +2862,7 @@ typedef int (*ReadIntFn00342808)(void*);
 
 extern void* D_00490898[];
 
-extern "C" void* func_00342808(void* self, sVEntry00342808** stream)
+extern "C" void* cBoostModifier_cBoostModifier(void* self, sVEntry00342808** stream)
 {
     *(int*)((char*)self + 0x0) = 1;
     *(void***)((char*)self + 0x4) = D_00490898;
@@ -2880,7 +2880,7 @@ typedef void (*Fn0_00342880)(void*);
 typedef void (*Fn1_00342880)(void*, void*);
 typedef int (*Test_00342880)(void*, int);
 
-extern "C" void func_00342880(sSph_342768* self)
+extern "C" void cBoostModifier_update(sSph_342768* self)
 {
     self->refs = 0;
     if (self->type == 0) {
@@ -2948,16 +2948,16 @@ public:
 
 extern "C" float func_002D1C70();
 
-extern "C" void func_003429E0(void* self, cMover_3429E0* obj)
+extern "C" void cBoostModifier_scaleVelocity(void* self, cMover_3429E0* obj)
 {
     sVec4_3429E0 u = vu0Scale_3429E0(vu0Scale_3429E0(*obj->getVelocity(), *(float*)((char*)self + 0x24) + 1.0f), func_002D1C70());
     obj->setVelocity(&u);
 }
 
-INCLUDE_ASM("intersect/worldsphtree", func_00342A88);
+INCLUDE_ASM("intersect/worldsphtree", cBoostModifier_pushVelocity);
 
 //100%
-extern "C" void func_00342B80(void* self, int a1)
+extern "C" void cBoostModifier_onMessage(void* self, int a1)
 {
     if (a1 == 0x258) {
         *(int*)((char*)self + 0x2c) = *(int*)((char*)self + 0x28);
@@ -2977,7 +2977,7 @@ struct sVEntry1_func_00342BA0 {
     void (*fn)(void*, int);
 };
 
-extern "C" void func_00342BA0(void* self, void* stream)
+extern "C" void cBoostModifier_writeToReplayFrame(void* self, void* stream)
 {
     func_003584B8(self, stream);
     sVEntry_func_00342BA0* vt = *(sVEntry_func_00342BA0**)stream;
@@ -3013,7 +3013,7 @@ struct sSelf_342C08 {
     int t30;
 };
 
-extern "C" void* func_00342C08(sSelf_342C08* self, void* a1, void* a2, sDef_342C08* def, void* a4)
+extern "C" void* cDebounceNode_construct(sSelf_342C08* self, void* a1, void* a2, sDef_342C08* def, void* a4)
 {
     func_00355280(self, a1, 0, a2);
     self->vt = D_004906F0;

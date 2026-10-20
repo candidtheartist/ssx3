@@ -768,7 +768,7 @@ struct sInst_346568 {
     float max[3];
 };
 
-extern "C" void func_003291E0(void* world, int type, void* id, sBox_346568* box, sBox_346568* old);
+extern "C" void cSpaceHash_moveItem(void* world, int type, void* id, sBox_346568* box, sBox_346568* old);
 
 struct sRVEntry_346568 {
     short delta;
@@ -808,7 +808,7 @@ extern "C" void func_00346568(char* self, int flags)
     t.z = inst->max[2];
     t.w = 1.0f;
     *(sVec4_346568*)(self + 0xA0) = t;
-    func_003291E0(func_002D1BE0(), 0, inst, box, &old);
+    cSpaceHash_moveItem(func_002D1BE0(), 0, inst, box, &old);
     func_00353DB8(self + 0x50, 2);
     func_0034FBF0(self, flags);
 }

@@ -11,7 +11,7 @@ Segment `0x00342D10`-`0x003454E8`.
 - **`0x00343C60`** - Reachable from global scripts via `0x00303B38`; a potential visual-RNG consumer, though it makes no draws in the race (role unconfirmed). *[unconfirmed]*
 - **`0x003440C8`** - CrowdMan3d update; called from the race game update at `0x00230D00`. *[static]*
 - **`0x00345048`** - Spline arc length to parameter: evaluates the segment's `+0x50` cubic with VU0 row products. *[static]*
-- **`0x003451C0`** - Binds a spline path (kind-8 spline/grind-rail record) to a modifier. *[static]*
+- **`0x003451C0`** - Binds a spline path (spline/grind-rail record) to a modifier. *[static]*
 - **`0x00345248`** - Spline path distance wrap and segment cursor lookup (handles negative and over-length distances and arbitrary starting cursors). *[PS2]*
 
 ## `src/object/spline3d.cpp`

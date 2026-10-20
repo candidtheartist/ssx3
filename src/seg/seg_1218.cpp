@@ -1288,9 +1288,9 @@ struct sBankTab_3AA0 {
 };
 
 extern sBankTab_3AA0* D_004A3DF8;
-extern "C" int func_001446A0(void*, int);
+extern "C" int testFlagBit(void*, int);
 extern "C" int func_001446B8(void*, int);
-extern "C" void func_00144670(void*, int);
+extern "C" void moveFlagBit(void*, int);
 extern "C" void func_00104CC8(void*, int);
 
 extern "C" void func_00103AA0(void* self, sObj_3AA0* o)
@@ -1298,13 +1298,13 @@ extern "C" void func_00103AA0(void* self, sObj_3AA0* o)
     int n = D_004A3DF8->banks[o->id & 0xFF]->ents[o->id >> 8].count;
     for (int i = 0; i < n; i++) {
         int ok = 0;
-        if (func_001446A0(o->sub, i) && func_001446B8(o->sub, i))
+        if (testFlagBit(o->sub, i) && func_001446B8(o->sub, i))
             ok = 1;
         if (ok) {
             sBank_3AA0* b = D_004A3DF8->banks[o->id & 0xFF];
             unsigned short r = b->recs[b->ents[o->id >> 8].first + i].b;
             if (r & 0x8000) {
-                func_00144670(o->sub, i);
+                moveFlagBit(o->sub, i);
                 func_00104CC8(self, r & 0x7FFF);
             }
         }
@@ -2003,10 +2003,10 @@ INCLUDE_ASM("seg/seg_1218", func_00106538);
 INCLUDE_ASM("seg/seg_1218", func_001065B0);
 
 //100%
-extern "C" void func_00329AE0(int);
+extern "C" void cRiderSphereTree_updateFromBones(int);
 
 extern "C" void func_00106828(void *arg0) {
-    func_00329AE0((*(int *)((char*)(arg0) + (0xAA0))));
+    cRiderSphereTree_updateFromBones((*(int *)((char*)(arg0) + (0xAA0))));
 }
 
 INCLUDE_ASM("seg/seg_1218", func_00106848);
@@ -2409,7 +2409,7 @@ struct sHit_86B8 {
     char pad[0x80 - 0x10];
 };
 
-extern "C" int func_00334680_86B8(void*, sV4_86B8*, sV4_86B8*, int, float) __asm__("func_00334680");
+extern "C" int cOverlapList_findNearestRail_86B8(void*, sV4_86B8*, sV4_86B8*, int, float) __asm__("cOverlapList_findNearestRail");
 
 // PORT: PS2-only VU0 inline asm (vector add).
 static inline sV4_86B8 Add_86B8(const sV4_86B8& a, const sV4_86B8& b)
@@ -2561,7 +2561,7 @@ extern "C" int func_001086B8_86B8(char* self, sV4_86B8* tgt, sV4_86B8* dir)
     float u = Dot_86B8(b, Sub_86B8(Scale_86B8(*dir, dd), fwd));
     sV4_86B8 p = Add_86B8(pos, Scale_86B8(fwd, Clamp_86B8(u, lo, hi)));
     sHit_86B8 hit;
-    if (!func_00334680_86B8(*(void**)(self + 0x860), &p, &hit.pos, 1, 300.0f))
+    if (!cOverlapList_findNearestRail_86B8(*(void**)(self + 0x860), &p, &hit.pos, 1, 300.0f))
         return 0;
     d = Sub_86B8(p, hit.pos);
     return Len_86B8(d) <= nearR;
@@ -2653,10 +2653,10 @@ static inline float vDot_8A48(const sVec4_8A48& a, const sVec4_8A48& b)
 }
 
 int cRider_getMotionMode(void*);
-extern "C" int func_00334680(void*, sVec4_8A48*, sVec4_8A48*, int, float);
+extern "C" int cOverlapList_findNearestRail(void*, sVec4_8A48*, sVec4_8A48*, int, float);
 extern "C" int cRiderAnimBase_getChannelAnimClass(void*, int);
 extern "C" char* cRiderAnimBase_getChannelSequence(void*, int);
-extern "C" int func_001446A0(void*, int);
+extern "C" int testFlagBit(void*, int);
 extern "C" int func_001086B8(void*, sVec4_8A48*, sVec4_8A48*);
 
 extern "C" int func_00108A48(char* self, sVec4_8A48* tgt)
@@ -2665,7 +2665,7 @@ extern "C" int func_00108A48(char* self, sVec4_8A48* tgt)
         return 0;
     sVec4_8A48 p = vAdd_8A48(*(sVec4_8A48*)((char*)(*(sPath_8A48**)(self + 0x780))->nodes + (*(int*)(self + 0x8A0) << 5)),
                              *(sVec4_8A48*)(self + 0x9D0));
-    if (!func_00334680(*(void**)(self + 0x860), &p, tgt, 1, 300.0f))
+    if (!cOverlapList_findNearestRail(*(void**)(self + 0x860), &p, tgt, 1, 300.0f))
         return 0;
     float spd = vLen_8A48(*(sVec4_8A48*)(self + 0x1E0));
     if (0.001f < spd) {
@@ -2674,12 +2674,12 @@ extern "C" int func_00108A48(char* self, sVec4_8A48* tgt)
             return 0;
     }
     if (cRiderAnimBase_getChannelAnimClass(*(void**)(self + 0x784), 2) == 0x12) {
-        if (!func_001446A0(cRiderAnimBase_getChannelSequence(*(void**)(self + 0x784), 2) + 0xB0, 2) &&
-            func_001446A0(cRiderAnimBase_getChannelSequence(*(void**)(self + 0x784), 2) + 0xB0, 0))
+        if (!testFlagBit(cRiderAnimBase_getChannelSequence(*(void**)(self + 0x784), 2) + 0xB0, 2) &&
+            testFlagBit(cRiderAnimBase_getChannelSequence(*(void**)(self + 0x784), 2) + 0xB0, 0))
             return 0;
     } else if (cRiderAnimBase_getChannelAnimClass(*(void**)(self + 0x784), 2) == 0x13 ||
                cRiderAnimBase_getChannelAnimClass(*(void**)(self + 0x784), 2) == 0x14) {
-        if (!func_001446A0(cRiderAnimBase_getChannelSequence(*(void**)(self + 0x784), 2) + 0xB0, 2))
+        if (!testFlagBit(cRiderAnimBase_getChannelSequence(*(void**)(self + 0x784), 2) + 0xB0, 2))
             return 0;
     }
     return func_001086B8(self, tgt, tgt + 1);

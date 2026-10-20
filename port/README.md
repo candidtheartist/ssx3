@@ -7,8 +7,10 @@ This directory is the start of a native PC build of SSX 3. It holds two things:
 
 - **`recomp/`** builds the game on the [PS2Recomp](https://github.com/ran-j/PS2Recomp) runtime: the retail
   ELF is translated to C++ at build time and linked against a patched 32-bit runtime. This boots the game
-  today, but it is a static recompilation with a runtime that stands in for the PS2 hardware, not a
-  native port: none of the game code it runs is decompiled source yet. See [recomp/README.md](recomp/README.md).
+  today, but it is mostly a static recompilation with a runtime that stands in for the PS2 hardware, not a
+  native port. The exception is a first set of game functions compiled from the decompiled C and run
+  natively in place of their recompiled copies ([recomp/native](recomp/native/README.md)). See
+  [recomp/README.md](recomp/README.md).
 - **`src/`** is the native platform layer that the decompiled code will run on. It doesn't run game code yet.
 
 The native platform layer:

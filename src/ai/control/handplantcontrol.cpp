@@ -228,8 +228,8 @@ done:
 INCLUDE_ASM("ai/control/handplantcontrol", cAirMotion_postUpdate);
 
 //100%
-extern "C" void* func_0032E100(void* seg, const sVec4HP& a, const sVec4HP& b, int n, float r);
-extern "C" float func_003342D0(void* world, void* seg, void* hit, int flags);
+extern "C" void* cWorldLine_cWorldLine(void* seg, const sVec4HP& a, const sVec4HP& b, int n, float r);
+extern "C" float cOverlapList_queryNearest(void* world, void* seg, void* hit, int flags);
 
 // PORT: PS2-only VU0 inline asm (vector times scalar).
 static inline sVec4HP vu0Scale_13A7B0(const sVec4HP& v, float s)
@@ -283,9 +283,9 @@ extern "C" float cAirMotion_queryLanding(void* self, char* hit)
     sVec4HP* pt = (sVec4HP*)(*(char**)(*(char**)(rider + 0x780) + 0x2C) + (*(int*)(rider + 0x8A0) << 5));
     sVec4HP dir = *(sVec4HP*)(rider + 0x180);
     char seg[0xB0];
-    func_0032E100(seg, vu0Sub_13A7B0(*pt, vu0Scale_13A7B0(dir, 200.0f)), vu0Add_13A7B0(*pt, vu0Scale_13A7B0(dir, 200.0f)), 2, 0.574999988079071f);
+    cWorldLine_cWorldLine(seg, vu0Sub_13A7B0(*pt, vu0Scale_13A7B0(dir, 200.0f)), vu0Add_13A7B0(*pt, vu0Scale_13A7B0(dir, 200.0f)), 2, 0.574999988079071f);
     char* r2 = *(char**)((char*)self + 0x4);
-    float d = func_003342D0(*(void**)(r2 + 0x860), seg, hit, *(int*)(r2 + 0x864));
+    float d = cOverlapList_queryNearest(*(void**)(r2 + 0x860), seg, hit, *(int*)(r2 + 0x864));
     if (d >= 0.0f)
     {
         char* o = *(char**)(hit + 0x50);
@@ -909,7 +909,7 @@ extern "C" float cGroundMotion_computeLateralAccel(void* self, float* v, float a
 }
 
 //100%
-extern "C" void* func_0032E100(void* seg, const sVec4HP& a, const sVec4HP& b, int n, float r);
+extern "C" void* cWorldLine_cWorldLine(void* seg, const sVec4HP& a, const sVec4HP& b, int n, float r);
 extern void* D_004FF120[];
 
 struct sHit_13D1B8 {
@@ -929,7 +929,7 @@ struct sHit_13D1B8 {
     sHit_13D1B8() {}
 } __attribute__((aligned(16)));
 
-extern "C" int func_00333EF8(void* world, void* seg, sHit_13D1B8* hits, int max, int flags);
+extern "C" int cOverlapList_collectHits(void* world, void* seg, sHit_13D1B8* hits, int max, int flags);
 extern sVec4HP D_004FF160;
 extern sVec4HP D_004FF120_v __asm__("D_004FF120");
 
@@ -1324,14 +1324,14 @@ extern "C" void cGroundMotion_loseFocus(void* self)
 //100%
 extern "C" void cRider_updateOrientationImplicit(void*);
 int cRider_getControlState(void* rider);
-extern "C" float func_003342D0(void* world, void* seg, void* hit, int flags);
+extern "C" float cOverlapList_queryNearest(void* world, void* seg, void* hit, int flags);
 extern "C" void func_00106538(void* rider, void* v);
 extern "C" void func_001065B0(void* rider, void* hit);
 extern "C" void func_00105D98(void* rider, void* info, int id);
 extern "C" void* func_0028B180();
 extern "C" void func_002989A8(void* snd, void* rider);
-extern "C" void* func_0032F650(void* self, void* tree, int flag);
-extern "C" void func_0032F708(void* self, int flags);
+extern "C" void* cWorldRider_cWorldRider(void* self, void* tree, int flag);
+extern "C" void cWorldRider_destroy(void* self, int flags);
 
 struct sHit_13F488 {
     sVec4HP pos;            // 0x00
@@ -1483,12 +1483,12 @@ extern "C" void cGroundMotion_collideBody(void* self)
     sHit_13F488 hit;
     sSphere_13F488 sph;
     char* r = RIDER;
-    func_0032F650(&sph, *(void**)(r + 0xAA0), !riderFlag_13F488(r));
+    cWorldRider_cWorldRider(&sph, *(void**)(r + 0xAA0), !riderFlag_13F488(r));
     sph.f8 = 1;
     sph.dir = RV(0x370);
-    float d = func_003342D0(*(void**)(RIDER + 0x860), &sph, &hit, *(int*)(RIDER + 0x868));
+    float d = cOverlapList_queryNearest(*(void**)(RIDER + 0x860), &sph, &hit, *(int*)(RIDER + 0x868));
     if (d < 0.0f)
-        { func_0032F708(&sph, 2); return; }
+        { cWorldRider_destroy(&sph, 2); return; }
     if (hit.obj != 0) {
         char* h = *(char**)(hit.obj + 0xC);
         if (h) {
@@ -1499,7 +1499,7 @@ extern "C" void cGroundMotion_collideBody(void* self)
     {
         float dot = vu0Dot_13F488(RV(0x370), hit.normal);
         if (dot < -0.9998999834060669f)
-            { func_0032F708(&sph, 2); return; }
+            { cWorldRider_destroy(&sph, 2); return; }
         if (dot < 0.0f)
             hit.normal = vu0Normalize_13F488(vu0Sub_13F488(hit.normal, vu0Scale_13F488(RV(0x370), dot)));
     }
@@ -1509,7 +1509,7 @@ extern "C" void cGroundMotion_collideBody(void* self)
         sVec4HP a = vu0Sub_13F488(RV(0x1E0), hit.v20);
         float dot2 = vu0Dot_13F488(vu0Scale_13F488(hit.normal, -1.0f), a);
         if (dot2 < 0.0f)
-            { func_0032F708(&sph, 2); return; }
+            { cWorldRider_destroy(&sph, 2); return; }
         sVec4HP n = vu0Normalize_13F488(a);
         float k = dot2 * 0.05000000074505806f;
         if (k < 27.77777862548828f)
@@ -1525,7 +1525,7 @@ extern "C" void cGroundMotion_collideBody(void* self)
         func_00105D98(RIDER, &info, hit.m4C);
         func_002989A8(func_0028B180(), RIDER);
     }
-    func_0032F708(&sph, 2);
+    cWorldRider_destroy(&sph, 2);
 }
 #undef RV
 #undef RIDER
@@ -2921,7 +2921,8 @@ extern "C" void* func_00144630(char* self)
 
 //100%
 // PORT: ulong is 64-bit here
-extern "C" void func_00144670(void* self, int bit)
+// Flag-word pair (two ulongs, e.g. cAnimSequence::mLatchedFlags): moves bit from word 0 into word 1.
+extern "C" void moveFlagBit(void* self, int bit)
 {
     ulong mask = (ulong)1 << bit;
     ulong a = *(ulong*)self;
@@ -2930,7 +2931,8 @@ extern "C" void func_00144670(void* self, int bit)
 }
 
 //100%
-extern "C" bool func_001446A0(void* self, int bit)
+// Tests bit in word 0 of a flag-word pair.
+extern "C" bool testFlagBit(void* self, int bit)
 {
     ulong mask = (ulong)1 << bit;
     return (*(ulong*)self & mask) != 0;

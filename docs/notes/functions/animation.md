@@ -64,11 +64,11 @@ Segment `0x003118D0`-`0x00313A10`.
 Segment `0x00313A10`-`0x00314CB0`.
 
 - **`0x00313A10`** `cAnimSequence_fadeWeight__FP13cAnimSequenceff` - Sequence fade-to helper; used by attack control and by completion replacement `0x00312B18` when the source sequence's +0x9C is nonzero. *[static]*
-- **`0x00313C50`** - Assigns a clip to a sequence playback slot: +4 clip, +0x10 duration = (u16 frames-1)*(1/30), sets the seq+0xC4 seek; if the slot was disabled (+0x18 == 0) initializes time 0, rate 1, weight 1, enabled and loop. An already-enabled slot keeps its time and rate when the clip changes. Called every tick by `0x001043F8` for slot 1. *[static]*
+- **`0x00313C50`** - Assigns a clip to a sequence playback slot: +4 clip, +0x10 duration = (u16 frames-1)*(1/30), sets the seq+0xC4 seek; if the slot was disabled (+0x18 == 0) initializes time 0, rate 1, weight 1, enabled, and clears loop. An already-enabled slot keeps its time and rate when the clip changes. Called every tick by `0x001043F8` for slot 1. *[static]*
 - **`0x00313CF0`** - Seeks a playback slot: sets its time and the seek flag. *[static]*
 - **`0x00313D28`** - Sets a playback slot's weight. *[static]*
 - **`0x00313D40`** - Sets a playback slot's loop flag. *[static]*
-- **`0x00313D70`** - Computes sequence fade weights. *[static]*
+- **`0x00313D70`** `cAnimSequence_getSlotWeight` - Slot weight: sequence weight +0x94 x slot weight, capped by a ramp-in over the first +0xA8 seconds and a ramp-out over the last +0xA4 seconds of the slot. *[static]*
 - **`0x00314418`** - Emits the model's animation descriptors. *[static]*
 - **`0x00314518`** - Initializes a sequence's primary playback slot; called from sequence creation `0x00311F00`. *[static]*
 - **`0x003145F8`** - Removes an animation sequence (the owning sequence container performs the removal); used by completion replacement `0x00312B18` and when a stop/removal fade completes. *[static]*
