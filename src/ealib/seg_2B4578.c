@@ -10788,7 +10788,93 @@ INCLUDE_ASM("ealib/seg_2B4578", func_003D3658);
 
 INCLUDE_ASM("ealib/seg_2B4578", func_003D37A0);
 
-INCLUDE_ASM("ealib/seg_2B4578", func_003D3900);
+// Runs the control events at the current sequence position: note-on setup,
+// per-track controller writes, random velocity and sub-sequence jumps, then
+// returns the next note event.
+struct A_D39 { int p0; int p1; unsigned long w : 44; unsigned long n : 4; unsigned long top : 16; };
+struct B_D39 { unsigned int f0; unsigned int f4; long b8 : 8; unsigned long b9 : 8; unsigned long pA : 16; unsigned long bC : 8; unsigned long v : 7; unsigned long flag : 1; unsigned short hE; };
+struct E_D39 { short f0; unsigned short f2; unsigned int f4; unsigned int f8; unsigned int fC; };
+struct K_D39 { char p0[0x20]; int f20; char p24[8]; short f2C; char p2E[2]; struct E_D39 *f30; };
+struct G_D39 { char p0[0x30]; unsigned int f30; int *f34; short *f38; char p3C[4]; short *f40; char p44[0x10]; unsigned int *f54; struct K_D39 *f58[32]; };
+struct T_D39 { char p0[0x30]; unsigned int f30; };
+extern struct G_D39 *D_0044F420_D39 __asm__("D_0044F420");
+extern void (*D_0044F424_D39)(int, int) __asm__("D_0044F424");
+extern int D_0044F430_D39 __asm__("D_0044F430");
+extern unsigned int D_0044F438_D39 __asm__("D_0044F438");
+extern struct T_D39 D_00517610_D39 __asm__("D_00517610");
+extern int func_003D3C90_D39(int, int) __asm__("func_003D3C90");
+extern int func_003D37A0_D39(int, int) __asm__("func_003D37A0");
+extern void func_00416210_D39(void *, int, int) __asm__("func_00416210");
+extern void func_003D0B18_D39(struct A_D39 *, struct B_D39 *) __asm__("func_003D0B18");
+extern int func_003D2068_D39(struct A_D39 *) __asm__("func_003D2068");
+extern void func_003D1F80_D39(unsigned int, int) __asm__("func_003D1F80");
+
+short func_003D3900(int arg0, int arg1, int arg2) {
+    struct B_D39 b;
+    struct A_D39 a;
+    int orig;
+    struct E_D39 *ev;
+    struct K_D39 *trk;
+    short idx;
+    short type;
+    int vel;
+    unsigned int t;
+
+    vel = arg2;
+    orig = vel;
+    idx = func_003D3C90_D39(arg0, arg1);
+    ev = (struct E_D39 *)&D_0044F420_D39->f34[D_0044F420_D39->f38[idx]];
+    trk = D_0044F420_D39->f58[ev->f2 & 0x1F];
+    while (ev->f0 <= 0) {
+    type = ev->f0;
+        if (type == 0) {
+            trk->f30 = ev;
+            if (ev->f8 & 0x7C00) {
+                func_00416210_D39(&a, 0, 0x10);
+                func_00416210_D39(&b, 0, 0x10);
+                t = D_0044F420_D39->f54[((ev->f8 >> 10) & 0x1F) - 1];
+                if (t & 0x80) {
+                    b.bC = 100;
+                } else {
+                    b.bC = 0;
+                }
+                b.flag = t >> 7;
+                b.b9 = 6;
+                b.hE = 0x25A0;
+                b.v = ((ev->f8 >> 10) & 0x1F) - 1;
+                b.f0 = 0x1F000001;
+                a.n = 0;
+                b.b8 = -1;
+                a.p1 = b.hE;
+                b.f4 = D_0044F438_D39 + b.hE;
+                func_003D0B18_D39(&a, &b);
+                func_003D1F80_D39(D_00517610_D39.f30, func_003D2068_D39(&a));
+            }
+            if ((ev->f4 & 0xE0000) == 0x20000) {
+                vel = (D_0044F438_D39 / 23) & 0x7F;
+            }
+            if (D_0044F424_D39) {
+                D_0044F424_D39(D_0044F430_D39, idx);
+            }
+        } else if (type == -1) {
+            t = *(unsigned int *)ev;
+            if (t & 0xF0000000) {
+                if (idx != trk->f2C) {
+                    trk->f2C = idx;
+                    trk->f20 = (trk->f20 & ~0xF) | (t >> 28);
+                }
+            }
+        } else if (type == -2) {
+            vel = (D_0044F438_D39 / 23) & 0x7F;
+        } else if (type == -3) {
+            func_003D1F80_D39(D_0044F420_D39->f30, (int)&D_0044F420_D39->f34[D_0044F420_D39->f40[(ev->fC >> 2) & 0xFFF]]);
+        }
+        idx = func_003D3C90_D39(arg0, func_003D37A0_D39(idx, vel));
+        vel = orig;
+        ev = (struct E_D39 *)&D_0044F420_D39->f34[D_0044F420_D39->f38[idx]];
+        }
+    return func_003D3C90_D39(arg0, idx);
+}
 
 //100%
 // Looks up id's remap list in the table at D_0044F420 and returns what value maps to, or value.
