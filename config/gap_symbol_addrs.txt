@@ -8314,18 +8314,8 @@ func_0030D540 = 0x0030D540; //type:func
 func_0030D840 = 0x0030D840; //type:func
 
 // --- src/animation/animmodel.cpp ---
-func_0030DB70__FPvi = 0x0030DB70; //type:func
-func_0030ECA0 = 0x0030ECA0; //type:func
-func_0030ECD8 = 0x0030ECD8; //type:func
-func_00310948 = 0x00310948; //type:func
-func_00310F18 = 0x00310F18; //type:func
-func_003110D0 = 0x003110D0; //type:func
-func_00311110 = 0x00311110; //type:func
-func_00311318 = 0x00311318; //type:func
 
 // --- src/animation/rideranimbase.cpp ---
-func_00312BD0 = 0x00312BD0; //type:func
-func_00312C20 = 0x00312C20; //type:func
 lbl_00312D4C = 0x00312D4C; //type:label
 lbl_00312D54 = 0x00312D54; //type:label
 lbl_00312D60 = 0x00312D60; //type:label
@@ -8346,7 +8336,6 @@ lbl_00312FEC = 0x00312FEC; //type:label
 lbl_00313014 = 0x00313014; //type:label
 lbl_0031303C = 0x0031303C; //type:label
 lbl_00313068 = 0x00313068; //type:label
-func_003130A8 = 0x003130A8; //type:func
 lbl_00313240 = 0x00313240; //type:label
 lbl_00313270 = 0x00313270; //type:label
 lbl_003132F0 = 0x003132F0; //type:label
@@ -8354,13 +8343,10 @@ lbl_00313398 = 0x00313398; //type:label
 lbl_00313434 = 0x00313434; //type:label
 
 // --- src/animation/animsequencer.cpp ---
-func_00314A18__FPvi = 0x00314A18; //type:func
-func_00314A40__FPv = 0x00314A40; //type:func
 
 // --- src/animation/mdfarchive.cpp ---
 
 // --- src/animation/gameanimmap.cpp ---
-func_003150F8 = 0x003150F8; //type:func
 func_00315A00__FPv = 0x00315A00; //type:func
 func_00315A20 = 0x00315A20; //type:func
 func_00316878__FPv = 0x00316878; //type:func

@@ -1825,13 +1825,13 @@ extern "C" int func_00104A60(int a, int b, int* c)
 
 //100%
 // PORT: PS2-only inline asm; needs a C fallback off-PS2.
-extern "C" int func_00312BD0_4B48(void*, int, int, int) __asm__("func_00312BD0");
+extern "C" int cRiderAnimBase_playOnComplete_4B48(void*, int, int, int) __asm__("cRiderAnimBase_playOnComplete");
 
 extern "C" int func_00104B48(void *arg0, int b, int c) {
     if (*(int *)((char*)arg0 + 0x64) != 0) {
-        return func_00312BD0_4B48(arg0, b, c, 0x1B4);
+        return cRiderAnimBase_playOnComplete_4B48(arg0, b, c, 0x1B4);
     }
-    return func_00312BD0_4B48(arg0, b, c, 0x11F);
+    return cRiderAnimBase_playOnComplete_4B48(arg0, b, c, 0x11F);
 }
 
 //100%
@@ -1860,26 +1860,26 @@ extern "C" void func_00104BB8(int a, int b, int c) {
 
 //100%
 // PORT: PS2-only inline asm; needs a C fallback off-PS2.
-extern "C" int func_00312BD0_4BD8(void *, int, int, int) __asm__("func_00312BD0");
+extern "C" int cRiderAnimBase_playOnComplete_4BD8(void *, int, int, int) __asm__("cRiderAnimBase_playOnComplete");
 
 extern "C" int func_00104BD8(void *arg0, int a1, int a2) {
     if ((*(int *)((char*)((*(void **)((char*)(arg0) + (0x60)))) + (0x330))) == 1) {
-        return func_00312BD0_4BD8(arg0, a1, a2, 0x1C);
+        return cRiderAnimBase_playOnComplete_4BD8(arg0, a1, a2, 0x1C);
     }
-    return func_00312BD0_4BD8(arg0, a1, a2, 0x24);
+    return cRiderAnimBase_playOnComplete_4BD8(arg0, a1, a2, 0x24);
 }
 
 //100%
 // PORT: PS2-only inline asm; needs a C fallback off-PS2.
-extern "C" void func_00312BD0_4C18(int, int, int, int) __asm__("func_00312BD0");
+extern "C" void cRiderAnimBase_playOnComplete_4C18(int, int, int, int) __asm__("cRiderAnimBase_playOnComplete");
 
 extern "C" void func_00104C18(int a, int b, int c) {
-    func_00312BD0_4C18(a, b, c, 5);
+    cRiderAnimBase_playOnComplete_4C18(a, b, c, 5);
 }
 
 //100%
 // PORT: PS2-only inline asm; needs a C fallback off-PS2.
-extern "C" void func_00312BD0_4C38(int, int, int*, int) __asm__("func_00312BD0");
+extern "C" void cRiderAnimBase_playOnComplete_4C38(int, int, int*, int) __asm__("cRiderAnimBase_playOnComplete");
 
 extern "C" void func_00104C38(int a0, int a1, int *arg2) {
     int var_7;
@@ -1894,15 +1894,15 @@ extern "C" void func_00104C38(int a0, int a1, int *arg2) {
         var_7 = 0x12;
         break;
     }
-    func_00312BD0_4C38(a0, a1, arg2, var_7);
+    cRiderAnimBase_playOnComplete_4C38(a0, a1, arg2, var_7);
 }
 
 //100%
 // PORT: PS2-only inline asm; needs a C fallback off-PS2.
-extern "C" void func_00312BD0_4C80(int, int, int, int) __asm__("func_00312BD0");
+extern "C" void cRiderAnimBase_playOnComplete_4C80(int, int, int, int) __asm__("cRiderAnimBase_playOnComplete");
 
 extern "C" void func_00104C80(int a, int b, int c) {
-    func_00312BD0_4C80(a, b, c, 0x1B2);
+    cRiderAnimBase_playOnComplete_4C80(a, b, c, 0x1B2);
 }
 
 //100%

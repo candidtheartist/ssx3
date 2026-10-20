@@ -10,37 +10,37 @@ extern "C" void* func_003150B8(void* p, ...)
     return p;
 }
 
-INCLUDE_ASM("animation/gameanimmap", func_003150F8);
+INCLUDE_ASM("animation/gameanimmap", __sti__gameanimmap_cpp);
 
-extern "C" void* func_003150F8(int, int);
+extern "C" void* __sti__gameanimmap_cpp(int, int);
 
-extern "C" float func_003158B8(void* self)
+extern "C" float cRiderAnimBase_getPendingRate(void* self)
 {
     return *(float*)((char*)self + 0x1C);
 }
 
 //100%
-extern "C" long func_003158C0(void* self)
+extern "C" long cRiderAnimBase_getBoneMask(void* self)
 {
     return *(long*)((char*)self + 0x20);
 }
 
-extern "C" void* func_003158C8(void* self)
+extern "C" void* cRiderAnimBase_getDefaultRoot(void* self)
 {
     return (char*)self + 0x30;
 }
 
-extern "C" int func_003158D0(void* self)
+extern "C" int cRiderAnimBase_getMirror(void* self)
 {
     return *(int*)((char*)self + 0x18);
 }
 
-extern "C" void func_003158D8(void* self, int value)
+extern "C" void cRiderAnimBase_setMirror(void* self, int value)
 {
     *(int*)((char*)self + 0x18) = value;
 }
 
-extern "C" void func_003158E0(void* self, float value)
+extern "C" void cRiderAnimBase_setPendingRate(void* self, float value)
 {
     *(float*)((char*)self + 0x1C) = value;
 }
@@ -66,7 +66,7 @@ static inline sQuat_003158E8 AxisAngle_3158E8(const sQuat_003158E8& axis, float 
     return sQuat_003158E8(s * axis.x, s * axis.y, s * axis.z, c);
 }
 
-extern "C" void func_003158E8(void* self, float angle)
+extern "C" void cRiderAnimBase_setDefaultHeading(void* self, float angle)
 {
     *(sQuat_003158E8*)((char*)self + 0x30) = D_004FF130_3158E8;
     *(sQuat_003158E8*)((char*)self + 0x40) = AxisAngle_3158E8(D_004FF160_3158E8, -angle);
@@ -80,19 +80,19 @@ struct sVec4_315988
 } __attribute__((aligned(16)));
 struct sPair_315988 { sVec4_315988 a, b; };
 
-extern "C" void func_00315988(char* self, sPair_315988* src)
+extern "C" void cRiderAnimBase_setDefaultRoot(char* self, sPair_315988* src)
 {
     *(sPair_315988*)(self + 0x30) = *src;
 }
 
 //100%
-extern "C" void func_003159A0(void* self, long v)
+extern "C" void cRiderAnimBase_setBoneMask(void* self, long v)
 {
     *(long*)((char*)self + 0x20) = v;
 }
 
 //100%
-extern "C" void func_003159A8(void* self)
+extern "C" void cRiderAnimBase_resetBoneMask(void* self)
 {
     *(long*)((char*)self + 0x20) = -1;
 }
@@ -116,7 +116,7 @@ extern "C" int func_003159E8(long* self, int bit)
 //99.38%
 void* func_00315A00(void* self)
 {
-    return func_003150F8(1, 0xffff);
+    return __sti__gameanimmap_cpp(1, 0xffff);
 }
 
 INCLUDE_ASM("animation/gameanimmap", func_00315A20);

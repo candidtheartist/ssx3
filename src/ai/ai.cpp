@@ -1515,7 +1515,7 @@ extern "C" void cAI_commitRunStats(sAiObj128A48* self)
 extern void** D_004A3DF8;
 extern void* D_004A3E7C;
 extern "C" void cGameAnimMap_removeBank(void*, void*);
-extern "C" void func_00311110(void*);
+extern "C" void cAnimDataBase_freeChanCaches(void*);
 extern "C" void cAdfDataSource__cAdfDataSource(void*, int);
 
 extern "C" void cAI_unloadAnims(void* self)
@@ -1529,7 +1529,7 @@ extern "C" void cAI_unloadAnims(void* self)
             cGameAnimMap_removeBank(D_004A3E7C, p);
             void** t = D_004A3DF8;
             *(void**)((char*)t + ((unsigned char)i << 2)) = 0;
-            func_00311110(t);
+            cAnimDataBase_freeChanCaches(t);
             cAdfDataSource__cAdfDataSource(p, 3);
         }
     }
@@ -3385,7 +3385,7 @@ extern "C" void cWipeoutControl_playSlideGetUp(void* self_)
 
 //100%
 extern "C" void cRiderAnimBase_getSampleState(void* buf, void* anim, int id, int a3, float t);
-extern "C" void func_0030ECD8(void* xf, void* model, void* buf, int a3);
+extern "C" void cAnimModel_sampleBoneTransform(void* xf, void* model, void* buf, int a3);
 extern "C" void cRiderAnimBase_changeOrientationOffset(void* self, void* xf);
 extern int D_004A4C00;
 extern "C" void cRider_updateOrientationImplicit(void*);
@@ -3528,7 +3528,7 @@ extern "C" void cWipeoutControl_playResetClip(void* self)
     char buf[0x50];
     cRiderAnimBase_getSampleState(buf, *(void**)(r + 0x784), anim, (&D_004A4C00)[2], 0.0f);
     sXf_12E010 a;
-    func_0030ECD8(&a, *(void**)(*(char**)((char*)self + 0x80) + 0x780), buf, 0);
+    cAnimModel_sampleBoneTransform(&a, *(void**)(*(char**)((char*)self + 0x80) + 0x780), buf, 0);
     char* rd = *(char**)((char*)self + 0x80);
     char* trk = *(char**)(rd + 0x780);
     sQuat_12BE20* n = (sQuat_12BE20*)((*(int*)(rd + 0x89C) << 4) + *(int*)(trk + 0x24));

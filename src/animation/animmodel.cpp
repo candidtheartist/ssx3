@@ -76,7 +76,7 @@ struct sAnimModelList {
     int items[1];  // 0x64
 };
 
-void func_0030DB70(void* self, int item)
+void cAnimModel_addTexturePack(void* self, int item)
 {
     sAnimModelList* list = (sAnimModelList*)self;
     list->items[list->count++] = item;
@@ -277,13 +277,13 @@ struct sAnimModel_0030ECA0
 };
 
 // PORT: ulong is 64-bit here
-extern "C" void func_0030ECA0(sAnimModel_0030ECA0* self, int i)
+extern "C" void cAnimModel_addPartToReducedMask(sAnimModel_0030ECA0* self, int i)
 {
     sAnimEntry_0030ECA0* e = &self->entries[self->indices[i]];
     self->mask |= e->mask;
 }
 
-INCLUDE_ASM("animation/animmodel", func_0030ECD8);
+INCLUDE_ASM("animation/animmodel", cAnimModel_sampleBoneTransform);
 
 INCLUDE_ASM("animation/animmodel", cAnimModel_sampleLocalPose);
 
@@ -316,7 +316,7 @@ extern "C" void cAnimModel_buildBoneMatrices(sAm3103F0* self)
     }
 }
 
-INCLUDE_ASM("animation/animmodel", func_00310458);
+INCLUDE_ASM("animation/animmodel", cAnimModel_getLocatorPosition);
 
 //100%
 struct sAmVec4
@@ -680,8 +680,8 @@ extern int D_004A594C;
 extern sAmCtx_0948* D_004A5B80_0948 __asm__("D_004A5B80");
 extern sAmMat_0948 D_004FD420[];
 
-INCLUDE_ASM("animation/animmodel", func_00310948);
-extern "C" void func_00310948(sAmModel_0948* self, int lod, int x, int y);
+INCLUDE_ASM("animation/animmodel", cAnimModel_drawShadow);
+extern "C" void cAnimModel_drawShadow(sAmModel_0948* self, int lod, int x, int y);
 
 //100%
 extern "C" int func_004165A8(const void* a, const void* b);
@@ -811,7 +811,7 @@ struct sAnimNode_310F18
 extern sAnimNode_310F18* D_004FE7A0_310F18[] __asm__("D_004FE7A0");
 extern sAnimNode_310F18* D_004FE860_310F18[] __asm__("D_004FE860");
 
-extern "C" sAnimNode_310F18* func_00310F18(int bank, int n)
+extern "C" sAnimNode_310F18* allocAnimChanCache(int bank, int n)
 {
     D_004FE7A0_310F18[bank] = new (D_00489D50, 0x20000000, 0) sAnimNode_310F18[20];
     for (int i = 0; i < 20; i++)
@@ -829,27 +829,27 @@ extern "C" sAnimNode_310F18* func_00310F18(int bank, int n)
 //100%
 extern void* D_004A3DF8;
 extern "C" void func_00416210(void* dst, int c, int n);
-// PORT: prototype mismatch. func_003110D0 is defined later in the unit as (void), but this
+// PORT: prototype mismatch. cAnimDataBase_resetChanCaches is defined later in the unit as (void), but this
 // caller passes the model in $4.
-void func_003110D0_1(void* self) __asm__("func_003110D0");
+void cAnimDataBase_resetChanCaches_1(void* self) __asm__("cAnimDataBase_resetChanCaches");
 
 extern "C" void* cAnimDataBase_cAnimDataBase(void* self)
 {
     D_004A3DF8 = self;
     func_00416210(self, 0, 0x3FC);
-    func_003110D0_1(self);
+    cAnimDataBase_resetChanCaches_1(self);
     return self;
 }
 
 //100%
-// Destructor: clears D_004A3DF8, runs func_00311110 on self, then frees self when flags bit 0 is set.
-extern "C" void func_00311110_1088(void* self) __asm__("func_00311110");
+// Destructor: clears D_004A3DF8, runs cAnimDataBase_freeChanCaches on self, then frees self when flags bit 0 is set.
+extern "C" void cAnimDataBase_freeChanCaches_1088(void* self) __asm__("cAnimDataBase_freeChanCaches");
 void operator_delete(int*);
 
 extern "C" void cAnimDataBase__cAnimDataBase(void* self, int flags)
 {
     D_004A3DF8 = 0;
-    func_00311110_1088(self);
+    cAnimDataBase_freeChanCaches_1088(self);
     if (flags & 1)
         operator_delete((int*)self);
 }
@@ -858,7 +858,7 @@ extern "C" void cAnimDataBase__cAnimDataBase(void* self, int flags)
 extern int D_004FE7A0[];
 extern int D_004FE860[];
 
-extern "C" void func_003110D0(void)
+extern "C" void cAnimDataBase_resetChanCaches(void)
 {
     for (int i = 0; i < 48; i++)
     {
@@ -884,7 +884,7 @@ struct sAnimNode_311110
 extern sAnimNode_311110* D_004FE7A0_311110[] __asm__("D_004FE7A0");
 extern sAnimNode_311110* D_004FE860_311110[] __asm__("D_004FE860");
 
-extern "C" void func_00311110(void)
+extern "C" void cAnimDataBase_freeChanCaches(void)
 {
     for (int bank = 0; bank < 48; bank++)
     {
@@ -959,5 +959,5 @@ extern "C" void cAdfDataSource__cAdfDataSource(void* self, int flags)
     }
 }
 
-INCLUDE_ASM("animation/animmodel", func_00311318);
+INCLUDE_ASM("animation/animmodel", cAdfDataSource_sampleChannels);
 
