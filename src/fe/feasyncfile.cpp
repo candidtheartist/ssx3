@@ -9733,7 +9733,7 @@ extern "C" void* cUIScreen_playFrame(void* self, unsigned short frame, int flag)
 extern "C" void func_00256C50();
 extern "C" void func_001B5268(void* self, int a1);
 extern "C" void* func_0028B180();
-void func_0028FC38(void* self);
+void cSSXAudio_stopFrontEndMusic(void* self);
 extern char D_00463ED0[];
 extern int D_004A2EEC;
 
@@ -9749,7 +9749,7 @@ extern "C" void func_001B40D0(void* self)
         func_00256C50();
     }
     func_001B5268(self, 0);
-    func_0028FC38(func_0028B180());
+    cSSXAudio_stopFrontEndMusic(func_0028B180());
 }
 
 //100%

@@ -838,7 +838,7 @@ void func_0026F4A0(void* self, int state);
 extern "C" void func_002702F8(void* self, void* a1);
 extern "C" void func_002703F0(void* self, int a1);
 extern "C" void* func_0028B180();
-extern "C" void func_0028F200(void* self);
+extern "C" void cSSXAudio_onReplayMenuOpen(void* self);
 
 struct cReplayFramePtr_F8A0 {
     int state;              // 0x0
@@ -869,7 +869,7 @@ extern "C" void func_0026F8A0(cReplayFramePtr_F8A0* self, void* a1, int a2, int 
             func_0026EE68(self);
         }
         if (a2 == 0 && a3 == 0) {
-            func_0028F200(func_0028B180());
+            cSSXAudio_onReplayMenuOpen(func_0028B180());
         }
     }
 }
@@ -881,7 +881,7 @@ void func_0026F4A0(void* self, int state);
 extern "C" void func_0026F850(void* self);
 extern "C" void func_00270628(void* self);
 extern "C" void* func_0028B180();
-extern "C" void func_0028F2C0(void* self);
+extern "C" void cSSXAudio_onReplayMenuClose(void* self);
 
 struct cReplayFramePtr_F980 {
     int state;              // 0x0
@@ -900,7 +900,7 @@ extern "C" void func_0026F980(cReplayFramePtr_F980* self)
     if (ok) {
         func_00270628(self);
         if (self->field_0x61c == 0 && self->field_0x620 == 0) {
-            func_0028F2C0(func_0028B180());
+            cSSXAudio_onReplayMenuClose(func_0028B180());
         }
         self->field_0x61c = 0;
         self->field_0x620 = 0;

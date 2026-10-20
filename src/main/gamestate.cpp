@@ -282,7 +282,7 @@ extern "C" int func_00278D58(void* self);
 extern "C" int func_00278F38(void* self, int i);
 extern "C" void func_00278E20(void* self, int i, int a, int b);
 extern "C" void func_00278E50(void* self, int i, int a, int b, int c, int d, int f, int g);
-extern "C" void func_0028CD48(void* self);
+extern "C" void cSSXAudio_playPeakTransition(void* self);
 extern "C" void func_002B3A70(void*);
 extern "C" int func_002791D8(void* self, int i);
 extern "C" int func_0012ABD0(void* p);
@@ -351,7 +351,7 @@ extern "C" void func_00235080(sState_235080* self)
         if (self->f14 != 0) {
             if (t == 14) {
                 func_00278E20(D_004A28A4, 1, 0x1D, 3);
-                func_0028CD48(func_0028B180());
+                cSSXAudio_playPeakTransition(func_0028B180());
                 func_002B3A70((char*)func_0028B180() + 0x118);
                 func_00278E50(D_004A28A4, 1, 0, 3, 0, -1, -1, -1);
                 func_00278E50(D_004A28A4, 1, 1, 3, 0, -1, -1, -1);
@@ -1482,12 +1482,12 @@ void* func_00236EE8(void* self)
 
 //100%
 extern "C" void* func_0028B180(void);
-extern "C" void func_0028CDF8(void* mgr);
+extern "C" void cSSXAudio_playPodiumMusic(void* mgr);
 extern void* D_004A28A8;
 
 extern "C" void func_00236F08(void)
 {
-    func_0028CDF8(func_0028B180());
+    cSSXAudio_playPodiumMusic(func_0028B180());
     *(int*)(*(char**)(*(char**)((char*)D_004A28A8 + 0x84) + 0xC) + 0x8C) = 1;
 }
 

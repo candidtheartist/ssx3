@@ -383,7 +383,7 @@ Nothing else in gameplay (tricks, rails, boost, crashes) touches the music.
 | Pause | `0x00289B70` / `0x00289BB8` (from `0x001F8168` `cOVTemplate_PauseMenu_onCreateScreen`, `0x002306A8`, `0x00244880`) | SFX paused (`0x0029CE28`), music paused. Resume also cancels queued speech. No mix, fade or filter change. |
 | Finish | `0x00286EA0` | Big Air / Pipe with runs left: event 36, +0x627C = 0. Otherwise event 10. |
 | Podium | `0x0028CDF8` | Final round, human place < 3. chartune with the **winner's** event from `0x00482A10` by CHARDB character: Moby 10, Kaori 2, Allegra 8, Mac 1, Zoe 5, Griff 9, Elise 3, Nate 7, Psymon 4, Viggo 6 **(PS2)**. |
-| Restart / replay / quit | `0x0028F200` (from `0x0026F8A0`), `0x0028F2C0` (from `0x0026F980`) | After chartune: restore the index, request kind 3. Otherwise event 36. |
+| Restart / replay / quit | `0x0028F200` (from `0x0026F8A0`), `0x0028F2C0` (from `0x0026F980`) | Step 1 (`0x0028F200`): after chartune, restore the index and request kind 3; otherwise latch event 36. Step 2 (`0x0028F2C0`): hard-stop the song, or send the latched event 36. |
 | Cutscene music codes | `0x00280640` → `0x0028E8C0(code, 0)` | 21-25 (venue fly-overs), music modes: PickNextSong, FadeOut(1 s), forced request kind 3 after 3000 ms, which shows the EA RADIO BIG box **(PS2)**. 19/20 need argument 2 != 0. Other codes are sent as events (`0x0028EF58` inside `0x0028E8C0`). |
 | Travel | `0x0028E8C0(20)` from the transition cinematic `0x0027A860` | Timers cancelled, loops and location ambience stopped. Free ride: PickNextSong + request kind 2 after 10 ms for the destination (+0x6284, `0x0028F558`). Unvisited backcountry: pktrans event 2/3 (paused). Ambience: destination Peak*Amb, event 30. |
 | Arrival | `0x0028E888` → `0x0028E8C0(19, 1)` | |
