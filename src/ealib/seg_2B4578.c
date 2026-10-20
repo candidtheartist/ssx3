@@ -5482,7 +5482,83 @@ int func_003C5BF8(int arg0) {
     return 0;
 }
 
-INCLUDE_ASM("ealib/seg_2B4578", func_003C5C30);
+//100%
+// Rebuilds the output config for the current speaker mode: fills the channel
+// route list, picks the channel layout for the mode, keeps the sample rate in
+// sync, then applies the config and restarts the output.
+struct C_5C30 {
+    char p0[0x2A];
+    unsigned short rate;
+    unsigned short outrate;
+    char p2E;
+    unsigned char ext;
+    char p30[0x47 - 0x30];
+    char layout;
+    char f48;
+    char f49;
+    char p4A[2];
+    unsigned char n;
+    char p4D;
+    unsigned short list[(0xE0 - 0x4E) / 2];
+};
+extern int D_0044E1C4;
+extern int D_0044E1C0;
+extern int D_005157B0;
+extern void func_003B4DD8_5C30(struct C_5C30 *) __asm__("func_003B4DD8");
+extern int func_003B4FC0_5C30(struct C_5C30 *) __asm__("func_003B4FC0");
+extern int func_003B5158_5C30(int, int, int) __asm__("func_003B5158");
+
+int func_003C5C30(int arg0) {
+    struct C_5C30 c;
+
+    func_003B4DD8_5C30(&c);
+    c.n = 0;
+    if (D_0044E1C4 == 8) {
+        c.list[c.n] = 0x44;
+        c.n++;
+    }
+    c.list[c.n] = 0x24;
+    c.n++;
+    if (c.ext) {
+        if (D_0044E1C4 == 8) {
+            c.list[c.n] = 0x140;
+            c.n++;
+        }
+        c.list[c.n] = 0x120;
+        c.n++;
+    }
+    if (D_0044E1C4 == 8) {
+        c.list[c.n] = 0x48;
+        c.n++;
+    }
+    c.list[c.n] = 0x28;
+    c.f49 = 1;
+    c.f48 = 0;
+    c.n++;
+    switch (D_0044E1C4) {
+    case 0:
+        c.layout = 1;
+        break;
+    case 4:
+        c.layout = 4;
+        c.f49 = 2;
+        break;
+    case 5:
+        c.layout = 5;
+        c.f49 = 2;
+        break;
+    case 1:
+    case 8:
+        c.layout = 2;
+        break;
+    }
+    if (c.rate != c.outrate && (c.rate != 36000 || c.outrate != 24000)) {
+        c.outrate = c.rate;
+    }
+    func_003B4FC0_5C30(&c);
+    func_003B5158_5C30(D_0044E1C0, D_005157B0, arg0);
+    return 0;
+}
 
 //100%
 // PORT: PS2-only inline asm; needs a C fallback off-PS2.
