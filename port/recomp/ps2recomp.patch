@@ -927,7 +927,7 @@ index 509fd07..b5210f9 100644
  
      std::string CodeGenerator::translateVU_VRGET(const Instruction &inst)
 diff --git a/ps2xRuntime/CMakeLists.txt b/ps2xRuntime/CMakeLists.txt
-index 589d768..e7e1a3b 100644
+index 589d768..fbff776 100644
 --- a/ps2xRuntime/CMakeLists.txt
 +++ b/ps2xRuntime/CMakeLists.txt
 @@ -383,8 +383,10 @@ add_library(ps2_runtime STATIC
@@ -949,7 +949,30 @@ index 589d768..e7e1a3b 100644
      src/lib/games_database.cpp
  )
  
-@@ -437,11 +440,17 @@ target_sources(ps2_runtime PRIVATE
+@@ -429,6 +432,22 @@ target_compile_definitions(ps2_runtime PRIVATE
+     PS2X_HAS_FFMPEG=$<BOOL:${PS2X_ENABLE_FFMPEG}>
+ )
+ 
++# The GS renderer runs for every pixel and VU1 for every microinstruction, so
++# they are built at -O3 in every optimised build type: at RelWithDebInfo's -O2
++# a race's GS work takes ~11% longer.
++if(NOT MSVC)
++    set_source_files_properties(
++        src/lib/gs/gs_cpu_backend.cpp
++        src/lib/gs/gs_frontend.cpp
++        src/lib/gs/gs_threaded_backend.cpp
++        src/lib/gs/ps2_gs_memory.cpp
++        src/lib/vu/ps2_vu1_core.cpp
++        src/lib/vu/ps2_vu1_upper.cpp
++        src/lib/vu/ps2_vu1_lower.cpp
++        src/lib/vu/ps2_vu1_compiled.cpp
++        PROPERTIES COMPILE_OPTIONS "$<$<NOT:$<CONFIG:Debug>>:-O3>")
++endif()
++
+ file(GLOB_RECURSE KERNEL_SRC_FILES CONFIGURE_DEPENDS
+     "${CMAKE_CURRENT_SOURCE_DIR}/src/lib/Kernel/*.cpp"
+ )
+@@ -437,11 +456,17 @@ target_sources(ps2_runtime PRIVATE
      ${KERNEL_SRC_FILES}
  )
  
@@ -969,7 +992,7 @@ index 589d768..e7e1a3b 100644
  set(ROOT_MAIN_CPP "${CMAKE_CURRENT_SOURCE_DIR}/src/main.cpp")
  
  if(EXISTS "${RUNNER_MAIN_CPP}")
-@@ -460,6 +469,52 @@ else()
+@@ -460,6 +485,52 @@ else()
      add_executable(ps2EntryRunner
          ${RUNNER_SRC_FILES}
      )
@@ -1022,7 +1045,7 @@ index 589d768..e7e1a3b 100644
  endif()
  
  if(PS2X_ENABLE_RUNNER_UNITY_BUILD)
-@@ -476,6 +531,8 @@ if(PS2X_ENABLE_RUNNER_PCH)
+@@ -476,6 +547,8 @@ if(PS2X_ENABLE_RUNNER_PCH)
      )
  
      foreach(PS2X_RUNNER_GENERATED_HEADER IN ITEMS
@@ -1031,7 +1054,7 @@ index 589d768..e7e1a3b 100644
          "${CMAKE_CURRENT_SOURCE_DIR}/include/ps2_recompiled_functions.h"
          "${CMAKE_CURRENT_SOURCE_DIR}/include/ps2_recompiled_stubs.h")
          if(EXISTS "${PS2X_RUNNER_GENERATED_HEADER}")
-@@ -511,6 +568,8 @@ target_link_libraries(ps2EntryRunner
+@@ -511,6 +584,8 @@ target_link_libraries(ps2EntryRunner
      PRIVATE
      ps2_runtime
  )
@@ -1141,10 +1164,10 @@ index 0485d50..ab1e7ad 100644
  #define FPU_C_F_S(a, b) (0)
  #define FPU_C_UN_S(a, b) (isnan((float)(a)) || isnan((float)(b)))
 diff --git a/ps2xRuntime/include/runtime/gs/gs_cpu_backend.h b/ps2xRuntime/include/runtime/gs/gs_cpu_backend.h
-index 2421f9e..c5db591 100644
+index 2421f9e..acd552d 100644
 --- a/ps2xRuntime/include/runtime/gs/gs_cpu_backend.h
 +++ b/ps2xRuntime/include/runtime/gs/gs_cpu_backend.h
-@@ -33,19 +33,211 @@ public:
+@@ -33,19 +33,240 @@ public:
      void SnapshotVram(std::vector<uint8_t> &out) const override;
      GSTransferSnapshot GetTransferSnapshot() const override;
  
@@ -1197,6 +1220,18 @@ index 2421f9e..c5db591 100644
 +    template <uint32_t FramePsm, uint32_t DepthPsm, uint32_t TexturePsm = kAnyPsm>
 +    void DrawTriangleAs(const GSPrimitiveBatch &batch);
      void DrawLine(const GSPrimitiveBatch &batch);
++    // What WritePixel does with a pixel, by whether it passes the alpha test:
++    // a PixelWritePlan of these bits.
++    enum PixelWritePlanBits : uint32_t
++    {
++        kPlanWritesFramebuffer = 1u << 0,
++        kPlanWritesAnything = 1u << 1,
++        kPlanReadsFramebuffer = 1u << 2,
++        kPlanPreserveDestinationAlpha = 1u << 3, // RGB_ONLY on RGBA32: keep the stored alpha
++        kPlanForceAlphaMsb = 1u << 4,
++        kPlanStoresDepth = 1u << 5, // the depth write is on and ZMSK is clear
++    };
++    using PixelWritePlan = uint32_t;
 +    // What WritePixel takes from a primitive's draw state, worked out once per
 +    // primitive.
 +    struct PixelTarget
@@ -1221,7 +1256,6 @@ index 2421f9e..c5db591 100644
 +        // The draw state WritePixel reads for every pixel. A pixel loop's own copy can't
 +        // be changed by its VRAM writes, so the compiler need not read it again after each.
 +        uint8_t *vram = nullptr;
-+        uint64_t test = 0;
 +        uint32_t fbmsk = 0;
 +        bool fge = false;
 +        bool abe = false;
@@ -1231,6 +1265,14 @@ index 2421f9e..c5db591 100644
 +        uint8_t fogR = 0;
 +        uint8_t fogG = 0;
 +        uint8_t fogB = 0;
++        // The alpha test's result for each alpha value, 1 to pass, and what
++        // WritePixel does on each result: plans[0] on a fail, plans[1] on a pass.
++        const uint8_t *alphaPasses = nullptr;
++        PixelWritePlan plans[2];
++        // DATE: a pixel is drawn when the stored pixel's bits under dateBit equal
++        // dateExpected. Both are 0 when the test is off or always passes.
++        uint32_t dateBit = 0;
++        uint32_t dateExpected = 0;
 +    };
 +    void PreparePixelTarget(const GSDrawState &state, PixelTarget &target);
 +    // A row's GSMem::RowAddress in the frame and depth buffers, for WritePixelAs
@@ -1242,6 +1284,16 @@ index 2421f9e..c5db591 100644
 +    };
 +    template <uint32_t FramePsm, uint32_t DepthPsm>
 +    static PixelRow PixelRowAt(const PixelTarget &target, int y);
++    // A PixelRow in bytes (GSMem::RowBytes), for a pixel loop that has each
++    // column's GSMem::ColumnBytes worked out, from column x0 on.
++    struct PixelColumnsRow
++    {
++        uint32_t frameBytes = 0;
++        uint32_t depthBytes = 0;
++        const uint32_t *frameColumns = nullptr;
++        const uint32_t *depthColumns = nullptr;
++        int x0 = 0;
++    };
 +    void WritePixel(const PixelTarget &target, int x, int y, int z, uint8_t r, uint8_t g, uint8_t b, uint8_t a, uint8_t fog);
 +    // WritePixel with the frame and depth buffer PSMs fixed at compile time
 +    // (kAnyPsm: read from the target); see DispatchPixelFormats. InScissor:
@@ -1252,8 +1304,8 @@ index 2421f9e..c5db591 100644
 +    // inlined stores, which can tell the texture page cache first (watchTexture).
 +    template <uint32_t FramePsm, uint32_t DepthPsm>
 +    static constexpr bool kWritesAnnounced = FramePsm != kAnyPsm && DepthPsm != kAnyPsm;
-+    template <uint32_t FramePsm, uint32_t DepthPsm, bool InScissor = false, bool DepthTested = false>
-+    void WritePixelAs(const PixelTarget &target, const PixelRow &row, int x, int y, int z, uint32_t color, uint8_t fog, uint32_t testedDepthAddress = 0);
++    template <uint32_t FramePsm, uint32_t DepthPsm, bool InScissor = false, bool DepthTested = false, typename Row = PixelRow>
++    void WritePixelAs(const PixelTarget &target, const Row &row, int x, int y, int z, uint32_t color, uint8_t fog, uint32_t testedDepthAddress = 0);
      void WritePixel(const GSDrawState &state, int x, int y, int z, uint8_t r, uint8_t g, uint8_t b, uint8_t a, uint8_t fog);
 -    uint32_t SampleTexture(const GSDrawState &state, float s, float t, float q, uint16_t u, uint16_t v);
 +    // How a texel read from VRAM becomes RGBA, by the texture's PSM.
@@ -1357,7 +1409,7 @@ index 2421f9e..c5db591 100644
      uint32_t LookupCLUT(const GSDrawState &state, uint8_t index, uint8_t cpsm, uint8_t csm, uint8_t csa, uint8_t sourcePsm);
  
      void PerformLocalToLocalTransfer();
-@@ -68,14 +260,39 @@ private:
+@@ -68,14 +289,45 @@ private:
      mutable std::mutex m_mutex;
      uint8_t *m_vram = nullptr;
      uint32_t m_vramSize = 0;
@@ -1385,6 +1437,10 @@ index 2421f9e..c5db591 100644
 +        bool valid = false;
 +    };
 +    PaletteCache m_palette;
++    // PixelTarget::alphaPasses for a TEST whose alpha test depends on the alpha
++    // value, filled for the low 12 bits of TEST in m_alphaPassesTest.
++    std::array<uint8_t, 256> m_alphaPasses{};
++    uint32_t m_alphaPassesTest = UINT32_MAX;
 +    uint32_t m_clutGeneration = 0; // changes whenever m_clut does
      GSMem::TexturePageCache m_texturePageCache;
 +    uint32_t m_bandIndex = 0;
@@ -1395,6 +1451,8 @@ index 2421f9e..c5db591 100644
      std::vector<uint8_t> m_localToHostBuffer;
 +    std::vector<float> m_spriteColumnTexels; // DrawSpriteAs: each column's texel U
 +    std::vector<SpriteTexelAxis> m_spriteColumnAxes; // DrawSpriteAs: each column's texel reads
++    std::vector<uint32_t> m_spriteColumnFrame; // DrawSpriteAs: each column's GSMem::ColumnBytes
++    std::vector<uint32_t> m_spriteColumnDepth;
      size_t m_localToHostReadPos = 0;
  };
 diff --git a/ps2xRuntime/include/runtime/gs/gs_texture_page_cache.h b/ps2xRuntime/include/runtime/gs/gs_texture_page_cache.h
@@ -1692,10 +1750,10 @@ index 0000000..a790a70
 +    PresentationFrame m_lastPresented;
 +};
 diff --git a/ps2xRuntime/include/runtime/gs/ps2_gs_memory.h b/ps2xRuntime/include/runtime/gs/ps2_gs_memory.h
-index c784ff7..69e6c95 100644
+index c784ff7..d6dc38a 100644
 --- a/ps2xRuntime/include/runtime/gs/ps2_gs_memory.h
 +++ b/ps2xRuntime/include/runtime/gs/ps2_gs_memory.h
-@@ -540,6 +540,258 @@ namespace GSMem
+@@ -540,6 +540,280 @@ namespace GSMem
  
  	void InitLookupTables();
  
@@ -1918,6 +1976,28 @@ index c784ff7..69e6c95 100644
 +		static_assert(UnpackedBitWidth(psm) >= 16 && Traits::BitOffset() == 0 && ColumnOffsetRows<psm>() == 1);
 +		return ((rowAddress + ColumnOffset<psm>(x, 0)) * static_cast<u32>(UnpackedBitWidth(psm) / 8)) &
 +			static_cast<u32>(MEMORY_SIZE - sizeof(typename Traits::PackedT));
++	}
++
++	// ByteAddressInRow's two terms in bytes, the row's and the column's: their
++	// masked sum is its address, as the products wrap alike.
++	template<PixelStorageMode psm>
++	inline u32 RowBytes(u32 rowAddress)
++	{
++		return rowAddress * static_cast<u32>(UnpackedBitWidth(psm) / 8);
++	}
++
++	template<PixelStorageMode psm>
++	inline u32 ColumnBytes(u32 x)
++	{
++		return ColumnOffset<psm>(x, 0) * static_cast<u32>(UnpackedBitWidth(psm) / 8);
++	}
++
++	template<PixelStorageMode psm>
++	inline u32 ByteAddressFromParts(u32 rowBytes, u32 columnBytes)
++	{
++		using Traits = PixelStorageTraits<psm>;
++		static_assert(UnpackedBitWidth(psm) >= 16 && Traits::BitOffset() == 0 && ColumnOffsetRows<psm>() == 1);
++		return (rowBytes + columnBytes) & static_cast<u32>(MEMORY_SIZE - sizeof(typename Traits::PackedT));
 +	}
 +
 +	template<PixelStorageMode psm>
@@ -3267,7 +3347,7 @@ index 9614016..f651975 100644
          setReturnU32(ctx, ret);
      }
 diff --git a/ps2xRuntime/src/lib/gs/gs_cpu_backend.cpp b/ps2xRuntime/src/lib/gs/gs_cpu_backend.cpp
-index f0ad507..1185576 100644
+index f0ad507..d816ecd 100644
 --- a/ps2xRuntime/src/lib/gs/gs_cpu_backend.cpp
 +++ b/ps2xRuntime/src/lib/gs/gs_cpu_backend.cpp
 @@ -1,3 +1,4 @@
@@ -3275,14 +3355,16 @@ index f0ad507..1185576 100644
  #include "runtime/gs/gs_cpu_backend.h"
  #include "runtime/gs/ps2_gs_common.h"
  #include "runtime/gs/ps2_gs_psmct16.h"
-@@ -15,8 +16,92 @@
+@@ -14,9 +15,94 @@
+ #include <fstream>
  #include <iostream>
  #include <stdexcept>
- 
++#include <type_traits>
++
 +#if defined(__SSE2__)
 +#include <emmintrin.h>
 +#endif
-+
+ 
  using namespace GSInternal;
  
 +namespace
@@ -3368,7 +3450,7 @@ index f0ad507..1185576 100644
  namespace
  {
      float fabsQ(float q)
-@@ -24,6 +109,71 @@ namespace
+@@ -24,6 +110,71 @@ namespace
          return (std::fabs(q) > 1.0e-8f) ? q : 1.0f;
      }
  
@@ -3440,7 +3522,7 @@ index f0ad507..1185576 100644
      u16 Rgba8888ToRgba5551(u32 c)
      {
          uint32_t r = ((c >> 0) & 0xFF) >> 3;
-@@ -101,27 +251,6 @@ namespace
+@@ -101,27 +252,6 @@ namespace
      std::atomic<uint32_t> s_debugContext1PrimitiveCount{0};
      std::atomic<uint32_t> s_debugFbp150PixelCount{0};
  
@@ -3468,25 +3550,51 @@ index f0ad507..1185576 100644
      bool passesAlphaTest(uint64_t testReg, uint8_t alpha)
      {
          if ((testReg & 0x1u) == 0u)
-@@ -170,7 +299,7 @@ namespace
+@@ -170,12 +300,9 @@ namespace
          }
      };
  
 -    PixelWriteMask classifyAlphaTest(uint64_t testReg, uint8_t alpha, uint8_t framePsm)
-+    __attribute__((always_inline)) inline PixelWriteMask classifyAlphaTest(uint64_t testReg, uint8_t alpha, uint8_t framePsm)
++    // What a pixel that fails the alpha test still writes.
++    PixelWriteMask alphaFailMask(uint64_t testReg, uint8_t framePsm)
      {
-         const bool pass = passesAlphaTest(testReg, alpha);
-         if (pass)
-@@ -195,7 +324,7 @@ namespace
+-        const bool pass = passesAlphaTest(testReg, alpha);
+-        if (pass)
+-            return {};
+-
+         // TEST.AFAIL controls what happens when the alpha comparison fails.
+         switch (static_cast<uint8_t>((testReg >> 12) & 0x3u))
+         {
+@@ -195,28 +322,6 @@ namespace
          }
      }
  
 -    bool passesDestinationAlphaTest(uint64_t testReg, uint8_t framePsm, uint32_t rawFramebufferPixel)
-+    __attribute__((always_inline)) inline bool passesDestinationAlphaTest(uint64_t testReg, uint8_t framePsm, uint32_t rawFramebufferPixel)
+-    {
+-        const bool date = ((testReg >> 14) & 0x1u) != 0u;
+-        if (!date)
+-            return true;
+-
+-        const bool datm = ((testReg >> 15) & 0x1u) != 0u;
+-        switch (framePsm)
+-        {
+-        case GS_PSM_CT32:
+-            return (((rawFramebufferPixel >> 31) & 0x1u) != 0u) == datm;
+-        case GS_PSM_CT16:
+-        case GS_PSM_CT16S:
+-            return (((rawFramebufferPixel >> 15) & 0x1u) != 0u) == datm;
+-        case GS_PSM_CT24:
+-            // RGB24 has no destination alpha, so DATE always passes.
+-            return true;
+-        default:
+-            return true;
+-        }
+-    }
+-
+     struct TextureCombineResult
      {
-         const bool date = ((testReg >> 14) & 0x1u) != 0u;
-         if (!date)
-@@ -225,7 +354,7 @@ namespace
+         uint8_t r;
+@@ -225,7 +330,7 @@ namespace
          uint8_t a;
      };
  
@@ -3495,7 +3603,7 @@ index f0ad507..1185576 100644
                                          uint8_t vr,
                                          uint8_t vg,
                                          uint8_t vb,
-@@ -275,6 +404,31 @@ namespace
+@@ -275,6 +380,31 @@ namespace
          return out;
      }
  
@@ -3527,7 +3635,7 @@ index f0ad507..1185576 100644
      uint32_t swizzleClutIndexCSM1(uint32_t index)
      {
          // CSM1 swaps address bits 3 and 4. Preserve the remaining bits:
-@@ -292,11 +446,140 @@ namespace
+@@ -292,11 +422,140 @@ namespace
          return psm == GS_PSM_T8 || psm == GS_PSM_T8H;
      }
  
@@ -3629,7 +3737,7 @@ index f0ad507..1185576 100644
 +    }
 +
 +    // Bilinear filtering of four RGBA texels: lerpChannel on each channel.
-+    uint32_t lerpTexels(uint32_t c00, uint32_t c10, uint32_t c01, uint32_t c11, float fx, float fy)
++    __attribute__((always_inline)) inline uint32_t lerpTexels(uint32_t c00, uint32_t c10, uint32_t c01, uint32_t c11, float fx, float fy)
 +    {
 +#if defined(__SSE2__)
 +        // The same float operations as lerpChannel, one channel per lane. Each
@@ -3669,7 +3777,7 @@ index f0ad507..1185576 100644
      }
  }
  
-@@ -521,6 +804,7 @@ void GSCpuBackend::Initialize(uint8_t *vram, uint32_t vramSize)
+@@ -521,6 +780,7 @@ void GSCpuBackend::Initialize(uint8_t *vram, uint32_t vramSize)
      std::lock_guard<std::mutex> lock(m_mutex);
      m_vram = vram;
      m_vramSize = vramSize;
@@ -3677,7 +3785,7 @@ index f0ad507..1185576 100644
      ResetUnlocked();
  }
  
-@@ -533,6 +817,7 @@ void GSCpuBackend::Reset()
+@@ -533,6 +793,7 @@ void GSCpuBackend::Reset()
  void GSCpuBackend::ResetUnlocked()
  {
      m_clut.fill(0u);
@@ -3685,7 +3793,7 @@ index f0ad507..1185576 100644
      m_clutCbp.fill(0u);
      m_texturePageCache.Invalidate();
      m_transfer = {};
-@@ -543,6 +828,25 @@ void GSCpuBackend::ResetUnlocked()
+@@ -543,6 +804,25 @@ void GSCpuBackend::ResetUnlocked()
      m_localToHostReadPos = 0u;
  }
  
@@ -3711,7 +3819,7 @@ index f0ad507..1185576 100644
  void GSCpuBackend::Submit(const GSPrimitiveBatch &batch)
  {
      std::lock_guard<std::mutex> lock(m_mutex);
-@@ -602,6 +906,7 @@ void GSCpuBackend::LoadClutUnlocked(const GSTex0Reg &tex0, const GSTexClutReg &t
+@@ -602,6 +882,7 @@ void GSCpuBackend::LoadClutUnlocked(const GSTex0Reg &tex0, const GSTexClutReg &t
  
      const bool loadCsm1Suffix = tex0.csm == 0u && thirtyTwoBit && !fourBit;
      const uint32_t firstEntry = loadCsm1Suffix ? destinationBase : 0u;
@@ -3719,7 +3827,7 @@ index f0ad507..1185576 100644
  
      for (uint32_t entry = firstEntry; entry < entryCount; ++entry)
      {
-@@ -670,7 +975,7 @@ uint32_t GSCpuBackend::ReadTextureVramUnlocked(uint32_t psm, uint32_t base, uint
+@@ -670,7 +951,7 @@ uint32_t GSCpuBackend::ReadTextureVramUnlocked(uint32_t psm, uint32_t base, uint
      if (!m_vram)
          return 0u;
  
@@ -3728,7 +3836,7 @@ index f0ad507..1185576 100644
  }
  
  void GSCpuBackend::WriteVram(uint32_t psm, uint32_t base, uint32_t bw, uint32_t x, uint32_t y, uint32_t value)
-@@ -686,6 +991,13 @@ void GSCpuBackend::WriteVramUnlocked(uint32_t psm, uint32_t base, uint32_t bw, u
+@@ -686,6 +967,13 @@ void GSCpuBackend::WriteVramUnlocked(uint32_t psm, uint32_t base, uint32_t bw, u
      m_writeVramFuncs[psm & 0x3Fu](m_vram, base, bw, x, y, value);
  }
  
@@ -3742,7 +3850,7 @@ index f0ad507..1185576 100644
  void GSCpuBackend::SnapshotVram(std::vector<uint8_t> &out) const
  {
      std::lock_guard<std::mutex> lock(m_mutex);
-@@ -818,6 +1130,54 @@ void GSCpuBackend::DrawPrimitive(const GSPrimitiveBatch &batch)
+@@ -818,6 +1106,54 @@ void GSCpuBackend::DrawPrimitive(const GSPrimitiveBatch &batch)
          }
      });
  
@@ -3797,7 +3905,7 @@ index f0ad507..1185576 100644
      switch (state.prim.type)
      {
      case GS_PRIM_SPRITE:
-@@ -838,7 +1198,8 @@ void GSCpuBackend::DrawPrimitive(const GSPrimitiveBatch &batch)
+@@ -838,7 +1174,8 @@ void GSCpuBackend::DrawPrimitive(const GSPrimitiveBatch &batch)
          const auto &ctx = state.context;
          int px = static_cast<int>(v.x) - (ctx.xyoffset.ofx >> 4);
          int py = static_cast<int>(v.y) - (ctx.xyoffset.ofy >> 4);
@@ -3807,7 +3915,7 @@ index f0ad507..1185576 100644
          break;
      }
      default:
-@@ -846,54 +1207,132 @@ void GSCpuBackend::DrawPrimitive(const GSPrimitiveBatch &batch)
+@@ -846,54 +1183,201 @@ void GSCpuBackend::DrawPrimitive(const GSPrimitiveBatch &batch)
      }
  }
  
@@ -3834,7 +3942,6 @@ index f0ad507..1185576 100644
 +    target.forceAlphaMsb = (ctx.fba & 0x1ull) != 0ull && ctx.frame.psm != GS_PSM_CT24;
 +    target.scissorEmpty = ctx.scissor.x0 > ctx.scissor.x1 || ctx.scissor.y0 > ctx.scissor.y1;
 +    target.vram = m_vram;
-+    target.test = ctx.test;
 +    target.fbmsk = ctx.frame.fbmsk;
 +    target.fge = state.prim.fge;
 +    target.abe = state.prim.abe;
@@ -3843,6 +3950,61 @@ index f0ad507..1185576 100644
 +    target.fogR = state.fogR;
 +    target.fogG = state.fogG;
 +    target.fogB = state.fogB;
++
++    // The alpha test's result by alpha value: all pass when it is off or ALWAYS,
++    // all fail for NEVER, else passesAlphaTest's for each value.
++    static constexpr std::array<uint8_t, 256> kAllPass = []
++    {
++        std::array<uint8_t, 256> passes{};
++        passes.fill(1u);
++        return passes;
++    }();
++    static constexpr std::array<uint8_t, 256> kAllFail{};
++    const uint64_t test = ctx.test;
++    const uint32_t alphaTest = static_cast<uint32_t>(test & 0xFFFu);
++    if ((alphaTest & 1u) == 0u || ((alphaTest >> 1) & 7u) == 1u)
++        target.alphaPasses = kAllPass.data();
++    else if (((alphaTest >> 1) & 7u) == 0u)
++        target.alphaPasses = kAllFail.data();
++    else
++    {
++        if (m_alphaPassesTest != alphaTest)
++        {
++            for (uint32_t alpha = 0; alpha < 256u; ++alpha)
++                m_alphaPasses[alpha] = passesAlphaTest(test, static_cast<uint8_t>(alpha)) ? 1u : 0u;
++            m_alphaPassesTest = alphaTest;
++        }
++        target.alphaPasses = m_alphaPasses.data();
++    }
++    const auto planFor = [&](const PixelWriteMask &mask)
++    {
++        const bool preserveDestinationAlpha = mask.writeRgb && !mask.writeAlpha && fpsm == GS_PSM_CT32;
++        // Avoid reading the framebuffer for simple draws.
++        const bool readsFramebuffer = target.destinationAlphaTestNeedsRead ||
++                                      (mask.writesFramebuffer() && (target.masksOrBlends || preserveDestinationAlpha));
++        PixelWritePlan plan = 0u;
++        plan |= mask.writesFramebuffer() ? kPlanWritesFramebuffer : 0u;
++        plan |= mask.writesAnything() ? kPlanWritesAnything : 0u;
++        plan |= readsFramebuffer ? kPlanReadsFramebuffer : 0u;
++        plan |= preserveDestinationAlpha ? kPlanPreserveDestinationAlpha : 0u;
++        plan |= mask.writeAlpha && target.forceAlphaMsb ? kPlanForceAlphaMsb : 0u;
++        plan |= mask.writeDepth && !target.zmask ? kPlanStoresDepth : 0u;
++        return plan;
++    };
++    target.plans[0] = planFor(alphaFailMask(test, static_cast<uint8_t>(fpsm)));
++    target.plans[1] = planFor(PixelWriteMask{});
++
++    // DATE compares the stored pixel's alpha MSB with DATM. RGB24 has no
++    // destination alpha, so there DATE always passes.
++    if (((test >> 14) & 0x1u) != 0u)
++    {
++        const bool datm = ((test >> 15) & 0x1u) != 0u;
++        if (fpsm == GS_PSM_CT32)
++            target.dateBit = 0x80000000u;
++        else if (fpsm == GS_PSM_CT16 || fpsm == GS_PSM_CT16S)
++            target.dateBit = 0x8000u;
++        target.dateExpected = datm ? target.dateBit : 0u;
++    }
 +}
 +
  void GSCpuBackend::WritePixel(const GSDrawState &state, int x, int y, int z, uint8_t r, uint8_t g, uint8_t b, uint8_t a, uint8_t fog)
@@ -3868,8 +4030,8 @@ index f0ad507..1185576 100644
 +    return row;
 +}
 +
-+template <uint32_t FramePsm, uint32_t DepthPsm, bool InScissor, bool DepthTested>
-+__attribute__((always_inline)) inline void GSCpuBackend::WritePixelAs(const PixelTarget &target, const PixelRow &row, int x, int y, int z, uint32_t color, uint8_t fog, uint32_t testedDepthAddress)
++template <uint32_t FramePsm, uint32_t DepthPsm, bool InScissor, bool DepthTested, typename Row>
++__attribute__((always_inline)) inline void GSCpuBackend::WritePixelAs(const PixelTarget &target, const Row &row, int x, int y, int z, uint32_t color, uint8_t fog, uint32_t testedDepthAddress)
 +{
 +    // A known PSM reads and writes through the inlined swizzle, at one address per buffer.
 +    constexpr bool frameKnown = FramePsm != kAnyPsm;
@@ -3918,24 +4080,44 @@ index f0ad507..1185576 100644
 +    const u32 fpsm = frameKnown ? FramePsm : target.fpsm;
 +    const u32 zbp = target.zbp;
 +    const u32 zpsm = depthKnown ? DepthPsm : target.zpsm;
++    constexpr bool kColumns = std::is_same_v<Row, PixelColumnsRow>;
++    const auto frameAddressAt = [&]() -> u32
++    {
++        if constexpr (!frameKnown)
++            return 0u;
++        else if constexpr (kColumns)
++            return GSMem::ByteAddressFromParts<framePsm>(row.frameBytes, row.frameColumns[x - row.x0]);
++        else
++            return GSMem::ByteAddressInRow<framePsm>(row.frame, static_cast<u32>(x));
++    };
++    const auto depthAddressAt = [&]() -> u32
++    {
++        if constexpr (!depthKnown)
++            return 0u;
++        else if constexpr (kColumns)
++            return GSMem::ByteAddressFromParts<depthPsm>(row.depthBytes, row.depthColumns[x - row.x0]);
++        else
++            return GSMem::ByteAddressInRow<depthPsm>(row.depth, static_cast<u32>(x));
++    };
  
 -    const PixelWriteMask writeMask = classifyAlphaTest(ctx.test, a, static_cast<uint8_t>(fpsm));
-+    const PixelWriteMask writeMask = classifyAlphaTest(target.test, a, static_cast<uint8_t>(fpsm));
-     if (!writeMask.writesAnything())
+-    if (!writeMask.writesAnything())
++    const PixelWritePlan plan = target.plans[target.alphaPasses[a]];
++    if ((plan & kPlanWritesAnything) == 0u)
      {
          return;
      }
  
 -    const uint32_t ztestMethod = static_cast<uint32_t>((ctx.test >> 17) & 3u);
 -    const bool alphaBlendEnabled = state.prim.abe;
-+    const uint32_t ztestMethod = target.ztestMethod;
-     const bool preserveDestinationAlpha = writeMask.writeRgb && !writeMask.writeAlpha && fpsm == GS_PSM_CT32;
+-    const bool preserveDestinationAlpha = writeMask.writeRgb && !writeMask.writeAlpha && fpsm == GS_PSM_CT32;
 -    const bool destinationAlphaTestNeedsRead = ((ctx.test >> 14) & 0x1u) != 0u && (fpsm == GS_PSM_CT32 || fpsm == GS_PSM_CT16 || fpsm == GS_PSM_CT16S);
- 
-     // small optimization, avoid reading the framebuffer for simple draws
-     // TODO: only one address lookup for rmw
+-
+-    // small optimization, avoid reading the framebuffer for simple draws
+-    // TODO: only one address lookup for rmw
 -    const bool frmw = destinationAlphaTestNeedsRead || (writeMask.writesFramebuffer() && ((ctx.frame.fbmsk != 0) || alphaBlendEnabled || preserveDestinationAlpha));
-+    const bool frmw = target.destinationAlphaTestNeedsRead || (writeMask.writesFramebuffer() && (target.masksOrBlends || preserveDestinationAlpha));
++    const uint32_t ztestMethod = target.ztestMethod;
++    const bool frmw = (plan & kPlanReadsFramebuffer) != 0u;
  
      u32 rawFramebufferPixel = 0;
      u32 fbrgba = 0;
@@ -3945,7 +4127,7 @@ index f0ad507..1185576 100644
 -        rawFramebufferPixel = ReadVramUnlocked(fpsm, fbp, fbw, x, y);
 +        if constexpr (frameKnown)
 +        {
-+            frameAddress = GSMem::ByteAddressInRow<framePsm>(row.frame, static_cast<u32>(x));
++            frameAddress = frameAddressAt();
 +            rawFramebufferPixel = GSMem::LoadPixel<framePsm>(target.vram, frameAddress);
 +        }
 +        else
@@ -3959,12 +4141,12 @@ index f0ad507..1185576 100644
          {
              fbrgba = Rgba5551ToRgba8888(fbrgba);
          }
-@@ -904,14 +1343,29 @@ void GSCpuBackend::WritePixel(const GSDrawState &state, int x, int y, int z, uin
+@@ -904,59 +1388,81 @@ void GSCpuBackend::WritePixel(const GSDrawState &state, int x, int y, int z, uin
          }
      }
  
 -    if (!passesDestinationAlphaTest(ctx.test, static_cast<uint8_t>(fpsm), rawFramebufferPixel))
-+    if (!passesDestinationAlphaTest(target.test, static_cast<uint8_t>(fpsm), rawFramebufferPixel))
++    if ((rawFramebufferPixel & target.dateBit) != target.dateExpected)
      {
          return;
      }
@@ -3974,10 +4156,14 @@ index f0ad507..1185576 100644
 -    switch (ztestMethod)
 +    u32 depthAddress = testedDepthAddress;
 +    const auto readDepth = [&]() -> uint32_t
-+    {
+     {
+-    case 0:
+-        zpass = false;
+-        break;
+-    case 1:
 +        if constexpr (depthKnown)
 +        {
-+            depthAddress = GSMem::ByteAddressInRow<depthPsm>(row.depth, static_cast<u32>(x));
++            depthAddress = depthAddressAt();
 +            return GSMem::LoadPixel<depthPsm>(target.vram, depthAddress);
 +        }
 +        else
@@ -3985,29 +4171,33 @@ index f0ad507..1185576 100644
 +            return ReadVramUnlocked(zpsm, zbp, fbw, x, y);
 +        }
 +    };
++    // ZTST: 0 never, 1 always, 2 greater or equal, 3 greater.
 +    if constexpr (DepthTested)
-+        zpass = true;
-+    else switch (ztestMethod)
-     {
-     case 0:
-         zpass = false;
-@@ -920,11 +1374,11 @@ void GSCpuBackend::WritePixel(const GSDrawState &state, int x, int y, int z, uin
          zpass = true;
-         break;
-     case 2:
+-        break;
+-    case 2:
 -        storedZ = ReadVramUnlocked(zpsm, zbp, fbw, x, y);
-+        storedZ = readDepth();
-         zpass = static_cast<uint32_t>(z) >= storedZ;
-         break;
-     case 3:
+-        zpass = static_cast<uint32_t>(z) >= storedZ;
+-        break;
+-    case 3:
 -        storedZ = ReadVramUnlocked(zpsm, zbp, fbw, x, y);
+-        zpass = static_cast<uint32_t>(z) > storedZ;
+-        break;
++    else if (ztestMethod >= 2u)
++    {
 +        storedZ = readDepth();
-         zpass = static_cast<uint32_t>(z) > storedZ;
-         break;
++        zpass = ztestMethod == 2u ? static_cast<uint32_t>(z) >= storedZ : static_cast<uint32_t>(z) > storedZ;
      }
-@@ -936,27 +1390,43 @@ void GSCpuBackend::WritePixel(const GSDrawState &state, int x, int y, int z, uin
++    else
++        zpass = ztestMethod == 1u;
  
-     if (writeMask.writesFramebuffer())
+     if (!zpass)
+     {
+         return;
+     }
+ 
+-    if (writeMask.writesFramebuffer())
++    if ((plan & kPlanWritesFramebuffer) != 0u)
      {
 -        const u8 srcR = r;
 -        const u8 srcG = g;
@@ -4038,10 +4228,10 @@ index f0ad507..1185576 100644
 +                const uint8_t csel = target.blendC;
 +                const uint8_t dsel = target.blendD;
 +                const uint8_t fix = target.blendFix;
-+
+ 
 +                int cAlpha = (csel == 0) ? a : (csel == 1) ? da
 +                                                           : fix;
- 
++
 +#if defined(__SSE2__)
 +                // The scalar formula below on one 32-bit lane per channel. The
 +                // differences and alphas fit 16 bits, so _mm_madd_epi16 multiplies
@@ -4064,7 +4254,7 @@ index f0ad507..1185576 100644
                  auto pickRGB = [&](uint8_t sel, int cs, int cd) -> int
                  {
                      if (sel == 0)
-@@ -965,31 +1435,24 @@ void GSCpuBackend::WritePixel(const GSDrawState &state, int x, int y, int z, uin
+@@ -965,50 +1471,65 @@ void GSCpuBackend::WritePixel(const GSDrawState &state, int x, int y, int z, uin
                          return cd;
                      return 0;
                  };
@@ -4089,7 +4279,7 @@ index f0ad507..1185576 100644
  
 -        if (writeMask.writeAlpha && (ctx.fba & 0x1ull) != 0ull && ctx.frame.psm != GS_PSM_CT24)
 +        uint8_t pixelAlpha = a;
-+        if (writeMask.writeAlpha && target.forceAlphaMsb)
++        if ((plan & kPlanForceAlphaMsb) != 0u)
          {
 -            a = static_cast<uint8_t>(a | 0x80u);
 +            pixelAlpha = static_cast<uint8_t>(pixelAlpha | 0x80u);
@@ -4105,8 +4295,10 @@ index f0ad507..1185576 100644
 +            pixel = (pixel & ~target.fbmsk) | (fbrgba & target.fbmsk);
          }
  
-         if (preserveDestinationAlpha)
-@@ -998,17 +1461,39 @@ void GSCpuBackend::WritePixel(const GSDrawState &state, int x, int y, int z, uin
+-        if (preserveDestinationAlpha)
++        if ((plan & kPlanPreserveDestinationAlpha) != 0u)
+         {
+             pixel = (pixel & 0x00FFFFFFu) | (fbrgba & 0xFF000000u);
          }
  
          // format conversion
@@ -4120,7 +4312,7 @@ index f0ad507..1185576 100644
 +        if constexpr (frameKnown)
 +        {
 +            if (!frmw)
-+                frameAddress = GSMem::ByteAddressInRow<framePsm>(row.frame, static_cast<u32>(x));
++                frameAddress = frameAddressAt();
 +            if (target.watchTexture)
 +                m_texturePageCache.BeforeWrite(target.vram, frameAddress);
 +            GSMem::StorePixel<framePsm>(target.vram, frameAddress, pixel);
@@ -4132,13 +4324,13 @@ index f0ad507..1185576 100644
      }
  
 -    if (writeMask.writeDepth && !ctx.zbuf.zmask)
-+    if (writeMask.writeDepth && !target.zmask)
++    if ((plan & kPlanStoresDepth) != 0u)
      {
 -        WriteVramUnlocked(zpsm, zbp, fbw, x, y, z);
 +        if constexpr (depthKnown)
 +        {
 +            if (ztestMethod < 2u)
-+                depthAddress = GSMem::ByteAddressInRow<depthPsm>(row.depth, static_cast<u32>(x));
++                depthAddress = depthAddressAt();
 +            if (target.watchTexture)
 +                m_texturePageCache.BeforeWrite(target.vram, depthAddress);
 +            GSMem::StorePixel<depthPsm>(target.vram, depthAddress, static_cast<u32>(z));
@@ -4150,7 +4342,7 @@ index f0ad507..1185576 100644
      }
  }
  
-@@ -1055,68 +1540,138 @@ uint32_t GSCpuBackend::LookupCLUT(const GSDrawState &state,
+@@ -1055,68 +1576,138 @@ uint32_t GSCpuBackend::LookupCLUT(const GSDrawState &state,
      return 0xFFFF00FFu;
  }
  
@@ -4172,13 +4364,13 @@ index f0ad507..1185576 100644
 -
 -    float texUf, texVf;
 -    if (state.prim.fst)
-+    switch (psm)
-     {
+-    {
 -        texUf = static_cast<float>(u) / 16.0f;
 -        texVf = static_cast<float>(v) / 16.0f;
 -    }
 -    else
--    {
++    switch (psm)
+     {
 -        const float invQ = 1.0f / fabsQ(q);
 -        texUf = s * invQ * static_cast<float>(texW);
 -        texVf = t * invQ * static_cast<float>(texH);
@@ -4276,7 +4468,7 @@ index f0ad507..1185576 100644
 +    sampler.quadValid = false;
 +    if (sampler.format != TexelFormat::Indexed)
 +        return;
-+
+ 
 +    PaletteCache &palette = m_palette;
 +    if (!palette.valid || palette.clutGeneration != m_clutGeneration || palette.psm != tex.psm ||
 +        palette.cpsm != tex.cpsm || palette.csm != tex.csm || palette.csa != tex.csa ||
@@ -4294,7 +4486,7 @@ index f0ad507..1185576 100644
 +        palette.valid = true;
 +    }
 +}
- 
++
 +template <uint8_t Psm>
 +__attribute__((always_inline)) inline uint32_t GSCpuBackend::FetchTexel(const TextureSampler &sampler, int u, int v)
 +{
@@ -4340,7 +4532,7 @@ index f0ad507..1185576 100644
  
      const float sampleU = texUf - 0.5f;
      const float sampleV = texVf - 0.5f;
-@@ -1127,87 +1682,342 @@ uint32_t GSCpuBackend::SampleTexture(const GSDrawState &state, float s, float t,
+@@ -1127,87 +1718,378 @@ uint32_t GSCpuBackend::SampleTexture(const GSDrawState &state, float s, float t,
      const float fx = sampleU - static_cast<float>(u0);
      const float fy = sampleV - static_cast<float>(v0);
  
@@ -4725,6 +4917,42 @@ index f0ad507..1185576 100644
      uint8_t r = v1.r, g = v1.g, b = v1.b, a = v1.a;
 +    PixelTarget target;
 +    PreparePixelTarget(state, target);
++
++    // With both buffer PSMs known, each column's part of the frame and depth
++    // addresses is worked out once, and each row's.
++    constexpr bool kColumnAddresses = FramePsm != kAnyPsm && DepthPsm != kAnyPsm;
++    PixelColumnsRow columns;
++    if constexpr (kColumnAddresses)
++    {
++        constexpr auto framePsm = static_cast<GSMem::PixelStorageMode>(FramePsm);
++        constexpr auto depthPsm = static_cast<GSMem::PixelStorageMode>(DepthPsm);
++        const size_t columnCount = static_cast<size_t>(drawX1 - drawX0 + 1);
++        m_spriteColumnFrame.resize(columnCount);
++        m_spriteColumnDepth.resize(columnCount);
++        for (int x = drawX0; x <= drawX1; ++x)
++        {
++            m_spriteColumnFrame[x - drawX0] = GSMem::ColumnBytes<framePsm>(static_cast<u32>(x));
++            m_spriteColumnDepth[x - drawX0] = GSMem::ColumnBytes<depthPsm>(static_cast<u32>(x));
++        }
++        columns.frameColumns = m_spriteColumnFrame.data();
++        columns.depthColumns = m_spriteColumnDepth.data();
++        columns.x0 = drawX0;
++    }
++    const auto rowAt = [&](int y)
++    {
++        const PixelRow row = PixelRowAt<FramePsm, DepthPsm>(target, y);
++        if constexpr (kColumnAddresses)
++        {
++            PixelColumnsRow bytes = columns;
++            bytes.frameBytes = GSMem::RowBytes<static_cast<GSMem::PixelStorageMode>(FramePsm)>(row.frame);
++            bytes.depthBytes = GSMem::RowBytes<static_cast<GSMem::PixelStorageMode>(DepthPsm)>(row.depth);
++            return bytes;
++        }
++        else
++        {
++            return row;
++        }
++    };
  
      if (state.prim.tme)
      {
@@ -4741,7 +4969,7 @@ index f0ad507..1185576 100644
  
          float u0f, v0f, u1f, v1f;
          if (state.prim.fst)
-@@ -1227,61 +2037,108 @@ void GSCpuBackend::DrawSprite(const GSPrimitiveBatch &batch)
+@@ -1227,61 +2109,108 @@ void GSCpuBackend::DrawSprite(const GSPrimitiveBatch &batch)
              v1f = (v1.t / q1) * static_cast<float>(texH);
          }
  
@@ -4781,7 +5009,7 @@ index f0ad507..1185576 100644
 +        {
 +            if (!OwnsRow(y))
 +                continue;
-+            const PixelRow row = PixelRowAt<FramePsm, DepthPsm>(target, y);
++            const auto row = rowAt(y);
 +            if (!columnsReady)
              {
 -                float tx = (static_cast<float>(x - unclippedX0) + 0.5f) / spriteW;
@@ -4807,7 +5035,7 @@ index f0ad507..1185576 100644
 +                    columnU.resize(columnCount);
 +                    for (int x = drawX0; x <= drawX1; ++x)
 +                        columnU[x - drawX0] = texelCoordinate(spriteTexelCoordinate(u0f, u1f, x - unclippedX0, spriteW), texW);
-+                }
+                 }
 +                columnsReady = true;
 +            }
 +            const float texVf = texelCoordinate(spriteTexelCoordinate(v0f, v1f, y - unclippedY0, spriteH), texH);
@@ -4819,7 +5047,7 @@ index f0ad507..1185576 100644
 +                {
 +                    const uint32_t texel = SampleSpriteTexels<static_cast<uint8_t>(TexturePsm)>(sampler, axes[x - drawX0], rowAxis);
 +                    WritePixelAs<FramePsm, DepthPsm, true>(target, row, x, y, z1, combineTexturePacked(tex, shade, texel), v1.fog);
-                 }
++                }
 +                continue;
 +            }
 +            const float *columns = columnU.data();
@@ -4845,7 +5073,7 @@ index f0ad507..1185576 100644
 +        {
 +            if (!OwnsRow(y))
 +                continue;
-+            const PixelRow row = PixelRowAt<FramePsm, DepthPsm>(target, y);
++            const auto row = rowAt(y);
              for (int x = drawX0; x <= drawX1; ++x)
 -                WritePixel(state, x, y, z1, r, g, b, a, v1.fog);
 +                WritePixelAs<FramePsm, DepthPsm, true>(target, row, x, y, z1, color, v1.fog);
@@ -4880,7 +5108,7 @@ index f0ad507..1185576 100644
  
      int ofx = ctx.xyoffset.ofx >> 4;
      int ofy = ctx.xyoffset.ofy >> 4;
-@@ -1311,10 +2168,45 @@ void GSCpuBackend::DrawTriangle(const GSPrimitiveBatch &batch)
+@@ -1311,10 +2240,45 @@ void GSCpuBackend::DrawTriangle(const GSPrimitiveBatch &batch)
      const float invAbsDenom = 1.0f / std::fabs(denom);
      constexpr float kEdgeEpsilon = 1.0e-4f;
  
@@ -4927,7 +5155,7 @@ index f0ad507..1185576 100644
          {
              float px = static_cast<float>(x) + 0.5f;
  
-@@ -1326,28 +2218,63 @@ void GSCpuBackend::DrawTriangle(const GSPrimitiveBatch &batch)
+@@ -1326,28 +2290,63 @@ void GSCpuBackend::DrawTriangle(const GSPrimitiveBatch &batch)
                  continue;
  
              double z = v0.z * w0 + v1.z * w1 + v2.z * w2;
@@ -5003,7 +5231,7 @@ index f0ad507..1185576 100644
                  {
                      iu = static_cast<uint16_t>(v0.u * w0 + v1.u * w1 + v2.u * w2);
                      iv = static_cast<uint16_t>(v0.v * w0 + v1.v * w1 + v2.v * w2);
-@@ -1360,35 +2287,30 @@ void GSCpuBackend::DrawTriangle(const GSPrimitiveBatch &batch)
+@@ -1360,35 +2359,30 @@ void GSCpuBackend::DrawTriangle(const GSPrimitiveBatch &batch)
                      // The GS DDA interpolates the homogeneous S, T and Q
                      // values. Texel coordinates are calculated from S/Q and
                      // T/Q only after interpolation.
@@ -5053,7 +5281,7 @@ index f0ad507..1185576 100644
          }
      }
  }
-@@ -1418,6 +2340,8 @@ void GSCpuBackend::DrawLine(const GSPrimitiveBatch &batch)
+@@ -1418,6 +2412,8 @@ void GSCpuBackend::DrawLine(const GSPrimitiveBatch &batch)
      if (totalSteps == 0)
          totalSteps = 1;
      int step = 0;
@@ -5062,7 +5290,7 @@ index f0ad507..1185576 100644
  
      for (;;)
      {
-@@ -1440,7 +2364,8 @@ void GSCpuBackend::DrawLine(const GSPrimitiveBatch &batch)
+@@ -1440,7 +2436,8 @@ void GSCpuBackend::DrawLine(const GSPrimitiveBatch &batch)
  
          double z = (v0.z + (v1.z - v0.z) * t);
          const uint8_t fog = clampU8(static_cast<int>(v0.fog + (v1.fog - v0.fog) * t));
@@ -5072,7 +5300,7 @@ index f0ad507..1185576 100644
  
          if (x0 == x1 && y0 == y1)
              break;
-@@ -1509,8 +2434,86 @@ void GSCpuBackend::UploadImage(const uint8_t *data, uint32_t sizeBytes)
+@@ -1509,8 +2506,86 @@ void GSCpuBackend::UploadImage(const uint8_t *data, uint32_t sizeBytes)
          m_transferState.y = m_transfer.trxpos.dsay + (m_transferState.copiedPixels / rrw);
      };
  
@@ -5159,7 +5387,7 @@ index f0ad507..1185576 100644
          switch (dpsm)
          {
          case GS_PSM_CT32:
-@@ -1520,7 +2523,7 @@ void GSCpuBackend::UploadImage(const uint8_t *data, uint32_t sizeBytes)
+@@ -1520,7 +2595,7 @@ void GSCpuBackend::UploadImage(const uint8_t *data, uint32_t sizeBytes)
                  return;
              uint32_t value = 0u;
              std::memcpy(&value, data + offset, sizeof(value));
@@ -5168,7 +5396,7 @@ index f0ad507..1185576 100644
              offset += 4u;
              advancePixel(1u);
              break;
-@@ -1533,7 +2536,7 @@ void GSCpuBackend::UploadImage(const uint8_t *data, uint32_t sizeBytes)
+@@ -1533,7 +2608,7 @@ void GSCpuBackend::UploadImage(const uint8_t *data, uint32_t sizeBytes)
              const uint32_t value = static_cast<uint32_t>(data[offset]) |
                                     (static_cast<uint32_t>(data[offset + 1u]) << 8u) |
                                     (static_cast<uint32_t>(data[offset + 2u]) << 16u);
@@ -5177,7 +5405,7 @@ index f0ad507..1185576 100644
              offset += 3u;
              advancePixel(1u);
              break;
-@@ -1547,14 +2550,14 @@ void GSCpuBackend::UploadImage(const uint8_t *data, uint32_t sizeBytes)
+@@ -1547,14 +2622,14 @@ void GSCpuBackend::UploadImage(const uint8_t *data, uint32_t sizeBytes)
                  return;
              uint16_t value = 0u;
              std::memcpy(&value, data + offset, sizeof(value));
@@ -5194,7 +5422,7 @@ index f0ad507..1185576 100644
              advancePixel(1u);
              break;
          case GS_PSM_T4:
-@@ -1563,14 +2566,14 @@ void GSCpuBackend::UploadImage(const uint8_t *data, uint32_t sizeBytes)
+@@ -1563,14 +2638,14 @@ void GSCpuBackend::UploadImage(const uint8_t *data, uint32_t sizeBytes)
          {
              const uint8_t packed = data[offset++];
              const uint32_t firstPixel = m_transferState.copiedPixels;
@@ -5211,7 +5439,7 @@ index f0ad507..1185576 100644
                                    dsax + (secondPixel % rrw),
                                    m_transfer.trxpos.dsay + (secondPixel / rrw),
                                    (packed >> 4u) & 0x0Fu);
-@@ -1732,6 +2735,9 @@ bool GSCpuBackend::ClearFramebuffer(const GSContext &context, uint32_t rgba)
+@@ -1732,6 +2807,9 @@ bool GSCpuBackend::ClearFramebuffer(const GSContext &context, uint32_t rgba)
                                  (static_cast<uint32_t>(b) << 16u) |
                                  (static_cast<uint32_t>(a) << 24u);
          for (uint32_t y = y0; y <= y1; ++y)
@@ -5221,7 +5449,7 @@ index f0ad507..1185576 100644
              for (uint32_t x = x0; x <= x1; ++x)
              {
                  uint32_t pixel = source;
-@@ -1742,6 +2748,7 @@ bool GSCpuBackend::ClearFramebuffer(const GSContext &context, uint32_t rgba)
+@@ -1742,6 +2820,7 @@ bool GSCpuBackend::ClearFramebuffer(const GSContext &context, uint32_t rgba)
                  }
                  WriteVramUnlocked(context.frame.psm, fbp, fbw, x, y, pixel);
              }
@@ -5229,7 +5457,7 @@ index f0ad507..1185576 100644
          return true;
      }
  
-@@ -1750,6 +2757,9 @@ bool GSCpuBackend::ClearFramebuffer(const GSContext &context, uint32_t rgba)
+@@ -1750,6 +2829,9 @@ bool GSCpuBackend::ClearFramebuffer(const GSContext &context, uint32_t rgba)
          const uint16_t source = encodeFramePixelPSMCT16(r, g, b, a);
          const uint16_t mask = static_cast<uint16_t>(context.frame.fbmsk);
          for (uint32_t y = y0; y <= y1; ++y)
@@ -5239,7 +5467,7 @@ index f0ad507..1185576 100644
              for (uint32_t x = x0; x <= x1; ++x)
              {
                  uint16_t pixel = source;
-@@ -1760,6 +2770,7 @@ bool GSCpuBackend::ClearFramebuffer(const GSContext &context, uint32_t rgba)
+@@ -1760,6 +2842,7 @@ bool GSCpuBackend::ClearFramebuffer(const GSContext &context, uint32_t rgba)
                  }
                  WriteVramUnlocked(context.frame.psm, fbp, fbw, x, y, pixel);
              }
