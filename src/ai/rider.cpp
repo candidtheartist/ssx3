@@ -1894,7 +1894,7 @@ extern "C" int func_00135EF0(void* self);
 extern "C" int func_00135F30(void* self);
 extern "C" int cRiderAnimBase_getChannelAnimClass(void*, int);
 extern "C" char* cRiderAnimBase_getChannelSequence(void*, int);
-extern "C" int func_001446A0(void* self, int a1);
+extern "C" int testFlagBit(void* self, int a1);
 
 // Tests one rider condition by id (used by the scripted-event checks).
 extern "C" int cRider_testCondition(char* self, int cond)
@@ -1954,8 +1954,8 @@ extern "C" int cRider_testCondition(char* self, int cond)
     case 18: {
         int r = 0;
         if (cRiderAnimBase_getChannelAnimClass(*(void**)(self + 0x784), 1) == 0xD) {
-            if (func_001446A0(cRiderAnimBase_getChannelSequence(*(void**)(self + 0x784), 1) + 0xB0, 0) != 0) {
-                r = func_001446A0(cRiderAnimBase_getChannelSequence(*(void**)(self + 0x784), 1) + 0xB0, 1) == 0;
+            if (testFlagBit(cRiderAnimBase_getChannelSequence(*(void**)(self + 0x784), 1) + 0xB0, 0) != 0) {
+                r = testFlagBit(cRiderAnimBase_getChannelSequence(*(void**)(self + 0x784), 1) + 0xB0, 1) == 0;
             }
         }
         return r;

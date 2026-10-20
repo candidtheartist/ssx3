@@ -1,5 +1,6 @@
 #include "common.h"
 #include "animation/animsequence.h"
+#include "animation/mdfarchive.h"
 
 //100%
 void cAnimSequence_fadeWeight(cAnimSequence* self, float target, float time)
@@ -537,36 +538,37 @@ extern "C" void cAnimSequencer_load(void* self, void* stream);
 //100%
 void* cMdfArchive_cMdfArchive(void* self)
 {
-    *(int*)self = 0;
+    cMdfArchive* arc = (cMdfArchive*)self;
+    arc->mOwnedData = 0;
     return self;
 }
 
 //100%
 void operator_delete(int* ptr);
-extern "C" void cMdfArchive_close(void** self);
+extern "C" void cMdfArchive_close(cMdfArchive* self);
 
-extern "C" void cMdfArchive__cMdfArchive(int* self, int flags)
+extern "C" void cMdfArchive__cMdfArchive(cMdfArchive* self, int flags)
 {
-    cMdfArchive_close((void**)self);
+    cMdfArchive_close(self);
     if (flags & 1)
     {
-        operator_delete(self);
+        operator_delete((int*)self);
     }
 }
 
 //100%
 void cMemMan_free(void* ptr);
 
-extern "C" void cMdfArchive_close(void** self)
+extern "C" void cMdfArchive_close(cMdfArchive* self)
 {
-    if (self[0] != 0)
+    if (self->mOwnedData != 0)
     {
-        cMemMan_free(self[0]);
+        cMemMan_free(self->mOwnedData);
     }
-    self[0] = 0;
-    self[1] = 0;
-    self[2] = 0;
-    self[3] = 0;
+    self->mOwnedData = 0;
+    self->mHeader = 0;
+    self->mParts = 0;
+    self->mData = 0;
 }
 
 extern "C" void* cMdfArchive_bind(void*);
@@ -577,14 +579,16 @@ void cMdfArchive_bind_impl(void* self, char* data) __asm__("cMdfArchive_bind");
 
 void cMdfArchive_adoptData(void* self, int a1)
 {
-    *(int*)self = a1;
+    cMdfArchive* arc = (cMdfArchive*)self;
+    arc->mOwnedData = (char*)a1;
     cMdfArchive_bind_impl(self, (char*)a1);
 }
 
 //100%
 void* cMdfArchive_attachData(void* self)
 {
-    *(int*)self = 0;
+    cMdfArchive* arc = (cMdfArchive*)self;
+    arc->mOwnedData = 0;
     return cMdfArchive_bind(self);
 }
 
@@ -592,10 +596,10 @@ void* cMdfArchive_attachData(void* self)
 // Loads the archive named name with func_003E22F0, stores it and points self at its tables.
 extern "C" char* func_003E22F0(const char* name, int flags);
 
-extern "C" void cMdfArchive_load(void* self, const char* name, int flags)
+extern "C" void cMdfArchive_load(cMdfArchive* self, const char* name, int flags)
 {
     char* data = func_003E22F0(name, flags);
-    *(char**)self = data;
+    self->mOwnedData = data;
     cMdfArchive_bind_impl(self, data);
 }
 
@@ -608,16 +612,17 @@ extern "C" void cMdfArchive_load(void* self, const char* name, int flags)
 void cMdfArchive_bind_impl(void* self, char* data) __asm__("cMdfArchive_bind");
 void cMdfArchive_bind_impl(void* self, char* data)
 {
-    *(char**)((char*)self + 0x4) = data;
-    *(char**)((char*)self + 0x8) = data + *(short*)(data + 0x6);
-    *(char**)((char*)self + 0xC) = data + *(int*)(data + 0x8);
+    cMdfArchive* arc = (cMdfArchive*)self;
+    arc->mHeader = (cMdfHeader*)data;
+    arc->mParts = (cMdfPartHeader*)(data + ((cMdfHeader*)data)->mPartsOffset);
+    arc->mData = data + ((cMdfHeader*)data)->mDataOffset;
 }
 
-extern "C" int cMdfArchive_getNumModelParts(char* self)
+extern "C" int cMdfArchive_getNumModelParts(cMdfArchive* self)
 {
-    char* p = *(char**)(self + 0x4);
+    cMdfHeader* p = self->mHeader;
     if (p)
-        return *(short*)(p + 0x4);
+        return p->mNumParts;
     return 0;
 }
 
@@ -625,26 +630,11 @@ extern "C" int cMdfArchive_getNumModelParts(char* self)
 // Returns 1 when the archive has a part called name.
 extern "C" int func_0041AA88(const char* a, const char* b);
 
-struct sMdfPart60 {
-    char name[0x60];
-};
-
-struct sMdfHeader {
-    int pad0;
-    short count; // 0x4
-};
-
-struct sMdfArchive {
-    int pad0;
-    sMdfHeader* header; // 0x4
-    sMdfPart60* parts;  // 0x8
-};
-
-extern "C" int cMdfArchive_hasModelPart(sMdfArchive* self, const char* name)
+extern "C" int cMdfArchive_hasModelPart(cMdfArchive* self, const char* name)
 {
-    for (int i = 0; i < self->header->count; i++)
+    for (int i = 0; i < self->mHeader->mNumParts; i++)
     {
-        if (func_0041AA88(name, self->parts[i].name) == 0)
+        if (func_0041AA88(name, self->mParts[i].mName) == 0)
             return 1;
     }
     return 0;
@@ -652,31 +642,31 @@ extern "C" int cMdfArchive_hasModelPart(sMdfArchive* self, const char* name)
 
 //100%
 // Returns the part called name, or null.
-extern "C" sMdfPart60* cMdfArchive_findModelPartHeader(sMdfArchive* self, const char* name)
+extern "C" cMdfPartHeader* cMdfArchive_findModelPartHeader(cMdfArchive* self, const char* name)
 {
-    for (int i = 0; i < self->header->count; i++)
+    for (int i = 0; i < self->mHeader->mNumParts; i++)
     {
-        if (func_0041AA88(name, self->parts[i].name) == 0)
-            return &self->parts[i];
+        if (func_0041AA88(name, self->mParts[i].mName) == 0)
+            return &self->mParts[i];
     }
     return 0;
 }
 
 //100%
-extern "C" void* cMdfArchive_getModelPartByIndex(void* self, int index);
+extern "C" void* cMdfArchive_getModelPartByIndex(cMdfArchive* self, int index);
 
-extern "C" void* cMdfArchive_getModelPart(sMdfArchive* self, const char* name)
+extern "C" void* cMdfArchive_getModelPart(cMdfArchive* self, const char* name)
 {
-    for (int i = 0; i < self->header->count; i++)
+    for (int i = 0; i < self->mHeader->mNumParts; i++)
     {
-        if (func_0041AA88(name, self->parts[i].name) == 0)
+        if (func_0041AA88(name, self->mParts[i].mName) == 0)
             return cMdfArchive_getModelPartByIndex(self, i);
     }
     return 0;
 }
 
 
-extern "C" char* cMdfArchive_getModelPartHeader(char* self, int i)
+extern "C" cMdfPartHeader* cMdfArchive_getModelPartHeader(cMdfArchive* self, int i)
 {
-    return *(char**)(self + 0x8) + i * 0x60;
+    return &self->mParts[i];
 }

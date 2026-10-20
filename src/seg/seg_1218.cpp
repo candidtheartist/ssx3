@@ -1288,9 +1288,9 @@ struct sBankTab_3AA0 {
 };
 
 extern sBankTab_3AA0* D_004A3DF8;
-extern "C" int func_001446A0(void*, int);
+extern "C" int testFlagBit(void*, int);
 extern "C" int func_001446B8(void*, int);
-extern "C" void func_00144670(void*, int);
+extern "C" void moveFlagBit(void*, int);
 extern "C" void func_00104CC8(void*, int);
 
 extern "C" void func_00103AA0(void* self, sObj_3AA0* o)
@@ -1298,13 +1298,13 @@ extern "C" void func_00103AA0(void* self, sObj_3AA0* o)
     int n = D_004A3DF8->banks[o->id & 0xFF]->ents[o->id >> 8].count;
     for (int i = 0; i < n; i++) {
         int ok = 0;
-        if (func_001446A0(o->sub, i) && func_001446B8(o->sub, i))
+        if (testFlagBit(o->sub, i) && func_001446B8(o->sub, i))
             ok = 1;
         if (ok) {
             sBank_3AA0* b = D_004A3DF8->banks[o->id & 0xFF];
             unsigned short r = b->recs[b->ents[o->id >> 8].first + i].b;
             if (r & 0x8000) {
-                func_00144670(o->sub, i);
+                moveFlagBit(o->sub, i);
                 func_00104CC8(self, r & 0x7FFF);
             }
         }
@@ -2656,7 +2656,7 @@ int cRider_getMotionMode(void*);
 extern "C" int func_00334680(void*, sVec4_8A48*, sVec4_8A48*, int, float);
 extern "C" int cRiderAnimBase_getChannelAnimClass(void*, int);
 extern "C" char* cRiderAnimBase_getChannelSequence(void*, int);
-extern "C" int func_001446A0(void*, int);
+extern "C" int testFlagBit(void*, int);
 extern "C" int func_001086B8(void*, sVec4_8A48*, sVec4_8A48*);
 
 extern "C" int func_00108A48(char* self, sVec4_8A48* tgt)
@@ -2674,12 +2674,12 @@ extern "C" int func_00108A48(char* self, sVec4_8A48* tgt)
             return 0;
     }
     if (cRiderAnimBase_getChannelAnimClass(*(void**)(self + 0x784), 2) == 0x12) {
-        if (!func_001446A0(cRiderAnimBase_getChannelSequence(*(void**)(self + 0x784), 2) + 0xB0, 2) &&
-            func_001446A0(cRiderAnimBase_getChannelSequence(*(void**)(self + 0x784), 2) + 0xB0, 0))
+        if (!testFlagBit(cRiderAnimBase_getChannelSequence(*(void**)(self + 0x784), 2) + 0xB0, 2) &&
+            testFlagBit(cRiderAnimBase_getChannelSequence(*(void**)(self + 0x784), 2) + 0xB0, 0))
             return 0;
     } else if (cRiderAnimBase_getChannelAnimClass(*(void**)(self + 0x784), 2) == 0x13 ||
                cRiderAnimBase_getChannelAnimClass(*(void**)(self + 0x784), 2) == 0x14) {
-        if (!func_001446A0(cRiderAnimBase_getChannelSequence(*(void**)(self + 0x784), 2) + 0xB0, 2))
+        if (!testFlagBit(cRiderAnimBase_getChannelSequence(*(void**)(self + 0x784), 2) + 0xB0, 2))
             return 0;
     }
     return func_001086B8(self, tgt, tgt + 1);

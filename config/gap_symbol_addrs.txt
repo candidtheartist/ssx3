@@ -357,8 +357,6 @@ func_001441A0__FPvT0 = 0x001441A0; //type:func
 func_001441B8 = 0x001441B8; //type:func
 func_00144368 = 0x00144368; //type:func
 func_00144610__FPv = 0x00144610; //type:func
-func_00144670 = 0x00144670; //type:func
-func_001446A0 = 0x001446A0; //type:func
 func_001446B8 = 0x001446B8; //type:func
 func_001446E8__FPv = 0x001446E8; //type:func
 func_001446F8 = 0x001446F8; //type:func
@@ -8347,7 +8345,6 @@ lbl_00313434 = 0x00313434; //type:label
 // --- src/animation/mdfarchive.cpp ---
 
 // --- src/animation/gameanimmap.cpp ---
-func_00315A00__FPv = 0x00315A00; //type:func
 func_00315A20 = 0x00315A20; //type:func
 func_00316878__FPv = 0x00316878; //type:func
 
