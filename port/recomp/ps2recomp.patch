@@ -2780,10 +2780,10 @@ index 67c8184..dae19d5 100644
      void reportReservedInstruction(bool upper, uint32_t instruction);
 diff --git a/ps2xRuntime/include/runtime/ps2_vu1_thread.h b/ps2xRuntime/include/runtime/ps2_vu1_thread.h
 new file mode 100644
-index 0000000..27026c8
+index 0000000..f937538
 --- /dev/null
 +++ b/ps2xRuntime/include/runtime/ps2_vu1_thread.h
-@@ -0,0 +1,66 @@
+@@ -0,0 +1,74 @@
 +#pragma once
 +
 +#include <array>
@@ -2836,12 +2836,20 @@ index 0000000..27026c8
 +
 +    void Run();
 +    void WaitFor(uint64_t sequence);
++    bool hasRoomFor(size_t bytes) const; // with m_mutex held
 +
 +    std::mutex m_mutex;
 +    std::condition_variable m_jobReady;
 +    std::condition_variable m_jobDone;
 +    std::deque<Job> m_jobs;
 +    size_t m_pendingBytes = 0;
++    // Waking a thread costs a lot more than checking whether it needs waking (on Windows
++    // most of all), so the two threads only wake each other when the other is waiting
++    // for this. All of these change with m_mutex held.
++    bool m_idle = false;                // the job thread waits for a job
++    uint32_t m_completionWaiters = 0;   // threads waiting for jobs to finish
++    uint64_t m_waitTarget = UINT64_MAX; // the fewest finished jobs one of them waits for
++    size_t m_roomWanted = SIZE_MAX;     // the submitter waits for room for a job this big
 +    std::atomic<uint64_t> m_submitted{0};
 +    std::array<uint64_t, kVsyncsAhead> m_vsyncMarks{}; // the submitting thread's own
 +    size_t m_nextVsyncMark = 0;
@@ -8624,14 +8632,15 @@ index b02c7ca..b60974f 100644
      }
 diff --git a/ps2xRuntime/src/lib/ps2_vu1_thread.cpp b/ps2xRuntime/src/lib/ps2_vu1_thread.cpp
 new file mode 100644
-index 0000000..2b909de
+index 0000000..89b0ea2
 --- /dev/null
 +++ b/ps2xRuntime/src/lib/ps2_vu1_thread.cpp
-@@ -0,0 +1,100 @@
+@@ -0,0 +1,126 @@
 +#include "runtime/ps2_vu1_thread.h"
 +
 +#include "ThreadNaming.h"
 +
++#include <algorithm>
 +#include <cstdio>
 +#include <exception>
 +#include <utility>
@@ -8662,13 +8671,26 @@ index 0000000..2b909de
 +
 +    std::unique_lock<std::mutex> lock(m_mutex);
 +    // A job bigger than the limit still goes in, once the queue has drained.
-+    m_jobDone.wait(lock, [&]
-+                   { return m_pendingBytes == 0u || m_pendingBytes + bytes <= kMaxPendingBytes; });
++    if (!hasRoomFor(bytes))
++    {
++        m_roomWanted = bytes;
++        m_jobDone.wait(lock, [&]
++                       { return hasRoomFor(bytes); });
++        m_roomWanted = SIZE_MAX;
++    }
 +    m_pendingBytes += bytes;
 +    m_jobs.push_back(std::move(entry));
 +    m_submitted.fetch_add(1u, std::memory_order_relaxed);
++    const bool wake = m_idle;
++    m_idle = false;
 +    lock.unlock();
-+    m_jobReady.notify_one();
++    if (wake)
++        m_jobReady.notify_one();
++}
++
++bool Vu1Thread::hasRoomFor(size_t bytes) const
++{
++    return m_pendingBytes == 0u || m_pendingBytes + bytes <= kMaxPendingBytes;
 +}
 +
 +void Vu1Thread::WaitIdle()
@@ -8690,8 +8712,12 @@ index 0000000..2b909de
 +    if (m_completed.load(std::memory_order_acquire) >= sequence)
 +        return;
 +    std::unique_lock<std::mutex> lock(m_mutex);
++    ++m_completionWaiters;
++    m_waitTarget = std::min(m_waitTarget, sequence);
 +    m_jobDone.wait(lock, [&]
 +                   { return m_completed.load(std::memory_order_relaxed) >= sequence; });
++    if (--m_completionWaiters == 0u)
++        m_waitTarget = UINT64_MAX;
 +}
 +
 +void Vu1Thread::Run()
@@ -8702,8 +8728,13 @@ index 0000000..2b909de
 +        Job job;
 +        {
 +            std::unique_lock<std::mutex> lock(m_mutex);
-+            m_jobReady.wait(lock, [&]
-+                            { return m_stop || !m_jobs.empty(); });
++            if (!m_stop && m_jobs.empty())
++            {
++                m_idle = true;
++                m_jobReady.wait(lock, [&]
++                                { return m_stop || !m_jobs.empty(); });
++                m_idle = false;
++            }
 +            if (m_jobs.empty())
 +                return;
 +            job = std::move(m_jobs.front());
@@ -8720,12 +8751,15 @@ index 0000000..2b909de
 +            std::fprintf(stderr, "[vu1-thread] job failed: %s\n", error.what());
 +        }
 +
++        bool wake = false;
 +        {
 +            std::lock_guard<std::mutex> lock(m_mutex);
 +            m_pendingBytes -= job.bytes;
-+            m_completed.fetch_add(1u, std::memory_order_release);
++            const uint64_t completed = m_completed.fetch_add(1u, std::memory_order_release) + 1u;
++            wake = completed >= m_waitTarget || (m_roomWanted != SIZE_MAX && hasRoomFor(m_roomWanted));
 +        }
-+        m_jobDone.notify_all();
++        if (wake)
++            m_jobDone.notify_all();
 +    }
 +}
 diff --git a/ps2xRuntime/src/lib/vu/ps2_vu1_compiled.cpp b/ps2xRuntime/src/lib/vu/ps2_vu1_compiled.cpp

@@ -222,6 +222,10 @@ or any disc file.
   - the GS workers sleeping on a lock of their own, so a worker going idle or waking never waits for the thread
     that queues commands, which holds the queue's lock while it sorts out each one. On Windows a lock two threads
     want at once goes through the kernel, and that thread spent about 7% of its time releasing it;
+  - the VU1 thread and the game thread that hands it VIF1 work waking each other only when the other is waiting.
+    The VU1 thread signalled after every job it finished and the game thread after every job it queued, though
+    each waits for the other only a few times a frame. On the Windows PC the VU1 thread spent about 7% of its
+    time releasing those waits;
   - a fix for a picture that stopped changing while the game went on. A presentation request queued while the
     thread that queues draws was waiting for room in a full queue was overwritten by that thread's next draw, so
     the window kept its last frame for the rest of the session. A 4-core Linux machine, where the queue is often
