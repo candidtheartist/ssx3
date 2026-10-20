@@ -505,7 +505,7 @@ extern "C" float func_00115B08(void *arg0) {
 }
 
 //100%
-extern "C" int func_00311AE8(void*, int);
+extern "C" int cRiderAnimBase_getChannelAnimClass(void*, int);
 extern "C" int getGameTick();
 extern "C" int cRiderAnimBase_play_5B58(void* self, int anim, int flags, float blend) __asm__("cRiderAnimBase_play");
 extern "C" void* func_0028B180_5B58() __asm__("func_0028B180");
@@ -517,13 +517,13 @@ extern "C" void func_00115B58(char* self)
     if (*(int*)(self + 0x358) == 0) {
         return;
     }
-    if (func_00311AE8(*(void**)(self + 0x784), 2) == 5) {
+    if (cRiderAnimBase_getChannelAnimClass(*(void**)(self + 0x784), 2) == 5) {
         return;
     }
-    if (func_00311AE8(*(void**)(self + 0x784), 1) != 0) {
+    if (cRiderAnimBase_getChannelAnimClass(*(void**)(self + 0x784), 1) != 0) {
         return;
     }
-    if (func_00311AE8(*(void**)(self + 0x784), 2) == 10) {
+    if (cRiderAnimBase_getChannelAnimClass(*(void**)(self + 0x784), 2) == 10) {
         return;
     }
     int dt = getGameTick() - *(int*)(self + 0x354);

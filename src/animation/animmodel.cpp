@@ -82,7 +82,7 @@ void func_0030DB70(void* self, int item)
 }
 
 //100%
-extern "C" int func_0030DB90(void* self, void* a1)
+extern "C" int cAnimModel_comparePartIds(void* self, void* a1)
 {
     return *(int*)self - *(int*)a1;
 }
@@ -93,7 +93,7 @@ struct sVec4_0030DBA0
     float x, y, z, w;
 } __attribute__((aligned(16)));
 
-extern "C" void func_0030DBA0(void* self, float a, float b)
+extern "C" void cAnimModel_setScale(void* self, float a, float b)
 {
     sVec4_0030DBA0 v;
     v.x = a;
@@ -136,7 +136,7 @@ struct sAnimModel_0030E9E0
 };
 
 // PORT: ulong is 64-bit here
-extern "C" void func_0030E9E0(sAnimModel_0030E9E0* self, int i, int channel)
+extern "C" void cAnimModel_showPart(sAnimModel_0030E9E0* self, int i, int channel)
 {
     if (i > self->count)
     {
@@ -168,7 +168,7 @@ extern "C" void func_0030E9E0(sAnimModel_0030E9E0* self, int i, int channel)
 
 //100%
 // PORT: ulong is 64-bit here
-extern "C" void func_0030EA80(sAnimModel_0030E9E0* self, int i, int channel)
+extern "C" void cAnimModel_hidePart(sAnimModel_0030E9E0* self, int i, int channel)
 {
     if (i > self->count)
     {
@@ -208,7 +208,7 @@ extern "C" void func_0030EA80(sAnimModel_0030E9E0* self, int i, int channel)
 
 //100%
 // PORT: ulong is 64-bit here
-extern "C" void func_0030EB60(sAnimModel_0030E9E0* self)
+extern "C" void cAnimModel_hideAllParts(sAnimModel_0030E9E0* self)
 {
     for (int j = 0; j < self->numEntries; j++)
     {
@@ -221,7 +221,7 @@ extern "C" void func_0030EB60(sAnimModel_0030E9E0* self)
 }
 
 //100%
-extern "C" int func_0030EBC0(sAnimModel_0030E9E0* self, int i, int channel)
+extern "C" int cAnimModel_isPartVisible(sAnimModel_0030E9E0* self, int i, int channel)
 {
     int idx;
     if (i > self->count || self->indices == 0 || (idx = self->indices[i]) < 0)
@@ -233,7 +233,7 @@ extern "C" int func_0030EBC0(sAnimModel_0030E9E0* self, int i, int channel)
 
 //100%
 // PORT: ulong is 64-bit here
-extern "C" void func_0030EC18(sAnimModel_0030E9E0* self, int i, int param)
+extern "C" void cAnimModel_showPartVariant(sAnimModel_0030E9E0* self, int i, int param)
 {
     if (i > self->count)
     {
@@ -284,11 +284,11 @@ extern "C" void func_0030ECA0(sAnimModel_0030ECA0* self, int i)
 
 INCLUDE_ASM("animation/animmodel", func_0030ECD8);
 
-INCLUDE_ASM("animation/animmodel", func_0030F2B0);
+INCLUDE_ASM("animation/animmodel", cAnimModel_sampleLocalPose);
 
-INCLUDE_ASM("animation/animmodel", func_00310120);
+INCLUDE_ASM("animation/animmodel", cAnimModel_setBoneMatrix);
 
-INCLUDE_ASM("animation/animmodel", func_00310200);
+INCLUDE_ASM("animation/animmodel", cAnimModel_buildWorldPose);
 
 //100% - objdiff report; single-function view differs only in a relocation name
 struct sAm3103F0Pair
@@ -304,14 +304,14 @@ struct sAm3103F0
     sAm3103F0Pair* pairs;
 };
 
-extern "C" void func_00310120(sAm3103F0* self, int i, sAm3103F0Pair* p);
+extern "C" void cAnimModel_setBoneMatrix(sAm3103F0* self, int i, sAm3103F0Pair* p);
 
-extern "C" void func_003103F0(sAm3103F0* self)
+extern "C" void cAnimModel_buildBoneMatrices(sAm3103F0* self)
 {
     int i;
     for (i = 0; i < self->count; i++)
     {
-        func_00310120(self, i, &self->pairs[i]);
+        cAnimModel_setBoneMatrix(self, i, &self->pairs[i]);
     }
 }
 
@@ -383,7 +383,7 @@ static inline sAmVec4 amVecAdd(const sAmVec4& src, sAmVec4* b)
     return r;
 }
 
-extern "C" void func_00310530(sAmModel* self, sAmVec4* v)
+extern "C" void cAnimModel_translate(sAmModel* self, sAmVec4* v)
 {
     for (int i = 0; i < self->numEntries; i++) {
         for (int j = 0; j < self->entries[i].count; j++) {
@@ -539,8 +539,8 @@ extern int D_004A5948;
 extern sAmCtx_0640* D_004A5B80_0640 __asm__("D_004A5B80");
 extern sAmMat_0640 D_004FC420[];
 
-INCLUDE_ASM("animation/animmodel", func_00310640);
-extern "C" void func_00310640(sAmModel_0640* self, int lod, int x, int y);
+INCLUDE_ASM("animation/animmodel", cAnimModel_draw);
+extern "C" void cAnimModel_draw(sAmModel_0640* self, int lod, int x, int y);
 
 //100%
 struct sAmMat_0948;
@@ -699,7 +699,7 @@ struct sAmGroup58 {
     char pad48[0x10];
 };
 
-extern "C" int func_00310C48(void* self, int idx, const char* name)
+extern "C" int cAnimModel_findBone(void* self, int idx, const char* name)
 {
     sAmGroup58* g = &(*(sAmGroup58**)((char*)self + 0xC))[(*(int**)((char*)self + 0x1C))[idx]];
     sAmItem50* items = g->items;
@@ -728,7 +728,7 @@ struct sAnimPart_0CE8 {
 };
 
 // PORT: returns a 64-bit mask (long is 8 bytes on the EE).
-extern "C" ulong func_00310CE8(char* self, int idx, char* names)
+extern "C" ulong cAnimModel_getBoneMask(char* self, int idx, char* names)
 {
     if (*(int*)(self + 0x14) < idx)
         return 0;
@@ -771,13 +771,13 @@ public:
     virtual void write(void* data, int size);
 };
 
-extern "C" void func_00310EA8(void* self, cAmStream* s)
+extern "C" void cAnimModel_savePose(void* self, cAmStream* s)
 {
     s->read(*(void**)((char*)self + 0x2C), *(int*)((char*)self + 0x10) << 5);
 }
 
 //100%
-extern "C" void func_00310EE0(void* self, cAmStream* s)
+extern "C" void cAnimModel_loadPose(void* self, cAmStream* s)
 {
     s->write(*(void**)((char*)self + 0x2C), *(int*)((char*)self + 0x10) << 5);
 }
@@ -828,7 +828,7 @@ extern "C" void func_00416210(void* dst, int c, int n);
 // caller passes the model in $4.
 void func_003110D0_1(void* self) __asm__("func_003110D0");
 
-extern "C" void* func_00311048(void* self)
+extern "C" void* cAnimDataBase_cAnimDataBase(void* self)
 {
     D_004A3DF8 = self;
     func_00416210(self, 0, 0x3FC);
@@ -841,7 +841,7 @@ extern "C" void* func_00311048(void* self)
 extern "C" void func_00311110_1088(void* self) __asm__("func_00311110");
 void operator_delete(int*);
 
-extern "C" void func_00311088(void* self, int flags)
+extern "C" void cAnimDataBase__cAnimDataBase(void* self, int flags)
 {
     D_004A3DF8 = 0;
     func_00311110_1088(self);
@@ -907,28 +907,28 @@ extern "C" void func_00311110(void)
 }
 
 //100%
-extern "C" void func_00311290(void* self, char* data);
+extern "C" void cAdfDataSource_setData(void* self, char* data);
 
-extern "C" void* func_00311220(void* self, char* data)
+extern "C" void* cAdfDataSource_cAdfDataSource(void* self, char* data)
 {
     *(int*)self = 0;
-    func_00311290(self, data);
+    cAdfDataSource_setData(self, data);
     return self;
 }
 
 //100%
 extern "C" char* func_003E22F0(void* src, int flags);
 
-extern "C" void* func_00311250(char** self, void* src)
+extern "C" void* cAdfDataSource_cAdfDataSource1(char** self, void* src)
 {
     char* data = func_003E22F0(src, 0);
     *self = data;
-    func_00311290(self, data);
+    cAdfDataSource_setData(self, data);
     return self;
 }
 
 //100%
-extern "C" void func_00311290(void* self, char* data)
+extern "C" void cAdfDataSource_setData(void* self, char* data)
 {
     *(char**)((char*)self + 0x4) = data;
     *(char**)((char*)self + 0x8) = data + 0x10;
@@ -941,7 +941,7 @@ extern "C" void func_00311290(void* self, char* data)
 void cMemMan_free(void*);
 void operator_delete(int*);
 
-extern "C" void func_003112C8(void* self, int flags)
+extern "C" void cAdfDataSource__cAdfDataSource(void* self, int flags)
 {
     void* p = *(void**)self;
     if (p != 0)

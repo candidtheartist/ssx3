@@ -1,7 +1,7 @@
 #include "common.h"
 
 //100%
-extern "C" int func_00310C48(void* self, int idx, const char* name);
+extern "C" int cAnimModel_findBone(void* self, int idx, const char* name);
 extern char D_004A1970[];
 extern char D_004A1978[];
 extern char D_00460A00[];
@@ -19,20 +19,20 @@ extern char D_00460AB0[];
 
 extern "C" void cFERider_initBoneMap(void* self)
 {
-    *(int*)((char*)self + 0xC7C) = func_00310C48(*(void**)((char*)self + 0x8), 0, D_004A1970);
-    *(int*)((char*)self + 0xC80) = func_00310C48(*(void**)((char*)self + 0x8), 0, D_004A1978);
-    *(int*)((char*)self + 0xC84) = func_00310C48(*(void**)((char*)self + 0x8), 0, D_00460A00);
-    *(int*)((char*)self + 0xC88) = func_00310C48(*(void**)((char*)self + 0x8), 0, D_00460A10);
-    *(int*)((char*)self + 0xC8C) = func_00310C48(*(void**)((char*)self + 0x8), 0, D_00460A20);
-    *(int*)((char*)self + 0xC90) = func_00310C48(*(void**)((char*)self + 0x8), 0, D_00460A30);
-    *(int*)((char*)self + 0xC94) = func_00310C48(*(void**)((char*)self + 0x8), 0, D_00460A40);
-    *(int*)((char*)self + 0xC98) = func_00310C48(*(void**)((char*)self + 0x8), 0, D_00460A50);
-    *(int*)((char*)self + 0xC9C) = func_00310C48(*(void**)((char*)self + 0x8), 0, D_00460A60);
-    *(int*)((char*)self + 0xCA0) = func_00310C48(*(void**)((char*)self + 0x8), 0, D_00460A70);
-    *(int*)((char*)self + 0xCA4) = func_00310C48(*(void**)((char*)self + 0x8), 0, D_00460A80);
-    *(int*)((char*)self + 0xCA8) = func_00310C48(*(void**)((char*)self + 0x8), 0, D_00460A90);
-    *(int*)((char*)self + 0xCAC) = func_00310C48(*(void**)((char*)self + 0x8), 1, D_00460AA0);
-    *(int*)((char*)self + 0xCB0) = func_00310C48(*(void**)((char*)self + 0x8), 1, D_00460AB0);
+    *(int*)((char*)self + 0xC7C) = cAnimModel_findBone(*(void**)((char*)self + 0x8), 0, D_004A1970);
+    *(int*)((char*)self + 0xC80) = cAnimModel_findBone(*(void**)((char*)self + 0x8), 0, D_004A1978);
+    *(int*)((char*)self + 0xC84) = cAnimModel_findBone(*(void**)((char*)self + 0x8), 0, D_00460A00);
+    *(int*)((char*)self + 0xC88) = cAnimModel_findBone(*(void**)((char*)self + 0x8), 0, D_00460A10);
+    *(int*)((char*)self + 0xC8C) = cAnimModel_findBone(*(void**)((char*)self + 0x8), 0, D_00460A20);
+    *(int*)((char*)self + 0xC90) = cAnimModel_findBone(*(void**)((char*)self + 0x8), 0, D_00460A30);
+    *(int*)((char*)self + 0xC94) = cAnimModel_findBone(*(void**)((char*)self + 0x8), 0, D_00460A40);
+    *(int*)((char*)self + 0xC98) = cAnimModel_findBone(*(void**)((char*)self + 0x8), 0, D_00460A50);
+    *(int*)((char*)self + 0xC9C) = cAnimModel_findBone(*(void**)((char*)self + 0x8), 0, D_00460A60);
+    *(int*)((char*)self + 0xCA0) = cAnimModel_findBone(*(void**)((char*)self + 0x8), 0, D_00460A70);
+    *(int*)((char*)self + 0xCA4) = cAnimModel_findBone(*(void**)((char*)self + 0x8), 0, D_00460A80);
+    *(int*)((char*)self + 0xCA8) = cAnimModel_findBone(*(void**)((char*)self + 0x8), 0, D_00460A90);
+    *(int*)((char*)self + 0xCAC) = cAnimModel_findBone(*(void**)((char*)self + 0x8), 1, D_00460AA0);
+    *(int*)((char*)self + 0xCB0) = cAnimModel_findBone(*(void**)((char*)self + 0x8), 1, D_00460AB0);
 }
 
 //100%
@@ -289,7 +289,7 @@ struct sAnimMemED80 { char d[0x70]; };
 extern "C" void* cRiderAnimBase_cRiderAnimBase(void* self);
 extern "C" void func_00104D50(void* anim, void* rider);
 extern "C" void cRiderAnimBase_play(void* self, int anim, int flags, float blend);
-extern "C" void func_00312598(void* self, int a1);
+extern "C" void cRiderAnimBase_samplePose(void* self, int a1);
 extern "C" void cFERider_initBoneMap(void* self);
 extern char D_00460B28[];
 extern void* D_00458458[];
@@ -300,7 +300,7 @@ struct sHalfED80 {
     sHalfED80() {}
 };
 extern sHalfED80 D_004FF230;
-extern "C" void func_00310200(void* model, void* pose);
+extern "C" void cAnimModel_buildWorldPose(void* model, void* pose);
 
 struct sFERiderED80 {
     char pad_0x0[0x8];
@@ -319,7 +319,7 @@ extern "C" void func_00389260(void* m);
 extern "C" void* func_0038AC20(void* self, const char* name);
 extern "C" void func_00389590(void* m, void* a, void* b, float s);
 extern "C" void func_00389CB8(void* m, void* q, float s);
-extern "C" void func_00310640(void* model, int lod, int a, int b);
+extern "C" void cAnimModel_draw(void* model, int lod, int a, int b);
 extern "C" void* func_002F2088(int);
 extern char D_005047F8[];
 extern char D_00504810[];
@@ -426,7 +426,7 @@ extern "C" void func_0019EE88(sFERiderEE88* self)
         func_00389590(m, func_0038AC20(D_005047F8, D_004A19A0), D_00504810, 1.0f);
         break;
     }
-    q = self->model->bones[func_00310C48(self->model, 0, D_004A1978)].a;
+    q = self->model->bones[cAnimModel_findBone(self->model, 0, D_004A1978)].a;
     func_00389CB8(m, &q, 1.0f);
     {
         char* o = (char*)D_004A289C;
@@ -437,7 +437,7 @@ extern "C" void func_0019EE88(sFERiderEE88* self)
     int old = (unsigned int)(l->bits & 0x3E0) >> 5;
     if (self->fC2C >= 0)
         l->bits = (l->bits & ~0x3E0) | ((self->fC2C << 5) & 0x3E0);
-    func_00310640(self->model, 0, 0, 0);
+    cAnimModel_draw(self->model, 0, 0, 0);
     func_002F2088(self->fC70);
     (*(sLodEE88**)((char*)D_004A289C + 0xE84))->bits = ((*(sLodEE88**)((char*)D_004A289C + 0xE84))->bits & ~0x3E0) | (old << 5);
 }
@@ -449,8 +449,8 @@ extern "C" int func_001A0100(int* self);
 extern "C" int func_0019FD58(int* self);
 extern "C" void func_0019F780(int* self);
 extern "C" void func_0019F2D0(void* self);
-extern "C" void func_003123C0(void* anim, int a1, float blend);
-extern "C" void func_00312490(void* anim);
+extern "C" void cRiderAnimBase_update(void* anim, int a1, float blend);
+extern "C" void cRiderAnimBase_dispatchCompletions(void* anim);
 extern "C" void func_002F1A08(void* p);
 extern "C" void func_002ECF78(void* p);
 
@@ -515,8 +515,8 @@ extern "C" void func_0019F138(void* selfp)
     }
     if (self->fCC8 != 0) {
         if (self->anim != 0) {
-            func_003123C0(self->anim, 0, 1.0f);
-            func_00312490(self->anim);
+            cRiderAnimBase_update(self->anim, 0, 1.0f);
+            cRiderAnimBase_dispatchCompletions(self->anim);
         }
         func_0019F2D0(self);
         func_002F1A08(self->fC70);
@@ -529,8 +529,8 @@ struct sQuadF2D0 { int x[4]; } __attribute__((aligned(16)));
 struct sHalfF2D0 { sQuadF2D0 a, b; };
 extern sQuadF2D0 D_004FF130;
 extern sQuadF2D0 D_004FF220;
-extern "C" void func_00310200(void* model, void* pose);
-extern "C" void func_003103F0(void* model);
+extern "C" void cAnimModel_buildWorldPose(void* model, void* pose);
+extern "C" void cAnimModel_buildBoneMatrices(void* model);
 
 extern "C" void func_0019F2D0(void* self)
 {
@@ -538,8 +538,8 @@ extern "C" void func_0019F2D0(void* self)
     if (*(int*)((char*)self + 0xCCC) != 0) {
         p[0] = *(sHalfF2D0*)((char*)self + 0xC30);
         p[1] = *(sHalfF2D0*)((char*)self + 0xC30);
-        func_00310200(*(void**)((char*)self + 0x8), p);
-        func_003103F0(*(void**)((char*)self + 0x8));
+        cAnimModel_buildWorldPose(*(void**)((char*)self + 0x8), p);
+        cAnimModel_buildBoneMatrices(*(void**)((char*)self + 0x8));
     } else {
         p[0] = *(sHalfF2D0*)((char*)self + 0xC30);
         p[1] = *(sHalfF2D0*)((char*)self + 0xC50);
@@ -547,8 +547,8 @@ extern "C" void func_0019F2D0(void* self)
         (*(sQuadF2D0**)(*(char**)((char*)self + 0x8) + 0x28))[*(int*)((char*)self + 0xCAC)] = D_004FF220;
         (*(sQuadF2D0**)(*(char**)((char*)self + 0x8) + 0x24))[*(int*)((char*)self + 0xCB0)] = D_004FF130;
         (*(sQuadF2D0**)(*(char**)((char*)self + 0x8) + 0x28))[*(int*)((char*)self + 0xCB0)] = D_004FF220;
-        func_00310200(*(void**)((char*)self + 0x8), p);
-        func_003103F0(*(void**)((char*)self + 0x8));
+        cAnimModel_buildWorldPose(*(void**)((char*)self + 0x8), p);
+        cAnimModel_buildBoneMatrices(*(void**)((char*)self + 0x8));
     }
     *(int*)((char*)self + 0x14) = 1;
 }
@@ -611,19 +611,19 @@ extern "C" void func_0019F718(char* self, int i, sFrmQuad* v)
     *(sFrmQuad*)(((sFrmSlots*)self)->slot[i] * 32 + *(char**)(*(char**)(self + 0x8) + 0x2C) + 0x10) = *v;
 }
 
-void func_00312AA0(void* p, int a);
+void cRiderAnimBase_getChannelAnim(void* p, int a);
 
 //100%
 extern "C" void func_0019F740(void* self)
 {
-    func_00312AA0(*(void**)((char*)self + 0xC), 2);
+    cRiderAnimBase_getChannelAnim(*(void**)((char*)self + 0xC), 2);
 }
 
-extern "C" void func_00312AB0(void* p, int a);
+extern "C" void cRiderAnimBase_getChannelProgress(void* p, int a);
 
 extern "C" void func_0019F760(char* self)
 {
-    func_00312AB0(*(void**)(self + 0xC), 2);
+    cRiderAnimBase_getChannelProgress(*(void**)(self + 0xC), 2);
 }
 
 //100%
@@ -634,8 +634,8 @@ void* cBE_getInterface_Fv(void* be, int kind) __asm__("cBE_getInterface__Fv");
 void* func_0014BDB8_noarg() __asm__("func_0014BDB8__FPv");
 extern "C" void* func_0014AD28(void* self, int a1, int a2);
 extern "C" int func_0014D448(void* self, int g, int key);
-extern "C" void func_0030EB60(void* model);
-extern "C" void func_0030EC18(void* model, int i, int param);
+extern "C" void cAnimModel_hideAllParts(void* model);
+extern "C" void cAnimModel_showPartVariant(void* model, int i, int param);
 
 struct sItemF780 {
     short id;
@@ -672,13 +672,13 @@ extern "C" void func_0019F780(int* self)
     sItemListF780* list = (sItemListF780*)func_0014AD28(iface, self[1], self[0]);
     int n = list->count;
     sItemF780* it = list->items;
-    func_0030EB60(*(void**)((char*)self + 0x8));
+    cAnimModel_hideAllParts(*(void**)((char*)self + 0x8));
     int i;
     for (i = 0; i < n; i++) {
         if (it[i].flags & 0x10) {
             sBoneEntF780* e = getEntK19F780(db, func_0014D448(db, self[0], it[i].id));
             if (e->f10 >= 0)
-                func_0030EC18(*(void**)((char*)self + 0x8), e->f10, e->f1);
+                cAnimModel_showPartVariant(*(void**)((char*)self + 0x8), e->f10, e->f1);
         }
     }
     **(int**)((char*)self + 0xC74) = 1;

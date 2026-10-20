@@ -347,7 +347,7 @@ extern "C" void cAI_update(sAiObjAF0* self)
 //100%
 extern "C" void cRider_updateAnimator(void* self, float value);
 extern "C" void cRider_buildWorldPose(void* self);
-extern "C" void func_003103F0(void*);
+extern "C" void cAnimModel_buildBoneMatrices(void*);
 
 extern "C" void cAI_updateRiderPoses(sAiObj128A48* self)
 {
@@ -355,7 +355,7 @@ extern "C" void cAI_updateRiderPoses(sAiObj128A48* self)
     {
         cRider_updateAnimator(self->mRiders[i], 1.0f);
         cRider_buildWorldPose(self->mRiders[i]);
-        func_003103F0(*(void**)(self->mRiders[i] + 0x780));
+        cAnimModel_buildBoneMatrices(*(void**)(self->mRiders[i] + 0x780));
     }
 }
 
@@ -705,7 +705,7 @@ extern void* D_004A28A8;
 extern "C" void* cMemMan_alloc(int size, const char* tag, unsigned int flags, int d);
 extern "C" void cRider_cRider(void* self);
 extern "C" void cPlayer_cPlayer(void* self, int inChrg);
-extern "C" void func_0030DBA0(void* self, float a, float b);
+extern "C" void cAnimModel_setScale(void* self, float a, float b);
 extern "C" void func_00148AA8(void* self, int rider, int value);
 extern "C" void cRider_addFocusBox(void* self);
 extern "C" void cRider_initOnce(void* self, int immediate);
@@ -805,7 +805,7 @@ extern "C" void cAI_initMissionRiders(void* p)
     char* obj = cMissionRider_ctor((char*)cMemMan_alloc(0x1950, D_00457F20, 0x80000000, 0), 1);
     *(int*)(obj + 0xDF0) = *(int*)(m + 0x6C);
     *(int*)(obj + 0xDF4) = 0;
-    func_0030DBA0(*(void**)(*(char**)(obj + 0x18) + 0x780), 0.5f, 0.5f);
+    cAnimModel_setScale(*(void**)(*(char**)(obj + 0x18) + 0x780), 0.5f, 0.5f);
     func_00148AA8(cBE_getInterface_Fv(cBE_getBE(), 3), idx, 5);
     self->mRiders[idx] = obj ? *(sRiderMR**)(obj + 0x18) : 0;
     self->mRiders[idx]->mIndex = idx;
@@ -1514,9 +1514,9 @@ extern "C" void cAI_commitRunStats(sAiObj128A48* self)
 //100%
 extern void** D_004A3DF8;
 extern void* D_004A3E7C;
-extern "C" void func_00314FE8(void*, void*);
+extern "C" void cGameAnimMap_removeBank(void*, void*);
 extern "C" void func_00311110(void*);
-extern "C" void func_003112C8(void*, int);
+extern "C" void cAdfDataSource__cAdfDataSource(void*, int);
 
 extern "C" void cAI_unloadAnims(void* self)
 {
@@ -1526,11 +1526,11 @@ extern "C" void cAI_unloadAnims(void* self)
         void* p = *(void**)((char*)D_004A3DF8 + ((unsigned char)i << 2));
         if (p != 0)
         {
-            func_00314FE8(D_004A3E7C, p);
+            cGameAnimMap_removeBank(D_004A3E7C, p);
             void** t = D_004A3DF8;
             *(void**)((char*)t + ((unsigned char)i << 2)) = 0;
             func_00311110(t);
-            func_003112C8(p, 3);
+            cAdfDataSource__cAdfDataSource(p, 3);
         }
     }
 }
@@ -1539,8 +1539,8 @@ extern "C" void cAI_unloadAnims(void* self)
 extern "C" void func_003DED50(char* name, int a1, int a2, void* out);
 extern "C" void func_003DEDC0(void* handle, int arg);
 extern "C" void* cMemMan_alloc(int size, const char* tag, unsigned int flags, int d);
-extern "C" void* func_00311250(void* mem, char* name);
-extern "C" void func_00314F30(void* map, int i, void* anim);
+extern "C" void* cAdfDataSource_cAdfDataSource1(void* mem, char* name);
+extern "C" void cGameAnimMap_addBank(void* map, int i, void* anim);
 // PORT: the original passes the map to cGameAnimMap_testResolve(), whose symbol is declared with no params.
 void cGameAnimMap_testResolve_impl(void* map) __asm__("cGameAnimMap_testResolve__Fv");
 struct sAnimTable { void* anims[1]; };
@@ -1555,9 +1555,9 @@ extern "C" void cAI_loadAnims(void)
     func_003DED50(D_00457F58, 0, 0x64, &handle);
     for (i = 0; i < 1; i++)
     {
-        void* p = func_00311250(cMemMan_alloc(0x18, D_00457F70, 0, 0), D_004A1100[i]);
+        void* p = cAdfDataSource_cAdfDataSource1(cMemMan_alloc(0x18, D_00457F70, 0, 0), D_004A1100[i]);
         ((sAnimTable*)D_004A3DF8)->anims[(unsigned char)i] = p;
-        func_00314F30(D_004A3E7C, i, p);
+        cGameAnimMap_addBank(D_004A3E7C, i, p);
     }
     cGameAnimMap_testResolve_impl(D_004A3E7C);
     func_003DEDC0(handle, 0x64);
@@ -1954,7 +1954,7 @@ extern "C" void cAI_updateRaceTimeLimit(sAi_12BB20* self)
 //100%
 // PORT: PS2-only inline asm; needs a C fallback off-PS2.
 extern "C" void func_0031BE50(float* s, float* c, float angle);
-extern "C" void func_00311A50(void* anim);
+extern "C" void cRiderAnimBase_reset(void* anim);
 extern "C" void cRiderAnimBase_play(void* self, int anim, int flags, float blend);
 
 struct sQuat_12BE20
@@ -1978,7 +1978,7 @@ extern "C" void cGateControl_gainFocus(void* self)
 {
     char* r0 = *(char**)((char*)self + 0x14);
     *(int*)(r0 + 0x320) = *(int*)(r0 + 0x324);
-    func_00311A50(*(void**)(*(char**)((char*)self + 0x14) + 0x784));
+    cRiderAnimBase_reset(*(void**)(*(char**)((char*)self + 0x14) + 0x784));
     char* r1 = *(char**)((char*)self + 0x14);
     *(int*)(*(char**)(r1 + 0x784) + 0x18) = *(int*)(r1 + 0x320);
     char* r = *(char**)((char*)self + 0x14);
@@ -2075,8 +2075,8 @@ extern "C" void cGateControl_updateManualWait(void* self, void* a1)
 
 //100%
 extern "C" void func_00113F88(void* rider, float a, float b);
-int func_00312AA0(void* self, int i);
-extern "C" float func_00312AB0(void* self, int i);
+int cRiderAnimBase_getChannelAnim(void* self, int i);
+extern "C" float cRiderAnimBase_getChannelProgress(void* self, int i);
 int cRider_getMotionMode(void* self);
 // PORT: prototype mismatch. cRider_setControlState/cRider_setMotionMode are defined with one param, but callers pass a mode in $a1.
 void cRider_setControlState_impl(void* self, int v) __asm__("cRider_setControlState__FPv");
@@ -2107,11 +2107,11 @@ static inline sVec4_12C130 vu0Scale_12C130(const sVec4_12C130& in, float s)
 extern "C" void cGateControl_updateManualStart(void* self, void* a1)
 {
     func_00113F88(*(void**)((char*)self + 0x14), 1.0f, 0.0f);
-    if (func_00312AA0(*(void**)(*(char**)((char*)self + 0x14) + 0x784), 2) == 2)
+    if (cRiderAnimBase_getChannelAnim(*(void**)(*(char**)((char*)self + 0x14) + 0x784), 2) == 2)
     {
         if (cRider_getMotionMode(*(void**)((char*)self + 0x14)) == 3)
         {
-            if (func_00312AB0(*(void**)(*(char**)((char*)self + 0x14) + 0x784), 2) > 0.5f)
+            if (cRiderAnimBase_getChannelProgress(*(void**)(*(char**)((char*)self + 0x14) + 0x784), 2) > 0.5f)
             {
                 char* rider = *(char**)((char*)self + 0x14);
                 *(sVec4_12C130*)(rider + 0x1E0) = vu0Scale_12C130(*(sVec4_12C130*)(rider + 0x1B0), 555.5555419921875f);
@@ -2341,8 +2341,8 @@ extern "C" void func_00114130(void* rider, int a, int b);
 extern "C" int func_00114CC0(void* rider);
 extern "C" void func_00115B58(void*);
 int cRider_getMotionMode(void* self);
-extern "C" int func_00311AE8(void*, int);
-int func_00312AA0(void* self, int i);
+extern "C" int cRiderAnimBase_getChannelAnimClass(void*, int);
+int cRiderAnimBase_getChannelAnim(void* self, int i);
 extern float D_004A4C8C;
 extern char D_004FF120[];
 
@@ -2402,7 +2402,7 @@ struct sAiObj12C678
 
 extern "C" void cFinishLineControl_update(sAiObj12C678* self)
 {
-    int anim = func_00312AA0(*(void**)(self->mRider + 0x784), 2);
+    int anim = cRiderAnimBase_getChannelAnim(*(void**)(self->mRider + 0x784), 2);
     int prev = anim;
     char* r = self->mRider;
     *(float*)(r + 0x200) = 0.03333333507180214f;
@@ -2469,7 +2469,7 @@ extern "C" void cFinishLineControl_update(sAiObj12C678* self)
         *(float*)(*(char**)(self->mRider + 0x784) + 0x1C) = 0.75f;
         func_00115B58(self->mRider);
         *(float*)(*(char**)(self->mRider + 0x784) + 0x1C) = 1.0f;
-        if (func_00311AE8(*(void**)(self->mRider + 0x784), 1) == 0)
+        if (cRiderAnimBase_getChannelAnimClass(*(void**)(self->mRider + 0x784), 1) == 0)
         {
             *(float*)(self->mRider + 0x470) = *(float*)(self->mRider + 0x470) >? 10.0f;
             self->mState = 3;
@@ -2512,7 +2512,7 @@ extern "C" void cFinishLineControl_readFromReplayFrame(void* self, void* obj)
 //100%
 extern "C" void* func_0028B180();
 extern "C" void func_0029E578(void* self, void* a1);
-extern "C" int func_00311AE8(void*, int);
+extern "C" int cRiderAnimBase_getChannelAnimClass(void*, int);
 extern "C" void func_002708F0(void* self, int key, int id);
 extern "C" void func_00309990(void* self);
 extern void* D_004A28A8;
@@ -2572,7 +2572,7 @@ extern "C" void cWipeoutControl_gainFocus(sAiObj12CA30* self)
     vu0AddEq_12CA30(self->m10.a, *(sVec4_12CA30*)(self->mRider + 0x9D0));
     vu0AddEq_12CA30(self->m30.a, *(sVec4_12CA30*)(self->mRider + 0x9D0));
     self->f0 = 0;
-    if (func_00311AE8(*(void**)(self->mRider + 0x784), 2) == 0x16)
+    if (cRiderAnimBase_getChannelAnimClass(*(void**)(self->mRider + 0x784), 2) == 0x16)
     {
         cWipeoutMotion_detachBoard(*(char**)(self->mRider + 0x77C) + 0x30, (sVec4_12CA30*)(self->mRider + 0x1E0), (sVec4_12CA30*)D_004FF120, p30);
         *(int*)(self->mRider + 0x318) = 0;
@@ -2647,14 +2647,14 @@ extern "C" void cWipeoutControl_update(sAiObj_CB68* self, int* input)
 }
 
 //100%
-extern "C" int func_00312AE8(void* self, int i);
-extern "C" char* func_00311B20(void*, int);
-extern "C" float func_00312AB0(void* self, int i);
-extern "C" int func_00311AE8(void*, int);
-extern "C" int func_00312AE8(void* self, int i);
-extern "C" char* func_00311B20(void*, int);
-extern "C" float func_00312AB0(void* self, int i);
-extern "C" int func_00311AE8(void*, int);
+extern "C" int cRiderAnimBase_isChannelComplete(void* self, int i);
+extern "C" char* cRiderAnimBase_getChannelSequence(void*, int);
+extern "C" float cRiderAnimBase_getChannelProgress(void* self, int i);
+extern "C" int cRiderAnimBase_getChannelAnimClass(void*, int);
+extern "C" int cRiderAnimBase_isChannelComplete(void* self, int i);
+extern "C" char* cRiderAnimBase_getChannelSequence(void*, int);
+extern "C" float cRiderAnimBase_getChannelProgress(void* self, int i);
+extern "C" int cRiderAnimBase_getChannelAnimClass(void*, int);
 extern "C" void cWipeoutControl_playCrashLoop(void* self);
 extern "C" void cWipeoutMotion_setVelocity(char* self, void* vel, void* angvel);
 extern "C" void func_00296868(void* mgr, void* self);
@@ -2758,10 +2758,10 @@ extern "C" void cWipeoutControl_updateStart(sAiObj12CD20* self)
     sVP_12CD20* nodes = *(sVP_12CD20**)(*(char**)(r + 0x780) + 0x2C);
     sVP_12CD20* p1 = &nodes[*(int*)(r + 0x89C)];
     sVP_12CD20* p2 = &nodes[*(int*)(r + 0x8A4)];
-    float t = func_00312AB0(*(void**)(r + 0x784), 2);
-    if (func_00312AE8(*(void**)(self->mRider + 0x784), 2))
+    float t = cRiderAnimBase_getChannelProgress(*(void**)(r + 0x784), 2);
+    if (cRiderAnimBase_isChannelComplete(*(void**)(self->mRider + 0x784), 2))
     {
-        char* an = func_00311B20(*(void**)(self->mRider + 0x784), 2);
+        char* an = cRiderAnimBase_getChannelSequence(*(void**)(self->mRider + 0x784), 2);
         float rate = *(float*)(an + 0x90);
         float s = rate / ((t - self->f50) * *(float*)(an + 0x10));
         sV_12CD20 vel = Scale_12CD20(Scale_12CD20(Sub_12CD20(p1->a, self->m10.a), *(float*)(*(char**)(self->mRider + 0x784) + 0x1C)), s);
@@ -2770,7 +2770,7 @@ extern "C" void cWipeoutControl_updateStart(sAiObj12CD20* self)
         sV_12CD20 q = QuatMul_12CD20(d, Conj_12CD20(*p1));
         sV_12CD20 angvel = Scale_12CD20(sV_12CD20(q.x, q.y, q.z, 0.0f), s2);
         cWipeoutMotion_setVelocity(*(char**)(self->mRider + 0x77C) + 0x30, self->mRider + 0x1E0, &angvel);
-        if (func_00311AE8(*(void**)(self->mRider + 0x784), 2) == 0x17)
+        if (cRiderAnimBase_getChannelAnimClass(*(void**)(self->mRider + 0x784), 2) == 0x17)
         {
             vel = Scale_12CD20(Scale_12CD20(Sub_12CD20(p2->a, self->m30.a), *(float*)(*(char**)(self->mRider + 0x784) + 0x1C)), s);
             d = Sub_12CD20(p2->b, self->m30.b);
@@ -2787,8 +2787,8 @@ extern "C" void cWipeoutControl_updateStart(sAiObj12CD20* self)
         {
             self->f0 = 2;
             cWipeoutControl_playCrashLoop(self);
-            if (func_00311AE8(*(void**)(self->mRider + 0x784), 2) == 0x1D ||
-                func_00311AE8(*(void**)(self->mRider + 0x784), 2) == 0x19)
+            if (cRiderAnimBase_getChannelAnimClass(*(void**)(self->mRider + 0x784), 2) == 0x1D ||
+                cRiderAnimBase_getChannelAnimClass(*(void**)(self->mRider + 0x784), 2) == 0x19)
                 func_00296868(func_0028B180(), self);
             else
                 func_00296E80(func_0028B180(), self);
@@ -2816,8 +2816,8 @@ extern "C" void* func_0028B180();
 extern "C" void func_00296E20(void* mgr, void* rider);
 extern "C" void func_00297438(void* mgr, void* rider);
 extern "C" void func_0029F660(void* mgr, void* rider, int a, int b);
-extern "C" int func_00311AE8(void*, int);
-extern "C" int func_00312AE8(void* self, int i);
+extern "C" int cRiderAnimBase_getChannelAnimClass(void*, int);
+extern "C" int cRiderAnimBase_isChannelComplete(void* self, int i);
 extern void* D_004A28A8;
 
 struct sVEntry12D160 { short delta; short index; void (*fn)(void*, float); };
@@ -2885,12 +2885,12 @@ extern "C" void cWipeoutControl_updateSliding(void* self)
         aiTail_12D160(self);
         return;
     }
-    if (func_00312AE8(*(void**)(*(char**)((char*)self + 0x80) + 0x784), 2) == 0 &&
-        func_00311AE8(*(void**)(*(char**)((char*)self + 0x80) + 0x784), 2) != 0x1D &&
-        func_00311AE8(*(void**)(*(char**)((char*)self + 0x80) + 0x784), 2) != 0x19)
+    if (cRiderAnimBase_isChannelComplete(*(void**)(*(char**)((char*)self + 0x80) + 0x784), 2) == 0 &&
+        cRiderAnimBase_getChannelAnimClass(*(void**)(*(char**)((char*)self + 0x80) + 0x784), 2) != 0x1D &&
+        cRiderAnimBase_getChannelAnimClass(*(void**)(*(char**)((char*)self + 0x80) + 0x784), 2) != 0x19)
         return;
     float lim = 694.4444580078125f;
-    if (func_00311AE8(*(void**)(*(char**)((char*)self + 0x80) + 0x784), 2) == 0x1C)
+    if (cRiderAnimBase_getChannelAnimClass(*(void**)(*(char**)((char*)self + 0x80) + 0x784), 2) == 0x1C)
         lim = 1666.666748046875f;
     int fast = *(float*)((char*)self + 0x70) >= 1.0f || aiOk_12D160(self);
     if ((!aiIsOne_12D160(*(char**)((char*)self + 0x80)) && speed < lim) || fast)
@@ -2911,7 +2911,7 @@ extern "C" void cWipeoutControl_updateSliding(void* self)
         else
         {
             cRider_awardQuickRecovery(*(char**)((char*)self + 0x80), fast);
-            if (func_00311AE8(*(void**)(*(char**)((char*)self + 0x80) + 0x784), 2) == 0x1C)
+            if (cRiderAnimBase_getChannelAnimClass(*(void**)(*(char**)((char*)self + 0x80) + 0x784), 2) == 0x1C)
                 func_0029F660(func_0028B180(), *(char**)((char*)self + 0x80), 1, 0);
             cWipeoutControl_playSlideGetUp(self);
             *(int*)self = 3;
@@ -2926,7 +2926,7 @@ extern "C" void cWipeoutControl_updateSliding(void* self)
     }
     else
     {
-        if (func_00312AE8(*(void**)(*(char**)((char*)self + 0x80) + 0x784), 2) != 0)
+        if (cRiderAnimBase_isChannelComplete(*(void**)(*(char**)((char*)self + 0x80) + 0x784), 2) != 0)
             cWipeoutControl_playSlideLoop(self);
     }
 }
@@ -2944,11 +2944,11 @@ extern "C" void* func_0028B180();
 extern "C" void func_00296310(void* mgr, void* rider);
 extern "C" void func_00296868(void* mgr, void* self);
 extern "C" void func_00296E80(void* mgr, void* self);
-extern "C" int func_00311AE8(void*, int);
-extern "C" char* func_00311B20(void*, int);
-extern "C" float func_00312AB0(void* self, int i);
-extern "C" int func_00312AE8(void* self, int i);
-extern "C" void func_00313CF0(void* self, int idx, float v);
+extern "C" int cRiderAnimBase_getChannelAnimClass(void*, int);
+extern "C" char* cRiderAnimBase_getChannelSequence(void*, int);
+extern "C" float cRiderAnimBase_getChannelProgress(void* self, int i);
+extern "C" int cRiderAnimBase_isChannelComplete(void* self, int i);
+extern "C" void cAnimSequence_setSlotTime(void* self, int idx, float v);
 
 struct sAiVec4_12D4E8
 {
@@ -3023,18 +3023,18 @@ extern "C" void cWipeoutControl_updateAirborne(void* self)
             }
             else
             {
-                if (func_00311AE8(*(void**)(*(char**)((char*)self + 0x80) + 0x784), 2) == 0x1D ||
-                    func_00311AE8(*(void**)(*(char**)((char*)self + 0x80) + 0x784), 2) == 0x19)
+                if (cRiderAnimBase_getChannelAnimClass(*(void**)(*(char**)((char*)self + 0x80) + 0x784), 2) == 0x1D ||
+                    cRiderAnimBase_getChannelAnimClass(*(void**)(*(char**)((char*)self + 0x80) + 0x784), 2) == 0x19)
                 {
                     func_0012E468(self);
                     func_00296868(func_0028B180(), self);
                 }
                 else
                 {
-                    float t = func_00312AB0(*(void**)(*(char**)((char*)self + 0x80) + 0x784), 2);
+                    float t = cRiderAnimBase_getChannelProgress(*(void**)(*(char**)((char*)self + 0x80) + 0x784), 2);
                     cWipeoutControl_playSlideLoop(self);
-                    float a = *(float*)(func_00311B20(*(void**)(*(char**)((char*)self + 0x80) + 0x784), 2) + 0x10);
-                    func_00313CF0(func_00311B20(*(void**)(*(char**)((char*)self + 0x80) + 0x784), 2), 0, a * t);
+                    float a = *(float*)(cRiderAnimBase_getChannelSequence(*(void**)(*(char**)((char*)self + 0x80) + 0x784), 2) + 0x10);
+                    cAnimSequence_setSlotTime(cRiderAnimBase_getChannelSequence(*(void**)(*(char**)((char*)self + 0x80) + 0x784), 2), 0, a * t);
                     func_00296E80(func_0028B180(), self);
                 }
                 *(int*)self = 2;
@@ -3047,9 +3047,9 @@ extern "C" void cWipeoutControl_updateAirborne(void* self)
         vt[17].fn(r3 + vt[17].delta, aiLength_12C5C8(*(sAiVec4_12C5C8*)((char*)self + 0x60)));
         return;
     }
-    if (func_00312AE8(*(void**)(*(char**)((char*)self + 0x80) + 0x784), 2) != 0 ||
-        func_00311AE8(*(void**)(*(char**)((char*)self + 0x80) + 0x784), 2) == 0x1D ||
-        func_00311AE8(*(void**)(*(char**)((char*)self + 0x80) + 0x784), 2) == 0x19)
+    if (cRiderAnimBase_isChannelComplete(*(void**)(*(char**)((char*)self + 0x80) + 0x784), 2) != 0 ||
+        cRiderAnimBase_getChannelAnimClass(*(void**)(*(char**)((char*)self + 0x80) + 0x784), 2) == 0x1D ||
+        cRiderAnimBase_getChannelAnimClass(*(void**)(*(char**)((char*)self + 0x80) + 0x784), 2) == 0x19)
     {
         int fast = *(float*)((char*)self + 0x70) >= 1.0f || aiOk_12D4E8(self);
         if (fast)
@@ -3071,7 +3071,7 @@ extern "C" void cWipeoutControl_updateAirborne(void* self)
             cWipeoutControl_playSlideLoop(self);
             *(int*)self = 2;
         }
-        else if (func_00312AE8(*(void**)(*(char**)((char*)self + 0x80) + 0x784), 2) != 0)
+        else if (cRiderAnimBase_isChannelComplete(*(void**)(*(char**)((char*)self + 0x80) + 0x784), 2) != 0)
         {
             cWipeoutControl_playAirLoop(self);
         }
@@ -3079,7 +3079,7 @@ extern "C" void cWipeoutControl_updateAirborne(void* self)
 }
 
 //100%
-extern "C" int func_00312AE8(void* self, int i);
+extern "C" int cRiderAnimBase_isChannelComplete(void* self, int i);
 extern "C" void func_002948D0(void* mgr, void* rider, float v);
 extern "C" void cRiderMetrix_onTakeoff(void* p, int flip, int c);
 extern "C" void cRiderAnimBase_play(void* self, int anim, int flags, float blend);
@@ -3101,10 +3101,10 @@ extern "C" void cWipeoutControl_updateGetUp(void* self)
     {
         sVEntry12D848* vt = *(sVEntry12D848**)(r + 0x6C0);
         char* thisp = r + vt[18].delta;
-        float t = 1.0f - func_00312AB0(*(void**)(r + 0x784), 2);
+        float t = 1.0f - cRiderAnimBase_getChannelProgress(*(void**)(r + 0x784), 2);
         vt[18].fn(thisp, t + t);
     }
-    if (func_00312AE8(*(void**)(*(char**)((char*)self + 0x80) + 0x784), 2) != 0)
+    if (cRiderAnimBase_isChannelComplete(*(void**)(*(char**)((char*)self + 0x80) + 0x784), 2) != 0)
     {
         char* r2 = *(char**)((char*)self + 0x80);
         if (*(int*)(*(char**)(r2 + 0x77C) + 0x30) == 0)
@@ -3126,7 +3126,7 @@ extern "C" void cWipeoutControl_updateGetUp(void* self)
 //100%
 extern "C" void cRider_awardQuickRecovery(void* rider, int flag);
 extern "C" void func_00116120(void* rider, int a, int b);
-extern "C" int func_00312AE8(void* self, int i);
+extern "C" int cRiderAnimBase_isChannelComplete(void* self, int i);
 
 static inline int AiCheck_0012D9D8(char* rider)
 {
@@ -3140,7 +3140,7 @@ extern "C" void cWipeoutControl_updateResetClip(void* self)
     {
         flag = 1;
     }
-    if (func_00312AE8(*(void**)(*(char**)((char*)self + 0x80) + 0x784), 2) || flag)
+    if (cRiderAnimBase_isChannelComplete(*(void**)(*(char**)((char*)self + 0x80) + 0x784), 2) || flag)
     {
         cRider_awardQuickRecovery(*(void**)((char*)self + 0x80), flag);
         func_00116120(*(void**)((char*)self + 0x80), 0, 2);
@@ -3150,14 +3150,14 @@ extern "C" void cWipeoutControl_updateResetClip(void* self)
 //100%
 // Picks the mirrored (goofy) or regular variant of the current trick anim.
 extern "C" void cRiderAnimBase_play(void* self, int anim, int flags, float blend);
-int func_00312AA0(void* self, int i);
+int cRiderAnimBase_getChannelAnim(void* self, int i);
 extern "C" float cWipeoutControl_updateClipRate(void* self);
 
 extern "C" void cWipeoutControl_playCrashLoop(void* self_)
 {
     char* self = (char*)self_;
     int mirror = *(int*)self == 1;
-    int cur = func_00312AA0(*(void**)(*(char**)(self + 0x80) + 0x784), 2);
+    int cur = cRiderAnimBase_getChannelAnim(*(void**)(*(char**)(self + 0x80) + 0x784), 2);
     int next = cur;
     switch (cur) {
     case 0x148:
@@ -3268,14 +3268,14 @@ extern "C" void cWipeoutControl_playCrashLoop(void* self_)
 }
 
 //100%
-int func_00312AA0(void* self, int i);
+int cRiderAnimBase_getChannelAnim(void* self, int i);
 extern "C" void cRiderAnimBase_play(void* self, int anim, int flags, float blend);
 extern "C" float cWipeoutControl_updateClipRate(void* self);
 
 extern "C" void cWipeoutControl_playAirLoop(void* self_)
 {
     char* self = (char*)self_;
-    int cur = func_00312AA0(*(void**)(*(char**)(self + 0x80) + 0x784), 2);
+    int cur = cRiderAnimBase_getChannelAnim(*(void**)(*(char**)(self + 0x80) + 0x784), 2);
     int next = cur;
     bool one = *(int*)(*(char**)(self + 0x80) + 0x150) == 1;
     if (!one) {
@@ -3301,14 +3301,14 @@ extern "C" void cWipeoutControl_playAirLoop(void* self_)
 }
 
 //100%
-int func_00312AA0(void* self, int i);
+int cRiderAnimBase_getChannelAnim(void* self, int i);
 extern "C" void cRiderAnimBase_play(void* self, int anim, int flags, float blend);
 extern "C" float cWipeoutControl_updateClipRate(void* self);
 
 extern "C" void cWipeoutControl_playSlideLoop(void* self_)
 {
     char* self = (char*)self_;
-    int cur = func_00312AA0(*(void**)(*(char**)(self + 0x80) + 0x784), 2);
+    int cur = cRiderAnimBase_getChannelAnim(*(void**)(*(char**)(self + 0x80) + 0x784), 2);
     int next = cur;
     bool one = *(int*)(*(char**)(self + 0x80) + 0x150) == 1;
     if (!one) {
@@ -3334,13 +3334,13 @@ extern "C" void cWipeoutControl_playSlideLoop(void* self_)
 }
 
 //100%
-int func_00312AA0(void* self, int i);
+int cRiderAnimBase_getChannelAnim(void* self, int i);
 extern "C" void cRiderAnimBase_play(void* self, int anim, int flags, float blend);
 
 extern "C" void cWipeoutControl_playAirGetUp(void* self_)
 {
     char* self = (char*)self_;
-    int cur = func_00312AA0(*(void**)(*(char**)(self + 0x80) + 0x784), 2);
+    int cur = cRiderAnimBase_getChannelAnim(*(void**)(*(char**)(self + 0x80) + 0x784), 2);
     int next = cur;
     switch (cur) {
     case 0x175: next = 0x18F; break;
@@ -3359,13 +3359,13 @@ extern "C" void cWipeoutControl_playAirGetUp(void* self_)
 }
 
 //100%
-int func_00312AA0(void* self, int i);
+int cRiderAnimBase_getChannelAnim(void* self, int i);
 extern "C" void cRiderAnimBase_play(void* self, int anim, int flags, float blend);
 
 extern "C" void cWipeoutControl_playSlideGetUp(void* self_)
 {
     char* self = (char*)self_;
-    int cur = func_00312AA0(*(void**)(*(char**)(self + 0x80) + 0x784), 2);
+    int cur = cRiderAnimBase_getChannelAnim(*(void**)(*(char**)(self + 0x80) + 0x784), 2);
     int next = cur;
     switch (cur) {
     case 0x16A: next = 0x185; break;
@@ -3384,7 +3384,7 @@ extern "C" void cWipeoutControl_playSlideGetUp(void* self_)
 }
 
 //100%
-extern "C" void func_00312660(void* buf, void* anim, int id, int a3, float t);
+extern "C" void cRiderAnimBase_getSampleState(void* buf, void* anim, int id, int a3, float t);
 extern "C" void func_0030ECD8(void* xf, void* model, void* buf, int a3);
 extern "C" void cRiderAnimBase_changeOrientationOffset(void* self, void* xf);
 extern int D_004A4C00;
@@ -3526,7 +3526,7 @@ extern "C" void cWipeoutControl_playResetClip(void* self)
     if (*(int*)(r + 0x150) != 1)
         anim = 0x19A;
     char buf[0x50];
-    func_00312660(buf, *(void**)(r + 0x784), anim, (&D_004A4C00)[2], 0.0f);
+    cRiderAnimBase_getSampleState(buf, *(void**)(r + 0x784), anim, (&D_004A4C00)[2], 0.0f);
     sXf_12E010 a;
     func_0030ECD8(&a, *(void**)(*(char**)((char*)self + 0x80) + 0x780), buf, 0);
     char* rd = *(char**)((char*)self + 0x80);
@@ -3547,13 +3547,13 @@ extern "C" void cWipeoutControl_playResetClip(void* self)
 }
 
 //100%
-int func_00312AA0(void* self, int i);
+int cRiderAnimBase_getChannelAnim(void* self, int i);
 extern "C" void cRiderAnimBase_play(void* self, int anim, int flags, float blend);
 
 extern "C" void func_0012E468(void* self_)
 {
     char* self = (char*)self_;
-    switch (func_00312AA0(*(void**)(*(char**)(self + 0x80) + 0x784), 2)) {
+    switch (cRiderAnimBase_getChannelAnim(*(void**)(*(char**)(self + 0x80) + 0x784), 2)) {
     case 0x17B:
         cRiderAnimBase_play(*(void**)(*(char**)(self + 0x80) + 0x784), 0x180, 0, -1.0f);
         break;
@@ -3573,8 +3573,8 @@ extern "C" void func_0012E468(void* self_)
 }
 
 //100%
-extern "C" int func_00311AE8(void*, int);
-extern "C" char* func_00311B20(void*, int);
+extern "C" int cRiderAnimBase_getChannelAnimClass(void*, int);
+extern "C" char* cRiderAnimBase_getChannelSequence(void*, int);
 
 static inline bool aiOk_12E528(void* self)
 {
@@ -3592,22 +3592,22 @@ extern "C" float cWipeoutControl_updateClipRate(void* self)
 {
     char* r = *(char**)((char*)self + 0x80);
     char* m = *(char**)(r + 0x77C);
-    char* a = func_00311B20(*(void**)(r + 0x784), 2);
+    char* a = cRiderAnimBase_getChannelSequence(*(void**)(r + 0x784), 2);
     float v = aiLength_12C5C8(*(sAiVec4_12C5C8*)(m + 0x60)) * *(float*)(a + 0x10) * 0.15915493667125702f;
     float res = aiClamp_12E528(v, 0.5f, 2.0f);
-    if (func_00311AE8(*(void**)(*(char**)((char*)self + 0x80) + 0x784), 2) == 0x1D ||
-        func_00311AE8(*(void**)(*(char**)((char*)self + 0x80) + 0x784), 2) == 0x19)
+    if (cRiderAnimBase_getChannelAnimClass(*(void**)(*(char**)((char*)self + 0x80) + 0x784), 2) == 0x1D ||
+        cRiderAnimBase_getChannelAnimClass(*(void**)(*(char**)((char*)self + 0x80) + 0x784), 2) == 0x19)
     {
-        *(float*)(func_00311B20(*(void**)(*(char**)((char*)self + 0x80) + 0x784), 2) + 0x90) = 1.0f;
+        *(float*)(cRiderAnimBase_getChannelSequence(*(void**)(*(char**)((char*)self + 0x80) + 0x784), 2) + 0x90) = 1.0f;
     }
     else if (*(float*)((char*)self + 0x70) >= 1.0f || aiOk_12E528(self))
     {
         // PORT: g++ `>?` (max) operator.
-        *(float*)(func_00311B20(*(void**)(*(char**)((char*)self + 0x80) + 0x784), 2) + 0x90) = res >? 2.0f;
+        *(float*)(cRiderAnimBase_getChannelSequence(*(void**)(*(char**)((char*)self + 0x80) + 0x784), 2) + 0x90) = res >? 2.0f;
     }
     else
     {
-        *(float*)(func_00311B20(*(void**)(*(char**)((char*)self + 0x80) + 0x784), 2) + 0x90) = res;
+        *(float*)(cRiderAnimBase_getChannelSequence(*(void**)(*(char**)((char*)self + 0x80) + 0x784), 2) + 0x90) = res;
     }
     return res;
 }
@@ -3675,7 +3675,7 @@ extern "C" void func_00114130(void* rider, int a, int b);
 extern "C" void func_00113E80(void*, float);
 extern "C" void func_00113F38(void*, float);
 extern "C" void func_00113F88(void* rider, float a, float b);
-extern "C" int func_00312AE8(void* self, int i);
+extern "C" int cRiderAnimBase_isChannelComplete(void* self, int i);
 extern "C" void cRailSlideControl_playRailAnim(void*, int);
 extern "C" void func_00115640(void* rider);
 
@@ -3751,7 +3751,7 @@ extern "C" void cBumpControl_update(void* self, void* in)
     char* r2 = *(char**)self;
     *(float*)(r2 + 0x204) = z;
     *(float*)(r2 + 0x200) = 0.03333333507180214f;
-    if (func_00312AE8(*(void**)(*(char**)self + 0x784), 2) == 0)
+    if (cRiderAnimBase_isChannelComplete(*(void**)(*(char**)self + 0x784), 2) == 0)
         return;
     if (cRider_getMotionMode(*(void**)self) == 4)
     {
@@ -3803,8 +3803,8 @@ int cRider_getMotionMode(void* self);
 void cRider_setControlState_impl(void* self, int v) __asm__("cRider_setControlState__FPv");
 extern "C" void cPrewindControl_playDirectionalClip(void*, void*);
 extern "C" void func_00294170(void* self, void* rider);
-extern "C" int func_00311AE8(void*, int);
-int func_00312AA0(void* self, int i);
+extern "C" int cRiderAnimBase_getChannelAnimClass(void*, int);
+int cRiderAnimBase_getChannelAnim(void* self, int i);
 extern void* D_004A3500;
 extern char D_0043D840[];
 extern char D_0043D788[];
@@ -3877,7 +3877,7 @@ extern "C" void cPrewindControl_update(void* self, void* in)
     func_00113F88(*(void**)self, 1.0f, zero);
     float sx = aiClamp_12E9B8(((sAiBits0_12E9B8*)((char*)in + 4))->v * 0.032258063554763794f, -0.5f, 0.5f);
     float sy = aiClamp_12E9B8(((sAiBits6_12E9B8*)((char*)in + 4))->v * 0.032258063554763794f, -0.5f, 0.5f);
-    if (func_00311AE8(*(void**)(*(char**)self + 0x784), 2) == 10)
+    if (cRiderAnimBase_getChannelAnimClass(*(void**)(*(char**)self + 0x784), 2) == 10)
     {
         char* r = *(char**)self;
         if (*(int*)(r + 0x328) == 0)
@@ -3892,7 +3892,7 @@ extern "C" void cPrewindControl_update(void* self, void* in)
         *(float*)(r2 + 0x2B8) = 0.0f;
         return;
     }
-    if (func_00312AA0(*(void**)(*(char**)self + 0x784), 2) == 0x15)
+    if (cRiderAnimBase_getChannelAnim(*(void**)(*(char**)self + 0x784), 2) == 0x15)
     {
         func_00113E80(*(void**)self, zero);
         char* r1 = *(char**)self;
@@ -3945,7 +3945,7 @@ extern "C" void cPrewindControl_update(void* self, void* in)
 
 //100%
 extern "C" float func_0031C228(float x);
-int func_00312AA0(void* self, int i);
+int cRiderAnimBase_getChannelAnim(void* self, int i);
 extern "C" void cRiderAnimBase_play(void* self, int anim, int flags, float blend);
 
 static inline float aiAtan2_12EE30(float y, float x)
@@ -3986,7 +3986,7 @@ extern "C" void cPrewindControl_playDirectionalClip(void* self, void* tbl_)
         a = aiAtan2_12EE30(-y, -x);
     else
         a = aiAtan2_12EE30(-y, x);
-    int cur = func_00312AA0(*(void**)(*(char**)self + 0x784), 2);
+    int cur = cRiderAnimBase_getChannelAnim(*(void**)(*(char**)self + 0x784), 2);
     int anim;
     if (mag == 0.0f)
         anim = ((int (*)[5])tbl_)[0][*(int*)(*(char**)self + 0x328)];
@@ -4054,7 +4054,7 @@ extern "C" float cPrewindControl_getPrewindAngle(void* self, int* out)
 
 //100%
 extern void* D_004A28A8;
-extern "C" char* func_00311B20(void*, int);
+extern "C" char* cRiderAnimBase_getChannelSequence(void*, int);
 extern "C" int cResetControl_hasViewport(void* self);
 void* func_00230698(void* self, int id);
 extern "C" void func_002E4578(void* obj);
@@ -4090,7 +4090,7 @@ extern "C" void cResetControl_gainFocus(void* self)
 {
     int* flag = (int*)((char*)self + 4);
     *flag = 0;
-    *(int*)(func_00311B20(*(void**)(*(char**)((char*)self + 8) + 0x784), 2) + 0x90) = 0;
+    *(int*)(cRiderAnimBase_getChannelSequence(*(void**)(*(char**)((char*)self + 8) + 0x784), 2) + 0x90) = 0;
     if (cResetControl_hasViewport(self))
     {
         char* obj = (char*)func_00230698(*(void**)((char*)D_004A28A8 + 0x84), *(int*)(*(char**)((char*)self + 8) + 0x870));
@@ -4118,7 +4118,7 @@ extern "C" void cResetControl_gainFocus(void* self)
 // PORT: PS2-only inline asm; needs a C fallback off-PS2.
 extern void* D_004A28A8;
 extern "C" void* cBE_getBE();
-extern "C" char* func_00311B20(void*, int);
+extern "C" char* cRiderAnimBase_getChannelSequence(void*, int);
 extern "C" int cResetControl_hasViewport(void* self);
 void* func_00230698(void* self, int id);
 extern "C" void func_002E4578(void* obj);
@@ -4171,7 +4171,7 @@ extern "C" void cResetControl_update(void* self)
         if (cResetControl_hasViewport(self))
             func_002E4578(func_00230698(*(void**)((char*)D_004A28A8 + 0x84), *(int*)(*(char**)((char*)self + 8) + 0x870)));
         cRiderMetrix_onTakeoff(*(void**)(*(char**)((char*)self + 8) + 0x790), 0, 0);
-        *(float*)(func_00311B20(*(void**)(*(char**)((char*)self + 8) + 0x784), 2) + 0x90) = 1.0f;
+        *(float*)(cRiderAnimBase_getChannelSequence(*(void**)(*(char**)((char*)self + 8) + 0x784), 2) + 0x90) = 1.0f;
         cRider_setControlState_impl(*(void**)((char*)self + 0x8), 4);
         cRider_setMotionMode_impl(*(void**)((char*)self + 0x8), 1);
     }
@@ -4266,8 +4266,8 @@ extern "C" void func_00114130(void* rider, int a, int b);
 extern "C" int func_00116120_i(void* rider, int a, int b) __asm__("func_00116120");
 extern "C" int func_001163B0(void* rider, int a, int b);
 void cRider_setControlState_impl(void* self, int v) __asm__("cRider_setControlState__FPv");
-extern "C" int func_00311AE8(void*, int);
-int func_00312AA0(void* self, int i);
+extern "C" int cRiderAnimBase_getChannelAnimClass(void*, int);
+int cRiderAnimBase_getChannelAnim(void* self, int i);
 extern "C" float func_0031C228(float x);
 
 struct sAiBitsX_12F730
@@ -4389,19 +4389,19 @@ extern "C" void cNaturalAirControl_update(sAiObj12F730* self, void* in)
     char* r4 = self->mRider;
     *(float*)(r4 + 0x218) = 0.05000000447034836f;
     *(int*)(r4 + 0x21C) = 0;
-    int anim = func_00312AA0(*(void**)(self->mRider + 0x784), 2);
+    int anim = cRiderAnimBase_getChannelAnim(*(void**)(self->mRider + 0x784), 2);
     char* r5 = self->mRider;
     if (*(float*)(r5 + 0x220) == 0.0f && *(float*)(r5 + 0x214) == 0.0f && *(float*)(r5 + 0x1F0) == 0.0f && self->mHold == 0)
     {
         if (anim != 0x11F)
         {
-            if (func_00311AE8(*(void**)(r5 + 0x784), 2) != 9)
+            if (cRiderAnimBase_getChannelAnimClass(*(void**)(r5 + 0x784), 2) != 9)
                 cRiderAnimBase_play(*(void**)(self->mRider + 0x784), 0x11F, 0, -1.0f);
         }
         cRider_setControlState_impl(self->mRider, 5);
         return;
     }
-    if (func_00311AE8(*(void**)(self->mRider + 0x784), 2) == 9)
+    if (cRiderAnimBase_getChannelAnimClass(*(void**)(self->mRider + 0x784), 2) == 9)
         return;
     int a = 10;
     char* r6 = self->mRider;
@@ -4412,19 +4412,19 @@ extern "C" void cNaturalAirControl_update(sAiObj12F730* self, void* in)
 }
 
 //100%
-extern "C" int func_00311AE8(void*, int);
-extern "C" void func_00311E88(void*, int, float);
-extern "C" char* func_00311B20(void*, int);
+extern "C" int cRiderAnimBase_getChannelAnimClass(void*, int);
+extern "C" void cRiderAnimBase_fadeOutChannel(void*, int, float);
+extern "C" char* cRiderAnimBase_getChannelSequence(void*, int);
 
 extern "C" void cNaturalAirControl_loseFocus(void* self, int a1)
 {
     if (a1)
     {
-        if (func_00311AE8(*(void**)(*(char**)((char*)self + 0x14) + 0x784), 1) == 3 ||
-            func_00311AE8(*(void**)(*(char**)((char*)self + 0x14) + 0x784), 1) == 0xD)
+        if (cRiderAnimBase_getChannelAnimClass(*(void**)(*(char**)((char*)self + 0x14) + 0x784), 1) == 3 ||
+            cRiderAnimBase_getChannelAnimClass(*(void**)(*(char**)((char*)self + 0x14) + 0x784), 1) == 0xD)
         {
-            func_00311E88(*(void**)(*(char**)((char*)self + 0x14) + 0x784), 0, 0.10000000149011612f);
-            *(float*)(func_00311B20(*(void**)(*(char**)((char*)self + 0x14) + 0x784), 1) + 0x90) = 1.0f;
+            cRiderAnimBase_fadeOutChannel(*(void**)(*(char**)((char*)self + 0x14) + 0x784), 0, 0.10000000149011612f);
+            *(float*)(cRiderAnimBase_getChannelSequence(*(void**)(*(char**)((char*)self + 0x14) + 0x784), 1) + 0x90) = 1.0f;
         }
     }
 }
@@ -4624,7 +4624,7 @@ extern "C" void cBoardPressControl_flipStance(void* self)
 }
 
 //100%
-int func_00312AA0(void* self, int i);
+int cRiderAnimBase_getChannelAnim(void* self, int i);
 int cRider_getMotionMode(void* self);
 void cRider_setControlState_impl(void* self, int v) __asm__("cRider_setControlState__FPv");
 extern "C" void cRiderAnimBase_play(void* self, int anim, int flags, float blend);
@@ -4652,7 +4652,7 @@ extern "C" int cBoardPressControl_checkAirborne(void* self)
         *(int*)(r + 0x328) = 0;
         func_00116930(*(void**)((char*)self + 0x14));
     }
-    int anim = func_00312AA0(*(void**)(*(char**)((char*)self + 0x14) + 0x784), 2);
+    int anim = cRiderAnimBase_getChannelAnim(*(void**)(*(char**)((char*)self + 0x14) + 0x784), 2);
     if (*(int*)self == 2)
     {
         int ok = 0;
@@ -4815,7 +4815,7 @@ void func_001304D0(void* self)
 
 //100%
 // PORT: PS2-only inline asm; needs a C fallback off-PS2.
-int func_00312AA0(void* self, int i);
+int cRiderAnimBase_getChannelAnim(void* self, int i);
 int cRider_getMotionMode(void* self);
 void cRider_setControlState_impl(void* self, int v) __asm__("cRider_setControlState__FPv");
 extern "C" void cRiderAnimBase_play(void* self, int anim, int flags, float blend);
@@ -4833,7 +4833,7 @@ struct sPadIn_1304E0
 
 extern "C" void cBoardPressControl_updateRelease(void* self, sPadIn_1304E0* in)
 {
-    int anim = func_00312AA0(*(void**)(*(char**)((char*)self + 0x14) + 0x784), 2);
+    int anim = cRiderAnimBase_getChannelAnim(*(void**)(*(char**)((char*)self + 0x14) + 0x784), 2);
     char* r;
     if ((anim == 0x21 || anim == 0x19) && 0.0f < *(float*)((r = *(char**)((char*)self + 0x14)) + 0x268))
     {
@@ -4875,7 +4875,7 @@ extern "C" void cBoardPressControl_updateRelease(void* self, sPadIn_1304E0* in)
 }
 
 //100%
-int func_00312AA0(void* self, int i);
+int cRiderAnimBase_getChannelAnim(void* self, int i);
 int cRider_getMotionMode(void* self);
 extern "C" int func_00114CC0(void* rider);
 // PORT: cRiderAnimBase_play returns a value (the unit declares it void); int-returning view bound by asm label.
@@ -4883,7 +4883,7 @@ extern "C" int cRiderAnimBase_play_i(void* self, int anim, int flags, float blen
 
 extern "C" int cBoardPressControl_updateReverse(void* self)
 {
-    int s = func_00312AA0(*(void**)(*(char**)((char*)self + 0x14) + 0x784), 2);
+    int s = cRiderAnimBase_getChannelAnim(*(void**)(*(char**)((char*)self + 0x14) + 0x784), 2);
     if (s == 0x17 || s == 0x1F) return 1;
     if (s == 0x25 || s == 0x26 || s == 0x1D || s == 0x1E) return 0;
     if (cRider_getMotionMode(*(void**)((char*)self + 0x14)) != 0) return 0;
@@ -4959,7 +4959,7 @@ extern "C" void cRiderAnimBase_play(void* self, int anim, int flags, float blend
 extern "C" void cBoardPressControl_flipStance(void* self);
 extern "C" void cBoardPressControl_springBackPivot(void*);
 extern "C" void cBoardPressControl_finishPivot(void*);
-int func_00312AA0(void* self, int i);
+int cRiderAnimBase_getChannelAnim(void* self, int i);
 extern "C" float func_0031C228(float x);
 
 struct sAiVec4_08D8
@@ -5079,7 +5079,7 @@ extern "C" int cBoardPressControl_updatePivot(void* vself, void* in)
     float ang = aiAtan2_08D8(a, b);
     float h = *(float*)(self->mRider + 0x280) * 3.1415927410125732f;
     float d = aiWrap_08D8(ang - h);
-    int anim = func_00312AA0(*(void**)(self->mRider + 0x784), 2);
+    int anim = cRiderAnimBase_getChannelAnim(*(void**)(self->mRider + 0x784), 2);
     int special = anim == 0x25 || anim == 0x26 || anim == 0x1D || anim == 0x1E;
     if (!special && aiAbs_08D8(d) >= 0.4712389409542084f)
     {
@@ -5390,7 +5390,7 @@ extern "C" void cRiderAnimBase_play(void* self, int anim, int flags, float blend
 
 extern "C" void cBoardPressControl_finishPivot(void* self)
 {
-    int s = func_00312AA0(*(void**)(*(char**)((char*)self + 0x14) + 0x784), 2);
+    int s = cRiderAnimBase_getChannelAnim(*(void**)(*(char**)((char*)self + 0x14) + 0x784), 2);
     if (s >= 0x25 && s <= 0x26)
     {
         char* r = *(char**)((char*)self + 0x14);
@@ -5472,8 +5472,8 @@ extern "C" void func_00113F88(void* rider, float a, float b);
 extern "C" void func_00115B58(void*);
 extern "C" void func_00115D48(void*);
 extern "C" int func_00114CC0(void* rider);
-extern "C" int func_00311AE8(void*, int);
-int func_00312AA0(void* self, int i);
+extern "C" int cRiderAnimBase_getChannelAnimClass(void*, int);
+int cRiderAnimBase_getChannelAnim(void* self, int i);
 unsigned int AIrand();
 
 struct sAiVec4_1620
@@ -5609,7 +5609,7 @@ extern "C" void cCruiseControl_update(void* self, void* in)
     func_00113F88(*(void**)self, y, c);
     func_00115B58(*(void**)self);
     func_00115D48(*(void**)self);
-    int cur = func_00312AA0(*(void**)(*(char**)self + 0x784), 2);
+    int cur = cRiderAnimBase_getChannelAnim(*(void**)(*(char**)self + 0x784), 2);
     int anim = cur;
     if (cur == 0x16)
     {
@@ -5633,13 +5633,13 @@ extern "C" void cCruiseControl_update(void* self, void* in)
         *(float*)(r2 + 0x218) = 0.03333333507180214f;
         *(int*)(r2 + 0x21C) = 0;
     }
-    else if (func_00311AE8(*(void**)(*(char**)self + 0x784), 2) == 10)
+    else if (cRiderAnimBase_getChannelAnimClass(*(void**)(*(char**)self + 0x784), 2) == 10)
     {
         char* r1 = *(char**)self;
         *(int*)(r1 + 0x204) = 0;
         *(float*)(r1 + 0x200) = 0.03333333507180214f;
     }
-    else if (func_00311AE8(*(void**)(*(char**)self + 0x784), 2) == 5)
+    else if (cRiderAnimBase_getChannelAnimClass(*(void**)(*(char**)self + 0x784), 2) == 5)
     {
         char* r1 = *(char**)self;
         *(float*)(r1 + 0x200) = 0.03333333507180214f;
@@ -5726,19 +5726,19 @@ extern "C" void cCruiseControl_update(void* self, void* in)
 }
 
 //100%
-extern "C" int func_00311AE8(void*, int);
-extern "C" void func_00311E88(void*, int, float);
-extern "C" char* func_00311B20(void*, int);
+extern "C" int cRiderAnimBase_getChannelAnimClass(void*, int);
+extern "C" void cRiderAnimBase_fadeOutChannel(void*, int, float);
+extern "C" char* cRiderAnimBase_getChannelSequence(void*, int);
 
 extern "C" void cCruiseControl_loseFocus(void* self, int a1)
 {
     if (a1 != 4)
     {
-        if (func_00311AE8(*(void**)(*(char**)self + 0x784), 1) == 3 ||
-            func_00311AE8(*(void**)(*(char**)self + 0x784), 1) == 0xD)
+        if (cRiderAnimBase_getChannelAnimClass(*(void**)(*(char**)self + 0x784), 1) == 3 ||
+            cRiderAnimBase_getChannelAnimClass(*(void**)(*(char**)self + 0x784), 1) == 0xD)
         {
-            func_00311E88(*(void**)(*(char**)self + 0x784), 0, 0.10000000149011612f);
-            *(float*)(func_00311B20(*(void**)(*(char**)self + 0x784), 1) + 0x90) = 1.0f;
+            cRiderAnimBase_fadeOutChannel(*(void**)(*(char**)self + 0x784), 0, 0.10000000149011612f);
+            *(float*)(cRiderAnimBase_getChannelSequence(*(void**)(*(char**)self + 0x784), 1) + 0x90) = 1.0f;
         }
     }
 }
@@ -5824,8 +5824,8 @@ extern "C" void cRailSlideControl_update(void* self, void* in)
     func_00115B58(*(void**)((char*)self + 0x8));
     func_00115D48(*(void**)((char*)self + 0x8));
     sPadC_131D30* in2 = (sPadC_131D30*)((char*)in + 4);
-    if (func_00311AE8(*(void**)(*(char**)((char*)self + 0x8) + 0x784), 2) == 0xE) {
-        if (!func_001446A0(func_00311B20(*(void**)(*(char**)((char*)self + 0x8) + 0x784), 2) + 0xB0, 0))
+    if (cRiderAnimBase_getChannelAnimClass(*(void**)(*(char**)((char*)self + 0x8) + 0x784), 2) == 0xE) {
+        if (!func_001446A0(cRiderAnimBase_getChannelSequence(*(void**)(*(char**)((char*)self + 0x8) + 0x784), 2) + 0xB0, 0))
             return;
         if (func_001161D0(*(void**)((char*)self + 0x8), in2->y * k))
             return;
@@ -5849,7 +5849,7 @@ extern "C" void cRailSlideControl_update(void* self, void* in)
         cRailSlideControl_spin(self, v < 0.0f);
         return;
     }
-    if (func_00311AE8(*(void**)(*(char**)((char*)self + 0x8) + 0x784), 2) == 0xA) {
+    if (cRiderAnimBase_getChannelAnimClass(*(void**)(*(char**)((char*)self + 0x8) + 0x784), 2) == 0xA) {
         char* r = *(char**)((char*)self + 0x8);
         *(float*)(r + 0x240) = 0.0f;
         *(float*)(r + 0x23C) = 0.06666667014360428f;
@@ -5858,7 +5858,7 @@ extern "C" void cRailSlideControl_update(void* self, void* in)
     char* r = *(char**)((char*)self + 0x8);
     *(float*)(r + 0x240) = clamp_131D30(*(float*)(*(char**)(r + 0x77C) + 0xC8) * 1.2000000476837158f, -1.0f, 1.0f);
     *(float*)(r + 0x23C) = 0.06666667014360428f;
-    int cur = func_00312AA0(*(void**)(*(char**)((char*)self + 0x8) + 0x784), 2);
+    int cur = cRiderAnimBase_getChannelAnim(*(void**)(*(char**)((char*)self + 0x8) + 0x784), 2);
     char* r2 = *(char**)((char*)self + 0x8);
     int s = *(int*)(r2 + 0x328);
     int anim;
@@ -6042,8 +6042,8 @@ int cRider_getMotionMode(void* self);
 // PORT: prototype mismatch. cRider_setControlState is defined with one param, but its body
 // forwards $5 to cMotionOwner_setControlState.
 void cRider_setControlState_impl(void* self, int v) __asm__("cRider_setControlState__FPv");
-extern "C" int func_00311AE8(void*, int);
-extern "C" char* func_00311B20(void*, int);
+extern "C" int cRiderAnimBase_getChannelAnimClass(void*, int);
+extern "C" char* cRiderAnimBase_getChannelSequence(void*, int);
 extern "C" bool func_001446A0(void* self, int bit);
 extern "C" void func_00115640(void* rider);
 
@@ -6058,9 +6058,9 @@ extern "C" int cRailSlideControl_checkAirborneExit(void* self, void* a1)
     {
         return 0;
     }
-    if (func_00311AE8(*(void**)(*(char**)((char*)self + 0x8) + 0x784), 2) == 0xE)
+    if (cRiderAnimBase_getChannelAnimClass(*(void**)(*(char**)((char*)self + 0x8) + 0x784), 2) == 0xE)
     {
-        if (!func_001446A0(func_00311B20(*(void**)(*(char**)((char*)self + 0x8) + 0x784), 2) + 0xB0, 0))
+        if (!func_001446A0(cRiderAnimBase_getChannelSequence(*(void**)(*(char**)((char*)self + 0x8) + 0x784), 2) + 0xB0, 0))
         {
             return 0;
         }
@@ -6106,9 +6106,9 @@ extern "C" void cRailSlideControl_readFromReplayFrame(void* self, void* obj)
 //100%
 extern "C" void* func_0028B180();
 extern "C" void func_0029DC48(void* self, void* rider);
-extern "C" float func_00312790(char* self, int a1);
+extern "C" float cRiderAnimBase_getAnimDuration(char* self, int a1);
 extern "C" void cHandplantControl_playClip(void* self, int a1, int a2);
-extern "C" void func_00311E88(void*, int, float);
+extern "C" void cRiderAnimBase_fadeOutChannel(void*, int, float);
 extern char D_00459FC8[];
 
 extern "C" void cHandplantControl_gainFocus(void* self)
@@ -6124,13 +6124,13 @@ extern "C" void cHandplantControl_gainFocus(void* self)
     *(int*)(*(char**)((char*)self + 0x14) + 0x32C) = 1;
     func_0029DC48(func_0028B180(), *(void**)((char*)self + 0x14));
     char* r3 = *(char**)((char*)self + 0x14);
-    float d = func_00312790(*(char**)(r3 + 0x784), *(int*)(D_00459FC8 + *(int*)((char*)self + 0x10) * 8 + *(int*)(r3 + 0x32C) * 16));
+    float d = cRiderAnimBase_getAnimDuration(*(char**)(r3 + 0x784), *(int*)(D_00459FC8 + *(int*)((char*)self + 0x10) * 8 + *(int*)(r3 + 0x32C) * 16));
     *(float*)(*(char**)(*(char**)((char*)self + 0x14) + 0x784) + 0x1C) = d / *(float*)self;
     cHandplantControl_playClip(self, *(int*)(*(char**)((char*)self + 0x14) + 0x32C), *(int*)((char*)self + 0x10));
     *(float*)(*(char**)(*(char**)((char*)self + 0x14) + 0x784) + 0x1C) = 1.0f;
     *(int*)((char*)self + 0x4) = 0;
-    func_00311E88(*(void**)(*(char**)((char*)self + 0x14) + 0x784), 1, blend);
-    func_00311E88(*(void**)(*(char**)((char*)self + 0x14) + 0x784), 0, blend);
+    cRiderAnimBase_fadeOutChannel(*(void**)(*(char**)((char*)self + 0x14) + 0x784), 1, blend);
+    cRiderAnimBase_fadeOutChannel(*(void**)(*(char**)((char*)self + 0x14) + 0x784), 0, blend);
 }
 
 INCLUDE_ASM("ai/ai", cHandplantControl_setup);
@@ -6244,7 +6244,7 @@ extern "C" void* cBE_getBE();
 // PORT: cBE_getInterface__Fv is called with (be, kind) here; bind the 2-arg form to that symbol.
 void* cBE_getInterface_Fv(void* be, int kind) __asm__("cBE_getInterface__Fv");
 extern "C" float func_001495A8(void* self, int rider, int value);
-extern "C" char* func_00311B20(void*, int);
+extern "C" char* cRiderAnimBase_getChannelSequence(void*, int);
 extern "C" float func_00135180(void* self);
 extern "C" void cSpinControl_startRotation(void* self, float a, float b);
 
@@ -6304,7 +6304,7 @@ extern "C" void cSpinControl_gainFocus(void* self)
         float s = func_001495A8(cBE_getInterface_Fv(cBE_getBE(), 3), *(int*)(*(char**)((char*)self + 0x58) + 0x86C), *(int*)(*(char**)((char*)self + 0x58) + 0xB34));
         char* r4 = *(char**)((char*)self + 0x58);
         float t = (s * 0.5002591609954834f + 1.0f) * (*(float*)(r4 + 0x2E0) >? *(float*)(r4 + 0x2DC)) * 0.14284929633140564f;
-        *(float*)(func_00311B20(*(void**)(r4 + 0x784), 2) + 0x90) = t;
+        *(float*)(cRiderAnimBase_getChannelSequence(*(void**)(r4 + 0x784), 2) + 0x90) = t;
         *(int*)self = 1;
     }
     else
@@ -6317,13 +6317,13 @@ extern "C" void cSpinControl_gainFocus(void* self)
 INCLUDE_ASM("ai/ai", cSpinControl_update);
 
 //100%
-extern "C" void func_00311E88(void*, int, float);
+extern "C" void cRiderAnimBase_fadeOutChannel(void*, int, float);
 extern "C" void cRider_updateOrientationImplicit(void*);
 extern "C" void cSpinControl_updateAirPose(void* self, void* pos);
 
 extern "C" void cSpinControl_loseFocus(void* self)
 {
-    func_00311E88(*(void**)(*(char**)((char*)self + 0x58) + 0x784), 1, 0.33000001311302185f);
+    cRiderAnimBase_fadeOutChannel(*(void**)(*(char**)((char*)self + 0x58) + 0x784), 1, 0.33000001311302185f);
     char* r = *(char**)((char*)self + 0x58);
     *(int*)(r + 0x2AC) = 0;
     *(int*)(r + 0x2A4) = 0;
@@ -6544,40 +6544,40 @@ extern "C" void cSpinControl_getFlipTimeEstimate(void* self, float* a, float* b)
 }
 
 //100%
-extern "C" int func_00311AE8(void*, int);
+extern "C" int cRiderAnimBase_getChannelAnimClass(void*, int);
 
 extern "C" int func_00135EB0(void* self)
 {
     int r = 0;
     if (*(int*)((char*)self + 0x4) == 2)
     {
-        r = func_00311AE8(*(void**)(*(char**)((char*)self + 0x58) + 0x784), 2) == 0x12;
+        r = cRiderAnimBase_getChannelAnimClass(*(void**)(*(char**)((char*)self + 0x58) + 0x784), 2) == 0x12;
     }
     return r;
 }
 
 //100%
-extern "C" int func_00311AE8(void*, int);
+extern "C" int cRiderAnimBase_getChannelAnimClass(void*, int);
 
 extern "C" int func_00135EF0(void* self)
 {
     int r = 0;
     if (*(int*)((char*)self + 0x4) == 4)
     {
-        r = func_00311AE8(*(void**)(*(char**)((char*)self + 0x58) + 0x784), 2) == 0x13;
+        r = cRiderAnimBase_getChannelAnimClass(*(void**)(*(char**)((char*)self + 0x58) + 0x784), 2) == 0x13;
     }
     return r;
 }
 
 //100%
-extern "C" int func_00311AE8(void*, int);
+extern "C" int cRiderAnimBase_getChannelAnimClass(void*, int);
 
 extern "C" int func_00135F30(void* self)
 {
     int r = 0;
     if (*(int*)((char*)self + 0x4) == 4)
     {
-        r = func_00311AE8(*(void**)(*(char**)((char*)self + 0x58) + 0x784), 2) == 0x14;
+        r = cRiderAnimBase_getChannelAnimClass(*(void**)(*(char**)((char*)self + 0x58) + 0x784), 2) == 0x14;
     }
     return r;
 }
@@ -6701,8 +6701,8 @@ extern "C" void cUberGrindControl_gainFocus(void* self)
     *(int*)(*(char**)((char*)self + 0x8) + 0x328) = 3;
     *(int*)self = 0;
     func_00116930(*(void**)((char*)self + 0x8));
-    func_00311E88(*(void**)(*(char**)((char*)self + 0x8) + 0x784), 1, k);
-    func_00311E88(*(void**)(*(char**)((char*)self + 0x8) + 0x784), 0, k);
+    cRiderAnimBase_fadeOutChannel(*(void**)(*(char**)((char*)self + 0x8) + 0x784), 1, k);
+    cRiderAnimBase_fadeOutChannel(*(void**)(*(char**)((char*)self + 0x8) + 0x784), 0, k);
 }
 
 //100%
@@ -6720,10 +6720,10 @@ int cRider_getMotionMode(void* self);
 void cRider_setControlState_impl(void* self, int v) __asm__("cRider_setControlState__FPv");
 extern "C" void cRailSlideControl_playRailAnim(void*, int);
 extern "C" bool func_001446A0(void* self, int bit);
-extern "C" int func_00311AE8(void*, int);
-extern "C" char* func_00311B20(void*, int);
-int func_00312AA0(void* self, int i);
-extern "C" int func_00312AE8(void* self, int i);
+extern "C" int cRiderAnimBase_getChannelAnimClass(void*, int);
+extern "C" char* cRiderAnimBase_getChannelSequence(void*, int);
+int cRiderAnimBase_getChannelAnim(void* self, int i);
+extern "C" int cRiderAnimBase_isChannelComplete(void* self, int i);
 
 
 struct sAiBitsA_136508
@@ -6774,10 +6774,10 @@ extern "C" void cUberGrindControl_update(sAiObj136508* self, void* in)
         char* r0 = self->mRider;
         *(float*)(r0 + 0x240) = zero;
         *(float*)(r0 + 0x23C) = 0.05833333730697632f;
-        if (func_00312AE8(*(void**)(self->mRider + 0x784), 2))
+        if (cRiderAnimBase_isChannelComplete(*(void**)(self->mRider + 0x784), 2))
         {
             cRiderAnimBase_play_i136508(*(void**)(self->mRider + 0x784), *(int*)(tbl + 0x10), 0, -1.0f);
-            *(float*)(func_00311B20(*(void**)(self->mRider + 0x784), 2) + 0x90) = 1.0f;
+            *(float*)(cRiderAnimBase_getChannelSequence(*(void**)(self->mRider + 0x784), 2) + 0x90) = 1.0f;
             self->mState = 1;
         }
     }
@@ -6786,11 +6786,11 @@ extern "C" void cUberGrindControl_update(sAiObj136508* self, void* in)
         if (((sAiBitsB_136508*)in)->v != self->mIndex || cRider_getMotionMode(self->mRider) == 0)
         {
             cRiderAnimBase_play_i136508(*(void**)(self->mRider + 0x784), *(int*)(tbl + 0x1C), 0, -1.0f);
-            *(float*)(func_00311B20(*(void**)(self->mRider + 0x784), 2) + 0x90) = 1.0f;
+            *(float*)(cRiderAnimBase_getChannelSequence(*(void**)(self->mRider + 0x784), 2) + 0x90) = 1.0f;
             self->mState = 2;
         }
-        else if (func_00312AA0(*(void**)(self->mRider + 0x784), 2) != *(int*)(tbl + 0x18) ||
-                 func_00312AE8(*(void**)(self->mRider + 0x784), 2))
+        else if (cRiderAnimBase_getChannelAnim(*(void**)(self->mRider + 0x784), 2) != *(int*)(tbl + 0x18) ||
+                 cRiderAnimBase_isChannelComplete(*(void**)(self->mRider + 0x784), 2))
         {
             if (cRider_getMotionMode(self->mRider) != 4)
             {
@@ -6804,7 +6804,7 @@ extern "C" void cUberGrindControl_update(sAiObj136508* self, void* in)
                 *(float*)(r + 0x240) = *(float*)(*(char**)(r + 0x77C) + 0xC8);
                 *(float*)(r + 0x23C) = 0.05833333730697632f;
             }
-            int cur = func_00312AA0(*(void**)(self->mRider + 0x784), 2);
+            int cur = cRiderAnimBase_getChannelAnim(*(void**)(self->mRider + 0x784), 2);
             int a;
             if (aiAbs_136508(*(float*)(self->mRider + 0x238)) < 0.10000000149011612f)
                 a = *(int*)(tbl + 0x10);
@@ -6819,9 +6819,9 @@ extern "C" void cUberGrindControl_update(sAiObj136508* self, void* in)
         char* r2 = self->mRider;
         *(float*)(r2 + 0x240) = 0.0f;
         *(float*)(r2 + 0x23C) = 0.05833333730697632f;
-        if (func_00311AE8(*(void**)(self->mRider + 0x784), 2) == 0x15 &&
-            !func_00312AE8(*(void**)(self->mRider + 0x784), 2) &&
-            !func_001446A0(func_00311B20(*(void**)(self->mRider + 0x784), 2) + 0xB0, 0))
+        if (cRiderAnimBase_getChannelAnimClass(*(void**)(self->mRider + 0x784), 2) == 0x15 &&
+            !cRiderAnimBase_isChannelComplete(*(void**)(self->mRider + 0x784), 2) &&
+            !func_001446A0(cRiderAnimBase_getChannelSequence(*(void**)(self->mRider + 0x784), 2) + 0xB0, 0))
             return;
         if (cRider_getMotionMode(self->mRider) == 4)
         {

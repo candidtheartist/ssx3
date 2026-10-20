@@ -260,7 +260,7 @@ extern "C" void func_00184BE0(void* self, int a1)
 //100%
 extern "C" void func_0031BE50(float* s, float* c, float angle);
 extern "C" void* func_001A0548(void* self, int idx);
-extern "C" void func_00311A50(void* anim);
+extern "C" void cRiderAnimBase_reset(void* anim);
 extern "C" void cRiderAnimBase_play(void* anim, int id, int a2, float t);
 extern "C" void func_0039E510(void* self);
 extern void* D_004A28A8;
@@ -325,7 +325,7 @@ extern "C" void func_00184C60(char* self)
             *(int*)(rider + 0xCCC) = 1;
             void* anim = *(void**)(rider + 0xC);
             if (anim != 0) {
-                func_00311A50(anim);
+                cRiderAnimBase_reset(anim);
                 cRiderAnimBase_play(anim, 0x1B4, 0, -1.0f);
             }
             sQuat_184C60 pos;

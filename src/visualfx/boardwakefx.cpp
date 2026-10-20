@@ -712,40 +712,40 @@ extern const char D_00487AC8[];
 extern const char D_00487AD8[];
 extern const char D_00487AE8[];
 extern const char D_00487AF8[];
-extern "C" int func_00310C48(void* self, int idx, const char* name);
+extern "C" int cAnimModel_findBone(void* self, int idx, const char* name);
 
 extern "C" void func_002DF4D0(char* self)
 {
-    (*(int**)(self + 0x7C))[0] = func_00310C48(*(void**)(*(char**)self + 0x780), 0, D_004879D8);
-    (*(int**)(self + 0x7C))[1] = func_00310C48(*(void**)(*(char**)self + 0x780), 0, D_004879E8);
-    (*(int**)(self + 0x7C))[2] = func_00310C48(*(void**)(*(char**)self + 0x780), 0, D_004879F8);
-    (*(int**)(self + 0x7C))[3] = func_00310C48(*(void**)(*(char**)self + 0x780), 0, D_00487A08);
-    (*(int**)(self + 0x7C))[4] = func_00310C48(*(void**)(*(char**)self + 0x780), 0, D_00487A18);
-    (*(int**)(self + 0x7C))[5] = func_00310C48(*(void**)(*(char**)self + 0x780), 0, D_00487A28);
-    (*(int**)(self + 0x7C))[6] = func_00310C48(*(void**)(*(char**)self + 0x780), 0, D_004A3B00);
-    (*(int**)(self + 0x7C))[7] = func_00310C48(*(void**)(*(char**)self + 0x780), 0, D_00487A38);
-    (*(int**)(self + 0x7C))[8] = func_00310C48(*(void**)(*(char**)self + 0x780), 0, D_00487A48);
-    (*(int**)(self + 0x7C))[9] = func_00310C48(*(void**)(*(char**)self + 0x780), 0, D_00487A58);
-    (*(int**)(self + 0x7C))[10] = func_00310C48(*(void**)(*(char**)self + 0x780), 0, D_004A3B08);
-    (*(int**)(self + 0x7C))[11] = func_00310C48(*(void**)(*(char**)self + 0x780), 0, D_00487A68);
-    (*(int**)(self + 0x7C))[12] = func_00310C48(*(void**)(*(char**)self + 0x780), 0, D_00487A78);
-    (*(int**)(self + 0x7C))[13] = func_00310C48(*(void**)(*(char**)self + 0x780), 0, D_00487A88);
-    (*(int**)(self + 0x7C))[14] = func_00310C48(*(void**)(*(char**)self + 0x780), 0, D_00487A98);
-    (*(int**)(self + 0x7C))[15] = func_00310C48(*(void**)(*(char**)self + 0x780), 0, D_004879D8);
-    (*(int**)(self + 0x7C))[16] = func_00310C48(*(void**)(*(char**)self + 0x780), 0, D_004879E8);
-    (*(int**)(self + 0x7C))[17] = func_00310C48(*(void**)(*(char**)self + 0x780), 0, D_004879F8);
-    (*(int**)(self + 0x7C))[18] = func_00310C48(*(void**)(*(char**)self + 0x780), 0, D_00487A08);
-    (*(int**)(self + 0x7C))[19] = func_00310C48(*(void**)(*(char**)self + 0x780), 0, D_00487A18);
-    (*(int**)(self + 0x7C))[20] = func_00310C48(*(void**)(*(char**)self + 0x780), 0, D_00487A28);
-    (*(int**)(self + 0x7C))[21] = func_00310C48(*(void**)(*(char**)self + 0x780), 0, D_004A3B00);
-    (*(int**)(self + 0x7C))[22] = func_00310C48(*(void**)(*(char**)self + 0x780), 0, D_00487A38);
-    (*(int**)(self + 0x7C))[23] = func_00310C48(*(void**)(*(char**)self + 0x780), 0, D_00487A48);
-    (*(int**)(self + 0x7C))[24] = func_00310C48(*(void**)(*(char**)self + 0x780), 0, D_00487AA8);
-    (*(int**)(self + 0x7C))[25] = func_00310C48(*(void**)(*(char**)self + 0x780), 0, D_00487AB8);
-    (*(int**)(self + 0x7C))[26] = func_00310C48(*(void**)(*(char**)self + 0x780), 0, D_00487AC8);
-    (*(int**)(self + 0x7C))[27] = func_00310C48(*(void**)(*(char**)self + 0x780), 0, D_00487AD8);
-    (*(int**)(self + 0x7C))[28] = func_00310C48(*(void**)(*(char**)self + 0x780), 0, D_00487AE8);
-    (*(int**)(self + 0x7C))[29] = func_00310C48(*(void**)(*(char**)self + 0x780), 0, D_00487AF8);
+    (*(int**)(self + 0x7C))[0] = cAnimModel_findBone(*(void**)(*(char**)self + 0x780), 0, D_004879D8);
+    (*(int**)(self + 0x7C))[1] = cAnimModel_findBone(*(void**)(*(char**)self + 0x780), 0, D_004879E8);
+    (*(int**)(self + 0x7C))[2] = cAnimModel_findBone(*(void**)(*(char**)self + 0x780), 0, D_004879F8);
+    (*(int**)(self + 0x7C))[3] = cAnimModel_findBone(*(void**)(*(char**)self + 0x780), 0, D_00487A08);
+    (*(int**)(self + 0x7C))[4] = cAnimModel_findBone(*(void**)(*(char**)self + 0x780), 0, D_00487A18);
+    (*(int**)(self + 0x7C))[5] = cAnimModel_findBone(*(void**)(*(char**)self + 0x780), 0, D_00487A28);
+    (*(int**)(self + 0x7C))[6] = cAnimModel_findBone(*(void**)(*(char**)self + 0x780), 0, D_004A3B00);
+    (*(int**)(self + 0x7C))[7] = cAnimModel_findBone(*(void**)(*(char**)self + 0x780), 0, D_00487A38);
+    (*(int**)(self + 0x7C))[8] = cAnimModel_findBone(*(void**)(*(char**)self + 0x780), 0, D_00487A48);
+    (*(int**)(self + 0x7C))[9] = cAnimModel_findBone(*(void**)(*(char**)self + 0x780), 0, D_00487A58);
+    (*(int**)(self + 0x7C))[10] = cAnimModel_findBone(*(void**)(*(char**)self + 0x780), 0, D_004A3B08);
+    (*(int**)(self + 0x7C))[11] = cAnimModel_findBone(*(void**)(*(char**)self + 0x780), 0, D_00487A68);
+    (*(int**)(self + 0x7C))[12] = cAnimModel_findBone(*(void**)(*(char**)self + 0x780), 0, D_00487A78);
+    (*(int**)(self + 0x7C))[13] = cAnimModel_findBone(*(void**)(*(char**)self + 0x780), 0, D_00487A88);
+    (*(int**)(self + 0x7C))[14] = cAnimModel_findBone(*(void**)(*(char**)self + 0x780), 0, D_00487A98);
+    (*(int**)(self + 0x7C))[15] = cAnimModel_findBone(*(void**)(*(char**)self + 0x780), 0, D_004879D8);
+    (*(int**)(self + 0x7C))[16] = cAnimModel_findBone(*(void**)(*(char**)self + 0x780), 0, D_004879E8);
+    (*(int**)(self + 0x7C))[17] = cAnimModel_findBone(*(void**)(*(char**)self + 0x780), 0, D_004879F8);
+    (*(int**)(self + 0x7C))[18] = cAnimModel_findBone(*(void**)(*(char**)self + 0x780), 0, D_00487A08);
+    (*(int**)(self + 0x7C))[19] = cAnimModel_findBone(*(void**)(*(char**)self + 0x780), 0, D_00487A18);
+    (*(int**)(self + 0x7C))[20] = cAnimModel_findBone(*(void**)(*(char**)self + 0x780), 0, D_00487A28);
+    (*(int**)(self + 0x7C))[21] = cAnimModel_findBone(*(void**)(*(char**)self + 0x780), 0, D_004A3B00);
+    (*(int**)(self + 0x7C))[22] = cAnimModel_findBone(*(void**)(*(char**)self + 0x780), 0, D_00487A38);
+    (*(int**)(self + 0x7C))[23] = cAnimModel_findBone(*(void**)(*(char**)self + 0x780), 0, D_00487A48);
+    (*(int**)(self + 0x7C))[24] = cAnimModel_findBone(*(void**)(*(char**)self + 0x780), 0, D_00487AA8);
+    (*(int**)(self + 0x7C))[25] = cAnimModel_findBone(*(void**)(*(char**)self + 0x780), 0, D_00487AB8);
+    (*(int**)(self + 0x7C))[26] = cAnimModel_findBone(*(void**)(*(char**)self + 0x780), 0, D_00487AC8);
+    (*(int**)(self + 0x7C))[27] = cAnimModel_findBone(*(void**)(*(char**)self + 0x780), 0, D_00487AD8);
+    (*(int**)(self + 0x7C))[28] = cAnimModel_findBone(*(void**)(*(char**)self + 0x780), 0, D_00487AE8);
+    (*(int**)(self + 0x7C))[29] = cAnimModel_findBone(*(void**)(*(char**)self + 0x780), 0, D_00487AF8);
     int i;
     for (i = 0; i < 30; i++) {
     }
@@ -798,7 +798,7 @@ struct sMtxF920 {
 extern void* D_004A28A8;
 int cRider_getMotionMode(void*);
 int cRider_getControlState(void*);
-int func_00312AA0(void*, int);
+int cRiderAnimBase_getChannelAnim(void*, int);
 extern "C" void func_002DF448_F920(void*) __asm__("func_002DF448");
 extern "C" void func_002DF4D0_F920(void*) __asm__("func_002DF4D0");
 extern "C" void func_002E23E0_F920(void*, void*, void*, int, int, float) __asm__("func_002E23E0");
@@ -896,7 +896,7 @@ extern "C" void func_002DF920(sWakeFxF920* self)
     self->f12C = 0.0f;
     char* obj = self->obj;
     if (*(int*)(obj + 0x330) != 0) {
-        int s = func_00312AA0(*(void**)(obj + 0x784), 2);
+        int s = cRiderAnimBase_getChannelAnim(*(void**)(obj + 0x784), 2);
         if ((s >= 23 && s <= 28) || s == 37 || s == 38) {
             self->f12C = *(int*)(self->obj + 0x320) ? -1.0f : 1.0f;
         } else {
