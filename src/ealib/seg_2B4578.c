@@ -10916,7 +10916,63 @@ b10:
 
 INCLUDE_ASM("ealib/seg_2B4578", func_003D5A98);
 
-INCLUDE_ASM("ealib/seg_2B4578", func_003D5CC0);
+//100%
+// Steps a volume fade on a voice; the fade curve and length come from the current bank.
+struct T_5CC0 { unsigned int type : 7; unsigned int dir : 1; unsigned int pad : 8; unsigned int dur : 16; };
+union U_5CC0 { struct T_5CC0 b; unsigned int w; };
+struct B_5CC0 { char pad[0x1C]; unsigned short dur; char pad1E[2]; int type; };
+struct S_5CC0 { char pad[0x10]; unsigned int t; signed char lo; signed char mid; signed char hi; char pad17[0x3D]; int h; };
+extern struct B_5CC0 *D_0044F420_5CC0 __asm__("D_0044F420");
+extern int D_0044F438_5CC0 __asm__("D_0044F438");
+extern void f_F4E0_5CC0(int, int, int, unsigned int) __asm__("func_002AF4E0");
+
+void func_003D5CC0(struct S_5CC0 *s) {
+    union U_5CC0 m;
+    float d;
+    float f;
+    float g;
+    float base;
+    int up;
+    int none;
+
+    g = -1.0f;
+    d = s->hi;
+    d -= s->lo;
+    up = 1;
+    m.b.dur = D_0044F420_5CC0->dur;
+    m.b.type = D_0044F420_5CC0->type;
+    none = -1;
+    if (d < 0.0f) up = 0;
+    m.b.dir = up;
+    f = (float)(unsigned int)(D_0044F438_5CC0 - s->t) / (float)m.b.dur;
+    if (f >= 1.0f) {
+        f_F4E0_5CC0(s->h, 0, s->hi, m.w);
+        s->lo = none;
+        s->t = 0;
+        s->hi = -1;
+        s->mid = -1;
+        return;
+    }
+    if (m.w & 0x80) f = 1.0f - f;
+    switch (m.w & 0x7F) {
+    case 1:
+        g = 1.0f - f;
+        break;
+    case 2:
+        g = 1.0f - f * f;
+        break;
+    case 3:
+        g = 1.0f / f / 25.0f;
+        break;
+    }
+    base = s->lo;
+    if (s->hi < s->lo) base = s->hi;
+    if (d < 0.0f) d = -d;
+    if (g >= 0.0f && g <= 1.0f) {
+        g = base + d * g;
+        f_F4E0_5CC0(s->h, 0, (int)g, m.w);
+    }
+}
 
 INCLUDE_ASM("ealib/seg_2B4578", func_003D5EE8);
 
