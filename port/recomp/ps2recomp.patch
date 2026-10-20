@@ -927,7 +927,7 @@ index 509fd07..b5210f9 100644
  
      std::string CodeGenerator::translateVU_VRGET(const Instruction &inst)
 diff --git a/ps2xRuntime/CMakeLists.txt b/ps2xRuntime/CMakeLists.txt
-index 589d768..79ad41a 100644
+index 589d768..e7e1a3b 100644
 --- a/ps2xRuntime/CMakeLists.txt
 +++ b/ps2xRuntime/CMakeLists.txt
 @@ -383,8 +383,10 @@ add_library(ps2_runtime STATIC
@@ -969,7 +969,7 @@ index 589d768..79ad41a 100644
  set(ROOT_MAIN_CPP "${CMAKE_CURRENT_SOURCE_DIR}/src/main.cpp")
  
  if(EXISTS "${RUNNER_MAIN_CPP}")
-@@ -460,6 +469,20 @@ else()
+@@ -460,6 +469,52 @@ else()
      add_executable(ps2EntryRunner
          ${RUNNER_SRC_FILES}
      )
@@ -987,10 +987,42 @@ index 589d768..79ad41a 100644
 +        target_sources(ps2EntryRunner PRIVATE "${CMAKE_CURRENT_SOURCE_DIR}/src/lib/ps2_identity_map.cpp")
 +        set_source_files_properties("${CMAKE_CURRENT_SOURCE_DIR}/src/lib/ps2_identity_map.cpp" PROPERTIES SKIP_UNITY_BUILD_INCLUSION ON)
 +    endif()
++endif()
++
++# VU1 blocks as straight-line code, generated at build time: the block list
++# (recorded by running with PS2X_VU1_BLOCK_LIST=file) names the blocks, and the
++# game ELF holds their code. Needs SSE4.1, like the compiled VU1 blocks.
++set(PS2X_VU1_BLOCK_LIST "" CACHE FILEPATH "VU1 block list to generate code for")
++set(PS2X_VU1_BLOCK_ELF "" CACHE FILEPATH "ELF holding the VU1 programs the block list names")
++set(PS2X_VU1_BLOCK_SHARDS 8 CACHE STRING "How many files the generated VU1 blocks are split across")
++if(PS2X_VU1_BLOCK_LIST AND PS2X_VU1_BLOCK_ELF)
++    add_executable(ps2_vu1_blockgen src/tools/vu1_blockgen.cpp)
++    target_link_libraries(ps2_vu1_blockgen PRIVATE ps2_runtime)
++    target_include_directories(ps2_vu1_blockgen PRIVATE "${CMAKE_CURRENT_SOURCE_DIR}/src/lib")
++
++    set(PS2X_VU1_BLOCK_DIR "${CMAKE_CURRENT_BINARY_DIR}/vu1_blocks")
++    set(PS2X_VU1_BLOCK_SOURCES "")
++    math(EXPR PS2X_VU1_LAST_SHARD "${PS2X_VU1_BLOCK_SHARDS} - 1")
++    foreach(shard RANGE 0 ${PS2X_VU1_LAST_SHARD})
++        list(APPEND PS2X_VU1_BLOCK_SOURCES "${PS2X_VU1_BLOCK_DIR}/vu1_blocks_${shard}.cpp")
++    endforeach()
++    add_custom_command(
++        OUTPUT ${PS2X_VU1_BLOCK_SOURCES}
++        COMMAND ${CMAKE_COMMAND} -E make_directory "${PS2X_VU1_BLOCK_DIR}"
++        COMMAND ps2_vu1_blockgen "${PS2X_VU1_BLOCK_ELF}" "${PS2X_VU1_BLOCK_LIST}"
++                "${PS2X_VU1_BLOCK_DIR}/vu1_blocks_" ${PS2X_VU1_BLOCK_SHARDS}
++        DEPENDS ps2_vu1_blockgen "${PS2X_VU1_BLOCK_LIST}" "${PS2X_VU1_BLOCK_ELF}"
++        COMMENT "Generating VU1 block code"
++        VERBATIM)
++    target_sources(ps2EntryRunner PRIVATE ${PS2X_VU1_BLOCK_SOURCES})
++    set_source_files_properties(${PS2X_VU1_BLOCK_SOURCES} PROPERTIES
++        SKIP_UNITY_BUILD_INCLUSION ON
++        SKIP_PRECOMPILE_HEADERS ON
++        INCLUDE_DIRECTORIES "${CMAKE_CURRENT_SOURCE_DIR}/src/lib")
  endif()
  
  if(PS2X_ENABLE_RUNNER_UNITY_BUILD)
-@@ -476,6 +499,8 @@ if(PS2X_ENABLE_RUNNER_PCH)
+@@ -476,6 +531,8 @@ if(PS2X_ENABLE_RUNNER_PCH)
      )
  
      foreach(PS2X_RUNNER_GENERATED_HEADER IN ITEMS
@@ -999,7 +1031,7 @@ index 589d768..79ad41a 100644
          "${CMAKE_CURRENT_SOURCE_DIR}/include/ps2_recompiled_functions.h"
          "${CMAKE_CURRENT_SOURCE_DIR}/include/ps2_recompiled_stubs.h")
          if(EXISTS "${PS2X_RUNNER_GENERATED_HEADER}")
-@@ -511,6 +536,8 @@ target_link_libraries(ps2EntryRunner
+@@ -511,6 +568,8 @@ target_link_libraries(ps2EntryRunner
      PRIVATE
      ps2_runtime
  )
@@ -2047,7 +2079,7 @@ index ea86a9c..50d3a59 100644
      std::vector<uint32_t> m_completedDmacCauses;
  
 diff --git a/ps2xRuntime/include/runtime/ps2_vu1.h b/ps2xRuntime/include/runtime/ps2_vu1.h
-index 67c8184..09fd41b 100644
+index 67c8184..dae19d5 100644
 --- a/ps2xRuntime/include/runtime/ps2_vu1.h
 +++ b/ps2xRuntime/include/runtime/ps2_vu1.h
 @@ -3,6 +3,7 @@
@@ -2058,7 +2090,16 @@ index 67c8184..09fd41b 100644
  
  class GS;
  class PS2Memory;
-@@ -62,6 +63,10 @@ public:
+@@ -37,6 +38,8 @@ struct VU1State
+ 
+ class VU1Interpreter
+ {
++    friend struct VU1CompiledAccess;
++
+ public:
+     enum class Unit : uint8_t
+     {
+@@ -62,6 +65,10 @@ public:
      VU1State &state() { return m_state; }
      const VU1State &state() const { return m_state; }
  
@@ -2069,7 +2110,7 @@ index 67c8184..09fd41b 100644
  private:
      enum Pipeline : uint8_t
      {
-@@ -102,34 +107,57 @@ private:
+@@ -102,34 +109,57 @@ private:
          bool reserved = false;
      };
  
@@ -2136,7 +2177,7 @@ index 67c8184..09fd41b 100644
      };
  
      struct ScalarPipelineEntry
-@@ -149,16 +177,6 @@ private:
+@@ -149,16 +179,6 @@ private:
          bool valid = false;
      };
  
@@ -2153,7 +2194,7 @@ index 67c8184..09fd41b 100644
      struct PendingViWrite
      {
          uint64_t readyCycle = 0;
-@@ -168,15 +186,6 @@ private:
+@@ -168,15 +188,6 @@ private:
          bool valid = false;
      };
  
@@ -2169,7 +2210,7 @@ index 67c8184..09fd41b 100644
      struct XgkickPipeline
      {
          static constexpr uint32_t kBufferSize = 0x10000u;
-@@ -189,15 +198,29 @@ private:
+@@ -189,15 +200,29 @@ private:
          uint64_t issueCycle = 0;
          bool active = false;
          bool currentTagEop = false;
@@ -2203,7 +2244,7 @@ index 67c8184..09fd41b 100644
      static constexpr uint32_t kMaxDecodedPairs = 0x4000u / 8u;
  
      Unit m_unit;
-@@ -209,22 +232,48 @@ private:
+@@ -209,22 +234,48 @@ private:
      uint64_t m_cachedCodeGeneration = 0;
      bool m_decodedCodeCacheValid = false;
  
@@ -2258,7 +2299,7 @@ index 67c8184..09fd41b 100644
      uint64_t m_nextWriteSequence = 0;
      uint64_t m_efuResourceReady = 0;
      uint32_t m_workingClip = 0;
-@@ -244,6 +293,61 @@ private:
+@@ -244,6 +295,61 @@ private:
               uint8_t *vuData, uint32_t dataSize,
               GS &gs, PS2Memory *memory, uint32_t maxCycles);
  
@@ -2320,7 +2361,7 @@ index 67c8184..09fd41b 100644
      InstructionUsage decodeUpperUsage(uint32_t upper) const;
      InstructionUsage decodeLowerUsage(uint32_t lower) const;
      static void addVfRead(InstructionUsage &usage, uint8_t reg, uint8_t lanes);
-@@ -251,32 +355,61 @@ private:
+@@ -251,32 +357,61 @@ private:
      static uint8_t vfReadLanes(const InstructionUsage &usage, uint8_t reg);
      DecodedInstructionPair decodeInstructionPair(const uint8_t *vuCode, uint32_t pc) const;
      DecodedInstructionPair getDecodedInstructionPairForPc(const uint8_t *vuCode, uint32_t codeSize, PS2Memory *memory, uint32_t pc);
@@ -2386,7 +2427,7 @@ index 67c8184..09fd41b 100644
      void commitReadyPipelines();
      void advanceOneCycle();
      void advanceTo(uint64_t targetCycle);
-@@ -289,7 +422,7 @@ private:
+@@ -289,7 +424,7 @@ private:
  
      float normalizeOperand(float value) const;
      float normalizeResult(float value, uint32_t &laneFlags) const;
@@ -7891,10 +7932,10 @@ index 0000000..2b909de
 +}
 diff --git a/ps2xRuntime/src/lib/vu/ps2_vu1_compiled.cpp b/ps2xRuntime/src/lib/vu/ps2_vu1_compiled.cpp
 new file mode 100644
-index 0000000..61d5cd9
+index 0000000..dd79cf6
 --- /dev/null
 +++ b/ps2xRuntime/src/lib/vu/ps2_vu1_compiled.cpp
-@@ -0,0 +1,1449 @@
+@@ -0,0 +1,771 @@
 +// Compiled blocks for VU1 programs.
 +//
 +// The interpreter (run()) is the spec: a compiled run must leave the same
@@ -7916,9 +7957,14 @@ index 0000000..61d5cd9
 +#include <algorithm>
 +#include <bit>
 +#include <cfenv>
++#include <cstdlib>
 +#include <cstring>
 +#include <limits>
 +#include <memory>
++#include <mutex>
++#include <set>
++#include <string>
++#include <tuple>
 +#include <unordered_map>
 +#include <vector>
 +
@@ -7956,115 +8002,7 @@ index 0000000..61d5cd9
 +}
 +
 +#if defined(__SSE4_1__)
-+#include <smmintrin.h>
-+
-+namespace
-+{
-+    // Pipeline timing at the start of a pair: cycles until each queued result is
-+    // due, after that cycle's commits. Stalls depend on nothing else, so a block
-+    // started in a known timing state has fixed stalls.
-+    struct VuTiming
-+    {
-+        std::array<uint8_t, 128> vf{}; // register * 4 + component
-+        std::array<uint8_t, 16> vi{};
-+        uint8_t fdiv = 0;
-+        uint8_t efuResource = 0;
-+        std::array<uint8_t, 2> efu{};
-+
-+        bool operator==(const VuTiming &other) const { return std::memcmp(this, &other, sizeof(VuTiming)) == 0; }
-+    };
-+    static_assert(sizeof(VuTiming) == 148);
-+
-+    struct VuTimingHash
-+    {
-+        size_t operator()(const VuTiming &timing) const
-+        {
-+            const auto *bytes = reinterpret_cast<const uint8_t *>(&timing);
-+            uint64_t hash = 0xCBF29CE484222325ull;
-+            for (size_t i = 0; i < sizeof(VuTiming); i += 4)
-+            {
-+                uint32_t word = 0;
-+                std::memcpy(&word, bytes + i, 4);
-+                hash = (hash ^ word) * 0x100000001B3ull;
-+            }
-+            return static_cast<size_t>(hash ^ (hash >> 32));
-+        }
-+    };
-+
-+    inline bool isLowerNop(uint32_t instr)
-+    {
-+        return instr == 0x00000000u || instr == 0x8000033Cu;
-+    }
-+
-+    inline uint8_t countDown(uint8_t value, uint32_t cycles)
-+    {
-+        return value > cycles ? static_cast<uint8_t>(value - cycles) : 0u;
-+    }
-+
-+    void advanceTiming(VuTiming &timing, uint32_t cycles)
-+    {
-+        if (cycles == 0u)
-+            return;
-+        for (uint8_t &value : timing.vf)
-+            value = countDown(value, cycles);
-+        for (uint8_t &value : timing.vi)
-+            value = countDown(value, cycles);
-+        timing.fdiv = countDown(timing.fdiv, cycles);
-+        timing.efuResource = countDown(timing.efuResource, cycles);
-+        for (uint8_t &value : timing.efu)
-+            value = countDown(value, cycles);
-+    }
-+
-+    // Lanes in VU order (x is bit 3), as dest fields have them.
-+    inline __m128 laneMask(uint8_t lanes)
-+    {
-+        const __m128i laneBits = _mm_set_epi32(1, 2, 4, 8);
-+        return _mm_castsi128_ps(_mm_cmpeq_epi32(_mm_and_si128(_mm_set1_epi32(lanes), laneBits), laneBits));
-+    }
-+
-+    inline void blendLanes(float *dst, const float *src, uint8_t dest)
-+    {
-+        _mm_storeu_ps(dst, _mm_blendv_ps(_mm_loadu_ps(dst), _mm_loadu_ps(src), laneMask(dest)));
-+    }
-+
-+    // What issueVfWrite does to the lanes an op wrote outside its declared ones.
-+    inline void keepDeclaredLanes(float *reg, const float *previous, uint8_t lanes)
-+    {
-+        _mm_storeu_ps(reg, _mm_blendv_ps(_mm_loadu_ps(previous), _mm_loadu_ps(reg), laneMask(lanes)));
-+    }
-+
-+    // VU1 code memory is 16 KiB.
-+    constexpr uint32_t kVu1PcMask = 0x3FFFu;
-+}
-+
-+namespace
-+{
-+    // vuNormalizeOperand on four lanes.
-+    __attribute__((always_inline)) inline __m128 normalizeOperands(__m128 value)
-+    {
-+        const __m128i bits = _mm_castps_si128(value);
-+        const __m128i exponent = _mm_and_si128(bits, _mm_set1_epi32(0x7F800000));
-+        const __m128i sign = _mm_and_si128(bits, _mm_set1_epi32(static_cast<int32_t>(0x80000000u)));
-+        __m128i normalized = _mm_blendv_epi8(bits, sign, _mm_cmpeq_epi32(exponent, _mm_setzero_si128()));
-+        normalized = _mm_blendv_epi8(normalized, _mm_or_si128(sign, _mm_set1_epi32(0x7F7FFFFF)),
-+                                     _mm_cmpeq_epi32(exponent, _mm_set1_epi32(0x7F800000)));
-+        return _mm_castsi128_ps(normalized);
-+    }
-+
-+    // Swaps a 4-bit mask between component order (x in bit 0, as movemask
-+    // gives it) and VU lane order (x in bit 3).
-+    constexpr uint8_t kReverseLanes[16] = {0x0u, 0x8u, 0x4u, 0xCu, 0x2u, 0xAu, 0x6u, 0xEu,
-+                                           0x1u, 0x9u, 0x5u, 0xDu, 0x3u, 0xBu, 0x7u, 0xFu};
-+
-+    // Stores the components in mask (x in bit 0).
-+    inline void writeLanes(float *dst, __m128 value, uint32_t mask)
-+    {
-+        const __m128i laneBits = _mm_set_epi32(8, 4, 2, 1);
-+        const __m128 written = _mm_castsi128_ps(
-+            _mm_cmpeq_epi32(_mm_and_si128(_mm_set1_epi32(static_cast<int32_t>(mask)), laneBits), laneBits));
-+        _mm_storeu_ps(dst, _mm_blendv_ps(_mm_loadu_ps(dst), value, written));
-+    }
-+}
++#include "ps2_vu1_compiled.h"
 +
 +bool VU1Interpreter::decodeCompiledFmac(uint32_t instr, CompiledFmac &out)
 +{
@@ -8107,6 +8045,832 @@ index 0000000..61d5cd9
 +    return true;
 +}
 +
++// Games switch between a few code images and upload them again often (each
++// VIF MPG counts as a change), so blocks are kept per image, found by content.
++struct VU1Interpreter::CompiledCache
++{
++    static constexpr size_t kMaxImages = 8;
++    std::vector<std::unique_ptr<CompiledCode>> images;
++    CompiledCode *current = nullptr;
++    const uint8_t *code = nullptr;
++    uint32_t codeSize = 0;
++    uint64_t generation = 0;
++    uint64_t switches = 0;
++};
++
++// The interpreter's decoded pairs are only rebuilt for a new image: a known
++// one keeps its own copy, and run() rebuilds them if it takes over.
++VU1Interpreter::CompiledCode *VU1Interpreter::compiledCodeFor(const uint8_t *vuCode, uint32_t codeSize,
++                                                              PS2Memory *memory)
++{
++    if (!m_compiled)
++        m_compiled = std::make_shared<CompiledCache>();
++    CompiledCache &cache = *m_compiled;
++    const uint64_t generation = memory->getVU1CodeGeneration();
++    if (cache.current && cache.code == vuCode && cache.codeSize == codeSize && cache.generation == generation)
++        return cache.current;
++
++    CompiledCode *found = nullptr;
++    for (const std::unique_ptr<CompiledCode> &image : cache.images)
++    {
++        if (image->image.size() == codeSize && std::memcmp(image->image.data(), vuCode, codeSize) == 0)
++        {
++            found = image.get();
++            break;
++        }
++    }
++    if (!found)
++    {
++        const DecodedInstructionPair *decodedCode = decodedCodeFor(vuCode, codeSize, memory);
++        if (!decodedCode)
++            return nullptr;
++        if (cache.images.size() == CompiledCache::kMaxImages)
++        {
++            const auto oldest = std::min_element(cache.images.begin(), cache.images.end(),
++                                                 [](const auto &a, const auto &b) { return a->lastUse < b->lastUse; });
++            cache.images.erase(oldest);
++        }
++        auto image = std::make_unique<CompiledCode>();
++        image->image.assign(vuCode, vuCode + codeSize);
++        image->decoded.assign(decodedCode, decodedCode + std::min<uint32_t>(codeSize / 8u, kMaxDecodedPairs));
++        image->intern(VuTiming{});
++        found = image.get();
++        cache.images.push_back(std::move(image));
++    }
++    found->lastUse = ++cache.switches;
++    cache.current = found;
++    cache.code = vuCode;
++    cache.codeSize = codeSize;
++    cache.generation = generation;
++    return found;
++}
++
++namespace
++{
++    const VU1GeneratedBlock *g_generatedBlocks = nullptr;
++    size_t g_generatedBlockCount = 0;
++    // Set while generate compiles candidates, which aren't blocks a run used.
++    bool g_generating = false;
++
++    // Block list lines: the start pc (bit 16 for a delay slot) and code hash
++    // in hex, then the entry timing's nonzero bytes as byte:value pairs, or
++    // "-" when it has none.
++    struct ListedBlock
++    {
++        uint32_t pc = 0;
++        uint64_t code = 0;
++        VuTiming timing;
++    };
++
++    bool parseListedBlock(const char *line, ListedBlock &out)
++    {
++        unsigned pc = 0;
++        unsigned long long code = 0;
++        int used = 0;
++        if (std::sscanf(line, "%x %llx %n", &pc, &code, &used) != 2 || used == 0)
++            return false;
++        out = ListedBlock{pc, code, VuTiming{}};
++        const char *rest = line + used;
++        if (*rest == '-')
++            return true;
++        auto *bytes = reinterpret_cast<uint8_t *>(&out.timing);
++        while (true)
++        {
++            unsigned index = 0, value = 0;
++            int length = 0;
++            if (std::sscanf(rest, "%u:%u%n", &index, &value, &length) != 2 || index >= sizeof(VuTiming) ||
++                value > 0xFFu)
++                return false;
++            bytes[index] = static_cast<uint8_t>(value);
++            rest += length;
++            if (*rest != ',')
++                return true;
++            ++rest;
++        }
++    }
++
++    using ListedKey = std::tuple<uint64_t, uint32_t, uint64_t>; // code, pc, timingKey
++}
++
++void registerGeneratedBlocks(const VU1GeneratedBlock *blocks, size_t count)
++{
++    g_generatedBlocks = blocks;
++    g_generatedBlockCount = count;
++}
++
++size_t generatedBlockCount() { return g_generatedBlockCount; }
++
++GeneratedBlockFn findGeneratedBlock(uint64_t code, uint32_t pc, uint64_t timing)
++{
++    struct KeyHash
++    {
++        size_t operator()(const ListedKey &key) const
++        {
++            return static_cast<size_t>(std::get<0>(key) ^ (std::get<2>(key) * 31u) ^ std::get<1>(key));
++        }
++    };
++    // PS2X_VU1_GENERATED=0 runs every block in the executor.
++    static const std::unordered_map<ListedKey, GeneratedBlockFn, KeyHash> table = []
++    {
++        std::unordered_map<ListedKey, GeneratedBlockFn, KeyHash> map;
++        const char *enabled = std::getenv("PS2X_VU1_GENERATED");
++        if (enabled && std::strcmp(enabled, "0") == 0)
++            return map;
++        for (size_t i = 0; i < g_generatedBlockCount; ++i)
++            map.emplace(ListedKey{g_generatedBlocks[i].code, g_generatedBlocks[i].pc, g_generatedBlocks[i].timing},
++                        g_generatedBlocks[i].run);
++        return map;
++    }();
++    const auto found = table.find(ListedKey{code, pc, timing});
++    return found != table.end() ? found->second : nullptr;
++}
++
++void recordCompiledBlock(uint32_t pc, uint64_t code, const VuTiming &timing)
++{
++    static std::FILE *const list = []() -> std::FILE *
++    {
++        const char *path = std::getenv("PS2X_VU1_BLOCK_LIST");
++        return path && *path ? std::fopen(path, "a") : nullptr;
++    }();
++    if (!list || g_generating)
++        return;
++    static std::mutex mutex;
++    static std::set<ListedKey> written;
++    std::lock_guard<std::mutex> lock(mutex);
++    if (!written.insert(ListedKey{code, pc, timingKey(timing)}).second)
++        return;
++    std::fprintf(list, "%x %016llx ", pc, static_cast<unsigned long long>(code));
++    const auto *bytes = reinterpret_cast<const uint8_t *>(&timing);
++    bool any = false;
++    for (size_t i = 0; i < sizeof(VuTiming); ++i)
++    {
++        if (bytes[i] == 0u)
++            continue;
++        std::fprintf(list, "%s%zu:%u", any ? "," : "", i, bytes[i]);
++        any = true;
++    }
++    std::fprintf(list, "%s\n", any ? "" : "-");
++    // A run may end by being killed; keep what it found.
++    std::fflush(list);
++}
++
++namespace
++{
++    constexpr const char *kGeneratedSignature =
++        "uint32_t b%zu(VU1Interpreter &vu, const void *runtimePairs, uint8_t *d, uint32_t ds, GS &gs, PS2Memory *m, "
++        "bool &ended)";
++
++    // One block as straight-line code: the pairs runCompiled's loop would
++    // step through, with each fast pair's fields as constants.
++    void writeGeneratedBlock(std::FILE *out, size_t index, const VU1CompiledAccess::Code::Block &block)
++    {
++        using Pair = VU1CompiledAccess::Pair;
++        std::fprintf(out, kGeneratedSignature, index);
++        std::fprintf(out, "\n{\n    const P *pairs = static_cast<const P *>(runtimePairs);\n    (void)pairs;\n"
++                          "    (void)ended;\n");
++        for (size_t i = 0; i < block.pairs.size(); ++i)
++        {
++            const Pair &p = block.pairs[i];
++            // On a stop the interpreter takes over after this pair; when a
++            // control pair ended the program, the caller wants its index.
++            char ret[96];
++            if (p.control)
++                std::snprintf(ret, sizeof(ret), "ended ? %zuu : (%zuu | kGeneratedCut)", i, i + 1);
++            else
++                std::snprintf(ret, sizeof(ret), "%zuu | kGeneratedCut", i + 1);
++            if (p.slow)
++            {
++                std::fprintf(out, "    if (!A::step(vu, pairs[%zu], d, ds, gs, m, ended))\n        return %s;\n", i, ret);
++                continue;
++            }
++            std::fprintf(out,
++                         "    static constexpr P p%zu{.pc = 0x%x, .vfLandBy = %u, .stall = %u, .simple = %d, .control = %d, "
++                         ".readsFlags = %d, .queuesEvent = %d, .startsXgkick = %d, .keepDeclared = %d, .slow = %d, "
++                         ".special = %d, .upperOp = C::UpperOp(%u), .lowerOp = C::LowerOp(%u), .writtenVi = %u, "
++                         ".viLatency = %u, .delaysBranchRead = %d, .shownCount = %u, .shownReg = {%u, %u}, "
++                         ".shownComponents = {%u, %u}, .vfS = %u, .vfT = %u, .viS = %u, .viT = %u, .viD = %u, "
++                         ".dest = %u, .immediate = %d, .branchTarget = 0x%x, .fmac = {%u, %u, %u, %u, %u, %u, %d}, "
++                         ".upper = 0x%08xu, .lower = 0x%08xu, .lowerFirst = %d, .eBit = %d};\n"
++                         "    if (!A::step(vu, p%zu, d, ds, gs, m, ended))\n        return %s;\n",
++                         i, p.pc, p.vfLandBy, p.stall, p.simple, p.control, p.readsFlags, p.queuesEvent,
++                         p.startsXgkick, p.keepDeclared, p.slow, p.special, static_cast<unsigned>(p.upperOp),
++                         static_cast<unsigned>(p.lowerOp), p.writtenVi, p.viLatency, p.delaysBranchRead,
++                         p.shownCount, p.shownReg[0], p.shownReg[1], p.shownComponents[0], p.shownComponents[1],
++                         p.vfS, p.vfT, p.viS, p.viT, p.viD, p.dest, p.immediate, p.branchTarget, p.fmac.form,
++                         p.fmac.rhs, p.fmac.fs, p.fmac.ft, p.fmac.fd, p.fmac.components, p.fmac.toAcc, p.upper,
++                         p.lower, p.lowerFirst, p.eBit, i, ret);
++        }
++        std::fprintf(out, "    return %zuu;\n}\n\n", block.pairs.size());
++    }
++}
++
++size_t VU1CompiledAccess::generate(const std::vector<std::vector<uint8_t>> &images, std::FILE *list,
++                                   const std::vector<std::FILE *> &shards, size_t &listed)
++{
++    std::vector<ListedBlock> wanted;
++    std::set<ListedKey> seen;
++    char line[1024];
++    while (std::fgets(line, sizeof(line), list))
++    {
++        ListedBlock block;
++        if (line[0] != '#' && parseListedBlock(line, block) &&
++            seen.insert(ListedKey{block.code, block.pc, timingKey(block.timing)}).second)
++            wanted.push_back(block);
++    }
++    listed = wanted.size();
++
++    // Each image compiled the way runCompiled would compile it.
++    g_generating = true;
++    VU1Interpreter vu;
++    std::vector<std::unique_ptr<Code>> codes;
++    for (const std::vector<uint8_t> &image : images)
++    {
++        auto code = std::make_unique<Code>();
++        code->image = image;
++        code->image.resize(PS2_VU1_CODE_SIZE);
++        code->decoded.resize(VU1Interpreter::kMaxDecodedPairs);
++        for (uint32_t i = 0; i < VU1Interpreter::kMaxDecodedPairs; ++i)
++            code->decoded[i] = vu.decodeInstructionPair(code->image.data(), i * 8u);
++        code->intern(VuTiming{});
++        codes.push_back(std::move(code));
++    }
++
++    struct Found
++    {
++        const Code::Block *block;
++        uint32_t pc;
++        uint64_t timing;
++    };
++    std::vector<Found> found;
++    for (const ListedBlock &want : wanted)
++    {
++        const uint32_t pc = want.pc & 0xFFFFu;
++        const bool delaySlot = (want.pc & 0x10000u) != 0u;
++        if (pc + 8u > PS2_VU1_CODE_SIZE || (pc & 7u) != 0u)
++            continue;
++        for (const std::unique_ptr<Code> &code : codes)
++        {
++            const Code::Block *block = code->find(code->decoded.data(), PS2_VU1_CODE_SIZE, pc,
++                                                  code->intern(want.timing), delaySlot);
++            if (!block->pairs.empty() && block->code == want.code)
++            {
++                found.push_back(Found{block, want.pc, timingKey(want.timing)});
++                break;
++            }
++        }
++    }
++
++    g_generating = false;
++
++    static constexpr const char *kHeader =
++        "// Generated at build time from the VU1 block list and the game's VU1 code. Do not edit.\n"
++        "#include \"vu/ps2_vu1_compiled.h\"\n\nnamespace ps2vu1gen\n{\n"
++        "using A = VU1CompiledAccess;\nusing P = A::Pair;\nusing C = A::Code;\n\n";
++    for (std::FILE *shard : shards)
++        std::fprintf(shard, "%s", kHeader);
++    for (size_t i = 0; i < found.size(); ++i)
++        writeGeneratedBlock(shards[i % shards.size()], i, *found[i].block);
++    for (std::FILE *shard : shards)
++        if (shard != shards[0])
++            std::fprintf(shard, "}\n");
++
++    std::FILE *table = shards[0];
++    for (size_t i = 0; i < found.size(); ++i)
++    {
++        std::fprintf(table, kGeneratedSignature, i);
++        std::fprintf(table, ";\n");
++    }
++    if (found.empty())
++    {
++        std::fprintf(table, "}\n");
++        return 0;
++    }
++    std::fprintf(table, "\nconst VU1GeneratedBlock kBlocks[] = {\n");
++    for (size_t i = 0; i < found.size(); ++i)
++        std::fprintf(table, "    {0x%016llxull, 0x%x, 0x%016llxull, b%zu},\n",
++                     static_cast<unsigned long long>(found[i].block->code), found[i].pc,
++                     static_cast<unsigned long long>(found[i].timing), i);
++    std::fprintf(table, "};\n\n// Registered before main, so before any VU1 program is compiled.\n"
++                        "[[maybe_unused]] const bool kRegistered = (registerGeneratedBlocks(kBlocks, sizeof(kBlocks) / sizeof(kBlocks[0])), "
++                        "true);\n}\n");
++    return found.size();
++}
++
++size_t VU1CompiledAccess::generatedBlocks(const VU1Interpreter &vu)
++{
++    if (!vu.m_compiled || !vu.m_compiled->current)
++        return 0;
++    size_t count = 0;
++    for (const auto &[key, block] : vu.m_compiled->current->blocks)
++        count += block->generated != nullptr ? 1u : 0u;
++    return count;
++}
++
++void VU1Interpreter::commitCompiledEvents()
++{
++    // What commitReadyPipelines does at each of those cycles, but flags,
++    // which land before Q there, only as far as Q needs them.
++    while (true)
++    {
++        uint64_t cycle = std::numeric_limits<uint64_t>::max();
++        if (m_fdiv.valid)
++            cycle = m_fdiv.readyCycle;
++        for (const ScalarPipelineEntry &entry : m_efu)
++            if (entry.valid)
++                cycle = std::min(cycle, entry.readyCycle);
++        for (uint32_t slots = m_viWritePending; slots != 0u; slots &= slots - 1u)
++            cycle = std::min(cycle, m_viWritePipeline[std::countr_zero(slots)].readyCycle);
++        if (cycle > m_cycle)
++            break;
++
++        if (m_fdiv.valid && m_fdiv.readyCycle <= cycle)
++        {
++            commitFlagsUpTo(cycle);
++            m_state.q = m_fdiv.value;
++            const uint32_t currentDi = m_fdiv.statusDi & 0x30u;
++            m_state.status = (m_state.status & 0xFCFu) | currentDi | (currentDi << 6);
++            m_fdiv = {};
++        }
++        for (ScalarPipelineEntry &entry : m_efu)
++        {
++            if (entry.valid && entry.readyCycle <= cycle)
++            {
++                m_state.p = entry.value;
++                entry = {};
++            }
++        }
++        for (uint32_t slots = m_viWritePending; slots != 0u; slots &= slots - 1u)
++        {
++            const uint32_t slot = static_cast<uint32_t>(std::countr_zero(slots));
++            PendingViWrite &write = m_viWritePipeline[slot];
++            if (write.readyCycle > cycle)
++                continue;
++            if (m_viLatestWrite[write.reg] == write.sequence)
++                m_state.vi[write.reg] = static_cast<int16_t>(write.value);
++            m_dueSlots[write.readyCycle % kDueWheelSize].viWrites &= ~(1u << slot);
++            write = {};
++            m_viWritePending &= ~(1u << slot);
++        }
++    }
++
++    uint64_t nextScalar = std::numeric_limits<uint64_t>::max();
++    if (m_fdiv.valid)
++        nextScalar = m_fdiv.readyCycle;
++    for (const ScalarPipelineEntry &entry : m_efu)
++        if (entry.valid)
++            nextScalar = std::min(nextScalar, entry.readyCycle);
++    m_nextScalarCommit = nextScalar;
++    uint64_t nextVi = ~0ull;
++    for (uint32_t slots = m_viWritePending; slots != 0u; slots &= slots - 1u)
++        nextVi = std::min(nextVi, m_viWritePipeline[std::countr_zero(slots)].readyCycle);
++    m_compiledNextVi = nextVi;
++    m_compiledNextEvent = std::min(nextScalar, nextVi);
++}
++
++void VU1Interpreter::execCompiledPair(const void *pairPointer, uint8_t *vuData, uint32_t dataSize,
++                                      GS &gs, PS2Memory *memory, bool &programEnded)
++{
++    const CompiledCode::Pair &pair = *static_cast<const CompiledCode::Pair *>(pairPointer);
++    const DecodedInstructionPair &decoded = *pair.decoded;
++    saveShownValues(pairPointer);
++    if (pair.control)
++        m_state.pc = pair.pc;
++
++    const uint8_t writtenVi = pair.writtenVi;
++    int32_t *vi = m_state.vi;
++    const int32_t oldVi = vi[writtenVi];
++
++    const VfAccess upperWrite = decoded.upperUsage.vfWrite;
++    const VfAccess lowerWrite = decoded.lowerUsage.vfWrite;
++    const bool hasUpperWrite = upperWrite.reg != 0u;
++    const bool hasLowerWrite = lowerWrite.reg != 0u && decoded.suppressedLowerVf != lowerWrite.reg;
++    const bool hasDistinctLowerWrite = hasLowerWrite && (!hasUpperWrite || lowerWrite.reg != upperWrite.reg);
++    alignas(16) float oldUpperVf[4]{};
++    alignas(16) float oldLowerVf[4]{};
++    if (pair.keepDeclared)
++    {
++        if (hasUpperWrite)
++            std::memcpy(oldUpperVf, m_state.vf[upperWrite.reg], sizeof(oldUpperVf));
++        if (hasDistinctLowerWrite)
++            std::memcpy(oldLowerVf, m_state.vf[lowerWrite.reg], sizeof(oldLowerVf));
++    }
++
++    if (pair.simple)
++        execSimpleOps(pairPointer, vuData, dataSize, gs, memory);
++    else if (decoded.iBit)
++    {
++        if (!decoded.upperNop)
++            execUpper(decoded.upper);
++        float immediate = 0.0f;
++        std::memcpy(&immediate, &decoded.lower, sizeof(immediate));
++        m_state.i = normalizeOperand(immediate);
++    }
++    else
++    {
++        // The lower op reads or writes the register the upper one writes.
++        float oldVf[4]{};
++        float upperVf[4]{};
++        std::memcpy(oldVf, m_state.vf[decoded.upperVfShadowReg], sizeof(oldVf));
++        execUpper(decoded.upper);
++        std::memcpy(upperVf, m_state.vf[decoded.upperVfShadowReg], sizeof(upperVf));
++        std::memcpy(m_state.vf[decoded.upperVfShadowReg], oldVf, sizeof(oldVf));
++        if (!isLowerNop(decoded.lower))
++            execLower(decoded.lower, vuData, dataSize, gs, memory, decoded.upper);
++        std::memcpy(m_state.vf[decoded.upperVfShadowReg], upperVf, sizeof(upperVf));
++    }
++
++    m_viBranchBackupValid = false;
++    if (pair.keepDeclared)
++    {
++        if (hasUpperWrite)
++            keepDeclaredLanes(m_state.vf[upperWrite.reg], oldUpperVf, upperWrite.lanes);
++        if (hasDistinctLowerWrite)
++            keepDeclaredLanes(m_state.vf[lowerWrite.reg], oldLowerVf, lowerWrite.lanes);
++    }
++    if (writtenVi != 0u)
++    {
++        if (pair.viLatency <= 1u)
++        {
++            vi[writtenVi] = static_cast<int16_t>(vi[writtenVi]);
++            m_viLatestWrite[writtenVi] = ++m_nextWriteSequence;
++        }
++        else
++        {
++            const int32_t newVi = vi[writtenVi];
++            vi[writtenVi] = oldVi;
++            queueViWrite(writtenVi, newVi, pair.viLatency);
++        }
++        if (pair.delaysBranchRead)
++            recordViWriteForBranch(writtenVi, oldVi);
++    }
++
++    _mm_storeu_ps(m_state.vf[0], _mm_set_ps(1.0f, 0.0f, 0.0f, 0.0f));
++    vi[0] = 0;
++
++    if (pair.control)
++        finishControlPair(decoded.eBit, programEnded);
++}
++
++bool VU1Interpreter::runCompiled(uint8_t *vuCode, uint32_t codeSize,
++                                 uint8_t *vuData, uint32_t dataSize,
++                                 GS &gs, PS2Memory *memory, uint32_t maxCycles)
++{
++    if (m_unit != Unit::VU1 || m_state.dBitEnabled || m_state.tBitEnabled || maxCycles == 0u)
++        return false;
++    if (codeSize > kVu1PcMask + 1u)
++        return false;
++    if (!memory || vuCode != memory->getVU1Code())
++        return false;
++    CompiledCode *compiledImage = compiledCodeFor(vuCode, codeSize, memory);
++    if (!compiledImage)
++        return false;
++    CompiledCode &compiled = *compiledImage;
++    const DecodedInstructionPair *decodedCode = compiled.decoded.data();
++    m_compiledCodeSize = codeSize;
++
++    m_activeVuData = vuData;
++    m_activeVuDataSize = dataSize;
++    m_activeGs = &gs;
++    m_activeMemory = memory;
++    const int previousRoundingMode = std::fegetround();
++    const bool useVuRounding = std::fesetround(FE_TOWARDZERO) == 0;
++    const uint64_t budgetEnd = m_cycle + maxCycles;
++    m_compiledRun = true;
++    m_compiledNextVi = ~0ull;
++    m_compiledNextEvent = m_nextScalarCommit;
++    m_xgkickProgressCycle = m_cycle;
++
++    // The program starts with nothing on its way (execute resets the scheduler).
++    CompiledCode::Block *block = compiled.find(decodedCode, codeSize, m_state.pc, 0u, false);
++    bool programEnded = false;
++    bool outOfBudget = false; // handing off before a pair that can't issue in time
++    uint32_t handOffTiming = 0;
++    while (true)
++    {
++        if (block->pairs.empty())
++        {
++            handOffTiming = block->entryTiming;
++            break;
++        }
++        if (block->pairs.front().startsXgkick && m_xgkick.active)
++        {
++            // XGKICK waits for the transfer before it; the wait sets the timing.
++            catchUpXgkick();
++            uint32_t waited = 0;
++            bool outOfCycles = false;
++            while (m_xgkick.active)
++            {
++                if (m_cycle + 1u >= budgetEnd)
++                {
++                    outOfCycles = true;
++                    break;
++                }
++                ++m_cycle;
++                ++waited;
++                ++m_xgkickProgressCycle;
++                progressXgkick();
++            }
++            if (waited != 0u || outOfCycles)
++            {
++                VuTiming timing = compiled.timings[block->entryTiming];
++                advanceTiming(timing, waited);
++                const uint32_t timingId = compiled.intern(timing);
++                if (outOfCycles)
++                {
++                    handOffTiming = timingId;
++                    break;
++                }
++                block = compiled.find(decodedCode, codeSize, block->startPc, timingId, block->delaySlot);
++                continue;
++            }
++        }
++
++        const uint64_t blockStart = m_cycle;
++        const bool nearBudget = m_cycle + block->cycles >= budgetEnd;
++        const size_t count = block->pairs.size();
++        size_t index = 0;
++        bool cut = false; // the interpreter takes over before pairs[index]
++        if (block->generated && !nearBudget)
++        {
++            const uint32_t result = block->generated(*this, block->pairs.data(), vuData, dataSize, gs, memory,
++                                                     programEnded);
++            index = result & ~kGeneratedCut;
++            cut = (result & kGeneratedCut) != 0u;
++        }
++        else
++        {
++            for (; index < count; ++index)
++            {
++                const CompiledCode::Pair &pair = block->pairs[index];
++                if (nearBudget && m_cycle + pair.stall >= budgetEnd)
++                {
++                    outOfBudget = true;
++                    cut = true;
++                    break;
++                }
++                if (!VU1CompiledAccess::step(*this, pair, vuData, dataSize, gs, memory, programEnded))
++                {
++                    if (!programEnded)
++                    {
++                        ++index;
++                        cut = true;
++                    }
++                    break;
++                }
++            }
++        }
++        if (programEnded)
++        {
++            m_vfLandBy = std::max<uint64_t>(m_vfLandBy, blockStart + block->pairs[index].vfLandBy);
++            break;
++        }
++        if (cut)
++        {
++            if (index != 0u)
++            {
++                const CompiledCode::Pair &previous = block->pairs[index - 1u];
++                m_vfLandBy = std::max<uint64_t>(m_vfLandBy, blockStart + previous.vfLandBy);
++                if (!previous.control)
++                    m_state.pc = index < count ? block->pairs[index].pc : block->endPc;
++            }
++            handOffTiming = compiled.timingAfter(*block, index);
++            break;
++        }
++        const CompiledCode::Pair &last = block->pairs.back();
++        m_vfLandBy = std::max<uint64_t>(m_vfLandBy, blockStart + last.vfLandBy);
++        if (!last.control)
++            m_state.pc = block->endPc;
++        if (block->exit == CompiledCode::Exit::Unsupported)
++        {
++            handOffTiming = block->exitTiming;
++            break;
++        }
++
++        // Only a block cut short before an XGKICK can end with a branch or
++        // E bit pending; the next one is then its delay slot.
++        const bool pending = m_state.branchPending || m_state.ebit;
++        const uint32_t pc = m_state.pc | (pending ? 0x10000u : 0u);
++        if (block->nextPc[0] == pc)
++            block = block->next[0];
++        else if (block->nextPc[1] == pc)
++            block = block->next[1];
++        else
++        {
++            CompiledCode::Block *next = compiled.find(decodedCode, codeSize, m_state.pc, block->exitTiming, pending);
++            const uint32_t slot = block->nextPc[0] == ~0u ? 0u : 1u;
++            block->nextPc[slot] = pc;
++            block->next[slot] = next;
++            block = next;
++        }
++    }
++
++    // As run() would have them at this cycle boundary.
++    commitCompiledEvents();
++    commitFlagsUpTo(m_cycle);
++    catchUpXgkick();
++    m_compiledRun = false;
++    if (programEnded)
++    {
++        flushPipelines();
++        m_state.ebit = false;
++        m_state.haltAfterDelaySlot = false;
++        m_pendingHaltD = false;
++        m_pendingHaltT = false;
++        m_state.cycles = m_cycle;
++        if (useVuRounding && previousRoundingMode != -1)
++            std::fesetround(previousRoundingMode);
++        return true;
++    }
++
++    // The interpreter takes over here, with the timing it would have had.
++    const VuTiming &timing = compiled.timings[handOffTiming];
++    for (uint32_t lane = 0; lane < 128u; ++lane)
++        m_vfReady[lane] = m_cycle + timing.vf[lane];
++    for (uint32_t reg = 0; reg < 16u; ++reg)
++        m_viReady[reg] = m_cycle + timing.vi[reg];
++    m_state.cycles = m_cycle;
++    // A stop raised while the next pair stalled doesn't skip it in run(),
++    // but this one can't issue before the budget runs out anyway.
++    if (m_stopRequested && outOfBudget)
++        advanceTo(budgetEnd);
++    if (useVuRounding && previousRoundingMode != -1)
++        std::fesetround(previousRoundingMode);
++    run(vuCode, codeSize, vuData, dataSize, gs, memory, static_cast<uint32_t>(budgetEnd - m_cycle));
++    return true;
++}
++
++#else
++
++bool VU1Interpreter::runCompiled(uint8_t *, uint32_t, uint8_t *, uint32_t, GS &, PS2Memory *, uint32_t)
++{
++    return false;
++}
++
++#endif
+diff --git a/ps2xRuntime/src/lib/vu/ps2_vu1_compiled.h b/ps2xRuntime/src/lib/vu/ps2_vu1_compiled.h
+new file mode 100644
+index 0000000..c2e64ac
+--- /dev/null
++++ b/ps2xRuntime/src/lib/vu/ps2_vu1_compiled.h
+@@ -0,0 +1,1052 @@
++// Compiled VU1 blocks: the block structures and the per-pair code, shared by
++// ps2_vu1_compiled.cpp and the generated block functions.
++#pragma once
++
++#include "runtime/ps2_vu1.h"
++#include "ps2_vu1_detail.h"
++
++#include <algorithm>
++#include <array>
++#include <bit>
++#include <cstdio>
++#include <cstring>
++#include <limits>
++#include <memory>
++#include <smmintrin.h>
++#include <unordered_map>
++#include <vector>
++
++namespace ps2vu1c
++{
++    // Pipeline timing at the start of a pair: cycles until each queued result is
++    // due, after that cycle's commits. Stalls depend on nothing else, so a block
++    // started in a known timing state has fixed stalls.
++    struct VuTiming
++    {
++        std::array<uint8_t, 128> vf{}; // register * 4 + component
++        std::array<uint8_t, 16> vi{};
++        uint8_t fdiv = 0;
++        uint8_t efuResource = 0;
++        std::array<uint8_t, 2> efu{};
++
++        bool operator==(const VuTiming &other) const { return std::memcmp(this, &other, sizeof(VuTiming)) == 0; }
++    };
++    static_assert(sizeof(VuTiming) == 148);
++
++    struct VuTimingHash
++    {
++        size_t operator()(const VuTiming &timing) const
++        {
++            const auto *bytes = reinterpret_cast<const uint8_t *>(&timing);
++            uint64_t hash = 0xCBF29CE484222325ull;
++            for (size_t i = 0; i < sizeof(VuTiming); i += 4)
++            {
++                uint32_t word = 0;
++                std::memcpy(&word, bytes + i, 4);
++                hash = (hash ^ word) * 0x100000001B3ull;
++            }
++            return static_cast<size_t>(hash ^ (hash >> 32));
++        }
++    };
++
++    inline bool isLowerNop(uint32_t instr)
++    {
++        return instr == 0x00000000u || instr == 0x8000033Cu;
++    }
++
++    inline uint8_t countDown(uint8_t value, uint32_t cycles)
++    {
++        return value > cycles ? static_cast<uint8_t>(value - cycles) : 0u;
++    }
++
++    inline void advanceTiming(VuTiming &timing, uint32_t cycles)
++    {
++        if (cycles == 0u)
++            return;
++        for (uint8_t &value : timing.vf)
++            value = countDown(value, cycles);
++        for (uint8_t &value : timing.vi)
++            value = countDown(value, cycles);
++        timing.fdiv = countDown(timing.fdiv, cycles);
++        timing.efuResource = countDown(timing.efuResource, cycles);
++        for (uint8_t &value : timing.efu)
++            value = countDown(value, cycles);
++    }
++
++    // Lanes in VU order (x is bit 3), as dest fields have them.
++    inline __m128 laneMask(uint8_t lanes)
++    {
++        const __m128i laneBits = _mm_set_epi32(1, 2, 4, 8);
++        return _mm_castsi128_ps(_mm_cmpeq_epi32(_mm_and_si128(_mm_set1_epi32(lanes), laneBits), laneBits));
++    }
++
++    inline void blendLanes(float *dst, const float *src, uint8_t dest)
++    {
++        _mm_storeu_ps(dst, _mm_blendv_ps(_mm_loadu_ps(dst), _mm_loadu_ps(src), laneMask(dest)));
++    }
++
++    // What issueVfWrite does to the lanes an op wrote outside its declared ones.
++    inline void keepDeclaredLanes(float *reg, const float *previous, uint8_t lanes)
++    {
++        _mm_storeu_ps(reg, _mm_blendv_ps(_mm_loadu_ps(previous), _mm_loadu_ps(reg), laneMask(lanes)));
++    }
++
++    // VU1 code memory is 16 KiB.
++    inline constexpr uint32_t kVu1PcMask = 0x3FFFu;
++
++    // vuNormalizeOperand on four lanes.
++    __attribute__((always_inline)) inline __m128 normalizeOperands(__m128 value)
++    {
++        const __m128i bits = _mm_castps_si128(value);
++        const __m128i exponent = _mm_and_si128(bits, _mm_set1_epi32(0x7F800000));
++        const __m128i sign = _mm_and_si128(bits, _mm_set1_epi32(static_cast<int32_t>(0x80000000u)));
++        __m128i normalized = _mm_blendv_epi8(bits, sign, _mm_cmpeq_epi32(exponent, _mm_setzero_si128()));
++        normalized = _mm_blendv_epi8(normalized, _mm_or_si128(sign, _mm_set1_epi32(0x7F7FFFFF)),
++                                     _mm_cmpeq_epi32(exponent, _mm_set1_epi32(0x7F800000)));
++        return _mm_castsi128_ps(normalized);
++    }
++
++    // Swaps a 4-bit mask between component order (x in bit 0, as movemask
++    // gives it) and VU lane order (x in bit 3).
++    inline constexpr uint8_t kReverseLanes[16] = {0x0u, 0x8u, 0x4u, 0xCu, 0x2u, 0xAu, 0x6u, 0xEu,
++                                           0x1u, 0x9u, 0x5u, 0xDu, 0x3u, 0xBu, 0x7u, 0xFu};
++
++    // Stores the components in mask (x in bit 0).
++    inline void writeLanes(float *dst, __m128 value, uint32_t mask)
++    {
++        const __m128i laneBits = _mm_set_epi32(8, 4, 2, 1);
++        const __m128 written = _mm_castsi128_ps(
++            _mm_cmpeq_epi32(_mm_and_si128(_mm_set1_epi32(static_cast<int32_t>(mask)), laneBits), laneBits));
++        _mm_storeu_ps(dst, _mm_blendv_ps(_mm_loadu_ps(dst), value, written));
++    }
++
++    inline constexpr uint64_t kFnv1aSeed = 0xCBF29CE484222325ull;
++    inline uint64_t fnv1a64(const void *data, size_t size, uint64_t hash = kFnv1aSeed)
++    {
++        const auto *bytes = static_cast<const uint8_t *>(data);
++        for (size_t i = 0; i < size; ++i)
++            hash = (hash ^ bytes[i]) * 0x100000001B3ull;
++        return hash;
++    }
++
++    inline uint64_t timingKey(const VuTiming &timing) { return fnv1a64(&timing, sizeof(timing)); }
++}
++using namespace ps2vu1c;
++
++// A block's pairs as straight-line code, generated at build time from its
++// compiled form (VU1CompiledAccess::generate). Runs the block as
++// runCompiled's loop would; returns how many pairs ran, with kGeneratedCut set
++// when the interpreter must take over before the next one.
++using GeneratedBlockFn = uint32_t (*)(VU1Interpreter &vu, const void *pairs, uint8_t *vuData, uint32_t dataSize,
++                                      GS &gs, PS2Memory *memory, bool &programEnded);
++inline constexpr uint32_t kGeneratedCut = 0x80000000u;
++struct VU1GeneratedBlock
++{
++    uint64_t code;   // CompiledCode::codeHash of the block
++    uint32_t pc;     // with bit 16 for a delay slot
++    uint64_t timing; // timingKey of the entry timing
++    GeneratedBlockFn run;
++};
++// The generated code registers its blocks here, before main.
++void registerGeneratedBlocks(const VU1GeneratedBlock *blocks, size_t count);
++size_t generatedBlockCount();
++GeneratedBlockFn findGeneratedBlock(uint64_t code, uint32_t pc, uint64_t timing);
++// With PS2X_VU1_BLOCK_LIST set to a file, appends each block compiled to it
++// as a block list line (see VU1CompiledAccess::generate). Lines hold only
++// numbers: the start pc, the code hash and the entry timing.
++void recordCompiledBlock(uint32_t pc, uint64_t code, const VuTiming &timing);
++
 +__attribute__((always_inline)) inline void VU1Interpreter::pushCompiledFmacFlags(uint32_t mac, uint32_t statusSet)
 +{
 +    if (m_flagCount == kMaxFlagEntries) [[unlikely]]
@@ -8129,7 +8893,7 @@ index 0000000..61d5cd9
 +    entry.clipSet = 0u;
 +}
 +
-+bool VU1Interpreter::execFmacCompiled(const CompiledFmac &op)
++__attribute__((always_inline)) inline bool VU1Interpreter::execFmacCompiled(const CompiledFmac &op)
 +{
 +    const __m128 vt = normalizeOperands(_mm_loadu_ps(m_state.vf[op.ft]));
 +    __m128 rhs;
@@ -8319,6 +9083,8 @@ index 0000000..61d5cd9
 +        // The last two successors taken, to skip the lookup.
 +        std::array<uint32_t, 2> nextPc{~0u, ~0u};
 +        std::array<Block *, 2> next{};
++        uint64_t code = 0; // codeHash
++        GeneratedBlockFn generated = nullptr;
 +    };
 +
 +    struct BlockKey
@@ -8473,12 +9239,12 @@ index 0000000..61d5cd9
 +
 +    static void decodePair(const DecodedInstructionPair &decoded, Pair &pair)
 +    {
++        pair.upper = decoded.upper;
++        pair.lower = decoded.lower;
 +        if (const uint32_t viWrites = decoded.lowerUsage.viWrite & 0xFFFEu)
 +            pair.writtenVi = static_cast<uint8_t>(std::countr_zero(viWrites));
 +        pair.viLatency = decoded.hazards.viWriteLatency;
 +        pair.delaysBranchRead = decoded.lowerUsage.delaysNextBranchRead;
-+        pair.upper = decoded.upper;
-+        pair.lower = decoded.lower;
 +        pair.eBit = decoded.eBit;
 +        pair.simple = !decoded.iBit;
 +        const InstructionUsage &lowerUsage = decoded.lowerUsage;
@@ -8510,8 +9276,6 @@ index 0000000..61d5cd9
 +            pair.lowerOp = lowerOpFor(lower, pair);
 +            if (const uint8_t shadow = decoded.upperVfShadowReg; shadow != 0u)
 +            {
-+                // The lower op sees the shadowed register's old value when it
-+                // runs first, unless it writes a register the upper op uses.
 +                bool writesVf = false;
 +                switch (pair.lowerOp)
 +                {
@@ -8640,9 +9404,29 @@ index 0000000..61d5cd9
 +        block->cycles = offset;
 +        block->endPc = pc;
 +        block->exitTiming = intern(timing);
++        if (!block->pairs.empty())
++        {
++            const uint32_t keyPc = block->startPc | (delaySlot ? 0x10000u : 0u);
++            block->code = codeHash(*block);
++            block->generated = findGeneratedBlock(block->code, keyPc, timingKey(timings[timingId]));
++            recordCompiledBlock(keyPc, block->code, timings[timingId]);
++        }
 +        Block *result = block.get();
 +        blocks.emplace(BlockKey{result->startPc | (delaySlot ? 0x10000u : 0u), timingId}, std::move(block));
 +        return result;
++    }
++
++    // What a block's code depends on besides its entry timing: its pairs'
++    // words and where they sit. The pairs after it only decide where it ends.
++    static uint64_t codeHash(const Block &block)
++    {
++        uint64_t hash = kFnv1aSeed;
++        for (const Pair &pair : block.pairs)
++        {
++            const uint32_t words[3] = {pair.pc, pair.upper, pair.lower};
++            hash = fnv1a64(words, sizeof(words), hash);
++        }
++        return hash;
 +    }
 +
 +    // The timing after the first count pairs of block.
@@ -8667,127 +9451,6 @@ index 0000000..61d5cd9
 +        return compile(decodedCode, codeSize, pc, timingId, delaySlot);
 +    }
 +};
-+
-+// Games switch between a few code images and upload them again often (each
-+// VIF MPG counts as a change), so blocks are kept per image, found by content.
-+struct VU1Interpreter::CompiledCache
-+{
-+    static constexpr size_t kMaxImages = 8;
-+    std::vector<std::unique_ptr<CompiledCode>> images;
-+    CompiledCode *current = nullptr;
-+    const uint8_t *code = nullptr;
-+    uint32_t codeSize = 0;
-+    uint64_t generation = 0;
-+    uint64_t switches = 0;
-+};
-+
-+// The interpreter's decoded pairs are only rebuilt for a new image: a known
-+// one keeps its own copy, and run() rebuilds them if it takes over.
-+VU1Interpreter::CompiledCode *VU1Interpreter::compiledCodeFor(const uint8_t *vuCode, uint32_t codeSize,
-+                                                              PS2Memory *memory)
-+{
-+    if (!m_compiled)
-+        m_compiled = std::make_shared<CompiledCache>();
-+    CompiledCache &cache = *m_compiled;
-+    const uint64_t generation = memory->getVU1CodeGeneration();
-+    if (cache.current && cache.code == vuCode && cache.codeSize == codeSize && cache.generation == generation)
-+        return cache.current;
-+
-+    CompiledCode *found = nullptr;
-+    for (const std::unique_ptr<CompiledCode> &image : cache.images)
-+    {
-+        if (image->image.size() == codeSize && std::memcmp(image->image.data(), vuCode, codeSize) == 0)
-+        {
-+            found = image.get();
-+            break;
-+        }
-+    }
-+    if (!found)
-+    {
-+        const DecodedInstructionPair *decodedCode = decodedCodeFor(vuCode, codeSize, memory);
-+        if (!decodedCode)
-+            return nullptr;
-+        if (cache.images.size() == CompiledCache::kMaxImages)
-+        {
-+            const auto oldest = std::min_element(cache.images.begin(), cache.images.end(),
-+                                                 [](const auto &a, const auto &b) { return a->lastUse < b->lastUse; });
-+            cache.images.erase(oldest);
-+        }
-+        auto image = std::make_unique<CompiledCode>();
-+        image->image.assign(vuCode, vuCode + codeSize);
-+        image->decoded.assign(decodedCode, decodedCode + std::min<uint32_t>(codeSize / 8u, kMaxDecodedPairs));
-+        image->intern(VuTiming{});
-+        found = image.get();
-+        cache.images.push_back(std::move(image));
-+    }
-+    found->lastUse = ++cache.switches;
-+    cache.current = found;
-+    cache.code = vuCode;
-+    cache.codeSize = codeSize;
-+    cache.generation = generation;
-+    return found;
-+}
-+
-+void VU1Interpreter::commitCompiledEvents()
-+{
-+    // What commitReadyPipelines does at each of those cycles, but flags,
-+    // which land before Q there, only as far as Q needs them.
-+    while (true)
-+    {
-+        uint64_t cycle = std::numeric_limits<uint64_t>::max();
-+        if (m_fdiv.valid)
-+            cycle = m_fdiv.readyCycle;
-+        for (const ScalarPipelineEntry &entry : m_efu)
-+            if (entry.valid)
-+                cycle = std::min(cycle, entry.readyCycle);
-+        for (uint32_t slots = m_viWritePending; slots != 0u; slots &= slots - 1u)
-+            cycle = std::min(cycle, m_viWritePipeline[std::countr_zero(slots)].readyCycle);
-+        if (cycle > m_cycle)
-+            break;
-+
-+        if (m_fdiv.valid && m_fdiv.readyCycle <= cycle)
-+        {
-+            commitFlagsUpTo(cycle);
-+            m_state.q = m_fdiv.value;
-+            const uint32_t currentDi = m_fdiv.statusDi & 0x30u;
-+            m_state.status = (m_state.status & 0xFCFu) | currentDi | (currentDi << 6);
-+            m_fdiv = {};
-+        }
-+        for (ScalarPipelineEntry &entry : m_efu)
-+        {
-+            if (entry.valid && entry.readyCycle <= cycle)
-+            {
-+                m_state.p = entry.value;
-+                entry = {};
-+            }
-+        }
-+        for (uint32_t slots = m_viWritePending; slots != 0u; slots &= slots - 1u)
-+        {
-+            const uint32_t slot = static_cast<uint32_t>(std::countr_zero(slots));
-+            PendingViWrite &write = m_viWritePipeline[slot];
-+            if (write.readyCycle > cycle)
-+                continue;
-+            if (m_viLatestWrite[write.reg] == write.sequence)
-+                m_state.vi[write.reg] = static_cast<int16_t>(write.value);
-+            m_dueSlots[write.readyCycle % kDueWheelSize].viWrites &= ~(1u << slot);
-+            write = {};
-+            m_viWritePending &= ~(1u << slot);
-+        }
-+    }
-+
-+    uint64_t nextScalar = std::numeric_limits<uint64_t>::max();
-+    if (m_fdiv.valid)
-+        nextScalar = m_fdiv.readyCycle;
-+    for (const ScalarPipelineEntry &entry : m_efu)
-+        if (entry.valid)
-+            nextScalar = std::min(nextScalar, entry.readyCycle);
-+    m_nextScalarCommit = nextScalar;
-+    uint64_t nextVi = ~0ull;
-+    for (uint32_t slots = m_viWritePending; slots != 0u; slots &= slots - 1u)
-+        nextVi = std::min(nextVi, m_viWritePipeline[std::countr_zero(slots)].readyCycle);
-+    m_compiledNextVi = nextVi;
-+    m_compiledNextEvent = std::min(nextScalar, nextVi);
-+}
 +
 +// The ops of a pair without an I bit or a shadowed register, decoded ahead.
 +__attribute__((always_inline)) inline void VU1Interpreter::execSimpleOps(const void *pairPointer, uint8_t *vuData,
@@ -8969,21 +9632,6 @@ index 0000000..61d5cd9
 +        execUpperOp();
 +}
 +
-+// Keeps the old values of lanes that get a result with none on its way.
-+__attribute__((always_inline)) inline void VU1Interpreter::saveShownValues(const void *pairPointer)
-+{
-+    const CompiledCode::Pair &pair = *static_cast<const CompiledCode::Pair *>(pairPointer);
-+    for (uint32_t slot = 0; slot < pair.shownCount; ++slot)
-+    {
-+        const uint8_t reg = pair.shownReg[slot];
-+        const __m128i componentBits = _mm_set_epi32(8, 4, 2, 1);
-+        const __m128 components = _mm_castsi128_ps(
-+            _mm_cmpeq_epi32(_mm_and_si128(_mm_set1_epi32(pair.shownComponents[slot]), componentBits), componentBits));
-+        float *shown = &m_vfShown[reg * 4u];
-+        _mm_storeu_ps(shown, _mm_blendv_ps(_mm_loadu_ps(shown), _mm_loadu_ps(m_state.vf[reg]), components));
-+    }
-+}
-+
 +// What execCompiledPair does after a control pair: the pc moves on, and a
 +// branch or E bit due takes effect.
 +__attribute__((always_inline)) inline void VU1Interpreter::finishControlPair(bool eBit, bool &programEnded)
@@ -9013,6 +9661,21 @@ index 0000000..61d5cd9
 +        programEnded = true;
 +    else if (eBit)
 +        m_state.ebit = true;
++}
++
++// Keeps the old values of lanes that get a result with none on its way.
++__attribute__((always_inline)) inline void VU1Interpreter::saveShownValues(const void *pairPointer)
++{
++    const CompiledCode::Pair &pair = *static_cast<const CompiledCode::Pair *>(pairPointer);
++    for (uint32_t slot = 0; slot < pair.shownCount; ++slot)
++    {
++        const uint8_t reg = pair.shownReg[slot];
++        const __m128i componentBits = _mm_set_epi32(8, 4, 2, 1);
++        const __m128 components = _mm_castsi128_ps(
++            _mm_cmpeq_epi32(_mm_and_si128(_mm_set1_epi32(pair.shownComponents[slot]), componentBits), componentBits));
++        float *shown = &m_vfShown[reg * 4u];
++        _mm_storeu_ps(shown, _mm_blendv_ps(_mm_loadu_ps(shown), _mm_loadu_ps(m_state.vf[reg]), components));
++    }
 +}
 +
 +// execCompiledPair for the common pairs: simple, not a control pair, and
@@ -9048,302 +9711,60 @@ index 0000000..61d5cd9
 +    vi[0] = 0;
 +}
 +
-+void VU1Interpreter::execCompiledPair(const void *pairPointer, uint8_t *vuData, uint32_t dataSize,
-+                                      GS &gs, PS2Memory *memory, bool &programEnded)
++struct VU1CompiledAccess
 +{
-+    const CompiledCode::Pair &pair = *static_cast<const CompiledCode::Pair *>(pairPointer);
-+    const DecodedInstructionPair &decoded = *pair.decoded;
-+    saveShownValues(pairPointer);
-+    if (pair.control)
-+        m_state.pc = pair.pc;
++    using Code = VU1Interpreter::CompiledCode;
++    using Pair = Code::Pair;
 +
-+    const uint8_t writtenVi = pair.writtenVi;
-+    int32_t *vi = m_state.vi;
-+    const int32_t oldVi = vi[writtenVi];
-+
-+    const VfAccess upperWrite = decoded.upperUsage.vfWrite;
-+    const VfAccess lowerWrite = decoded.lowerUsage.vfWrite;
-+    const bool hasUpperWrite = upperWrite.reg != 0u;
-+    const bool hasLowerWrite = lowerWrite.reg != 0u && decoded.suppressedLowerVf != lowerWrite.reg;
-+    const bool hasDistinctLowerWrite = hasLowerWrite && (!hasUpperWrite || lowerWrite.reg != upperWrite.reg);
-+    alignas(16) float oldUpperVf[4]{};
-+    alignas(16) float oldLowerVf[4]{};
-+    if (pair.keepDeclared)
++    // One pair, as runCompiled's loop runs it. False when the program ended
++    // or a stop was requested, and the interpreter takes over.
++    static __attribute__((always_inline)) inline bool step(VU1Interpreter &vu, const Pair &pair, uint8_t *vuData,
++                                                           uint32_t dataSize, GS &gs, PS2Memory *memory,
++                                                           bool &programEnded)
 +    {
-+        if (hasUpperWrite)
-+            std::memcpy(oldUpperVf, m_state.vf[upperWrite.reg], sizeof(oldUpperVf));
-+        if (hasDistinctLowerWrite)
-+            std::memcpy(oldLowerVf, m_state.vf[lowerWrite.reg], sizeof(oldLowerVf));
-+    }
-+
-+    if (pair.simple)
-+        execSimpleOps(pairPointer, vuData, dataSize, gs, memory);
-+    else if (decoded.iBit)
-+    {
-+        if (!decoded.upperNop)
-+            execUpper(decoded.upper);
-+        float immediate = 0.0f;
-+        std::memcpy(&immediate, &decoded.lower, sizeof(immediate));
-+        m_state.i = normalizeOperand(immediate);
-+    }
-+    else
-+    {
-+        // The lower op reads or writes the register the upper one writes.
-+        float oldVf[4]{};
-+        float upperVf[4]{};
-+        std::memcpy(oldVf, m_state.vf[decoded.upperVfShadowReg], sizeof(oldVf));
-+        execUpper(decoded.upper);
-+        std::memcpy(upperVf, m_state.vf[decoded.upperVfShadowReg], sizeof(upperVf));
-+        std::memcpy(m_state.vf[decoded.upperVfShadowReg], oldVf, sizeof(oldVf));
-+        if (!isLowerNop(decoded.lower))
-+            execLower(decoded.lower, vuData, dataSize, gs, memory, decoded.upper);
-+        std::memcpy(m_state.vf[decoded.upperVfShadowReg], upperVf, sizeof(upperVf));
-+    }
-+
-+    m_viBranchBackupValid = false;
-+    if (pair.keepDeclared)
-+    {
-+        if (hasUpperWrite)
-+            keepDeclaredLanes(m_state.vf[upperWrite.reg], oldUpperVf, upperWrite.lanes);
-+        if (hasDistinctLowerWrite)
-+            keepDeclaredLanes(m_state.vf[lowerWrite.reg], oldLowerVf, lowerWrite.lanes);
-+    }
-+    if (writtenVi != 0u)
-+    {
-+        if (pair.viLatency <= 1u)
-+        {
-+            vi[writtenVi] = static_cast<int16_t>(vi[writtenVi]);
-+            m_viLatestWrite[writtenVi] = ++m_nextWriteSequence;
-+        }
++        vu.m_cycle += pair.stall;
++        if (vu.m_cycle >= vu.m_compiledNextEvent)
++            vu.commitCompiledEvents();
++        if (pair.special && pair.readsFlags)
++            vu.commitFlagsUpTo(vu.m_cycle);
++        if (pair.slow)
++            vu.execCompiledPair(&pair, vuData, dataSize, gs, memory, programEnded);
 +        else
 +        {
-+            const int32_t newVi = vi[writtenVi];
-+            vi[writtenVi] = oldVi;
-+            queueViWrite(writtenVi, newVi, pair.viLatency);
++            if (pair.control)
++                vu.m_state.pc = pair.pc;
++            vu.execFastPair(&pair, vuData, dataSize, gs, memory);
++            if (pair.control)
++                vu.finishControlPair(pair.eBit, programEnded);
 +        }
-+        if (pair.delaysBranchRead)
-+            recordViWriteForBranch(writtenVi, oldVi);
++        if (pair.special)
++        {
++            if (pair.startsXgkick)
++                vu.m_xgkickProgressCycle = vu.m_cycle;
++            if (pair.queuesEvent)
++                vu.m_compiledNextEvent = std::min(vu.m_nextScalarCommit, vu.m_compiledNextVi);
++        }
++        ++vu.m_cycle;
++        if (pair.control && programEnded)
++            return false;
++        // A bad GIFtag stops the unit before the next pair (run() checks
++        // m_stopRequested there), so PATH1 keeps up while it moves.
++        if (vu.m_xgkick.active)
++            vu.catchUpXgkick();
++        return !vu.m_stopRequested;
 +    }
 +
-+    _mm_storeu_ps(m_state.vf[0], _mm_set_ps(1.0f, 0.0f, 0.0f, 0.0f));
-+    vi[0] = 0;
-+
-+    if (pair.control)
-+        finishControlPair(decoded.eBit, programEnded);
-+}
-+
-+bool VU1Interpreter::runCompiled(uint8_t *vuCode, uint32_t codeSize,
-+                                 uint8_t *vuData, uint32_t dataSize,
-+                                 GS &gs, PS2Memory *memory, uint32_t maxCycles)
-+{
-+    if (m_unit != Unit::VU1 || m_state.dBitEnabled || m_state.tBitEnabled || maxCycles == 0u)
-+        return false;
-+    if (codeSize > kVu1PcMask + 1u)
-+        return false;
-+    if (!memory || vuCode != memory->getVU1Code())
-+        return false;
-+    CompiledCode *compiledImage = compiledCodeFor(vuCode, codeSize, memory);
-+    if (!compiledImage)
-+        return false;
-+    CompiledCode &compiled = *compiledImage;
-+    const DecodedInstructionPair *decodedCode = compiled.decoded.data();
-+    m_compiledCodeSize = codeSize;
-+
-+    m_activeVuData = vuData;
-+    m_activeVuDataSize = dataSize;
-+    m_activeGs = &gs;
-+    m_activeMemory = memory;
-+    const int previousRoundingMode = std::fegetround();
-+    const bool useVuRounding = std::fesetround(FE_TOWARDZERO) == 0;
-+    const uint64_t budgetEnd = m_cycle + maxCycles;
-+    m_compiledRun = true;
-+    m_compiledNextVi = ~0ull;
-+    m_compiledNextEvent = m_nextScalarCommit;
-+    m_xgkickProgressCycle = m_cycle;
-+
-+    // The program starts with nothing on its way (execute resets the scheduler).
-+    CompiledCode::Block *block = compiled.find(decodedCode, codeSize, m_state.pc, 0u, false);
-+    bool programEnded = false;
-+    bool outOfBudget = false; // handing off before a pair that can't issue in time
-+    uint32_t handOffTiming = 0;
-+    while (true)
-+    {
-+        if (block->pairs.empty())
-+        {
-+            handOffTiming = block->entryTiming;
-+            break;
-+        }
-+        if (block->pairs.front().startsXgkick && m_xgkick.active)
-+        {
-+            // XGKICK waits for the transfer before it; the wait sets the timing.
-+            catchUpXgkick();
-+            uint32_t waited = 0;
-+            bool outOfCycles = false;
-+            while (m_xgkick.active)
-+            {
-+                if (m_cycle + 1u >= budgetEnd)
-+                {
-+                    outOfCycles = true;
-+                    break;
-+                }
-+                ++m_cycle;
-+                ++waited;
-+                ++m_xgkickProgressCycle;
-+                progressXgkick();
-+            }
-+            if (waited != 0u || outOfCycles)
-+            {
-+                VuTiming timing = compiled.timings[block->entryTiming];
-+                advanceTiming(timing, waited);
-+                const uint32_t timingId = compiled.intern(timing);
-+                if (outOfCycles)
-+                {
-+                    handOffTiming = timingId;
-+                    break;
-+                }
-+                block = compiled.find(decodedCode, codeSize, block->startPc, timingId, block->delaySlot);
-+                continue;
-+            }
-+        }
-+
-+        const uint64_t blockStart = m_cycle;
-+        const bool nearBudget = m_cycle + block->cycles >= budgetEnd;
-+        const size_t count = block->pairs.size();
-+        size_t index = 0;
-+        bool cut = false; // the interpreter takes over before pairs[index]
-+        for (; index < count; ++index)
-+        {
-+            const CompiledCode::Pair &pair = block->pairs[index];
-+            if (nearBudget && m_cycle + pair.stall >= budgetEnd)
-+            {
-+                outOfBudget = true;
-+                cut = true;
-+                break;
-+            }
-+            m_cycle += pair.stall;
-+            if (m_cycle >= m_compiledNextEvent)
-+                commitCompiledEvents();
-+            if (pair.special && pair.readsFlags)
-+                commitFlagsUpTo(m_cycle);
-+            if (!pair.slow)
-+            {
-+                if (pair.control)
-+                    m_state.pc = pair.pc;
-+                execFastPair(&pair, vuData, dataSize, gs, memory);
-+                if (pair.control)
-+                    finishControlPair(pair.eBit, programEnded);
-+            }
-+            else
-+                execCompiledPair(&pair, vuData, dataSize, gs, memory, programEnded);
-+            if (pair.special)
-+            {
-+                if (pair.startsXgkick)
-+                    m_xgkickProgressCycle = m_cycle;
-+                if (pair.queuesEvent)
-+                    m_compiledNextEvent = std::min(m_nextScalarCommit, m_compiledNextVi);
-+            }
-+            ++m_cycle;
-+            if (programEnded)
-+            {
-+                m_vfLandBy = std::max<uint64_t>(m_vfLandBy, blockStart + pair.vfLandBy);
-+                break;
-+            }
-+            // A bad GIFtag stops the unit before the next pair (run() checks
-+            // m_stopRequested there), so PATH1 keeps up while it moves.
-+            if (m_xgkick.active)
-+                catchUpXgkick();
-+            if (m_stopRequested)
-+            {
-+                ++index;
-+                cut = true;
-+                break;
-+            }
-+        }
-+        if (programEnded)
-+            break;
-+        if (cut)
-+        {
-+            if (index != 0u)
-+            {
-+                const CompiledCode::Pair &previous = block->pairs[index - 1u];
-+                m_vfLandBy = std::max<uint64_t>(m_vfLandBy, blockStart + previous.vfLandBy);
-+                if (!previous.control)
-+                    m_state.pc = index < count ? block->pairs[index].pc : block->endPc;
-+            }
-+            handOffTiming = compiled.timingAfter(*block, index);
-+            break;
-+        }
-+        const CompiledCode::Pair &last = block->pairs.back();
-+        m_vfLandBy = std::max<uint64_t>(m_vfLandBy, blockStart + last.vfLandBy);
-+        if (!last.control)
-+            m_state.pc = block->endPc;
-+        if (block->exit == CompiledCode::Exit::Unsupported)
-+        {
-+            handOffTiming = block->exitTiming;
-+            break;
-+        }
-+
-+        // Only a block cut short before an XGKICK can end with a branch or
-+        // E bit pending; the next one is then its delay slot.
-+        const bool pending = m_state.branchPending || m_state.ebit;
-+        const uint32_t pc = m_state.pc | (pending ? 0x10000u : 0u);
-+        if (block->nextPc[0] == pc)
-+            block = block->next[0];
-+        else if (block->nextPc[1] == pc)
-+            block = block->next[1];
-+        else
-+        {
-+            CompiledCode::Block *next = compiled.find(decodedCode, codeSize, m_state.pc, block->exitTiming, pending);
-+            const uint32_t slot = block->nextPc[0] == ~0u ? 0u : 1u;
-+            block->nextPc[slot] = pc;
-+            block->next[slot] = next;
-+            block = next;
-+        }
-+    }
-+
-+    // As run() would have them at this cycle boundary.
-+    commitCompiledEvents();
-+    commitFlagsUpTo(m_cycle);
-+    catchUpXgkick();
-+    m_compiledRun = false;
-+    if (programEnded)
-+    {
-+        flushPipelines();
-+        m_state.ebit = false;
-+        m_state.haltAfterDelaySlot = false;
-+        m_pendingHaltD = false;
-+        m_pendingHaltT = false;
-+        m_state.cycles = m_cycle;
-+        if (useVuRounding && previousRoundingMode != -1)
-+            std::fesetround(previousRoundingMode);
-+        return true;
-+    }
-+
-+    // The interpreter takes over here, with the timing it would have had.
-+    const VuTiming &timing = compiled.timings[handOffTiming];
-+    for (uint32_t lane = 0; lane < 128u; ++lane)
-+        m_vfReady[lane] = m_cycle + timing.vf[lane];
-+    for (uint32_t reg = 0; reg < 16u; ++reg)
-+        m_viReady[reg] = m_cycle + timing.vi[reg];
-+    m_state.cycles = m_cycle;
-+    // A stop raised while the next pair stalled doesn't skip it in run(),
-+    // but this one can't issue before the budget runs out anyway.
-+    if (m_stopRequested && outOfBudget)
-+        advanceTo(budgetEnd);
-+    if (useVuRounding && previousRoundingMode != -1)
-+        std::fesetround(previousRoundingMode);
-+    run(vuCode, codeSize, vuData, dataSize, gs, memory, static_cast<uint32_t>(budgetEnd - m_cycle));
-+    return true;
-+}
-+
-+#else
-+
-+bool VU1Interpreter::runCompiled(uint8_t *, uint32_t, uint8_t *, uint32_t, GS &, PS2Memory *, uint32_t)
-+{
-+    return false;
-+}
-+
-+#endif
++    // Compiles the blocks a block list names from whichever of images holds
++    // each one (the same pairs at the same pcs), and writes them as C++ across
++    // shards; the first shard also registers them (registerGeneratedBlocks).
++    // A listed block no image holds is left to the executor. Returns how many
++    // listed blocks were written; listed is how many the list named.
++    static size_t generate(const std::vector<std::vector<uint8_t>> &images, std::FILE *list,
++                           const std::vector<std::FILE *> &shards, size_t &listed);
++    // How many of the blocks compiled for the code image vu last ran have
++    // generated code.
++    static size_t generatedBlocks(const VU1Interpreter &vu);
++};
 diff --git a/ps2xRuntime/src/lib/vu/ps2_vu1_core.cpp b/ps2xRuntime/src/lib/vu/ps2_vu1_core.cpp
 index bd75bba..446fd5d 100644
 --- a/ps2xRuntime/src/lib/vu/ps2_vu1_core.cpp
@@ -11255,6 +11676,410 @@ index 563bcbd..e00fe45 100644
          runtime.run();
  
  #ifdef _DEBUG
+diff --git a/ps2xRuntime/src/tools/vu1_blockgen.cpp b/ps2xRuntime/src/tools/vu1_blockgen.cpp
+new file mode 100644
+index 0000000..c79579a
+--- /dev/null
++++ b/ps2xRuntime/src/tools/vu1_blockgen.cpp
+@@ -0,0 +1,164 @@
++// Generates C++ for the VU1 blocks a block list names, from the VU1 programs
++// in the game's ELF, so the runtime can run them as straight-line code instead
++// of stepping through the executor's pair list.
++//
++// usage: ps2_vu1_blockgen ELF BLOCK_LIST OUT_PREFIX SHARDS [SECTION...]
++//
++// The block list comes from playing the game with PS2X_VU1_BLOCK_LIST set and
++// holds only numbers; the VU1 code comes from the ELF at build time, so the
++// generated files are build output and never belong in a repository. The VU1
++// programs are the VIF MPG packets in SECTION (default .vutext): each run of
++// packets that starts at address 0 is taken as one program image. Blocks no
++// image holds are left to the executor.
++
++#include "runtime/ps2_memory.h"
++#include "runtime/ps2_vu1.h"
++#include "vu/ps2_vu1_compiled.h"
++
++#include <cstdint>
++#include <cstdio>
++#include <cstdlib>
++#include <cstring>
++#include <fstream>
++#include <iterator>
++#include <string>
++#include <vector>
++
++namespace
++{
++    uint32_t read32(const std::vector<uint8_t> &bytes, size_t offset)
++    {
++        uint32_t value = 0;
++        if (offset + 4u <= bytes.size())
++            std::memcpy(&value, bytes.data() + offset, 4);
++        return value;
++    }
++
++    uint16_t read16(const std::vector<uint8_t> &bytes, size_t offset)
++    {
++        uint16_t value = 0;
++        if (offset + 2u <= bytes.size())
++            std::memcpy(&value, bytes.data() + offset, 2);
++        return value;
++    }
++
++    struct Section
++    {
++        uint32_t address = 0;
++        uint32_t offset = 0;
++        uint32_t size = 0;
++    };
++
++    // The sections of a little-endian ELF32 with one of the given names.
++    bool findSections(const std::vector<uint8_t> &elf, const std::vector<std::string> &names,
++                      std::vector<Section> &sections)
++    {
++        if (elf.size() < 0x34u || std::memcmp(elf.data(), "\x7F" "ELF", 4) != 0 || elf[4] != 1u || elf[5] != 1u)
++            return false;
++        const uint32_t headers = read32(elf, 0x20);
++        const uint16_t headerSize = read16(elf, 0x2E);
++        const uint16_t count = read16(elf, 0x30);
++        const uint16_t namesIndex = read16(elf, 0x32);
++        if (headerSize < 0x28u || namesIndex >= count ||
++            static_cast<uint64_t>(headers) + static_cast<uint64_t>(count) * headerSize > elf.size())
++            return false;
++        const uint32_t namesOffset = read32(elf, headers + namesIndex * headerSize + 0x10);
++        for (uint16_t i = 0; i < count; ++i)
++        {
++            const size_t header = headers + static_cast<size_t>(i) * headerSize;
++            const uint32_t nameOffset = namesOffset + read32(elf, header);
++            if (nameOffset >= elf.size())
++                continue;
++            const char *name = reinterpret_cast<const char *>(elf.data() + nameOffset);
++            const size_t nameLength = strnlen(name, elf.size() - nameOffset);
++            const Section section{read32(elf, header + 0x0C), read32(elf, header + 0x10), read32(elf, header + 0x14)};
++            const bool hasBits = read32(elf, header + 0x04) != 8u; // not SHT_NOBITS
++            for (const std::string &wanted : names)
++            {
++                if (hasBits && wanted.size() == nameLength && wanted.compare(0, nameLength, name, nameLength) == 0 &&
++                    static_cast<uint64_t>(section.offset) + section.size <= elf.size())
++                    sections.push_back(section);
++            }
++        }
++        return true;
++    }
++
++    // VU1 program images from the VIF MPG packets in a section. An MPG code
++    // is followed by its pairs from the next 64-bit boundary.
++    void addImages(const std::vector<uint8_t> &elf, const Section &section, std::vector<std::vector<uint8_t>> &images)
++    {
++        std::vector<uint8_t> *image = nullptr;
++        for (uint32_t offset = 0; offset + 4u <= section.size; offset += 4u)
++        {
++            const uint32_t code = read32(elf, section.offset + offset);
++            if (((code >> 24) & 0x7Fu) != 0x4Au)
++                continue;
++            const uint32_t pairs = ((code >> 16) & 0xFFu) != 0u ? (code >> 16) & 0xFFu : 256u;
++            const uint32_t address = (code & 0xFFFFu) * 8u;
++            uint32_t data = offset + 4u;
++            if (((section.address + data) & 7u) != 0u)
++                data += 4u;
++            if (static_cast<uint64_t>(data) + pairs * 8u > section.size || address + pairs * 8u > PS2_VU1_CODE_SIZE)
++                continue;
++            if (address == 0u || !image)
++            {
++                images.emplace_back(PS2_VU1_CODE_SIZE, 0u);
++                image = &images.back();
++            }
++            std::memcpy(image->data() + address, elf.data() + section.offset + data, pairs * 8u);
++        }
++    }
++}
++
++int main(int argc, char **argv)
++{
++    if (argc < 5)
++    {
++        std::fprintf(stderr, "usage: %s ELF BLOCK_LIST OUT_PREFIX SHARDS [SECTION...]\n", argv[0]);
++        return 2;
++    }
++    std::ifstream elfFile(argv[1], std::ios::binary);
++    const std::vector<uint8_t> elf((std::istreambuf_iterator<char>(elfFile)), std::istreambuf_iterator<char>());
++    std::vector<std::string> names;
++    for (int i = 5; i < argc; ++i)
++        names.emplace_back(argv[i]);
++    if (names.empty())
++        names.emplace_back(".vutext");
++    std::vector<Section> sections;
++    if (!findSections(elf, names, sections))
++    {
++        std::fprintf(stderr, "%s: not a little-endian ELF32 file\n", argv[1]);
++        return 1;
++    }
++    std::vector<std::vector<uint8_t>> images;
++    for (const Section &section : sections)
++        addImages(elf, section, images);
++
++    std::FILE *list = std::fopen(argv[2], "r");
++    if (!list)
++    {
++        std::fprintf(stderr, "can't read %s\n", argv[2]);
++        return 1;
++    }
++    const int shardCount = std::atoi(argv[4]);
++    if (shardCount < 1)
++        return 2;
++    std::vector<std::FILE *> shards;
++    for (int i = 0; i < shardCount; ++i)
++    {
++        const std::string path = std::string(argv[3]) + std::to_string(i) + ".cpp";
++        shards.push_back(std::fopen(path.c_str(), "w"));
++        if (!shards.back())
++        {
++            std::fprintf(stderr, "can't write %s\n", path.c_str());
++            return 1;
++        }
++    }
++    size_t listed = 0;
++    const size_t written = VU1CompiledAccess::generate(images, list, shards, listed);
++    std::fclose(list);
++    for (std::FILE *shard : shards)
++        std::fclose(shard);
++    std::printf("VU1 blocks: %zu program images, %zu of %zu listed blocks generated\n", images.size(), written, listed);
++    return 0;
++}
+diff --git a/ps2xTest/CMakeLists.txt b/ps2xTest/CMakeLists.txt
+index 3eaa8b3..66d58c7 100644
+--- a/ps2xTest/CMakeLists.txt
++++ b/ps2xTest/CMakeLists.txt
+@@ -64,6 +64,31 @@ add_executable(ps2x_tests
+     $<TARGET_OBJECTS:ps2_test_function_table>
+ )
+ 
++# Code generated for the blocks of the first VU1 fuzz programs, so the VU1
++# tests also run them through generated blocks.
++add_executable(ps2x_vu1_test_blocks src/vu1_test_blocks.cpp)
++target_include_directories(ps2x_vu1_test_blocks PRIVATE
++    ${CMAKE_CURRENT_SOURCE_DIR}/include
++    ${CMAKE_SOURCE_DIR}/ps2xRuntime/include
++    ${CMAKE_SOURCE_DIR}/ps2xRuntime/src/lib
++)
++target_link_libraries(ps2x_vu1_test_blocks PRIVATE ps2_runtime)
++set(PS2X_TEST_VU1_BLOCK_DIR "${CMAKE_CURRENT_BINARY_DIR}/vu1_test_blocks")
++set(PS2X_TEST_VU1_BLOCKS
++    "${PS2X_TEST_VU1_BLOCK_DIR}/vu1_blocks_0.cpp"
++    "${PS2X_TEST_VU1_BLOCK_DIR}/vu1_blocks_1.cpp"
++)
++add_custom_command(
++    OUTPUT ${PS2X_TEST_VU1_BLOCKS}
++    COMMAND ${CMAKE_COMMAND} -E make_directory "${PS2X_TEST_VU1_BLOCK_DIR}"
++    COMMAND ps2x_vu1_test_blocks "${PS2X_TEST_VU1_BLOCK_DIR}/vu1_blocks_" 2
++    DEPENDS ps2x_vu1_test_blocks
++    COMMENT "Generating VU1 block code for the tests"
++    VERBATIM)
++target_sources(ps2x_tests PRIVATE ${PS2X_TEST_VU1_BLOCKS})
++set_source_files_properties(${PS2X_TEST_VU1_BLOCKS} PROPERTIES
++    INCLUDE_DIRECTORIES "${CMAKE_SOURCE_DIR}/ps2xRuntime/src/lib")
++
+ option(PRINT_GENERATED_CODE "Print generated code in tests" OFF)
+ if(PRINT_GENERATED_CODE)
+ 
+diff --git a/ps2xTest/include/vu1_fuzzer.h b/ps2xTest/include/vu1_fuzzer.h
+new file mode 100644
+index 0000000..75b971f
+--- /dev/null
++++ b/ps2xTest/include/vu1_fuzzer.h
+@@ -0,0 +1,192 @@
++// Random short VU1 programs on random states, for comparing compiled blocks
++// with the interpreter. Shared by the VU1 tests and the tool that generates
++// block code for them (vu1_test_blocks.cpp), which must run the same programs.
++#pragma once
++
++#include "runtime/gs/gs_frontend.h"
++#include "runtime/ps2_memory.h"
++#include "runtime/ps2_vu1.h"
++
++#include <cstdint>
++#include <cstring>
++
++namespace vu1fuzz
++{
++    struct VuFuzzer
++    {
++        uint64_t state = 0;
++
++        uint64_t next()
++        {
++            uint64_t z = (state += 0x9E3779B97F4A7C15ull);
++            z = (z ^ (z >> 30)) * 0xBF58476D1CE4E5B9ull;
++            z = (z ^ (z >> 27)) * 0x94D049BB133111EBull;
++            return z ^ (z >> 31);
++        }
++
++        uint32_t below(uint32_t n) { return static_cast<uint32_t>(next() % n); }
++
++        // Weighted towards the values whose flags or rounding are special.
++        uint32_t floatBits()
++        {
++            const uint32_t sign = below(2) << 31;
++            switch (below(14))
++            {
++            case 0: return sign;
++            case 1: return 0x7F800000u | sign;                         // infinity
++            case 2: return 0x7FC00000u | below(0x400000u) | sign;      // NaN
++            case 3: return below(0x800000u) | sign;                    // denormal
++            case 4: return (0x7F7FFFFFu - below(4u)) | sign;           // near FLT_MAX
++            case 5: return (0x00800000u + below(4u)) | sign;           // near FLT_MIN
++            case 6: return ((1u + below(30u)) << 23 | below(0x800000u)) | sign;
++            case 7: return ((225u + below(29u)) << 23 | below(0x800000u)) | sign;
++            case 8: return static_cast<uint32_t>(next());
++            case 9: return static_cast<uint32_t>(static_cast<int32_t>(below(200000u)) - 100000); // for ITOF
++            default:
++            {
++                const float value = (static_cast<float>(next() % 2000001u) - 1000000.0f) / 997.0f;
++                uint32_t bits = 0;
++                std::memcpy(&bits, &value, sizeof(bits));
++                return bits;
++            }
++            }
++        }
++
++        // No I, E, M, D or T bit.
++        uint32_t upper()
++        {
++            const uint32_t fields = (below(16u) << 21) | (below(32u) << 16) | (below(32u) << 11) | (below(32u) << 6);
++            if (below(8u) == 0u)
++                return 0x000002FFu; // NOP
++            if (below(3u) == 0u)
++            {
++                uint32_t special = below(0x31u);
++                if (special == 0x2Bu)
++                    special = 0x1Fu;
++                return (fields & ~0x7C0u) | 0x3Cu | (special & 3u) | ((special >> 2) << 6);
++            }
++            return fields | below(0x30u);
++        }
++
++        uint32_t lower()
++        {
++            const uint32_t fields = static_cast<uint32_t>(next()) & 0x01FFFFFFu;
++            const uint32_t kind = below(20u);
++            if (kind == 0u)
++                return 0x8000033Cu;
++            if (kind < 8u)
++            {
++                // Loads, stores, IADDIU/ISUBIU and the flag ops.
++                static constexpr uint8_t ops[] = {0x00, 0x01, 0x04, 0x05, 0x08, 0x09, 0x10, 0x11, 0x12, 0x13, 0x14, 0x15,
++                                                  0x16, 0x17, 0x18, 0x1A, 0x1B, 0x1C, 0x00, 0x01, 0x08, 0x09, 0x08};
++                return (static_cast<uint32_t>(ops[below(sizeof(ops))]) << 25) | fields;
++            }
++            if (kind == 8u)
++            {
++                // Short branches, forward or back.
++                static constexpr uint8_t ops[] = {0x20, 0x21, 0x28, 0x29, 0x2C, 0x2D, 0x2E, 0x2F};
++                const uint32_t offset = static_cast<uint32_t>(static_cast<int32_t>(below(9u)) - 3) & 0x7FFu;
++                return (static_cast<uint32_t>(ops[below(sizeof(ops))]) << 25) | (fields & 0x01FFF800u) | offset;
++            }
++            if (kind < 13u)
++            {
++                static constexpr uint8_t functs[] = {0x30, 0x31, 0x32, 0x34, 0x35};
++                return 0x80000000u | (fields & ~0x3Fu) | functs[below(sizeof(functs))];
++            }
++            // Moves, Q, P, R and VI ops, and XGKICK (0x6C) three times as often.
++            static constexpr uint8_t specials[] = {0x30, 0x31, 0x34, 0x35, 0x36, 0x37, 0x38, 0x39, 0x3A, 0x3B, 0x3C,
++                                                   0x3D, 0x3E, 0x3F, 0x40, 0x41, 0x42, 0x43, 0x64, 0x68, 0x69, 0x70,
++                                                   0x71, 0x72, 0x73, 0x74, 0x75, 0x76, 0x77, 0x78, 0x79, 0x7A, 0x7B,
++                                                   0x7C, 0x7D, 0x30, 0x31, 0x3C, 0x3D, 0x6C, 0x6C, 0x6C};
++            const uint32_t special = specials[below(sizeof(specials))];
++            return 0x80000000u | (fields & ~0x7FFu) | 0x3Cu | (special & 3u) | ((special >> 2) << 6);
++        }
++
++        // A program ending in an E bit, VU memory with GIF tags where small VI
++        // values point when gifTags is set, and random registers.
++        void setUp(PS2Memory &mem, uint8_t *code, uint8_t *data, VU1State &vu, bool gifTags)
++        {
++            std::memset(code, 0, PS2_VU1_CODE_SIZE);
++            const uint32_t pairs = 4u + below(28u);
++            for (uint32_t pair = 0; pair < pairs; ++pair)
++            {
++                uint32_t up = upper();
++                uint32_t low = lower();
++                if (below(24u) == 0u)
++                {
++                    up |= 0x80000000u; // I bit: the lower word is a float
++                    low = floatBits();
++                }
++                if (pair == pairs - 1u)
++                    up |= 0x40000000u;
++                std::memcpy(code + pair * 8u, &low, sizeof(low));
++                std::memcpy(code + pair * 8u + 4u, &up, sizeof(up));
++            }
++            mem.markVU1CodeModified();
++            for (uint32_t offset = 0; offset < PS2_VU1_DATA_SIZE; offset += 4u)
++            {
++                const uint32_t value = below(4u) == 0u ? floatBits() : static_cast<uint32_t>(next());
++                std::memcpy(data + offset, &value, sizeof(value));
++            }
++            if (gifTags)
++            {
++                for (uint32_t qword = 0; qword < 64u; ++qword)
++                {
++                    if (below(3u) == 0u)
++                        continue;
++                    const uint64_t nloop = 1u + below(6u);
++                    const uint64_t eop = below(3u) == 0u ? 1u : 0u;
++                    const uint64_t format = below(4u) == 0u ? 2u : 0u;
++                    const uint64_t nreg = 1u + below(3u);
++                    const uint64_t tag = nloop | (eop << 15) | (format << 58) | (nreg << 60);
++                    std::memcpy(data + qword * 16u, &tag, sizeof(tag));
++                }
++            }
++            for (uint32_t reg = 1; reg < 32u; ++reg)
++            {
++                for (uint32_t component = 0; component < 4u; ++component)
++                {
++                    const uint32_t bits = floatBits();
++                    std::memcpy(&vu.vf[reg][component], &bits, sizeof(bits));
++                }
++            }
++            for (uint32_t reg = 1; reg < 16u; ++reg)
++                vu.vi[reg] = static_cast<int16_t>(below(4u) == 0u ? static_cast<int32_t>(next())
++                                                                   : static_cast<int32_t>(below(64u)) - 8);
++            for (uint32_t component = 0; component < 4u; ++component)
++            {
++                const uint32_t bits = floatBits();
++                std::memcpy(&vu.acc[component], &bits, sizeof(bits));
++            }
++            uint32_t bits = floatBits();
++            std::memcpy(&vu.q, &bits, sizeof(bits));
++            bits = floatBits();
++            std::memcpy(&vu.i, &bits, sizeof(bits));
++            bits = floatBits();
++            std::memcpy(&vu.p, &bits, sizeof(bits));
++            vu.r = static_cast<uint32_t>(next());
++            vu.mac = below(2u) ? 0u : static_cast<uint32_t>(next()) & 0xFFFFu;
++            vu.status = below(2u) ? 0u : static_cast<uint32_t>(next()) & 0xFFFu;
++            vu.clip = below(2u) ? 0u : static_cast<uint32_t>(next()) & 0xFFFFFFu;
++        }
++    };
++
++    inline constexpr uint32_t kPrograms = 3000;
++    // The first programs, whose blocks the test build generates code for.
++    inline constexpr uint32_t kGeneratedPrograms = 100;
++
++    // Runs one program: small budgets stop some part way, and they resume.
++    inline void runProgram(VU1Interpreter &vu, PS2Memory &mem, GS &gs, uint8_t *code, uint8_t *data, uint32_t program)
++    {
++        VuFuzzer fuzzer{0x5EEDull * 0x1000003ull + program};
++        // Most get valid GIF tags; the rest send random data, which is mostly
++        // bad tags that stop the program.
++        fuzzer.setUp(mem, code, data, vu.state(), (program & 3u) != 0u);
++        const uint32_t budget = fuzzer.below(3u) == 0u ? 3u + fuzzer.below(40u) : 4000u;
++        const uint64_t startCycle = vu.state().cycles;
++        vu.execute(code, PS2_VU1_CODE_SIZE, data, PS2_VU1_DATA_SIZE, gs, &mem, 0u, 0x100u, 0x200u, budget);
++        for (uint32_t again = 0; again < 3u && !vu.state().ebit && vu.state().cycles - startCycle < 4000u; ++again)
++            vu.resume(code, PS2_VU1_CODE_SIZE, data, PS2_VU1_DATA_SIZE, gs, &mem, 0x100u, 0x200u,
++                      3u + fuzzer.below(400u));
++    }
++}
 diff --git a/ps2xTest/src/code_generator_tests.cpp b/ps2xTest/src/code_generator_tests.cpp
 index 463b6cf..f87bb4b 100644
 --- a/ps2xTest/src/code_generator_tests.cpp
@@ -12416,11 +13241,17 @@ index 7242e65..2d194d0 100644
              t.IsTrue(cyclesBeforeInit != 0u, "IOP cycle counter should advance before RPC initialization");
  
 diff --git a/ps2xTest/src/ps2_vu1_tests.cpp b/ps2xTest/src/ps2_vu1_tests.cpp
-index 0754b69..a49e98a 100644
+index 0754b69..c49fc25 100644
 --- a/ps2xTest/src/ps2_vu1_tests.cpp
 +++ b/ps2xTest/src/ps2_vu1_tests.cpp
-@@ -6,9 +6,11 @@
+@@ -4,11 +4,17 @@
+ #include "runtime/gs/ps2_gs_psmct32.h"
+ #include "runtime/ps2_memory.h"
  #include "runtime/ps2_vu1.h"
++#include "vu1_fuzzer.h"
++#if defined(__SSE4_1__)
++#include "vu/ps2_vu1_compiled.h"
++#endif
  
  #include <cmath>
 +#include <cstddef>
@@ -12431,170 +13262,11 @@ index 0754b69..a49e98a 100644
  #include <vector>
  
  namespace
-@@ -211,6 +213,174 @@ namespace
+@@ -211,6 +217,15 @@ namespace
      {
          std::memcpy(values, data + qwordIndex * 16u, sizeof(float) * 4u);
      }
 +
-+    // Random short VU1 programs on random states, for comparing compiled
-+    // blocks with the interpreter.
-+    struct VuFuzzer
-+    {
-+        uint64_t state = 0;
-+
-+        uint64_t next()
-+        {
-+            uint64_t z = (state += 0x9E3779B97F4A7C15ull);
-+            z = (z ^ (z >> 30)) * 0xBF58476D1CE4E5B9ull;
-+            z = (z ^ (z >> 27)) * 0x94D049BB133111EBull;
-+            return z ^ (z >> 31);
-+        }
-+
-+        uint32_t below(uint32_t n) { return static_cast<uint32_t>(next() % n); }
-+
-+        // Weighted towards the values whose flags or rounding are special.
-+        uint32_t floatBits()
-+        {
-+            const uint32_t sign = below(2) << 31;
-+            switch (below(14))
-+            {
-+            case 0: return sign;
-+            case 1: return 0x7F800000u | sign;                         // infinity
-+            case 2: return 0x7FC00000u | below(0x400000u) | sign;      // NaN
-+            case 3: return below(0x800000u) | sign;                    // denormal
-+            case 4: return (0x7F7FFFFFu - below(4u)) | sign;           // near FLT_MAX
-+            case 5: return (0x00800000u + below(4u)) | sign;           // near FLT_MIN
-+            case 6: return ((1u + below(30u)) << 23 | below(0x800000u)) | sign;
-+            case 7: return ((225u + below(29u)) << 23 | below(0x800000u)) | sign;
-+            case 8: return static_cast<uint32_t>(next());
-+            case 9: return static_cast<uint32_t>(static_cast<int32_t>(below(200000u)) - 100000); // for ITOF
-+            default:
-+            {
-+                const float value = (static_cast<float>(next() % 2000001u) - 1000000.0f) / 997.0f;
-+                uint32_t bits = 0;
-+                std::memcpy(&bits, &value, sizeof(bits));
-+                return bits;
-+            }
-+            }
-+        }
-+
-+        // No I, E, M, D or T bit.
-+        uint32_t upper()
-+        {
-+            const uint32_t fields = (below(16u) << 21) | (below(32u) << 16) | (below(32u) << 11) | (below(32u) << 6);
-+            if (below(8u) == 0u)
-+                return kVuUpperNop;
-+            if (below(3u) == 0u)
-+            {
-+                uint32_t special = below(0x31u);
-+                if (special == 0x2Bu)
-+                    special = 0x1Fu;
-+                return (fields & ~0x7C0u) | 0x3Cu | (special & 3u) | ((special >> 2) << 6);
-+            }
-+            return fields | below(0x30u);
-+        }
-+
-+        uint32_t lower()
-+        {
-+            const uint32_t fields = static_cast<uint32_t>(next()) & 0x01FFFFFFu;
-+            const uint32_t kind = below(20u);
-+            if (kind == 0u)
-+                return 0x8000033Cu;
-+            if (kind < 8u)
-+            {
-+                // Loads, stores, IADDIU/ISUBIU and the flag ops.
-+                static constexpr uint8_t ops[] = {0x00, 0x01, 0x04, 0x05, 0x08, 0x09, 0x10, 0x11, 0x12, 0x13, 0x14, 0x15,
-+                                                  0x16, 0x17, 0x18, 0x1A, 0x1B, 0x1C, 0x00, 0x01, 0x08, 0x09, 0x08};
-+                return (static_cast<uint32_t>(ops[below(sizeof(ops))]) << 25) | fields;
-+            }
-+            if (kind == 8u)
-+            {
-+                // Short branches, forward or back.
-+                static constexpr uint8_t ops[] = {0x20, 0x21, 0x28, 0x29, 0x2C, 0x2D, 0x2E, 0x2F};
-+                const uint32_t offset = static_cast<uint32_t>(static_cast<int32_t>(below(9u)) - 3) & 0x7FFu;
-+                return (static_cast<uint32_t>(ops[below(sizeof(ops))]) << 25) | (fields & 0x01FFF800u) | offset;
-+            }
-+            if (kind < 13u)
-+            {
-+                static constexpr uint8_t functs[] = {0x30, 0x31, 0x32, 0x34, 0x35};
-+                return 0x80000000u | (fields & ~0x3Fu) | functs[below(sizeof(functs))];
-+            }
-+            // Moves, Q, P, R and VI ops, and XGKICK (0x6C) three times as often.
-+            static constexpr uint8_t specials[] = {0x30, 0x31, 0x34, 0x35, 0x36, 0x37, 0x38, 0x39, 0x3A, 0x3B, 0x3C,
-+                                                   0x3D, 0x3E, 0x3F, 0x40, 0x41, 0x42, 0x43, 0x64, 0x68, 0x69, 0x70,
-+                                                   0x71, 0x72, 0x73, 0x74, 0x75, 0x76, 0x77, 0x78, 0x79, 0x7A, 0x7B,
-+                                                   0x7C, 0x7D, 0x30, 0x31, 0x3C, 0x3D, 0x6C, 0x6C, 0x6C};
-+            const uint32_t special = specials[below(sizeof(specials))];
-+            return 0x80000000u | (fields & ~0x7FFu) | 0x3Cu | (special & 3u) | ((special >> 2) << 6);
-+        }
-+
-+        // A program ending in an E bit, VU memory with GIF tags where small VI
-+        // values point when gifTags is set, and random registers.
-+        void setUp(Vu1Fixture &fx, VU1State &vu, bool gifTags)
-+        {
-+            std::memset(fx.code, 0, PS2_VU1_CODE_SIZE);
-+            const uint32_t pairs = 4u + below(28u);
-+            for (uint32_t pair = 0; pair < pairs; ++pair)
-+            {
-+                uint32_t up = upper();
-+                uint32_t low = lower();
-+                if (below(24u) == 0u)
-+                {
-+                    up |= 0x80000000u; // I bit: the lower word is a float
-+                    low = floatBits();
-+                }
-+                if (pair == pairs - 1u)
-+                    up |= 0x40000000u;
-+                writeVuInstructionPair(fx.code, pair * 8u, low, up);
-+            }
-+            fx.mem.markVU1CodeModified();
-+            for (uint32_t offset = 0; offset < PS2_VU1_DATA_SIZE; offset += 4u)
-+            {
-+                const uint32_t value = below(4u) == 0u ? floatBits() : static_cast<uint32_t>(next());
-+                std::memcpy(fx.data + offset, &value, sizeof(value));
-+            }
-+            if (gifTags)
-+            {
-+                for (uint32_t qword = 0; qword < 64u; ++qword)
-+                {
-+                    if (below(3u) == 0u)
-+                        continue;
-+                    const uint64_t nloop = 1u + below(6u);
-+                    const uint64_t eop = below(3u) == 0u ? 1u : 0u;
-+                    const uint64_t format = below(4u) == 0u ? 2u : 0u;
-+                    const uint64_t nreg = 1u + below(3u);
-+                    const uint64_t tag = nloop | (eop << 15) | (format << 58) | (nreg << 60);
-+                    std::memcpy(fx.data + qword * 16u, &tag, sizeof(tag));
-+                }
-+            }
-+            for (uint32_t reg = 1; reg < 32u; ++reg)
-+            {
-+                for (uint32_t component = 0; component < 4u; ++component)
-+                {
-+                    const uint32_t bits = floatBits();
-+                    std::memcpy(&vu.vf[reg][component], &bits, sizeof(bits));
-+                }
-+            }
-+            for (uint32_t reg = 1; reg < 16u; ++reg)
-+                vu.vi[reg] = static_cast<int16_t>(below(4u) == 0u ? static_cast<int32_t>(next())
-+                                                                   : static_cast<int32_t>(below(64u)) - 8);
-+            for (uint32_t component = 0; component < 4u; ++component)
-+            {
-+                const uint32_t bits = floatBits();
-+                std::memcpy(&vu.acc[component], &bits, sizeof(bits));
-+            }
-+            uint32_t bits = floatBits();
-+            std::memcpy(&vu.q, &bits, sizeof(bits));
-+            bits = floatBits();
-+            std::memcpy(&vu.i, &bits, sizeof(bits));
-+            bits = floatBits();
-+            std::memcpy(&vu.p, &bits, sizeof(bits));
-+            vu.r = static_cast<uint32_t>(next());
-+            vu.mac = below(2u) ? 0u : static_cast<uint32_t>(next()) & 0xFFFFu;
-+            vu.status = below(2u) ? 0u : static_cast<uint32_t>(next()) & 0xFFFu;
-+            vu.clip = below(2u) ? 0u : static_cast<uint32_t>(next()) & 0xFFFFFFu;
-+        }
-+    };
 +
 +    uint64_t fnv1a(uint64_t hash, const void *bytes, size_t size)
 +    {
@@ -12606,7 +13278,7 @@ index 0754b69..a49e98a 100644
  }
  
  void register_ps2_vu1_tests()
-@@ -250,6 +420,31 @@ void register_ps2_vu1_tests()
+@@ -250,6 +265,31 @@ void register_ps2_vu1_tests()
              t.Equals(vu1.state().vf[3][3], -4.0f, "ADD.xz should preserve w");
          });
  
@@ -12638,7 +13310,7 @@ index 0754b69..a49e98a 100644
          tc.Run("LOI commits the lower immediate after the upper instruction", [](TestCase &t)
          {
              Vu1Fixture fx;
-@@ -1712,5 +1907,63 @@ void register_ps2_vu1_tests()
+@@ -1712,5 +1752,59 @@ void register_ps2_vu1_tests()
              t.Equals(vu1.state().vi[1], 0,
                       "instruction following a reserved opcode must not execute");
          });
@@ -12660,7 +13332,10 @@ index 0754b69..a49e98a 100644
 +            VU1Interpreter compiled;
 +            compiled.setCompiledEnabled(true);
 +            constexpr size_t kStateBytes = offsetof(VU1State, branchDelay) + sizeof(uint32_t);
-+            constexpr uint32_t kPrograms = 3000;
++            constexpr uint32_t kPrograms = vu1fuzz::kPrograms;
++            // ps2x_tests links code generated for the first programs' blocks
++            // (vu1_test_blocks.cpp), which the compiled runs then use.
++            size_t generatedBlocks = 0;
 +            uint32_t differing = 0;
 +            uint32_t firstDiffering = kPrograms;
 +            for (uint32_t program = 0; program < kPrograms; ++program)
@@ -12669,23 +13344,12 @@ index 0754b69..a49e98a 100644
 +                for (uint32_t run = 0; run < 2u; ++run)
 +                {
 +                    VU1Interpreter &vu = run == 0u ? interpreted : compiled;
-+                    VuFuzzer fuzzer{0x5EEDull * 0x1000003ull + program};
-+                    // Most get valid GIF tags; the rest send random data, which is mostly
-+                    // bad tags that stop the program.
-+                    fuzzer.setUp(fx, vu.state(), (program & 3u) != 0u);
-+                    // Small budgets stop programs mid-way and resume them.
-+                    const uint32_t budget = fuzzer.below(3u) == 0u ? 3u + fuzzer.below(40u) : 4000u;
-+                    const uint64_t startCycle = vu.state().cycles;
 +                    packetHash = 0;
-+                    vu.execute(fx.code, PS2_VU1_CODE_SIZE, fx.data, PS2_VU1_DATA_SIZE, fx.gs, &fx.mem,
-+                               0u, 0x100u, 0x200u, budget);
-+                    for (uint32_t again = 0; again < 3u && !vu.state().ebit &&
-+                                             vu.state().cycles - startCycle < 4000u;
-+                         ++again)
-+                    {
-+                        vu.resume(fx.code, PS2_VU1_CODE_SIZE, fx.data, PS2_VU1_DATA_SIZE, fx.gs, &fx.mem,
-+                                  0x100u, 0x200u, 3u + fuzzer.below(400u));
-+                    }
++                    vu1fuzz::runProgram(vu, fx.mem, fx.gs, fx.code, fx.data, program);
++#if defined(__SSE4_1__)
++                    if (run == 1u)
++                        generatedBlocks += VU1CompiledAccess::generatedBlocks(compiled);
++#endif
 +                    uint64_t hash = fnv1a(0xCBF29CE484222325ull, &vu.state(), kStateBytes);
 +                    hash = fnv1a(hash, fx.data, PS2_VU1_DATA_SIZE);
 +                    hashes[run] = fnv1a(hash, &packetHash, sizeof(packetHash));
@@ -12699,6 +13363,93 @@ index 0754b69..a49e98a 100644
 +            }
 +            t.Equals(differing, 0u, "registers, flags, VU memory, GS packets and cycles should match (first differing program " +
 +                                        std::to_string(firstDiffering) + ")");
++#if defined(__SSE4_1__)
++            if (generatedBlockCount() > 0u)
++                t.IsTrue(generatedBlocks > 0u, "the first programs should run through generated blocks");
++#endif
 +        });
      });
  }
+diff --git a/ps2xTest/src/vu1_test_blocks.cpp b/ps2xTest/src/vu1_test_blocks.cpp
+new file mode 100644
+index 0000000..cd13a05
+--- /dev/null
++++ b/ps2xTest/src/vu1_test_blocks.cpp
+@@ -0,0 +1,77 @@
++// Generates block code for the first VU1 fuzz programs (vu1_fuzzer.h), for
++// ps2x_tests to link, so the VU1 tests run those programs through generated
++// blocks the way the game runs its own.
++//
++// usage: ps2x_vu1_test_blocks OUT_PREFIX SHARDS
++
++#include "vu1_fuzzer.h"
++#if defined(__SSE4_1__)
++#include "vu/ps2_vu1_compiled.h"
++#endif
++
++#include <cstdio>
++#include <cstdlib>
++#include <string>
++#include <vector>
++
++int main(int argc, char **argv)
++{
++    if (argc < 3)
++    {
++        std::fprintf(stderr, "usage: %s OUT_PREFIX SHARDS\n", argv[0]);
++        return 2;
++    }
++    const std::string prefix = argv[1];
++    const int shardCount = std::atoi(argv[2]);
++    if (shardCount < 1)
++        return 2;
++    std::vector<std::FILE *> shards;
++    for (int i = 0; i < shardCount; ++i)
++    {
++        shards.push_back(std::fopen((prefix + std::to_string(i) + ".cpp").c_str(), "w"));
++        if (!shards.back())
++            return 1;
++    }
++#if defined(__SSE4_1__)
++    // Record the blocks the programs compile, as a game run would.
++    const std::string listPath = prefix + "list.txt";
++    std::remove(listPath.c_str());
++#if defined(_WIN32)
++    _putenv_s("PS2X_VU1_BLOCK_LIST", listPath.c_str());
++#else
++    setenv("PS2X_VU1_BLOCK_LIST", listPath.c_str(), 1);
++#endif
++    PS2Memory mem;
++    if (!mem.initialize())
++        return 1;
++    GS gs;
++    gs.init(mem.getGSVRAM(), static_cast<uint32_t>(PS2_GS_VRAM_SIZE), &mem.gs());
++    uint8_t *code = mem.getVU1Code();
++    uint8_t *data = mem.getVU1Data();
++    VU1Interpreter vu;
++    vu.setCompiledEnabled(true);
++    std::vector<std::vector<uint8_t>> images;
++    for (uint32_t program = 0; program < vu1fuzz::kGeneratedPrograms; ++program)
++    {
++        vu1fuzz::runProgram(vu, mem, gs, code, data, program);
++        images.emplace_back(code, code + PS2_VU1_CODE_SIZE);
++    }
++    std::FILE *list = std::fopen(listPath.c_str(), "r");
++    if (!list)
++        return 1;
++    size_t listed = 0;
++    const size_t written = VU1CompiledAccess::generate(images, list, shards, listed);
++    std::fclose(list);
++    std::printf("VU1 test blocks: %zu of %zu generated\n", written, listed);
++    for (std::FILE *shard : shards)
++        std::fclose(shard);
++    return written == listed ? 0 : 1;
++#else
++    for (std::FILE *shard : shards)
++    {
++        std::fprintf(shard, "// Generated VU1 blocks need SSE4.1.\n");
++        std::fclose(shard);
++    }
++    return 0;
++#endif
++}
