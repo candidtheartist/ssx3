@@ -209,6 +209,14 @@ or any disc file.
     number on the PS2) into a quiet NaN. The out-of-line helpers that handle such values now return the result's
     bits, and the inline ones are always inlined. One of the FPU hardware-results tests failed at the game's
     RelWithDebInfo build type before this, though it passed at Release;
+  - the GS workers woken once per 32 queued commands instead of for each one, and skipping draws outside their
+    rows, with the same results. A race start queues about 28,000 draws a frame. On an 8-core Windows PC, waking six
+    workers for each one kept the thread that queues them signalling a fifth of the time, while the workers drew
+    under a tenth of the time. Workers are still woken at once for a command they all wait at, and before anything
+    waits for them. A worker also skips a draw that touches none of its rows, instead of setting it up to draw
+    nothing. The recorded race packets replay to the same VRAM on 1, 2, 3 and 6 workers, also with
+    round-toward-zero, with 7% fewer instructions on six workers. A race on a 4-core Linux machine woke the workers
+    20 times less often, at the same frame rate;
   - debug switches.
 - `ssx3_overrides.cpp` holds the game-specific replacements: it skips the network and USB keyboard drivers,
   answers the module search, routes `isceSifSendCmd`, and keeps the runtime's scratch buffers in the

@@ -1410,10 +1410,10 @@ index 0485d50..9a44ba3 100644
  #define FPU_C_F_S(a, b) (0)
  #define FPU_C_UN_S(a, b) (isnan((float)(a)) || isnan((float)(b)))
 diff --git a/ps2xRuntime/include/runtime/gs/gs_cpu_backend.h b/ps2xRuntime/include/runtime/gs/gs_cpu_backend.h
-index 2421f9e..acd552d 100644
+index 2421f9e..1be49f9 100644
 --- a/ps2xRuntime/include/runtime/gs/gs_cpu_backend.h
 +++ b/ps2xRuntime/include/runtime/gs/gs_cpu_backend.h
-@@ -33,19 +33,240 @@ public:
+@@ -33,19 +33,242 @@ public:
      void SnapshotVram(std::vector<uint8_t> &out) const override;
      GSTransferSnapshot GetTransferSnapshot() const override;
  
@@ -1422,6 +1422,8 @@ index 2421f9e..acd552d 100644
 +    // the rows of a small object over every backend. A band of 4 rows is made of whole
 +    // 64-byte columns of the 32- and 16-bit buffers, so no two backends write one column.
 +    void SetRowBand(uint32_t index, uint32_t count);
++    // Row y is in band y >> kRowBandShift.
++    static constexpr uint32_t kRowBandShift = 2u;
 +
 +    // Reads textures and CLUTs from `memory`, a copy of VRAM, and writes host to local
 +    // transfers there, to VRAM as well only with transfersToVram, so other backends can
@@ -1437,7 +1439,7 @@ index 2421f9e..acd552d 100644
  private:
 +    bool OwnsRow(int y) const
 +    {
-+        return m_bandCount <= 1u || ((static_cast<uint32_t>(y) >> 2u) % m_bandCount) == m_bandIndex;
++        return m_bandCount <= 1u || ((static_cast<uint32_t>(y) >> kRowBandShift) % m_bandCount) == m_bandIndex;
 +    }
 +
      void ResetUnlocked();
@@ -1655,7 +1657,7 @@ index 2421f9e..acd552d 100644
      uint32_t LookupCLUT(const GSDrawState &state, uint8_t index, uint8_t cpsm, uint8_t csm, uint8_t csa, uint8_t sourcePsm);
  
      void PerformLocalToLocalTransfer();
-@@ -68,14 +289,45 @@ private:
+@@ -68,14 +291,45 @@ private:
      mutable std::mutex m_mutex;
      uint8_t *m_vram = nullptr;
      uint32_t m_vramSize = 0;
@@ -1773,10 +1775,10 @@ index 1cb1540..7d2ac28 100644
  }
 diff --git a/ps2xRuntime/include/runtime/gs/gs_threaded_backend.h b/ps2xRuntime/include/runtime/gs/gs_threaded_backend.h
 new file mode 100644
-index 0000000..a790a70
+index 0000000..6d852bb
 --- /dev/null
 +++ b/ps2xRuntime/include/runtime/gs/gs_threaded_backend.h
-@@ -0,0 +1,218 @@
+@@ -0,0 +1,228 @@
 +#pragma once
 +
 +#include "runtime/gs/gs_backend.h"
@@ -1890,6 +1892,9 @@ index 0000000..a790a70
 +        bool waitForAll = false;
 +        // Runs once, on the first worker's backend, for all rows, while the others wait.
 +        bool runAlone = false;
++        // The workers that draw a row the command can reach (bit i for worker i). The
++        // others skip it, which saves them a small draw's setup.
++        uint32_t workers = ~0u;
 +        // Every worker reads textures from VRAM, not from its copy.
 +        bool texturesFromVram = false;
 +        // The pages each worker copies from VRAM to its copy before it runs the command.
@@ -1930,12 +1935,17 @@ index 0000000..a790a70
 +    void waitForCompleted(std::unique_lock<std::mutex> &lock, uint64_t target) const;
 +    // After a worker finishes commands, wakes a thread waiting for them.
 +    void notifyCompleted();
++    // With m_queueMutex held, wakes idle workers for the commands queued since they were
++    // last woken.
++    void wakeIdleWorkers() const;
 +    void waitForQueuedWork() const;
 +    void classifySubmit(Command &command);
 +    // readsOwnPixels: each pixel the draw writes to drawn[0] reads only itself.
 +    void classifyDraw(Command &command, const PageTracker::Access *drawn, size_t count,
 +                      const PageTracker::PageSet &textured, bool readsOwnPixels);
 +    void markRunAlone(Command &command);
++    // The workers that draw a row from y0 to y1.
++    uint32_t workersForRows(int y0, int y1) const;
 +    // The end of the run of commands from the ring's command `begin`, a runAlone one, that
 +    // the barrier can run in one go: runAlone commands, and the CLUT loads and
 +    // texture flushes between them, which it runs on every worker's backend.
@@ -1970,6 +1980,8 @@ index 0000000..a790a70
 +    uint64_t m_lastTransferCommand = 0;
 +    // Workers waiting for commands, with m_queueMutex held.
 +    size_t m_idleWorkers = 0;
++    // Commands queued since idle workers were last woken, with m_queueMutex held.
++    mutable uint64_t m_unwokenCommands = 0;
 +    // Threads waiting in waitForCompleted, and the lowest count they wait for.
 +    mutable std::atomic<uint32_t> m_completionWaiters{0};
 +    mutable std::atomic<uint64_t> m_completionTarget{UINT64_MAX};
@@ -5723,10 +5735,10 @@ index f0ad507..d816ecd 100644
      return false;
 diff --git a/ps2xRuntime/src/lib/gs/gs_threaded_backend.cpp b/ps2xRuntime/src/lib/gs/gs_threaded_backend.cpp
 new file mode 100644
-index 0000000..a0add39
+index 0000000..445fe91
 --- /dev/null
 +++ b/ps2xRuntime/src/lib/gs/gs_threaded_backend.cpp
-@@ -0,0 +1,1052 @@
+@@ -0,0 +1,1090 @@
 +#include "runtime/gs/gs_threaded_backend.h"
 +#include "runtime/gs/ps2_gs_common.h"
 +
@@ -5746,6 +5758,10 @@ index 0000000..a0add39
 +    // as the last one has run but before the workers have moved past it: at most two
 +    // commands beyond the limit.
 +    constexpr uint64_t kRingSize = kMaxPendingCommands + 4u;
++    // Idle workers are woken once this many commands are queued, rather than for each
++    // one: a race can queue 30,000 draws a frame, and waking several threads costs the
++    // EE a system call, and the lock it then waits for, each time.
++    constexpr uint64_t kWakeBatch = 32u;
 +
 +    struct PageExtent
 +    {
@@ -6131,10 +6147,21 @@ index 0000000..a0add39
 +
 +void GSThreadedBackend::endCommand(std::unique_lock<std::mutex> &lock)
 +{
++    // Workers already awake see the command at once. Idle ones are woken for a batch,
++    // for a command they all wait at, and before anything waits for them (so a short
++    // batch never waits long: the presentation request comes every frame and wakes them).
++    const Command &command = m_ring[m_submitted.load(std::memory_order_relaxed) % kRingSize];
 +    m_submitted.fetch_add(1u);
++    if (++m_unwokenCommands >= kWakeBatch || command.waitForAll || command.runAlone)
++        wakeIdleWorkers();
++    lock.unlock();
++}
++
++void GSThreadedBackend::wakeIdleWorkers() const
++{
++    m_unwokenCommands = 0;
 +    if (m_idleWorkers != 0u)
 +        m_workAvailable.notify_all();
-+    lock.unlock();
 +}
 +
 +uint64_t GSThreadedBackend::completedCommands() const
@@ -6149,6 +6176,7 @@ index 0000000..a0add39
 +{
 +    if (completedCommands() >= target)
 +        return;
++    wakeIdleWorkers();
 +    // The target is lowered before the waiter count goes up, so a worker that sees the
 +    // count also sees a target no higher than this one. Both change only with
 +    // m_queueMutex held.
@@ -6183,6 +6211,21 @@ index 0000000..a0add39
 +{
 +    command.runAlone = true;
 +    m_pages.Clear();
++}
++
++uint32_t GSThreadedBackend::workersForRows(int y0, int y1) const
++{
++    // GSCpuBackend::SetRowBand: worker i draws the bands of rows whose number modulo the
++    // worker count is i.
++    const uint32_t count = static_cast<uint32_t>(m_workers.size());
++    const uint32_t first = static_cast<uint32_t>(std::max(y0, 0)) >> GSCpuBackend::kRowBandShift;
++    const uint32_t last = static_cast<uint32_t>(std::max(y1, 0)) >> GSCpuBackend::kRowBandShift;
++    if (last - first + 1u >= count)
++        return ~0u;
++    uint32_t workers = 0u;
++    for (uint32_t band = first; band <= last; ++band)
++        workers |= 1u << (band % count);
++    return workers;
 +}
 +
 +void GSThreadedBackend::markDrawn(const PageTracker::PageSet &pages)
@@ -6352,6 +6395,12 @@ index 0000000..a0add39
 +            PageTracker::AddPages(drawn[drawnCount].pages, zbp, fbw, ctx.zbuf.psm, x0, y0, x1, y1);
 +            ++drawnCount;
 +        }
++        command.workers = workersForRows(y0, y1);
++    }
++    else
++    {
++        // Outside the scissor: no worker draws a pixel of it.
++        command.workers = 0u;
 +    }
 +
 +    // A copy of the target onto itself reads exactly the pixels it draws.
@@ -6528,7 +6577,8 @@ index 0000000..a0add39
 +        try
 +        {
 +            refreshTextureCopy(index, command.refresh);
-+            runCommand(index, command);
++            if ((command.workers >> index) & 1u)
++                runCommand(index, command);
 +        }
 +        catch (...)
 +        {
