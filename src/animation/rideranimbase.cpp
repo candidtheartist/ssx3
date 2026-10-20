@@ -65,7 +65,7 @@ extern "C" int cRiderAnimBase_getAnimChannelName(void* self, int anim)
 //100%
 extern "C" void func_00311860(void* p);
 
-extern "C" void func_00311A30(void* self, void* p)
+extern "C" void cRiderAnimBase_getAnimName(void* self, void* p)
 {
     func_00311860(p);
 }
@@ -273,7 +273,7 @@ extern "C" void cRiderAnimBase_changeOrientationOffset(void* self, sRabXform_003
 
 //100%
 // Stores v at 0x80 of every sequence in all six sequencers.
-extern "C" void func_00311D88(void* self, int v)
+extern "C" void cRiderAnimBase_setAllSequencesMirror(void* self, int v)
 {
     for (int i = 0; i < 6; i++) {
         int j = 0;
@@ -544,7 +544,7 @@ extern "C" int cRiderAnimBase_replaceSequence(void* self, cAnimSequencer* seq, c
 extern "C" void func_00144670(void* self, int bit);
 extern "C" void cRiderAnimBase_play(void* self, int anim, int flags, float blend);
 
-extern "C" void func_00312BD0(void* self, void* unused, void* rider, int anim)
+extern "C" void cRiderAnimBase_playOnComplete(void* self, void* unused, void* rider, int anim)
 {
     func_00144670((char*)rider + 0xB0, 0x3F);
     cRiderAnimBase_play(self, anim, 0, -1.0f);
@@ -571,7 +571,7 @@ struct sCurveSet_312C20 {
     unsigned char stridef;
 };
 
-extern "C" void func_00312C20(sCurveSet_312C20* self, int start, int count, float* out, float t)
+extern "C" void evalAnimChanCurves(sCurveSet_312C20* self, int start, int count, float* out, float t)
 {
     int ti = (int)t;
     float h = t * 0.5f;
@@ -743,7 +743,7 @@ static inline void SetType_003130A8(sAnimDef_003130A8* self, sAnimCh_003130A8* c
     ch->type = t;
 }
 
-extern "C" void func_003130A8(sAnimDef_003130A8* self, unsigned char* data, int n)
+extern "C" void decodeAnimChanCurves(sAnimDef_003130A8* self, unsigned char* data, int n)
 {
     unsigned char* p = data;
     int count = *p++;

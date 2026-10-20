@@ -210,7 +210,7 @@ extern "C" void* func_00275718(sAnimList* self, int id)
 }
 
 //100%
-extern "C" void func_00311110(void** tbl);
+extern "C" void cAnimDataBase_freeChanCaches(void** tbl);
 extern "C" void cAdfDataSource__cAdfDataSource(void* self, int flags);
 void cMemMan_free(void*);
 extern void** D_004A3DF8;
@@ -221,7 +221,7 @@ extern "C" void func_00275760(void* self, sAnimEntry* e)
     void** slot = &tbl[*(unsigned char*)&e->unk4];
     void* obj = *slot;
     *slot = 0;
-    func_00311110(tbl);
+    cAnimDataBase_freeChanCaches(tbl);
     if (obj != 0) {
         cAdfDataSource__cAdfDataSource(obj, 3);
     }
