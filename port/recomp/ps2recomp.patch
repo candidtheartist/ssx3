@@ -1775,10 +1775,10 @@ index 1cb1540..7d2ac28 100644
  }
 diff --git a/ps2xRuntime/include/runtime/gs/gs_threaded_backend.h b/ps2xRuntime/include/runtime/gs/gs_threaded_backend.h
 new file mode 100644
-index 0000000..6d852bb
+index 0000000..0508748
 --- /dev/null
 +++ b/ps2xRuntime/include/runtime/gs/gs_threaded_backend.h
-@@ -0,0 +1,228 @@
+@@ -0,0 +1,232 @@
 +#pragma once
 +
 +#include "runtime/gs/gs_backend.h"
@@ -1968,8 +1968,11 @@ index 0000000..6d852bb
 +    std::vector<std::unique_ptr<uint8_t[]>> m_textureCopies;
 +
 +    mutable std::mutex m_queueMutex;
-+    mutable std::condition_variable m_workAvailable;
 +    mutable std::condition_variable m_workDone;
++    // Idle workers sleep with their own mutex, so a worker going idle or waking never
++    // waits for m_queueMutex, which a submitter holds while it sorts out each command.
++    mutable std::mutex m_wakeMutex;
++    mutable std::condition_variable m_workAvailable;
 +    // Submitted commands, in order, by their number modulo its size. Each worker goes
 +    // through them at its own pace and waits for the others only where a command says
 +    // so (waitForAll, runAlone). A command's slot is reused once every worker has run it.
@@ -1978,13 +1981,14 @@ index 0000000..6d852bb
 +    // Written with m_queueMutex held; workers read it without.
 +    std::atomic<uint64_t> m_submitted{0};
 +    uint64_t m_lastTransferCommand = 0;
-+    // Workers waiting for commands, with m_queueMutex held.
-+    size_t m_idleWorkers = 0;
++    // Workers waiting for commands, changed with m_wakeMutex held.
++    std::atomic<size_t> m_idleWorkers{0};
 +    // Commands queued since idle workers were last woken, with m_queueMutex held.
 +    mutable uint64_t m_unwokenCommands = 0;
 +    // Threads waiting in waitForCompleted, and the lowest count they wait for.
 +    mutable std::atomic<uint32_t> m_completionWaiters{0};
 +    mutable std::atomic<uint64_t> m_completionTarget{UINT64_MAX};
++    // Set with m_wakeMutex held.
 +    bool m_stopping = false;
 +    PageTracker m_pages;
 +    // Pages VRAM may hold other bytes in than the workers' copies, by the commands
@@ -2876,7 +2880,7 @@ index 0000000..e50bf59
 +#define _mm_extract_epi64(v, i) ps2x_extract_epi64((v), (i))
 +#endif
 diff --git a/ps2xRuntime/src/lib/Kernel/EeScheduler.cpp b/ps2xRuntime/src/lib/Kernel/EeScheduler.cpp
-index c5e31c4..2973636 100644
+index c5e31c4..03b09c2 100644
 --- a/ps2xRuntime/src/lib/Kernel/EeScheduler.cpp
 +++ b/ps2xRuntime/src/lib/Kernel/EeScheduler.cpp
 @@ -1,3 +1,5 @@
@@ -2975,7 +2979,30 @@ index c5e31c4..2973636 100644
      {
          return KE_ERROR;
      }
-@@ -1867,6 +1929,7 @@ void EeScheduler::processEvent(const EeEvent &event)
+@@ -1843,15 +1905,20 @@ void EeScheduler::processDueDeadlines()
+             return;
+         }
+ 
++        const auto firedAt = std::chrono::steady_clock::now();
+         for (ScheduledEvent &scheduled : due)
+         {
+             if (scheduled.event.type == EeEventType::VBlankStart)
+             {
++                // When frames take longer to run than to show, the host falls behind the
++                // PS2's schedule. Making that time up would run the game fast until it had,
++                // so once it is more than a frame behind, the next blank is timed from now.
++                const auto hostStart = firedAt - scheduled.hostDeadline > kVBlankPeriod ? firedAt : scheduled.hostDeadline;
+                 scheduleEvent(scheduled.deadlineCycle + kVBlankDurationCycles,
+-                              scheduled.hostDeadline + kVBlankDuration,
++                              hostStart + kVBlankDuration,
+                               EeEvent{EeEventType::VBlankEnd, 0, m_vsyncTick + 1u});
+                 scheduleEvent(scheduled.deadlineCycle + kVBlankPeriodCycles,
+-                              scheduled.hostDeadline + kVBlankPeriod,
++                              hostStart + kVBlankPeriod,
+                               EeEvent{EeEventType::VBlankStart, 0, 0});
+             }
+             processEvent(scheduled.event);
+@@ -1867,6 +1934,7 @@ void EeScheduler::processEvent(const EeEvent &event)
          requestStop();
          break;
      case EeEventType::VBlankStart:
@@ -2983,7 +3010,7 @@ index c5e31c4..2973636 100644
          ++m_vsyncTick;
          m_runtime.memory().gs().vsyncTick.store(m_vsyncTick, std::memory_order_release);
          if ((m_vsyncTick & 1u) != 0u)
-@@ -1996,6 +2059,43 @@ void EeScheduler::writeGuestU32(uint32_t address, uint32_t value)
+@@ -1996,6 +2064,43 @@ void EeScheduler::writeGuestU32(uint32_t address, uint32_t value)
  
  void EeScheduler::waitForEvent()
  {
@@ -5735,10 +5762,10 @@ index f0ad507..d816ecd 100644
      return false;
 diff --git a/ps2xRuntime/src/lib/gs/gs_threaded_backend.cpp b/ps2xRuntime/src/lib/gs/gs_threaded_backend.cpp
 new file mode 100644
-index 0000000..445fe91
+index 0000000..ea8e62b
 --- /dev/null
 +++ b/ps2xRuntime/src/lib/gs/gs_threaded_backend.cpp
-@@ -0,0 +1,1090 @@
+@@ -0,0 +1,1098 @@
 +#include "runtime/gs/gs_threaded_backend.h"
 +#include "runtime/gs/ps2_gs_common.h"
 +
@@ -6122,7 +6149,7 @@ index 0000000..445fe91
 +{
 +    waitForQueuedWork();
 +    {
-+        std::lock_guard<std::mutex> lock(m_queueMutex);
++        std::lock_guard<std::mutex> lock(m_wakeMutex);
 +        m_stopping = true;
 +    }
 +    m_workAvailable.notify_all();
@@ -6138,7 +6165,9 @@ index 0000000..445fe91
 +    const uint64_t submitted = m_submitted.load(std::memory_order_relaxed);
 +    if (mayWait && submitted >= kMaxPendingCommands && completedCommands() + kMaxPendingCommands <= submitted)
 +        waitForCompleted(lock, submitted - kMaxPendingCommands + kRefillCommands);
-+    Command &command = m_ring[submitted % kRingSize];
++    // The wait lets go of m_queueMutex, so another thread may have queued a command in
++    // the meantime (a presentation request never waits for room).
++    Command &command = m_ring[m_submitted.load(std::memory_order_relaxed) % kRingSize];
 +    command = Command{};
 +    command.kind = kind;
 +    command.roundingMode = std::fegetround();
@@ -6160,8 +6189,14 @@ index 0000000..445fe91
 +void GSThreadedBackend::wakeIdleWorkers() const
 +{
 +    m_unwokenCommands = 0;
-+    if (m_idleWorkers != 0u)
++    // A worker counts itself idle before it looks for commands, and commands are published
++    // before this reads the count, so a worker either sees them or is counted here. It
++    // looks and goes to sleep with m_wakeMutex held, so the wakeup can't fall in between.
++    if (m_idleWorkers.load() != 0u)
++    {
++        std::lock_guard<std::mutex> lock(m_wakeMutex);
 +        m_workAvailable.notify_all();
++    }
 +}
 +
 +uint64_t GSThreadedBackend::completedCommands() const
@@ -6548,7 +6583,7 @@ index 0000000..445fe91
 +    {
 +        if (next == m_submitted.load())
 +        {
-+            std::unique_lock<std::mutex> lock(m_queueMutex);
++            std::unique_lock<std::mutex> lock(m_wakeMutex);
 +            ++m_idleWorkers;
 +            m_workAvailable.wait(lock, [this, next]() { return m_stopping || m_submitted.load() != next; });
 +            --m_idleWorkers;

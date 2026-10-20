@@ -216,7 +216,20 @@ or any disc file.
     waits for them. A worker also skips a draw that touches none of its rows, instead of setting it up to draw
     nothing. The recorded race packets replay to the same VRAM on 1, 2, 3 and 6 workers, also with
     round-toward-zero, with 7% fewer instructions on six workers. A race on a 4-core Linux machine woke the workers
-    20 times less often, at the same frame rate;
+    20 times less often, at the same frame rate. On the Windows PC the race clock went from 0.34 to 0.77 times
+    real time;
+  - the GS workers sleeping on a lock of their own, so a worker going idle or waking never waits for the thread
+    that queues commands, which holds the queue's lock while it sorts out each one. On Windows a lock two threads
+    want at once goes through the kernel, and that thread spent about 7% of its time releasing it;
+  - a fix for a picture that stopped changing while the game went on. A presentation request queued while the
+    thread that queues draws was waiting for room in a full queue was overwritten by that thread's next draw, so
+    the window kept its last frame for the rest of the session. A 4-core Linux machine, where the queue is often
+    full, hit it in four runs out of seven, after 1 to 9 minutes; with the fix, the picture changed in every
+    screenshot of a 10-minute run into a race;
+  - a vertical blank that is due more than a frame ago timed from now. When frames take longer to run than to
+    show, the host falls behind the PS2's schedule, and the game then ran fast until it had caught up: on the
+    Windows PC a race's main loop went from about 50 passes a second to 166 for seconds at a time. Now a slow
+    stretch just runs slowly;
   - debug switches.
 - `ssx3_overrides.cpp` holds the game-specific replacements: it skips the network and USB keyboard drivers,
   answers the module search, routes `isceSifSendCmd`, and keeps the runtime's scratch buffers in the
