@@ -192,15 +192,32 @@ def uses_wide_type(die, depth=0):
     return None
 
 
+def prototype(decl):
+    """(parameter kinds, result kind, variadic) as the DWARF declaration gives them."""
+    params, variadic = [], False
+    for p in decl.iter_children():
+        if p.tag == "DW_TAG_unspecified_parameters":
+            variadic = True
+        elif p.tag == "DW_TAG_formal_parameter":
+            params.append(type_class(p.get_DIE_from_attribute("DW_AT_type")))
+    ret = type_class(decl.get_DIE_from_attribute("DW_AT_type")) if "DW_AT_type" in decl.attributes else "void"
+    return (tuple(params), ret, variadic)
+
+
 def host_functions(obj):
-    """Host symbol -> {sig, problem} from DWARF, for defined functions."""
-    out = {}
+    """Host symbol -> {sig, problem} from DWARF, for defined functions; and the
+    prototypes the unit declares for functions it calls but does not define."""
+    out, decls = {}, {}
     with open(obj, "rb") as f:
         elf = ELFFile(f)
         if not elf.has_dwarf_info():
-            return out
+            return out, decls
         for cu in elf.get_dwarf_info().iter_CUs():
             for die in cu.iter_DIEs():
+                if die.tag == "DW_TAG_subprogram" and "DW_AT_declaration" in die.attributes:
+                    link = (die.attributes.get("DW_AT_linkage_name") or die.attributes.get("DW_AT_name"))
+                    if link is not None:
+                        decls[link.value.decode()] = prototype(die)
                 if die.tag != "DW_TAG_subprogram" or "DW_AT_low_pc" not in die.attributes:
                     continue
                 decl = die
@@ -241,8 +258,8 @@ def host_functions(obj):
                 wide = uses_wide_type(die)
                 if wide:
                     problem = problem or "uses " + wide
-                out[sym] = {"params": params, "ret": ret, "problem": problem}
-    return out
+                out[sym] = {"params": params, "ret": ret, "problem": problem, "proto": prototype(decl)}
+    return out, decls
 
 
 def host_relocs(obj):
@@ -315,7 +332,7 @@ def main():
         skip = asm_names(unit)
         ee = scan_ee(unit)
         ee_by_base = {ee_base(n): v for n, v in ee.items()}
-        sigs = host_functions(obj)
+        sigs, decls = host_functions(obj)
         relocs, defined, undefined, kinds, sections = host_relocs(obj)
         unit_undef[unit] = undefined
         dem = demangle(sigs.keys())
@@ -323,7 +340,7 @@ def main():
             base = dem.get(sym, sym).split("(")[0]
             if base in skip or base not in ee_by_base:
                 continue
-            info = {"unit": unit, "base": base, "sym": sym, "sig": sig, "deps": set(), "why": None}
+            info = {"unit": unit, "base": base, "sym": sym, "sig": sig, "deps": set(), "why": None, "protos": []}
             cand[sym] = info
             eeinfo = ee_by_base[base]
             a = by_base.get(base, set())
@@ -368,6 +385,9 @@ def main():
                         ta = next(iter(aset))
                         if ta in code_addrs:
                             info["deps"].add(("ee", b))
+                            # the EE passes arguments in registers, so a caller that declares
+                            # fewer or other ones than the callee takes still "works" there
+                            info["protos"].append((b, decls.get(tname)))
                         continue
                     if kinds.get(tname, "").upper() in ("T", "W"):
                         if tname in sigs and tname != s and dem.get(tname, tname).split("(")[0] in ee_by_base:
@@ -387,6 +407,14 @@ def main():
     while changed:
         changed = False
         for sym, info in cand.items():
+            if info["why"]:
+                continue
+            for b, proto in info["protos"]:
+                callee = by_ee.get(b)
+                if callee is not None and proto != callee["sig"]["proto"]:
+                    info["why"] = "declares " + b + " with other arguments than it takes"
+                    changed = True
+                    break
             if info["why"]:
                 continue
             for kind, d in info["deps"]:

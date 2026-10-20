@@ -10,7 +10,7 @@ resolve to the game's own EE addresses (EE memory sits at those addresses in
 the PC process), or to the host C library, or to a stub that stops the game if
 anything ever calls it (it is code that stays recompiled, which native code
 does not call yet). Everything is linked into one relocatable object whose only
-global symbols are the table and its count, so no game symbol can clash with
+global symbols are the table, its count and the EE data addresses, so no game symbol can clash with
 the runtime's or the C library's, and static constructors are dropped: the
 game's globals live in EE memory, not in the host copies these units define.
 """
@@ -34,6 +34,10 @@ ALIASES = {
     "strncmp": ("int {n}(const char *a, const char *b, unsigned int len)", "return __builtin_strncmp(a, b, len);"),
     "memset": ("void *{n}(void *d, int c, unsigned int len)", "return __builtin_memset(d, c, len);"),
 }
+
+
+# Prefix of the global absolute symbols that give EE data its address.
+EE_PREFIX = "__ssx3ee_"
 
 
 def run(cmd, **kw):
@@ -99,12 +103,16 @@ def main():
         f.write("};\n")
         f.write(f'extern "C" const unsigned int g_ssx3NativeCount = {len(table)}u;\n')
         n = 0
+        renames = []
         for sym in sorted(undefined):
             if sym.startswith("__x86.") or sym == "_GLOBAL_OFFSET_TABLE_":
                 continue
             kind, value = symbols.get(sym, ("libc", sym))
             if kind == "data":
-                f.write(f'asm(".globl {sym}\\n.set {sym}, {value}");\n')
+                # A global absolute symbol: the linker would relocate a GOT slot for a
+                # local one by the load address. The prefix keeps it from clashing.
+                renames.append(f"{sym} {EE_PREFIX}{sym}\n")
+                f.write(f'asm(".globl {EE_PREFIX}{sym}\\n.set {EE_PREFIX}{sym}, {value}");\n')
             elif kind == "libc" and value != sym:
                 sig = ALIASES[value][0].format(n=f"ssx3a_{n}")
                 f.write(f'extern "C" {sig} __asm__("{sym}");\n')
@@ -118,11 +126,18 @@ def main():
     glue_obj = glue[:-4] + ".o"
     run(["g++"] + HOST_CXXFLAGS + ["-c", glue, "-o", glue_obj])
 
+    rename_file = os.path.join(work, "data_renames.txt")
+    with open(rename_file, "w") as f:
+        f.writelines(renames)
+    for obj in objs:
+        run(["objcopy", "--redefine-syms=" + rename_file, obj])
+
     combined = os.path.join(work, "native_combined.o")
     run(["ld", "-m", "elf_i386", "-r", "--force-group-allocation", "-o", combined] + objs + [glue_obj])
     run(["objcopy", "--remove-section=.init_array", "--remove-section=.ctors", "--remove-section=.fini_array",
          "--remove-section=.dtors",
-         "-G", "g_ssx3NativeTable", "-G", "g_ssx3NativeCount", "-G", "ssx3NativeUnreachable",
+         "--wildcard", "-G", "g_ssx3NativeTable", "-G", "g_ssx3NativeCount", "-G", "ssx3NativeUnreachable",
+         "-G", EE_PREFIX + "*",
          combined, output])
     print(f"native: {len(table)} functions from {len(objs)} units -> {output}")
 
