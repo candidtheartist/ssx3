@@ -22,7 +22,7 @@ public:
 };
 class cFEObjK1956F8_1 {
 public:
-    cFEObjK1956F8_1(int a) __asm__("func_002DBD10");
+    cFEObjK1956F8_1(int a) __asm__("FXLoader_ctor");
 };
 
 extern "C" void* cFE_cFE(void* self)
@@ -76,7 +76,7 @@ extern void* D_0046D848[];
 extern "C" void* func_001DCC40(void* p);
 extern "C" void func_00416210(void* dst, int value, int size);
 
-extern "C" void* func_00195880(void* self)
+extern "C" void* FELocale_ctor(void* self)
 {
     *(char*)((char*)self + 0x0) = 0;
     *(char*)((char*)self + 0x1) = 0;
@@ -96,7 +96,7 @@ extern void* D_0046D848[];
 extern "C" void func_00195948(void* self);
 void operator_delete(int* p);
 
-extern "C" void func_001958F0(void* self, int flags)
+extern "C" void FELocale_v01(void* self, int flags)
 {
     *(void***)((char*)self + 0x4) = D_0046BF98;
     func_00195948(self);

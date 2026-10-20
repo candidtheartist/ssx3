@@ -661,7 +661,7 @@ extern "C" void func_00100F88(char* self, sPad_0F88* pad)
     }
 }
 
-INCLUDE_ASM("seg/seg_1218", func_00101310);
+INCLUDE_ASM("seg/seg_1218", DangerMan_ctor);
 
 INCLUDE_ASM("seg/seg_1218", func_001013A8);
 
@@ -946,7 +946,7 @@ extern "C" void func_00101A28(sList_1A28* list, sNode_1A28* node, int recurse)
     }
 }
 
-INCLUDE_ASM("seg/seg_1218", func_00101B60);
+INCLUDE_ASM("seg/seg_1218", FocusMan_Update);
 
 //100%
 struct S_32C0 {
@@ -1217,7 +1217,7 @@ struct sObj_3918 {
     char* base; // 0x50
 };
 
-extern "C" void func_00103918(sObj_3918* self, char* ent, int* arg)
+extern "C" void RiderAnim_v03(sObj_3918* self, char* ent, int* arg)
 {
     int idx = (ent - self->base) >> 3;
     switch (*(int*)(cAIAnimEventMap_getBlendInTime_3918(*arg) + 8)) {
@@ -1929,7 +1929,7 @@ extern "C" void func_00104CC8(void *arg0, int arg1) {
 extern "C" void func_00311710_4CF8(int, int, int) __asm__("func_00311710");
 extern int D_004A3DFC;
 
-extern "C" void func_00104CF8(void *arg0, int a1) {
+extern "C" void RiderAnim_v04(void *arg0, int a1) {
     int var_6;
     void *temp_2;
     void *temp_4;
@@ -2700,7 +2700,7 @@ extern "C" int func_00108C28(S_8C28 *arg0, void *arg1) {
     return 0;
 }
 
-INCLUDE_ASM("seg/seg_1218", func_00108C80);
+INCLUDE_ASM("seg/seg_1218", cComputer_ctor);
 
 //100%
 //100%
@@ -2713,8 +2713,8 @@ extern "C" void cComputer_resetGrabUsage(void* self);
 extern "C" void func_003E6448_8E88(void* dst, int value, int size) __asm__("func_003E6448");
 
 // PORT: the unit declares this as void(void) (its caller passes $a0 through); defined under an asm label with its real type
-extern "C" void func_00108E88_impl(char* self) __asm__("func_00108E88");
-extern "C" void func_00108E88_impl(char* self)
+extern "C" void cComputer_Init_impl(char* self) __asm__("cComputer_Init");
+extern "C" void cComputer_Init_impl(char* self)
 {
     *(int*)(self + 0xE0C) = -1;
     *(int*)(self + 0xE10) = 0;
@@ -2750,10 +2750,10 @@ extern "C" void func_00108E88_impl(char* self)
 }
 
 //100%
-extern "C" void func_00108E88();
+extern "C" void cComputer_Init();
 
 extern "C" void func_00108F88(void) {
-    func_00108E88();
+    cComputer_Init();
 }
 
 INCLUDE_ASM("seg/seg_1218", func_00108FA8);
@@ -2763,14 +2763,14 @@ extern "C" void func_003E6448_A768(void* dst, int value, int size) __asm__("func
 extern "C" float cComputer_getPacingScale_A768(void* self) __asm__("cComputer_getPacingScale");
 extern "C" void cRider_approachTimeScale_A768(void* p, float f) __asm__("cRider_approachTimeScale");
 int cRider_getControlState_A768(void*) __asm__("cRider_getControlState__FPv");
-extern "C" void func_0010A960_A768(void*, void*) __asm__("func_0010A960");
-extern "C" void func_0010AA70_A768(void*, void*) __asm__("func_0010AA70");
-extern "C" void func_0010B790_A768(void*, void*) __asm__("func_0010B790");
-extern "C" void func_0010B590_A768(void*, void*) __asm__("func_0010B590");
-extern "C" void func_0010AED8_A768(void*, void*) __asm__("func_0010AED8");
-extern "C" void func_0010B250_A768(void*, void*) __asm__("func_0010B250");
-extern "C" void func_0010B750_A768(void*, void*) __asm__("func_0010B750");
-extern "C" void func_0010AD78_A768(void*, void*) __asm__("func_0010AD78");
+extern "C" void cComputer_ThinkCruise_A768(void*, void*) __asm__("cComputer_ThinkCruise");
+extern "C" void cComputer_ThinkPrewind_A768(void*, void*) __asm__("cComputer_ThinkPrewind");
+extern "C" void cComputer_ThinkGate_A768(void*, void*) __asm__("cComputer_ThinkGate");
+extern "C" void cComputer_ThinkNaturalAir_A768(void*, void*) __asm__("cComputer_ThinkNaturalAir");
+extern "C" void cComputer_ThinkRailslide_A768(void*, void*) __asm__("cComputer_ThinkRailslide");
+extern "C" void cComputer_ThinkSpin_A768(void*, void*) __asm__("cComputer_ThinkSpin");
+extern "C" void cComputer_ThinkWipeout_A768(void*, void*) __asm__("cComputer_ThinkWipeout");
+extern "C" void cComputer_ThinkBoardPress_A768(void*, void*) __asm__("cComputer_ThinkBoardPress");
 
 extern "C" void func_0010A768(char* self, void* pad)
 {
@@ -2779,28 +2779,28 @@ extern "C" void func_0010A768(char* self, void* pad)
     int s = cRider_getControlState_A768(*(void**)(self + 0x18));
     switch (s) {
     case 0:
-        func_0010A960_A768(self, pad);
+        cComputer_ThinkCruise_A768(self, pad);
         break;
     case 2:
-        func_0010AA70_A768(self, pad);
+        cComputer_ThinkPrewind_A768(self, pad);
         break;
     case 6:
-        func_0010B790_A768(self, pad);
+        cComputer_ThinkGate_A768(self, pad);
         break;
     case 4:
-        func_0010B590_A768(self, pad);
+        cComputer_ThinkNaturalAir_A768(self, pad);
         break;
     case 7:
-        func_0010AED8_A768(self, pad);
+        cComputer_ThinkRailslide_A768(self, pad);
         break;
     case 5:
-        func_0010B250_A768(self, pad);
+        cComputer_ThinkSpin_A768(self, pad);
         break;
     case 8:
-        func_0010B750_A768(self, pad);
+        cComputer_ThinkWipeout_A768(self, pad);
         break;
     case 1:
-        func_0010AD78_A768(self, pad);
+        cComputer_ThinkBoardPress_A768(self, pad);
         break;
     case 13:
         break;
@@ -2865,7 +2865,7 @@ extern "C" int cComputer_checkResetPath(void*);
 extern "C" int cComputer_decideBlock(void*);
 extern "C" int cComputer_decideAttack(void*, int*);
 
-extern "C" void func_0010A960(cObj_A960* self, sFlags_A960* f)
+extern "C" void cComputer_ThinkCruise(cObj_A960* self, sFlags_A960* f)
 {
     int t;
     f->b12 = cComputer_checkResetPath(self);
@@ -2965,7 +2965,7 @@ static inline sV4_AA70 Scale_AA70(const sV4_AA70& v, float s)
     return r;
 }
 
-extern "C" void func_0010AA70(char* self, sPad_AA70* pad)
+extern "C" void cComputer_ThinkPrewind(char* self, sPad_AA70* pad)
 {
     sRec_AA70 buf[12];
     char* rider = *(char**)(self + 0x18);
@@ -3032,7 +3032,7 @@ static inline float clamp_AD78(float v, float lo, float hi)
     return (v >= lo) ? (v <? hi) : lo;
 }
 
-extern "C" void func_0010AD78(char* self, sPad_AD78* pad)
+extern "C" void cComputer_ThinkBoardPress(char* self, sPad_AD78* pad)
 {
     int flag;
     int r = func_0010BBF8(self, &flag);
@@ -3108,7 +3108,7 @@ static inline float clamp_AED8(float v, float lo, float hi)
     return (v >= lo) ? (v <? hi) : lo;
 }
 
-extern "C" void func_0010AED8(char* self, sPad_AED8* pad)
+extern "C" void cComputer_ThinkRailslide(char* self, sPad_AED8* pad)
 {
     int below, o3, o4, o5, o6, ok;
     int r = func_0010B980(self, (float*)(self + 0xDF0), &below, &o3, &o4, &o5, &o6);
@@ -3174,7 +3174,7 @@ extern "C" void func_0010B0E8(char* self, float t)
     }
 }
 
-INCLUDE_ASM("seg/seg_1218", func_0010B250);
+INCLUDE_ASM("seg/seg_1218", cComputer_ThinkSpin);
 
 //100% - objdiff report; single-function view differs only in a relocation name
 // PORT: PS2-only inline asm; needs a C fallback off-PS2.
@@ -3198,7 +3198,7 @@ int AIrand();
 extern "C" void func_00100610_B590(sVec4_B590*, void*) __asm__("func_00100610");
 extern "C" float func_00100348_B590(void*, sVec4_B590*) __asm__("func_00100348");
 
-extern "C" void func_0010B590(char* self, sPad_B590* pad)
+extern "C" void cComputer_ThinkNaturalAir(char* self, sPad_B590* pad)
 {
     char* o = *(char**)(*(char**)(self + 0x18) + 0x788);
     int st = *(int*)(o + 0xAC);
@@ -3241,7 +3241,7 @@ extern "C" void func_0010B590(char* self, sPad_B590* pad)
 }
 
 //100%
-extern "C" void func_0010B750(void *arg0, int *arg1) {
+extern "C" void cComputer_ThinkWipeout(void *arg0, int *arg1) {
     *arg1 = (*arg1 & ~0x1000) | ((cComputer_checkResetPath(arg0) & 1) << 0xC);
 }
 
@@ -3265,7 +3265,7 @@ public:
 int AIrand();
 extern "C" int getGameTick();
 
-extern "C" void func_0010B790(char* self, sPad_B790* pad)
+extern "C" void cComputer_ThinkGate(char* self, sPad_B790* pad)
 {
     float t = 180.0f - (float)getGameTick();
     float th = 33.0f;

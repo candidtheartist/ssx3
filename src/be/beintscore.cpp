@@ -1,7 +1,7 @@
 #include "common.h"
 
 extern "C" void* cMemMan_alloc(int size, const char* tag, unsigned int flags, int d);
-extern "C" void func_001549A8(void* self);
+extern "C" void cBEScoreInterface_ctor(void* self);
 extern const char D_0045A858[];
 extern void* D_004A1248;
 
@@ -16,14 +16,14 @@ struct cBEScoreInterface {
 };
 
 //100%
-// PORT: the unit declares func_001549A8 as returning void; the body returns self.
-void* func_001549A8_impl(void* self) __asm__("func_001549A8");
+// PORT: the unit declares cBEScoreInterface_ctor as returning void; the body returns self.
+void* cBEScoreInterface_ctor_impl(void* self) __asm__("cBEScoreInterface_ctor");
 
 void* cBEScoreInterface_getThis()
 {
     if (D_004A1248 == 0) {
         void* mem = cMemMan_alloc(0x230, D_0045A858, 0, 0);
-        cBEScoreInterface* s = (cBEScoreInterface*)func_001549A8_impl(mem);
+        cBEScoreInterface* s = (cBEScoreInterface*)cBEScoreInterface_ctor_impl(mem);
         D_004A1248 = s;
         s->field_0x8 = 0;
         s->field_0x10 = 0;
@@ -35,17 +35,17 @@ void* cBEScoreInterface_getThis()
 }
 
 //100%
-extern "C" void func_001549E8(void* self);
+extern "C" void cBEScoreInterface_Reset(void* self);
 extern void* D_0045ACA8[];
 
-// PORT: the unit declares func_001549A8 as returning void (used by getThis);
+// PORT: the unit declares cBEScoreInterface_ctor as returning void (used by getThis);
 // the body returns self, so it is bound to the symbol with an asm label.
-void* func_001549A8_impl(void* self) __asm__("func_001549A8");
+void* cBEScoreInterface_ctor_impl(void* self) __asm__("cBEScoreInterface_ctor");
 
-void* func_001549A8_impl(void* self)
+void* cBEScoreInterface_ctor_impl(void* self)
 {
     *(void***)((char*)self + 0xC) = D_0045ACA8;
-    func_001549E8(self);
+    cBEScoreInterface_Reset(self);
     return self;
 }
 
@@ -71,7 +71,7 @@ struct sScore_001549E8 {
     sScoreSlot_001549E8 slots[2]; // 0x20
 };
 
-extern "C" void func_001549E8(void* p)
+extern "C" void cBEScoreInterface_Reset(void* p)
 {
     sScore_001549E8* self = (sScore_001549E8*)p;
     self->a = 0;
@@ -288,12 +288,12 @@ extern "C" int func_00155328(void* self, int a)
 }
 
 //100%
-void func_00155380(void* self)
+void cBEScoreInterface_SaveState(void* self)
 {
 }
 
 //100%
-void func_00155388(void* self)
+void cBEScoreInterface_LoadState(void* self)
 {
 }
 

@@ -24,9 +24,9 @@ extern "C" void cOVState_PROFILE_onCreateScreen(void* self)
 
 //100%
 extern "C" void func_00211380(void* self);
-extern "C" void func_00211270(void* self);
+extern "C" void OVScreenProfileSavePDA_ResetSlotList(void* self);
 
-extern "C" void func_00211220(void* self)
+extern "C" void OVScreenProfileSavePDA_v26(void* self)
 {
     if (*(int*)((char*)self + 0x1C0) != 0) {
         *(int*)((char*)self + 0x22C) = 1;
@@ -34,7 +34,7 @@ extern "C" void func_00211220(void* self)
     if (*(int*)((char*)self + 0x214) == 3) {
         func_00211380(self);
     } else {
-        func_00211270(self);
+        OVScreenProfileSavePDA_ResetSlotList(self);
     }
 }
 
@@ -178,7 +178,7 @@ struct cUIObj_11270 {
     virtual void setSelected(int v);
 };
 
-extern "C" void func_00211270(void* p)
+extern "C" void OVScreenProfileSavePDA_ResetSlotList(void* p)
 {
     cSelf_11270* self = (cSelf_11270*)p;
     if (self->isReady() != 0) {
@@ -366,7 +366,7 @@ int GetHashValue32(char* str);
 extern "C" void* cUIScreen_getObjectByHashName(void* self, int hash);
 extern "C" int sprintf(char* buf, const char* fmt, ...);
 extern "C" void func_001D8240();
-extern "C" void func_00211270(void* self);
+extern "C" void OVScreenProfileSavePDA_ResetSlotList(void* self);
 extern "C" int func_001D97E0(void* self, void* mp, int dev, int a3);
 extern "C" void cMCOverlayManager_GetDeviceDisplayString(void* mp, int dev, unsigned short* buf, int len);
 extern "C" void func_003A0D00(void* obj, unsigned short* s);
@@ -400,7 +400,7 @@ extern "C" void func_00211380(void* p)
     if (self->v42()) {
         if (!(*(cMCSub_1380**)(mp + 0x434))->v53()) {
             func_001D8240();
-            func_00211270(self);
+            OVScreenProfileSavePDA_ResetSlotList(self);
             return;
         }
         if (*(int*)((char*)self + 0x214) != 3)
@@ -476,7 +476,7 @@ extern char D_004A2568[];
 extern char D_00471DB0[];
 extern char D_004A20A0[];
 
-extern "C" void func_00211850(void* self, bool show)
+extern "C" void OVScreenProfileSavePDA_v37(void* self, bool show)
 {
     bool on = true;
     if (*(int*)((char*)self + 0x22C) != 0) {
@@ -517,7 +517,7 @@ extern "C" void* cUIScreen_getObjectByHashName(void* self, int hash);
 extern char D_00471DB0[];
 extern char D_004A20A0[];
 
-extern "C" void func_00211970(void* self, bool on)
+extern "C" void OVScreenProfileSavePDA_v38(void* self, bool on)
 {
     ((cUIObj_211970*)cUIScreen_getObjectByHashName(*(void**)((char*)self + 0x40), GetHashValue32(D_00471DB0)))->setVisible(!on);
     ((cUIObj_211970*)cUIScreen_getObjectByHashName(*(void**)((char*)self + 0x40), GetHashValue32(D_004A20A0)))->setVisible(!on);
@@ -543,7 +543,7 @@ extern "C" void* cUIScreen_getObjectByHashName(void* self, int hash);
 extern char D_004A2090[];
 extern char D_004A2568[];
 
-extern "C" void func_00211A08(void* self, int a1, bool on)
+extern "C" void OVScreenProfileSavePDA_v39(void* self, int a1, bool on)
 {
     cUIObj_211A08* a = (cUIObj_211A08*)cUIScreen_getObjectByHashName(*(void**)((char*)self + 0x40), GetHashValue32(D_004A2090));
     ((cUIObj_211A08*)cUIScreen_getObjectByHashName(*(void**)((char*)self + 0x40), GetHashValue32(D_004A2568)))->setVisible(!on);
@@ -556,7 +556,7 @@ extern "C" void cGame_exit(void* game, int a);
 extern void* D_004A28A8;
 extern "C" void func_0039F718(void* self);
 
-extern "C" void func_00211AA8(void* self)
+extern "C" void OVScreenProfileSavePDA_v33(void* self)
 {
     if (*(int*)((char*)self + 0x1AC) == 0) {
         if (*(int*)((char*)self + 0x278) == 0x18) {
@@ -839,7 +839,7 @@ extern "C" void func_00212080(void* self)
 extern "C" void* func_001D53B0(void* self, void* a1, int a2);
 extern void* D_00471F80[];
 
-extern "C" void* func_00212138(void* self, void* a1, int a2)
+extern "C" void* OVScreenAutosave_ctor(void* self, void* a1, int a2)
 {
     func_001D53B0(self, a1, 0);
     *(void***)((char*)self + 0x8) = D_00471F80;
@@ -894,7 +894,7 @@ extern "C" void* cUIScreen_getObjectByHashName(void* self, int hash);
 extern "C" void cOVState_AUTOSAVE_displayOn(void* self);
 extern char D_00471E38[];
 
-extern "C" void func_002122E8(void* self)
+extern "C" void OVScreenAutosave_v26(void* self)
 {
     int s = *(int*)((char*)self + 0x1C0);
     if (s != 0 && s != 6) {
@@ -962,7 +962,7 @@ extern "C" void cOVState_AUTOSAVE_displayOn(void* self)
 //100%
 extern "C" void func_0039F718(void* self);
 
-extern "C" void func_002124C8(void* self)
+extern "C" void OVScreenAutosave_v33(void* self)
 {
     if (*(int*)((char*)self + 0x1AC) == 0) {
         func_0039F718(*(char**)((char*)self + 0x10) + 0x18);

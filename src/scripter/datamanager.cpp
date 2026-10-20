@@ -1676,7 +1676,7 @@ struct sScriptMgr_7F20 {
     int fA48;                   // 0xA48
 };
 
-extern "C" sScriptMgr_7F20* func_00277F20(sScriptMgr_7F20* self)
+extern "C" sScriptMgr_7F20* ScriptEngine_ctor(sScriptMgr_7F20* self)
 {
     func_00281E80(self);
     func_00283798((char*)self + 0x500);

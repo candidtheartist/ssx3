@@ -128,7 +128,7 @@ extern "C" void func_00345890(void* self, void* obj)
 
 //100%
 extern "C" void* func_00345798(void* self, int a1);
-extern "C" void* func_00370018(void* self);
+extern "C" void* Emitter_ctor(void* self);
 extern "C" void func_003705E0(void* self, void* mat, int a2);
 extern int D_004A3FF8;
 extern void* D_004912B0[];
@@ -168,7 +168,7 @@ extern "C" void* func_003458C0(void* self, int a1, int owner)
     char* s = (char*)self;
     func_00345798(self, owner);
     *(void***)(s + 0x8) = D_004912B0;
-    func_00370018(s + 0x50);
+    Emitter_ctor(s + 0x50);
     *(int*)(s + 0x1E0) = a1;
     char* own = *(char**)(s + 0xC);
     void* obj = *(void**)(own + 0xC);
@@ -201,7 +201,7 @@ extern "C" void* func_003459A8(void* self, void* stream)
     char* s = (char*)self;
     func_003457C8(self, stream);
     *(void***)(s + 0x8) = D_004912B0;
-    func_00370018(s + 0x50);
+    Emitter_ctor(s + 0x50);
     sEffectLinkVEntry_3459A8* e = &(*(sEffectLinkVEntry_3459A8**)stream)[2];
     e->fn((char*)stream + e->delta, s + 0x1E4, 4);
     if (*(int*)(s + 0x1E4) == 0) {
@@ -334,7 +334,7 @@ struct sEff00345C90 {
     sTarget00345C90* target;
 };
 
-extern "C" sEff00345C90* func_00345C90(sEff00345C90* self, sTarget00345C90* t, int owner, int bone, sVec4_00345C90* pos)
+extern "C" sEff00345C90* DynamicParticleModifier_ctor(sEff00345C90* self, sTarget00345C90* t, int owner, int bone, sVec4_00345C90* pos)
 {
     func_00345798(self, owner);
     self->vt = D_00491268;
@@ -367,7 +367,7 @@ struct sEffectLinkVEntry_345D80 {
     void (*fn)(void*, void*, int);
 };
 
-extern "C" sEff00345C90* func_00345D80(sEff00345C90* self, void* stream)
+extern "C" sEff00345C90* DynamicParticleModifier_ctor_2(sEff00345C90* self, void* stream)
 {
     func_003457C8(self, stream);
     self->vt = D_00491268;
@@ -398,7 +398,7 @@ void operator_delete(int*);
 extern "C" void func_00370C08(void* self, int flags);
 extern "C" void func_00345828(void* self, int flags);
 
-extern "C" void func_00345E88(void* self, int flags)
+extern "C" void DynamicParticleModifier_dtor(void* self, int flags)
 {
     char* s = (char*)self;
     *(void***)(s + 0x8) = D_00491268;
@@ -569,7 +569,7 @@ struct sEffSrc_6120 {
     int f20;    // 0x20
 };
 
-extern "C" void* func_00346120(sEffObj_6120* self, sEffSrc_6120* src, int a2)
+extern "C" void* HaloModifier_ctor(sEffObj_6120* self, sEffSrc_6120* src, int a2)
 {
     func_00345798(self, a2);
     self->vt = D_00491220;
@@ -594,7 +594,7 @@ struct sEffVEntry61C0 {
     void (*fn)(void*, void*, int);
 };
 
-extern "C" void* func_003461C0(void* self, void* stream)
+extern "C" void* HaloModifier_ctor_2(void* self, void* stream)
 {
     func_003457C8(self, stream);
     *(void***)((char*)self + 0x8) = D_00491220;
@@ -614,7 +614,7 @@ struct sEffectLinkObj_6228 {
     void** vt;         // 0x8
 };
 
-extern "C" void func_00346228(void* self, int flags)
+extern "C" void HaloModifier_dtor(void* self, int flags)
 {
     ((sEffectLinkObj_6228*)self)->vt = D_00491220;
     D_004A4000--;
@@ -749,7 +749,7 @@ extern "C" void* func_003464E0(void* self, void* a1, void* stream)
 //100%
 // PORT: PS2-only inline asm; needs a C fallback off-PS2.
 void cMemMan_free(void* ptr);
-extern "C" void* func_002D1BE0();
+extern "C" void* World_GetNash();
 extern "C" void func_00353DB8(void* self, int flags);
 extern "C" void func_0034FBF0(void* self, int flags);
 
@@ -808,7 +808,7 @@ extern "C" void func_00346568(char* self, int flags)
     t.z = inst->max[2];
     t.w = 1.0f;
     *(sVec4_346568*)(self + 0xA0) = t;
-    cSpaceHash_moveItem(func_002D1BE0(), 0, inst, box, &old);
+    cSpaceHash_moveItem(World_GetNash(), 0, inst, box, &old);
     func_00353DB8(self + 0x50, 2);
     func_0034FBF0(self, flags);
 }

@@ -101,6 +101,13 @@ An entry looks like this:
 ## Credits
 
 - Function names shown next to addresses come from this project's `config/symbol_addrs.txt`.
+- Many of those function names were taken from Anders Fischer-Nielsen's
+  [ssx3-decomp](https://github.com/andersfischernielsen/ssx3-decomp) (MIT), from its Ghidra name list
+  `generated/functions.tsv` and the evidence in `docs/investigation/naming.md` (commit a07299e). Each
+  name was checked against our code before use. Class prefixes follow the names this tree already used.
+- Matched functions imported from [DevvyDont/ssx3](https://github.com/DevvyDont/ssx3) and
+  [peak3project/ssx3](https://github.com/peak3project/ssx3) are credited in the commits and PRs that
+  brought them in.
 - Our understanding of the SSX 3 asset formats that some of the loaders here read comes from GlitcherOG's
   [SSX-Library](https://github.com/GlitcherOG/SSX-Library) (GPL-3.0). This covers world, model, texture,
   archive and audio formats. These notes describe the formats only through what the game's loaders do. No

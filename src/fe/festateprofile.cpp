@@ -270,7 +270,7 @@ struct cUIObj_EF70 {
     virtual void setVisible(int on);
 };
 
-extern "C" void func_0018EF70(void* self, int on)
+extern "C" void cFEStateProfileLoad_v37(void* self, int on)
 {
     if (*(int*)((char*)self + 0x234) == on)
         return;
@@ -306,7 +306,7 @@ struct cUIObj_F0B8 {
     virtual void setActive(int on);
 };
 
-extern "C" void func_0018F0B8(void* self, bool on)
+extern "C" void cFEStateProfileLoad_v38(void* self, bool on)
 {
     if (D_004A15E8 != 2) {
         int off = !on;
@@ -338,7 +338,7 @@ struct cUIObj_F168 {
     virtual void setVisible(int on);
 };
 
-extern "C" void func_0018F168(void* self, bool a, bool b)
+extern "C" void cFEStateProfileLoad_v39(void* self, bool a, bool b)
 {
     cUIObj_F168* o = (cUIObj_F168*)cUIScreen_getObjectByHashName(*(void**)((char*)self + 0x40), GetHashValue32(D_004A15E0));
     if (D_004A15E8 != 2) {
@@ -358,7 +358,7 @@ extern "C" void func_0018F168(void* self, bool a, bool b)
 extern "C" void func_0018F2B8(void* self);
 extern "C" void func_0018F9D8(void* self);
 
-extern "C" void func_0018F278(void* self)
+extern "C" void cFEStateProfileLoad_v26(void* self)
 {
     if (*(int*)((char*)self + 0x214) == 3) {
         func_0018F2B8(self);
@@ -561,7 +561,7 @@ struct sVEK18FAF0b {
     void (*fn)(void*);
 };
 
-extern "C" void func_0018FAF0(void* self)
+extern "C" void cFEStateProfileLoad_v33(void* self)
 {
     if (*(int*)((char*)self + 0x1AC) == 0) {
         int sel = *(int*)((char*)self + 0x27C);

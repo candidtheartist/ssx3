@@ -110,7 +110,7 @@ extern "C" void cFEStateCharSetup_onCreateScreen(sCharSetup_182928* self)
 extern "C" void func_001831D0(void* self, int a1);
 void* func_0039E4A0(void* self);
 
-extern "C" void func_00182C08(void* self)
+extern "C" void cFEStateCharSetup_Shutdown(void* self)
 {
     func_001831D0(self, 0);
     func_0039E4A0(self);

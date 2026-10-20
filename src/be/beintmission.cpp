@@ -817,7 +817,7 @@ struct sSerVEntry_001547E8 {
 
 extern char D_004A6CAC[];
 
-extern "C" void func_001547E8(void* self, void* stream)
+extern "C" void cBEMissionInterface_SaveState(void* self, void* stream)
 {
     int c = cBELibrary_getCharacterID(0);
     char* base = D_004A6CAC;
@@ -840,7 +840,7 @@ struct sSerVEntry_00154898 {
 
 extern char D_004A6CAC[];
 
-extern "C" void func_00154898(void* self, void* stream)
+extern "C" void cBEMissionInterface_LoadState(void* self, void* stream)
 {
     int c = cBELibrary_getCharacterID(0);
     char* base = D_004A6CAC;

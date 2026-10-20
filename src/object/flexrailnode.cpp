@@ -20,7 +20,7 @@ struct sHashNode_8B90 {
 };
 
 extern "C" void* cMemMan_alloc(int size, const char* tag, unsigned int flags, int d);
-extern "C" void* func_002D1BE0();
+extern "C" void* World_GetNash();
 extern "C" void func_00328F28(sHashKey_8B90* out, void* box);
 extern "C" void func_00328C20(sHashCell_8B90* cell, int type, sHashNode_8B90* node, sHashKey_8B90* key);
 extern const char D_0048E808[];
@@ -31,7 +31,7 @@ extern "C" void cFlexRailNode_addSpaceHash(void* self)
     n->owner = self;
     n->type = 3;
     *(sHashNode_8B90**)((char*)self + 0x54) = n;
-    sHashCell_8B90* cell = (sHashCell_8B90*)func_002D1BE0();
+    sHashCell_8B90* cell = (sHashCell_8B90*)World_GetNash();
     sHashNode_8B90* node = *(sHashNode_8B90**)((char*)self + 0x54);
     sHashKey_8B90 key;
     func_00328F28(&key, (char*)self + 0x30);
@@ -71,7 +71,7 @@ static inline int octEmpty_8C48(sOctCell_8C48* o)
 
 extern "C" void func_00348C48(void* self)
 {
-    sHashCellR_8C48* cell = (sHashCellR_8C48*)func_002D1BE0();
+    sHashCellR_8C48* cell = (sHashCellR_8C48*)World_GetNash();
     sHashNode_8B90* node = *(sHashNode_8B90**)((char*)self + 0x54);
     (*(int*)((char*)cell + 0xA0))++;
     sHashKey_8B90 key;
@@ -91,9 +91,9 @@ extern "C" void func_00348C48(void* self)
 
 //100%
 extern "C" void func_00347D90(void* self, int type, void* a1, void* desc);
-extern "C" void func_003492A8(void* self);
+extern "C" void FloatRail_v48(void* self);
 struct sFrBoxRail;
-extern "C" void func_00349110(sFrBoxRail* self);
+extern "C" void FloatRail_v50(sFrBoxRail* self);
 extern "C" void cFlexRailNode_addSpaceHash(void* self);
 struct sFrNode9220;
 extern "C" void func_00349220(void* self, sFrNode9220* node);
@@ -120,14 +120,14 @@ struct sFlexRailElem_348D98 {
     char pad48[8];
 };
 
-INCLUDE_ASM("object/flexrailnode", func_00348D98);
-extern "C" void* func_00348D98(char* self, void* a1, char* desc);
+INCLUDE_ASM("object/flexrailnode", FloatRail_ctor);
+extern "C" void* FloatRail_ctor(char* self, void* a1, char* desc);
 
 //100%
 extern "C" void* func_00347EA8(void* self, void* a1, void* stream);
-extern "C" void func_003492A8(void* self);
+extern "C" void FloatRail_v48(void* self);
 struct sFrBoxRail;
-extern "C" void func_00349110(sFrBoxRail* self);
+extern "C" void FloatRail_v50(sFrBoxRail* self);
 extern "C" void cFlexRailNode_addSpaceHash(void* self);
 // PORT: operator_new__FUi really takes (size, tag, flags, d); bound by asm label
 void* operator new[](unsigned int size, const char* tag, unsigned int flags, int d) __asm__("operator_new__FUi");
@@ -160,7 +160,7 @@ void cMemMan_free(void*);
 extern "C" void func_00348C48(void* self);
 extern "C" void func_00347F90(void* self, int flags);
 
-extern "C" void func_003490B0(void* self, int flags)
+extern "C" void FloatRail_v01(void* self, int flags)
 {
     *(void**)((char*)self + 0xC) = D_0048FF30;
     func_00348C48(self);
@@ -217,7 +217,7 @@ static inline void vu0AddFRBox(sFrBoxVec4& dst, sFrBoxVec4& b)
 }
 
 // bounding box of the rail elements, padded by 200 on x/y/z
-extern "C" void func_00349110(sFrBoxRail* self)
+extern "C" void FloatRail_v50(sFrBoxRail* self)
 {
     sFrBoxElem* e = self->elems;
     int n = self->count;
@@ -313,7 +313,7 @@ extern "C" void func_00349220(void* self, sFrNode9220* node)
     node->posA = v;
 }
 
-INCLUDE_ASM("object/flexrailnode", func_003492A8);
+INCLUDE_ASM("object/flexrailnode", FloatRail_v48);
 
 //100%
 struct sFrVec4 {
@@ -395,9 +395,9 @@ struct sFrN_98E8 {
     char pad48[8];
 };
 
-extern "C" float func_002D1C70();
+extern "C" float World_GetSecondsPerTick();
 extern "C" void func_00349220(void* self, sFrNode9220* node);
-// View (func_00348D98 earlier in this unit declares it with its own type).
+// View (FloatRail_ctor earlier in this unit declares it with its own type).
 extern sFrV_98E8 D_004FF120_98E8 __asm__("D_004FF120");
 
 // PORT: PS2-only VU0 inline asm (vector subtract).
@@ -459,9 +459,9 @@ static inline void vu0AddEq_98E8(sFrV_98E8& dst, sFrV_98E8 b)
         : "m"(dst), "m"(b));
 }
 
-extern "C" void func_003498E8(char* self)
+extern "C" void FloatRail_v47(char* self)
 {
-    float dt = func_002D1C70();
+    float dt = World_GetSecondsPerTick();
     sFrN_98E8* n = *(sFrN_98E8**)(self + 0x70);
     for (int i = 0; i < *(int*)(self + 0x20); i++, n++) {
         if (*(int*)((char*)n->model.get() + 0xC))
@@ -495,11 +495,11 @@ extern "C" void func_00349AD0(void* self, void* stream)
     e->fn((char*)stream + e->delta, *(void**)((char*)self + 0x70), *(int*)((char*)self + 0x20) * 0x50);
 }
 
-INCLUDE_ASM("object/flexrailnode", func_00349B48);
+INCLUDE_ASM("object/flexrailnode", SpringRail_ctor);
 
 //100%
 extern "C" void* func_00347EA8(void* self, void* a1, void* stream);
-extern "C" void func_0034A0B0(void* self);
+extern "C" void SpringRail_v48(void* self);
 extern "C" void cFlexRailNode_addSpaceHash(void* self);
 // PORT: operator_new__FUi really takes (size, tag, flags, d); bound by asm label
 void* operator new[](unsigned int size, const char* tag, unsigned int flags, int d) __asm__("operator_new__FUi");
@@ -528,7 +528,7 @@ void cMemMan_free(void*);
 extern "C" void func_00348C48(void* self);
 extern "C" void func_00347F90(void* self, int flags);
 
-extern "C" void func_00349EB8(void* self, int flags)
+extern "C" void SpringRail_v01(void* self, int flags)
 {
     *(void**)((char*)self + 0xC) = D_0048FD90;
     func_00348C48(self);
@@ -558,7 +558,7 @@ struct sFrBoxRail60 {
 // PORT: PS2-only VU0 inline asm (vector sub-assign).
 // PORT: PS2-only VU0 inline asm (vector add-assign).
 // bounding box of the rail elements, padded by 200 on x/y/z
-extern "C" void func_00349F18(sFrBoxRail60* self)
+extern "C" void SpringRail_v50(sFrBoxRail60* self)
 {
     sFrBoxElem60* e = self->elems;
     int n = self->count;
@@ -612,7 +612,7 @@ extern "C" void func_0034A028(void* self, sFrNodeA028* node)
     node->pos = v;
 }
 
-INCLUDE_ASM("object/flexrailnode", func_0034A0B0);
+INCLUDE_ASM("object/flexrailnode", SpringRail_v48);
 
 //100%
 struct sV4_A568 {
@@ -768,7 +768,7 @@ extern "C" void func_0034A568(sFrRailA568* self, sFrNodeA568* node, sV4_A568* di
 INCLUDE_ASM("object/flexrailnode", func_0034A838);
 
 //100%
-extern "C" float func_002D1C70();
+extern "C" float World_GetSecondsPerTick();
 
 struct sV4_A8C8 {
     float x, y, z, w;
@@ -903,8 +903,8 @@ static inline void vu0AddEq_A8C8(sV4_A8C8& dst, const sV4_A8C8& b)
         : "memory");
 }
 
-INCLUDE_ASM("object/flexrailnode", func_0034A8C8);
-extern "C" void func_0034A8C8(sFrRailA8C8* self);
+INCLUDE_ASM("object/flexrailnode", SpringRail_v47);
+extern "C" void SpringRail_v47(sFrRailA8C8* self);
 
 //100%
 struct sFlexRailVEntryAC10 {
@@ -1004,7 +1004,7 @@ extern "C" sFrRailDesc* func_0034AC88(sFrRailDesc* out, void* src)
 
 //100% - objdiff report; single-function view differs only in a relocation name
 extern "C" void* func_0034FB00(void* self, void* a1, int type, void* a3);
-extern "C" void* func_002D1CB0(void);
+extern "C" void* World_GetFlagManager(void);
 extern char D_0048FC10[];
 
 struct sFrRailDesc {
@@ -1021,7 +1021,7 @@ extern "C" void* func_0034ADD8(void* self, void* a1, void* node, void* src)
     *(void**)((char*)self + 0xC) = D_0048FC10;
     *(unsigned int*)((char*)node + 0x8) = (*(unsigned int*)((char*)node + 0x8) & 0xFFFFFFFD) | 4;
     func_0034AC88(&desc, src);
-    func_0034C548(func_002D1CB0(), node, &desc);
+    func_0034C548(World_GetFlagManager(), node, &desc);
     return self;
 }
 
@@ -1038,14 +1038,14 @@ extern "C" void* func_0034AE68(void* self)
 
 //100%
 extern char D_0048FC10[];
-extern "C" void* func_002D1CB0(void);
+extern "C" void* World_GetFlagManager(void);
 extern "C" void func_0034C600(void* set, void* arg);
 extern "C" void func_0034FBF0(void* self, int flags);
 
 extern "C" void func_0034AEA0(void* self, int flags)
 {
     *(void**)((char*)self + 0xC) = D_0048FC10;
-    func_0034C600(func_002D1CB0(), *(void**)((char*)self + 0x18));
+    func_0034C600(World_GetFlagManager(), *(void**)((char*)self + 0x18));
     func_0034FBF0(self, flags);
 }
 
@@ -1058,7 +1058,7 @@ void* func_0034AEF8(void* self)
 }
 
 //100%
-void func_0034AF18(void* self)
+void Flag_Render(void* self)
 {
 }
 

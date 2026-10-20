@@ -23,7 +23,7 @@ struct sVEntry001D9E20 {
     int (*fn)(void*, int, int);
 };
 
-extern "C" int func_001D9E20(void* self, int a1, int a2)
+extern "C" int cFEStateNetHelpPopup_v24(void* self, int a1, int a2)
 {
     if (*(int*)((char*)self + 0x50) != 0) {
         void* obj = *(void**)((char*)self + 0x20);

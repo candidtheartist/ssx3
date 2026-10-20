@@ -120,7 +120,7 @@ public:
 extern cAppManB008* D_004A5B64_B008 __asm__("D_004A5B64");
 extern "C" void func_00402450(int);
 extern "C" void func_00401718(int);
-extern "C" void func_00425FB8(void);
+extern "C" void sceSifExitCmd(void);
 extern "C" void func_0042C6A0(int, int, int);
 
 extern "C" void func_0031B008(int a0, int a1, int a2)
@@ -129,7 +129,7 @@ extern "C" void func_0031B008(int a0, int a1, int a2)
     func_00402450(2);
     func_00401718(0);
     func_00401718(5);
-    func_00425FB8();
+    sceSifExitCmd();
     func_0042C6A0(a0, a1, a2);
 }
 

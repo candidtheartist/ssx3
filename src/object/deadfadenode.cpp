@@ -21,7 +21,7 @@ extern char D_00491980[];
 void cMemMan_free(void*);
 extern "C" void func_0034FBF0(void* self, int flags);
 
-extern "C" void func_00350BE0(void* self, int flags)
+extern "C" void DeadFade_dtor(void* self, int flags)
 {
     *(void**)((char*)self + 0xC) = D_00491980;
     void* p = *(void**)((char*)self + 0x38);
@@ -53,7 +53,7 @@ extern "C" void func_00350C38(void* self)
 // pass-through wrapper and this caller passes two args (prototype mismatch).
 void* func_002D1CC0_2(void*, void*) __asm__("func_002D1CC0__FPv");
 
-extern "C" void func_00350C90(void* self)
+extern "C" void DeadFade_Kill(void* self)
 {
     func_002D1CC0_2(*(void**)((char*)self + 0x18), (char*)self + 0x1C);
 }

@@ -218,15 +218,15 @@ extern "C" char* func_003A7878(sWCPool_7878* self, int size, unsigned int flags)
 }
 
 //100% - objdiff report; single-function view differs only in a relocation name
-struct func_003A7A20_sCfg {
+struct WorldMemman_ctor_sCfg {
     int id;
     int size;
     int count;
 };
-extern func_003A7A20_sCfg D_0044C1E0[];
+extern WorldMemman_ctor_sCfg D_0044C1E0[];
 extern "C" void cWorldBlockAllocator_init(void* self, int size, int count);
 
-extern "C" void* func_003A7A20(void* self)
+extern "C" void* WorldMemman_ctor(void* self)
 {
     cWorldBlockAllocator_init(self, D_0044C1E0[0].size, D_0044C1E0[0].count);
     cWorldBlockAllocator_init((char*)self + 0x14, D_0044C1E0[1].size, D_0044C1E0[1].count);
@@ -242,14 +242,14 @@ extern "C" void* func_003A7A20(void* self)
 void operator_delete(int*);
 extern "C" void func_003A76C0(void* self, int flags);
 
-struct func_003A7AA8_sElem {
+struct WorldMemman_dtor_sElem {
     char pad[0x14];
 };
 
-extern "C" void func_003A7AA8(func_003A7AA8_sElem* self, int flags)
+extern "C" void WorldMemman_dtor(WorldMemman_dtor_sElem* self, int flags)
 {
     if (self != 0) {
-        func_003A7AA8_sElem* p = self + 3;
+        WorldMemman_dtor_sElem* p = self + 3;
         while (self != p) {
             p--;
             func_003A76C0(p, 0);
@@ -281,7 +281,7 @@ extern "C" void cWorldMemoryMan_activateSectionMem(void* self, int index, int se
 //100% - objdiff report; single-function view differs only in a relocation name
 extern "C" void func_003A77D0(void* self, int flags);
 
-extern "C" void func_003A7B98(void* self, int i)
+extern "C" void WorldMemman_FreeSectionAllocator(void* self, int i)
 {
     char* base = (char*)self + 0x3C;
     void** p = (void**)(base + (i << 2));
@@ -310,7 +310,7 @@ extern "C" void* cHullPage_cHullPage(void* self, unsigned short* data)
 void cMemMan_free(void*);
 void operator_delete(int*);
 
-extern "C" void func_003A7C30(int* self, int flags)
+extern "C" void cHullPage_dtor(int* self, int flags)
 {
     *(int*)((char*)self + 0x4) = 0;
     if (*(void**)((char*)self + 0xC) != 0) {
@@ -366,7 +366,7 @@ extern "C" void* cWorldCacheTable_cWorldCacheTable(void* selfp, void* data)
 void cMemMan_free(void*);
 void operator_delete(int*);
 
-extern "C" void func_003A7D80(int* self, int flags)
+extern "C" void SectionTable_dtor(int* self, int flags)
 {
     if (*(void**)self != 0) {
         cMemMan_free(*(void**)self);
@@ -416,8 +416,8 @@ extern "C" void func_003A7E38(int* self, int flags)
 void cMemMan_free(void*);
 extern "C" void func_003A8330(void* self);
 extern "C" int func_003A9890(void* view, int i);
-extern "C" void func_003A8230(void* self, int i);
-extern "C" void func_003A7D80(int* self, int flags);
+extern "C" void cWorldCache_FreeSectionTable(void* self, int i);
+extern "C" void SectionTable_dtor(int* self, int flags);
 
 struct func_003A7E98_sVEntry {
     short delta;
@@ -441,7 +441,7 @@ struct func_003A7E98_sCache {
     func_003A7E98_sHdr* hdr;
     int* f04;
     void* f08;
-    func_003A7AA8_sElem* f0C;
+    WorldMemman_dtor_sElem* f0C;
     char view[0x3D8];
     func_003A7E98_sObj* obj;
 };
@@ -455,13 +455,13 @@ extern "C" void func_003A7E98(void* p)
         o->vt[1].fn((char*)o + o->vt[1].delta, 3);
     }
     if (self->f04 != 0) {
-        func_003A7D80(self->f04, 3);
+        SectionTable_dtor(self->f04, 3);
     }
     if (self->f08 != 0) {
         unsigned int i;
         for (i = 0; i < self->hdr->count; i++) {
             if (func_003A9890(self->view, i) == 0) {
-                func_003A8230(self, i);
+                cWorldCache_FreeSectionTable(self, i);
             }
         }
         if (self->f08 != 0) {
@@ -472,7 +472,7 @@ extern "C" void func_003A7E98(void* p)
         cMemMan_free(self->hdr);
     }
     if (self->f0C != 0) {
-        func_003A7AA8(self->f0C, 3);
+        WorldMemman_dtor(self->f0C, 3);
     }
 }
 
@@ -491,7 +491,7 @@ extern "C" void func_003A7F90(void* self)
 // PORT: operator_new__FUi really takes (size, tag, flags, d); bound by asm label
 void* operator_new_tag(unsigned int size, const char* tag, int flags, int d) __asm__("operator_new__FUi");
 extern "C" void* cMemMan_alloc(int size, const char* tag, unsigned int flags, int d);
-extern "C" void* func_003A7A20(void* self);
+extern "C" void* WorldMemman_ctor(void* self);
 extern "C" void* cWorldCacheTable_cWorldCacheTable(void* self, void* data);
 extern "C" void* FILE_load(const char* name, int flags);
 extern "C" void* func_003AAD98(void);
@@ -523,7 +523,7 @@ struct sVE_7FC0 { short delta; short index; void (*fn)(void*, int); };
 
 extern "C" int cWorldCache_init(void* self, const char* name, int arg)
 {
-    *(void**)((char*)self + 0xC) = func_003A7A20(cMemMan_alloc(0x13C, D_00494E30, 0, 0));
+    *(void**)((char*)self + 0xC) = WorldMemman_ctor(cMemMan_alloc(0x13C, D_00494E30, 0, 0));
     sBXStr_7FC0 path;
     sBXStr_7FC0 full;
     sBXStr_7FC0 base;
@@ -566,15 +566,15 @@ extern "C" void cWorldCache_activateSectionMem(void* self, int i, int section)
 }
 
 //100% - objdiff report; single-function view differs only in a relocation name
-extern "C" void func_003A7B98(void* self, int i);
-extern "C" void func_003A7D80(int* self, int flags);
+extern "C" void WorldMemman_FreeSectionAllocator(void* self, int i);
+extern "C" void SectionTable_dtor(int* self, int flags);
 
-extern "C" void func_003A8230(void* self, int i)
+extern "C" void cWorldCache_FreeSectionTable(void* self, int i)
 {
-    func_003A7B98(*(void**)((char*)self + 0xC), i);
+    WorldMemman_FreeSectionAllocator(*(void**)((char*)self + 0xC), i);
     int* e = (*(int***)((char*)self + 0x8))[i];
     if (e != 0) {
-        func_003A7D80(e, 3);
+        SectionTable_dtor(e, 3);
     }
     (*(int***)((char*)self + 0x8))[i] = 0;
 }
@@ -625,7 +625,7 @@ extern "C" void func_003A82C8(func_003A82C8_sCache* self)
 
 //100%
 void func_003A7010_330(void* self, int i) __asm__("func_003A7010");
-void func_003A8528_330(void* self, int i) __asm__("func_003A8528");
+void cWorldCache_FreeHullPage_330(void* self, int i) __asm__("cWorldCache_FreeHullPage");
 
 struct sWCEntry_3A8330 {
     int state;
@@ -653,12 +653,12 @@ extern "C" void func_003A8330(void* self_)
         case 2:
             func_003A7010_330(self->sub, i);
             self->entries[i].state = 4;
-            func_003A8528_330(self, i);
+            cWorldCache_FreeHullPage_330(self, i);
             break;
         case 3:
         case 4:
             self->entries[i].state = 4;
-            func_003A8528_330(self, i);
+            cWorldCache_FreeHullPage_330(self, i);
             break;
         case 0:
         case 1:
@@ -767,7 +767,7 @@ struct sWC_3A8528 {
 // PORT: func_003A8E20 takes the key as an unsigned int; this caller passes it as the bitfield struct.
 void func_003A8E20_k(void* self, int i, int kind, sWCKey_3A8528 key) __asm__("func_003A8E20");
 
-extern "C" void func_003A8528(void* self_, int i)
+extern "C" void cWorldCache_FreeHullPage(void* self_, int i)
 {
     sWC_3A8528* self = (sWC_3A8528*)self_;
     sWCList_3A8528* list = self->slot[i].list;
@@ -779,7 +779,7 @@ extern "C" void func_003A8528(void* self_, int i)
         func_003A8E20_k(self, i, list->refs[j].kind, key);
     }
     if (self->slot[i].list != 0) {
-        func_003A7C30((int*)self->slot[i].list, 3);
+        cHullPage_dtor((int*)self->slot[i].list, 3);
     }
     self->slot[i].list = 0;
     self->slot[i].state = 0;
@@ -811,7 +811,7 @@ extern "C" void* cMemMan_alloc(int size, const char* tag, unsigned int flags, in
 extern "C" void* cHullPage_cHullPage(void* self, unsigned short* data);
 extern "C" void* func_003A9A98(void* self, int i);
 extern "C" void func_003A6F88(void* self, int i, int a, int b);
-extern "C" void func_003A8528(void* self, int i);
+extern "C" void cWorldCache_FreeHullPage(void* self, int i);
 extern char* D_004A5B64;
 extern char* D_004A5B80;
 extern char D_00494E88[];
@@ -889,7 +889,7 @@ extern "C" void cWorldCache_updatePages(void* p)
         case 4:
             if (Frame_8668() - self->slot[i].stamp < 5)
                 break;
-            func_003A8528(self, i);
+            cWorldCache_FreeHullPage(self, i);
             self->slot[i].state = 0;
             break;
         }
@@ -931,7 +931,7 @@ extern "C" void func_003A88A8(void* p)
                 break;
             self->slot[i].state = 4;
         case 4:
-            func_003A8528(self, i);
+            cWorldCache_FreeHullPage(self, i);
             self->slot[i].state = 0;
             break;
         }
@@ -1318,7 +1318,7 @@ extern "C" void func_003A84F8(void* self, int a1, int a2);
 extern "C" void func_003A84C8_9258(void* cache, int id) __asm__("func_003A84C8");
 extern "C" int func_003A8618(void* self, int a1);
 extern "C" int func_003A8638(void* self, int a1);
-extern "C" void func_003A8230(void* self, int i);
+extern "C" void cWorldCache_FreeSectionTable(void* self, int i);
 extern "C" void func_003A9558_9258(void** self, void* node) __asm__("func_003A9558");
 extern "C" void func_003A95C0(void** self, void* node, int* ok);
 extern "C" void func_003A9D60(void* self, int i);
@@ -1402,7 +1402,7 @@ extern "C" void func_003A9258(void* self_)
                 func_003A95C0((void**)self, self->sections[i].node, &ok);
                 if (ok) {
                     self->pairs[i].state = 0;
-                    func_003A8230(self->slots, i);
+                    cWorldCache_FreeSectionTable(self->slots, i);
                     func_003AD1A8();
                 }
             }

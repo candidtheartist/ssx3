@@ -270,7 +270,7 @@ INCLUDE_ASM("main/game", func_0022C830);
 //100%
 extern "C" void func_0022CD40(void* self);
 
-extern "C" void* func_0022CCE8(void* self, int a1)
+extern "C" void* SectionMan_ctor(void* self, int a1)
 {
     *(int*)((char*)self + 0x1B0) = a1;
     func_0022CD40(self);

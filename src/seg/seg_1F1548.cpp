@@ -3,8 +3,8 @@
 //100%
 extern "C" void *cMemMan_alloc(int, const char *, int, int);
 extern "C" void* func_002EFF98(void*);
-extern "C" void* func_00372AA0(void*);
-void* func_003759E8(void*);
+extern "C" void* PathArrow_ctor(void*);
+void* DetailSystem_ctor(void*);
 extern char D_00487D28[];
 extern char D_00487BB8[];
 extern char D_00487BC8[];
@@ -54,7 +54,7 @@ extern "C" sMgr_0548* cPSPVisualEffectsMan_cPSPVisualEffectsMan(sMgr_0548* self)
     { void* p = cMemMan_alloc(4, D_004A3B88, 0, 0); *(char**)p = D_00493178; self->objs[3] = p; }
     { void* p = cMemMan_alloc(4, D_00487BF0, 0, 0); *(char**)p = D_00487E88; self->objs[4] = p; }
     { void* p = cMemMan_alloc(4, D_00487C00, 0, 0); *(char**)p = D_00487E58; self->objs[5] = p; }
-    self->objs[6] = func_003759E8(cMemMan_alloc(4, D_00487C10, 0, 0));
+    self->objs[6] = DetailSystem_ctor(cMemMan_alloc(4, D_00487C10, 0, 0));
     { void* p = cMemMan_alloc(4, D_00487C20, 0, 0); *(char**)p = D_00492FA0; self->objs[7] = p; }
     { void* p = cMemMan_alloc(4, D_004A3B90, 0, 0); *(char**)p = D_00487E28; self->objs[8] = p; }
     { void* p = cMemMan_alloc(4, D_00487C30, 0, 0); *(char**)p = D_00487DF8; self->objs[9] = p; }
@@ -64,7 +64,7 @@ extern "C" sMgr_0548* cPSPVisualEffectsMan_cPSPVisualEffectsMan(sMgr_0548* self)
     { void* p = cMemMan_alloc(4, D_00487C68, 0, 0); *(char**)p = D_00488050; self->objs[13] = p; }
     { void* p = cMemMan_alloc(4, D_00487C78, 0, 0); *(char**)p = D_004882B0; self->objs[14] = p; }
     { void* p = cMemMan_alloc(4, D_004A3BA0, 0, 0); *(char**)p = D_004930A0; self->objs[15] = p; }
-    self->objs[16] = func_00372AA0(cMemMan_alloc(4, D_00487C88, 0, 0));
+    self->objs[16] = PathArrow_ctor(cMemMan_alloc(4, D_00487C88, 0, 0));
     return self;
 }
 
@@ -560,7 +560,7 @@ extern "C" void func_002F1510(sFx_1150* self)
 extern "C" void func_00370B60();
 extern char D_004881E8[];
 
-extern "C" void *func_002F1768(void *arg0) {
+extern "C" void *cAttachedDynamicEmitter_ctor(void *arg0) {
     func_00370B60();
     *(int *)((char*)arg0 + 0x200) = 0;
     *(char **)((char*)arg0 + 0x1F8) = D_004881E8;
@@ -573,7 +573,7 @@ extern "C" void *func_002F1768(void *arg0) {
 extern "C" void func_00370C08(void *);
 extern char D_004881E8[];
 
-extern "C" void func_002F17A8(void *arg0) {
+extern "C" void cAttachedDynamicEmitter_v04(void *arg0) {
     *(char **)((char*)arg0 + 0x1F8) = D_004881E8;
     func_00370C08(arg0);
 }
@@ -611,7 +611,7 @@ extern "C" void func_002F1810(void) {
 extern "C" void func_002F18D8(void *);
 extern char D_004881D0[];
 
-extern "C" void *func_002F1850(void *arg0, int arg1) {
+extern "C" void *AttachedEmitterFX_ctor(void *arg0, int arg1) {
     *(int *)((char*)arg0 + 0x94) = 0;
     *(int *)((char*)arg0 + 0x9C) = 0;
     *(char **)((char*)arg0 + 0xA4) = D_004881D0;
@@ -661,7 +661,7 @@ struct Obj1940 : Base1940 {
     virtual ~Obj1940();
 };
 
-extern "C" void func_002F1940(void *arg0, int arg1) {
+extern "C" void AttachedEmitterFX_dtor(void *arg0, int arg1) {
     int c = D_004A3BB4 - 1;
     *(char **)((char*)arg0 + 0xA4) = D_004881D0;
     D_004A3BB4 = c;
@@ -739,7 +739,7 @@ struct Obj2130 : Base2130 {
     virtual void v2(int, float);
 };
 extern "C" void *cMemMan_alloc(int, const char *, int, int);
-extern "C" void *func_002F1768(void *);
+extern "C" void *cAttachedDynamicEmitter_ctor(void *);
 extern char D_00487CB0[];
 extern int D_004A3BB0;
 
@@ -748,7 +748,7 @@ extern "C" int func_002F2130(void *arg0, int arg1, int arg2) {
     int i;
     for (i = 0; i < 10; i++, p++) {
         if (*p == 0) {
-            Obj2130 *n = (Obj2130 *)func_002F1768(cMemMan_alloc(0x210, D_00487CB0, 0, 0));
+            Obj2130 *n = (Obj2130 *)cAttachedDynamicEmitter_ctor(cMemMan_alloc(0x210, D_00487CB0, 0, 0));
             int t = D_004A3BB0 + arg1 * 0x110;
             *p = n;
             *(int *)((char*)*p + 0x200) = arg2;
@@ -1098,7 +1098,7 @@ struct sObj_3550 {
     int f1024;
 };
 
-extern "C" sObj_3550* func_002F3550(sObj_3550* self, void* a1, int a2)
+extern "C" sObj_3550* cSplashManager_ctor(sObj_3550* self, void* a1, int a2)
 {
     int i;
     sElemA_3550* pa = self->a;
@@ -1265,7 +1265,7 @@ INCLUDE_ASM("seg/seg_1F1548", func_002F3E28);
 
 //100%
 // PORT: PS2-only inline asm; needs a C fallback off-PS2.
-void *func_002306A8(void *, int);
+void *cGame_GetSplashManager(void *, int);
 extern "C" void func_002F4260_4118(void *, float, void *) __asm__("func_002F4260");
 extern void *D_004A28A8;
 struct N4118 { char pad[0x84]; N4118 *c; };
@@ -1275,7 +1275,7 @@ extern "C" void func_002F4118(void *arg0, float arg1) {
     unsigned int i = 0;
     if (((M4118 *)((N4118 *)((N4118 *)D_004A28A8)->c)->c)->cnt != 0) {
         do {
-            func_002F4260_4118(func_002306A8(((N4118 *)D_004A28A8)->c, i++), arg1, arg0);
+            func_002F4260_4118(cGame_GetSplashManager(((N4118 *)D_004A28A8)->c, i++), arg1, arg0);
         } while (i < ((M4118 *)((N4118 *)((N4118 *)D_004A28A8)->c)->c)->cnt);
     }
 }
@@ -1289,7 +1289,7 @@ struct Obj41A8 : Base41A8 {
     virtual void v8(); virtual void v9(); virtual void v10(); virtual void v11();
     virtual void v12(); virtual void v13();
 };
-Obj41A8 *func_002306A8_41A8(void *, int) __asm__("func_002306A8__FPvi");
+Obj41A8 *cGame_GetSplashManager_41A8(void *, int) __asm__("cGame_GetSplashManager__FPvi");
 extern void *D_004A28A8;
 #define F84(p) (*(char **)((char*)(p) + 0x84))
 
@@ -1299,8 +1299,8 @@ extern "C" void func_002F41A8(int arg0) {
         do {
             char *t5 = F84(D_004A28A8);
             if (arg0 == *(int *)(F84(t5) + (i << 2) + 4)) {
-                if (func_002306A8_41A8(t5, i) != 0) {
-                    Obj41A8 *o = func_002306A8_41A8(F84(D_004A28A8), i);
+                if (cGame_GetSplashManager_41A8(t5, i) != 0) {
+                    Obj41A8 *o = cGame_GetSplashManager_41A8(F84(D_004A28A8), i);
                     o->v13();
                 }
             }
@@ -1700,8 +1700,8 @@ extern void *D_004A28A8;
 struct A5180 { unsigned int v; char pad[0x3C]; A5180() { v = 0xFFFFFFFF; } };
 struct B5180 { unsigned int v; char pad[0x17C]; B5180() { v = 0xFFFFFFFF; } };
 
-INCLUDE_ASM("seg/seg_1F1548", func_002F5180);
-extern "C" void *func_002F5180(void *arg0, int arg1);
+INCLUDE_ASM("seg/seg_1F1548", WorldLightMan_ctor);
+extern "C" void *WorldLightMan_ctor(void *arg0, int arg1);
 
 //100%
 extern "C" void func_002F53B0(void *);

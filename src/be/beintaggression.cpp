@@ -29,7 +29,7 @@ void func_00155AA0(void* self)
 }
 
 //100%
-void func_00155AA8(void* self)
+void cBEAggressionInterface_Reset(void* self)
 {
 }
 
@@ -226,7 +226,7 @@ extern int D_005305E0[];
 
 struct sStreamVE_1560A0 { short delta; short index; void (*fn)(void*, void*, int); };
 
-extern "C" void func_001560A0(void* self, void* stream)
+extern "C" void cBEAggressionInterface_SaveState(void* self, void* stream)
 {
     int n = D_005305E0[0];
     sStreamVE_1560A0* vt = *(sStreamVE_1560A0**)stream;
@@ -249,7 +249,7 @@ int cBELibrary_getCharacterID(int);
 
 struct sStreamVE_1561B0 { short delta; short index; void (*fn)(void*, void*, int); };
 
-extern "C" void func_001561B0(void* self, void* stream)
+extern "C" void cBEAggressionInterface_LoadState(void* self, void* stream)
 {
     int n;
     sStreamVE_1561B0* vt = *(sStreamVE_1561B0**)stream;

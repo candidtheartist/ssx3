@@ -703,7 +703,7 @@ extern void* D_004A3028;
 extern char D_0045FF28[];
 extern char D_00534B30[];
 
-extern "C" int func_001D5138(void* self, int msg)
+extern "C" int cFEStateRelogin_v31(void* self, int msg)
 {
     switch (msg) {
     case 0xC9:
@@ -753,7 +753,7 @@ extern "C" void* func_001B3F78(void* mem, void* owner);
 extern "C" void func_001A8A40(void* self, void* obj);
 extern char D_00460BF0[];
 
-extern "C" void func_001D5280(void* self, void* item, int msg)
+extern "C" void cFEStateRelogin_v33(void* self, void* item, int msg)
 {
     if (msg == 0xF || msg == 0x14) {
         func_001A97B8(self, item, msg);

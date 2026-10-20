@@ -18,21 +18,21 @@ INCLUDE_ASM("main/ssxapp2", func_00243C00);
 
 INCLUDE_ASM("main/ssxapp2", func_00243C80);
 
-INCLUDE_ASM("main/ssxapp2", func_00243CB0);
+INCLUDE_ASM("main/ssxapp2", GameState_OverlayEnter);
 
-INCLUDE_ASM("main/ssxapp2", func_00243CB8);
+INCLUDE_ASM("main/ssxapp2", GameState_OverlayUpdate);
 
-INCLUDE_ASM("main/ssxapp2", func_00243CC0);
+INCLUDE_ASM("main/ssxapp2", GameState_OverlayExit);
 
-INCLUDE_ASM("main/ssxapp2", func_00243CC8);
+INCLUDE_ASM("main/ssxapp2", GameState_Enter);
 
-INCLUDE_ASM("main/ssxapp2", func_00243CD0);
+INCLUDE_ASM("main/ssxapp2", GameState_Update);
 
-INCLUDE_ASM("main/ssxapp2", func_00243CD8);
+INCLUDE_ASM("main/ssxapp2", GameState_Exit);
 
 INCLUDE_ASM("main/ssxapp2", func_00243CE0);
 
-INCLUDE_ASM("main/ssxapp2", func_00243CE8);
+INCLUDE_ASM("main/ssxapp2", GameState_v09);
 
 INCLUDE_ASM("main/ssxapp2", func_00243CF0);
 
@@ -72,7 +72,7 @@ INCLUDE_ASM("main/ssxapp2", func_002443C0);
 
 INCLUDE_ASM("main/ssxapp2", func_002443F0);
 
-INCLUDE_ASM("main/ssxapp2", func_002443F8);
+INCLUDE_ASM("main/ssxapp2", GenericStreamPause_v03);
 
 INCLUDE_ASM("main/ssxapp2", func_00244400);
 
@@ -84,21 +84,21 @@ INCLUDE_ASM("main/ssxapp2", func_00244478);
 
 INCLUDE_ASM("main/ssxapp2", func_002444A8);
 
-INCLUDE_ASM("main/ssxapp2", func_002444F0);
+INCLUDE_ASM("main/ssxapp2", GMHandler_dtor);
 
-INCLUDE_ASM("main/ssxapp2", func_00244528);
+INCLUDE_ASM("main/ssxapp2", GMHandler_Reset);
 
-INCLUDE_ASM("main/ssxapp2", func_00244530);
+INCLUDE_ASM("main/ssxapp2", GMHandler_v06);
 
-INCLUDE_ASM("main/ssxapp2", func_00244538);
+INCLUDE_ASM("main/ssxapp2", GMHandler_v07);
 
-INCLUDE_ASM("main/ssxapp2", func_00244540);
+INCLUDE_ASM("main/ssxapp2", GMHandler_OnRiderFinished);
 
 INCLUDE_ASM("main/ssxapp2", func_00244548);
 
-INCLUDE_ASM("main/ssxapp2", func_00244550);
+INCLUDE_ASM("main/ssxapp2", GMHandler_SaveState);
 
-INCLUDE_ASM("main/ssxapp2", func_00244558);
+INCLUDE_ASM("main/ssxapp2", GMHandler_LoadState);
 
 INCLUDE_ASM("main/ssxapp2", func_00244560);
 
@@ -108,9 +108,9 @@ INCLUDE_ASM("main/ssxapp2", func_002445C0);
 
 INCLUDE_ASM("main/ssxapp2", func_002445F0);
 
-INCLUDE_ASM("main/ssxapp2", func_00244620);
+INCLUDE_ASM("main/ssxapp2", GMHandler9_SaveState);
 
-INCLUDE_ASM("main/ssxapp2", func_00244628);
+INCLUDE_ASM("main/ssxapp2", GMHandler9_LoadState);
 
 INCLUDE_ASM("main/ssxapp2", func_00244630);
 
@@ -146,37 +146,37 @@ INCLUDE_ASM("main/ssxapp2", func_002449F8);
 
 INCLUDE_ASM("main/ssxapp2", func_00244A18);
 
-INCLUDE_ASM("main/ssxapp2", func_00245228);
+INCLUDE_ASM("main/ssxapp2", cFEStateProgressive_dtor);
 
-INCLUDE_ASM("main/ssxapp2", func_00245248);
+INCLUDE_ASM("main/ssxapp2", cFEStateProgressive_Init);
 
-INCLUDE_ASM("main/ssxapp2", func_002452D8);
+INCLUDE_ASM("main/ssxapp2", cFEStateProgressive_OnWidgetAction);
 
 INCLUDE_ASM("main/ssxapp2", func_002453E0);
 
-INCLUDE_ASM("main/ssxapp2", func_002453F0);
+INCLUDE_ASM("main/ssxapp2", cGameLoadState_dtor);
 
-INCLUDE_ASM("main/ssxapp2", func_00245418);
+INCLUDE_ASM("main/ssxapp2", cGameLoadState_Init);
 
-INCLUDE_ASM("main/ssxapp2", func_002454F8);
+INCLUDE_ASM("main/ssxapp2", cGameLoadState_TransitionIn);
 
-INCLUDE_ASM("main/ssxapp2", func_00245598);
+INCLUDE_ASM("main/ssxapp2", cGameLoadState_OnWidgetCreated);
 
-INCLUDE_ASM("main/ssxapp2", func_00245600);
+INCLUDE_ASM("main/ssxapp2", cGameLoadStateOutLodge_dtor);
 
-INCLUDE_ASM("main/ssxapp2", func_00245628);
+INCLUDE_ASM("main/ssxapp2", cGameLoadStateOutLodge_Init);
 
-INCLUDE_ASM("main/ssxapp2", func_00245690);
+INCLUDE_ASM("main/ssxapp2", cGameLoadStateOutLodge_OnWidgetCreated);
 
-INCLUDE_ASM("main/ssxapp2", func_00245698);
+INCLUDE_ASM("main/ssxapp2", cGameLoadStateOutLodge_TransitionIn);
 
-INCLUDE_ASM("main/ssxapp2", func_00245708);
+INCLUDE_ASM("main/ssxapp2", cGameLoadStateConquer_dtor);
 
-INCLUDE_ASM("main/ssxapp2", func_00245730);
+INCLUDE_ASM("main/ssxapp2", cGameLoadStateConquer_Init);
 
-INCLUDE_ASM("main/ssxapp2", func_002458B0);
+INCLUDE_ASM("main/ssxapp2", cGameLoadStateConquer_OnWidgetCreated);
 
-INCLUDE_ASM("main/ssxapp2", func_002458B8);
+INCLUDE_ASM("main/ssxapp2", cGameLoadStateConquer_TransitionIn);
 
-INCLUDE_ASM("main/ssxapp2", func_00245928);
+INCLUDE_ASM("main/ssxapp2", cFELoadHintState_dtor);
 

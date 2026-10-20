@@ -2,7 +2,7 @@
 
 //100%
 struct sBox00348058;
-extern "C" void* func_002D1BE0();
+extern "C" void* World_GetNash();
 extern "C" void cSpaceHash_moveItem(void* world, int type, int id, sBox00348058* box, sBox00348058* old);
 void cMemMan_free(void*);
 // PORT: operator_new__FUi really takes (size, tag, flags, d); bound by asm label
@@ -211,11 +211,11 @@ extern "C" void func_00346D38(sFlexBridge* self)
     self->end = flexVecSub(self->pts[n], seg->pos);
 }
 
-INCLUDE_ASM("object/flexbridgenode", func_00346E38);
+INCLUDE_ASM("object/flexbridgenode", FlexBridge_v43);
 
-INCLUDE_ASM("object/flexbridgenode", func_003470D0);
+INCLUDE_ASM("object/flexbridgenode", FlexBridge_v42);
 
-INCLUDE_ASM("object/flexbridgenode", func_00347268);
+INCLUDE_ASM("object/flexbridgenode", FlexBridge_v39);
 
 //100%
 extern "C" void func_00353FC0(void*);
@@ -426,7 +426,7 @@ struct sObj00348058 {
     int id;
 };
 
-extern "C" void* func_002D1BE0();
+extern "C" void* World_GetNash();
 extern "C" void cSpaceHash_moveItem(void* world, int type, int id, sBox00348058* box, sBox00348058* old);
 
 extern "C" void func_00348058(void* p)
@@ -435,7 +435,7 @@ extern "C" void func_00348058(void* p)
     sBox00348058* box = &self->box;
     sBox00348058 old = self->box;
     self->vt[50].fn((char*)self + self->vt[50].delta);
-    cSpaceHash_moveItem(func_002D1BE0(), 2, self->id, box, &old);
+    cSpaceHash_moveItem(World_GetNash(), 2, self->id, box, &old);
 }
 
 INCLUDE_ASM("object/flexbridgenode", func_003480C8);

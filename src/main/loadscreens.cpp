@@ -146,7 +146,7 @@ static inline void setState_AE00()
 INCLUDE_ASM("main/loadscreens", func_0017AE00);
 extern "C" void func_0017AE00(sBgMan_AE00* self);
 
-INCLUDE_ASM("main/loadscreens", func_0017B1B0);
+INCLUDE_ASM("main/loadscreens", cDebugMenuScreen_ctor);
 
 INCLUDE_ASM("main/loadscreens", func_0017B4E0);
 

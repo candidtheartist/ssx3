@@ -35,7 +35,7 @@ void operator_delete(int*);
 extern char D_0046D8C0[];
 
 // Destructor: three cBXString members, vtable at +0xC.
-extern "C" void func_002688E0(void* self, int flags)
+extern "C" void cPrivateMessage_dtor(void* self, int flags)
 {
     *(void**)((char*)self + 0xC) = D_0046D8C0;
     cBXString__cBXString((char*)self + 8, 2);
@@ -52,7 +52,7 @@ extern "C" void cBXString__cBXString(void* self, int flags);
 void operator_delete(int*);
 extern char D_004810E0[];
 
-extern "C" void func_00268950(void* self, int flags)
+extern "C" void cChallenger_dtor(void* self, int flags)
 {
     *(void**)((char*)self + 0x3C) = D_004810E0;
     cBXString__cBXString((char*)self + 4, 2);
@@ -107,11 +107,11 @@ extern "C" void func_00268AE0(void* self, void* a1, int a2)
 
 //100%
 extern sShortPad16 D_004A2FF0;
-void* func_002598A8(void* self);
+void* LobbyMan_OnRecvDebug(void* self);
 
 extern "C" void func_00268B08(void* self, void* a1, char* a2)
 {
-    func_002598A8(a2 + D_004A2FF0.v);
+    LobbyMan_OnRecvDebug(a2 + D_004A2FF0.v);
 }
 
 //100%
@@ -1342,12 +1342,12 @@ extern "C" void func_00269CF0(void* self, int a1)
     sMsgList_00269CF0_insert(*(sMsgListNode_00269CF0**)(D_004A3028 + 0xF0), mp);
 }
 
-extern "C" void* func_00267E18(void* self);
+extern "C" void* NetEvent_dtor(void* self);
 
 //100%
 void* func_00269DA0(void* self)
 {
-    return func_00267E18(self);
+    return NetEvent_dtor(self);
 }
 
 //100%
@@ -1374,7 +1374,7 @@ extern "C" sNode00269DC0* func_00269DC0(void* self)
 //100%
 void* func_00269E20(void* self)
 {
-    return func_00267E18(self);
+    return NetEvent_dtor(self);
 }
 
 //100%

@@ -1285,7 +1285,7 @@ extern "C" void func_001FDB88(void* self, int a1, int a2)
 extern "C" void* func_001D5330(void* self, int a1, int a2, int a3);
 extern void* D_00472440[];
 
-extern "C" void* func_001FDBF0(void* self, int a1, int a2)
+extern "C" void* OVScreenSaveReplay_ctor(void* self, int a1, int a2)
 {
     func_001D5330(self, a1, 1, a2);
     *(void***)((char*)self + 0x8) = D_00472440;
@@ -1335,7 +1335,7 @@ static inline void* engine_1FDC30(char* self)
     return *(void**)(self + 0x10);
 }
 
-extern "C" void func_001FDC30(char* self)
+extern "C" void OVScreenSaveReplay_Init(char* self)
 {
     void* scr = cUIEngine_addScreenByHashName(engine_1FDC30(self), self, GetHashValue32(D_004700E0), 0);
     *(void**)(self + 0x40) = scr;
@@ -1388,7 +1388,7 @@ extern "C" void func_001FDE60(void* self)
 //100%
 extern "C" void func_0039F718(void* self);
 
-extern "C" void func_001FDF00(void* self)
+extern "C" void OVScreenSaveReplay_v33(void* self)
 {
     if (*(int*)((char*)self + 0x1AC) == 0) {
         func_0039F718(*(char**)((char*)self + 0x10) + 0x18);
@@ -1580,7 +1580,7 @@ static inline cUIObj_DF40* getObj_DF40(cState_DF40* self, char* name)
     return (cUIObj_DF40*)cUIScreen_getObjectByHashName(*(void**)((char*)self + 0x40), GetHashValue32(name));
 }
 
-extern "C" void func_001FDF40(cState_DF40* self)
+extern "C" void OVScreenSaveReplay_v26(cState_DF40* self)
 {
     unsigned short buf[0x320];
     char name[0x40];
@@ -1673,7 +1673,7 @@ extern char D_004A2568[];
 extern char D_00470188[];
 extern char D_004A20A0[];
 
-extern "C" void func_001FE4A8(void* self, bool on)
+extern "C" void OVScreenSaveReplay_v37(void* self, bool on)
 {
     if (*(int*)((char*)self + 0x22C) != on) {
         int off = !on;
@@ -1704,7 +1704,7 @@ extern "C" void* cUIScreen_getObjectByHashName(void* self, int hash);
 extern char D_00470188[];
 extern char D_004A20A0[];
 
-extern "C" void func_001FE5B0(void* self, bool on)
+extern "C" void OVScreenSaveReplay_v38(void* self, bool on)
 {
     ((cUIObj_1FE5B0*)cUIScreen_getObjectByHashName(*(void**)((char*)self + 0x40), GetHashValue32(D_00470188)))->setVisible(!on);
     ((cUIObj_1FE5B0*)cUIScreen_getObjectByHashName(*(void**)((char*)self + 0x40), GetHashValue32(D_004A20A0)))->setVisible(!on);
@@ -1730,7 +1730,7 @@ extern "C" void* cUIScreen_getObjectByHashName(void* self, int hash);
 extern char D_004A2090[];
 extern char D_004A2568[];
 
-extern "C" void func_001FE648(void* self, int a1, bool on)
+extern "C" void OVScreenSaveReplay_v39(void* self, int a1, bool on)
 {
     cUIObj_1FE648* a = (cUIObj_1FE648*)cUIScreen_getObjectByHashName(*(void**)((char*)self + 0x40), GetHashValue32(D_004A2090));
     ((cUIObj_1FE648*)cUIScreen_getObjectByHashName(*(void**)((char*)self + 0x40), GetHashValue32(D_004A2568)))->setVisible(!on);
@@ -1914,7 +1914,7 @@ extern "C" void func_001FE8F0(void* self, void* a1, int key)
 extern "C" void* func_001D5330(void* self, int a1, int a2, int a3);
 extern void* D_004722B8[];
 
-extern "C" void* func_001FE968(void* self, int a1, int a2)
+extern "C" void* OVScreenSaveRecords_ctor(void* self, int a1, int a2)
 {
     func_001D5330(self, a1, 2, a2);
     *(void***)((char*)self + 0x8) = D_004722B8;
@@ -1961,7 +1961,7 @@ static inline void* engine_1FE9A8(char* self)
     return *(void**)(self + 0x10);
 }
 
-extern "C" void func_001FE9A8(char* self)
+extern "C" void OVScreenSaveRecords_Init(char* self)
 {
     void* scr = cUIEngine_addScreenByHashName(engine_1FE9A8(self), self, GetHashValue32(D_004700E0), 0);
     *(void**)(self + 0x40) = scr;
@@ -2008,7 +2008,7 @@ void* func_001FEC40(void* self)
 //100%
 extern "C" void func_0039F718(void* self);
 
-extern "C" void func_001FEC60(void* self)
+extern "C" void OVScreenSaveRecords_v33(void* self)
 {
     if (*(int*)((char*)self + 0x1AC) == 0) {
         func_0039F718(*(char**)((char*)self + 0x10) + 0x18);
@@ -2200,7 +2200,7 @@ static inline cUIObj_ECA0* getObj_ECA0(cState_ECA0* self, char* name)
     return (cUIObj_ECA0*)cUIScreen_getObjectByHashName(*(void**)((char*)self + 0x40), GetHashValue32(name));
 }
 
-extern "C" void func_001FECA0(cState_ECA0* self)
+extern "C" void OVScreenSaveRecords_v26(cState_ECA0* self)
 {
     unsigned short buf[0x320];
     char name[0x40];
@@ -2282,7 +2282,7 @@ extern char D_004A2568[];
 extern char D_00470188[];
 extern char D_004A20A0[];
 
-extern "C" void func_001FF170(void* self, bool on)
+extern "C" void OVScreenSaveRecords_v37(void* self, bool on)
 {
     if (*(int*)((char*)self + 0x22C) != on) {
         int off = !on;
@@ -2569,7 +2569,7 @@ extern "C" void func_001FF700(void* self, void* a1, int key)
 }
 
 //100%
-extern "C" int func_001FF748(char* self, int a1, int msg, int a3)
+extern "C" int OVScreenRewardList_OnWidgetNotify(char* self, int a1, int msg, int a3)
 {
     switch (msg) {
     case 4:

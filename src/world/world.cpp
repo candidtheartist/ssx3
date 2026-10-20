@@ -40,7 +40,7 @@ extern "C" void func_002BB140(void* self, int flags);
 extern "C" void func_0032DE20(void);
 void operator_delete(int* p);
 
-extern "C" void func_003A6740(void** self, int flags)
+extern "C" void World_dtor(void** self, int flags)
 {
     char* obj = D_004A5B80;
     sWorldVEntry0* e = &(*(sWorldVEntry0**)(obj + 0x10D8))[107];
@@ -253,13 +253,13 @@ int cWorldView_getNumSections(cWorldView* view);
 extern "C" void cWScriptCache_init(void* cache, int n);
 extern "C" void func_002BB1D0(void* p, int n);
 
-struct func_003A6AE0_sBXString {
+struct World_Load_sBXString {
     char* str;
 };
 
-extern "C" void func_003A6AE0(void** self, const char* name, int a2)
+extern "C" void World_Load(void** self, const char* name, int a2)
 {
-    func_003A6AE0_sBXString s;
+    World_Load_sBXString s;
     cBXString_cBXString2(&s, name);
     func_003A7F90(self[0]);
     cWorldCache_init(self[0], name, a2);

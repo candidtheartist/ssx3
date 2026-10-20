@@ -1,7 +1,7 @@
 #include "common.h"
 
 extern "C" void* cMemMan_alloc(int size, const char* tag, unsigned int flags, int d);
-extern "C" void* func_00242288(void* self);
+extern "C" void* cMCOverlayManager_ctor(void* self);
 extern const char D_0047C128[];
 extern void* D_004A2C74;
 
@@ -10,7 +10,7 @@ void* cMCOverlayManager_getManager()
 {
     if (D_004A2C74 == 0) {
         void* mem = cMemMan_alloc(0x74C, D_0047C128, 0, 0);
-        D_004A2C74 = func_00242288(mem);
+        D_004A2C74 = cMCOverlayManager_ctor(mem);
     }
     return D_004A2C74;
 }
@@ -356,7 +356,7 @@ extern "C" void cMCOverlayManager_setTitleString(void* self, int n)
     func_002C2508((char*)self + 0x234, out);
 }
 
-INCLUDE_ASM("movie/movieplayer", func_0023CF38);
+INCLUDE_ASM("movie/movieplayer", cMCOverlayManager_v01);
 
 //100%
 extern "C" void* func_0023D570(void* self, int mode)
@@ -3723,7 +3723,7 @@ extern "C" void func_002420C8_v(void* self, int i)
     (*(cMovieSub434_20C8**)((char*)self + 0x434))->v70(i, name, 100);
 }
 
-INCLUDE_ASM("movie/movieplayer", func_00242288);
+INCLUDE_ASM("movie/movieplayer", cMCOverlayManager_ctor);
 
 //100%
 extern int D_004A2C78;
@@ -3740,7 +3740,7 @@ extern "C" void func_002424C8(void* self, int flags)
 }
 
 //100%
-void* func_00242500(void* self)
+void* OcclusionMan_ctor(void* self)
 {
     int t0 = 0;
     *(int*)((char*)self + 0x4) = t0;

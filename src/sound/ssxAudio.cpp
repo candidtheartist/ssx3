@@ -581,7 +581,7 @@ extern "C" void func_00289DF0(void*, int);
 extern "C" void cBankManager_unloadBank(void*, int);
 extern "C" void cBankManager_freeBankMem(void*, int);
 extern "C" void cAsyncSys_shutdown(void*);
-extern "C" void func_0029F5E0(void*);
+extern "C" void cSSXAudio_UnloadGruntBanks(void*);
 
 extern "C" void cSSXAudio_unloadWorldBanks(void* self)
 {
@@ -596,7 +596,7 @@ extern "C" void cSSXAudio_unloadWorldBanks(void* self)
     cBankManager_freeBankMem(**(void***)((char*)self + 0x118), 3);
     cBankManager_freeBankMem(**(void***)((char*)self + 0x118), 12);
     cAsyncSys_shutdown(**(void***)((char*)self + 0x118));
-    func_0029F5E0(self);
+    cSSXAudio_UnloadGruntBanks(self);
 }
 
 //100%

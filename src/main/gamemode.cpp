@@ -389,7 +389,7 @@ public:
 
 extern int D_00536708[];
 
-extern "C" void func_002385D0(char* self, cGmStream_385D0* s)
+extern "C" void cGameModeMan_SaveState(char* self, cGmStream_385D0* s)
 {
     s->write(self + 4, 4);
     s->write(self, 4);
@@ -432,7 +432,7 @@ public:
     virtual void load(cGmStream_385D0* s);
 };
 
-extern "C" void func_002388A0(char* self, cGmStream_385D0* s)
+extern "C" void cGameModeMan_LoadState(char* self, cGmStream_385D0* s)
 {
     s->read(self + 4, 4);
     s->read(self, 4);
@@ -1347,14 +1347,14 @@ public:
     virtual void v02(void* buf, int size);
 };
 
-extern "C" void func_00239D18(void* self, cGameModeStream* s)
+extern "C" void GMHandler0_SaveState(void* self, cGameModeStream* s)
 {
     s->v01((char*)self + 0x4, 0xA0);
 }
 
 //100%
 // Serialisation stream: v01 = read(buf, size), v02 = write(buf, size).
-extern "C" void func_00239D50(void* self, cGameModeStream* s)
+extern "C" void GMHandler0_LoadState(void* self, cGameModeStream* s)
 {
     s->v02((char*)self + 0x4, 0xA0);
 }
@@ -1726,14 +1726,14 @@ void func_0023AC10(void* self)
 
 //100%
 // Serialisation stream: v01 = read(buf, size), v02 = write(buf, size).
-extern "C" void func_0023AC18(void* self, cGameModeStream* s)
+extern "C" void GMHandler1_SaveState(void* self, cGameModeStream* s)
 {
     s->v01(self, 0xD0);
 }
 
 //100%
 // Serialisation stream: v01 = read(buf, size), v02 = write(buf, size).
-extern "C" void func_0023AC50(void* self, cGameModeStream* s)
+extern "C" void GMHandler1_LoadState(void* self, cGameModeStream* s)
 {
     s->v02(self, 0xD0);
 }
@@ -1903,14 +1903,14 @@ extern "C" void func_0023AE00(sSelf_23AE00* self, int idx)
 
 //100%
 // Serialisation stream: v01 = read(buf, size), v02 = write(buf, size).
-extern "C" void func_0023B038(void* self, cGameModeStream* s)
+extern "C" void GMHandler8_SaveState(void* self, cGameModeStream* s)
 {
     s->v01(self, 0x2C);
 }
 
 //100%
 // Serialisation stream: v01 = read(buf, size), v02 = write(buf, size).
-extern "C" void func_0023B070(void* self, cGameModeStream* s)
+extern "C" void GMHandler8_LoadState(void* self, cGameModeStream* s)
 {
     s->v02(self, 0x2C);
 }

@@ -70,7 +70,7 @@ INCLUDE_ASM("replay/replay2", func_00270EF8);
 
 INCLUDE_ASM("replay/replay2", func_00270F18);
 
-INCLUDE_ASM("replay/replay2", func_00270F20);
+INCLUDE_ASM("replay/replay2", Replay_AllocSaveBuffers);
 
 INCLUDE_ASM("replay/replay2", func_00270F78);
 
@@ -112,7 +112,7 @@ INCLUDE_ASM("replay/replay2", func_00272258);
 
 INCLUDE_ASM("replay/replay2", func_00272288);
 
-INCLUDE_ASM("replay/replay2", func_002722C0);
+INCLUDE_ASM("replay/replay2", Replay_GlobalCtors);
 
 INCLUDE_ASM("replay/replay2", func_002722E0);
 
@@ -134,7 +134,7 @@ INCLUDE_ASM("replay/replay2", func_002725B8);
 
 INCLUDE_ASM("replay/replay2", func_002725F0);
 
-INCLUDE_ASM("replay/replay2", func_00272680);
+INCLUDE_ASM("replay/replay2", InSeq_CurveTrackStop);
 
 INCLUDE_ASM("replay/replay2", func_002726A8);
 
@@ -274,7 +274,7 @@ INCLUDE_ASM("replay/replay2", func_002751A0);
 
 INCLUDE_ASM("replay/replay2", func_002752F0);
 
-INCLUDE_ASM("replay/replay2", func_002752F8);
+INCLUDE_ASM("replay/replay2", InSeq_CurveTrack_v05);
 
 INCLUDE_ASM("replay/replay2", func_00275300);
 
@@ -286,7 +286,7 @@ INCLUDE_ASM("replay/replay2", func_00275318);
 
 INCLUDE_ASM("replay/replay2", func_00275328);
 
-INCLUDE_ASM("replay/replay2", func_00275330);
+INCLUDE_ASM("replay/replay2", InSeq_SpanTrack_v05);
 
 INCLUDE_ASM("replay/replay2", func_00275338);
 
@@ -296,7 +296,7 @@ INCLUDE_ASM("replay/replay2", func_00275348);
 
 INCLUDE_ASM("replay/replay2", func_00275358);
 
-INCLUDE_ASM("replay/replay2", func_00275360);
+INCLUDE_ASM("replay/replay2", InSeq_EventTrack_v05);
 
 INCLUDE_ASM("replay/replay2", func_00275368);
 
@@ -306,7 +306,7 @@ INCLUDE_ASM("replay/replay2", func_00275378);
 
 INCLUDE_ASM("replay/replay2", func_00275388);
 
-INCLUDE_ASM("replay/replay2", func_00275390);
+INCLUDE_ASM("replay/replay2", InSeq_RampTrack_v05);
 
 INCLUDE_ASM("replay/replay2", func_00275398);
 

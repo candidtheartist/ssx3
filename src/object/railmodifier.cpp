@@ -20,15 +20,15 @@ struct sObj0035C4E0 {
 };
 
 extern "C" void func_0035C040(void* self);
-extern "C" void* func_002D1BE0();
+extern "C" void* World_GetNash();
 extern "C" void cSpaceHash_moveItem(void* world, int type, int id, sBox0035C4E0* box, sBox0035C4E0* old);
 
-extern "C" void func_0035C4E0(sObj0035C4E0* self)
+extern "C" void RailModifier_v03(sObj0035C4E0* self)
 {
     sBox0035C4E0* box = &self->box;
     sBox0035C4E0 old = self->box;
     func_0035C040(self);
-    cSpaceHash_moveItem(func_002D1BE0(), 2, self->id, box, &old);
+    cSpaceHash_moveItem(World_GetNash(), 2, self->id, box, &old);
 }
 
 //100%
@@ -42,7 +42,7 @@ public:
     virtual void v05(void* p);
 };
 
-extern "C" void func_0035C540(void* self, cStream0035C540* stream)
+extern "C" void RailModifier_v02(void* self, cStream0035C540* stream)
 {
     stream->v01((char*)self + 0x10, 0x30);
     stream->v05(*(void**)((char*)self + 0x40));
@@ -610,7 +610,7 @@ static inline void SetBits_DA70(unsigned int* w, unsigned int mask, unsigned int
     *w = (*w & mask) | bits;
 }
 
-extern "C" char* func_0035DA70(char* self, char* a1, char* a2, char* a3)
+extern "C" char* RollerModifier_ctor(char* self, char* a1, char* a2, char* a3)
 {
     float* timing = (float*)(self + 0x4);
     *(void***)self = D_004913F8;
@@ -669,7 +669,7 @@ extern "C" char* func_0035DA70(char* self, char* a1, char* a2, char* a3)
 
 INCLUDE_ASM("object/railmodifier", func_0035DDE8);
 
-INCLUDE_ASM("object/railmodifier", func_0035DF70);
+INCLUDE_ASM("object/railmodifier", RollerModifier_ctor_2);
 
 //100% - objdiff report; single-function view differs only in a relocation name
 class func_0035E1E0_cObj {
@@ -1324,17 +1324,17 @@ extern "C" void* func_00360700(void* self)
 }
 
 //100%
-void func_00360720(void* self)
+void GameProcess_Update(void* self)
 {
 }
 
 //100%
-void func_00360728(void* self)
+void GameProcess_PostUpdate(void* self)
 {
 }
 
 //100%
-void func_00360730(void* self)
+void GameProcess_Render(void* self)
 {
 }
 
@@ -1380,7 +1380,7 @@ extern "C" unsigned int func_00360768()
 }
 
 //100%
-void func_00360778(void* self)
+void GameProcess_Save(void* self)
 {
 }
 
@@ -1390,12 +1390,12 @@ void func_00360780(void* self)
 }
 
 //100%
-void func_00360788(void* self)
+void TypedProcess_Update(void* self)
 {
 }
 
 //100%
-void func_00360790(void* self)
+void TypedProcess_Render(void* self)
 {
 }
 
@@ -1465,7 +1465,7 @@ extern "C" int func_00360840(void* self, void* obj)
 }
 
 //100%
-int func_00360880(void* self)
+int SyncProcess_GetId(void* self)
 {
     return *(int*)((char*)self + 0x14);
 }
@@ -1760,7 +1760,7 @@ extern void* D_00491B00[];
 extern "C" void* func_0034FBF0(void*);
 
 //100%
-void* func_00360A28(void* self)
+void* DeadNode_v01(void* self)
 {
     *(int*)((char*)self + 0xc) = (int)(void*)D_00491B00;
     return func_0034FBF0(self);
@@ -1850,7 +1850,7 @@ void func_00360AF8(void* self)
 extern void* D_004913F8[];
 void operator_delete(int*);
 
-extern "C" void func_00360B00(void* self, int flags)
+extern "C" void RollerModifier_dtor(void* self, int flags)
 {
     *(void***)self = D_004913F8;
     if (flags & 1) {
@@ -2047,7 +2047,7 @@ int func_00360C70(void* self)
 extern "C" void* func_00370C08(void* self);
 
 //100%
-void* func_00360C78(void* self)
+void* DynamicParticleModifier_v04(void* self)
 {
     return func_00370C08(self);
 }
@@ -2105,13 +2105,13 @@ extern "C" int func_00360D18()
 }
 
 //100%
-int func_00360D20(void* self)
+int ParticleModifier_GetType(void* self)
 {
     return 0x1;
 }
 
 //100%
-int func_00360D28(void* self)
+int DynamicParticleModifier_GetType(void* self)
 {
     return 0x2;
 }
@@ -2124,7 +2124,7 @@ extern "C" int func_00360D30()
 }
 
 //100%
-int func_00360D38(void* self)
+int HaloModifier_GetType(void* self)
 {
     return 0x3;
 }
@@ -2154,7 +2154,7 @@ extern "C" int func_00360D98(void* self)
 }
 
 //100%
-extern "C" void func_00360DA0(cRailVirt* self)
+extern "C" void cMoveNode_v03(cRailVirt* self)
 {
     self->v50();
 }
@@ -2334,7 +2334,7 @@ extern "C" void func_00361010(void* self)
 }
 
 //100%
-void* func_00361038(void* self)
+void* Object_v01(void* self)
 {
     *(int*)((char*)self + 0xc) = (int)(void*)D_00490E80;
     return func_003553C0(self);
@@ -2451,7 +2451,7 @@ extern "C" void* func_003611A0(void* self)
 extern void* D_00490AF0[];
 void operator_delete(int*);
 
-extern "C" void func_003611D8(void* self, int flags)
+extern "C" void IntersectInfo_dtor(void* self, int flags)
 {
     *(void***)((char*)self + 0x84) = D_00490AF0;
     if (flags & 1) {
@@ -2574,7 +2574,7 @@ extern "C" void func_0034DBA8(void* self, int flags);
 void operator_delete(int*);
 extern void* D_004908F8[];
 
-extern "C" void func_00361400(void* self, int flags)
+extern "C" void cAnimTeeterNode_dtor(void* self, int flags)
 {
     *(void***)((char*)self + 0x50) = D_004908F8;
     func_0034DBA8((char*)self + 0x30, 0);
@@ -2603,7 +2603,7 @@ extern "C" int func_00361460(void* self)
 extern void* D_004913B8[];
 void operator_delete(int*);
 
-extern "C" void func_00361488(void* self, int flags)
+extern "C" void cBoostModifier_v01(void* self, int flags)
 {
     *(void***)((char*)self + 0x4) = D_004913B8;
     if (flags & 1) {
@@ -2631,7 +2631,7 @@ extern void* D_004906F0[];
 extern "C" void* func_003553C0(void*);
 
 //100%
-void* func_003614D0(void* self)
+void* Debounce_v01(void* self)
 {
     *(int*)((char*)self + 0xc) = (int)(void*)D_004906F0;
     return func_003553C0(self);
@@ -2646,7 +2646,7 @@ extern void* D_00490570[];
 extern "C" void* func_0034FBF0(void*);
 
 //100%
-void* func_00361500(void* self)
+void* Conveyor_v01(void* self)
 {
     *(int*)((char*)self + 0xc) = (int)(void*)D_00490570;
     return func_0034FBF0(self);
@@ -2662,7 +2662,7 @@ extern void* D_004903F0[];
 extern "C" void* func_0034FBF0(void*);
 
 //100%
-void* func_00361530(void* self)
+void* Counter_v01(void* self)
 {
     *(int*)((char*)self + 0xc) = (int)(void*)D_004903F0;
     return func_0034FBF0(self);
@@ -2779,7 +2779,7 @@ int func_00361770(void* self)
 //100%
 extern "C" int func_00352B88(void* p);
 
-extern "C" int func_00361778(void* self)
+extern "C" int Floating_v45(void* self)
 {
     void* p = *(void**)((char*)self + 0x1C);
     if (p != 0) {
@@ -2801,7 +2801,7 @@ struct sRailVEntry17B8 {
     void (*fn)(void*);
 };
 
-extern "C" int func_003617B8(void* self)
+extern "C" int Floating_v27(void* self)
 {
     if (*(unsigned short*)((char*)self + 0x12) & 1) {
         sRailVEntry17B8* vt = *(sRailVEntry17B8**)((char*)self + 0xC);
@@ -2821,7 +2821,7 @@ struct sElem00361800 {
     char data[0x40];
 };
 
-extern "C" sElem00361800* func_00361800(void* self, int i)
+extern "C" sElem00361800* Floating_v29(void* self, int i)
 {
     if (*(unsigned short*)((char*)self + 0x12) & 1) {
         sVEntry00361800* vt = *(sVEntry00361800**)((char*)self + 0xC);
@@ -2850,7 +2850,7 @@ struct sRmVtbl1858 {
     sRmVEntry2_1858 set;     // slot 33 (0x108)
 };
 
-extern "C" void func_00361858(void* self)
+extern "C" void Floating_v51(void* self)
 {
     sRmVtbl1858* vt = *(sRmVtbl1858**)((char*)self + 0xC);
     void* obj = (char*)self + vt->set.delta;
@@ -2863,7 +2863,7 @@ extern "C" void func_00361858(void* self)
 extern void* D_004913F8[];
 void operator_delete(int*);
 
-extern "C" void func_003618C8(void* self, int flags)
+extern "C" void PositionModifier_v01(void* self, int flags)
 {
     *(void***)self = D_004913F8;
     if (flags & 1) {
@@ -2872,43 +2872,43 @@ extern "C" void func_003618C8(void* self, int flags)
 }
 
 //100%
-void func_003618F8(void* self)
+void PositionModifier_Update(void* self)
 {
 }
 
 //100%
-int func_00361900(void* self)
+int PositionModifier_HasTransformChanged(void* self)
 {
     return *(int*)((char*)self + 0x44);
 }
 
 //100%
-int func_00361908(void* self)
+int PositionModifier_GetType(void* self)
 {
     return 0x3;
 }
 
 //100%
-void* func_00361910(void* self)
+void* PositionModifier_GetTransformBounds(void* self)
 {
     return (char*)self + 0x10;
 }
 
 //100%
-extern "C" void func_00361918(void* self, void* a1)
+extern "C" void PositionModifier_SetTransformBounds(void* self, void* a1)
 {
     *(cQuad128*)((char*)self + 0x10) = *(cQuad128*)a1;
     *(cQuad128*)((char*)self + 0x20) = *(cQuad128*)((char*)a1 + 0x10);
 }
 
 //100%
-float func_00361930(void* self)
+float PositionModifier_GetTransformRadius(void* self)
 {
     return *(float*)((char*)self + 0x40);
 }
 
 //100%
-void func_00361938(void* self, float val)
+void PositionModifier_SetTransformRadius(void* self, float val)
 {
     *(float*)((char*)self + 0x40) = val;
 }
@@ -2933,7 +2933,7 @@ extern "C" void* func_00361940(void* self)
 extern void* D_004913F8[];
 void operator_delete(int*);
 
-extern "C" void func_00361988(void* self, int flags)
+extern "C" void ParentModifier_dtor(void* self, int flags)
 {
     *(void***)self = D_004913F8;
     if (flags & 1) {
@@ -2954,7 +2954,7 @@ int func_003619C8(void* self)
 }
 
 //100%
-int func_003619D0(void* self)
+int ParentModifier_GetType(void* self)
 {
     return 0x4;
 }
@@ -2968,7 +2968,7 @@ extern "C" void func_003619D8(void* self, int value)
 extern void* D_004913F8[];
 void operator_delete(int*);
 
-extern "C" void func_003619E0(void* self, int flags)
+extern "C" void MagnetModifier_dtor(void* self, int flags)
 {
     *(void***)self = D_004913F8;
     if (flags & 1) {
@@ -2989,20 +2989,20 @@ int func_00361A20(void* self)
 }
 
 //100%
-void* func_00361A28(void* self)
+void* MagnetModifier_GetTransformBounds(void* self)
 {
     return (char*)self + 0x20;
 }
 
 //100%
-extern "C" void func_00361A30(void* self, void* a1)
+extern "C" void MagnetModifier_SetTransformBounds(void* self, void* a1)
 {
     *(cQuad128*)((char*)self + 0x20) = *(cQuad128*)a1;
     *(cQuad128*)((char*)self + 0x30) = *(cQuad128*)((char*)a1 + 0x10);
 }
 
 //100%
-float func_00361A48(void* self)
+float MagnetModifier_GetTransformRadius(void* self)
 {
     return *(float*)((char*)self + 0x40);
 }
@@ -3013,7 +3013,7 @@ void func_00361A50(void* self)
 }
 
 //100%
-int func_00361A58(void* self)
+int MagnetModifier_GetType(void* self)
 {
     return 0x6;
 }
@@ -3025,7 +3025,7 @@ struct sRailVEntry1A60 {
     void (*fn)(void*);
 };
 
-extern "C" void* func_00361A60(void* self)
+extern "C" void* MagnetModifier_v18(void* self)
 {
     if (*(int*)((char*)self + 0x50) != 0) {
         sRailVEntry1A60* vt = *(sRailVEntry1A60**)self;
@@ -3038,7 +3038,7 @@ extern "C" void* func_00361A60(void* self)
 extern void* D_004913F8[];
 void operator_delete(int*);
 
-extern "C" void func_00361AA8(void* self, int flags)
+extern "C" void AvaSplineModifier_dtor(void* self, int flags)
 {
     *(void***)self = D_004913F8;
     if (flags & 1) {
@@ -3047,32 +3047,32 @@ extern "C" void func_00361AA8(void* self, int flags)
 }
 
 //100%
-void* func_00361AD8(void* self)
+void* AvaSplineModifier_GetTransformBounds(void* self)
 {
     return (char*)self + 0x10;
 }
 
 //100%
-extern "C" void func_00361AE0(void* self, void* a1)
+extern "C" void AvaSplineModifier_SetTransformBounds(void* self, void* a1)
 {
     *(cQuad128*)((char*)self + 0x10) = *(cQuad128*)a1;
     *(cQuad128*)((char*)self + 0x20) = *(cQuad128*)((char*)a1 + 0x10);
 }
 
 //100%
-float func_00361AF8(void* self)
+float AvaSplineModifier_GetTransformRadius(void* self)
 {
     return *(float*)((char*)self + 0x30);
 }
 
 //100%
-void func_00361B00(void* self, float val)
+void AvaSplineModifier_SetTransformRadius(void* self, float val)
 {
     *(float*)((char*)self + 0x30) = val;
 }
 
 //100%
-int func_00361B08(void* self)
+int AvaSplineModifier_GetType(void* self)
 {
     return 0x7;
 }
@@ -3087,7 +3087,7 @@ void* func_00361B10(void* self)
 extern void* D_004913F8[];
 void operator_delete(int*);
 
-extern "C" void func_00361B18(void* self, int flags)
+extern "C" void SplineModifier_dtor(void* self, int flags)
 {
     *(void***)self = D_004913F8;
     if (flags & 1) {
@@ -3096,44 +3096,44 @@ extern "C" void func_00361B18(void* self, int flags)
 }
 
 //100%
-int func_00361B48(void* self)
+int SplineModifier_IsTransformFinished(void* self)
 {
     return *(int*)((char*)self + 0x50);
 }
 
 //100%
-void func_00361B50(void* self)
+void SplineModifier_ClearTransformFinished(void* self)
 {
     *(int*)((char*)self + 0x50) = 0;
 }
 
 //100%
-void* func_00361B58(void* self)
+void* SplineModifier_GetTransformBounds(void* self)
 {
     return (char*)self + 0x10;
 }
 
 //100%
-extern "C" void func_00361B60(void* self, void* a1)
+extern "C" void SplineModifier_SetTransformBounds(void* self, void* a1)
 {
     *(cQuad128*)((char*)self + 0x10) = *(cQuad128*)a1;
     *(cQuad128*)((char*)self + 0x20) = *(cQuad128*)((char*)a1 + 0x10);
 }
 
 //100%
-float func_00361B78(void* self)
+float SplineModifier_GetTransformRadius(void* self)
 {
     return *(float*)((char*)self + 0x4C);
 }
 
 //100%
-void func_00361B80(void* self, float val)
+void SplineModifier_SetTransformRadius(void* self, float val)
 {
     *(float*)((char*)self + 0x4C) = val;
 }
 
 //100%
-int func_00361B88(void* self)
+int SplineModifier_HasTransformChanged(void* self)
 {
     return *(int*)((char*)self + 0x58);
 }
@@ -3145,7 +3145,7 @@ struct sRailVEntry1B90 {
     void (*fn)(void*);
 };
 
-extern "C" void* func_00361B90(void* self)
+extern "C" void* SplineModifier_v18(void* self)
 {
     if (*(int*)((char*)self + 0x58) != 0) {
         sRailVEntry1B90* vt = *(sRailVEntry1B90**)self;
@@ -3155,19 +3155,19 @@ extern "C" void* func_00361B90(void* self)
 }
 
 //100%
-int func_00361BD8(void* self)
+int SplineModifier_GetType(void* self)
 {
     return 0x1;
 }
 
 //100%
-void* func_00361BE0(void* self)
+void* cMultiSplineModifier_GetTransformBounds(void* self)
 {
     return (char*)*(void**)((char*)self + 0x3c) + 0x30;
 }
 
 //100%
-extern "C" void func_00361BF0(void* self, void* a1)
+extern "C" void cMultiSplineModifier_SetTransformBounds(void* self, void* a1)
 {
     void* p = *(void**)((char*)self + 0x3c);
     *(cQuad128*)((char*)p + 0x30) = *(cQuad128*)a1;
@@ -3180,13 +3180,13 @@ extern "C" int func_00361C08(void* self)
 }
 
 //100%
-float func_00361C10(void* self)
+float cMultiSplineModifier_GetTransformRadius(void* self)
 {
     return *(float*)((char*)self + 0x18);
 }
 
 //100%
-void func_00361C18(void* self, float val)
+void cMultiSplineModifier_SetTransformRadius(void* self, float val)
 {
     *(float*)((char*)self + 0x18) = val;
 }
@@ -3198,7 +3198,7 @@ struct sRailVEntry1C20 {
     void (*fn)(void*);
 };
 
-extern "C" void* func_00361C20(void* self)
+extern "C" void* cMultiSplineModifier_v18(void* self)
 {
     if (*(int*)((char*)self + 0x30) != 0) {
         sRailVEntry1C20* vt = *(sRailVEntry1C20**)self;
@@ -3208,7 +3208,7 @@ extern "C" void* func_00361C20(void* self)
 }
 
 //100%
-int func_00361C70(void* self)
+int cMultiSplineModifier_GetType(void* self)
 {
     return 0x2;
 }
@@ -3240,7 +3240,7 @@ extern "C" int func_00361CB0(void* self)
 extern "C" void* func_0035DDE8(void*);
 
 //100%
-void* func_00361CD8(void* self)
+void* RollerModifier_v10(void* self)
 {
     *(int*)((char*)self + 0x20) = 0;
     return func_0035DDE8(self);
@@ -3253,26 +3253,26 @@ int func_00361CF8(void* self)
 }
 
 //100%
-extern "C" void func_00361D00(void* self, void* a1)
+extern "C" void RollerModifier_SetTransformBounds(void* self, void* a1)
 {
     *(cQuad128*)((char*)self + 0x220) = *(cQuad128*)a1;
     *(cQuad128*)((char*)self + 0x230) = *(cQuad128*)((char*)a1 + 0x10);
 }
 
 //100%
-void* func_00361D18(void* self)
+void* RollerModifier_GetTransformBounds(void* self)
 {
     return (char*)self + 0x220;
 }
 
 //100%
-float func_00361D20(void* self)
+float RollerModifier_GetTransformRadius(void* self)
 {
     return *(float*)((char*)self + 0x24);
 }
 
 //100%
-void func_00361D28(void* self, float val)
+void RollerModifier_SetTransformRadius(void* self, float val)
 {
     *(float*)((char*)self + 0x24) = val;
 }
@@ -3290,7 +3290,7 @@ void* func_00361D38(void* self)
 }
 
 //100%
-int func_00361D40(void* self)
+int RollerModifier_GetType(void* self)
 {
     return 0x5;
 }
@@ -3304,7 +3304,7 @@ extern "C" int func_00361D48(void* self)
 }
 
 //100%
-void* func_00361D50(void* self)
+void* ParticleNode_dtor(void* self)
 {
     *(int*)((char*)self + 0xc) = (int)(void*)D_0048EE60;
     return func_003553C0(self);
@@ -3344,7 +3344,7 @@ extern void* D_0048EA70[];
 extern "C" void* cAnimObjectNode_destroy(void*);
 
 //100%
-void* func_00361DE0(void* self)
+void* AnimDelta_dtor(void* self)
 {
     *(int*)((char*)self + 0x3c) = (int)(void*)D_0048EA70;
     return cAnimObjectNode_destroy(self);
@@ -3366,13 +3366,13 @@ void* func_00361E10(void* self)
 
 //100%
 extern "C" int func_00362340(void);
-extern "C" int func_003623A8(void);
+extern "C" int IntcTable_Vu1Handler(void);
 extern "C" void func_00361F98(void* self, int cause, int (*handler)(void), int arg);
 
 extern "C" void func_00361E30(void* self)
 {
     func_00361F98(self, 5, func_00362340, 0);
-    func_00361F98(self, 7, func_003623A8, 0);
+    func_00361F98(self, 7, IntcTable_Vu1Handler, 0);
 }
 
 //100%
@@ -3529,7 +3529,7 @@ extern "C" int func_00362340(void)
 extern "C" void func_00362120(void*);
 extern "C" void func_00362230(void*);
 
-extern "C" int func_003623A8(void)
+extern "C" int IntcTable_Vu1Handler(void)
 {
     char buf[0x100];
     func_00362120(buf);
@@ -3919,7 +3919,7 @@ extern "C" void func_003629B8(sRmBatch_29B8* self)
 }
 
 //100%
-extern "C" void func_004247D8(void* begin, void* end);
+extern "C" void InvalidDCache(void* begin, void* end);
 extern "C" void func_0038F738(void* base, int size, int mode);
 extern "C" void func_003E6448(void* dst, int c, int n);
 extern void* D_004A5B84;
@@ -3936,9 +3936,9 @@ extern "C" void func_00362CC8(char* self)
     *(int*)(self + 0x57494) = 0;
     *(int*)(self + 0x51480) = *(int*)(self + 0x57484);
     char* a = self + 0x674A0;
-    func_004247D8(a, self + 0x6789F);
+    InvalidDCache(a, self + 0x6789F);
     char* b = self + 0x678A0;
-    func_004247D8(b, self + 0x67C9F);
+    InvalidDCache(b, self + 0x67C9F);
     func_003E6448(D_004A5B84, 0, 0x400);
     func_0038F738(a, 0x400, 2);
     func_0038F738(b, 0x400, 2);
@@ -4064,7 +4064,7 @@ extern "C" unsigned int func_00364240(unsigned int* p, int a1)
 //100% - objdiff report; single-function view differs only in a relocation name
 extern "C" void* func_00416210(void* dst, int c, int n);
 extern "C" void func_00362478(sGifPacket* pkt, int a, int b, int ctx);
-extern "C" void func_00364CD0(void* self, int a, int b, unsigned int c, ulong** pp);
+extern "C" void DeferMan_EmitMaterialSetup(void* self, int a, int b, unsigned int c, ulong** pp);
 // PORT: bound by asm label so this caller's packet type doesn't conflict with the definition.
 extern "C" void func_003627A8_4360(void* pkt, ulong** pp, int mode) __asm__("func_003627A8");
 extern char* D_004A5B80;
@@ -4103,7 +4103,7 @@ extern "C" void func_00364360(void* self, ulong** pp)
     (*pp)[2] = 0;
     (*pp)[3] = (ulong)1 << 60;
     *pp += 4;
-    func_00364CD0(self, (st.w0 & 0x3C0) >> 6, 0, st.w3 & 0x3FFFFFFF, pp);
+    DeferMan_EmitMaterialSetup(self, (st.w0 & 0x3C0) >> 6, 0, st.w3 & 0x3FFFFFFF, pp);
     pkt.count = 0;
     pkt.base = *pp;
     pkt.cur = *pp + 6;
@@ -4118,7 +4118,7 @@ extern "C" void func_00364360(void* self, ulong** pp)
     func_003627A8_4360(&pkt, pp, 1);
 }
 
-INCLUDE_ASM("object/railmodifier", func_003645B8);
+INCLUDE_ASM("object/railmodifier", DeferMan_InternMatrixRecord);
 
 //100%
 struct sRailKey4 {
@@ -4163,7 +4163,7 @@ extern "C" void func_00364C90(void* self, sRmBlock_364C90* src)
     *(sRmBlock_364C90*)((char*)self + 0x69CA8) = *src;
 }
 
-INCLUDE_ASM("object/railmodifier", func_00364CD0);
+INCLUDE_ASM("object/railmodifier", DeferMan_EmitMaterialSetup);
 
 //100%
 extern "C" void func_003660A8(void* self, int idx);
@@ -4237,22 +4237,22 @@ extern "C" void func_00365E40(void* list, int a1, int a2, void* pool)
 }
 
 //100%
-extern "C" void func_00424698(void* begin, void* end);
+extern "C" void SyncDCache(void* begin, void* end);
 extern "C" int func_0038F708(void* base, int size, int mode);
 
 extern "C" void func_00365F68(void* self)
 {
-    func_00424698(self, (char*)self + 0x1FEF);
+    SyncDCache(self, (char*)self + 0x1FEF);
     *(int*)((char*)self + 0x1FF0) = func_0038F708(self, 0x1FF0, 2);
 }
 
 //100%
-extern "C" void func_004247D8(void* begin, void* end);
+extern "C" void InvalidDCache(void* begin, void* end);
 extern "C" void func_0038F738(void* base, int size, int mode);
 
 extern "C" void func_00365FA8(void* self)
 {
-    func_004247D8(self, (char*)self + 0x1FEF);
+    InvalidDCache(self, (char*)self + 0x1FEF);
     func_0038F738(self, 0x1FF0, 2);
     *(void**)((char*)self + 0x1FF0) = self;
 }
@@ -4485,7 +4485,7 @@ static inline unsigned int spadFree66F8()
 extern "C" void func_003666F8()
 {
     cQuad128 fill = makeFill66F8(0xFFFFFFFF, 0xFFFFFFFF);
-    func_004247D8(D_0053AB80, D_0053E9FF);
+    InvalidDCache(D_0053AB80, D_0053E9FF);
     cQuad128* p = (cQuad128*)D_004A5B84;
     unsigned int n = spadFree66F8() >> 4;
     for (; n != 0; n--) {
@@ -4649,7 +4649,7 @@ void func_00366FE0(void* self, int val)
 extern "C" void func_003670E0(void* self);
 extern "C" void func_00365E40(void* list, int a, int size, void* pool);
 
-extern "C" void func_00366FE8(void* self)
+extern "C" void TexMan_ctor(void* self)
 {
     *(int*)((char*)self + 0x1F58) = 0;
     func_003670E0(self);

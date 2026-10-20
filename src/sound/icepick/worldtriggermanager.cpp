@@ -796,7 +796,7 @@ struct sTriggerSlots {
     sTriggerSlot120 slots[2];
 };
 
-extern "C" sTriggerSlots* func_002B6AA0(sTriggerSlots* self)
+extern "C" sTriggerSlots* cWorldSound_ctor(sTriggerSlots* self)
 {
     sTriggerSlot120* p = self->slots;
     for (int i = 1; i != -1; i--, p++) {

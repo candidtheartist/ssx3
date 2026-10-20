@@ -6,11 +6,11 @@ INCLUDE_ASM("dirtysock/tags2", func_00259398);
 
 INCLUDE_ASM("dirtysock/tags2", func_002593B8);
 
-INCLUDE_ASM("dirtysock/tags2", func_002594D0);
+INCLUDE_ASM("dirtysock/tags2", LobbyMan_ctor);
 
 INCLUDE_ASM("dirtysock/tags2", func_00259628);
 
-INCLUDE_ASM("dirtysock/tags2", func_002598A8);
+INCLUDE_ASM("dirtysock/tags2", LobbyMan_OnRecvDebug);
 
 INCLUDE_ASM("dirtysock/tags2", func_002598C8);
 
@@ -40,7 +40,7 @@ INCLUDE_ASM("dirtysock/tags2", func_0025AA98);
 
 INCLUDE_ASM("dirtysock/tags2", func_0025AAE0);
 
-INCLUDE_ASM("dirtysock/tags2", func_0025AB40);
+INCLUDE_ASM("dirtysock/tags2", LobbyMan_PostChatEvent);
 
 INCLUDE_ASM("dirtysock/tags2", func_0025AC50);
 
@@ -176,15 +176,15 @@ INCLUDE_ASM("dirtysock/tags2", func_0025FAD0);
 
 INCLUDE_ASM("dirtysock/tags2", func_0025FB58);
 
-INCLUDE_ASM("dirtysock/tags2", func_0025FB80);
+INCLUDE_ASM("dirtysock/tags2", LobbyMan_SendPrivateMessage);
 
 INCLUDE_ASM("dirtysock/tags2", func_0025FC20);
 
-INCLUDE_ASM("dirtysock/tags2", func_0025FC28);
+INCLUDE_ASM("dirtysock/tags2", LobbyMan_SendDecline);
 
-INCLUDE_ASM("dirtysock/tags2", func_0025FC48);
+INCLUDE_ASM("dirtysock/tags2", LobbyMan_SendAbortChal);
 
-INCLUDE_ASM("dirtysock/tags2", func_0025FC70);
+INCLUDE_ASM("dirtysock/tags2", LobbyMan_SendLockChal);
 
 INCLUDE_ASM("dirtysock/tags2", func_0025FD50);
 
@@ -230,7 +230,7 @@ INCLUDE_ASM("dirtysock/tags2", func_00261A20);
 
 INCLUDE_ASM("dirtysock/tags2", func_00261A28);
 
-INCLUDE_ASM("dirtysock/tags2", func_00261CD0);
+INCLUDE_ASM("dirtysock/tags2", BuddyMan_AddMessage);
 
 INCLUDE_ASM("dirtysock/tags2", func_00261EF8);
 
@@ -328,13 +328,13 @@ INCLUDE_ASM("dirtysock/tags2", func_00263CF0);
 
 INCLUDE_ASM("dirtysock/tags2", func_00264030);
 
-INCLUDE_ASM("dirtysock/tags2", func_00264098);
+INCLUDE_ASM("dirtysock/tags2", cSetupMan_Destroy);
 
-INCLUDE_ASM("dirtysock/tags2", func_002640C0);
+INCLUDE_ASM("dirtysock/tags2", cSetupMan_ctor);
 
 INCLUDE_ASM("dirtysock/tags2", func_00264138);
 
-INCLUDE_ASM("dirtysock/tags2", func_002642B8);
+INCLUDE_ASM("dirtysock/tags2", cSetupMan_Update);
 
 INCLUDE_ASM("dirtysock/tags2", func_00264960);
 
@@ -382,7 +382,7 @@ INCLUDE_ASM("dirtysock/tags2", func_00265880);
 
 INCLUDE_ASM("dirtysock/tags2", func_002658B8);
 
-INCLUDE_ASM("dirtysock/tags2", func_002658E0);
+INCLUDE_ASM("dirtysock/tags2", cSharedLoginMan_ctor);
 
 INCLUDE_ASM("dirtysock/tags2", func_00265908);
 
@@ -470,7 +470,7 @@ INCLUDE_ASM("dirtysock/tags2", func_00266760);
 
 INCLUDE_ASM("dirtysock/tags2", func_00266788);
 
-INCLUDE_ASM("dirtysock/tags2", func_002667E8);
+INCLUDE_ASM("dirtysock/tags2", cUsbKeyboard_ctor);
 
 INCLUDE_ASM("dirtysock/tags2", func_002668A8);
 
@@ -482,7 +482,7 @@ INCLUDE_ASM("dirtysock/tags2", func_00266CA0);
 
 INCLUDE_ASM("dirtysock/tags2", func_00266CD8);
 
-INCLUDE_ASM("dirtysock/tags2", func_00266D00);
+INCLUDE_ASM("dirtysock/tags2", cVoipMan_ctor);
 
 INCLUDE_ASM("dirtysock/tags2", func_00266D10);
 
@@ -512,9 +512,9 @@ INCLUDE_ASM("dirtysock/tags2", func_00267DC8);
 
 INCLUDE_ASM("dirtysock/tags2", func_00267DD0);
 
-INCLUDE_ASM("dirtysock/tags2", func_00267DD8);
+INCLUDE_ASM("dirtysock/tags2", cDSockChannel_Base_v05);
 
-INCLUDE_ASM("dirtysock/tags2", func_00267DE8);
+INCLUDE_ASM("dirtysock/tags2", cDSockChannel_Base_v06);
 
 INCLUDE_ASM("dirtysock/tags2", func_00267DF0);
 
@@ -522,11 +522,11 @@ INCLUDE_ASM("dirtysock/tags2", func_00267DF8);
 
 INCLUDE_ASM("dirtysock/tags2", func_00267E00);
 
-INCLUDE_ASM("dirtysock/tags2", func_00267E10);
+INCLUDE_ASM("dirtysock/tags2", cDSockChannel_v06);
 
-INCLUDE_ASM("dirtysock/tags2", func_00267E18);
+INCLUDE_ASM("dirtysock/tags2", NetEvent_dtor);
 
-INCLUDE_ASM("dirtysock/tags2", func_00267E48);
+INCLUDE_ASM("dirtysock/tags2", NetEvent_Clone);
 
 INCLUDE_ASM("dirtysock/tags2", func_00267E98);
 
@@ -536,9 +536,9 @@ INCLUDE_ASM("dirtysock/tags2", func_00267F28);
 
 INCLUDE_ASM("dirtysock/tags2", func_00267F58);
 
-INCLUDE_ASM("dirtysock/tags2", func_00267FB8);
+INCLUDE_ASM("dirtysock/tags2", NetErrorEvent_dtor);
 
-INCLUDE_ASM("dirtysock/tags2", func_00267FE8);
+INCLUDE_ASM("dirtysock/tags2", NetErrorEvent_Clone);
 
 INCLUDE_ASM("dirtysock/tags2", func_00268048);
 

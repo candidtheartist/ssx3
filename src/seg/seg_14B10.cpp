@@ -87,7 +87,7 @@ extern "C" void func_00113C20(char *self) {
     (*(cAIState_3C20 **)(self + 0x98))->m2(self);
 }
 
-extern "C" void func_00113CB8(void) {
+extern "C" void RaceStateGameInit_Enter(void) {
 }
 
 //100%
@@ -97,11 +97,11 @@ extern "C" void func_00113CC0(void *arg0, void *arg1) {
     cAI_setAIState(arg1, 2);
 }
 
-extern "C" void func_00113CE0(void) {
+extern "C" void RaceStateGameInit_Exit(void) {
 }
 
 //100%
-extern "C" void func_00113CE8(void *arg0, void *arg1) {
+extern "C" void RaceStateFreeride_Enter(void *arg0, void *arg1) {
     (*(int *)((char*)(arg1) + (0x14))) = 0;
 }
 
@@ -112,7 +112,7 @@ extern "C" void func_00113CF0(void *arg0, void *arg1) {
     cAI_setAIState(arg1, 5);
 }
 
-extern "C" void func_00113D10(void) {
+extern "C" void RaceStateFreeride_Exit(void) {
 }
 
 //100%
@@ -128,7 +128,7 @@ extern "C" void func_00113D30(void) {
 }
 
 //100%
-extern "C" void func_00113D38(void *arg0, void *arg1) {
+extern "C" void RaceStateCountdown_Enter(void *arg0, void *arg1) {
     (*(int *)((char*)(arg1) + (0x1C))) = 0xB4;
 }
 
@@ -147,7 +147,7 @@ extern "C" void func_00113D48(void *arg0, void *arg1) {
 }
 
 //100%
-extern "C" void func_00113D80(void *arg0, void *arg1) {
+extern "C" void RaceStateCountdown_Exit(void *arg0, void *arg1) {
     (*(int *)((char*)(arg1) + (0x1C))) = 0;
 }
 
@@ -185,10 +185,10 @@ extern "C" void func_00113E18(void) {
     }
 }
 
-extern "C" void func_00113E40(void) {
+extern "C" void RaceStateEndRace_Update(void) {
 }
 
-extern "C" void func_00113E48(void) {
+extern "C" void RaceStateEndRace_Exit(void) {
 }
 
 //100%
@@ -198,10 +198,10 @@ extern "C" void func_00113E50(int arg0, int arg1) {
     cAI_removeAllRiders(arg1);
 }
 
-extern "C" void func_00113E70(void) {
+extern "C" void RaceStateShutdown_Update(void) {
 }
 
-extern "C" void func_00113E78(void) {
+extern "C" void RaceStateShutdown_Exit(void) {
 }
 
 //100%
@@ -907,7 +907,7 @@ extern "C" void func_001171A8(char *arg0, int arg1, int arg2, float fparg0, int 
 //100%
 extern "C" void cRiderMetrix_resetRun(void *);
 
-extern "C" void *func_00117248(void *arg0) {
+extern "C" void *cRiderMetrix_ctor(void *arg0) {
     *(int *)((char*)arg0 + 0x1AC) = 0;
     *(int *)((char*)arg0 + 0x1B0) = 0;
     *(int *)((char*)arg0 + 0x1B4) = 0;

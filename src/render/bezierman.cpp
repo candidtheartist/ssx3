@@ -91,7 +91,7 @@ extern "C" void func_0038B0F8(void* self)
 extern "C" void* func_003739D0(void*);
 
 //100%
-void* func_0038B158(void* self)
+void* PS2BezierMan_v04(void* self)
 {
     return func_003739D0((char*)self + 0x10);
 }
@@ -198,7 +198,7 @@ struct sBezVEntry_B338 {
     void (*fn)(void*, void*, void*, void*, void*, int);
 };
 
-extern "C" void func_0038B338(void* self, void* a, void* b, void* c, void* d)
+extern "C" void PS2BezierMan_v21(void* self, void* a, void* b, void* c, void* d)
 {
     if (D_004A44D4 == 0) {
         sBezVEntry_B338* vt = *(sBezVEntry_B338**)((char*)self + 0x4);
@@ -206,7 +206,7 @@ extern "C" void func_0038B338(void* self, void* a, void* b, void* c, void* d)
     }
 }
 
-INCLUDE_ASM("render/bezierman", func_0038B370);
+INCLUDE_ASM("render/bezierman", PS2BezierMan_v18);
 
 INCLUDE_ASM("render/bezierman", func_0038C590);
 

@@ -63,7 +63,7 @@ extern "C" void func_001CB418(void* self, char* s);
 extern "C" void func_001CCF00(void* self, char* s);
 extern "C" void func_001CE3C8(void* self, int a1, int a2, int a3);
 extern "C" int func_00187D38(void* self);
-extern "C" void func_00188E58(void* self);
+extern "C" void cFEStateOptions_OpenResetPopup(void* self);
 extern "C" void func_0039F290(void* list, void* item);
 extern "C" void func_0039F400(void* list, void* item);
 extern char D_0045D8D8[];
@@ -122,7 +122,7 @@ extern "C" void func_00188980(sOpt_188980* self, char* widget, unsigned int even
             break;
         } else if (Is_00188980(*(int*)(widget + 0x38), D_004A1530)) {
             if (D_004A14E0 == 0 && (D_004A14D0 != 0 || D_004A14D4 != 0 || D_004A14DC != 0 || D_004A14D8 != 0)) {
-                func_00188E58(self);
+                cFEStateOptions_OpenResetPopup(self);
                 break;
             }
             D_004A14E0 = 0;
@@ -146,7 +146,7 @@ extern "C" void func_00188980(sOpt_188980* self, char* widget, unsigned int even
         break;
     case 6: {
         if (D_004A14E0 == 0 && (D_004A14D0 != 0 || D_004A14D4 != 0 || D_004A14DC != 0 || D_004A14D8 != 0)) {
-            func_00188E58(self);
+            cFEStateOptions_OpenResetPopup(self);
             break;
         }
         D_004A14E0 = 0;
@@ -287,7 +287,7 @@ extern int D_004A14D8;
 extern int D_004A14DC;
 extern int D_004A14E0;
 
-extern "C" void func_00188E58(void* self)
+extern "C" void cFEStateOptions_OpenResetPopup(void* self)
 {
     char* p = (char*)operator new(0x4C, D_0045DD68, 0x100, 0);
     func_0039E318(p, *(void**)((char*)self + 0x10), self);
@@ -2409,7 +2409,7 @@ extern char D_004A15D8[];
 extern char D_004A1458[];
 extern char D_004A1460[];
 
-extern "C" void func_0018E178(void* self, int on)
+extern "C" void cFEStateOptionsDeviceSelect_v37(void* self, int on)
 {
     if (*(int*)((char*)self + 0x234) == on)
         return;
@@ -2444,7 +2444,7 @@ struct cUIObj_E2C0 {
     virtual void setActive(int on);
 };
 
-extern "C" void func_0018E2C0(void* self, bool on)
+extern "C" void cFEStateOptionsDeviceSelect_v38(void* self, bool on)
 {
     if (*(int*)((char*)self + 0x22C) != 0) {
         int off = !on;
@@ -2475,7 +2475,7 @@ struct cUIObj_E368 {
     virtual void setVisible(int on);
 };
 
-extern "C" void func_0018E368(void* self, bool a, bool b)
+extern "C" void cFEStateOptionsDeviceSelect_v39(void* self, bool a, bool b)
 {
     cUIObj_E368* o = (cUIObj_E368*)cUIScreen_getObjectByHashName(*(void**)((char*)self + 0x40), GetHashValue32(D_004A15E0));
     if (*(int*)((char*)self + 0x22C) != 0) {
@@ -2500,7 +2500,7 @@ struct sVEntry0018E478 {
     void* (*fn)(void*, void*, int);
 };
 
-extern "C" void func_0018E478(void* self)
+extern "C" void cFEStateOptionsDeviceSelect_v33(void* self)
 {
     if (*(int*)((char*)self + 0x1AC) == 0) {
         int mode = *(int*)((char*)self + 0x1BC) == 1;
@@ -2523,13 +2523,13 @@ extern "C" void func_0018E478(void* self)
     *(int*)((char*)self + 0x1AC) = 1;
 }
 
-INCLUDE_ASM("fe/festateoptions", func_0018E510);
+INCLUDE_ASM("fe/festateoptions", cFEStateOptionsDeviceSelect_v26);
 
 
 //100%
 extern void* D_0046C158[];
 
-extern "C" void* func_0018EA98(void* self)
+extern "C" void* cFEStateProfileSelect_ctor(void* self)
 {
     func_0039E2A0(self);
     *(int*)((char*)self + 0xC) = 8;

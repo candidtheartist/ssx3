@@ -1,6 +1,6 @@
 #include "common.h"
 
-INCLUDE_ASM("seg/seg_1DCD10", func_002DBD10);
+INCLUDE_ASM("seg/seg_1DCD10", FXLoader_ctor);
 
 //100%
 struct Pre_BEE0 { char pad[0x10D8]; };
@@ -166,7 +166,7 @@ extern "C" int func_002DC168(void *arg0, void *arg1) {
     return 1;
 }
 
-INCLUDE_ASM("seg/seg_1DCD10", func_002DC190);
+INCLUDE_ASM("seg/seg_1DCD10", cPS2FogParticleMan_v02);
 
 //100%
 struct sDma_C7B0 {

@@ -175,12 +175,12 @@ extern "C" void func_002C2268(void* self, char* dst, const short* src)
 
 //100%
 extern "C" void* cMemMan_alloc(int size, const char* tag, unsigned int flags, int d);
-extern "C" void* func_002C3FA8(void*);
+extern "C" void* cPS2MemCard_ctor(void*);
 extern const char D_00485FF0[];
 
 extern "C" void* func_002C22C8(void)
 {
-    return func_002C3FA8(cMemMan_alloc(0x1500, D_00485FF0, 0x100, 0));
+    return cPS2MemCard_ctor(cMemMan_alloc(0x1500, D_00485FF0, 0x100, 0));
 }
 
 //100%
@@ -298,7 +298,7 @@ extern "C" unsigned short* func_002C2540(unsigned short* dst, char* src)
 //100%
 // PORT: PS2-only inline asm; needs a C fallback off-PS2.
 // The unit declares this as extern "C" void* func_002C2580(void*) further down
-// (its caller func_002C5500 passes one arg); bind the 2-arg body to the symbol.
+// (its caller cPS2MemCard_v45 passes one arg); bind the 2-arg body to the symbol.
 char* func_002C2580_impl(char* dst, unsigned short* src) __asm__("func_002C2580");
 char* func_002C2580_impl(char* dst, unsigned short* src)
 {
@@ -428,7 +428,7 @@ extern "C" void func_002C2868(char* s)
 
 extern "C" void func_003E4E98();
 
-extern "C" void func_002C28A0()
+extern "C" void GameLink_GetTicks()
 {
     func_003E4E98();
 }
@@ -520,7 +520,7 @@ extern "C" void func_002C2AA8(void** self)
 
 extern "C" void func_003E5398();
 
-extern "C" void func_002C2B08()
+extern "C" void GameLink_Yield()
 {
     func_003E5398();
 }
@@ -562,17 +562,17 @@ extern "C" void func_002C2BB8()
 extern "C" void func_004165A8();
 extern "C" char* strcpy(char* dst, const char* src);
 extern "C" void func_002C2AA8();
-extern "C" void func_002C2B08();
+extern "C" void GameLink_Yield();
 extern "C" void func_002C2B28_p3() __asm__("func_002C2B28");
 extern void func_002C28C0_2BD8() __asm__("func_002C28C0");
 extern void func_002C2940_2BD8() __asm__("func_002C2940");
 extern "C" void func_0041610C();
 extern "C" void func_00415FC8();
 extern "C" void func_0041605C();
-extern "C" void func_002C28A0();
-extern "C" void func_004187A0();
-extern "C" void func_004187C0();
-extern "C" void func_004187E8();
+extern "C" void GameLink_GetTicks();
+extern "C" void atof();
+extern "C" void atoi();
+extern "C" void bsearch();
 extern "C" void func_00418EF8();
 extern "C" void func_002C2BD8(char* self) {
     *(void**)(self + 0x3C) = (void*)&func_002C28C0_2BD8;
@@ -582,17 +582,17 @@ extern "C" void func_002C2BD8(char* self) {
     *(void**)(self + 0x50) = (void*)&func_0041610C;
     *(void**)(self + 0x54) = (void*)&func_00415FC8;
     *(void**)(self + 0x4C) = (void*)&func_0041605C;
-    *(void**)(self + 0x58) = (void*)&func_002C28A0;
-    *(void**)(self + 0x14) = (void*)&func_004187A0;
-    *(void**)(self + 0x10) = (void*)&func_004187C0;
-    *(void**)(self + 0x1C) = (void*)&func_004187E8;
+    *(void**)(self + 0x58) = (void*)&GameLink_GetTicks;
+    *(void**)(self + 0x14) = (void*)&atof;
+    *(void**)(self + 0x10) = (void*)&atoi;
+    *(void**)(self + 0x1C) = (void*)&bsearch;
     *(void**)(self + 0x18) = (void*)&func_00418EF8;
     *(void**)(self + 0xC) = (void*)&func_004165A8;
     *(void**)(self + 0x8) = (void*)&strcpy;
     *(void**)(self + 0x4) = (void*)&strlen;
     *(void**)(self + 0x20) = (void*)&func_002C29D0;
     *(void**)(self + 0x24) = (void*)&func_002C2AA8;
-    *(void**)(self + 0x28) = (void*)&func_002C2B08;
+    *(void**)(self + 0x28) = (void*)&GameLink_Yield;
     *(void**)(self + 0x2C) = (void*)&func_002C2B28_p3;
     *(void**)(self + 0x30) = (void*)&func_002C2B68;
     *(void**)(self + 0x34) = (void*)&func_002C2B98;
@@ -647,7 +647,7 @@ extern "C" int sprintf(char* buf, const char* fmt, ...);
 extern "C" void func_0041610C();
 extern "C" void func_00415FC8();
 extern "C" void func_004162D0();
-extern "C" void func_004187C0();
+extern "C" void atoi();
 
 extern "C" void func_002C2E78(void** t)
 {
@@ -663,7 +663,7 @@ extern "C" void func_002C2E78(void** t)
     t[3] = (void*)func_002C2E40;
     t[4] = (void*)sprintf;
     t[5] = (void*)strcpy;
-    t[6] = (void*)func_004187C0;
+    t[6] = (void*)atoi;
 }
 
 INCLUDE_ASM("worldpainter/quadtree", func_002C2F18);
@@ -677,7 +677,7 @@ void func_002C3FA0(void* self)
 extern "C" void func_002C4050(void*);
 extern void* D_00486F78[];
 
-extern "C" void* func_002C3FA8(void* self)
+extern "C" void* cPS2MemCard_ctor(void* self)
 {
     *(void***)self = D_00486F78;
     func_002C4050(self);
@@ -788,7 +788,7 @@ extern "C" void func_002C41D8(void* self, const char* name)
 }
 
 //100%
-extern "C" int func_0040A688(int h, int a1, char* name, int a3, int a4, void* buf);
+extern "C" int sceMcGetDir(int h, int a1, char* name, int a3, int a4, void* buf);
 extern int D_004A3940;
 extern "C" void* func_003E6448(void* dst, int c, int n);
 
@@ -796,7 +796,7 @@ extern "C" void func_002C4210(void* self)
 {
     char* buf = (char*)self + 0x4C0;
     func_003E6448(buf, 0, 0x1000);
-    int r = func_0040A688(*(int*)((char*)self + 0xC), 0, (char*)self + 0x139, 0, 6, buf);
+    int r = sceMcGetDir(*(int*)((char*)self + 0xC), 0, (char*)self + 0x139, 0, 6, buf);
     D_004A3940 = r;
     if (r < 0) {
         func_002C48C0(self, 1);
@@ -808,14 +808,14 @@ extern "C" void func_002C4210(void* self)
 extern "C" void* func_002C48C0(void*, int);
 
 //100%
-void* func_002C4290(void* self, int a1)
+void* cPS2MemCard_v76(void* self, int a1)
 {
     *(int*)((char*)self + 0x1c) = a1;
     return func_002C48C0(self, 0x22);
 }
 
 //100%
-extern "C" int func_0040A688(int h, int a1, char* name, int a3, int a4, void* buf);
+extern "C" int sceMcGetDir(int h, int a1, char* name, int a3, int a4, void* buf);
 extern "C" char* strcpy(char* dst, const char* src);
 extern "C" int sprintf(char* buf, const char* fmt, ...);
 extern int D_004A3940;
@@ -828,7 +828,7 @@ extern "C" void func_002C42B0(void* self)
     char* path = (char*)self + 0xF9;
     strcpy(name, (char*)self + *(int*)((char*)self + 0x1C) * 0x78 + 0x1B0);
     sprintf(path, D_004A3948, name, name);
-    int r = func_0040A688(*(int*)((char*)self + 0xC), 0, path, 0, 1, (char*)self + 0x480);
+    int r = sceMcGetDir(*(int*)((char*)self + 0xC), 0, path, 0, 1, (char*)self + 0x480);
     D_004A3940 = r;
     if (r < 0) {
         func_002C48C0(self, 1);
@@ -844,12 +844,12 @@ void* func_002C4368(void* self)
 }
 
 //100%
-extern "C" int func_0040A998(int h, int a1);
+extern "C" int sceMcFormat(int h, int a1);
 extern int D_004A3940;
 
 extern "C" void func_002C4388(void* self)
 {
-    int r = func_0040A998(*(int*)((char*)self + 0xC), 0);
+    int r = sceMcFormat(*(int*)((char*)self + 0xC), 0);
     D_004A3940 = r;
     if (r < 0) {
         func_002C48C0(self, 1);
@@ -859,7 +859,7 @@ extern "C" void func_002C4388(void* self)
 }
 
 //100%
-void* func_002C43E0(void* self, int a1)
+void* cPS2MemCard_v10(void* self, int a1)
 {
     *(int*)((char*)self + 0x1c) = a1;
     return func_002C48C0(self, 0x13);
@@ -939,7 +939,7 @@ extern "C" char* strcpy(char* dst, const char* src);
 extern "C" int sprintf(char* buf, const char* fmt, ...);
 extern char D_004A3950[];
 
-extern "C" void func_002C4520(void* self, const char* name)
+extern "C" void cPS2MemCard_v34(void* self, const char* name)
 {
     char* p = (char*)self + 0xB9;
     strcpy(p, name);
@@ -953,7 +953,7 @@ extern char D_004A3950[];
 // PORT: func_002C2580 takes (dst, src); the unit declares it with one arg
 char* func_002C2580_impl(char* dst, unsigned short* src) __asm__("func_002C2580");
 
-extern "C" void func_002C4578(void* self, unsigned short* name)
+extern "C" void cPS2MemCard_v35(void* self, unsigned short* name)
 {
     char* p = (char*)self + 0xB9;
     func_002C2580_impl(p, name);
@@ -968,7 +968,7 @@ extern "C" int sprintf(char* buf, const char* fmt, ...);
 extern "C" void* func_002C48C0(void*, int);
 extern char D_004A3948[];
 
-extern "C" void func_002C45D0(void* self, unsigned short* wname, int a2, int a3)
+extern "C" void cPS2MemCard_v37(void* self, unsigned short* wname, int a2, int a3)
 {
     char* name = (char*)self + 0xB9;
     func_002C2580_impl(name, wname);
@@ -984,7 +984,7 @@ extern "C" int sprintf(char* buf, const char* fmt, ...);
 extern "C" void* func_002C48C0(void*, int);
 extern char D_004A3948[];
 
-extern "C" void func_002C4648(void* self, const char* src, int a2, int a3)
+extern "C" void cPS2MemCard_v36(void* self, const char* src, int a2, int a3)
 {
     char* name = (char*)self + 0xB9;
     strcpy(name, src);
@@ -995,7 +995,7 @@ extern "C" void func_002C4648(void* self, const char* src, int a2, int a3)
 }
 
 //100%
-class func_002C46C0_cObj {
+class cPS2MemCard_v38_cObj {
 public:
     // vptr at 0x0; slot N at vtable offset N*8
     virtual void v01();
@@ -1038,7 +1038,7 @@ public:
 
 extern "C" void func_002C54D0(void* self, int a1, char* dst);
 
-extern "C" void func_002C46C0(func_002C46C0_cObj* self, int a1, int a2, int a3)
+extern "C" void cPS2MemCard_v38(cPS2MemCard_v38_cObj* self, int a1, int a2, int a3)
 {
     char name[64];
     func_002C54D0(self, a1, name);
@@ -1046,7 +1046,7 @@ extern "C" void func_002C46C0(func_002C46C0_cObj* self, int a1, int a2, int a3)
 }
 
 //100%
-void* func_002C4720(void* self, int a1, int a2)
+void* cPS2MemCard_v41(void* self, int a1, int a2)
 {
     *(int*)((char*)self + 0x2c) = a1;
     *(int*)((char*)self + 0x20) = a2;
@@ -1066,7 +1066,7 @@ void func_002C4758(void* self)
 }
 
 //100%
-void* func_002C4768(void* self)
+void* cPS2MemCard_v43(void* self)
 {
     return func_002C48C0(self, 0x18);
 }
@@ -1091,7 +1091,7 @@ extern "C" void func_002C4788(void* self, char* src, int a2, int a3)
 extern "C" void func_002C54D0(void* self, int a1, char* dst);
 extern "C" void func_002C4788(void* self, char* name, int a2, int a3);
 
-extern "C" void func_002C4800(void* self, int a1, int a2, int a3)
+extern "C" void cPS2MemCard_v29(void* self, int a1, int a2, int a3)
 {
     char name[64];
     func_002C54D0(self, a1, name);
@@ -1099,7 +1099,7 @@ extern "C" void func_002C4800(void* self, int a1, int a2, int a3)
 }
 
 //100%
-void* func_002C4858(void* self, int a1, int a2)
+void* cPS2MemCard_v30(void* self, int a1, int a2)
 {
     *(int*)((char*)self + 0x2c) = a1;
     *(int*)((char*)self + 0x20) = a2;
@@ -1119,7 +1119,7 @@ void func_002C4890(void* self)
 }
 
 //100%
-void* func_002C48A0(void* self)
+void* cPS2MemCard_v32(void* self)
 {
     return func_002C48C0(self, 0x1e);
 }
@@ -1161,12 +1161,12 @@ struct sMC_48C0 {
     char pad4C0[0x1000];
     char root[0x40];
 };
-extern "C" int func_00409D10(int h, int a1, char* name, int a3);
-extern "C" int func_00409E70(int h);
-extern "C" int func_00409E38(int h, int a1, char* name);
-extern "C" int func_0040A090(int h, int a1, int a2);
-extern "C" int func_0040A1A8(int h, int a1, int a2);
-extern "C" int func_0040AA68(int h, int a1, char* name);
+extern "C" int sceMcOpen(int h, int a1, char* name, int a3);
+extern "C" int sceMcClose(int h);
+extern "C" int sceMcMkdir(int h, int a1, char* name);
+extern "C" int sceMcRead(int h, int a1, int a2);
+extern "C" int sceMcWrite(int h, int a1, int a2);
+extern "C" int sceMcDelete(int h, int a1, char* name);
 extern "C" int func_003DF690(char* name, int a1);
 extern "C" int func_002C50E0(void* self);
 extern "C" void func_002C5570(void* self, int a1);
@@ -1208,7 +1208,7 @@ extern "C" void* func_002C48C0(void* selfp, int st)
             self->buf = 0;
         }
         if (self->fd >= 0) {
-            D_004A3940 = func_00409E70(self->fd);
+            D_004A3940 = sceMcClose(self->fd);
             if (D_004A3940 >= 0) {
                 func_002C48C0(self, 2);
             }
@@ -1223,14 +1223,14 @@ extern "C" void* func_002C48C0(void* selfp, int st)
         break;
     case 36:
         self->x48 = 0;
-        D_004A3940 = func_00409E38(self->port, 0, self->file);
+        D_004A3940 = sceMcMkdir(self->port, 0, self->file);
         if (D_004A3940 < 0) {
             func_002C48C0(self, 1);
         }
         break;
     case 37:
         sprintf(self->path, D_004A3958, self->file, D_00487460);
-        D_004A3940 = func_00409D10(self->port, 0, self->path, 0x203);
+        D_004A3940 = sceMcOpen(self->port, 0, self->path, 0x203);
         self->fd = -1;
         if (D_004A3940 < 0) {
             func_002C48C0(self, 1);
@@ -1250,14 +1250,14 @@ extern "C" void* func_002C48C0(void* selfp, int st)
         strcpy(D_005376F8.iconList, D_004459F0[0]);
         strcpy(D_005376F8.iconCopy, D_004459F0[1]);
         strcpy(D_005376F8.iconDelete, D_004459F0[2]);
-        D_004A3940 = func_0040A1A8(self->fd, (int)&D_005376F8, 0x3C4);
+        D_004A3940 = sceMcWrite(self->fd, (int)&D_005376F8, 0x3C4);
         if (D_004A3940 < 0) {
             func_002C48C0(self, 1);
         }
         break;
     }
     case 39:
-        D_004A3940 = func_00409E70(self->fd);
+        D_004A3940 = sceMcClose(self->fd);
         if (D_004A3940 < 0) {
             self->fd = -1;
             func_002C48C0(self, 1);
@@ -1283,7 +1283,7 @@ extern "C" void* func_002C48C0(void* selfp, int st)
     case 49: {
         int i = self->state == 0x2D ? 1 : self->state == 0x31 ? 2 : 0;
         sprintf(self->path, D_004A3948, self->dir, D_004459F0[i]);
-        D_004A3940 = func_00409D10(self->port, 0, self->path, 0x203);
+        D_004A3940 = sceMcOpen(self->port, 0, self->path, 0x203);
         if (D_004A3940 < 0) {
             self->fd = -1;
             func_002C48C0(self, 1);
@@ -1295,7 +1295,7 @@ extern "C" void* func_002C48C0(void* selfp, int st)
     case 42:
     case 46:
     case 50:
-        D_004A3940 = func_0040A1A8(self->fd, (int)self->buf, self->bufSize);
+        D_004A3940 = sceMcWrite(self->fd, (int)self->buf, self->bufSize);
         if (D_004A3940 < 0) {
             func_002C48C0(self, 1);
         }
@@ -1307,7 +1307,7 @@ extern "C" void* func_002C48C0(void* selfp, int st)
             MEM_free(self->buf);
             self->buf = 0;
         }
-        D_004A3940 = func_00409E70(self->fd);
+        D_004A3940 = sceMcClose(self->fd);
         if (D_004A3940 < 0) {
             self->fd = -1;
             func_002C48C0(self, 1);
@@ -1316,7 +1316,7 @@ extern "C" void* func_002C48C0(void* selfp, int st)
         }
         break;
     case 22:
-        D_004A3940 = func_00409D10(self->port, 0, self->file, 0x203);
+        D_004A3940 = sceMcOpen(self->port, 0, self->file, 0x203);
         if (D_004A3940 < 0) {
             self->fd = -1;
             func_002C48C0(self, 1);
@@ -1325,7 +1325,7 @@ extern "C" void* func_002C48C0(void* selfp, int st)
         }
         break;
     case 23:
-        D_004A3940 = func_0040A1A8(self->fd, self->data, self->size);
+        D_004A3940 = sceMcWrite(self->fd, self->data, self->size);
         self->data = 0;
         self->size = 0;
         if (D_004A3940 < 0) {
@@ -1334,7 +1334,7 @@ extern "C" void* func_002C48C0(void* selfp, int st)
         break;
     case 24:
         if (self->fd >= 0) {
-            D_004A3940 = func_00409E70(self->fd);
+            D_004A3940 = sceMcClose(self->fd);
             if (D_004A3940 < 0) {
                 self->fd = -1;
                 func_002C48C0(self, 1);
@@ -1347,21 +1347,21 @@ extern "C" void* func_002C48C0(void* selfp, int st)
         break;
     case 28:
         self->x44 = 0;
-        D_004A3940 = func_00409D10(self->port, 0, self->file, 1);
+        D_004A3940 = sceMcOpen(self->port, 0, self->file, 1);
         self->fd = -1;
         if (D_004A3940 != 0) {
             func_002C48C0(self, 1);
         }
         break;
     case 29:
-        D_004A3940 = func_0040A090(self->fd, self->data, self->size);
+        D_004A3940 = sceMcRead(self->fd, self->data, self->size);
         if (D_004A3940 != 0) {
             func_002C48C0(self, 1);
         }
         break;
     case 30:
         if (self->fd >= 0) {
-            D_004A3940 = func_00409E70(self->fd);
+            D_004A3940 = sceMcClose(self->fd);
             if (D_004A3940 < 0) {
                 self->fd = -1;
                 func_002C48C0(self, 1);
@@ -1374,7 +1374,7 @@ extern "C" void* func_002C48C0(void* selfp, int st)
         break;
     case 54:
         self->ports[self->port].status = 0;
-        D_004A3940 = func_0040AA68(self->port, 0, self->file);
+        D_004A3940 = sceMcDelete(self->port, 0, self->file);
         if (D_004A3940 < 0) {
             func_002C48C0(self, 1);
         }
@@ -1384,7 +1384,7 @@ extern "C" void* func_002C48C0(void* selfp, int st)
     case 57: {
         int i = self->state == 0x38 ? 1 : self->state == 0x39 ? 2 : 0;
         sprintf(self->path, D_004A3948, self->dir, D_004459F0[i]);
-        D_004A3940 = func_0040AA68(self->port, 0, self->path);
+        D_004A3940 = sceMcDelete(self->port, 0, self->path);
         if (D_004A3940 < 0) {
             func_002C48C0(self, 1);
         }
@@ -1392,13 +1392,13 @@ extern "C" void* func_002C48C0(void* selfp, int st)
     }
     case 58:
         sprintf(self->path, D_004A3948, self->dir, D_00487460);
-        D_004A3940 = func_0040AA68(self->port, 0, self->path);
+        D_004A3940 = sceMcDelete(self->port, 0, self->path);
         if (D_004A3940 < 0) {
             func_002C48C0(self, 1);
         }
         break;
     case 59:
-        D_004A3940 = func_0040AA68(self->port, 0, self->dir);
+        D_004A3940 = sceMcDelete(self->port, 0, self->dir);
         if (D_004A3940 < 0) {
             func_002C48C0(self, 1);
         }
@@ -1412,7 +1412,7 @@ extern "C" void* func_002C48C0(void* selfp, int st)
         }
         break;
     case 8:
-        D_004A3940 = func_00409D10(self->port, 0, self->path, 1);
+        D_004A3940 = sceMcOpen(self->port, 0, self->path, 1);
         if (D_004A3940 < 0) {
             self->fd = -1;
             func_002C5570(self, self->index);
@@ -1422,14 +1422,14 @@ extern "C" void* func_002C48C0(void* selfp, int st)
         }
         break;
     case 10:
-        D_004A3940 = func_0040A090(self->fd, (int)&D_005376F8, 0x3C4);
+        D_004A3940 = sceMcRead(self->fd, (int)&D_005376F8, 0x3C4);
         if (D_004A3940 < 0) {
             func_002C5570(self, self->index);
             func_002C48C0(self, 0xF);
         }
         break;
     case 9:
-        D_004A3940 = func_00409E70(self->fd);
+        D_004A3940 = sceMcClose(self->fd);
         if (D_004A3940 < 0) {
             func_002C48C0(self, 0x10);
         } else {
@@ -1440,7 +1440,7 @@ extern "C" void* func_002C48C0(void* selfp, int st)
         self->x3C = 0;
         sprintf(self->file, D_004A3948, (char*)self + self->index * 0x78 + 0x1B0, (char*)self + self->index * 0x78 + 0x1B0);
         func_003E6448(self->dirbuf, 0, 0x40);
-        D_004A3940 = func_0040A688(self->port, 0, self->file, 0, 1, self->dirbuf);
+        D_004A3940 = sceMcGetDir(self->port, 0, self->file, 0, 1, self->dirbuf);
         if (D_004A3940 < 0) {
             func_002C48C0(self, 0x10);
         }
@@ -1451,14 +1451,14 @@ extern "C" void* func_002C48C0(void* selfp, int st)
         int i = self->state == 0xD ? 1 : self->state == 0xE ? 2 : 0;
         sprintf(self->path, D_004A3948, (char*)self + self->index * 0x78 + 0x1B0, D_004459F0[i]);
         func_003E6448(self->dirbuf, 0, 0x40);
-        D_004A3940 = func_0040A688(self->port, 0, self->path, 0, 1, self->dirbuf);
+        D_004A3940 = sceMcGetDir(self->port, 0, self->path, 0, 1, self->dirbuf);
         if (D_004A3940 < 0) {
             func_002C48C0(self, 0x10);
         }
         break;
     }
     case 15:
-        D_004A3940 = func_00409E70(self->fd);
+        D_004A3940 = sceMcClose(self->fd);
         if (D_004A3940 < 0) {
             self->fd = -1;
             func_002C48C0(self, 0x10);
@@ -1518,7 +1518,7 @@ extern "C" void* func_002C48C0(void* selfp, int st)
 
 
 //100%
-extern "C" int func_0040A498(int h, int a1, int* a2, int* a3, int* a4);
+extern "C" int sceMcGetInfo(int h, int a1, int* a2, int* a3, int* a4);
 extern int D_004A3938;
 extern int D_004A393C;
 extern int D_004A3944;
@@ -1530,7 +1530,7 @@ extern "C" int func_002C50E0(void* self)
     int h = *(int*)((char*)self + 0xC);
     D_004A3944 = 0;
     D_004A393C = 0;
-    int r = func_0040A498(h, 0, &D_004A3938, &D_004A393C, &D_004A3944) == 0;
+    int r = sceMcGetInfo(h, 0, &D_004A3938, &D_004A393C, &D_004A3944) == 0;
     *(int*)((char*)self + 0x40) = r;
     *(int*)((char*)self + 0x4C) = 5;
     return r;
@@ -1591,7 +1591,7 @@ extern "C" int func_002C51D0_impl(sQTState* self, int i)
 extern "C" void* func_002C51D0(void*, int);
 
 //99.38%
-int func_002C5230(void* self)
+int cPS2MemCard_v73(void* self)
 {
     return (func_002C51D0(self, *(int*)((char*)self + 0xc)) != 0);
 }
@@ -1741,7 +1741,7 @@ extern "C" void func_002C54D0(void* self, int a1, char* dst)
 extern "C" void* func_002C2580(void*);
 
 //99.29%
-void* func_002C5500(void* self)
+void* cPS2MemCard_v45(void* self)
 {
     return func_002C2580((char*)self + 0x58);
 }
@@ -1857,7 +1857,7 @@ typedef int (*fn1_55D8)(void*);
 typedef int (*fn2_55D8)(void*, int);
 typedef void (*fn2v_55D8)(void*, int);
 // PORT: the unit declares these later with other signatures; bound by asm label.
-extern "C" int func_0040A360_i(int a0, int* a1, int* out) __asm__("func_0040A360");
+extern "C" int sceMcSync_i(int a0, int* a1, int* out) __asm__("sceMcSync");
 extern "C" int func_002C51D0_i(void* self, int i) __asm__("func_002C51D0");
 extern "C" void func_002C6280_v(void* self) __asm__("func_002C6280");
 extern "C" int func_002C63E8(void* self, unsigned int a1);
@@ -1898,7 +1898,7 @@ extern "C" void func_002C55D8(sMC_55D8* self)
         int tmp;
         D_004A3940 = 0;
         tmp = 0;
-        if (func_0040A360_i(1, &tmp, &D_004A3940) == 0) {
+        if (sceMcSync_i(1, &tmp, &D_004A3940) == 0) {
             return;
         }
         int r = D_004A3940;
@@ -1935,7 +1935,7 @@ extern "C" void func_002C55D8(sMC_55D8* self)
         {
             self->x3C = 0;
             D_004A3940 = 0;
-            if (func_0040A360_i(1, 0, &D_004A3940) == 0) {
+            if (sceMcSync_i(1, 0, &D_004A3940) == 0) {
                 return;
             }
             self->x3C = 1;
@@ -1988,7 +1988,7 @@ extern "C" void func_002C55D8(sMC_55D8* self)
         break;
     case 2:
         D_004A3940 = 0;
-        if (func_0040A360_i(1, 0, &D_004A3940) == 0) {
+        if (sceMcSync_i(1, 0, &D_004A3940) == 0) {
             return;
         }
         if (D_004A3940 == -1) {
@@ -2421,7 +2421,7 @@ extern "C" void func_002C6280(func_002C6280_cObj* self)
 }
 
 //100%
-extern "C" void func_0040A360(int a0, int a1, int* out);
+extern "C" void sceMcSync(int a0, int a1, int* out);
 extern "C" void func_002C5278(void* self);
 extern int D_004A3940;
 
@@ -2430,7 +2430,7 @@ extern "C" void func_002C6360(void* p)
     sQTState* self = (sQTState*)p;
     if (*(int*)((char*)self + 0x40) != 0) {
         D_004A3940 = 0;
-        func_0040A360(0, 0, &D_004A3940);
+        sceMcSync(0, 0, &D_004A3940);
         if (D_004A3940 == -1) {
             self->levels[self->level].f10 = 1;
         }
@@ -2486,7 +2486,7 @@ extern "C" void func_002C63F8(void* self, int n, unsigned short* dst)
 //100% - objdiff report; single-function view differs only in a relocation name
 extern char D_004A3968[];
 
-extern "C" void func_002C64A8(void* self, int a1, unsigned short* dst)
+extern "C" void cPS2MemCard_v15(void* self, int a1, unsigned short* dst)
 {
     func_002C2540(dst, D_004A3968);
 }
@@ -2494,7 +2494,7 @@ extern "C" void func_002C64A8(void* self, int a1, unsigned short* dst)
 //100% - objdiff report; single-function view differs only in a relocation name
 extern char D_004A3968[];
 
-extern "C" void func_002C64D0(void* self, int a1, unsigned short* dst)
+extern "C" void cPS2MemCard_v16(void* self, int a1, unsigned short* dst)
 {
     func_002C2540(dst, D_004A3968);
 }
@@ -2587,7 +2587,7 @@ struct sSaveMgr_2C64F8 : sSaveMgrBase_2C64F8 {
     sSaveSlot_2C64F8 slots[6];  // 0x1A4
 };
 
-extern "C" int func_002C64F8(sSaveMgr_2C64F8* self)
+extern "C" int cPS2MemCard_v17(sSaveMgr_2C64F8* self)
 {
     int best = -1;
     if (self->v55() == 0) {
@@ -2628,7 +2628,7 @@ extern "C" int func_002C64F8(sSaveMgr_2C64F8* self)
 //100%
 extern "C" char* strcpy(char* dst, const char* src);
 
-extern "C" void func_002C66B8(void* self, const char* name, int flag)
+extern "C" void cPS2MemCard_v39(void* self, const char* name, int flag)
 {
     if (flag == 0) {
         strcpy((char*)self + 0x14C0, name);
@@ -2681,7 +2681,7 @@ public:
     virtual int v61(int a); // 0x1E8
 };
 
-extern "C" void func_002C6718(cQuadTreeVObj* self)
+extern "C" void cPS2MemCard_v62(cQuadTreeVObj* self)
 {
     self->v61(*(int*)((char*)self + 0xC));
 }
@@ -2708,7 +2708,7 @@ extern "C" int func_002C6758(void* self, int a1)
 #define QT_V10(p) virtual void p##0(); virtual void p##1(); virtual void p##2(); virtual void p##3(); virtual void p##4(); \
     virtual void p##5(); virtual void p##6(); virtual void p##7(); virtual void p##8(); virtual void p##9();
 
-extern "C" void func_002C6778(cQuadTreeVObj* self)
+extern "C" void cPS2MemCard_v23(cQuadTreeVObj* self)
 {
     self->v22(*(int*)((char*)self + 0x24));
 }
@@ -2723,7 +2723,7 @@ int func_002C67A8(void* self)
 #define QT_V10(p) virtual void p##0(); virtual void p##1(); virtual void p##2(); virtual void p##3(); virtual void p##4(); \
     virtual void p##5(); virtual void p##6(); virtual void p##7(); virtual void p##8(); virtual void p##9();
 
-extern "C" void func_002C67B0(cQuadTreeVObj* self)
+extern "C" void cPS2MemCard_v51(cQuadTreeVObj* self)
 {
     self->v50(*(int*)((char*)self + 0xC));
 }
@@ -2751,7 +2751,7 @@ extern "C" void func_002C6810(void* self, const char* name)
 }
 
 //100%
-extern "C" int func_0040A688(int h, int a1, char* name, int a3, int a4, void* buf);
+extern "C" int sceMcGetDir(int h, int a1, char* name, int a3, int a4, void* buf);
 extern int D_004A3940;
 extern "C" void* func_003E6448(void* dst, int c, int n);
 
@@ -2759,7 +2759,7 @@ extern "C" void func_002C6848(void* self)
 {
     char* buf = (char*)self + 0x4C0;
     func_003E6448(buf, 0, 0x1000);
-    int r = func_0040A688(*(int*)((char*)self + 0xC), 0, (char*)self + 0x139, 0, 0x40, buf);
+    int r = sceMcGetDir(*(int*)((char*)self + 0xC), 0, (char*)self + 0x139, 0, 0x40, buf);
     D_004A3940 = r;
     if (r < 0) {
         func_002C48C0(self, 1);
@@ -2812,13 +2812,13 @@ extern "C" void func_002C6968(void* self, const char* name, int a2)
 }
 
 //100%
-extern "C" int func_00409D10(int h, int a1, char* name, int a3);
+extern "C" int sceMcOpen(int h, int a1, char* name, int a3);
 extern int D_004A3940;
 
 extern "C" void func_002C69A0(void* self)
 {
     *(int*)((char*)self + 0x18) = -1;
-    int r = func_00409D10(*(int*)((char*)self + 0xC), 0, (char*)self + 0xF9, *(int*)((char*)self + 0x14E0));
+    int r = sceMcOpen(*(int*)((char*)self + 0xC), 0, (char*)self + 0xF9, *(int*)((char*)self + 0x14E0));
     D_004A3940 = r;
     if (r < 0) {
         func_002C48C0(self, 1);
@@ -2837,12 +2837,12 @@ void* func_002C6A08(void* self)
 // PORT: the unit declares func_002C48C0 as returning void*, but its body returns
 // nothing (v0 is leftover); this caller needs the void prototype.
 extern "C" void func_002C48C0_v(void* self, int state) __asm__("func_002C48C0");
-extern "C" int func_00409E70(int h);
+extern "C" int sceMcClose(int h);
 extern int D_004A3940;
 
 extern "C" void func_002C6A28(void* self)
 {
-    D_004A3940 = func_00409E70(*(int*)((char*)self + 0x18));
+    D_004A3940 = sceMcClose(*(int*)((char*)self + 0x18));
     func_002C48C0_v(self, 0x4A);
 }
 
@@ -2855,12 +2855,12 @@ void* func_002C6A60(void* self, int a1, int a2)
 }
 
 //100%
-extern "C" int func_00409F28(int h, int a1, int a2);
+extern "C" int sceMcSeek(int h, int a1, int a2);
 extern int D_004A3940;
 
 extern "C" void func_002C6A88(void* self)
 {
-    int r = func_00409F28(*(int*)((char*)self + 0x18), *(int*)((char*)self + 0x14E4), *(int*)((char*)self + 0x14E8));
+    int r = sceMcSeek(*(int*)((char*)self + 0x18), *(int*)((char*)self + 0x14E4), *(int*)((char*)self + 0x14E8));
     D_004A3940 = r;
     if (r < 0) {
         func_002C48C0(self, 1);
@@ -2876,12 +2876,12 @@ void* func_002C6AE0(void* self)
 }
 
 //100%
-extern "C" int func_0040AB80(int h);
+extern "C" int sceMcFlush(int h);
 extern int D_004A3940;
 
 extern "C" void func_002C6B00(void* self)
 {
-    int r = func_0040AB80(*(int*)((char*)self + 0x18));
+    int r = sceMcFlush(*(int*)((char*)self + 0x18));
     D_004A3940 = r;
     if (r < 0) {
         func_002C48C0(self, 1);
@@ -2899,12 +2899,12 @@ void* func_002C6B50(void* self, int a1, int a2)
 }
 
 //100%
-extern "C" int func_0040A090(int h, int a1, int a2);
+extern "C" int sceMcRead(int h, int a1, int a2);
 extern int D_004A3940;
 
 extern "C" void func_002C6B78(void* self)
 {
-    int r = func_0040A090(*(int*)((char*)self + 0x18), *(int*)((char*)self + 0x2C), *(int*)((char*)self + 0x24));
+    int r = sceMcRead(*(int*)((char*)self + 0x18), *(int*)((char*)self + 0x2C), *(int*)((char*)self + 0x24));
     D_004A3940 = r;
     if (r < 0) {
         func_002C48C0(self, 1);
@@ -2922,12 +2922,12 @@ void* func_002C6BD0(void* self, int a1, int a2)
 }
 
 //100%
-extern "C" int func_0040A1A8(int h, int a1, int a2);
+extern "C" int sceMcWrite(int h, int a1, int a2);
 extern int D_004A3940;
 
 extern "C" void func_002C6BF8(void* self)
 {
-    int r = func_0040A1A8(*(int*)((char*)self + 0x18), *(int*)((char*)self + 0x2C), *(int*)((char*)self + 0x24));
+    int r = sceMcWrite(*(int*)((char*)self + 0x18), *(int*)((char*)self + 0x2C), *(int*)((char*)self + 0x24));
     D_004A3940 = r;
     if (r < 0) {
         func_002C48C0(self, 1);
@@ -2945,12 +2945,12 @@ extern "C" void func_002C6C50(void* self, const char* name, int a2)
 }
 
 //100%
-extern "C" int func_00409E38(int h, int a1, char* name);
+extern "C" int sceMcMkdir(int h, int a1, char* name);
 extern int D_004A3940;
 
 extern "C" void func_002C6C88(void* self)
 {
-    int r = func_00409E38(*(int*)((char*)self + 0xC), 0, (char*)self + 0xF9);
+    int r = sceMcMkdir(*(int*)((char*)self + 0xC), 0, (char*)self + 0xF9);
     D_004A3940 = r;
     if (r < 0) {
         func_002C48C0(self, 1);
@@ -2967,12 +2967,12 @@ extern "C" void func_002C6CE0(void* self, const char* name)
 }
 
 //100%
-extern "C" int func_0040AA68(int h, int a1, char* name);
+extern "C" int sceMcDelete(int h, int a1, char* name);
 extern int D_004A3940;
 
 extern "C" void func_002C6D18(void* self)
 {
-    int r = func_0040AA68(*(int*)((char*)self + 0xC), 0, (char*)self + 0xF9);
+    int r = sceMcDelete(*(int*)((char*)self + 0xC), 0, (char*)self + 0xF9);
     D_004A3940 = r;
     if (r < 0) {
         func_002C48C0(self, 1);

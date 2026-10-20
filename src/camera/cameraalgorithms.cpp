@@ -3,24 +3,24 @@
 //100%
 extern "C" void* cMemMan_alloc(int size, const char* tag, unsigned int flags, int d);
 struct sVec4_15D088 { float x, y, z, w; } __attribute__((aligned(16)));
-extern "C" void* func_001616A8(void* self);
-extern "C" void* func_001689C8(void* self);
-extern "C" void* func_00168CD8(void* self);
-extern "C" void* func_00160438(void* self);
-extern "C" void* func_001682B8(void* self);
-extern "C" void* func_00168650(void* self);
-extern "C" void* func_00160760(void* self);
-extern "C" void* func_00176A68(void* self);
-extern "C" void* func_00177068(void* self);
-extern "C" void* func_00176D68(void* self);
-extern "C" void* func_00177E50(void* self);
-extern "C" void* func_001774C0(void* self, int n);
-extern "C" void* func_00160B70(void* self, float f);
+extern "C" void* IdleChaseCameraAlgorithm_ctor(void* self);
+extern "C" void* MidRightChaseCameraAlgorithm_ctor(void* self);
+extern "C" void* MidLeftChaseCameraAlgorithm_ctor(void* self);
+extern "C" void* ManualChaseCameraAlgorithm_ctor(void* self);
+extern "C" void* LazyChaseCameraAlgorithm_ctor(void* self);
+extern "C" void* LookBackChaseCameraAlgorithm_ctor(void* self);
+extern "C" void* MatrixChaseCameraAlgorithm_ctor(void* self);
+extern "C" void* Default_2ChaseCameraAlgorithm_ctor(void* self);
+extern "C" void* Default_4ChaseCameraAlgorithm_ctor(void* self);
+extern "C" void* Default_3ChaseCameraAlgorithm_ctor(void* self);
+extern "C" void* SpokeChaseCameraAlgorithm_ctor(void* self);
+extern "C" void* DirectionChaseCameraAlgorithm_ctor(void* self, int n);
+extern "C" void* RelativeChaseCameraAlgorithm_ctor(void* self, float f);
 extern "C" void* func_00161060(char* self, float* p0, float* p1, float* p2, float* p3, float dur, float a, float b, float c);
 extern "C" void func_00161E58(void* self, void* algo, float w);
 extern "C" void* func_00174190(void* self);
 extern "C" void* func_00178520(void* self, sVec4_15D088* a, sVec4_15D088* b);
-extern "C" void* func_001789E8(char* self, char* src);
+extern "C" void* Post_Race_1ChaseCameraAlgorithm_ctor(char* self, char* src);
 extern "C" void func_00170240(sVec4_15D088* out, char* r);
 extern "C" void func_001707B0(sVec4_15D088* out, char* r);
 extern "C" void func_00170D20(sVec4_15D088* out, char* r, int i);
@@ -93,49 +93,49 @@ extern "C" void cChaseCameraController_createChaseAlgorithmBlend(char* self, uns
         break;
     }
     case 7:
-        cam = (char*)func_001616A8(cMemMan_alloc(0x390, D_0045B328, 0x20000000, 0));
+        cam = (char*)IdleChaseCameraAlgorithm_ctor(cMemMan_alloc(0x390, D_0045B328, 0x20000000, 0));
         break;
     case 9:
-        cam = (char*)func_001689C8(cMemMan_alloc(0x390, D_0045B348, 0x20000000, 0));
+        cam = (char*)MidRightChaseCameraAlgorithm_ctor(cMemMan_alloc(0x390, D_0045B348, 0x20000000, 0));
         break;
     case 10:
-        cam = (char*)func_00168CD8(cMemMan_alloc(0x390, D_0045B370, 0x20000000, 0));
+        cam = (char*)MidLeftChaseCameraAlgorithm_ctor(cMemMan_alloc(0x390, D_0045B370, 0x20000000, 0));
         break;
     case 11:
-        cam = (char*)func_00160438(cMemMan_alloc(0x390, D_0045B390, 0x20000000, 0));
+        cam = (char*)ManualChaseCameraAlgorithm_ctor(cMemMan_alloc(0x390, D_0045B390, 0x20000000, 0));
         break;
     case 13:
-        cam = (char*)func_001682B8(cMemMan_alloc(0x390, D_0045B3B0, 0x20000000, 0));
+        cam = (char*)LazyChaseCameraAlgorithm_ctor(cMemMan_alloc(0x390, D_0045B3B0, 0x20000000, 0));
         break;
     case 18:
-        cam = (char*)func_001774C0(cMemMan_alloc(0x3A0, D_0045B3D0, 0x20000000, 0), 0);
+        cam = (char*)DirectionChaseCameraAlgorithm_ctor(cMemMan_alloc(0x3A0, D_0045B3D0, 0x20000000, 0), 0);
         break;
     case 19:
-        cam = (char*)func_001774C0(cMemMan_alloc(0x3A0, D_0045B3F8, 0x20000000, 0), 1);
+        cam = (char*)DirectionChaseCameraAlgorithm_ctor(cMemMan_alloc(0x3A0, D_0045B3F8, 0x20000000, 0), 1);
         break;
     case 20:
-        cam = (char*)func_001774C0(cMemMan_alloc(0x3A0, D_0045B420, 0x20000000, 0), 2);
+        cam = (char*)DirectionChaseCameraAlgorithm_ctor(cMemMan_alloc(0x3A0, D_0045B420, 0x20000000, 0), 2);
         break;
     case 21:
-        cam = (char*)func_001774C0(cMemMan_alloc(0x3A0, D_0045B448, 0x20000000, 0), 3);
+        cam = (char*)DirectionChaseCameraAlgorithm_ctor(cMemMan_alloc(0x3A0, D_0045B448, 0x20000000, 0), 3);
         break;
     case 22:
-        cam = (char*)func_001774C0(cMemMan_alloc(0x3A0, D_0045B470, 0x20000000, 0), 4);
+        cam = (char*)DirectionChaseCameraAlgorithm_ctor(cMemMan_alloc(0x3A0, D_0045B470, 0x20000000, 0), 4);
         break;
     case 23:
-        cam = (char*)func_001774C0(cMemMan_alloc(0x3A0, D_0045B498, 0x20000000, 0), 5);
+        cam = (char*)DirectionChaseCameraAlgorithm_ctor(cMemMan_alloc(0x3A0, D_0045B498, 0x20000000, 0), 5);
         break;
     case 24:
-        cam = (char*)func_001774C0(cMemMan_alloc(0x3A0, D_0045B4C0, 0x20000000, 0), 6);
+        cam = (char*)DirectionChaseCameraAlgorithm_ctor(cMemMan_alloc(0x3A0, D_0045B4C0, 0x20000000, 0), 6);
         break;
     case 25:
-        cam = (char*)func_001774C0(cMemMan_alloc(0x3A0, D_0045B4E8, 0x20000000, 0), 7);
+        cam = (char*)DirectionChaseCameraAlgorithm_ctor(cMemMan_alloc(0x3A0, D_0045B4E8, 0x20000000, 0), 7);
         break;
     case 32:
-        cam = (char*)func_00168650(cMemMan_alloc(0x390, D_0045B510, 0x20000000, 0));
+        cam = (char*)LookBackChaseCameraAlgorithm_ctor(cMemMan_alloc(0x390, D_0045B510, 0x20000000, 0));
         break;
     case 41:
-        cam = (char*)func_00160760(cMemMan_alloc(0x3A0, D_0045B538, 0x20000000, 0));
+        cam = (char*)MatrixChaseCameraAlgorithm_ctor(cMemMan_alloc(0x3A0, D_0045B538, 0x20000000, 0));
         break;
     case 33:
     case 34:
@@ -147,17 +147,17 @@ extern "C" void cChaseCameraController_createChaseAlgorithmBlend(char* self, uns
     case 40:
         {
             float ang = (float)(int)(type - 0x21) * 0.7853982f;
-            cam = (char*)func_00160B70(cMemMan_alloc(0x3C0, D_0045B558, 0x20000000, 0), ang);
+            cam = (char*)RelativeChaseCameraAlgorithm_ctor(cMemMan_alloc(0x3C0, D_0045B558, 0x20000000, 0), ang);
         }
         *(int*)(cam + 0xC) = type;
         break;
     case 2:
     case 60:
-        cam = (char*)func_00176A68(cMemMan_alloc(0x390, D_0045B2D8, 0x20000000, 0));
+        cam = (char*)Default_2ChaseCameraAlgorithm_ctor(cMemMan_alloc(0x390, D_0045B2D8, 0x20000000, 0));
         break;
     case 1:
     case 62:
-        cam = (char*)func_00177068(cMemMan_alloc(0x390, D_0045B300, 0x20000000, 0));
+        cam = (char*)Default_4ChaseCameraAlgorithm_ctor(cMemMan_alloc(0x390, D_0045B300, 0x20000000, 0));
         break;
     case 0:
     case 3:
@@ -199,31 +199,31 @@ extern "C" void cChaseCameraController_createChaseAlgorithmBlend(char* self, uns
     case 64:
     case 65:
     case 74:
-        cam = (char*)func_00176D68(cMemMan_alloc(0x390, D_0045B2B0, 0x20000000, 0));
+        cam = (char*)Default_3ChaseCameraAlgorithm_ctor(cMemMan_alloc(0x390, D_0045B2B0, 0x20000000, 0));
         break;
     case 66:
-        cam = (char*)func_00177E50(cMemMan_alloc(0x3A0, D_0045B578, 0x20000000, 0));
+        cam = (char*)SpokeChaseCameraAlgorithm_ctor(cMemMan_alloc(0x3A0, D_0045B578, 0x20000000, 0));
         break;
     case 67:
         cam = 0;
         break;
     case 68:
-        cam = (char*)func_001789E8((char*)cMemMan_alloc(0x3B0, D_0045B598, 0x20000000, 0), *(char**)(self + 0x20));
+        cam = (char*)Post_Race_1ChaseCameraAlgorithm_ctor((char*)cMemMan_alloc(0x3B0, D_0045B598, 0x20000000, 0), *(char**)(self + 0x20));
         break;
     case 94:
-        cam = (char*)func_00160B70(cMemMan_alloc(0x3C0, D_0045B558, 0x20000000, 0), -0.3926991f);
+        cam = (char*)RelativeChaseCameraAlgorithm_ctor(cMemMan_alloc(0x3C0, D_0045B558, 0x20000000, 0), -0.3926991f);
         *(int*)(cam + 0xC) = type;
         break;
     case 95:
-        cam = (char*)func_00160B70(cMemMan_alloc(0x3C0, D_0045B558, 0x20000000, 0), 0.3926991f);
+        cam = (char*)RelativeChaseCameraAlgorithm_ctor(cMemMan_alloc(0x3C0, D_0045B558, 0x20000000, 0), 0.3926991f);
         *(int*)(cam + 0xC) = type;
         break;
     case 96:
-        cam = (char*)func_00160B70(cMemMan_alloc(0x3C0, D_0045B558, 0x20000000, 0), -2.3561945f);
+        cam = (char*)RelativeChaseCameraAlgorithm_ctor(cMemMan_alloc(0x3C0, D_0045B558, 0x20000000, 0), -2.3561945f);
         *(int*)(cam + 0xC) = type;
         break;
     case 97:
-        cam = (char*)func_00160B70(cMemMan_alloc(0x3C0, D_0045B558, 0x20000000, 0), 2.3561945f);
+        cam = (char*)RelativeChaseCameraAlgorithm_ctor(cMemMan_alloc(0x3C0, D_0045B558, 0x20000000, 0), 2.3561945f);
         *(int*)(cam + 0xC) = type;
         break;
     }

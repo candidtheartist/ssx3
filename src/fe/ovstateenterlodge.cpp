@@ -253,7 +253,7 @@ extern "C" void cUIScreen_playFrame(void* screen, int a1, int a2);
 extern "C" void func_0020A380(void* self);
 extern char D_0046F500[];
 
-extern "C" void func_001F76B8(void* self)
+extern "C" void OVScreenBCFail_Init(void* self)
 {
     void* engine;
     void* screen;
@@ -301,7 +301,7 @@ extern "C" void func_001F7770(void* self, void* item)
 }
 
 //100%
-extern "C" int func_001F77F0(void* self, int a1, int a2)
+extern "C" int OVScreenBCFail_OnWidgetNotify(void* self, int a1, int a2)
 {
     return a2 == 6 ? 0x101 : 0;
 }
@@ -593,7 +593,7 @@ extern "C" void func_001F7F08(void* self, void* a1)
 }
 
 //100%
-extern "C" int func_001F80C8(void* self, int a1, int a2)
+extern "C" int OVScreenTopTimes_OnWidgetNotify(void* self, int a1, int a2)
 {
     return a2 == 6 ? 0x101 : 0;
 }
@@ -619,7 +619,7 @@ extern "C" void func_001F80D8(void* self, void* a1, int a2)
 extern int D_004A26FC;
 extern "C" void func_0020AB50(int id);
 
-extern "C" void func_001F8118(void* self, void* a1)
+extern "C" void OVScreenTopTimes_v26(void* self, void* a1)
 {
     if (*(int*)((char*)self + 0xA0) == 0) {
         int v = *(int*)((char*)a1 + 0x18);

@@ -160,7 +160,7 @@ extern "C" void func_0020A8F8(int mode)
 
 INCLUDE_ASM("fe/ovtemplatedialog", func_0020AB50);
 
-INCLUDE_ASM("fe/ovtemplatedialog", func_0020BAB8);
+INCLUDE_ASM("fe/ovtemplatedialog", GameUI_PushPopupScreen);
 
 //100%
 extern "C" void* cBE_getBE();
@@ -224,7 +224,7 @@ int GetHashValue32(char* str);
 extern "C" int func_0039F9D8(void* stack, int hash);
 extern char D_00471A40[];
 
-extern "C" int func_0020CB58(void)
+extern "C" int GameUI_IsReplayMenuOpen(void)
 {
     char* stack = *(char**)(*(char**)((char*)D_004A28A8 + 0x84) + 0x48) + 0x18;
     return func_0039F9D8(stack, GetHashValue32(D_00471A40)) != 0;
@@ -236,7 +236,7 @@ extern "C" int func_0039F9D8(void* stack, int hash);
 extern void* D_004A28A8;
 extern char D_0046F818[];
 
-extern "C" int func_0020CBA0(void)
+extern "C" int GameUI_IsPauseMenuOpen(void)
 {
     char* stack = *(char**)(*(char**)((char*)D_004A28A8 + 0x84) + 0x48) + 0x18;
     return func_0039F9D8(stack, GetHashValue32(D_0046F818)) != 0;
@@ -273,13 +273,13 @@ public:
     virtual int v25();
 };
 extern "C" void* cUIStateStack_getCurrentState(void* stack);
-extern "C" int func_0020CBA0(void);
+extern "C" int GameUI_IsPauseMenuOpen(void);
 extern void* D_004A28A8;
 
 extern "C" int func_0020CBE8(void)
 {
     char* mgr = *(char**)(*(char**)((char*)D_004A28A8 + 0x84) + 0x48);
-    if (func_0020CBA0() == 0) {
+    if (GameUI_IsPauseMenuOpen() == 0) {
         cUIState20CBE8* s = (cUIState20CBE8*)cUIStateStack_getCurrentState(mgr + 0x18);
         if (s != 0) {
             if (*(int*)((char*)s + 0x1C) & 1) {
@@ -726,7 +726,7 @@ extern "C" void cGameModeMan_initGameMode(void* self, int mode);
 extern "C" void cBENewRaceInterface_setGameEvent(void* self, int ev);
 extern "C" void cBENewRaceInterface_setGameMode(void* self, int mode);
 extern "C" void cBE_setState(int state);
-extern "C" void* func_00212138(void* self, void* a1, int a2);
+extern "C" void* OVScreenAutosave_ctor(void* self, void* a1, int a2);
 extern "C" void* func_00211088(void* self, void* a1, int a2, int a3);
 extern "C" void func_0030B758(void* self);
 extern "C" void func_00128A10(void* self);
@@ -842,7 +842,7 @@ extern "C" void cOVTemplate_Dialog_onWidgetEvent(char* self, char* w, int ev)
                 chk:
                 if (any) {
                     char* ui = *(char**)(*(char**)((char*)D_004A28A8 + 0x84) + 0x48);
-                    sStFlags_20D5A8* st = (sStFlags_20D5A8*)func_00212138(cMemMan_alloc(0x234, D_0046F9C0, 0x100, 0), *(void**)(self + 0x10), 1);
+                    sStFlags_20D5A8* st = (sStFlags_20D5A8*)OVScreenAutosave_ctor(cMemMan_alloc(0x234, D_0046F9C0, 0x100, 0), *(void**)(self + 0x10), 1);
                     st->mode = 1;
                     cUIStateStack_pushSpecial(ui + 0x18, st, 0, 0);
                 } else {

@@ -72,37 +72,37 @@ void* func_002C1498(void* self)
 }
 
 //100%
-void* func_002C14A0(void* self)
+void* tWPIGD_Mix_Get08(void* self)
 {
     return (char*)self + 0x8;
 }
 
 //100%
-void* func_002C14A8(void* self)
+void* tWPIGD_Ambience_Get08(void* self)
 {
     return (char*)self + 0x8;
 }
 
 //100%
-void* func_002C14B0(void* self)
+void* tWPIGD_Speech_Get08(void* self)
 {
     return (char*)self + 0x8;
 }
 
 //100%
-void* func_002C14B8(void* self)
+void* tWPIGD_Camera_Get08(void* self)
 {
     return (char*)self + 0x8;
 }
 
 //100%
-void* func_002C14C0(void* self)
+void* tWPIGD_Fog_Get08(void* self)
 {
     return (char*)self + 0x8;
 }
 
 //100%
-void* func_002C14C8(void* self)
+void* tWPIGD_Fog_Get10(void* self)
 {
     return (char*)self + 0x10;
 }
@@ -132,37 +132,37 @@ void* func_002C14E8(void* self)
 }
 
 //100%
-void* func_002C14F0(void* self)
+void* tWPIGD_LightGlow_Get08(void* self)
 {
     return (char*)self + 0x8;
 }
 
 //100%
-void* func_002C14F8(void* self)
+void* tWPIGD_LightGlow_Get10(void* self)
 {
     return (char*)self + 0x10;
 }
 
 //100%
-void* func_002C1500(void* self)
+void* tWPIGD_LightGlow_Get18(void* self)
 {
     return (char*)self + 0x18;
 }
 
 //100%
-void* func_002C1508(void* self)
+void* tWPIGD_LightGlow_Get20(void* self)
 {
     return (char*)self + 0x20;
 }
 
 //100%
-void* func_002C1510(void* self)
+void* tWPIGD_LightGlow_Get28(void* self)
 {
     return (char*)self + 0x28;
 }
 
 //100%
-void* func_002C1518(void* self)
+void* tWPIGD_LightGlow_Get30(void* self)
 {
     return (char*)self + 0x30;
 }
@@ -174,85 +174,85 @@ void* func_002C1520(void* self)
 }
 
 //100%
-void* func_002C1528(void* self)
+void* tWPIGD_ScreenTint_GetTintRed(void* self)
 {
     return (char*)self + 0x8;
 }
 
 //100%
-void* func_002C1530(void* self)
+void* tWPIGD_ScreenTint_GetTintGreen(void* self)
 {
     return (char*)self + 0x10;
 }
 
 //100%
-void* func_002C1538(void* self)
+void* tWPIGD_ScreenTint_GetTintBlue(void* self)
 {
     return (char*)self + 0x18;
 }
 
 //100%
-void* func_002C1540(void* self)
+void* tWPIGD_ScreenTint_GetFillRed(void* self)
 {
     return (char*)self + 0x20;
 }
 
 //100%
-void* func_002C1548(void* self)
+void* tWPIGD_ScreenTint_GetFillGreen(void* self)
 {
     return (char*)self + 0x28;
 }
 
 //100%
-void* func_002C1550(void* self)
+void* tWPIGD_ScreenTint_GetFillBlue(void* self)
 {
     return (char*)self + 0x30;
 }
 
 //100%
-void* func_002C1558(void* self)
+void* tWPIGD_SkyBox_Get08(void* self)
 {
     return (char*)self + 0x8;
 }
 
 //100%
-void* func_002C1560(void* self)
+void* tWPIGD_Sun_GetElevation(void* self)
 {
     return (char*)self + 0x8;
 }
 
 //100%
-void* func_002C1568(void* self)
+void* tWPIGD_Sun_GetAzimuth(void* self)
 {
     return (char*)self + 0x10;
 }
 
 //100%
-void* func_002C1570(void* self)
+void* tWPIGD_Sun_GetRed(void* self)
 {
     return (char*)self + 0x18;
 }
 
 //100%
-void* func_002C1578(void* self)
+void* tWPIGD_Sun_GetGreen(void* self)
 {
     return (char*)self + 0x20;
 }
 
 //100%
-void* func_002C1580(void* self)
+void* tWPIGD_Sun_GetBlue(void* self)
 {
     return (char*)self + 0x28;
 }
 
 //100%
-void* func_002C1588(void* self)
+void* tWPIGD_Sun_GetIntensity(void* self)
 {
     return (char*)self + 0x30;
 }
 
 //100%
-void* func_002C1590(void* self)
+void* tWPIGD_Sun_GetTexture(void* self)
 {
     return (char*)self + 0x38;
 }
@@ -270,37 +270,37 @@ void* func_002C15A0(void* self)
 }
 
 //100%
-void* func_002C15A8(void* self)
+void* tWPIGD_Surface_Get08(void* self)
 {
     return (char*)self + 0x8;
 }
 
 //100%
-void* func_002C15B0(void* self)
+void* tWPIGD_Lighting_GetIrradianceName0(void* self)
 {
     return (char*)self + 0x8;
 }
 
 //100%
-void* func_002C15B8(void* self)
+void* tWPIGD_Lighting_GetIrradianceName1(void* self)
 {
     return (char*)self + 0x18;
 }
 
 //100%
-void* func_002C15C0(void* self)
+void* tWPIGD_Lighting_Get28(void* self)
 {
     return (char*)self + 0x28;
 }
 
 //100%
-void* func_002C15C8(void* self)
+void* tWPIGD_Lighting_Get38(void* self)
 {
     return (char*)self + 0x38;
 }
 
 //100%
-void* func_002C15D0(void* self)
+void* tWPIGD_Lighting_Get48(void* self)
 {
     return (char*)self + 0x48;
 }
@@ -312,61 +312,61 @@ void* func_002C15D8(void* self)
 }
 
 //100%
-void* func_002C15E0(void* self)
+void* tWPIGD_Weather_Get08(void* self)
 {
     return (char*)self + 0x8;
 }
 
 //100%
-void* func_002C15E8(void* self)
+void* tWPIGD_Weather_Get10(void* self)
 {
     return (char*)self + 0x10;
 }
 
 //100%
-void* func_002C15F0(void* self)
+void* tWPIGD_Weather_Get18(void* self)
 {
     return (char*)self + 0x18;
 }
 
 //100%
-void* func_002C15F8(void* self)
+void* tWPIGD_Weather_Get20(void* self)
 {
     return (char*)self + 0x20;
 }
 
 //100%
-void* func_002C1600(void* self)
+void* tWPIGD_Weather_Get28(void* self)
 {
     return (char*)self + 0x28;
 }
 
 //100%
-void* func_002C1608(void* self)
+void* tWPIGD_Weather_Get30(void* self)
 {
     return (char*)self + 0x30;
 }
 
 //100%
-void* func_002C1610(void* self)
+void* tWPIGD_Weather_Get38(void* self)
 {
     return (char*)self + 0x38;
 }
 
 //100%
-void* func_002C1618(void* self)
+void* tWPIGD_Weather_Get40(void* self)
 {
     return (char*)self + 0x40;
 }
 
 //100%
-void* func_002C1620(void* self)
+void* tWPIGD_Weather_Get48(void* self)
 {
     return (char*)self + 0x48;
 }
 
 //100%
-void* func_002C1628(void* self)
+void* tWPIGD_Weather_Get50(void* self)
 {
     return (char*)self + 0x50;
 }
@@ -426,13 +426,13 @@ void* func_002C1670(void* self)
 }
 
 //100%
-void* func_002C1678(void* self)
+void* tWPIGD_Danger_Get08(void* self)
 {
     return (char*)self + 0x8;
 }
 
 //100%
-void* func_002C1680(void* self)
+void* tWPIGD_Danger_Get10(void* self)
 {
     return (char*)self + 0x10;
 }

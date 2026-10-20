@@ -238,7 +238,7 @@ typedef char* MEM_printf_va_list;
     (ap = (char*)__builtin_next_arg()                                    \
           - (__builtin_args_info(2) < 8 ? (8 - __builtin_args_info(2)) * 8 : 0))
 
-extern "C" int func_004186C8(char* dst, const char* fmt, char* ap);
+extern "C" int vsprintf(char* dst, const char* fmt, char* ap);
 extern "C" void func_003E5D30(int, char*);
 
 // printf to the debug output; the callback MEM_printclass uses.
@@ -247,7 +247,7 @@ extern "C" void MEM_printf(const char* fmt, ...)
     char buf[0x200];
     MEM_printf_va_list ap;
     MEM_printf_va_start(ap);
-    func_004186C8(buf, fmt, ap);
+    vsprintf(buf, fmt, ap);
     func_003E5D30(2, buf);
 }
 
@@ -407,7 +407,7 @@ extern "C" void MUTEX_unlock(void* mutex);
 extern void* gMemMutex[16];
 extern "C" int cMemMan_internalBlockSize(void* p);
 
-extern "C" int func_002525F8(void* p)
+extern "C" int MEM_GetBlockSizeLocked(void* p)
 {
     MUTEX_lock(gMemMutex);
     int r = cMemMan_internalBlockSize(p);
@@ -1438,7 +1438,7 @@ extern "C" void func_00255638(void* self, int flags)
 }
 
 //100%
-void func_00255668(void* self)
+void VD_SinkBase_Flush(void* self)
 {
 }
 
@@ -1495,7 +1495,7 @@ extern "C" void func_002557B8()
 }
 
 //99.38%
-void* func_002557C0(void* self)
+void* VD_GlobalCtors(void* self)
 {
     return func_00254E60(1, 0xffff);
 }

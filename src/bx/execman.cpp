@@ -141,7 +141,7 @@ extern "C" void func_00320AD0(void* self, int value)
 
 //100%
 // deleting destructor: reset the vtable, free when bit 0 of flags is set
-extern "C" void func_00320AD8(cExecutionMan* self, int flags)
+extern "C" void PS2ExecutionMan_v01(cExecutionMan* self, int flags)
 {
     self->field_0x8 = D_0048DC30;
     if (flags & 1) {
@@ -152,7 +152,7 @@ extern "C" void func_00320AD8(cExecutionMan* self, int flags)
 extern "C" void* func_00423C90(void* self);
 
 //100%
-void* func_00320B08(void* self)
+void* PS2ExecutionMan_v06(void* self)
 {
     return func_00423C90(self);
 }

@@ -392,14 +392,14 @@ extern "C" int func_00282540_r(void* self, int id)
 
 extern "C" void func_00272BF8(void* p);
 
-extern "C" void func_00282698(void* self)
+extern "C" void ScriptEngine_PauseAllSeqs(void* self)
 {
     func_00272BF8(*(void**)((char*)self + 0x2B8));
 }
 
 extern "C" void func_00272C70(void* p);
 
-extern "C" void func_002826B8(void* self)
+extern "C" void ScriptEngine_ResumeAllSeqs(void* self)
 {
     func_00272C70(*(void**)((char*)self + 0x2B8));
 }
@@ -934,7 +934,7 @@ extern "C" void func_00283000(void* self)
 //100%
 extern "C" void func_002749E8(void* self);
 
-extern "C" void func_00283038(void* self)
+extern "C" void ScriptBinding_PauseSeq(void* self)
 {
     void* p = *(void**)((char*)self + 0x8);
     if (p != 0) {
@@ -945,7 +945,7 @@ extern "C" void func_00283038(void* self)
 //100%
 extern "C" void func_00274A08(void* self);
 
-extern "C" void func_00283060(void* self)
+extern "C" void ScriptBinding_ResumeSeq(void* self)
 {
     void* p = *(void**)((char*)self + 0x8);
     if (p != 0) {
@@ -1051,7 +1051,7 @@ struct sBxsVEntryA {
     int (*fn)(void*, void*);
 };
 
-extern "C" void func_00283298(void* self)
+extern "C" void ScriptObj_Register(void* self)
 {
     char* mgr = (char*)func_0027D2E8();
     sBxsVEntryA* vt = *(sBxsVEntryA**)(mgr + 0x2A8);
@@ -1094,7 +1094,7 @@ extern "C" void func_00283320(cScriptOwner3320* self)
     int i = 0;
     int n = self->v06();
     for (; i < n; i++) {
-        func_00283038(self->v07(i));
+        ScriptBinding_PauseSeq(self->v07(i));
     }
 }
 
@@ -1119,7 +1119,7 @@ extern "C" void func_002833A8(cScriptOwner33A8* self)
     int i = 0;
     int n = self->v06();
     for (; i < n; i++) {
-        func_00283060(self->v07(i));
+        ScriptBinding_ResumeSeq(self->v07(i));
     }
 }
 

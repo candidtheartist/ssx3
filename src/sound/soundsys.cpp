@@ -505,7 +505,7 @@ int cRider_getMotionMode(void*);
 // cSSXAudio_getListenerRider returns a rider pointer here (the unit declares it int).
 void* cSSXAudio_getListenerRider_p(void* self, int which) __asm__("cSSXAudio_getListenerRider");
 
-extern "C" int func_00290FD0(void* self, int which)
+extern "C" int cSSXAudio_v02(void* self, int which)
 {
     int r = 3;
     char* rider = (char*)cSSXAudio_getListenerRider_p(self, which);
@@ -6764,7 +6764,7 @@ extern "C" void func_0029F3F8(char* self)
 //100%
 extern "C" void cBankManager_unloadBank(void* self, int i);
 
-extern "C" void func_0029F5E0(void* self)
+extern "C" void cSSXAudio_UnloadGruntBanks(void* self)
 {
     cBankManager_unloadBank(**(void***)((char*)self + 0x118), 0xE);
     cBankManager_unloadBank(**(void***)((char*)self + 0x118), 0xF);
@@ -11123,7 +11123,7 @@ extern "C" int func_002A8B28(void* unused, char* obj)
 //100%
 extern char D_004835F8[];
 
-extern "C" void* func_002A8C20(void* self)
+extern "C" void* PS2SoundManager_ctor(void* self)
 {
     *(void**)self = D_004835F8;
     *(int*)((char*)self + 0x4) = 0;
@@ -11321,12 +11321,12 @@ extern "C" void func_002A8F50(void* self)
 
 //100% - objdiff report; single-function view differs only in a relocation name
 extern "C" void* cMemMan_alloc(int size, const char* tag, unsigned int flags, int d);
-extern "C" void* func_002A8C20(void* self);
+extern "C" void* PS2SoundManager_ctor(void* self);
 extern const char D_00483168[];
 
 extern "C" void* func_002A8FA0()
 {
-    return func_002A8C20(cMemMan_alloc(0x320, D_00483168, 0, 0));
+    return PS2SoundManager_ctor(cMemMan_alloc(0x320, D_00483168, 0, 0));
 }
 
 //100%
@@ -11418,7 +11418,7 @@ extern "C" void func_002A9250(sSndPool2A9250* self, int i)
 //100%
 extern "C" void func_003B5B20(int a, int b);
 
-extern "C" void func_002A9288(void* self)
+extern "C" void PS2SoundManager_v07(void* self)
 {
     func_003B5B20(-1, *(int*)((char*)self + 0x30C));
     *(int*)((char*)self + 0x31C) = 0;

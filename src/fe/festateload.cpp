@@ -307,7 +307,7 @@ extern void* D_0046B570[];
 extern int D_004A14B8;
 extern "C" void func_001D5428(void* self, int flags);
 
-extern "C" void func_00186B18(void* self, int flags)
+extern "C" void cFEStateMemCard_dtor(void* self, int flags)
 {
     *(void***)((char*)self + 8) = D_0046B570;
     D_004A14B8 = 0;
