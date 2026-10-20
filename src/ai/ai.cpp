@@ -5772,7 +5772,7 @@ extern "C" void cRailSlideControl_gainFocus(void* self)
 //100%
 // PORT: g++ >?/<? (min/max) operator, removed in GCC 4.3.
 // PORT: PS2-only inline asm; needs a C fallback off-PS2.
-extern "C" bool func_001446A0(void* self, int bit);
+extern "C" bool testFlagBit(void* self, int bit);
 extern "C" int func_00116120_i(void* rider, int a, int b) __asm__("func_00116120");
 extern "C" int func_001161D0(void* rider, float v);
 extern "C" void cRailSlideControl_spin(void* self, int neg);
@@ -5825,7 +5825,7 @@ extern "C" void cRailSlideControl_update(void* self, void* in)
     func_00115D48(*(void**)((char*)self + 0x8));
     sPadC_131D30* in2 = (sPadC_131D30*)((char*)in + 4);
     if (cRiderAnimBase_getChannelAnimClass(*(void**)(*(char**)((char*)self + 0x8) + 0x784), 2) == 0xE) {
-        if (!func_001446A0(cRiderAnimBase_getChannelSequence(*(void**)(*(char**)((char*)self + 0x8) + 0x784), 2) + 0xB0, 0))
+        if (!testFlagBit(cRiderAnimBase_getChannelSequence(*(void**)(*(char**)((char*)self + 0x8) + 0x784), 2) + 0xB0, 0))
             return;
         if (func_001161D0(*(void**)((char*)self + 0x8), in2->y * k))
             return;
@@ -6044,7 +6044,7 @@ int cRider_getMotionMode(void* self);
 void cRider_setControlState_impl(void* self, int v) __asm__("cRider_setControlState__FPv");
 extern "C" int cRiderAnimBase_getChannelAnimClass(void*, int);
 extern "C" char* cRiderAnimBase_getChannelSequence(void*, int);
-extern "C" bool func_001446A0(void* self, int bit);
+extern "C" bool testFlagBit(void* self, int bit);
 extern "C" void func_00115640(void* rider);
 
 struct sAiBits00132770
@@ -6060,7 +6060,7 @@ extern "C" int cRailSlideControl_checkAirborneExit(void* self, void* a1)
     }
     if (cRiderAnimBase_getChannelAnimClass(*(void**)(*(char**)((char*)self + 0x8) + 0x784), 2) == 0xE)
     {
-        if (!func_001446A0(cRiderAnimBase_getChannelSequence(*(void**)(*(char**)((char*)self + 0x8) + 0x784), 2) + 0xB0, 0))
+        if (!testFlagBit(cRiderAnimBase_getChannelSequence(*(void**)(*(char**)((char*)self + 0x8) + 0x784), 2) + 0xB0, 0))
         {
             return 0;
         }
@@ -6719,7 +6719,7 @@ extern "C" float cRiderMetrix_endUberGrind(void* p, int v);
 int cRider_getMotionMode(void* self);
 void cRider_setControlState_impl(void* self, int v) __asm__("cRider_setControlState__FPv");
 extern "C" void cRailSlideControl_playRailAnim(void*, int);
-extern "C" bool func_001446A0(void* self, int bit);
+extern "C" bool testFlagBit(void* self, int bit);
 extern "C" int cRiderAnimBase_getChannelAnimClass(void*, int);
 extern "C" char* cRiderAnimBase_getChannelSequence(void*, int);
 int cRiderAnimBase_getChannelAnim(void* self, int i);
@@ -6821,7 +6821,7 @@ extern "C" void cUberGrindControl_update(sAiObj136508* self, void* in)
         *(float*)(r2 + 0x23C) = 0.05833333730697632f;
         if (cRiderAnimBase_getChannelAnimClass(*(void**)(self->mRider + 0x784), 2) == 0x15 &&
             !cRiderAnimBase_isChannelComplete(*(void**)(self->mRider + 0x784), 2) &&
-            !func_001446A0(cRiderAnimBase_getChannelSequence(*(void**)(self->mRider + 0x784), 2) + 0xB0, 0))
+            !testFlagBit(cRiderAnimBase_getChannelSequence(*(void**)(self->mRider + 0x784), 2) + 0xB0, 0))
             return;
         if (cRider_getMotionMode(self->mRider) == 4)
         {

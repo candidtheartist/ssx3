@@ -314,7 +314,7 @@ extern "C" void func_002F1148(void *arg0) {
 int cRiderAnimBase_getChannelAnim(void* self, int i);
 extern "C" int cRiderAnimBase_getChannelAnimClass(void*, int);
 extern "C" char* cRiderAnimBase_getChannelSequence(void*, int);
-extern "C" int func_001446A0(void*, int);
+extern "C" int testFlagBit(void*, int);
 extern int D_004A3AFC;
 
 struct sVec4_1150 {
@@ -416,8 +416,8 @@ extern "C" void func_002F1150(sFx_1150* self)
     int a = cRiderAnimBase_getChannelAnim(*(void**)(self->owner + 0x784), 0);
     int b = cRiderAnimBase_getChannelAnim(*(void**)(self->owner + 0x784), 1);
     if (cRiderAnimBase_getChannelAnimClass(*(void**)(self->owner + 0x784), 1) == 0xD) {
-        if (func_001446A0(cRiderAnimBase_getChannelSequence(*(void**)(self->owner + 0x784), 1) + 0xB0, 1) == 0) {
-            flag = func_001446A0(cRiderAnimBase_getChannelSequence(*(void**)(self->owner + 0x784), 1) + 0xB0, 0) != 0;
+        if (testFlagBit(cRiderAnimBase_getChannelSequence(*(void**)(self->owner + 0x784), 1) + 0xB0, 1) == 0) {
+            flag = testFlagBit(cRiderAnimBase_getChannelSequence(*(void**)(self->owner + 0x784), 1) + 0xB0, 0) != 0;
         }
     }
     if (a == 0x146 || (b == 0x143 && flag)) {

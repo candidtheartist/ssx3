@@ -123,7 +123,7 @@ INCLUDE_ASM("visualfx/boardtrailfx", func_002E86F0);
 int cRider_getMotionMode(void* self);
 int cRiderAnimBase_getChannelAnim(void* self, int i);
 extern "C" char* cRiderAnimBase_getChannelSequence(void* self, int i);
-extern "C" int func_001446A0(void* self, int i);
+extern "C" int testFlagBit(void* self, int i);
 extern float D_004A4590;
 extern float D_004A4594;
 extern float D_004A4598;
@@ -148,8 +148,8 @@ extern "C" int func_002E87E8(char* self)
             return 0;
     }
     if (cRiderAnimBase_getChannelAnim(*(void**)(*(char**)self + 0x784), 2) == 0x16) {
-        if (func_001446A0(cRiderAnimBase_getChannelSequence(*(void**)(*(char**)self + 0x784), 2) + 0xB0, 0)) {
-            if (!func_001446A0(cRiderAnimBase_getChannelSequence(*(void**)(*(char**)self + 0x784), 2) + 0xB0, 1))
+        if (testFlagBit(cRiderAnimBase_getChannelSequence(*(void**)(*(char**)self + 0x784), 2) + 0xB0, 0)) {
+            if (!testFlagBit(cRiderAnimBase_getChannelSequence(*(void**)(*(char**)self + 0x784), 2) + 0xB0, 1))
                 return 0;
         }
     }

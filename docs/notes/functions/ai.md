@@ -508,7 +508,7 @@ Segment `0x00138B48`-`0x001448D8`.
 - **`0x00140BC8`** - Side-effect-free virtual getter; called in `0x001200D0` with the result unused. *[static]*
 - **`0x00140C28`** - Getter for rider+0x3FC. *[static]*
 - **`0x00140C30`** - Setter for rider+0x3FC (dispatch path unconfirmed). *[static]*
-- **`0x00144670`** - Moves sequence marker flag bit 63 from the latched word seq+0xB0 into the newly raised word seq+0xB8. *[static]*
-- **`0x001446A0`** - Tests a bit in an animation sequence's latched flag word seq+0xB0 (seq, bit). Used by rail attach class gates and uber phase 2 (event bit 0). Paired with `0x001446B8`; which of the two returns latched vs newly raised bits is inferred from listing order. *[static]*
+- **`0x00144670`** `moveFlagBit` - Moves sequence marker flag bit 63 from the latched word seq+0xB0 into the newly raised word seq+0xB8. *[static]*
+- **`0x001446A0`** `testFlagBit` - Tests a bit in an animation sequence's latched flag word seq+0xB0 (seq, bit). Used by rail attach class gates and uber phase 2 (event bit 0). Paired with `0x001446B8`; which of the two returns latched vs newly raised bits is inferred from listing order. *[static]*
 - **`0x001446B8`** - Sequence marker query, probably for newly raised marker bits; paired with the latched-bit query `0x001446A0` (split inferred from listing order). *[unconfirmed]*
 - **`0x001446E8`** - Human rider route score (vtable +0xA4). *[static]*

@@ -2921,7 +2921,8 @@ extern "C" void* func_00144630(char* self)
 
 //100%
 // PORT: ulong is 64-bit here
-extern "C" void func_00144670(void* self, int bit)
+// Flag-word pair (two ulongs, e.g. cAnimSequence::mLatchedFlags): moves bit from word 0 into word 1.
+extern "C" void moveFlagBit(void* self, int bit)
 {
     ulong mask = (ulong)1 << bit;
     ulong a = *(ulong*)self;
@@ -2930,7 +2931,8 @@ extern "C" void func_00144670(void* self, int bit)
 }
 
 //100%
-extern "C" bool func_001446A0(void* self, int bit)
+// Tests bit in word 0 of a flag-word pair.
+extern "C" bool testFlagBit(void* self, int bit)
 {
     ulong mask = (ulong)1 << bit;
     return (*(ulong*)self & mask) != 0;

@@ -377,7 +377,7 @@ Globals, tables, vtables and constants, by address. Section boundaries are from 
 - **`0x004A3CB0`** - Expected argument types for stage-script builtin 0x41 (`gp+0xBC0`). *[static]*
 - **`0x004A3DD8`** - Stage-script global at `gp+0xCE8`, documented both as the current stage-script context pointer (ctx = *(gp+0xCE8)) and as the current player index substituted when a builtin's player-slot argument is -1; the two readings are not reconciled. *[static]*
 - **`0x004A3DFC`** - Pointer (`gp+0xD0C`) to the runtime table mapping trick ids to FE animation clip variants (all masks); FE variant is fe:(id-93), with ids 113..148 = UBER_<GRAB>_<n>_L<k> and 149..158 = UBER_TAIL_/UBER_NOSE_ variants. *[PS2]*
-- **`0x004A3E7C`** - Pointer (`gp+0xD8C`) to the loaded animation lookup; three-way leaf maps at `+0x1030+leaf*4`. *[static]*
+- **`0x004A3E7C`** - Pointer (`gp+0xD8C`) to the `cGameAnimMap` singleton (0x1848 bytes, `include/animation/gameanimmap.h`); the clip handle for animation id `n` (0..0x205) is at `+0x1030+n*4`. *[static]*
 - **`0x004A4058`** - Render priority split table (`gp+0xF68`), values 6 and 9, used by `0x00363490` to split render layers. *[static]*
 - **`0x004A424C`** - Camera Splash tweak 'Enable' (`gp+0x115C`, int); 1 in the race. The camera-splash update `0x002F39E0` returns early when it is 0. First of the Camera Splash tweak block that runs to `0x004A4294`. *[PS2]*
 - **`0x004A4250`** - Camera Splash tweak 'Render' (`gp+0x1160`); 1 in the race. *[PS2]*

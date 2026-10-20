@@ -1,5 +1,6 @@
 #include "common.h"
 #include "animation/animmodel.h"
+#include "animation/mdfarchive.h"
 
 //100%
 // PORT: operator_new__FUi is the game's tagged allocator (size, tag, flags, d); bound by asm label
@@ -23,16 +24,17 @@ struct sModelPart_D8B8 {
     int id;                 // 0x00
     char pad4[0x14];
     sLodSlot_D8B8 lods[4];  // 0x18
-    char* p38;              // 0x38
+    char* boneNames;        // 0x38 0x50-byte bone names
     char* p3C;              // 0x3C
     char* p40;              // 0x40
-    int h44;                // 0x44
+    int numBones;           // 0x44
     int h48;                // 0x48
     int h4C;                // 0x4C
     int index;              // 0x50
     int pad54;
 };
 
+// View of cAnimModel's first fields with mParts typed.
 struct sAnimModel_D8B8 {
     int f0;
     int nrefs;                  // 0x4
@@ -40,11 +42,13 @@ struct sAnimModel_D8B8 {
     sModelPart_D8B8* parts;     // 0xC
 };
 
+// part is a header copy from cMdfArchive_getModelPartByIndex, with its data after it.
 extern "C" void cAnimModel_addModelPartLOD(sAnimModel_D8B8* self, int lod, char* part, int index)
 {
+    cMdfPartHeader* hdr = (cMdfPartHeader*)part;
     char* data = part + 0x60;
     for (int i = 0; i < self->count; i++) {
-        if (self->parts[i].id == *(signed char*)(part + 0x52)) {
+        if (self->parts[i].id == hdr->mPartId) {
             self->parts[i].lods[lod].used = 1;
             self->parts[i].lods[lod].refs[index].part = part;
             self->parts[i].lods[lod].refs[index].data = data;
@@ -55,16 +59,16 @@ extern "C" void cAnimModel_addModelPartLOD(sAnimModel_D8B8* self, int lod, char*
         self->parts[self->count].lods[k].refs = new (D_00489C80, 0, 0) sLodRef_D8B8[self->nrefs];
         func_003E6448(self->parts[self->count].lods[k].refs, 0, self->nrefs << 4);
     }
-    self->parts[self->count].id = *(signed char*)(part + 0x52);
+    self->parts[self->count].id = hdr->mPartId;
     self->parts[self->count].lods[lod].used = 1;
     self->parts[self->count].lods[lod].refs[index].part = part;
     self->parts[self->count].lods[lod].refs[index].data = data;
-    self->parts[self->count].p38 = data + *(int*)(part + 0x18);
-    self->parts[self->count].p40 = data + *(int*)(part + 0x2C);
-    self->parts[self->count].p3C = data + *(int*)(part + 0x1C);
-    self->parts[self->count].h44 = *(short*)(part + 0x4A);
-    self->parts[self->count].h48 = *(short*)(part + 0x4E);
-    self->parts[self->count].h4C = *(short*)(part + 0x50);
+    self->parts[self->count].boneNames = data + hdr->mBoneNamesOffset;
+    self->parts[self->count].p40 = data + hdr->mOffset2C;
+    self->parts[self->count].p3C = data + hdr->mOffset1C;
+    self->parts[self->count].numBones = hdr->mNumBones;
+    self->parts[self->count].h48 = hdr->mCount4E;
+    self->parts[self->count].h4C = hdr->mCount50;
     self->parts[self->count].index = index;
     self->count++;
 }
@@ -101,7 +105,7 @@ extern "C" void cAnimModel_setScale(void* self, float a, float b)
     v.y = b;
     v.z = b;
     v.w = 1.0f;
-    *(sVec4_0030DBA0*)((char*)self + 0x140) = v;
+    *(sVec4_0030DBA0*)&((cAnimModel*)self)->mScale = v;
 }
 
 INCLUDE_ASM("animation/animmodel", cAnimModel_compile);

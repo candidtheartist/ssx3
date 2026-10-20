@@ -29,7 +29,11 @@ Translation units per the current splits:
 - `src/animation/animsequencer.cpp`: sequences and sequencers (`0x00313A10` `cAnimSequence_fadeWeight`,
   `0x00314760` `cAnimSequencer_getSequence`), slot clip setter `0x00313C50`, slot seek `0x00313CF0`, fade weights
   `0x00313D70`, descriptor emission `0x00314418`, sequence init `0x00314518`, sequence removal `0x003145F8`.
-- `src/animation/gameanimmap.cpp`: pending-rate setter `0x003158E0`.
+- `src/animation/gameanimmap.cpp`: animator accessors `0x003158B8`..`0x003159A8` (pending rate, bone mask,
+  mirror, default root/heading; pending-rate setter `0x003158E0`) and the unit's static init.
+- `src/animation/mdfarchive.cpp`: `cMdfArchive_getModelPartByIndex` and the `cGameAnimMap` animation-id to clip
+  map (`0x00314DD8` init, `0x00314E88` binary search by name hash, add/remove bank); layouts in
+  `include/animation/mdfarchive.h` and `gameanimmap.h`.
 - `asm/2125C8.s` (unsplit): weighted variant lookup `0x00311710`.
 - `asm/1218.s` (unsplit): driver dispatch `0x001036A0`, completion callbacks `0x00103918`, ground cycle selection
   `0x00103E28`/`0x00104178`, prewind driver `0x00104358`, air-adjust driver `0x001043F8`, grab-completion
