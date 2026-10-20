@@ -6389,7 +6389,89 @@ void func_003C8148(signed char arg0) {
     D_00515B4E_8148[0] = arg0;
 }
 
-INCLUDE_ASM("ealib/seg_2B4578", func_003C8158);
+//100%
+// Sets up a stream channel: picks a decoder by format and channel mode, creates it with the given parameters and adds it (plus an optional filter) to the channel's chain.
+struct P_8158 { int a; int b; int c; int d; int e; int f; int one; int ch; int b17A; int g; int out; };
+struct O_8158 { char p0[4]; int f4; char p8[0x10]; short f18; char f1A; };
+struct E_8158 { unsigned char active; char p1[0x3F]; int list; int f44; struct O_8158 *dec; struct O_8158 *filt; int f50; char p54[4]; int f58; int f5C; };
+struct T_8158 {
+    char p0[0x18];
+    void (*make[6][3])(struct O_8158 *, struct P_8158 *);
+    int size[6][3];
+    char pA8[0x1DC - 0xA8];
+    struct E_8158 *ents;
+};
+struct C_8158 { char p0[0x17A]; unsigned char b17A; };
+extern struct T_8158 D_00515B40_8158 __asm__("D_00515B40");
+extern struct C_8158 D_0050A8E8_8158 __asm__("D_0050A8E8");
+extern struct O_8158 *func_003B5C60_8158(int) __asm__("func_003B5C60");
+extern void func_003C8F48_8158(int *, struct O_8158 *) __asm__("func_003C8F48");
+extern void func_003CB280_8158(struct O_8158 *, int, int) __asm__("func_003CB280");
+
+void func_003C8158(int ch, int fmt, int stereo, int a, int b, int filt, int c, int d, int e, int f, int u10, int u11, int g, int tag) {
+    struct E_8158 *ent = &D_00515B40_8158.ents[ch];
+    struct P_8158 p;
+    int type;
+    int mode;
+
+    ent->list = 0;
+    ent->dec = 0;
+    ent->f50 = 0;
+    ent->f58 = 0;
+    ent->f5C = 0;
+    ent->filt = 0;
+    p.one = 1;
+    p.out = 0;
+    type = -1;
+    if (fmt == 8) {
+        type = 0;
+    } else if (fmt == 10) {
+        type = 1;
+    } else if (fmt == 4) {
+        type = 2;
+    } else if (fmt == 0x16) {
+        type = 3;
+    } else if (fmt == 0x10) {
+        type = 4;
+    } else if (fmt == 0x17) {
+        type = 5;
+    }
+    if (stereo == 1) {
+        mode = 0;
+        if (f >= 1) mode = 1;
+    } else {
+        mode = 2;
+        if (stereo) mode = 0;
+    }
+    if (D_00515B40_8158.make[type][mode]) {
+        ent->dec = func_003B5C60_8158(D_00515B40_8158.size[type][mode]);
+        p.a = a;
+        p.b = b;
+        p.c = c;
+        p.g = g;
+        p.d = d;
+        p.e = e;
+        p.f = f;
+        p.ch = ch;
+        p.b17A = D_0050A8E8_8158.b17A;
+        ent->dec->f4 = 0;
+        ent->dec->f18 = 0xF0;
+        ent->dec->f1A = tag;
+        D_00515B40_8158.make[type][mode](ent->dec, &p);
+        ent->f44 = p.out;
+        func_003C8F48_8158(&ent->list, ent->dec);
+    }
+    if (filt) {
+        if (stereo) ch = -1;
+        ent->filt = func_003B5C60_8158(0x1828);
+        ent->filt->f4 = 0;
+        ent->filt->f18 = 0xC8;
+        ent->filt->f1A = tag;
+        func_003CB280_8158(ent->filt, filt, ch);
+        func_003C8F48_8158(&ent->list, ent->filt);
+    }
+    ent->active = 1;
+}
 
 //100%
 // PORT: PS2-only inline asm; needs a C fallback off-PS2.
