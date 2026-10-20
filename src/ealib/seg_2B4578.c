@@ -7724,7 +7724,37 @@ void func_003CAA28(float *a, float *b, float *out, int n, int k) {
     }
 }
 
-INCLUDE_ASM("ealib/seg_2B4578", func_003CAB28);
+//100%
+// Error-diffusion step: picks between two neighbouring codes, whichever leaves the smaller carried error.
+#define ABS_AB28(x) ((x) < 0.0f ? -(x) : (x))
+
+int func_003CAB28(int n, unsigned char **pp, float *err, float t) {
+    int v = **pp + n / 2;
+    float e1, e2;
+
+    if (t < 1.0f) {
+        e1 = (float)n + *err - t * (float)n;
+        e2 = (float)(n * 2 - v) + *err - 2.0f * t * (float)n;
+        if (ABS_AB28(e1) < ABS_AB28(e2)) {
+            *pp += 1;
+            *err = e1;
+            return 0;
+        }
+        *pp += 2;
+        *err = e2;
+        return -v;
+    }
+    e1 = (float)n + *err - t * (float)n;
+    e2 = (float)(n + v) + *err - t * (float)n;
+    if (ABS_AB28(e1) < ABS_AB28(e2)) {
+        *pp += 1;
+        *err = e1;
+        return 0;
+    }
+    *pp += 1;
+    *err = e2;
+    return v;
+}
 
 //100% - objdiff report; single-function view differs only in a relocation name
 // PORT: PS2-only inline asm; needs a C fallback off-PS2.
