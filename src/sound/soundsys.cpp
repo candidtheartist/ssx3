@@ -487,14 +487,14 @@ extern "C" int func_00290CC0(void* vself, int a, int b)
 }
 
 //100%
-extern "C" int func_00285D98(void* self, int which);
+extern "C" int cSSXAudio_getListenerRider(void* self, int which);
 extern "C" int cSSXAudio_getNumListeners(void* self);
 
 extern "C" void func_00290F58(void* self, int id, float v)
 {
-    if (func_00285D98(self, 0) == id) {
+    if (cSSXAudio_getListenerRider(self, 0) == id) {
         *(float*)((char*)self + 0x6074) = v;
-    } else if (cSSXAudio_getNumListeners(self) == 2 && func_00285D98(self, 1) == id) {
+    } else if (cSSXAudio_getNumListeners(self) == 2 && cSSXAudio_getListenerRider(self, 1) == id) {
         *(float*)((char*)self + 0x6078) = v;
     }
 }
@@ -502,13 +502,13 @@ extern "C" void func_00290F58(void* self, int id, float v)
 //100%
 // PORT: PS2-only inline asm; needs a C fallback off-PS2.
 int cRider_getMotionMode(void*);
-// func_00285D98 returns a rider pointer here (the unit declares it int).
-void* func_00285D98_p(void* self, int which) __asm__("func_00285D98");
+// cSSXAudio_getListenerRider returns a rider pointer here (the unit declares it int).
+void* cSSXAudio_getListenerRider_p(void* self, int which) __asm__("cSSXAudio_getListenerRider");
 
 extern "C" int func_00290FD0(void* self, int which)
 {
     int r = 3;
-    char* rider = (char*)func_00285D98_p(self, which);
+    char* rider = (char*)cSSXAudio_getListenerRider_p(self, which);
     if (cRider_getMotionMode(rider) != 1) {
         return 3;
     }
@@ -2110,8 +2110,8 @@ extern "C" void func_00294880(void* self, int i, int v);
 extern "C" void func_0029FCC8(void* self, void* rider);
 extern "C" void func_002A7408(void* self, int i);
 extern "C" int cSSXAudio_isReplayPlaying(void* self);
-// func_00285D98 returns a rider pointer here (the unit declares it int).
-void* func_00285D98_p(void* self, int which) __asm__("func_00285D98");
+// cSSXAudio_getListenerRider returns a rider pointer here (the unit declares it int).
+void* cSSXAudio_getListenerRider_p(void* self, int which) __asm__("cSSXAudio_getListenerRider");
 
 struct sSsVt4678 { short delta; short index; int (*fn)(void*); };
 
@@ -2141,7 +2141,7 @@ extern "C" void func_00294678(void* self, char* rider)
             idx = *(int*)(rider + 0x870);
         }
     }
-    if (func_00285D98_p(self, idx) == rider && x > 2.0f) {
+    if (cSSXAudio_getListenerRider_p(self, idx) == rider && x > 2.0f) {
         func_002A7408(self, idx);
     }
 }
@@ -2201,7 +2201,7 @@ extern "C" void* cSSXAudio_getBusVolumePtr(void* self, int a1, int a2);
 extern "C" int func_002906B8(void* self);
 extern "C" int cSSXAudio_getRiderListener(void* self, void* obj);
 extern "C" int cSSXAudio_isReplayPlaying(void* self);
-extern "C" int func_00285D98(void* self, int which);
+extern "C" int cSSXAudio_getListenerRider(void* self, int which);
 extern "C" void func_003B58A0();
 extern "C" void func_003B58D8();
 extern "C" int func_003B8AB8(int id);
@@ -2322,7 +2322,7 @@ extern "C" void func_002948D0(void* vself, char* obj, float speed)
             id = *(int*)(obj + 0x870);
         }
     }
-    if ((char*)func_00285D98(self, id) == obj) {
+    if ((char*)cSSXAudio_getListenerRider(self, id) == obj) {
         if (speed <= 0.0f) {
             func_002A7438(self, id);
         } else if (speed < 0.25f) {
@@ -2723,8 +2723,8 @@ extern "C" int cSSXAudio_isReplayPlaying(void* self);
 extern "C" void func_002A73D8(void* self, int a1, int i);
 extern "C" void func_002A7438(void* self, int i);
 extern "C" void func_0028F108(void* self, void* rider);
-// func_00285D98 returns a rider pointer here (the unit declares it int).
-void* func_00285D98_p(void* self, int which) __asm__("func_00285D98");
+// cSSXAudio_getListenerRider returns a rider pointer here (the unit declares it int).
+void* cSSXAudio_getListenerRider_p(void* self, int which) __asm__("cSSXAudio_getListenerRider");
 
 // PORT: PS2-only inline asm (float absolute value).
 static inline float absf_961F0(float x)
@@ -2745,7 +2745,7 @@ extern "C" void func_002961F0(void* self, char* rider, float v)
             idx = *(int*)(rider + 0x870);
         }
     }
-    if (func_00285D98_p(self, idx) != rider) {
+    if (cSSXAudio_getListenerRider_p(self, idx) != rider) {
         return;
     }
     float a = absf_961F0(v);
@@ -4112,8 +4112,8 @@ extern signed char D_00535C10[];
 extern "C" int func_002A4290(void* self);
 extern "C" void* func_0028B1C8();
 extern "C" void* func_0028B1D8();
-// func_00285D98 returns a rider pointer here (the unit declares it int).
-void* func_00285D98_p(void* self, int which) __asm__("func_00285D98");
+// cSSXAudio_getListenerRider returns a rider pointer here (the unit declares it int).
+void* cSSXAudio_getListenerRider_p(void* self, int which) __asm__("cSSXAudio_getListenerRider");
 extern "C" int func_00295028(void* self, int a, int b);
 extern "C" int cSSXAudio_isReplayPlaying(void* self);
 extern "C" void func_00295628(void* self, void* evt, int h, int t, int a, int idx);
@@ -4129,7 +4129,7 @@ extern "C" void func_00299E28(void* self, void* obj, void* a, void* b, int lim, 
         return;
     }
     bool ok = *(int*)((char*)obj + 0x874) && *(int*)((char*)obj + 0x87C);
-    if (!ok && func_00285D98_p(self, -1) != obj) {
+    if (!ok && cSSXAudio_getListenerRider_p(self, -1) != obj) {
         return;
     }
     int cnt = *(int*)((char*)func_0028B1D8() + 0x7C);
@@ -4238,8 +4238,8 @@ extern "C" void func_00296E20(void* self, void* obj);
 extern "C" void func_00297438(void* self, void* obj);
 extern "C" void func_002992D8(void* self, void* obj);
 extern "C" void func_0028F108(void* self, void* rider);
-// func_00285D98 returns a rider pointer here (the unit declares it int).
-void* func_00285D98_p(void* self, int which) __asm__("func_00285D98");
+// cSSXAudio_getListenerRider returns a rider pointer here (the unit declares it int).
+void* cSSXAudio_getListenerRider_p(void* self, int which) __asm__("cSSXAudio_getListenerRider");
 
 extern "C" void func_0029A220(void* self, void* obj)
 {
@@ -4252,7 +4252,7 @@ extern "C" void func_0029A220(void* self, void* obj)
     if (*(int*)((char*)self + 0x59E4) > 0) {
         func_002992D8(self, obj);
     }
-    if (obj == func_00285D98_p(self, -1)) {
+    if (obj == cSSXAudio_getListenerRider_p(self, -1)) {
         func_0028F108(self, obj);
     }
 }
@@ -4688,15 +4688,15 @@ extern "C" void func_0029B430(void* self, void* obj, int a, int b)
 
 //100%
 extern "C" int cSSXAudio_isReplayPlaying(void* self);
-extern "C" int func_00285D98(void* self, int which);
+extern "C" int cSSXAudio_getListenerRider(void* self, int which);
 extern "C" void* func_0028B1C8();
 extern "C" void func_002A3DE0(void* self, void* obj, int ev);
 
 extern "C" void func_0029B738(void* self)
 {
     if (cSSXAudio_isReplayPlaying(self) != 0) return;
-    // PORT: func_00285D98 returns a rider pointer as int
-    char* r = (char*)func_00285D98(self, -1);
+    // PORT: cSSXAudio_getListenerRider returns a rider pointer as int
+    char* r = (char*)cSSXAudio_getListenerRider(self, -1);
     if (*(int*)(r + 0x870) == *(int*)((char*)self + 0x5820)) {
         if (*(int*)(r + 0x2F4) == 10 && *(int*)((char*)self + 0x581C) != *(int*)(r + 0x2F4) &&
             *(int*)((char*)func_0028B1C8() + 0x214) == 4) {
@@ -5979,7 +5979,7 @@ extern "C" void* cSSXAudio_getBusVolumePtr(void* self, int a1, int a2);
 extern "C" int func_002906B8(void* self);
 extern "C" int cSSXAudio_getRiderListener(void* self, void* obj);
 extern "C" int cSSXAudio_isReplayPlaying(void* self);
-extern "C" int func_00285D98(void* self, int which);
+extern "C" int cSSXAudio_getListenerRider(void* self, int which);
 extern "C" void func_002AD5F0(void* p, int idx, int a2, float v);
 extern "C" void func_002A9988(void* self, float a, float b);
 extern "C" int func_0029E438(void* self, char* blk);
@@ -6071,7 +6071,7 @@ extern "C" void func_0029DEF0(void* vself, int on)
             if (cSSXAudio_isReplayPlaying(self) != 0) {
                 id = 0;
             }
-            char* obj = (char*)func_00285D98(self, id);
+            char* obj = (char*)cSSXAudio_getListenerRider(self, id);
             self->f6070 = vcall_DEF0(obj + 0x6C0, 7);
             {
                 sV3DEF0* p = (sV3DEF0*)vcall_DEF0(obj + 0x6C0, 5);
@@ -6929,8 +6929,8 @@ extern "C" void* func_003D8008(int a, int b, int c);
 extern "C" int cRider_getCharacterID(void*);
 // PORT: the unit defines func_0029F330 as void; it returns its tail call's result.
 int func_0029F330_i(void* self) __asm__("func_0029F330");
-// func_00285D98 returns a rider pointer here (the unit declares it int).
-void* func_00285D98_p(void* self, int which) __asm__("func_00285D98");
+// cSSXAudio_getListenerRider returns a rider pointer here (the unit declares it int).
+void* cSSXAudio_getListenerRider_p(void* self, int which) __asm__("cSSXAudio_getListenerRider");
 // PORT: D_004A482C is called with 4 args here (the unit's later declaration has 3).
 extern void (*D_004A482C_4)(void*, int, int, int) __asm__("D_004A482C");
 extern float D_004A36D8;
@@ -6970,7 +6970,7 @@ extern "C" void func_0029FCC8(void* self, void* vrider)
     if (*(float*)(rider->p788 + 0x98) < 4.000256061553955f) return;
     int chk = 0;
     if (rider->v09() != 0 || rider->f87C == 0) chk = 1;
-    if (chk && func_00285D98_p(self, -1) != rider) return;
+    if (chk && cSSXAudio_getListenerRider_p(self, -1) != rider) return;
     float v = rider->f470;
     float zero = 0.0f;
     int pos2 = v >= zero;
@@ -7007,8 +7007,8 @@ extern "C" void* func_003D8008(int a, int b, int c);
 extern "C" int cRider_getCharacterID(void*);
 // PORT: the unit defines func_0029F330 as void; it returns its tail call's result.
 int func_0029F330_i(void* self) __asm__("func_0029F330");
-// func_00285D98 returns a rider pointer here (the unit declares it int).
-void* func_00285D98_p(void* self, int which) __asm__("func_00285D98");
+// cSSXAudio_getListenerRider returns a rider pointer here (the unit declares it int).
+void* cSSXAudio_getListenerRider_p(void* self, int which) __asm__("cSSXAudio_getListenerRider");
 extern void (*D_004A482C)(void*, int, int);
 extern float D_004A36D8;
 
@@ -7042,7 +7042,7 @@ extern "C" void func_0029FF80(void* self, sSsFF80Rider* rider, int alt)
     if (pos) return;
     int chk = 0;
     if (rider->v09() != 0 || rider->f87C == 0) chk = 1;
-    if (chk && func_00285D98_p(self, -1) != rider) return;
+    if (chk && cSSXAudio_getListenerRider_p(self, -1) != rider) return;
     int r = func_0029F330_i(rider);
     if (cSSXAudio_findListenerInRange(self, rider->v05(), D_004A36D8) < 0) return;
     if (alt != 0) {
@@ -7091,8 +7091,8 @@ extern "C" void* func_003D8008(int a, int b, int c);
 extern "C" int cRider_getCharacterID(void*);
 // PORT: the unit defines func_0029F330 as void; it returns its tail call's result.
 int func_0029F330_i(void* self) __asm__("func_0029F330");
-// func_00285D98 returns a rider pointer here (the unit declares it int).
-void* func_00285D98_p(void* self, int which) __asm__("func_00285D98");
+// cSSXAudio_getListenerRider returns a rider pointer here (the unit declares it int).
+void* cSSXAudio_getListenerRider_p(void* self, int which) __asm__("cSSXAudio_getListenerRider");
 // PORT: D_004A482C is called with 4 args here (the unit's later declaration has 3).
 extern void (*D_004A482C_4)(void*, int, int, int) __asm__("D_004A482C");
 extern float D_004A36D8;
@@ -7127,7 +7127,7 @@ extern "C" void func_002A02D8(void* self, sSs02D8Rider* rider)
     if (pos) return;
     int chk = 0;
     if (rider->v09() != 0 || rider->f87C == 0) chk = 1;
-    if (chk && func_00285D98_p(self, -1) != rider) return;
+    if (chk && cSSXAudio_getListenerRider_p(self, -1) != rider) return;
     if (func_002B0E28((char*)self + 0x5560, 0) == 0) return;
     int r = func_0029F330_i(rider);
     int mode;
@@ -7166,7 +7166,7 @@ extern "C" void* func_0028B1C8();
 // PORT: the unit defines func_0029F330/func_002A1D48 as void; they return their tail call's result.
 int func_0029F330_i(void* self) __asm__("func_0029F330");
 int func_002A1D48_i(void* self, void* obj) __asm__("func_002A1D48");
-void* func_00285D98_p(void* self, int which) __asm__("func_00285D98");
+void* cSSXAudio_getListenerRider_p(void* self, int which) __asm__("cSSXAudio_getListenerRider");
 unsigned func_002A1820_0560(void* self, void* a, void* b) __asm__("func_002A1820");
 void func_0031BE50_0560(float a, float* x, float* y) __asm__("func_0031BE50");
 // PORT: D_004A482C is called with 4 and 5 args here (the unit's later declaration has 3).
@@ -7244,7 +7244,7 @@ void func_002A0560_0560(void* self, sSs0560Rider* a, sSs0560Rider* b)
     if (a->v09() != 0 || a->f87C == 0) chkA = 1;
     int chkB = 0;
     if (b->v09() != 0 || b->f87C == 0) chkB = 1;
-    void* pl = func_00285D98_p(self, -1);
+    void* pl = cSSXAudio_getListenerRider_p(self, -1);
     if (chkA && chkB && a != pl && b != pl) return;
     char* snd = (char*)self + 0x5560;
     if (func_002B0E28(snd, 0) == 0) return;
@@ -7302,7 +7302,7 @@ extern "C" int cRider_getCharacterID(void*);
 extern "C" void func_0029F660(void* self, void* rider, int a, int b);
 // PORT: the unit defines func_0029F330 as void; it returns its tail call's result.
 int func_0029F330_i(void* self) __asm__("func_0029F330");
-void* func_00285D98_p(void* self, int which) __asm__("func_00285D98");
+void* cSSXAudio_getListenerRider_p(void* self, int which) __asm__("cSSXAudio_getListenerRider");
 // PORT: D_004A482C is called with 4 args here (the unit's later declaration has 3).
 extern void (*D_004A482C_4)(void*, int, int, int) __asm__("D_004A482C");
 extern float D_004A36D8;
@@ -7351,7 +7351,7 @@ extern "C" void func_002A0A30(void* self, sSs0A30Rider* a, sSs0A30Rider* b, int 
     if (a->v09() != 0 || a->f87C == 0) chkA = 1;
     int chkB = 0;
     if (b->v09() != 0 || b->f87C == 0) chkB = 1;
-    void* pl = func_00285D98_p(self, -1);
+    void* pl = cSSXAudio_getListenerRider_p(self, -1);
     if (chkA && chkB && a != pl && b != pl) return;
     func_0029F660(self, b, 0, 1);
     char* snd = (char*)self + 0x5560;
@@ -7397,7 +7397,7 @@ extern "C" int cRider_getCharacterID(void*);
 extern "C" void func_0029F660(void* self, void* rider, int a, int b);
 // PORT: the unit defines func_0029F330 as void; it returns its tail call's result.
 int func_0029F330_i(void* self) __asm__("func_0029F330");
-void* func_00285D98_p(void* self, int which) __asm__("func_00285D98");
+void* cSSXAudio_getListenerRider_p(void* self, int which) __asm__("cSSXAudio_getListenerRider");
 extern void (*D_004A482C)(void*, int, int);
 extern float D_004A36D8;
 
@@ -7431,7 +7431,7 @@ extern "C" void func_002A0E70(void* self, sSs0E70Rider* rider, int play)
     if (cSSXAudio_isReplayPlaying(self) != 0) return;
     int chk = 0;
     if (rider->v09() != 0 || rider->f87C == 0) chk = 1;
-    if (chk && func_00285D98_p(self, -1) != rider) return;
+    if (chk && cSSXAudio_getListenerRider_p(self, -1) != rider) return;
     float v = rider->f470;
     float zero = 0.0f;
     int pos = v >= zero;
@@ -7450,13 +7450,13 @@ extern "C" void func_002A0E70(void* self, sSs0E70Rider* rider, int play)
 
 //100%
 extern "C" int func_002B1220(void* self, int i);
-extern "C" int func_002AB150(void* self, int i);
+extern "C" int cStreamSys_getCurrentItem(void* self, int i);
 extern "C" void* func_002AD550(void* self, int idx, int a2);
 extern "C" void func_002B11B0(void*, int);
 
 extern "C" int func_002A1028(void* self, int id)
 {
-    int idx = func_002AB150(*(void**)((char*)self + 0x118), func_002B1220((char*)self + 0x5560, 0));
+    int idx = cStreamSys_getCurrentItem(*(void**)((char*)self + 0x118), func_002B1220((char*)self + 0x5560, 0));
     if (idx < 0) {
         return 1;
     }
@@ -7473,12 +7473,12 @@ extern "C" int func_002A1028(void* self, int id)
 
 //100%
 extern "C" int func_002B1220(void* self, int i);
-extern "C" int func_002AB150(void* self, int i);
+extern "C" int cStreamSys_getCurrentItem(void* self, int i);
 extern "C" void* func_002AD550(void* self, int idx, int a2);
 
 extern "C" int func_002A10C0(void* self, int id)
 {
-    int idx = func_002AB150(*(void**)((char*)self + 0x118), func_002B1220((char*)self + 0x5560, 0));
+    int idx = cStreamSys_getCurrentItem(*(void**)((char*)self + 0x118), func_002B1220((char*)self + 0x5560, 0));
     if (idx < 0) {
         return 0;
     }
@@ -7614,7 +7614,7 @@ extern "C" void func_002A1560(void* self, char* rider)
     int check = 0;
     sSsVt1280* e9 = &(*(sSsVt1280**)o)[9];
     if (e9->fn(o + e9->delta) != 0 || *(int*)(rider + 0x87C) == 0) check = 1;
-    if (check && func_00285D98_p(self, -1) != rider) return;
+    if (check && cSSXAudio_getListenerRider_p(self, -1) != rider) return;
     char* bm = (char*)self + 0x5560;
     if (func_002B0E28(bm, 0) == 0) return;
     char* o2 = rider + 0x6C0;
@@ -8611,8 +8611,8 @@ int func_002A42C8_s(void* self) __asm__("func_002A42C8");
 extern "C" int func_002B0E28(void* self, int i);
 extern "C" int func_002A4078(void* self);
 extern "C" int func_002A4040(void* self);
-// func_00285D98 returns a rider pointer here (the unit declares it int).
-void* func_00285D98_p(void* self, int which) __asm__("func_00285D98");
+// cSSXAudio_getListenerRider returns a rider pointer here (the unit declares it int).
+void* cSSXAudio_getListenerRider_p(void* self, int which) __asm__("cSSXAudio_getListenerRider");
 extern "C" int func_00123168(void*);
 extern "C" void func_002ADCA0(void*, int, long, int, int, int, int, int);
 // PORT: func_002A1E68 returns the rider's sound mask here.
@@ -8654,7 +8654,7 @@ extern "C" int func_002A34D0(void* self, char* rider, int flag, int which)
             return 1;
         if (func_002A4040(self) != 0)
             return 1;
-        rider = (char*)func_00285D98_p(self, which);
+        rider = (char*)cSSXAudio_getListenerRider_p(self, which);
         flag = 0;
     }
     if (func_00123168(rider) != 0)
@@ -8763,8 +8763,8 @@ extern "C" int func_002A3AA0(void* self, void* obj)
 //100%
 // PORT: PS2-only inline asm; needs a C fallback off-PS2.
 extern "C" int func_0029F160(void* self);
-// func_00285D98 returns an object pointer here (the unit declares it int).
-void* func_00285D98_p(void* self, int which) __asm__("func_00285D98");
+// cSSXAudio_getListenerRider returns an object pointer here (the unit declares it int).
+void* cSSXAudio_getListenerRider_p(void* self, int which) __asm__("cSSXAudio_getListenerRider");
 extern "C" int cSSXAudio_isReplayPlaying(void* self);
 extern "C" int func_002B1458(void* self, int a, int b, int c, int d, int e, int refresh, float f);
 extern "C" void* func_003D8008(int a, int b, int c);
@@ -8776,7 +8776,7 @@ extern "C" void func_002A3B18(void* self, void* obj, int a2)
     if (obj == 0) return;
     int done = *(float*)((char*)obj + 0x470) >= 0.0f;
     if (done) return;
-    if (obj != func_00285D98_p(self, -1)) return;
+    if (obj != cSSXAudio_getListenerRider_p(self, -1)) return;
     if (cSSXAudio_isReplayPlaying(self) != 0) return;
     if (func_002B1458((char*)self + 0x5560, 0, 0x20A7, 0, 0xC, 0, 0, 0.0f) != 0) {
         D_004A482C(func_003D8008(1, 0, 0x20A7), 1, a2);
@@ -8786,8 +8786,8 @@ extern "C" void func_002A3B18(void* self, void* obj, int a2)
 //100%
 // PORT: PS2-only inline asm; needs a C fallback off-PS2.
 extern "C" int func_0029F160(void* self);
-// func_00285D98 returns an object pointer here (the unit declares it int).
-void* func_00285D98_p(void* self, int which) __asm__("func_00285D98");
+// cSSXAudio_getListenerRider returns an object pointer here (the unit declares it int).
+void* cSSXAudio_getListenerRider_p(void* self, int which) __asm__("cSSXAudio_getListenerRider");
 extern "C" int cSSXAudio_isReplayPlaying(void* self);
 extern "C" int func_002B1458(void* self, int a, int b, int c, int d, int e, int refresh, float f);
 extern "C" void* func_003D8008(int a, int b, int c);
@@ -8801,7 +8801,7 @@ extern "C" void func_002A3C00(void* self, void* obj, int a2)
         int done = *(float*)((char*)obj + 0x470) >= 0.0f;
         if (done) return;
     }
-    if (obj != func_00285D98_p(self, -1)) return;
+    if (obj != cSSXAudio_getListenerRider_p(self, -1)) return;
     if (cSSXAudio_isReplayPlaying(self) != 0) return;
     if (func_002B1458((char*)self + 0x5560, 0, 0x20A8, 0, 0xC, 0, 0, 0.0f) != 0) {
         D_004A482C(func_003D8008(1, 0, 0x20A8), 1, a2);
@@ -8811,8 +8811,8 @@ extern "C" void func_002A3C00(void* self, void* obj, int a2)
 //100%
 // PORT: PS2-only inline asm; needs a C fallback off-PS2.
 extern void (*D_004A482C)(void*, int, int);
-// func_00285D98 returns a rider pointer here (the unit declares it int).
-void* func_00285D98_p(void* self, int which) __asm__("func_00285D98");
+// cSSXAudio_getListenerRider returns a rider pointer here (the unit declares it int).
+void* cSSXAudio_getListenerRider_p(void* self, int which) __asm__("cSSXAudio_getListenerRider");
 
 extern "C" void func_002A3CE8(void* self, char* rider, int n)
 {
@@ -8823,7 +8823,7 @@ extern "C" void func_002A3CE8(void* self, char* rider, int n)
     zero = 0.0f;
     int done = v >= zero;
     if (done) return;
-    if (n != 1 && rider != func_00285D98_p(self, -1)) return;
+    if (n != 1 && rider != cSSXAudio_getListenerRider_p(self, -1)) return;
     if (cSSXAudio_isReplayPlaying(self) != 0) return;
     if (n == 0) return;
     if (func_002B1458((char*)self + 0x5560, 0, 0x20A9, 0, 0xC, 0, 0, zero) != 0) {

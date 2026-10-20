@@ -717,7 +717,7 @@ extern "C" int func_002B6918(void* self, int idx)
     return type == 3;
 }
 
-extern "C" void func_00289400(void* audio);
+extern "C" void cSSXAudio_scheduleTriggerEnable(void* audio);
 
 extern "C" void func_002B6950(char* self, int a, int b)
 {
@@ -725,7 +725,7 @@ extern "C" void func_002B6950(char* self, int a, int b)
         *(int*)(self + 0x334) = a;
         return;
     }
-    func_00289400(func_0028B180());
+    cSSXAudio_scheduleTriggerEnable(func_0028B180());
 }
 
 //100%

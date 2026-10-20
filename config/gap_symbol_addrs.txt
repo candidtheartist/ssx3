@@ -6443,20 +6443,8 @@ func_00283DC0 = 0x00283DC0; //type:func
 
 // --- src/sound/ssxAudio.cpp ---
 func_00284C28 = 0x00284C28; //type:func
-func_002854A8 = 0x002854A8; //type:func
-func_002854F8 = 0x002854F8; //type:func
-func_00285BE0 = 0x00285BE0; //type:func
-func_00285D98 = 0x00285D98; //type:func
-func_00285F48 = 0x00285F48; //type:func
-func_00285F80 = 0x00285F80; //type:func
 func_00285FB0 = 0x00285FB0; //type:func
 func_00286200 = 0x00286200; //type:func
-func_002867E8 = 0x002867E8; //type:func
-func_00286C00 = 0x00286C00; //type:func
-func_00286E20 = 0x00286E20; //type:func
-func_002870A0 = 0x002870A0; //type:func
-func_00287108 = 0x00287108; //type:func
-func_002871B0 = 0x002871B0; //type:func
 func_002872A8 = 0x002872A8; //type:func
 func_00287410 = 0x00287410; //type:func
 func_00287488 = 0x00287488; //type:func
@@ -6477,27 +6465,17 @@ lbl_002877B4 = 0x002877B4; //type:label
 lbl_002877BC = 0x002877BC; //type:label
 lbl_002877C4 = 0x002877C4; //type:label
 lbl_002877CC = 0x002877CC; //type:label
-func_00288C08 = 0x00288C08; //type:func
-func_00288F60 = 0x00288F60; //type:func
 lbl_00288FA0 = 0x00288FA0; //type:label
 lbl_00289024 = 0x00289024; //type:label
 lbl_002890CC = 0x002890CC; //type:label
 lbl_00289150 = 0x00289150; //type:label
 lbl_00289214 = 0x00289214; //type:label
 lbl_002892CC = 0x002892CC; //type:label
-func_00289650 = 0x00289650; //type:func
-func_00289680__FPv = 0x00289680; //type:func
-func_00289688 = 0x00289688; //type:func
-func_002899F8 = 0x002899F8; //type:func
-func_00289AF0__FPv = 0x00289AF0; //type:func
-func_00289AF8__FPv = 0x00289AF8; //type:func
 func_00289BB8 = 0x00289BB8; //type:func
-func_00289C18 = 0x00289C18; //type:func
 func_00289DE0__FPv = 0x00289DE0; //type:func
 func_00289DF0 = 0x00289DF0; //type:func
 
 // --- src/sound/asyncsys.cpp ---
-func_0028AAF8 = 0x0028AAF8; //type:func
 func_0028B180 = 0x0028B180; //type:func
 func_0028B1B0 = 0x0028B1B0; //type:func
 func_0028B1C0 = 0x0028B1C0; //type:func
@@ -6508,7 +6486,6 @@ func_0028B1F8 = 0x0028B1F8; //type:func
 func_0028B210 = 0x0028B210; //type:func
 func_0028B240__FPv = 0x0028B240; //type:func
 func_0028B248 = 0x0028B248; //type:func
-func_0028B2D0 = 0x0028B2D0; //type:func
 
 // --- src/sound/bankmanager.cpp ---
 func_0028B650 = 0x0028B650; //type:func
@@ -6968,22 +6945,6 @@ func_002A92F8 = 0x002A92F8; //type:func
 func_002A9988 = 0x002A9988; //type:func
 
 // --- src/sound/streamsys.cpp ---
-func_002AA108 = 0x002AA108; //type:func
-func_002AA210 = 0x002AA210; //type:func
-func_002AA320 = 0x002AA320; //type:func
-func_002AA428 = 0x002AA428; //type:func
-func_002AAE08 = 0x002AAE08; //type:func
-func_002AAE78 = 0x002AAE78; //type:func
-func_002AB0D0 = 0x002AB0D0; //type:func
-func_002AB150 = 0x002AB150; //type:func
-func_002AB200 = 0x002AB200; //type:func
-func_002AB478 = 0x002AB478; //type:func
-func_002ABCE8__FPvii = 0x002ABCE8; //type:func
-func_002ABD38__FPvii = 0x002ABD38; //type:func
-func_002ABD48 = 0x002ABD48; //type:func
-func_002AC220 = 0x002AC220; //type:func
-func_002AC7F0 = 0x002AC7F0; //type:func
-func_002ACB80 = 0x002ACB80; //type:func
 
 // --- src/sound/bankmonitor.cpp ---
 func_002ACE40 = 0x002ACE40; //type:func

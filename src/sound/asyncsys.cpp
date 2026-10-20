@@ -250,9 +250,9 @@ extern "C" void cAsyncSys_addRequest(void* self, int a1, const char* name, int a
 
 INCLUDE_ASM("sound/asyncsys", cAsyncSys_cancelRequest);
 
-INCLUDE_ASM("sound/asyncsys", func_0028AAF8);
+INCLUDE_ASM("sound/asyncsys", cAsyncSys_update);
 
-extern "C" int func_0028B0F0(void* self, int b)
+extern "C" int cAsyncSys_getRequestBuffer(void* self, int b)
 {
     sAsync_A298* s = (sAsync_A298*)self;
     int a, c;
@@ -396,7 +396,7 @@ extern "C" void cBankInstance_destroy(void* self, int flags)
 //100%
 extern "C" void cBankInstance_unload(void* self);
 
-extern "C" void func_0028B2D0(void* self)
+extern "C" void cBankInstance_unloadLinked(void* self)
 {
     if (*(void**)((char*)self + 0x18) != 0) {
         for (void* p = *(void**)((char*)self + 0x18); p != self; p = *(void**)((char*)p + 0x18)) {
@@ -410,7 +410,7 @@ extern "C" char* strcpy(char* dst, const char* src);
 extern "C" void* FILE_loadsizez(const char* name, int* size, int align);
 extern "C" void* MEM_free(void* self);
 extern "C" void* func_00252FA0(void* a0, int a1, int a2);
-extern "C" void func_0028B2D0(void* self);
+extern "C" void cBankInstance_unloadLinked(void* self);
 extern "C" void cBankInstance_unload(void* self);
 extern "C" int func_003B6098(void* sema, int a1);
 extern "C" int func_003B6528(int id);
@@ -434,7 +434,7 @@ extern "C" void cBankInstance_load(void* self, const char* file, int align)
 {
     void* data = 0;
     cBankInstance_unload(self);
-    func_0028B2D0(self);
+    cBankInstance_unloadLinked(self);
     int size = 0;
     switch (*(int*)((char*)self + 0x8)) {
     case 0:
