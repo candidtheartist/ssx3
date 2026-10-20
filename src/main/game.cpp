@@ -336,9 +336,117 @@ extern "C" void func_0022CD40(void* self)
     *(int*)((char*)self + 0x1C4) = 0;
 }
 
-INCLUDE_ASM("main/game", func_0022CEA8);
+//100%
+struct sGroup_CEA8 {
+    int f0;
+    int count;
+    int a;
+    int b;
+    int ids[6];
+};
+struct sPair_CEA8 {
+    int f0;
+    int f4;
+};
+extern sGroup_CEA8 D_00442488_CEA8[] __asm__("D_00442488");
+extern sPair_CEA8 D_00442820[];
+extern "C" void func_0022D3D8(void* self, int i);
+extern "C" void func_0022D598(void* self, int i);
+extern "C" void func_0022D640(void* self, int a1);
 
-INCLUDE_ASM("main/game", func_0022D088);
+extern "C" void func_0022CEA8(char* self, int s, int k)
+{
+    int arg;
+    if (k == 7) {
+        arg = D_00442820[s].f4;
+    } else {
+        arg = k;
+    }
+    int a = D_00442488_CEA8[s].a;
+    int neg = 0;
+    if (a < 0) neg = 1;
+    int def = 0x31;
+    for (int i = 0; i < 0x32; i++) {
+        int keep = 1;
+        for (int j = 0; j < D_00442488_CEA8[s].count; j++) {
+            if (i == D_00442488_CEA8[s].ids[j]) {
+                keep = 0;
+                break;
+            }
+        }
+        if (i >= 0x2C && i <= 0x30) keep = 0;
+        if (i == 0x2B) keep = 0;
+        if (keep) {
+            func_0022D598(self, i);
+        }
+    }
+    *(int*)(self + 0x1BC) = s;
+    *(int*)(self + 0x1C0) = 0;
+    for (int j = 0; j < D_00442488_CEA8[s].count; j++) {
+        func_0022D3D8(self, D_00442488_CEA8[s].ids[j]);
+    }
+    // Picking the sky after the loops, from inputs set up before them, keeps gcse from hoisting the xor.
+    int sky = neg ? def : a;
+    int t = sky ^ 0x31;
+    if (t) {
+        *(int*)(self + 0x1A4) = 0;
+        func_0022D3D8(self, sky);
+    }
+    if (D_00442488_CEA8[s].b >= 0) {
+        func_0022D3D8(self, D_00442488_CEA8[s].b);
+    }
+    func_0022D640(self, arg);
+}
+
+//100%
+extern "C" void func_0022D478(void* self, int i);
+extern "C" void func_0022D668(char* self, int a1);
+extern "C" void cSectionMan_setSky(void* self, int sky);
+void func_0022D088_impl(char* self, int s, int k) __asm__("func_0022D088");
+
+void func_0022D088_impl(char* self, int s, int k)
+{
+    int arg;
+    if (k == 7) {
+        arg = D_00442820[s].f4;
+    } else {
+        arg = k;
+    }
+    int a = D_00442488_CEA8[s].a;
+    int neg = 0;
+    if (a < 0) neg = 1;
+    int def = 0x31;
+    for (int i = 0; i < 0x32; i++) {
+        int keep = 1;
+        for (int j = 0; j < D_00442488_CEA8[s].count; j++) {
+            if (i == D_00442488_CEA8[s].ids[j]) {
+                keep = 0;
+                break;
+            }
+        }
+        if (i >= 0x2C && i <= 0x30) keep = 0;
+        if (i == 0x2B) keep = 0;
+        if (keep) {
+            func_0022D598(self, i);
+        }
+    }
+    *(int*)(self + 0x1C0) = 1;
+    *(int*)(self + 0x1BC) = s;
+    for (int j = 0; j < D_00442488_CEA8[s].count; j++) {
+        func_0022D478(self, D_00442488_CEA8[s].ids[j]);
+    }
+    cSectionMan_setSky(self, s);
+    // Same sky setup as func_0022CEA8.
+    int sky = neg ? def : a;
+    int t = sky ^ 0x31;
+    if (t) {
+        func_0022D478(self, sky);
+    }
+    if (D_00442488_CEA8[s].b >= 0) {
+        func_0022D478(self, D_00442488_CEA8[s].b);
+    }
+    func_0022D668(self, arg);
+}
 
 //100%
 struct sGroup_D278 {

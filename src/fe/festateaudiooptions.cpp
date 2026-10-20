@@ -1,6 +1,67 @@
 #include "common.h"
 
-INCLUDE_ASM("fe/festateaudiooptions", cFEStateAudioOptions_onWidgetCreate);
+//100%
+int GetHashValue32(char* str);
+extern char D_004A1830[];
+extern char D_004A1838[];
+extern char D_004A1840[];
+extern char D_004A1848[];
+extern char D_00460420[];
+extern char D_00460430[];
+extern char D_00460440[];
+extern char D_00460450[];
+extern char D_00460460[];
+
+struct sAudioOpts_196540 {
+    char pad0[0x4C];
+    char* items[4];   // 0x4C
+    int on;           // 0x5C
+    int off;          // 0x60
+    char* w64;        // 0x64
+    char* w68;        // 0x68
+    char* w6C;        // 0x6C
+    char pad70[8];
+    int sel;          // 0x78
+};
+
+static inline void SetState_196540(char* w, int a, int b)
+{
+    *(int*)(w + 0x78) = a;
+    *(int*)(w + 0x7C) = b;
+}
+static inline void SetItem_196540(sAudioOpts_196540* self, char* w, int k)
+{
+    self->items[k] = w;
+    if (self->sel == k) SetState_196540(w, -1, self->on); else SetState_196540(w, -1, self->off);
+}
+extern "C" void cFEStateAudioOptions_onWidgetCreate(sAudioOpts_196540* self, char* w)
+{
+    int h = *(int*)(w + 0x38);
+    if (h == GetHashValue32(D_004A1830)) {
+        SetItem_196540(self, w, 0);
+    } else if (h == GetHashValue32(D_004A1838)) {
+        SetItem_196540(self, w, 2);
+    } else if (h == GetHashValue32(D_004A1840)) {
+        SetItem_196540(self, w, 1);
+    } else if (h == GetHashValue32(D_004A1840)) { // the retail code tests this name twice
+        SetItem_196540(self, w, 1);
+    } else if (h == GetHashValue32(D_004A1848)) {
+        SetItem_196540(self, w, 3);
+    } else if (h == GetHashValue32(D_00460420)) {
+        *(int*)(w + 0x18) = 0;
+    } else if (h == GetHashValue32(D_00460430)) {
+        *(int*)(w + 0x18) = 2;
+    } else if (h == GetHashValue32(D_00460440)) {
+        self->w68 = w;
+        *(int*)(w + 0x18) = 1;
+    } else if (h == GetHashValue32(D_00460450)) {
+        self->w64 = w;
+        *(int*)(w + 0x18) = 4;
+    } else if (h == GetHashValue32(D_00460460)) {
+        self->w6C = w;
+        *(int*)(w + 0x18) = 3;
+    }
+}
 
 //100%
 extern "C" void* cMemMan_alloc(int size, const char* tag, unsigned int flags, int d);
