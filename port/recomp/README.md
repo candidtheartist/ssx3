@@ -253,6 +253,13 @@ or any disc file.
     of each of its jobs, so it goes on with the next VIF1 list while the last one's draws are decoded and
     queued for the workers. That part was about a third of the VU1 thread's time on the Windows PC. Whatever
     waits for the VU1 thread now waits for both; `PS2X_GS_FEED=0` keeps the front end on the VU1 thread;
+  - frame skipping, the first step of the draw-layer plan: a hook on PS2GraphicsMan_EndFrame (0x377A10) learns
+    where the graphics manager keeps each frame's DMA lists, and the start of a frame's first GIF chain marks
+    where its drawing begins. The window then shows each frame once it is drawn, and when a frame starts while
+    the one before it has not reached the GS yet, its VU1 programs don't run and the GS drops its draws (its
+    texture uploads and register writes still run), so the game keeps its speed instead of waiting for the
+    drawing. `PS2X_FRAME_SKIP=0` turns skipping off; `PS2X_FRAME_LOG=1` also logs frames started and shown
+    per second;
   - a fix for a picture that stopped changing while the game went on. A presentation request queued while the
     thread that queues draws was waiting for room in a full queue was overwritten by that thread's next draw, so
     the window kept its last frame for the rest of the session. A 4-core Linux machine, where the queue is often
