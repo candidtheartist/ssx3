@@ -21,6 +21,14 @@
 #include "ps2_runtime.h"
 #include "ps2_runtime_macros.h"
 
+#ifdef _WIN32
+// A Windows build doesn't map EE RAM at its PS2 addresses (SSX3PC_NATIVE is off
+// there), so every function stays recompiled.
+void ssx3RegisterNative(PS2Runtime &)
+{
+}
+#else
+
 #include <atomic>
 #include <csignal>
 #include <cstdio>
@@ -267,3 +275,4 @@ void ssx3RegisterNative(PS2Runtime &runtime)
     std::fprintf(stderr, "[native] %u of %u decompiled functions run as native code%s\n", swapped,
                  g_ssx3NativeCount, checks ? " (checking them against the recompiled copies)" : "");
 }
+#endif

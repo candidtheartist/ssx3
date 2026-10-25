@@ -4,13 +4,16 @@
 #include "ps2_guest_scratch.h"
 #include "ps2_runtime.h"
 #include "ps2_runtime_macros.h"
+#include "runtime/ee_scheduler.h"
 
+#include <algorithm>
 #include <cctype>
 #include <chrono>
 #include <cstdio>
 #include <cstdlib>
 #include <cstring>
 #include <string>
+#include <vector>
 
 void ssx3RegisterNative(PS2Runtime &runtime); // ssx3_native.cpp
 
@@ -168,22 +171,58 @@ namespace
         std::fprintf(stderr, "[file] exists \"%s\" -> %d\n", name.c_str(), static_cast<int32_t>(getRegU32(ctx, 2)));
     }
 
+    // PS2GraphicsMan_EndFrame (a0 = the graphics manager) publishes each frame's DMA
+    // lists there: the VIF1 and GIF chains of its first part at +0x5AA8 and +0x5AB0, of
+    // its second at +0x5AAC and +0x5AB4. The renderer's kick thread (0x382760) starts the
+    // first part's GIF chain before anything else of the frame, so that start marks where
+    // a new frame's drawing begins.
+    PS2Runtime::RecompiledFunction g_endFrameOriginal = nullptr;
+    uint32_t g_graphicsMan = 0u;
+
+    void ssx3EndFrame(uint8_t *rdram, R5900Context *ctx, PS2Runtime *runtime)
+    {
+        g_graphicsMan = getRegU32(ctx, 4);
+        g_endFrameOriginal(rdram, ctx, runtime);
+    }
+
     PS2Runtime::RecompiledFunction g_syncTaskOriginal = nullptr;
 
-    // PS2X_FRAME_LOG=1: SYNCTASK_run runs once per pass of the main loop; log the
-    // loop rate every 2 s of wall time.
+    // PS2X_FRAME_LOG=1: SYNCTASK_run runs once per pass of the main loop, two passes a
+    // vertical blank when the game keeps up. Every 2 s of wall time, log the pass rate,
+    // the game's speed (vertical blanks a second against the PS2's 60) and how long the
+    // passes took.
     void ssx3CountFrames(uint8_t *rdram, R5900Context *ctx, PS2Runtime *runtime)
     {
-        static uint32_t frames = 0;
-        static auto last = std::chrono::steady_clock::now();
-        ++frames;
-        const auto now = std::chrono::steady_clock::now();
+        using Clock = std::chrono::steady_clock;
+        static std::vector<float> passMs;
+        static Clock::time_point last = Clock::now();
+        static Clock::time_point lastPass = last;
+        static uint64_t lastTick = runtime->eeScheduler().currentVSyncTick();
+        static uint64_t lastDrawn = runtime->memory().drawFramesStarted();
+        static uint64_t lastSkipped = runtime->memory().drawFramesSkipped();
+        const Clock::time_point now = Clock::now();
+        passMs.push_back(std::chrono::duration<float, std::milli>(now - lastPass).count());
+        lastPass = now;
         const double secs = std::chrono::duration<double>(now - last).count();
         if (secs >= 2.0)
         {
-            std::fprintf(stderr, "[frames] %.1f main-loop passes/s\n", frames / secs);
-            frames = 0;
+            const uint64_t tick = runtime->eeScheduler().currentVSyncTick();
+            std::sort(passMs.begin(), passMs.end());
+            const auto at = [&](double q)
+            { return passMs[static_cast<size_t>(q * static_cast<double>(passMs.size() - 1u))]; };
+            const uint64_t drawn = runtime->memory().drawFramesStarted();
+            const uint64_t skipped = runtime->memory().drawFramesSkipped();
+            std::fprintf(stderr, "[frames] %.1f main-loop passes/s, speed %.2fx, pass ms median %.1f p95 %.1f max %.1f, "
+                                 "frames %.1f/s shown %.1f/s\n",
+                         passMs.size() / secs, static_cast<double>(tick - lastTick) / secs / 60.0,
+                         at(0.5), at(0.95), passMs.back(),
+                         static_cast<double>(drawn - lastDrawn) / secs,
+                         static_cast<double>((drawn - lastDrawn) - (skipped - lastSkipped)) / secs);
+            passMs.clear();
             last = now;
+            lastTick = tick;
+            lastDrawn = drawn;
+            lastSkipped = skipped;
         }
         g_syncTaskOriginal(rdram, ctx, runtime);
     }
@@ -219,6 +258,17 @@ namespace
             g_syncTaskOriginal = runtime.lookupFunction(0x003E5928u);
             if (g_syncTaskOriginal)
                 runtime.replaceFunction(0x003E5928u, ssx3CountFrames);
+        }
+        g_endFrameOriginal = runtime.lookupFunction(0x00377A10u);
+        if (g_endFrameOriginal)
+        {
+            runtime.replaceFunction(0x00377A10u, ssx3EndFrame);
+            PS2Memory &memory = runtime.memory();
+            memory.setDmaStartFn([&memory](uint32_t channelBase, uint32_t tadr)
+                                 {
+                                     if (channelBase == 0x1000A000u && g_graphicsMan != 0u &&
+                                         tadr == memory.read32(g_graphicsMan + 0x5AB0u))
+                                         memory.beginDrawFrame(); });
         }
         runtime.replaceFunction(0x004261F0u, ssx3iSifSendCmd);
         runtime.replaceFunction(0x003F61D0u, ssx3UsbKbStart);

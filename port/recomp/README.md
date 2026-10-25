@@ -1,6 +1,6 @@
 # SSX 3 on the PS2Recomp runtime
 
-This builds SSX 3 for 32-bit Linux by translating the retail `SLUS_207.72` to C++ with
+This builds SSX 3 for 32-bit Linux and Windows by translating the retail `SLUS_207.72` to C++ with
 [PS2Recomp](https://github.com/ran-j/PS2Recomp) and linking it against PS2Recomp's runtime, with our fixes
 applied. The translated code is generated in the build directory and is never committed. Neither is the ELF
 or any disc file.
@@ -9,8 +9,15 @@ or any disc file.
 
 - `CMakeLists.txt` fetches PS2Recomp at a fixed commit, applies `ps2recomp.patch`, finds function boundaries
   with spimdisasm, translates the ELF, then builds the runtime 32-bit.
+- `apply_patch.cmake` applies the patch. When a pull changes the patch, the next build rewrites only the files
+  it changes, so only what depends on them recompiles.
 - `ps2recomp.patch` holds our runtime changes. None of them are SSX 3 specific, so they could go upstream:
   - a 32-bit build, with EE RAM identity-mapped at its PS2 addresses;
+  - a native 32-bit Windows build with MinGW. The game thread gets a 16 MB stack, and `operator new` returns
+    16-byte aligned memory, which GCC assumes but 32-bit MinGW's `malloc` does not give. EE RAM is not mapped at
+    its PS2 addresses there, since Windows 11 already has memory at 0x00100000 when a process starts; the
+    recompiled code doesn't need it, only natively compiled C does, so a Windows build keeps every function
+    recompiled (`SSX3PC_NATIVE` is off there);
   - EE→IOP SIF commands;
   - `sceCdCallback`;
   - semaphores with a max count of 0;
@@ -203,13 +210,72 @@ or any disc file.
     number on the PS2) into a quiet NaN. The out-of-line helpers that handle such values now return the result's
     bits, and the inline ones are always inlined. One of the FPU hardware-results tests failed at the game's
     RelWithDebInfo build type before this, though it passed at Release;
+  - the GS workers woken once per 32 queued commands instead of for each one, and skipping draws outside their
+    rows, with the same results. A race start queues about 28,000 draws a frame. On an 8-core Windows PC, waking six
+    workers for each one kept the thread that queues them signalling a fifth of the time, while the workers drew
+    under a tenth of the time. Workers are still woken at once for a command they all wait at, and before anything
+    waits for them. A worker also skips a draw that touches none of its rows, instead of setting it up to draw
+    nothing. The recorded race packets replay to the same VRAM on 1, 2, 3 and 6 workers, also with
+    round-toward-zero, with 7% fewer instructions on six workers. A race on a 4-core Linux machine woke the workers
+    20 times less often, at the same frame rate. On the Windows PC the race clock went from 0.34 to 0.77 times
+    real time;
+  - the GS workers sleeping on a lock of their own, so a worker going idle or waking never waits for the thread
+    that queues commands, which holds the queue's lock while it sorts out each one. On Windows a lock two threads
+    want at once goes through the kernel, and that thread spent about 7% of its time releasing it;
+  - the VU1 thread and the game thread that hands it VIF1 work waking each other only when the other is waiting.
+    The VU1 thread signalled after every job it finished and the game thread after every job it queued, though
+    each waits for the other only a few times a frame. On the Windows PC the VU1 thread spent about 7% of its
+    time releasing those waits;
+  - rounding-mode changes made with the x87 and SSE control registers directly. MinGW's 32-bit `fesetround`,
+    `fegetenv` and `fesetenv` check for SSE with CPUID on every call, and CPUID traps into the hypervisor when
+    Windows runs under one (as it does with memory integrity on). The VU1 thread switches to round-toward-zero
+    around every VU1 program, the GS workers switch to each command's mode, and each VU1 thread job ran in a
+    copy of the game thread's whole floating-point environment; a job now carries just its rounding mode;
+  - Windows' own locks and condition variables (SRWLOCK, CONDITION_VARIABLE) for the VU1 thread and the GS
+    workers, in place of MinGW's winpthreads ones, which sleep on a semaphore through WaitForMultipleObjects
+    and wake through ReleaseSemaphore, a system call each time. On the Windows PC the six GS workers each spent
+    about a fifth of a core in them. The workers also wait for each other at a barrier of their own, and
+    a worker that waits there or runs out of commands checks again for a while before it sleeps
+    (`PS2X_GS_SPIN` checks, 2000 by default), since the others or the next commands are usually microseconds
+    away;
+  - the same Windows waits for the EE scheduler, whose timed waits keep the game at 60 vblanks a second. With
+    winpthreads they took 36 to 42% of the game thread on the Windows PC. Windows sleeps in whole
+    milliseconds, so the last part of a millisecond before a deadline is waited out by yielding;
+  - idle GS workers woken one by one: the thread that queues draws wakes one, and each woken worker wakes
+    the next. That thread is the VU1 thread, which limits the frame rate in busy scenes (93 to 99% busy on the
+    Windows PC while the game ran slow), and waking all six at once cost it about an eighth of its time;
+  - draws queued in runs: a primitive with the same draw state and rounding mode as the one before it, which
+    the workers can run straight after it, joins that one's command, up to 64 to a command. SSX 3 queues about
+    1.3 million primitives a second in busy scenes, and each command cost the VU1 thread a queue slot, a lock
+    and a copy of the draw state;
+  - the GS front end on a thread of its own (`GsFeed`), after the VU1 thread: the VU1 thread queues the GIF
+    packets it sends, and the GS register stores that stay in order with them, and hands them over at the end
+    of each of its jobs, so it goes on with the next VIF1 list while the last one's draws are decoded and
+    queued for the workers. That part was about a third of the VU1 thread's time on the Windows PC. Whatever
+    waits for the VU1 thread now waits for both; `PS2X_GS_FEED=0` keeps the front end on the VU1 thread;
+  - frame skipping, the first step of the draw-layer plan: a hook on PS2GraphicsMan_EndFrame (0x377A10) learns
+    where the graphics manager keeps each frame's DMA lists, and the start of a frame's first GIF chain marks
+    where its drawing begins. The window then shows each frame once it is drawn, and when a frame starts while
+    the one before it has not reached the GS yet, its VU1 programs don't run and the GS drops its draws (its
+    texture uploads and register writes still run), so the game keeps its speed instead of waiting for the
+    drawing. `PS2X_FRAME_SKIP=0` turns skipping off; `PS2X_FRAME_LOG=1` also logs frames started and shown
+    per second;
+  - a fix for a picture that stopped changing while the game went on. A presentation request queued while the
+    thread that queues draws was waiting for room in a full queue was overwritten by that thread's next draw, so
+    the window kept its last frame for the rest of the session. A 4-core Linux machine, where the queue is often
+    full, hit it in four runs out of seven, after 1 to 9 minutes; with the fix, the picture changed in every
+    screenshot of a 10-minute run into a race;
+  - a vertical blank that is due more than a frame ago timed from now. When frames take longer to run than to
+    show, the host falls behind the PS2's schedule, and the game then ran fast until it had caught up: on the
+    Windows PC a race's main loop went from about 50 passes a second to 166 for seconds at a time. Now a slow
+    stretch just runs slowly;
   - debug switches.
 - `ssx3_overrides.cpp` holds the game-specific replacements: it skips the network and USB keyboard drivers,
   answers the module search, routes `isceSifSendCmd`, and keeps the runtime's scratch buffers in the
   0x80000-0x100000 gap below the ELF, since the game's own allocator owns everything above it.
 - `ssx3_native.cpp` and `native/` swap in game functions compiled from the decompiled C instead of
   their recompiled copies. Only functions that are certain to behave the same qualify; see
-  [native/README.md](native/README.md).
+  [native/README.md](native/README.md). Linux only for now.
 - `ssx3.toml.in` is the translator config (the analyzer's stub and entry lists). `gen_funcs.py` and
   `function_splits.txt` produce its function map. A stub runs the runtime's own version of a function instead of
   the game's, so a name goes on the list only when the runtime's version takes the same arguments: SSX 3's `log`
@@ -243,6 +309,23 @@ Pass `-DSSX3PC_TRACE_LOGS=ON` to turn them back on.
 
 The runtime is built with `-mfpmath=sse`. Without it a 32-bit build does float maths on the x87 unit, which
 turns PS2 floats with the top exponent (ordinary large numbers on the PS2) into NaNs.
+
+### Windows
+
+The Windows build uses the MINGW32 environment of [MSYS2](https://www.msys2.org), whose GCC builds 32-bit
+programs, and a Windows Python for spimdisasm. Work in a folder whose path has no spaces. In a MINGW32 shell:
+
+```bash
+pacman -S --needed git make diffutils mingw-w64-i686-gcc mingw-w64-i686-cmake mingw-w64-i686-ninja mingw-w64-i686-pkgconf
+git -c core.autocrlf=false clone https://github.com/candidtheartist/ssx3 && cd ssx3
+py -3 -m venv venv && venv/Scripts/python.exe -m pip install "spimdisasm>=1.41.0"
+cmake -S port/recomp -B port/recomp/build -G Ninja -DSSX3PC_ELF=C:/path/to/SLUS_207.72 -DSSX3PC_RUNTIME_JOBS=4
+ninja -C port/recomp/build
+```
+
+The build also fetches FFmpeg and builds a small static copy of it with only the MPEG video decoder and the scaler,
+so the game's movies play and `ps2EntryRunner.exe` needs no DLLs. Run it the same way as on Linux, from the
+extracted disc's folder in the MINGW32 shell.
 
 ### PS2Recomp's tests
 
@@ -281,7 +364,8 @@ These debug switches print to stderr:
 | `PS2X_DUMP_RDRAM=file` with `PS2X_DUMP_RDRAM_TICK=n` | EE RAM, written to `file` at frame `n` |
 | `PS2X_DUMP_RDRAM_ON_FAULT=file` | EE RAM, written to `file` the first time guest code jumps to an unknown address |
 | `PS2X_VU1_LOG=1` | how often each VU1 microprogram runs, and VIF1 codes the interpreter skips |
-| `PS2X_FRAME_LOG=1` | how many passes of the game's main loop run per second, every 2 s |
+| `PS2X_GS_SPIN=n` | how many times a GS worker checks, with a pause, before it sleeps waiting for the others or for commands (2000) |
+| `PS2X_FRAME_LOG=1` | every 2 s: passes of the game's main loop a second (two a vertical blank at full speed), the game's speed against a PS2 (1.00x is 60 vertical blanks a second) and the median, 95th-percentile and longest pass in ms |
 | `PS2X_GS_SAMPLE=flagfile` | once `flagfile` exists, 3000 non-sprite primitives drawn to the main framebuffer |
 
 `PS2X_VU1_BLOCK_LIST=file` appends each VU1 block the game compiles to `file`, as lines for `vu1_blocks.txt`. Add
@@ -291,7 +375,8 @@ the new lines there and the next build generates code for those blocks too; repe
 the game and window threads leave free, up to 6. `PS2X_VU1_THREAD=0` or `1` turns VIF1, VU1 and the GIF's own
 thread off or on; by default it is on with 6 or more cores.
 
-Keyboard: Enter is START, X is Cross, Z is Square; F1 shows the debug panel.
+Keyboard: Enter is START, X is Cross, Z is Square; F1 shows the debug panel. A gamepad works too, and the
+keyboard keeps working while one is connected.
 
 ## Status
 
