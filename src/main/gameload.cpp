@@ -105,8 +105,8 @@ public:
     virtual void v16();
     virtual void v17();
 };
-extern "C" void func_00195D50(void* a);
-extern "C" void func_001F30D8(void* a);
+extern "C" void FELocale_UnloadFETables(void* a);
+extern "C" void LoadIndicator_Init(void* a);
 void func_00278710(void* a);
 extern "C" void func_00369FF8(void* a);
 extern "C" void func_003A67E0(void* a);
@@ -125,10 +125,10 @@ extern int D_004A45D8;
 
 extern "C" void func_00230050(void* self)
 {
-    func_00195D50(*(void**)((char*)D_004A28A8 + 0x8C));
+    FELocale_UnloadFETables(*(void**)((char*)D_004A28A8 + 0x8C));
     void* p94 = *(void**)((char*)self + 0x94);
     D_004A270C = 0;
-    func_001F30D8(p94);
+    LoadIndicator_Init(p94);
     func_00278710(D_004A28A4);
     D_004A4248->v17();
     D_004A4248->v04();
@@ -275,7 +275,7 @@ extern "C" void func_00229408(void* self, int id);
 extern "C" void func_00343C08(void* self, int arg);
 extern "C" void func_00357B90(void* self, int arg);
 extern "C" void func_003551A8(void* self, int index, int key);
-extern "C" void func_00103308(void* p, int arg);
+extern "C" void FocusMan_RemoveSectionObjects(void* p, int arg);
 extern "C" void func_00308FE0(void* self, int i);
 extern void* D_004A2A00;
 extern void* D_004A3FF0;
@@ -295,8 +295,8 @@ extern "C" void cGame_OnSectionUnload(void* self, int id)
     if (p != 0) {
         void* q = *(void**)((char*)p + 0xA4);
         if (q != 0) {
-            func_00103308(q, id);
-            func_00103308(*(void**)(*(char**)((char*)self + 0xC) + 0xA4), 0x80);
+            FocusMan_RemoveSectionObjects(q, id);
+            FocusMan_RemoveSectionObjects(*(void**)(*(char**)((char*)self + 0xC) + 0xA4), 0x80);
         }
     }
     func_00308FE0(*(void**)((char*)self + 0x30), id);
@@ -390,7 +390,7 @@ extern "C" void func_00230E90()
 //100%
 extern "C" int func_00231CF0(void* self);
 void func_00278718(void* self);
-void func_001F3170(void* self);
+void LoadIndicator_Clear(void* self);
 
 struct sVEntry00230E98 {
     short delta;
@@ -439,7 +439,7 @@ extern "C" int func_00230E98(void* self)
     D_004A45D8 = 0;
     D_004A43C8 = 0;
     func_00278718(D_004A28A4);
-    func_001F3170(*(void**)((char*)self + 0x94));
+    LoadIndicator_Clear(*(void**)((char*)self + 0x94));
     return 1;
 }
 

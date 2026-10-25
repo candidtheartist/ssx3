@@ -51,7 +51,7 @@ struct sAggrCharProfile {
 
 extern sAggrCharProfile D_004A6CA8[][10];
 
-extern "C" int func_00155AB0(void* self, int a, int b)
+extern "C" int cBEAggressionInterface_GetRivalState(void* self, int a, int b)
 {
     int profile = cBELibrary_getProfileIndex(b);
     int ca = cBELibrary_getCharacterID(a);
@@ -69,7 +69,7 @@ extern "C" int func_00145750(void* race);
 
 extern sAggrCharProfile D_004A6CA8[][10];
 
-extern "C" int func_00155B50(void* self, int a, int b)
+extern "C" int cBEAggressionInterface_GetRivalLevel(void* self, int a, int b)
 {
     int profile = cBELibrary_getProfileIndex(b);
     int ca = cBELibrary_getCharacterID(a);
@@ -85,7 +85,7 @@ int cBELibrary_getCharacterID(int);
 extern "C" void func_001E2A08(int charID, int level);
 extern signed char D_005305F9[];
 
-extern "C" void func_00155BF0(void* self, int a, int b, int event)
+extern "C" void cBEAggressionInterface_AddAggression(void* self, int a, int b, int event)
 {
     int profile = cBELibrary_getProfileIndex(a);
     int ca = cBELibrary_getCharacterID(a);
@@ -164,7 +164,7 @@ struct sGame155E58 {
 };
 extern sGame155E58 D_005305B0_155E58 __asm__("D_005305B0");
 
-extern "C" void func_00155E58(void* self)
+extern "C" void cBEAggressionInterface_DecayAll(void* self)
 {
     for (int r = 0; r < D_005305B0_155E58.riders; r++)
     {
@@ -281,7 +281,7 @@ public:
 extern int D_004A11F4;
 extern cBEState_1562B8* D_005308A8[];
 
-extern "C" void func_001562B8(int* next)
+extern "C" void BE_SwitchPhase(int* next)
 {
     D_005308A8[D_004A11F4]->leave();
     D_004A11F4 = *next;

@@ -355,24 +355,24 @@ extern "C" void cFEStateProfileLoad_v39(void* self, bool a, bool b)
 }
 
 //100%
-extern "C" void func_0018F2B8(void* self);
-extern "C" void func_0018F9D8(void* self);
+extern "C" void cFEStateProfileLoad_RefreshProfileList(void* self);
+extern "C" void cFEStateProfileLoad_RefreshSlots(void* self);
 
 extern "C" void cFEStateProfileLoad_v26(void* self)
 {
     if (*(int*)((char*)self + 0x214) == 3) {
-        func_0018F2B8(self);
+        cFEStateProfileLoad_RefreshProfileList(self);
     } else {
-        func_0018F9D8(self);
+        cFEStateProfileLoad_RefreshSlots(self);
     }
 }
 
-INCLUDE_ASM("fe/festateprofile", func_0018F2B8);
+INCLUDE_ASM("fe/festateprofile", cFEStateProfileLoad_RefreshProfileList);
 
 //100%
 int GetHashValue32(char* str);
 extern "C" void* cUIScreen_getObjectByHashName(void* self, int hash);
-extern "C" void func_0018F2B8(void* self);
+extern "C" void cFEStateProfileLoad_RefreshProfileList(void* self);
 extern "C" void* func_00227F80(void* app);
 extern "C" int sprintf(char* buf, const char* fmt, ...);
 extern void* D_004A28A8;
@@ -509,14 +509,14 @@ struct cUIObj_F9D8 {
     virtual void setSelected(int v);
 };
 
-extern "C" void func_0018F9D8(void* p)
+extern "C" void cFEStateProfileLoad_RefreshSlots(void* p)
 {
     cSelf_F9D8* self = (cSelf_F9D8*)p;
     void* app = func_00227F80(D_004A28A8);
     if (self->isReady() != 0) {
         if ((*(cCard_F9D8**)((char*)app + 0x434))->isPresent() != 0) {
             self->setState(3);
-            func_0018F2B8(self);
+            cFEStateProfileLoad_RefreshProfileList(self);
             return;
         }
     }
@@ -651,7 +651,7 @@ struct cSelf_FC98 {
     virtual void showMessage(unsigned short* text, int a2, int a3, int a4, int a5, int a6);
 };
 
-extern "C" void func_0018FC98(void* p)
+extern "C" void cFEStateProfileLoad_BeginSave(void* p)
 {
     cSelf_FC98* self = (cSelf_FC98*)p;
     if (*(int*)((char*)self + 0x224) != 0) {
@@ -698,7 +698,7 @@ extern char D_0045E2C8[];
 extern char D_0045E2D8[];
 extern int D_004A15E8;
 extern "C" void func_0023C8F0(void* mp, int a1);
-extern "C" void func_0018FC98(void* self);
+extern "C" void cFEStateProfileLoad_BeginSave(void* self);
 extern "C" void* func_00227F80(void* app);
 extern void* D_004A28A8;
 
@@ -733,7 +733,7 @@ extern "C" void func_0018FD90(char* self, char* w, int ev)
         }
         sVEv_FD90* vt = *(sVEv_FD90**)(np + 0xC);
         vt[1].fn(np + vt[1].delta);
-        func_0018FC98(self);
+        cFEStateProfileLoad_BeginSave(self);
         break;
     }
     case 5: {

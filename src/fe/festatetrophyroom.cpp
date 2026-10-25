@@ -34,7 +34,7 @@ void cUIText_setAsciiString(cUIText* self, const char* str);
 void cUIText_setUnicodeStringByID(cUIText* self, int id);
 extern "C" char* func_00156A90(void* self, int a1, int a2);
 extern "C" int func_001CE6F0(int a, int b);
-extern "C" void func_001D47A0(void* self, int index);
+extern "C" void cFEStateTrophyRoom_ShowTrophyImage(void* self, int index);
 extern "C" void setChallengeName(void* text, int a1, int a2, int idx);
 extern char D_004A1FE8[];
 extern char D_004A1FF0[];
@@ -74,7 +74,7 @@ extern "C" void cFEStateTrophyRoom_onWidgetCreate(sTrophy_43F0* self, void* w)
     int h = *(int*)((char*)w + 0x38);
     if (h == GetHashValue32(D_004A1FE8)) {
         self->f48 = w;
-        func_001D47A0(self, self->f9C);
+        cFEStateTrophyRoom_ShowTrophyImage(self, self->f9C);
         return;
     }
     if (h == GetHashValue32(D_004A1FF0)) {
@@ -141,8 +141,8 @@ struct sVEntry001D4698 {
     void* (*fn)(void*, void*, int);
 };
 extern "C" void func_0039F400(void* list, void* item);
-extern "C" void func_001D47A0(void* self, int index);
-extern "C" void func_001D4890(void* self, int index);
+extern "C" void cFEStateTrophyRoom_ShowTrophyImage(void* self, int index);
+extern "C" void cFEStateTrophyRoom_ShowTrophyInfo(void* self, int index);
 
 class cTrophyWidget_4698 {
 public:
@@ -179,8 +179,8 @@ extern "C" void func_001D4698(void* self, void* item, int msg)
     }
     case 1:
         *(int*)((char*)self + 0x9C) = *(int*)((char*)item + 0x18);
-        func_001D47A0(self, *(int*)((char*)item + 0x18));
-        func_001D4890(self, *(int*)((char*)item + 0x18));
+        cFEStateTrophyRoom_ShowTrophyImage(self, *(int*)((char*)item + 0x18));
+        cFEStateTrophyRoom_ShowTrophyInfo(self, *(int*)((char*)item + 0x18));
         break;
     }
 }
@@ -218,7 +218,7 @@ public:
     virtual void show(int on);
 };
 
-extern "C" void func_001D47A0(void* self, int index)
+extern "C" void cFEStateTrophyRoom_ShowTrophyImage(void* self, int index)
 {
     int v;
     if (index < 0) {
@@ -270,7 +270,7 @@ public:
     virtual void show(int on);
 };
 
-extern "C" void func_001D4890(void* self, int index)
+extern "C" void cFEStateTrophyRoom_ShowTrophyInfo(void* self, int index)
 {
     cTrophyWidget_4890* widget = *(cTrophyWidget_4890**)((char*)self + 0x4C);
     if (widget != 0) {
@@ -323,7 +323,7 @@ extern "C" void func_001D4918(sTrophyRoom_4918* self)
 extern "C" int func_0019E238(void* self, int bank, int i);
 extern "C" char* func_0019E2B0(void* self, int bank, int i);
 extern "C" void func_0019DC20(void* self, int bank, int i);
-extern "C" void func_001D47A0(void* self, int index);
+extern "C" void cFEStateTrophyRoom_ShowTrophyImage(void* self, int index);
 extern void* D_004A289C;
 extern void* D_004A28A8;
 extern char D_004A1FF8[];
@@ -401,7 +401,7 @@ extern "C" void func_001D4A20(void* p)
             func_0019DC20(mgr, self->bank, self->tex[i]);
             self->tex[i] = -1;
             self->count--;
-            func_001D47A0(self, self->f9C);
+            cFEStateTrophyRoom_ShowTrophyImage(self, self->f9C);
         }
     }
 }
@@ -472,7 +472,7 @@ struct sSelf001D4B20 {
     int tex[5];
 };
 
-extern "C" void func_001D4B20(sSelf001D4B20* self)
+extern "C" void cFEStateTrophyRoom_ReleaseTrophyImages(sSelf001D4B20* self)
 {
     char* mgr = *(char**)((char*)D_004A28A8 + 0x7C) + 0x1A70;
     int i;
@@ -769,7 +769,7 @@ extern "C" void cFEStateRelogin_v33(void* self, void* item, int msg)
 
 //100%
 extern "C" void* func_0039E2A0(void* self);
-extern "C" void func_001D5488(void* self, int a1);
+extern "C" void cFEMemCard_InstallCallbacks(void* self, int a1);
 extern void* D_00474E08[];
 extern void* D_0046C980[];
 extern unsigned short D_004A1390[];
@@ -784,13 +784,13 @@ extern "C" void* func_001D5330(void* self, int a1, int a2, int a3)
     *(int*)((char*)self + 0x54) = 0;
     *(unsigned short*)((char*)self + 0x58) = D_004A1390[0];
     *(void***)((char*)self + 0x8) = D_0046C980;
-    func_001D5488(self, a2);
+    cFEMemCard_InstallCallbacks(self, a2);
     return self;
 }
 
 //100%
 extern "C" void* func_0039E2A0(void* self);
-extern "C" void func_001D5488(void* self, int a1);
+extern "C" void cFEMemCard_InstallCallbacks(void* self, int a1);
 extern void* D_00474E08[];
 extern void* D_0046C980[];
 extern unsigned short D_004A1390[];
@@ -805,7 +805,7 @@ extern "C" void* func_001D53B0(void* self, int a1, int a2)
     *(int*)((char*)self + 0x54) = 0;
     *(unsigned short*)((char*)self + 0x58) = D_004A1390[0];
     *(void***)((char*)self + 0x8) = D_0046C980;
-    func_001D5488(self, a2);
+    cFEMemCard_InstallCallbacks(self, a2);
     return self;
 }
 
@@ -825,7 +825,7 @@ extern "C" void func_001D5428(void* self, int flags)
 
 //100%
 // Key filter: keys 8 and 9 return 0x100, every other key 0x101.
-extern "C" int func_001D5460(void* self, int a1, unsigned int key)
+extern "C" int cFEMemCard_OnWidgetNotify(void* self, int a1, unsigned int key)
 {
     int r = 0x101;
     if (key < 10) {
@@ -858,14 +858,14 @@ extern void* D_004A28A8;
 extern void* D_004A2028;
 extern char D_004A14C8[];
 // PORT: callback function addresses taken through asm-label views (their real prototypes vary).
-extern char func_001D59A0_a5488[] __asm__("func_001D59A0");
+extern char cFEMemCard_callbackWriteSaveData_a5488[] __asm__("cFEMemCard_callbackWriteSaveData");
 extern char func_001D5D78_a5488[] __asm__("func_001D5D78");
 extern char func_001D5F38_a5488[] __asm__("func_001D5F38__FPv");
 extern char cFEMemCard_callbackSaveSuccess_a5488[] __asm__("cFEMemCard_callbackSaveSuccess");
 extern char func_001D6C28_a5488[] __asm__("func_001D6C28");
-extern char func_001D5DF0_a5488[] __asm__("func_001D5DF0");
-extern char func_001D5C28_a5488[] __asm__("func_001D5C28");
-extern char func_001D5F40_a5488[] __asm__("func_001D5F40");
+extern char cFEMemCard_callbackBeginLoad_a5488[] __asm__("cFEMemCard_callbackBeginLoad");
+extern char cFEMemCard_callbackReadSaveChunk_a5488[] __asm__("cFEMemCard_callbackReadSaveChunk");
+extern char cFEMemCard_callbackApplyLoadedData_a5488[] __asm__("cFEMemCard_callbackApplyLoadedData");
 extern char func_001D6AD0_a5488[] __asm__("func_001D6AD0");
 extern char cFEMemCard_callbackReadSuccess_a5488[] __asm__("cFEMemCard_callbackReadSuccess");
 extern char cFEMemCard_callbackDeleteDone_a5488[] __asm__("cFEMemCard_callbackDeleteDone");
@@ -899,7 +899,7 @@ extern char func_001D8240_a5488[] __asm__("func_001D8240");
 extern char cFEMemCard_callbackFileExists_a5488[] __asm__("cFEMemCard_callbackFileExists");
 extern char func_001D7D70_a5488[] __asm__("func_001D7D70");
 
-extern "C" void func_001D5488(void* self_, int mode)
+extern "C" void cFEMemCard_InstallCallbacks(void* self_, int mode)
 {
     char* self = (char*)self_;
     void* gapp = D_004A28A8;
@@ -907,10 +907,10 @@ extern "C" void func_001D5488(void* self_, int mode)
     *(int*)(self + 0x1C0) = 0;
     *(int*)(self + 0x214) = 0;
     char* app = (char*)func_00227F80(gapp);
-    *(void**)(app + 0x0) = func_001D59A0_a5488;
-    *(void**)(app + 0x18) = func_001D5DF0_a5488;
+    *(void**)(app + 0x0) = cFEMemCard_callbackWriteSaveData_a5488;
+    *(void**)(app + 0x18) = cFEMemCard_callbackBeginLoad_a5488;
     *(void**)(app + 0x8) = func_001D5F38_a5488;
-    *(void**)(app + 0x20) = func_001D5F40_a5488;
+    *(void**)(app + 0x20) = cFEMemCard_callbackApplyLoadedData_a5488;
     *(void**)(app + 0x6C) = func_001DDD58_a5488;
     *(void**)(app + 0x68) = func_001DDD48_a5488;
     *(void**)(app + 0x64) = func_001DDD28_a5488;
@@ -923,7 +923,7 @@ extern "C" void func_001D5488(void* self_, int mode)
     *(void**)(app + 0x4) = func_001D5D78_a5488;
     *(void**)(app + 0x44) = func_001D68E8_a5488;
     *(void**)(app + 0x40) = func_001D7010_a5488;
-    *(void**)(app + 0x1C) = func_001D5C28_a5488;
+    *(void**)(app + 0x1C) = cFEMemCard_callbackReadSaveChunk_a5488;
     *(void**)(app + 0x88) = func_001DDDA8_a5488;
     *(void**)(app + 0x48) = func_001D7318_a5488;
     *(void**)(app + 0x50) = cFEMemCard_callbackConfirmFormatDone_a5488;
@@ -1086,7 +1086,7 @@ struct sVE_59A0 {
 };
 
 // Memory-card "save" step: builds the save-file title for the current mode and starts the save; on first entry shows the saving dialog.
-extern "C" void func_001D59A0(void)
+extern "C" void cFEMemCard_callbackWriteSaveData(void)
 {
     char name[0x90];
     char title[0x90];
@@ -1162,7 +1162,7 @@ struct sTrophyRoom_001D5C28 {
 // PORT: D_004A2028 holds the trophy room state pointer.
 extern sTrophyRoom_001D5C28* D_004A2028_tr __asm__("D_004A2028");
 
-extern "C" int func_001D5C28(int size)
+extern "C" int cFEMemCard_callbackReadSaveChunk(int size)
 {
     sTrophyRoom_001D5C28* g = D_004A2028_tr;
     int mode = g->mode;
@@ -1237,7 +1237,7 @@ extern sTrophyRoom_001D5DF0* D_004A2028_tr5 __asm__("D_004A2028");
 extern "C" int func_00152688(void* iface);
 extern "C" void cFEMemCard_createReadBuffer(sTrophyRoom_001D5DF0* self, int size);
 
-extern "C" void func_001D5DF0()
+extern "C" void cFEMemCard_callbackBeginLoad()
 {
     void* iface = cBE_getInterface_Fv(cBE_getBE(), 5);
     sMoviePlayer_001D5DF0* app = (sMoviePlayer_001D5DF0*)func_00227F80(D_004A28A8);
@@ -1280,7 +1280,7 @@ void func_001D5F38(void* self)
 extern "C" void* func_0028B180();
 extern "C" int func_00152BB0(void* self, char* buf);
 extern "C" int func_00152DE0(void* self, char* buf, int idx);
-extern "C" void func_001D64C0(unsigned int mode);
+extern "C" void cFEMemCard_ApplySoundMode(unsigned int mode);
 extern "C" void func_00287410(void* opt, int v);
 extern "C" void func_00287488(void* opt, int v);
 extern "C" void func_00287520(void* opt, int v);
@@ -1320,7 +1320,7 @@ struct sMemCard_1D5F40 {
 };
 
 // Memory-card load/save step: applies the loaded sound options, then frees the transfer buffer.
-extern "C" int func_001D5F40()
+extern "C" int cFEMemCard_callbackApplyLoadedData()
 {
     void* iface = cBE_getInterface_Fv(cBE_getBE(), 5);
     switch (((sMemCard_1D5F40*)D_004A2028)->op) {
@@ -1329,7 +1329,7 @@ extern "C" int func_001D5F40()
             return 0;
         if (func_0028B180() != 0) {
             cBE_getInterface_Fv(cBE_getBE(), 4);
-            func_001D64C0(Cfg_1D5F40().output);
+            cFEMemCard_ApplySoundMode(Cfg_1D5F40().output);
             func_00287410(func_0028B180(), Cfg_1D5F40().sfxVol);
             func_00287488(func_0028B180(), Cfg_1D5F40().speechVol);
             func_00287520(func_0028B180(), Cfg_1D5F40().musicVol);
@@ -1392,7 +1392,7 @@ struct sOptBase_001D64C0 {
 struct sOpt_001D64C0 : sOptBase_001D64C0, sOptSub_001D64C0 {
 };
 
-extern "C" void func_001D64C0(unsigned int mode)
+extern "C" void cFEMemCard_ApplySoundMode(unsigned int mode)
 {
     int lang;
     switch (mode) {

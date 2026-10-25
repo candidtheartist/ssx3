@@ -288,7 +288,7 @@ extern "C" void cUIStateStack_pushSpecial(void* stack, void* state, int a2, int 
 extern "C" void* func_001887A0(void* mem, void* owner, int a2);
 extern "C" void func_00192088(void* self, int idx, int a2);
 struct sRuleSel_2380;
-extern "C" void func_00192380(sRuleSel_2380* self, void* item);
+extern "C" void cFEStateRuleSelect_ApplyRuleDependencies(sRuleSel_2380* self, void* item);
 extern "C" int func_0039A738(void* self);
 extern "C" void func_0039F400(void* stack, void* state);
 extern "C" void func_003E6448(void* dst, int c, int n);
@@ -337,7 +337,7 @@ extern "C" void func_00191C68(char* self, sMsg_1C68* msg, unsigned int type)
     case 9: {
         int id = msg->id;
         func_00192088(self, id, func_0039A738(msg));
-        func_00192380((sRuleSel_2380*)self, msg);
+        cFEStateRuleSelect_ApplyRuleDependencies((sRuleSel_2380*)self, msg);
         break;
     }
     case 7: {
@@ -537,7 +537,7 @@ struct sRuleSel_2380 {
     unsigned char count[15];
 };
 
-extern "C" void func_00192380(sRuleSel_2380* self, void* item)
+extern "C" void cFEStateRuleSelect_ApplyRuleDependencies(sRuleSel_2380* self, void* item)
 {
     int mask = D_004410C8[*(int*)((char*)item + 0x18)] << 1;
     if (func_0039A738(item) == 0) {

@@ -442,7 +442,7 @@ void* cBE_getInterface_Fv(void* be, int kind) __asm__("cBE_getInterface__Fv");
 extern "C" bool func_0014F810(int i);
 extern int D_00535BFC[];
 
-extern "C" bool func_001557E0(void* self, int rider)
+extern "C" bool cBEScoreInterface_CanSubmitScore(void* self, int rider)
 {
     if (rider >= 2 || func_0014F810(0))
         return false;
@@ -498,7 +498,7 @@ extern "C" int func_001558F8(void* self, int rider, int a, int b)
 // Passes a, b and c to func_00152528 on the rider's character profile record.
 extern "C" void func_00152528(void* rec, int a, int b, int c);
 
-extern "C" void func_001559A8(void* self, int rider, int a, int b, int c)
+extern "C" void cBEScoreInterface_RecordEventResult(void* self, int rider, int a, int b, int c)
 {
     if (D_005305F9[0] != 0)
         return;

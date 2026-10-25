@@ -217,13 +217,13 @@ extern "C" void cWipeoutMotion_update(int* self)
 }
 
 //100%
-extern "C" void func_00137138();
+extern "C" void cWipeoutMotion_PostUpdateRootPose();
 extern "C" void cWipeoutMotion_collideSliding(void*);
 extern "C" void cWipeoutMotion_collideAirborne(void*);
 
 extern "C" void cWipeoutMotion_postUpdate(int* self)
 {
-    func_00137138();
+    cWipeoutMotion_PostUpdateRootPose();
     if (*self == 0)
     {
         cWipeoutMotion_collideSliding(self);
@@ -403,7 +403,7 @@ extern "C" void cWipeoutMotion_updateBoard(sWipeout_6F30* self)
     vu0NormalizeEq_6F30(self->rider->quat);
 }
 
-INCLUDE_ASM("ai/motion/wipeoutmotion", func_00137138);
+INCLUDE_ASM("ai/motion/wipeoutmotion", cWipeoutMotion_PostUpdateRootPose);
 
 //100%
 struct sVec4_7550 {
@@ -483,8 +483,8 @@ static inline sVec4_7550 xAxis_7550(const sBone_7550* b)
                       0.0f);
 }
 
-INCLUDE_ASM("ai/motion/wipeoutmotion", func_00137550);
-extern "C" void func_00137550(char* self);
+INCLUDE_ASM("ai/motion/wipeoutmotion", cWipeoutMotion_BuildBoardSpheres);
+extern "C" void cWipeoutMotion_BuildBoardSpheres(char* self);
 
 //100%
 extern "C" void cRider_updateOrientationImplicit(void*);

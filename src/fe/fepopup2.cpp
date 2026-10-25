@@ -10,7 +10,7 @@ INCLUDE_ASM("fe/fepopup2", func_001D9F30);
 
 INCLUDE_ASM("fe/fepopup2", cFEStateNetHelpPopup_onWidgetCreate);
 
-INCLUDE_ASM("fe/fepopup2", func_001DA110);
+INCLUDE_ASM("fe/fepopup2", cFEStateNetHelpPopup_BuildBodyText);
 
 INCLUDE_ASM("fe/fepopup2", func_001DA238);
 
@@ -24,21 +24,21 @@ INCLUDE_ASM("fe/fepopup2", func_001DA528);
 
 INCLUDE_ASM("fe/fepopup2", func_001DA530);
 
-INCLUDE_ASM("fe/fepopup2", func_001DA648);
+INCLUDE_ASM("fe/fepopup2", LobbyMenu_InitCreateAccountPage);
 
-INCLUDE_ASM("fe/fepopup2", func_001DA7E8);
+INCLUDE_ASM("fe/fepopup2", LobbyMenu_InitLoginPage);
 
-INCLUDE_ASM("fe/fepopup2", func_001DA988);
+INCLUDE_ASM("fe/fepopup2", LobbyMenu_InitLoginMethodPage);
 
-INCLUDE_ASM("fe/fepopup2", func_001DAAC8);
+INCLUDE_ASM("fe/fepopup2", LobbyMenu_InitCreatePersonaPage);
 
-INCLUDE_ASM("fe/fepopup2", func_001DABD0);
+INCLUDE_ASM("fe/fepopup2", LobbyMenu_InitDeletePersonaPage);
 
-INCLUDE_ASM("fe/fepopup2", func_001DACB8);
+INCLUDE_ASM("fe/fepopup2", LobbyMenu_InitSelectPersonaPage);
 
-INCLUDE_ASM("fe/fepopup2", func_001DAE20);
+INCLUDE_ASM("fe/fepopup2", LobbyMenu_InitSelectRoomPage);
 
-INCLUDE_ASM("fe/fepopup2", func_001DAF08);
+INCLUDE_ASM("fe/fepopup2", LobbyMenu_InitRoomOccupantsPage);
 
-INCLUDE_ASM("fe/fepopup2", func_001DB028);
+INCLUDE_ASM("fe/fepopup2", LobbyMenu_InitChatPage);
 

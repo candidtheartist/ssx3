@@ -339,7 +339,7 @@ extern "C" void func_002B4B48_noarg() __asm__("func_002B4B48");
 extern "C" void func_00284C28();
 extern "C" void func_0014DD98(void* p);
 extern "C" void func_002380E8(void* p);
-extern "C" void func_001A35E8(void* p, int flags);
+extern "C" void cFEAsyncManager_dtor(void* p, int flags);
 extern void* D_004A28A0;
 extern void* D_004A28A4;
 extern void* D_004A28A8;
@@ -435,7 +435,7 @@ extern "C" void cSSXApp_purge(sSSXAppPurge* self)
     if (self->fE0) func_003DEDC0(self->fE0, 100);
     if (self->f78) func_0014DD98(self->f78);
     func_002380E8(self->fC0);
-    if (self->f11C) func_001A35E8(self->f11C, 3);
+    if (self->f11C) cFEAsyncManager_dtor(self->f11C, 3);
     {
         char* m = self->f9C;
         if (m) {
@@ -489,7 +489,7 @@ extern "C" void* cBE_getBE();
 // PORT: cBE_getInterface__Fv really takes (be, kind); bound by asm label
 void* cBE_getInterface_Fv(void* be, int kind) __asm__("cBE_getInterface__Fv");
 extern "C" void* FELocale_ctor(void* self);
-extern "C" void func_00195B70(void* self);
+extern "C" void FELocale_LoadCommonTable(void* self);
 extern char D_0047A978[];
 
 struct sOptions_228A78 {
@@ -522,7 +522,7 @@ extern "C" void cSSXApp_initLocale(void* self)
     char* thisp = loc + vt[3].delta;
     void (**pfn)(void*, int) = &vt[3].fn;
     (*pfn)(thisp, optLanguage_228A78(D_00535610_228A78));
-    func_00195B70(*(void**)((char*)self + 0x8C));
+    FELocale_LoadCommonTable(*(void**)((char*)self + 0x8C));
 }
 
 extern "C" void func_002B4B48(void* self);

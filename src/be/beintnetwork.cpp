@@ -162,7 +162,7 @@ public:
     virtual void v02();
 };
 
-extern "C" void func_0014E5C8(void* self, int p, sNetState_E2C8* in)
+extern "C" void cBENetworkInterface_UnpackPlayerData(void* self, int p, sNetState_E2C8* in)
 {
     D_004A11B8 = in->a;
     D_004A11BC = in->b;
@@ -199,7 +199,7 @@ extern sBEPlayerData D_004A6CA8[];
 
 extern "C" void func_00156858(sBEPlayerData* dst, sBEPlayerData* src);
 
-extern "C" void func_0014E9C0(void* self, int a1, int a2)
+extern "C" void BE_CopyProfile(void* self, int a1, int a2)
 {
     sBEPlayerData* src = &D_004A6CA8[a1];
     func_00156858(&D_004A6CA8[a2], src);
@@ -225,7 +225,7 @@ extern "C" void func_0014E9F8(void* self)
     {
         sRiderEntry_0014E9F8* e = &D_00535B3C;
         e[0] = e[-1];
-        func_0014E9C0(self, 0, 1);
+        BE_CopyProfile(self, 0, 1);
     }
     func_0014EB08_self(self);
 }
@@ -313,7 +313,7 @@ extern sCharEntry_0014EBF8 D_00535B20[];
 extern sCharEntry_0014EBF8 D_00534A88[];
 extern "C" void func_00156950(sBEPlayerData* data, int charID);
 
-extern "C" void func_0014EBF8(void* self, int idx)
+extern "C" void BE_BackupPlayerSetup(void* self, int idx)
 {
     func_00156950(&D_004A6CA8[idx], D_00535B20[idx].charID);
     for (int i = 0; i < 6; i++)

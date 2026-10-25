@@ -7680,8 +7680,8 @@ extern "C" void func_002A1778(void* self, int a1)
 //100%
 extern "C" void* func_0028B1D8();
 void* cBEAggressionInterface_getThis();
-extern "C" int func_00155B50(void* ag, int a, int b);
-extern "C" int func_00155AB0(void* ag, int a, int b);
+extern "C" int cBEAggressionInterface_GetRivalLevel(void* ag, int a, int b);
+extern "C" int cBEAggressionInterface_GetRivalState(void* ag, int a, int b);
 
 class cSs1820Obj {
 public:
@@ -7712,10 +7712,10 @@ extern "C" int func_002A1820(void* self, sSs1820Rider* a, sSs1820Rider* b)
         if (okb) return 2;
     }
     int r = 2;
-    int c1 = func_00155B50(cBEAggressionInterface_getThis(), a->v07(), b->v07());
-    int c2 = func_00155B50(cBEAggressionInterface_getThis(), b->v07(), a->v07());
+    int c1 = cBEAggressionInterface_GetRivalLevel(cBEAggressionInterface_getThis(), a->v07(), b->v07());
+    int c2 = cBEAggressionInterface_GetRivalLevel(cBEAggressionInterface_getThis(), b->v07(), a->v07());
     if (c1 < 2 && c2 < 2) {
-        int t = func_00155AB0(cBEAggressionInterface_getThis(), a->v07(), b->v07());
+        int t = cBEAggressionInterface_GetRivalState(cBEAggressionInterface_getThis(), a->v07(), b->v07());
         if (t == 0) r = 0;
         else if (t == 1) r = 1;
     }

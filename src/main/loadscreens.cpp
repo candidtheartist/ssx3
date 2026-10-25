@@ -143,8 +143,8 @@ static inline void setState_AE00()
     setMode_AE00(ctx_AE00()->top, 5);
 }
 
-INCLUDE_ASM("main/loadscreens", func_0017AE00);
-extern "C" void func_0017AE00(sBgMan_AE00* self);
+INCLUDE_ASM("main/loadscreens", cDebugMenuScreen_DrawBackground);
+extern "C" void cDebugMenuScreen_DrawBackground(sBgMan_AE00* self);
 
 INCLUDE_ASM("main/loadscreens", cDebugMenuScreen_ctor);
 

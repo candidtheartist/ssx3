@@ -1079,7 +1079,7 @@ extern "C" int func_00258280_70D8(void *) __asm__("func_00258280");
 extern "C" void func_002581E8_70D8(void *, int, int) __asm__("func_002581E8");
 extern "C" void func_00258290_70D8(void *, int, int) __asm__("func_00258290");
 extern "C" void func_0014E2C8_70D8(void *, int, int) __asm__("func_0014E2C8");
-extern "C" void func_0014E5C8_70D8(void *, int, int) __asm__("func_0014E5C8");
+extern "C" void cBENetworkInterface_UnpackPlayerData_70D8(void *, int, int) __asm__("cBENetworkInterface_UnpackPlayerData");
 extern "C" float cCommSystem_GetChannelLatency_70D8(int, int) __asm__("cCommSystem_GetChannelLatency");
 void *cBE_getInterface_70D8(int, int) __asm__("cBE_getInterface__Fv");
 extern char D_00481380[];
@@ -1194,7 +1194,7 @@ extern "C" void func_002570D8(void *self)
             break;
         case 8:
             if (func_002581D8_70D8(s)) {
-                func_0014E5C8_70D8(iface, 1, s->x3EC);
+                cBENetworkInterface_UnpackPlayerData_70D8(iface, 1, s->x3EC);
                 func_00257038((char *)s, 9);
             }
             break;
@@ -1247,7 +1247,7 @@ extern "C" void func_002570D8(void *self)
             break;
         case 8:
             if (func_002581D8_70D8(s)) {
-                func_0014E5C8_70D8(iface, 0, s->x3EC);
+                cBENetworkInterface_UnpackPlayerData_70D8(iface, 0, s->x3EC);
                 func_00257038((char *)s, 5);
             }
             break;
@@ -1881,7 +1881,7 @@ extern "C" void func_0014E9F8(void* iface);
 extern "C" void func_0014EA90(void* iface);
 extern "C" void func_0014F898();
 extern "C" void func_0014E2C8_8448(void* iface, int which, void* buf) __asm__("func_0014E2C8");
-extern "C" void func_0014E5C8_8448(void* iface, int which, void* buf) __asm__("func_0014E5C8");
+extern "C" void cBENetworkInterface_UnpackPlayerData_8448(void* iface, int which, void* buf) __asm__("cBENetworkInterface_UnpackPlayerData");
 extern "C" void func_003E6448_8448(char* p, int c, int n) __asm__("func_003E6448");
 extern "C" char* strncpy(char* dst, const char* src, unsigned int n);
 extern "C" void* cBE_getBE();
@@ -1920,14 +1920,14 @@ extern "C" void cGameComm_syncGame(char* self)
         strncpy(self + 0xF0, D_004805C8, 0xF);
         *(int*)(self + 0xEC) = *(int*)((char*)D_004A2EB8 + 0x2C);
         func_0014E2C8_8448(iface, 0, *(void**)(self + 0x3EC));
-        func_0014E5C8_8448(iface, 0, *(void**)(self + 0x3EC));
+        cBENetworkInterface_UnpackPlayerData_8448(iface, 0, *(void**)(self + 0x3EC));
     } else {
         func_0014F898();
         func_003E6448_8448(self + 0x104, 0, 0x10);
         strncpy(self + 0x104, D_004805C8, 0xF);
         *(int*)(self + 0x100) = *(int*)((char*)D_004A2EB8 + 0x2C);
         func_0014E2C8_8448(iface, 1, *(void**)(self + 0x3EC));
-        func_0014E5C8_8448(iface, 1, *(void**)(self + 0x3EC));
+        cBENetworkInterface_UnpackPlayerData_8448(iface, 1, *(void**)(self + 0x3EC));
         void* ui = cBE_getInterface_Fv(cBE_getBE(), 1);
         func_001472C8(ui, 1, func_00147318(ui, 0));
         sVEnt_8448* vt = *(sVEnt_8448**)((char*)ui + 0xC);
@@ -2129,7 +2129,7 @@ extern "C" void func_0025B800(int);
 extern "C" void func_00262768(int, int, int, int, int, int);
 extern "C" void cGameComm_SendQuit(void *);
 extern "C" void cGameComm_OnRaceEnd(void *);
-extern "C" void func_0014E9C0(void *, int, int);
+extern "C" void BE_CopyProfile(void *, int, int);
 extern "C" void* cBE_getBE();
 extern int D_004A3328;
 extern int D_004A3028_8AE0 __asm__("D_004A3028");
@@ -2153,7 +2153,7 @@ extern "C" void cGameComm_QuitRace(void *self) {
     cGameComm_OnRaceEnd(self);
     void *i = cBE_getInterface_8AE0(*(int*)((char*)D_004A28A8 + 0x78), 7);
     if (D_00534B38[0] == 0) {
-        func_0014E9C0(i, 1, 0);
+        BE_CopyProfile(i, 1, 0);
         cIface_AE0 *o = (cIface_AE0*)cBE_getInterface_8AE0((int)cBE_getBE(), 3);
         o->v1();
     }

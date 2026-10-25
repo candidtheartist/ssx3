@@ -93,7 +93,7 @@ extern "C" void func_0015AE00(sBEDB_0015AE00* self)
 extern "C" int func_0019E238(void* self, int bank, int handle);
 extern "C" void* func_0019E330(void* self, int bank, int handle);
 
-extern "C" void func_0015AEC0(sBEDB_0015AE00* self)
+extern "C" void RewardsFile_PollLoad(sBEDB_0015AE00* self)
 {
     if (self->handle >= 0)
     {
@@ -148,7 +148,7 @@ void func_0015BB00(void* self)
 }
 
 //100%
-void func_0015BB08(void* self)
+void BEInterface_Reset(void* self)
 {
 }
 
@@ -165,7 +165,7 @@ void BEInterface_LoadState(void* self)
 void operator_delete(int* ptr);
 extern int* D_004A11B4;
 
-extern "C" void func_0015BB20()
+extern "C" void cBENewRaceInterface_DestroyInstance()
 {
     operator_delete(D_004A11B4);
     D_004A11B4 = 0;
@@ -291,7 +291,7 @@ extern "C" void* func_0015BC70(void* self)
 
 extern int* D_004A11C0;
 
-extern "C" void func_0015BC88()
+extern "C" void cBENewPlayerInterface_DestroyInstance()
 {
     operator_delete(D_004A11C0);
     D_004A11C0 = 0;
@@ -303,7 +303,7 @@ extern "C" void func_0015BCB0(int value)
 }
 
 //100%
-void func_0015BCC0(void* self)
+void cBEMissionInterface_v01_Empty(void* self)
 {
 }
 
@@ -314,7 +314,7 @@ void cBEMissionInterface_Reset(void* self)
 
 extern int* D_004A1238;
 
-extern "C" void func_0015BCD0()
+extern "C" void cBEMissionInterface_DestroyInstance()
 {
     operator_delete(D_004A1238);
     D_004A1238 = 0;
@@ -345,7 +345,7 @@ extern "C" void* func_0015BD18(void* self)
 
 extern int* D_004A120C;
 
-extern "C" void func_0015BD30()
+extern "C" void cBEOptionInterface_DestroyInstance()
 {
     operator_delete(D_004A120C);
     D_004A120C = 0;
@@ -548,14 +548,14 @@ extern "C" void* func_0015C210(void* self)
 extern "C" void* func_003E6448(void* dst, int value, int size);
 extern char D_005308B8[];
 
-extern "C" void func_0015C228()
+extern "C" void BE_ClearOptionState5308b8()
 {
     func_003E6448(D_005308B8, 0, 0x20);
 }
 
 extern int* D_004A1204;
 
-extern "C" void func_0015C250()
+extern "C" void cBENetworkInterface_DestroyInstance()
 {
     operator_delete(D_004A1204);
     D_004A1204 = 0;
@@ -789,7 +789,7 @@ extern "C" void* func_0015C660(void* self)
 
 extern int* D_004A11C4;
 
-extern "C" void func_0015C678()
+extern "C" void cBEStatInterface_DestroyInstance()
 {
     operator_delete(D_004A11C4);
     D_004A11C4 = 0;
@@ -809,28 +809,28 @@ extern "C" void* func_0015C6B0(void* self)
 }
 
 //100%
-void func_0015C6C8(void* self)
+void cBECharacterInterface_v01_Empty(void* self)
 {
 }
 
 //100%
-void func_0015C6D0(void* self)
+void cBECharacterInterface_Reset(void* self)
 {
 }
 
 //100%
-void func_0015C6D8(void* self)
+void cBESaveInterface_v01_Empty(void* self)
 {
 }
 
 //100%
-void func_0015C6E0(void* self)
+void cBESaveInterface_Reset(void* self)
 {
 }
 
 extern int* D_004A1210;
 
-extern "C" void func_0015C6E8()
+extern "C" void cBEBAGTInterface_DestroyInstance()
 {
     operator_delete(D_004A1210);
     D_004A1210 = 0;
@@ -851,7 +851,7 @@ extern "C" void* func_0015C720(void* self)
 
 extern int* D_004A1248;
 
-extern "C" void func_0015C738()
+extern "C" void cBEScoreInterface_DestroyInstance()
 {
     operator_delete(D_004A1248);
     D_004A1248 = 0;
@@ -883,18 +883,18 @@ extern "C" void func_0015C7C0(int value)
 }
 
 //100%
-void func_0015C7D0(void* self)
+void cBEEconInterface_v01_Empty(void* self)
 {
 }
 
 //100%
-void func_0015C7D8(void* self)
+void cBEEconInterface_Reset(void* self)
 {
 }
 
 extern int* D_004A124C;
 
-extern "C" void func_0015C7E0()
+extern "C" void cBEAggressionInterface_DestroyInstance()
 {
     operator_delete(D_004A124C);
     D_004A124C = 0;
@@ -917,7 +917,7 @@ extern "C" void* func_0015C818(void* self)
 extern int* D_004A1258;
 void operator_delete(int* ptr);
 
-extern "C" void func_0015C830(void)
+extern "C" void cBEPreRaceState_DestroyInstance(void)
 {
     operator_delete(D_004A1258);
     D_004A1258 = 0;
@@ -953,7 +953,7 @@ extern "C" void* func_0015C898(void* self)
 extern int* D_004A1254;
 void operator_delete(int* ptr);
 
-extern "C" void func_0015C8B0(void)
+extern "C" void cBEPostRaceState_DestroyInstance(void)
 {
     operator_delete(D_004A1254);
     D_004A1254 = 0;
@@ -970,7 +970,7 @@ extern "C" void* func_0015C8D8(void* self)
 }
 
 //99.38%
-void* func_0015C8F0(void* self)
+void* BE_GlobalCtors(void* self)
 {
     return func_0015B028(1, 0xffff);
 }
@@ -978,7 +978,7 @@ void* func_0015C8F0(void* self)
 extern "C" void* func_0015B028(int, int);
 
 //99.38%
-void* func_0015C910(void* self)
+void* BE_GlobalDtors(void* self)
 {
     return func_0015B028(0, 0xffff);
 }

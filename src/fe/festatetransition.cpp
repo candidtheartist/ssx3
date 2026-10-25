@@ -54,7 +54,7 @@ extern "C" void cUIScreen_playFrame(void* screen, int a1, int a2);
 extern "C" void* func_0028B180();
 extern "C" void func_00294F78(void*, int);
 
-extern "C" int func_001946A8(void* self, int which)
+extern "C" int cFEStateTransition_StartFade(void* self, int which)
 {
     if (which == 0) {
         void* screen = *(void**)((char*)self + 0x48);

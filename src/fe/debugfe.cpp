@@ -24,7 +24,7 @@ struct sDbgFE17D008 {
 extern "C" void func_00145108(void* iface, int idx);
 extern "C" void cBENewRaceInterface_setGameMode(void* iface, int mode);
 
-extern "C" void func_0017D008(void* self, int idx)
+extern "C" void cDebugMenuScreen_SetGameMode(void* self, int idx)
 {
     cBENewRaceIfaceK17D008* iface = (cBENewRaceIfaceK17D008*)cBE_getInterface_Fv(*(void**)((char*)D_004A28A8 + 0x78), 0);
     ((sDbgFE17D008*)self)->modes[D_00535BC8.slot] = D_00535BC8.mode;
@@ -108,7 +108,7 @@ void* func_002CAA58(void* self);
 extern "C" void* func_002CCDF0(void* self, void* text);
 extern "C" void cMenu_addItem(void* menu, void* item, int index);
 
-extern "C" void* func_0017D200(void* self)
+extern "C" void* LobbyMenu_InitMessagePage(void* self)
 {
     func_002CAA58(self);
     *(void***)((char*)self + 0x12C) = D_0046D740;
@@ -119,13 +119,13 @@ extern "C" void* func_0017D200(void* self)
 
 //100%
 extern void* D_004A4E90;
-extern "C" void func_0017D6F0(void* self, void* ev);
+extern "C" void LobbyMenu_OnLobbyEvent(void* self, void* ev);
 extern "C" void LobbyMan_ForwardEventToUI(void* ev);
 
-extern "C" void func_0017D260(void* self, void* ev)
+extern "C" void LobbyMenu_LobbyEventHook(void* self, void* ev)
 {
     if (D_004A4E90 != 0)
-        func_0017D6F0(D_004A4E90, ev);
+        LobbyMenu_OnLobbyEvent(D_004A4E90, ev);
     LobbyMan_ForwardEventToUI(ev);
 }
 
@@ -134,13 +134,13 @@ extern void* D_0046D350[];
 extern int D_004A3E90;
 extern void* D_004A4E90;
 extern "C" void* MenuSys_ctor(void* self);
-extern "C" void* func_001DA988(void* self, void* a, void* b);
-extern "C" void* func_001DACB8(void* self, void* a, void* b, void* c);
-extern "C" void* func_001DAE20(void* self, void* a);
-extern "C" void* func_001DAF08(void* self, void* a, void* b);
-extern "C" void* func_001DB028(void* self, void* a);
+extern "C" void* LobbyMenu_InitLoginMethodPage(void* self, void* a, void* b);
+extern "C" void* LobbyMenu_InitSelectPersonaPage(void* self, void* a, void* b, void* c);
+extern "C" void* LobbyMenu_InitSelectRoomPage(void* self, void* a);
+extern "C" void* LobbyMenu_InitRoomOccupantsPage(void* self, void* a, void* b);
+extern "C" void* LobbyMenu_InitChatPage(void* self, void* a);
 extern "C" void* __sti__all_in_one_main_cpp(void* self, void* a, void* b);
-extern "C" void* func_001DB2B0(void* self, void* a);
+extern "C" void* LobbyMenu_InitAbortPage(void* self, void* a);
 
 // Owner reference handed to each debug sub-menu (a one-pointer functor).
 struct sDbgOwner17D298 {
@@ -156,26 +156,26 @@ extern "C" void* LobbyMenu_ctor(char* self)
     o0.owner = self;
     sDbgOwner17D298 o1;
     o1.owner = self;
-    func_001DA988(self + 0x70, &o0, &o1);
-    func_0017D200(self + 0x604);
+    LobbyMenu_InitLoginMethodPage(self + 0x70, &o0, &o1);
+    LobbyMenu_InitMessagePage(self + 0x604);
     sDbgOwner17D298 o2;
     o2.owner = self;
     sDbgOwner17D298 o3;
     o3.owner = self;
     sDbgOwner17D298 o4;
     o4.owner = self;
-    func_001DACB8(self + 0x74C, &o2, &o3, &o4);
+    LobbyMenu_InitSelectPersonaPage(self + 0x74C, &o2, &o3, &o4);
     sDbgOwner17D298 o5;
     o5.owner = self;
-    func_001DAE20(self + 0xD2C, &o5);
+    LobbyMenu_InitSelectRoomPage(self + 0xD2C, &o5);
     sDbgOwner17D298 o6;
     o6.owner = self;
     sDbgOwner17D298 o7;
     o7.owner = self;
-    func_001DAF08(self + 0x1044, &o6, &o7);
+    LobbyMenu_InitRoomOccupantsPage(self + 0x1044, &o6, &o7);
     sDbgOwner17D298 o8;
     o8.owner = self;
-    func_001DB028(self + 0x1534, &o8);
+    LobbyMenu_InitChatPage(self + 0x1534, &o8);
     sDbgOwner17D298 o9;
     o9.owner = self;
     sDbgOwner17D298 o10;
@@ -183,7 +183,7 @@ extern "C" void* LobbyMenu_ctor(char* self)
     __sti__all_in_one_main_cpp(self + 0x18C0, &o9, &o10);
     sDbgOwner17D298 o11;
     o11.owner = self;
-    func_001DB2B0(self + 0x1AAC, &o11);
+    LobbyMenu_InitAbortPage(self + 0x1AAC, &o11);
     int g = D_004A3E90;
     char* app = (char*)D_004A28A8;
     *(int*)(self + 0x1C04) = g;
@@ -200,8 +200,8 @@ extern "C" void* LobbyMenu_ctor(char* self)
 extern "C" void cBXString__cBXString(void* self, int flags);
 extern "C" void func_002CA280(void* self, int flags);
 extern "C" void func_002CAA80(void* self, int flags);
-extern "C" void func_001DD0C8(void* self, int flags);
-extern "C" void func_001DCEA0(void* self, int flags);
+extern "C" void LobbyMenu_DestroySelectPersonaPage(void* self, int flags);
+extern "C" void LobbyMenu_DestroyLoginMethodPage(void* self, int flags);
 extern "C" void func_002CC048(void* self, int flags);
 void operator_delete(int* ptr);
 extern void* D_0046D350[];
@@ -285,9 +285,9 @@ extern "C" void func_0017D3B0(char* self, int flags)
     dtorC_17D3B0(self + 0x1534);
     dtorD_17D3B0(self + 0x1044);
     dtorE_17D3B0(self + 0xD2C);
-    func_001DD0C8(self + 0x74C, 2);
+    LobbyMenu_DestroySelectPersonaPage(self + 0x74C, 2);
     dtorF_17D3B0(self + 0x604);
-    func_001DCEA0(self + 0x70, 2);
+    LobbyMenu_DestroyLoginMethodPage(self + 0x70, 2);
     func_002CC048(self + 0x8, 2);
     *(void***)self = D_0046D948;
     if (flags & 1)
@@ -334,13 +334,13 @@ extern "C" void* cBXString_operatorE(void* self, void* other);
 extern "C" void func_0025C610(void* self);
 extern "C" void func_002CC3B8(void* a, void* b);
 extern "C" void func_002CC460(void* list);
-extern "C" void func_0017DA30(char* self, int a1);
-extern "C" void func_0017DE70(char* self);
+extern "C" void LobbyMenu_ShowError(char* self, int a1);
+extern "C" void LobbyMenu_StartNetRace(char* self);
 extern "C" int func_004165A8(const void* a, const void* b);
 extern "C" const char* func_0025F150_D6F0(void* self, int i) __asm__("func_0025F150");
 extern "C" int func_0025F120(void* self);
 extern "C" void func_0025D800(void* self, int idx, int a2);
-extern "C" void func_001DB418_D6F0(void* menu, void* src) __asm__("func_001DB418");
+extern "C" void LobbyMenu_FillPersonaPages_D6F0(void* menu, void* src) __asm__("LobbyMenu_FillPersonaPages");
 extern "C" bool LobbyMan_IsInRoom(void* self);
 void LobbyMan_SendDecline_D6F0(void* self, int a1) __asm__("LobbyMan_SendDecline__FPvi");
 void func_0025CD28(void* self, int a1);
@@ -355,7 +355,7 @@ static inline void PopAll_D6F0(char* self)
         func_002CC460(list);
 }
 
-extern "C" void func_0017D6F0(void* self_, void* msg_)
+extern "C" void LobbyMenu_OnLobbyEvent(void* self_, void* msg_)
 {
     char* self = (char*)self_;
     int* msg = (int*)msg_;
@@ -370,7 +370,7 @@ extern "C" void func_0017D6F0(void* self_, void* msg_)
         func_002CC3B8(self + 0x8, self + 0x604);
         break;
     case 258:
-        func_0017DA30(self, msg[2]);
+        LobbyMenu_ShowError(self, msg[2]);
         break;
     case 201:
         if (*(int*)((char*)D_004A28A8 + 0x74)) {
@@ -412,7 +412,7 @@ extern "C" void func_0017D6F0(void* self_, void* msg_)
     case 214:
     case 216:
     menu:
-        func_001DB418_D6F0(self + 0x74C, D_004A3028);
+        LobbyMenu_FillPersonaPages_D6F0(self + 0x74C, D_004A3028);
         func_002CC3B8(self + 0x8, self + 0x74C);
         *(int*)(self + 0x4) = 6;
         break;
@@ -434,7 +434,7 @@ extern "C" void func_0017D6F0(void* self_, void* msg_)
         func_002CC3B8(self + 0x8, self + 0x604);
         break;
     case 239:
-        func_0017DE70(self);
+        LobbyMenu_StartNetRace(self);
         *(int*)(self + 0x4) = 0x10;
         break;
     case 236:
@@ -459,7 +459,7 @@ extern "C" void* cBXString_cBXString4(void* self, const char* str);
 extern "C" void func_0025C610(void* self);
 extern "C" void func_002CC3B8(void* a, void* b);
 
-extern "C" void func_0017DA30(char* self, int a1)
+extern "C" void LobbyMenu_ShowError(char* self, int a1)
 {
     *(int*)(self + 0x1C14) = a1;
     switch (*(int*)(self + 0x4)) {
@@ -515,9 +515,9 @@ extern "C" void func_00255F50(void* comm, int a1);
 extern "C" void func_0025B6D8(void* self, int a1);
 extern "C" int func_002CC098(void* stack);
 extern "C" void func_002CC3B8(void* a, void* b);
-extern "C" void func_001DB418(void* self, void* a1);
-extern "C" void func_001DB528(void* self, void* a1);
-extern "C" void func_001DB620(void* self, void* a1);
+extern "C" void LobbyMenu_FillPersonaPages(void* self, void* a1);
+extern "C" void LobbyMenu_FillRoomList(void* self, void* a1);
+extern "C" void LobbyMenu_FillOccupantList(void* self, void* a1);
 extern "C" void func_0025D800(void* a, int b, int c);
 extern "C" int cCommSystem_IsChannelConnected(void* comm, int chan);
 extern "C" void cGameComm_construct(int a, int b);
@@ -585,7 +585,7 @@ extern "C" void func_0017DB18(void* self_)
             break;
         case 22:
             if (func_002CC098(self + 0x8) == 0) {
-                func_001DB418(self + 0x74C, D_004A3028);
+                LobbyMenu_FillPersonaPages(self + 0x74C, D_004A3028);
                 func_002CC3B8(self + 0x8, self + 0x74C);
                 *(int*)(self + 0x4) = 6;
             }
@@ -607,14 +607,14 @@ extern "C" void func_0017DB18(void* self_)
         case 10:
             if (StackEmpty_17DB18(self + 0x8))
                 func_002CC3B8(self + 0x8, self + 0xD2C);
-            func_001DB528(self + 0xD2C, D_004A3028);
+            LobbyMenu_FillRoomList(self + 0xD2C, D_004A3028);
             break;
         case 12:
             if (StackEmpty_17DB18(self + 0x8)) {
                 func_0025D800(D_004A3028, -1, 0);
                 *(int*)(self + 0x4) = 11;
             } else {
-                func_001DB620(self + 0x1044, D_004A3028);
+                LobbyMenu_FillOccupantList(self + 0x1044, D_004A3028);
             }
             break;
         case 3:
@@ -678,7 +678,7 @@ static inline void vcall1_17DE70(void* obj)
     vt[1].fn((char*)obj + vt[1].delta);
 }
 
-extern "C" void func_0017DE70(char* self)
+extern "C" void LobbyMenu_StartNetRace(char* self)
 {
     void* race = cBE_getInterface_Fv(cBE_getBE(), 0);
     func_00145108(race, 1);
@@ -740,7 +740,7 @@ struct sDsReq17E030 {
     int f29C;
 };
 
-extern "C" void func_0017E030(sDebugFEState17E030* self, const char* a, const char* b)
+extern "C" void LobbyMenu_CreateAccount(sDebugFEState17E030* self, const char* a, const char* b)
 {
     int* list = &self->list;
     while (*list != 0) {
@@ -778,7 +778,7 @@ struct sDebugFEState17E118 {
     char* pass;  // 0x1C08
 };
 
-extern "C" void func_0017E118(sDebugFEState17E118* self, const char* a, const char* b)
+extern "C" void LobbyMenu_Login(sDebugFEState17E118* self, const char* a, const char* b)
 {
     int* list = &self->list;
     while (*list != 0) {
@@ -802,7 +802,7 @@ struct sDebugFEState17E1C0 {
 extern "C" void func_002CC460(void* list);
 extern "C" void func_0025D1B8(void* a, int b);
 
-extern "C" void func_0017E1C0(sDebugFEState17E1C0* self, int arg)
+extern "C" void LobbyMenu_CreatePersona(sDebugFEState17E1C0* self, int arg)
 {
     int* list = &self->list;
     while (*list != 0) {
@@ -822,7 +822,7 @@ struct sDebugFEState17E228 {
 extern "C" void func_002CC460(void* list);
 extern "C" void func_0025D428(void* a, int b);
 
-extern "C" void func_0017E228(sDebugFEState17E228* self, int arg)
+extern "C" void LobbyMenu_DeletePersona(sDebugFEState17E228* self, int arg)
 {
     int* list = &self->list;
     while (*list != 0) {
@@ -842,7 +842,7 @@ struct sDebugFEState17E290 {
 extern "C" void func_002CC460(void* list);
 void func_0025CD28(void* a, int b);
 
-extern "C" void func_0017E290(sDebugFEState17E290* self, int arg)
+extern "C" void LobbyMenu_SelectPersona(sDebugFEState17E290* self, int arg)
 {
     int* list = &self->list;
     while (*list != 0) {
@@ -862,7 +862,7 @@ struct sDebugFEState17E2F8 {
 extern "C" void func_002CC460(void* list);
 extern "C" void func_0025D800(void* a, int b, int c);
 
-extern "C" void func_0017E2F8(sDebugFEState17E2F8* self, int arg)
+extern "C" void LobbyMenu_EnterRoom(sDebugFEState17E2F8* self, int arg)
 {
     int* list = &self->list;
     while (*list != 0) {
@@ -909,7 +909,7 @@ extern "C" void func_002CC460(void* list);
 extern "C" void func_002CC3B8(void* list, void* item);
 extern "C" void func_0025AAE0(void* a, int b);
 
-extern "C" void func_0017E418(sDebugFEState17E418* self, int arg)
+extern "C" void LobbyMenu_SendChat(sDebugFEState17E418* self, int arg)
 {
     int* list = &self->list;
     while (*list != 0) {
@@ -930,7 +930,7 @@ struct sDebugFEState17E490 {
 extern "C" void func_002CC460(void* list);
 extern "C" void func_0025FB58(void* a, int b, int c);
 
-extern "C" void func_0017E490(sDebugFEState17E490* self)
+extern "C" void LobbyMenu_AcceptChallenge(sDebugFEState17E490* self)
 {
     int* list = &self->list;
     while (*list != 0) {
@@ -951,7 +951,7 @@ extern "C" void func_002CC460(void* list);
 extern "C" void func_002CC3B8(void* list, void* item);
 void LobbyMan_SendDecline(void* a, int b);
 
-extern "C" void func_0017E4F0(sDebugFEState17E4F0* self)
+extern "C" void LobbyMenu_DeclineChallenge(sDebugFEState17E4F0* self)
 {
     int* list = &self->list;
     while (*list != 0) {
@@ -973,7 +973,7 @@ extern "C" void func_002CC460(void* list);
 extern "C" void func_002CC3B8(void* list, void* item);
 extern "C" void func_0025F628(void* a, int b, int c);
 
-extern "C" void func_0017E558(sDebugFEState17E558* self)
+extern "C" void LobbyMenu_CancelChallenge(sDebugFEState17E558* self)
 {
     int* list = &self->list;
     while (*list != 0) {
@@ -1019,8 +1019,8 @@ extern char D_004A12C0[];
 extern "C" void func_00392908(void* self, const char* str, float x, float y);
 extern "C" void func_00392A60(void* self, const char* str, float x, float y);
 extern "C" void func_00391CB0(void* self, float x, float y, const char* str);
-extern "C" void func_001DCA80(void* self, float x, float y, const char* fmt, ...);
-extern "C" void func_001DCA40(void* self, float x, float y, const char* fmt, ...);
+extern "C" void cFont_DrawTextRightVarargs(void* self, float x, float y, const char* fmt, ...);
+extern "C" void cFont_DrawTextCenteredVarargs(void* self, float x, float y, const char* fmt, ...);
 extern "C" void func_002CC350(void* self);
 extern "C" void func_00256038(void* comm, int* out);
 extern "C" void cBXString__cBXString(void* self, int flags);
@@ -1212,14 +1212,14 @@ extern "C" void func_0017E5C8(sDebugFE17E5C8* self)
         y += 20.0f;
         func_00391CB0(font, 110.0f, y, D_0045D428);
         unsigned int ip = *(unsigned int*)((char*)D_004A3028 + 0xA8);
-        func_001DCA80(font, 530.0f, y, D_0045CF98, ip >> 24, (ip >> 16) & 0xFF, (ip >> 8) & 0xFF, ip & 0xFF);
+        cFont_DrawTextRightVarargs(font, 530.0f, y, D_0045CF98, ip >> 24, (ip >> 16) & 0xFF, (ip >> 8) & 0xFF, ip & 0xFF);
         y += 20.0f;
         func_00391CB0(font, 110.0f, y, D_0045D438);
         unsigned int ip2 = *(unsigned int*)((char*)D_004A3028 + 0xAC);
-        func_001DCA80(font, 530.0f, y, D_0045CF98, ip2 >> 24, (ip2 >> 16) & 0xFF, (ip2 >> 8) & 0xFF, ip2 & 0xFF);
+        cFont_DrawTextRightVarargs(font, 530.0f, y, D_0045CF98, ip2 >> 24, (ip2 >> 16) & 0xFF, (ip2 >> 8) & 0xFF, ip2 & 0xFF);
         y += 20.0f;
         func_00391CB0(font, 110.0f, y, D_004A1338);
-        func_001DCA80(font, 530.0f, y, D_004A12C0, *(int*)((char*)D_004A3028 + 0xB0));
+        cFont_DrawTextRightVarargs(font, 530.0f, y, D_004A12C0, *(int*)((char*)D_004A3028 + 0xB0));
         break;
     }
     }
@@ -1232,7 +1232,7 @@ extern "C" void func_0017E5C8(sDebugFE17E5C8* self)
         scale17E5C8(font, 0.8f);
         font->color = sColor17E5C8(1.0f, 0.9f, 0.9f, 0.2f);
         unsigned int v = ip;
-        func_001DCA40(font, 320.0f, 420.0f, D_0045CF98, v >> 24, (v >> 16) & 0xFF, (v >> 8) & 0xFF, v & 0xFF);
+        cFont_DrawTextCenteredVarargs(font, 320.0f, 420.0f, D_0045CF98, v >> 24, (v >> 16) & 0xFF, (v >> 8) & 0xFF, v & 0xFF);
     }
 }
 
@@ -1286,7 +1286,7 @@ static inline float wrap_17F2D0(float x)
     return x - ffloor_17F2D0(x * 0.15915493667125702f + 0.5f) * 6.2831854820251465f;
 }
 
-extern "C" void func_0017F2D0(void* p)
+extern "C" void DebugMenuModule_UpdateCursorTrail(void* p)
 {
     sFirefly_17F2D0* self = (sFirefly_17F2D0*)p;
     for (int i = 0; i < 2; i++) {
@@ -1312,7 +1312,7 @@ extern "C" void func_0017F2D0(void* p)
     }
 }
 
-INCLUDE_ASM("fe/debugfe", func_0017F500);
+INCLUDE_ASM("fe/debugfe", DebugMenuModule_DrawCursorTrail);
 
 //100%
 extern "C" void func_00231CD0(void* self);
@@ -1451,7 +1451,7 @@ extern "C" void DebugMenuModule_Enter(void* self)
 extern "C" void* func_00231CF0(void* self);
 
 //100%
-int func_0017FAB0(void* self)
+int DebugMenuModule_v04(void* self)
 {
     return (func_00231CF0(self) != 0);
 }
@@ -1514,21 +1514,21 @@ public:
     virtual void v02();
 };
 extern "C" void func_00231D18(void* self);
-extern "C" void func_0017F2D0(void* p);
+extern "C" void DebugMenuModule_UpdateCursorTrail(void* p);
 
 extern "C" void DebugMenuModule_v06(void* self)
 {
     func_00231D18(self);
     if (*(int*)((char*)D_004A28A8 + 4) == 0)
         (*(cFEObjK17FB98**)((char*)self + 0x14))->v02();
-    func_0017F2D0((char*)self + 0x24);
+    DebugMenuModule_UpdateCursorTrail((char*)self + 0x24);
 }
 
 //100% - objdiff report; single-function view differs only in a relocation name
 extern char* D_004A289C;
 extern char D_004FF1A0[];
 extern "C" int func_00231D60(void* self);
-extern "C" void func_0017F500(void* self, int a1);
+extern "C" void DebugMenuModule_DrawCursorTrail(void* self, int a1);
 
 struct sVEnt_17FBF0 { short delta; short index; void* fn; };
 typedef int (*FnI_17FBF0)(void*);
@@ -1596,7 +1596,7 @@ extern "C" int DebugMenuModule_Render(char* self)
         setB12_17FBF0(rs_17FBF0(m4), 0xD);
         setB2_17FBF0(rs_17FBF0(m4), 5);
         setB22_17FBF0(rs_17FBF0(m4), 1);
-        func_0017F500(self + 0x24, *(int*)(self + 0x1C));
+        DebugMenuModule_DrawCursorTrail(self + 0x24, *(int*)(self + 0x1C));
         setC5_17FBF0(rs_17FBF0(D_004A289C), 9);
         void* menu = *(void**)(self + 0x14);
         sVEnt_17FBF0* mvt = *(sVEnt_17FBF0**)menu;
@@ -1867,7 +1867,7 @@ extern "C" int FEUIInput_IsAnyButton(void* self)
 //100%
 extern void* D_004A28A8;
 
-extern "C" void func_00180478(void* self, unsigned char idx)
+extern "C" void FEUIInput_SetPort(void* self, unsigned char idx)
 {
     int v = *(int*)((char*)D_004A28A8 + (idx << 2) + 0xB0);
     *(unsigned char*)((char*)self + 0x4) = idx;
@@ -1895,7 +1895,7 @@ struct sDebugFE1804B8 {
     int b;     // 0x14
 };
 
-extern "C" void func_001804B8(sDebugFE1804B8* self)
+extern "C" void FEUIInput_PollUsbKeyboard(sDebugFE1804B8* self)
 {
     self->found = 0;
     if (D_004A33F0 != 0) {
@@ -2088,7 +2088,7 @@ extern char D_004A1358[];
 extern char D_004A1360[];
 extern "C" char* func_004162D0(char*, const char*);
 
-extern "C" void func_001809B0(void* self, int c, char* dst)
+extern "C" void cScreenKeyboard_GetKeyObjectName(void* self, int c, char* dst)
 {
     char buf[2];
     *(sStr10*)dst = D_0045D550;
@@ -2120,7 +2120,7 @@ extern char D_004A1358[];
 extern char D_004A1360[];
 extern "C" char* func_004162D0(char*, const char*);
 
-extern "C" void func_00180A90(void* self, int c, char* dst)
+extern "C" void cScreenKeyboard_GetCursorObjectName(void* self, int c, char* dst)
 {
     char buf[2];
     *(sStr8*)dst = *(sStr8*)D_004A1368;

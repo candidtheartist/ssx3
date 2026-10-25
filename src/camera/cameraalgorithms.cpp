@@ -21,9 +21,9 @@ extern "C" void func_00161E58(void* self, void* algo, float w);
 extern "C" void* func_00174190(void* self);
 extern "C" void* func_00178520(void* self, sVec4_15D088* a, sVec4_15D088* b);
 extern "C" void* Post_Race_1ChaseCameraAlgorithm_ctor(char* self, char* src);
-extern "C" void func_00170240(sVec4_15D088* out, char* r);
-extern "C" void func_001707B0(sVec4_15D088* out, char* r);
-extern "C" void func_00170D20(sVec4_15D088* out, char* r, int i);
+extern "C" void cCTBoundObjLine_GetWorldStart(sVec4_15D088* out, char* r);
+extern "C" void cCTBoundObjLine_GetWorldEnd(sVec4_15D088* out, char* r);
+extern "C" void cCTBoundObj_GetWorldPoint(sVec4_15D088* out, char* r, int i);
 extern void* D_004A28A8;
 extern char D_0045B250[];
 extern char D_0045B278[];
@@ -68,8 +68,8 @@ extern "C" void cChaseCameraController_createChaseAlgorithmBlend(char* self, uns
                 void* mem = cMemMan_alloc(0x3B0, D_0045B250, 0x20000000, 0);
                 sVec4_15D088 a;
                 sVec4_15D088 b;
-                func_00170240(&a, r);
-                func_001707B0(&b, r);
+                cCTBoundObjLine_GetWorldStart(&a, r);
+                cCTBoundObjLine_GetWorldEnd(&b, r);
                 cam = (char*)func_00178520(mem, &a, &b);
                 break;
             }
@@ -85,10 +85,10 @@ extern "C" void cChaseCameraController_createChaseAlgorithmBlend(char* self, uns
         sVec4_15D088 p1;
         sVec4_15D088 p2;
         sVec4_15D088 p3;
-        func_00170D20(&p0, r, 0);
-        func_00170D20(&p1, r, 1);
-        func_00170D20(&p2, r, 2);
-        func_00170D20(&p3, r, 3);
+        cCTBoundObj_GetWorldPoint(&p0, r, 0);
+        cCTBoundObj_GetWorldPoint(&p1, r, 1);
+        cCTBoundObj_GetWorldPoint(&p2, r, 2);
+        cCTBoundObj_GetWorldPoint(&p3, r, 3);
         cam = (char*)func_00161060((char*)mem, (float*)&p0, (float*)&p1, (float*)&p2, (float*)&p3, *(float*)(info + 0x18), *(float*)(info + 0x14), *(float*)(info + 0x1C), *(float*)(info + 0x10));
         break;
     }
@@ -478,7 +478,7 @@ extern "C" void func_0015DAE0()
 }
 
 //100%
-extern "C" void func_0016C968(void* self);
+extern "C" void cCameraTriggerMan_ResetActive(void* self);
 void cCameraTriggerMan_setInGameTriggers(void* self);
 extern "C" void func_00162170(void* cam);
 extern char D_004C5830[];
@@ -491,7 +491,7 @@ struct sCamVE_0015DB58 {
 
 extern "C" void func_0015DB58(void)
 {
-    func_0016C968(D_004C5830);
+    cCameraTriggerMan_ResetActive(D_004C5830);
     cCameraTriggerMan_setInGameTriggers(D_004C5830);
     char* riders = *(char**)(*(char**)((char*)D_004A28A8 + 0x84) + 0x84);
     int n = *(int*)riders;

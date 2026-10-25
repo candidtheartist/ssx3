@@ -51,7 +51,7 @@ extern "C" void cMenu_addItem(void *, char*, int);
 extern int D_00467DE0[];
 extern int D_0046D378[];
 
-extern "C" void *func_001DB2B0(char *arg0, int *arg1) {
+extern "C" void *LobbyMenu_InitAbortPage(char *arg0, int *arg1) {
     func_002CAA58(arg0);
     char *p = arg0 + 0x134;
     *(int **)(arg0 + 0x12C) = D_0046D378;
@@ -61,7 +61,7 @@ extern "C" void *func_001DB2B0(char *arg0, int *arg1) {
     return arg0;
 }
 
-INCLUDE_ASM("main/all_in_one_main", func_001DB330);
+INCLUDE_ASM("main/all_in_one_main", LobbyMenu_FillDeletePersonaPage);
 
 //100% - objdiff report; single-function view differs only in a relocation name
 struct MenuItem_B418 {
@@ -87,9 +87,9 @@ struct Src_B418 {
 };
 
 extern "C" void func_002CA388(void* item, int enable);
-extern "C" void func_001DB330(void* sub, Src_B418* src);
+extern "C" void LobbyMenu_FillDeletePersonaPage(void* sub, Src_B418* src);
 
-extern "C" void func_001DB418(Menu_B418* self, Src_B418* src)
+extern "C" void LobbyMenu_FillPersonaPages(Menu_B418* self, Src_B418* src)
 {
     int i = 0;
     for (; i < src->count; i++) {
@@ -102,7 +102,7 @@ extern "C" void func_001DB418(Menu_B418* self, Src_B418* src)
     for (; i < 4; i++) {
         func_002CA388(&self->items[i], 0);
     }
-    func_001DB330(self->sub2E8, src);
+    LobbyMenu_FillDeletePersonaPage(self->sub2E8, src);
     func_002CA388(self->item5C4, src->count >= 2);
     func_002CA388(self->item5A8, src->count < 4);
 }
@@ -126,7 +126,7 @@ extern "C" void* func_0025F150(void* src, int i);
 extern "C" void func_002CA388(void* item, int enable);
 extern char D_00467DE8[];
 
-extern "C" void func_001DB528(Menu_B528* self, void* src)
+extern "C" void LobbyMenu_FillRoomList(Menu_B528* self, void* src)
 {
     int i = 0;
     int n = func_0025F120(src);
@@ -166,7 +166,7 @@ extern "C" void* func_0025F1E0(void* src, int i, int flags);
 extern "C" void func_002CA388(void* item, int enable);
 extern char D_00467E00[];
 
-extern "C" void func_001DB620(Menu_B620* self, void* src)
+extern "C" void LobbyMenu_FillOccupantList(Menu_B620* self, void* src)
 {
     int i = 0;
     int n = func_0025F1B0(src);
@@ -192,7 +192,7 @@ void operator_delete(int*);
 struct N_B718 { N_B718 *next; N_B718 *prev; };
 struct L_B718 { int pad; N_B718 *head; };
 
-extern "C" void func_001DB718(L_B718 *self) {
+extern "C" void StdList_Clear(L_B718 *self) {
     N_B718 *p = self->head->next;
     while (p != self->head) {
         N_B718 *n = p;
@@ -296,34 +296,34 @@ extern "C" void func_001DB918(sPtrVecB778* self, void** pos, void* const& x)
 }
 
 //100%
-extern "C" void func_0017E558(int);
+extern "C" void LobbyMenu_CancelChallenge(int);
 
-extern "C" int func_001DBAB8(void *arg0) {
-    func_0017E558((*(int *)((char*)(arg0) + (0x130))));
+extern "C" int LobbyMenu_OnAbortPageAction(void *arg0) {
+    LobbyMenu_CancelChallenge((*(int *)((char*)(arg0) + (0x130))));
     return 0;
 }
 
 //100%
-extern "C" void func_0017E490(int);
-extern "C" void func_0017E4F0(int);
+extern "C" void LobbyMenu_AcceptChallenge(int);
+extern "C" void LobbyMenu_DeclineChallenge(int);
 
 extern "C" int func_001DBAD8(void *arg0, void *arg1) {
     int temp_3;
 
     temp_3 = (*(int *)((char*)(arg1) + (8)));
     if (temp_3 == 0) {
-        func_0017E490((*(int *)((char*)(arg0) + (0x130))));
+        LobbyMenu_AcceptChallenge((*(int *)((char*)(arg0) + (0x130))));
     } else if (temp_3 == 1) {
-        func_0017E4F0((*(int *)((char*)(arg0) + (0x134))));
+        LobbyMenu_DeclineChallenge((*(int *)((char*)(arg0) + (0x134))));
     }
     return 0;
 }
 
 //100%
-extern "C" void func_0017E418(int, int);
+extern "C" void LobbyMenu_SendChat(int, int);
 
-extern "C" int func_001DBB20(void *arg0, void *arg1) {
-    func_0017E418((*(int *)((char*)(arg0) + (0x130))), (*(int *)((char*)(arg1) + (0x14))));
+extern "C" int LobbyMenu_OnChatPageAction(void *arg0, void *arg1) {
+    LobbyMenu_SendChat((*(int *)((char*)(arg0) + (0x130))), (*(int *)((char*)(arg1) + (0x14))));
     return 0;
 }
 
@@ -332,7 +332,7 @@ extern "C" int func_001DBB20(void *arg0, void *arg1) {
 extern "C" void func_0017E368_BB48(int, int) __asm__("func_0017E368");
 extern "C" void func_0017E3B8_BB48(int) __asm__("func_0017E3B8");
 
-extern "C" int func_001DBB48(void *arg0, void *arg1) {
+extern "C" int LobbyMenu_OnOccupantsPageAction(void *arg0, void *arg1) {
     int t = *(int *)((char *)arg1 + 8);
     if (t == -2) {
         func_0017E3B8_BB48(*(int *)((char *)arg0 + 0x134));
@@ -343,68 +343,68 @@ extern "C" int func_001DBB48(void *arg0, void *arg1) {
 }
 
 //100%
-extern "C" void func_0017E2F8(int, int);
+extern "C" void LobbyMenu_EnterRoom(int, int);
 
-extern "C" int func_001DBB90(void *arg0, void *arg1) {
+extern "C" int LobbyMenu_OnSelectRoomPageAction(void *arg0, void *arg1) {
     int temp_5;
 
     temp_5 = (*(int *)((char*)(arg1) + (8)));
     if (temp_5 >= 0) {
-        func_0017E2F8((*(int *)((char*)(arg0) + (0x130))), temp_5);
+        LobbyMenu_EnterRoom((*(int *)((char*)(arg0) + (0x130))), temp_5);
     }
     return 0;
 }
 
 //100%
-extern "C" void func_0017E290(int, int);
+extern "C" void LobbyMenu_SelectPersona(int, int);
 
-extern "C" int func_001DBBC0(void *arg0, void *arg1) {
-    func_0017E290((*(int *)((char*)(arg0) + (0x4E0))), (*(int *)((char*)(arg1) + (8))));
+extern "C" int LobbyMenu_OnSelectPersonaPageAction(void *arg0, void *arg1) {
+    LobbyMenu_SelectPersona((*(int *)((char*)(arg0) + (0x4E0))), (*(int *)((char*)(arg1) + (8))));
     return 0;
 }
 
 //100%
 // PORT: PS2-only inline asm; needs a C fallback off-PS2.
-extern "C" void func_0017E1C0_BBE8(int, void *) __asm__("func_0017E1C0");
+extern "C" void LobbyMenu_CreatePersona_BBE8(int, void *) __asm__("LobbyMenu_CreatePersona");
 
-extern "C" int func_001DBBE8(char *arg0) {
-    func_0017E1C0_BBE8(*(int *)(arg0 + 0x130), arg0 + 0x180);
+extern "C" int LobbyMenu_OnCreatePersonaPageAction(char *arg0) {
+    LobbyMenu_CreatePersona_BBE8(*(int *)(arg0 + 0x130), arg0 + 0x180);
     return 0;
 }
 
 //100%
-extern "C" void func_0017E228(int, int);
+extern "C" void LobbyMenu_DeletePersona(int, int);
 
-extern "C" int func_001DBC10(void *arg0, void *arg1) {
-    func_0017E228((*(int *)((char*)(arg0) + (0x130))), (*(int *)((char*)(arg1) + (8))));
-    return 0;
-}
-
-//100%
-// PORT: PS2-only inline asm; needs a C fallback off-PS2.
-extern "C" void func_0017E030_BC38(int, char*, char*) __asm__("func_0017E030");
-
-extern "C" int func_001DBC38(char *self) {
-    func_0017E030_BC38(*(int*)(self + 0x130), self + 0x180, self + 0x1AC);
+extern "C" int LobbyMenu_OnDeletePersonaPageAction(void *arg0, void *arg1) {
+    LobbyMenu_DeletePersona((*(int *)((char*)(arg0) + (0x130))), (*(int *)((char*)(arg1) + (8))));
     return 0;
 }
 
 //100%
 // PORT: PS2-only inline asm; needs a C fallback off-PS2.
-extern "C" void func_0017E118_BC68(int, char*, char*) __asm__("func_0017E118");
+extern "C" void LobbyMenu_CreateAccount_BC38(int, char*, char*) __asm__("LobbyMenu_CreateAccount");
 
-extern "C" int func_001DBC68(char *self) {
-    func_0017E118_BC68(*(int*)(self + 0x130), self + 0x180, self + 0x1AC);
+extern "C" int LobbyMenu_OnCreateAccountPageAction(char *self) {
+    LobbyMenu_CreateAccount_BC38(*(int*)(self + 0x130), self + 0x180, self + 0x1AC);
     return 0;
 }
 
-INCLUDE_ASM("main/all_in_one_main", func_001DBC98);
+//100%
+// PORT: PS2-only inline asm; needs a C fallback off-PS2.
+extern "C" void LobbyMenu_Login_BC68(int, char*, char*) __asm__("LobbyMenu_Login");
+
+extern "C" int LobbyMenu_OnLoginPageAction(char *self) {
+    LobbyMenu_Login_BC68(*(int*)(self + 0x130), self + 0x180, self + 0x1AC);
+    return 0;
+}
+
+INCLUDE_ASM("main/all_in_one_main", FrontEnd_StaticInitDestroy);
 
 //100%
 void operator_delete(int*);
 extern void* D_0046D970[];
 
-extern "C" void func_001DC900(void *self, int flags) {
+extern "C" void AppModule_dtor(void *self, int flags) {
     *(void***)((char*)self + 0) = D_0046D970;
     if (flags & 1) {
         operator_delete((int*)self);
@@ -445,17 +445,17 @@ extern "C" void func_001DC980(void *arg0) {
 
 //100%
 // PORT: hand-rolled EE EABI va_start (gcc 2.95 va-mips.h form); use <stdarg.h> off-PS2.
-typedef char* func_001DC990_va_list;
-#define func_001DC990_va_start(ap)                                                \
+typedef char* cFont_DrawTextVarargs_va_list;
+#define cFont_DrawTextVarargs_va_start(ap)                                                \
     (ap = (char*)__builtin_next_arg()                                    \
           - (__builtin_args_info(2) < 8 ? (8 - __builtin_args_info(2)) * 8 : 0))
 
 extern "C" void func_00391C48_C990(int, int, char*) __asm__("func_00391C48");
 
-extern "C" void func_001DC990(float x, float y, int c, int d, ...)
+extern "C" void cFont_DrawTextVarargs(float x, float y, int c, int d, ...)
 {
-    func_001DC990_va_list ap;
-    func_001DC990_va_start(ap);
+    cFont_DrawTextVarargs_va_list ap;
+    cFont_DrawTextVarargs_va_start(ap);
     func_00391C48_C990(c, d, ap);
 }
 
@@ -481,33 +481,33 @@ extern "C" void func_001DC9D0(void *self, int d, float p0, float p1, float sx, f
 
 //100%
 // PORT: hand-rolled EE EABI va_start (gcc 2.95 va-mips.h form); use <stdarg.h> off-PS2.
-typedef char* func_001DCA40_va_list;
-#define func_001DCA40_va_start(ap)                                                \
+typedef char* cFont_DrawTextCenteredVarargs_va_list;
+#define cFont_DrawTextCenteredVarargs_va_start(ap)                                                \
     (ap = (char*)__builtin_next_arg()                                    \
           - (__builtin_args_info(2) < 8 ? (8 - __builtin_args_info(2)) * 8 : 0))
 
 extern "C" void func_003929F8_CA40(int, int, char*) __asm__("func_003929F8");
 
-extern "C" void func_001DCA40(float x, float y, int c, int d, ...)
+extern "C" void cFont_DrawTextCenteredVarargs(float x, float y, int c, int d, ...)
 {
-    func_001DCA40_va_list ap;
-    func_001DCA40_va_start(ap);
+    cFont_DrawTextCenteredVarargs_va_list ap;
+    cFont_DrawTextCenteredVarargs_va_start(ap);
     func_003929F8_CA40(c, d, ap);
 }
 
 //100%
 // PORT: hand-rolled EE EABI va_start (gcc 2.95 va-mips.h form); use <stdarg.h> off-PS2.
-typedef char* func_001DCA80_va_list;
-#define func_001DCA80_va_start(ap)                                                \
+typedef char* cFont_DrawTextRightVarargs_va_list;
+#define cFont_DrawTextRightVarargs_va_start(ap)                                                \
     (ap = (char*)__builtin_next_arg()                                    \
           - (__builtin_args_info(2) < 8 ? (8 - __builtin_args_info(2)) * 8 : 0))
 
 extern "C" void func_00392B40_CA80(int, int, char*) __asm__("func_00392B40");
 
-extern "C" void func_001DCA80(float x, float y, int c, int d, ...)
+extern "C" void cFont_DrawTextRightVarargs(float x, float y, int c, int d, ...)
 {
-    func_001DCA80_va_list ap;
-    func_001DCA80_va_start(ap);
+    cFont_DrawTextRightVarargs_va_list ap;
+    cFont_DrawTextRightVarargs_va_start(ap);
     func_00392B40_CA80(c, d, ap);
 }
 
@@ -526,7 +526,7 @@ extern "C" void func_001DCAC0(void *self, int flags) {
 extern "C" void cBXString__cBXString(void *, int);
 extern int D_0046D8C0[];
 
-extern "C" void func_001DCAF0(char *arg0, int arg1) {
+extern "C" void cPrivateMessage_dtor_2(char *arg0, int arg1) {
     *(int **)(arg0 + 0xC) = D_0046D8C0;
     cBXString__cBXString(arg0 + 8, 2);
     cBXString__cBXString(arg0 + 4, 2);
@@ -589,7 +589,7 @@ extern "C" int func_001DCBD0(void *arg0) {
 void operator_delete(int*);
 extern void* D_0046D848[];
 
-extern "C" void func_001DCBD8(void *self, int flags) {
+extern "C" void FELocale_BaseDtor(void *self, int flags) {
     *(void***)((char*)self + 4) = D_0046D848;
     if (flags & 1) {
         operator_delete((int*)self);
@@ -598,11 +598,11 @@ extern "C" void func_001DCBD8(void *self, int flags) {
 
 //100%
 // PORT: PS2-only inline asm; needs a C fallback off-PS2.
-extern "C" void func_001E1090_CC08(void*, int) __asm__("func_001E1090");
+extern "C" void FELocale_SetFlag27_CC08(void*, int) __asm__("FELocale_SetFlag27");
 
 extern "C" void FELocale_v02(signed char *self, signed char v) {
     *self = v;
-    func_001E1090_CC08(self, v == 2);
+    FELocale_SetFlag27_CC08(self, v == 2);
 }
 
 //100%
@@ -688,13 +688,13 @@ extern "C" void func_001DCCF8(int *arg0, int arg1) {
 
 //100%
 // PORT: PS2-only inline asm; needs a C fallback off-PS2.
-extern "C" void func_0017ABE0_CD00(void *, int) __asm__("func_0017ABE0");
+extern "C" void cDebugMenuScreen_FreeBackgrounds_CD00(void *, int) __asm__("cDebugMenuScreen_FreeBackgrounds");
 void operator_delete(int*);
 extern void* D_0046D948[];
 
 
 extern "C" void cDebugMenuScreen_v01(void *self, int flags) {
-    func_0017ABE0_CD00((char *)self + 0x8C10, 2);
+    cDebugMenuScreen_FreeBackgrounds_CD00((char *)self + 0x8C10, 2);
     *(void ***)self = D_0046D948;
     if (flags & 1) {
         operator_delete((int *)self);
@@ -705,7 +705,7 @@ extern "C" void cDebugMenuScreen_v01(void *self, int flags) {
 extern "C" void func_002CA280(int, int);
 extern "C" void func_002CAA80(int, int);
 
-extern "C" void func_001DCD58(int arg0, int arg1) {
+extern "C" void LobbyMenuMessagePage_dtor(int arg0, int arg1) {
     func_002CA280(arg0 + 0x130, 2);
     func_002CAA80(arg0, arg1);
 }
@@ -714,7 +714,7 @@ extern "C" void func_001DCD58(int arg0, int arg1) {
 extern "C" void func_002CA280(int, int);
 extern "C" void func_002CAA80(int, int);
 
-extern "C" void func_001DCDA0(int arg0, int arg1) {
+extern "C" void LobbyMenu_DestroyLoginPage(int arg0, int arg1) {
     func_002CA280(arg0 + 0x1E4, 2);
     func_002CA280(arg0 + 0x1C0, 2);
     func_002CA280(arg0 + 0x194, 2);
@@ -728,7 +728,7 @@ extern "C" void func_001DCDA0(int arg0, int arg1) {
 extern "C" void func_002CA280(int, int);
 extern "C" void func_002CAA80(int, int);
 
-extern "C" void func_001DCE20(int arg0, int arg1) {
+extern "C" void LobbyMenu_DestroyCreateAccountPage(int arg0, int arg1) {
     func_002CA280(arg0 + 0x1E4, 2);
     func_002CA280(arg0 + 0x1C0, 2);
     func_002CA280(arg0 + 0x194, 2);
@@ -770,7 +770,7 @@ static inline void SubMenuA_CEA0(int m)
     func_002CAA80(m, 2);
 }
 
-extern "C" void func_001DCEA0(int self, int arg)
+extern "C" void LobbyMenu_DestroyLoginMethodPage(int self, int arg)
 {
     SubMenuA_CEA0(self + 0x130);
     func_002CAA80(self, arg);
@@ -784,7 +784,7 @@ struct Obj { char pad[0x168]; Elem elems[4]; };
 extern "C" void func_002CA280(int, int);
 extern "C" void func_002CAA80(int, int);
 
-extern "C" void func_001DCFC8(Obj *self, int flags) {
+extern "C" void LobbyMenu_DestroyDeletePersonaPage(Obj *self, int flags) {
     if (self->elems != 0) {
         Elem *end = self->elems + 4;
         Elem *p = end;
@@ -802,7 +802,7 @@ extern "C" void func_001DCFC8(Obj *self, int flags) {
 extern "C" void func_002CA280(int, int);
 extern "C" void func_002CAA80(int, int);
 
-extern "C" void func_001DD060(int arg0, int arg1) {
+extern "C" void LobbyMenu_DestroyCreatePersonaPage(int arg0, int arg1) {
     func_002CA280(arg0 + 0x194, 2);
     func_002CA280(arg0 + 0x168, 2);
     func_002CA280(arg0 + 0x150, 2);
@@ -810,7 +810,7 @@ extern "C" void func_001DD060(int arg0, int arg1) {
     func_002CAA80(arg0, arg1);
 }
 
-INCLUDE_ASM("main/all_in_one_main", func_001DD0C8);
+INCLUDE_ASM("main/all_in_one_main", LobbyMenu_DestroySelectPersonaPage);
 
 //100%
 struct VEnt_D258 { short delta; short idx; void (*fn)(void*, int); };
@@ -818,7 +818,7 @@ struct VTab_D258 { int a; int b; VEnt_D258 dtor; };
 struct Elem_D258 { char pad[0x10]; VTab_D258 *vt; char pad2[0x24 - 0x14]; };
 struct Obj_D258 { char pad[0x168]; Elem_D258 elems[12]; };
 
-extern "C" void func_001DD258(Obj_D258 *self, int flags) {
+extern "C" void LobbyMenu_DestroySelectRoomPage(Obj_D258 *self, int flags) {
     if (self->elems != 0) {
         Elem_D258 *end = self->elems + 12;
         Elem_D258 *p = end;
@@ -838,7 +838,7 @@ struct VTab_D2F0 { int a; int b; VEnt_D2F0 dtor; };
 struct Elem_D2F0 { char pad[0x10]; VTab_D2F0 *vt; char pad2[0x24 - 0x14]; };
 struct Obj_D2F0 { char pad[0x16C]; Elem_D2F0 elems[24]; };
 
-extern "C" void func_001DD2F0(Obj_D2F0 *self, int flags) {
+extern "C" void LobbyMenu_DestroyRoomOccupantsPage(Obj_D2F0 *self, int flags) {
     func_002CA280((int)self + 0x4CC, 2);
     if (self->elems != 0) {
         Elem_D2F0 *p = self->elems + 24;
@@ -858,7 +858,7 @@ struct VTab_D398 { int a; int b; VEnt_D398 dtor; };
 struct Elem_D398 { char pad[0x10]; VTab_D398 *vt; char pad2[0x24 - 0x14]; };
 struct Obj_D398 { char pad[0x194]; Elem_D398 elems[14]; };
 
-extern "C" void func_001DD398(Obj_D398 *self, int flags) {
+extern "C" void LobbyMenu_DestroyChatPage(Obj_D398 *self, int flags) {
     if (self->elems != 0) {
         Elem_D398 *p = self->elems + 14;
         while (self->elems != p) {
@@ -876,7 +876,7 @@ extern "C" void func_001DD398(Obj_D398 *self, int flags) {
 extern "C" void func_002CA280(int, int);
 extern "C" void func_002CAA80(int, int);
 
-extern "C" void func_001DD440(int arg0, int arg1) {
+extern "C" void LobbyMenu_DestroyChallengePage(int arg0, int arg1) {
     func_002CA280(arg0 + 0x1C8, 2);
     func_002CA280(arg0 + 0x1A4, 2);
     func_002CA280(arg0 + 0x18C, 2);
@@ -890,7 +890,7 @@ extern "C" void func_001DD440(int arg0, int arg1) {
 extern "C" void func_002CA280(int, int);
 extern "C" void func_002CAA80(int, int);
 
-extern "C" void func_001DD4C0(int arg0, int arg1) {
+extern "C" void LobbyMenu_DestroyAbortPage(int arg0, int arg1) {
     func_002CA280(arg0 + 0x134, 2);
     func_002CAA80(arg0, arg1);
 }
@@ -913,7 +913,7 @@ extern "C" void *func_001DD508(void *arg0) {
 void operator_delete(int*);
 extern void* D_0046DBA8[];
 
-extern "C" void func_001DD530(void *self, int flags) {
+extern "C" void FEUIInput_dtor(void *self, int flags) {
     *(void***)((char*)self + 8) = D_0046DBA8;
     if (flags & 1) {
         operator_delete((int*)self);
@@ -1029,7 +1029,7 @@ extern "C" void func_001DD690(void *arg0) {
 extern "C" void func_0039E2A0_D6A8(void*, int) __asm__("func_0039E2A0");
 extern void* D_0046D0D0[];
 
-extern "C" void* func_001DD6A8(void *self) {
+extern "C" void* cFEState_ctor_2(void *self) {
     func_0039E2A0_D6A8(self, 0);
     *(void***)((char*)self + 8) = D_0046D0D0;
     return self;
@@ -1040,7 +1040,7 @@ extern "C" void* func_001DD6A8(void *self) {
 extern "C" void func_0039E2A0_D6E0(void*) __asm__("func_0039E2A0");
 extern void* D_0046D0D0[];
 
-extern "C" void* func_001DD6E0(void *self) {
+extern "C" void* cFEState_ctor_3(void *self) {
     func_0039E2A0_D6E0(self);
     *(void***)((char*)self + 8) = D_0046D0D0;
     return self;
@@ -1051,7 +1051,7 @@ extern "C" void* func_001DD6E0(void *self) {
 extern "C" void func_0039E318_D718(void*) __asm__("func_0039E318");
 extern void* D_0046D0D0[];
 
-extern "C" void* func_001DD718(void *self) {
+extern "C" void* cFEState_ctor_4(void *self) {
     func_0039E318_D718(self);
     *(void***)((char*)self + 8) = D_0046D0D0;
     return self;
@@ -1445,7 +1445,7 @@ struct S_DBD0 {
     int v2B0;
     int v2B4;
 };
-extern "C" S_DBD0 *func_001DDBD0(S_DBD0 *self) {
+extern "C" S_DBD0 *cScreenPopup_cScreenPopup_2(S_DBD0 *self) {
     func_0039E318_DBD0(self, 0, 0);
     self->vt = D_0046CBD8;
     func_001C55F8_DBD0((char *)self + 0xBC);
@@ -1482,13 +1482,13 @@ extern "C" int func_001DDC40(void *arg0) {
 //100%
 // PORT: PS2-only inline asm; needs a C fallback off-PS2.
 extern "C" void *func_0039E318_DC48(void *, int, int) __asm__("func_0039E318");
-extern "C" void func_001CA8A0_DC48(void *) __asm__("func_001CA8A0");
+extern "C" void cUIStateBuyPopup_ResetParams_DC48(void *) __asm__("cUIStateBuyPopup_ResetParams");
 extern int D_0046CB08[];
 
-extern "C" void *func_001DDC48(void *self) {
+extern "C" void *cUIStateBuyPopup_ctor_2(void *self) {
     func_0039E318_DC48(self, 0, 0);
     *(int **)((char *)self + 8) = D_0046CB08;
-    func_001CA8A0_DC48((char *)self + 0x48);
+    cUIStateBuyPopup_ResetParams_DC48((char *)self + 0x48);
     return self;
 }
 
@@ -1627,13 +1627,13 @@ extern "C" int func_001DDDC8(void) {
     return D_004A2028_DDC8 != 0;
 }
 
-extern "C" void func_001DDDD8(void) {
+extern "C" void cFEMemCard_Init(void) {
 }
 
 extern "C" void func_001DDDE0(void) {
 }
 
-extern "C" void func_001DDDE8(void) {
+extern "C" void cFEMemCard_OnWidgetAction(void) {
 }
 
 extern "C" void func_001DDDF0(void) {
@@ -1676,7 +1676,7 @@ extern "C" void *cFEMemCard_ctor_3(void *self) {
 extern "C" void *cScreenPopup_cScreenPopup_DE78(void *, int, int) __asm__("cScreenPopup_cScreenPopup");
 extern int D_0046C890[];
 
-extern "C" void *func_001DDE78(void *self) {
+extern "C" void *cScreenPopup_ctor_2(void *self) {
     cScreenPopup_cScreenPopup_DE78(self, 0, 0);
     *(int **)((char *)self + 8) = D_0046C890;
     return self;
@@ -1684,12 +1684,12 @@ extern "C" void *func_001DDE78(void *self) {
 
 //100%
 // PORT: PS2-only inline asm; needs a C fallback off-PS2.
-extern "C" void* func_001C5A90_DEB8(void*) __asm__("func_001C5A90");
+extern "C" void* cScreenPopup_dtor_DEB8(void*) __asm__("cScreenPopup_dtor");
 extern void* D_0046C890_DEB8[] __asm__("D_0046C890");
 
 extern "C" void func_001DDEB8(void *self) {
     *(void***)((char*)self + 8) = D_0046C890_DEB8;
-    func_001C5A90_DEB8(self);
+    cScreenPopup_dtor_DEB8(self);
 }
 
 //100%
@@ -1704,7 +1704,7 @@ extern "C" void func_001DDEE0(int arg0) {
 extern "C" void func_0039E2A0_DEE8(void*, int) __asm__("func_0039E2A0");
 extern void* D_0046C7C0[];
 
-extern "C" void* func_001DDEE8(void *self) {
+extern "C" void* cFEStateOptions_ctor_2(void *self) {
     func_0039E2A0_DEE8(self, 0);
     *(void***)((char*)self + 8) = D_0046C7C0;
     return self;
@@ -1725,7 +1725,7 @@ extern "C" void func_001DDF20(void *self) {
 extern "C" void func_0039E2A0_DF48(void*, int) __asm__("func_0039E2A0");
 extern void* D_0046C6F0[];
 
-extern "C" void* func_001DDF48(void *self) {
+extern "C" void* cFEStateOptionsGame_ctor_2(void *self) {
     func_0039E2A0_DF48(self, 0);
     *(void***)((char*)self + 8) = D_0046C6F0;
     return self;
@@ -1741,7 +1741,7 @@ extern "C" void func_001DDF80(void *self) {
     func_0039E390_DDF80(self);
 }
 
-extern "C" void func_001DDFA8(void) {
+extern "C" void cFEStateOptionsGame_OnDeactivate(void) {
 }
 
 //100%
@@ -1749,7 +1749,7 @@ extern "C" void func_001DDFA8(void) {
 extern "C" void func_0039E2A0_DFB0(void*, int) __asm__("func_0039E2A0");
 extern void* D_0046C620[];
 
-extern "C" void* func_001DDFB0(void *self) {
+extern "C" void* cFEStateOptionsSound_ctor_2(void *self) {
     func_0039E2A0_DFB0(self, 0);
     *(void***)((char*)self + 8) = D_0046C620;
     return self;
@@ -1765,7 +1765,7 @@ extern "C" void func_001DDFE8(void *self) {
     func_0039E390_DDFE8(self);
 }
 
-extern "C" void func_001DE010(void) {
+extern "C" void cFEStateOptionsSound_OnDeactivate(void) {
 }
 
 //100%
@@ -1773,7 +1773,7 @@ extern "C" void func_001DE010(void) {
 extern "C" void func_0039E2A0_E018(void*, int) __asm__("func_0039E2A0");
 extern void* D_0046C550[];
 
-extern "C" void* func_001DE018(void *self) {
+extern "C" void* cFEStateOptionsHUD_ctor_2(void *self) {
     func_0039E2A0_E018(self, 0);
     *(void***)((char*)self + 8) = D_0046C550;
     return self;
@@ -1789,7 +1789,7 @@ extern "C" void func_001DE050(void *self) {
     func_0039E390_DE050(self);
 }
 
-extern "C" void func_001DE078(void) {
+extern "C" void cFEStateOptionsHUD_OnDeactivate(void) {
 }
 
 //100%
@@ -1797,7 +1797,7 @@ extern "C" void func_001DE078(void) {
 extern "C" void *func_0039E2A0_E080(void *, int) __asm__("func_0039E2A0");
 extern int D_0046C480[];
 
-extern "C" void *func_001DE080(void *self) {
+extern "C" void *cFEStateOptionsController_ctor_2(void *self) {
     func_0039E2A0_E080(self, 0);
     *(int **)((char *)self + 8) = D_0046C480;
     *((char *)self + 0x50) = 0;
@@ -1814,7 +1814,7 @@ extern "C" void func_001DE0C0(void *self) {
     func_0039E390_DE0C0(self);
 }
 
-extern "C" void func_001DE0E8(void) {
+extern "C" void cFEStateOptionsController_OnDeactivate(void) {
 }
 
 //100%
@@ -1822,7 +1822,7 @@ extern "C" void func_001DE0E8(void) {
 extern "C" void *func_0039E2A0_E0F0(void *, int) __asm__("func_0039E2A0");
 extern int D_0046C3B0[];
 
-extern "C" void *func_001DE0F0(void *self) {
+extern "C" void *cFEStateOptionsSaveLoad_ctor_2(void *self) {
     func_0039E2A0_E0F0(self, 0);
     *(int **)((char *)self + 8) = D_0046C3B0;
     return self;
@@ -1853,7 +1853,7 @@ extern "C" void* func_001DE150(void *self) {
 extern "C" void *func_001D53B0_E178(void *, int, int) __asm__("func_001D53B0");
 extern int D_0046C228_E178[] __asm__("D_0046C228");
 
-extern "C" void *func_001DE178(void *self) {
+extern "C" void *cFEStateOptionsDeviceSelect_ctor_2(void *self) {
     func_001D53B0_E178(self, 0, 0);
     *(int **)((char *)self + 8) = D_0046C228_E178;
     return self;
@@ -1864,7 +1864,7 @@ extern "C" void *func_001DE178(void *self) {
 extern "C" void *func_0039E2A0_E1B8(void *, int) __asm__("func_0039E2A0");
 extern int D_0046C158[];
 
-extern "C" void *func_001DE1B8(void *self) {
+extern "C" void *cFEStateProfileSelect_ctor_2(void *self) {
     func_0039E2A0_E1B8(self, 0);
     *(int **)((char *)self + 8) = D_0046C158;
     return self;
@@ -1895,7 +1895,7 @@ extern "C" void* func_001DE218(void *self) {
 extern "C" void *func_001D53B0_E240(void *, int, int) __asm__("func_001D53B0");
 extern int D_0046BFD0_E240[] __asm__("D_0046BFD0");
 
-extern "C" void *func_001DE240(void *self) {
+extern "C" void *cFEStateProfileLoad_ctor_2(void *self) {
     func_001D53B0_E240(self, 0, 0);
     *(int **)((char *)self + 8) = D_0046BFD0_E240;
     return self;
@@ -1920,7 +1920,7 @@ struct S_E288 {
     char pad2[0x3C0];
     int v424;
 };
-extern "C" S_E288 *func_001DE288(S_E288 *self) {
+extern "C" S_E288 *cKeyboardPopup_ctor_2(S_E288 *self) {
     func_0039E318_E288(self, 0, 0);
     self->vt = D_0046BEC8;
     self->v60 = 0x3F;
@@ -1929,7 +1929,7 @@ extern "C" S_E288 *func_001DE288(S_E288 *self) {
 }
 
 //100%
-extern "C" int func_001DE2D8(void) {
+extern "C" int cKeyboardPopup_TransitionOut(void) {
     return 1;
 }
 
@@ -2093,7 +2093,7 @@ extern "C" void func_001DE498(void *arg0) {
 extern "C" void *func_0039E2A0_E4B0(void *, int) __asm__("func_0039E2A0");
 extern int D_0046BDF8[];
 
-extern "C" void *func_001DE4B0(void *self) {
+extern "C" void *cFEStateCredits_ctor_2(void *self) {
     func_0039E2A0_E4B0(self, 0);
     *(int **)((char *)self + 8) = D_0046BDF8;
     return self;
@@ -2105,7 +2105,7 @@ extern "C" void *func_0039E2A0_E4E8(void *, int) __asm__("func_0039E2A0");
 extern "C" void func_002006B8_E4E8(void *) __asm__("func_002006B8");
 extern int D_0046BD28[];
 
-extern "C" void *func_001DE4E8(void *self) {
+extern "C" void *cFEStateEventSelect_ctor_2(void *self) {
     func_0039E2A0_E4E8(self, 0);
     *(int **)((char *)self + 8) = D_0046BD28;
     func_002006B8_E4E8((char *)self + 0x48);
@@ -2130,7 +2130,7 @@ extern "C" void func_001DE550(void) {
 extern "C" void *func_0039E2A0_E558(void *, int) __asm__("func_0039E2A0");
 extern int D_0046BC58_E558[] __asm__("D_0046BC58");
 
-extern "C" void *func_001DE558(void *self) {
+extern "C" void *cFEStateBackground_ctor_2(void *self) {
     func_0039E2A0_E558(self, 0);
     *(int **)((char *)self + 8) = D_0046BC58_E558;
     return self;
@@ -2141,7 +2141,7 @@ extern "C" void *func_001DE558(void *self) {
 extern "C" void func_0039E2A0_E590(void*) __asm__("func_0039E2A0");
 extern void* D_0046BC58[];
 
-extern "C" void* func_001DE590(void *self) {
+extern "C" void* cFEStateBackground_ctor_3(void *self) {
     func_0039E2A0_E590(self);
     *(void***)((char*)self + 8) = D_0046BC58;
     return self;
@@ -2162,7 +2162,7 @@ extern "C" void* func_001DE5C8(void *self) {
 extern "C" void *func_0039E2A0_E5F0(void *, int) __asm__("func_0039E2A0");
 extern int D_0046BB88_E5F0[] __asm__("D_0046BB88");
 
-extern "C" void *func_001DE5F0(void *self) {
+extern "C" void *cFEStateTransition_ctor_2(void *self) {
     func_0039E2A0_E5F0(self, 0);
     *(int **)((char *)self + 8) = D_0046BB88_E5F0;
     return self;
@@ -2173,7 +2173,7 @@ extern "C" void *func_001DE5F0(void *self) {
 extern "C" void *func_0039E2A0_E628(void *) __asm__("func_0039E2A0");
 extern int D_0046BB88_E628[] __asm__("D_0046BB88");
 
-extern "C" void *func_001DE628(void *self) {
+extern "C" void *cFEStateTransition_ctor_3(void *self) {
     func_0039E2A0_E628(self);
     *(int **)((char *)self + 8) = D_0046BB88_E628;
     *(int *)((char *)self + 0x48) = 0;
@@ -2196,7 +2196,7 @@ extern "C" void* cFEStateTransition_dtor(void *self) {
 extern "C" void *func_0039E2A0_E690(void *, int) __asm__("func_0039E2A0");
 extern int D_0046BAB8[];
 
-extern "C" void *func_001DE690(void *self) {
+extern "C" void *cFEStateTitle_ctor_2(void *self) {
     func_0039E2A0_E690(self, 0);
     *(int **)((char *)self + 8) = D_0046BAB8;
     return self;
@@ -2217,7 +2217,7 @@ extern "C" void* func_001DE6C8(void *self) {
 extern "C" void *func_0039E2A0_E6F0(void *, int) __asm__("func_0039E2A0");
 extern int D_0046B9E8[];
 
-extern "C" void *func_001DE6F0(void *self) {
+extern "C" void *cFEStateMainMenu_ctor_2(void *self) {
     func_0039E2A0_E6F0(self, 0);
     *(int **)((char *)self + 8) = D_0046B9E8;
     return self;
@@ -2238,7 +2238,7 @@ extern "C" void* func_001DE728(void *self) {
 extern "C" void *func_0039E2A0_E750(void *, int) __asm__("func_0039E2A0");
 extern int D_0046B918[];
 
-extern "C" void *func_001DE750(void *self) {
+extern "C" void *cFEStateBonusMaterial_ctor_2(void *self) {
     func_0039E2A0_E750(self, 0);
     *(int **)((char *)self + 8) = D_0046B918;
     return self;
@@ -2274,7 +2274,7 @@ struct sList_E7B0 {
 };
 
 // Front-end state constructor: clears the state fields, sets the vtable, the name string and an empty list.
-extern "C" void* func_001DE7B0(void* self)
+extern "C" void* NetFEState_ctor_2(void* self)
 {
     // An unused 16-byte local is needed to reproduce the 0x40-byte frame.
     int unused[4];
@@ -2298,7 +2298,7 @@ extern "C" void* func_001DE7B0(void* self)
 }
 
 //100%
-extern "C" int func_001DE860(void *arg0) {
+extern "C" int NetFEState_HandleInput(void *arg0) {
     return (*(int *)((char*)(arg0) + (0x58)));
 }
 
@@ -2350,7 +2350,7 @@ extern "C" int func_001DE8A8(void *arg0) {
 extern "C" void *func_001A8500_E8C8(void *, int, int) __asm__("func_001A8500");
 extern int D_0046B6F8_E8C8[] __asm__("D_0046B6F8");
 
-extern "C" void *func_001DE8C8(void *self) {
+extern "C" void *FEScreenBlank_ctor_2(void *self) {
     func_001A8500_E8C8(self, 0, 0);
     *(int **)((char *)self + 8) = D_0046B6F8_E8C8;
     return self;
@@ -2374,7 +2374,7 @@ extern "C" void* FEScreenBlank_dtor(void *self) {
     return func_001A85D0_E918(self);
 }
 
-extern "C" void func_001DE940(void) {
+extern "C" void cFEStateMemCard_OnWidgetAction(void) {
 }
 
 extern "C" void func_001DE948(void) {
@@ -2385,7 +2385,7 @@ extern "C" void func_001DE948(void) {
 extern "C" void *func_001D53B0_E950(void *, int, int) __asm__("func_001D53B0");
 extern int D_0046B570[];
 
-extern "C" void *func_001DE950(void *self) {
+extern "C" void *cFEStateMemCard_ctor_2(void *self) {
     func_001D53B0_E950(self, 0, 0);
     *(int **)((char *)self + 8) = D_0046B570;
     return self;
@@ -2396,7 +2396,7 @@ extern "C" void *func_001DE950(void *self) {
 extern "C" void *func_0039E2A0_E990(void *, int) __asm__("func_0039E2A0");
 extern int D_0046B4A0_E990[] __asm__("D_0046B4A0");
 
-extern "C" void *func_001DE990(void *self) {
+extern "C" void *cFEStateLegal_ctor_2(void *self) {
     func_0039E2A0_E990(self, 0);
     *(int **)((char *)self + 8) = D_0046B4A0_E990;
     return self;
@@ -2413,7 +2413,7 @@ extern "C" void* func_001DE9C8(void *self) {
 }
 
 //100%
-extern "C" int func_001DE9F0(void) {
+extern "C" int cFEStateLegal_TransitionIn(void) {
     return 1;
 }
 
@@ -2446,7 +2446,7 @@ extern "C" void func_001DEA20(void *self) {
 
 //100%
 // Key filter: keys 7, 8 and 9 return 0x100, every other key 0x101.
-extern "C" int func_001DEA80(void* self, int a1, unsigned int key)
+extern "C" int cFEPopupOptionReset_OnWidgetNotify(void* self, int a1, unsigned int key)
 {
     int r = 0x101;
     if (key < 10) {
@@ -2499,11 +2499,11 @@ extern "C" void* func_001DEB58(void *self) {
 }
 
 //100%
-extern "C" int func_001DEB80(void) {
+extern "C" int cFEPopupVideoCalibration_TransitionIn(void) {
     return 1;
 }
 
 //100%
-extern "C" int func_001DEB88(void) {
+extern "C" int cFEPopupVideoCalibration_TransitionOut(void) {
     return 1;
 }

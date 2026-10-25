@@ -491,11 +491,11 @@ INCLUDE_ASM("ai/control/handplantcontrol", cRailSlideMotion_update);
 INCLUDE_ASM("ai/control/handplantcontrol", cRailSlideMotion_computeContactNormal);
 
 //100%
-extern "C" void func_00114298(void* rider, float v);
+extern "C" void cRider_LaunchIntoAir(void* rider, float v);
 // PORT: cRider_updateQueryBounds is declared void* in this unit; this caller ignores the result (void call).
 extern "C" void cRider_updateQueryBounds_v(void* rider, int a1) __asm__("cRider_updateQueryBounds");
-extern "C" void func_00105398(void* rider, int a1);
-extern "C" void func_00107888(void* rider);
+extern "C" void cRider_HandleWallCollision(void* rider, int a1);
+extern "C" void cRider_CheckRiderCollisions(void* rider);
 extern "C" void cRailSlideMotion_collideBody(void* self);
 extern "C" void cSSXAudio_PlayTakeoffSound(void* snd, void* rider);
 int cRider_getControlState(void* rider);
@@ -557,7 +557,7 @@ extern "C" void cRailSlideMotion_postUpdate(void* self)
         char* r = RIDER_BFA8;
         *(int*)(r + 0x234) = 0;
         *(float*)(r + 0x230) = 0.03333333507180214f;
-        func_00114298(RIDER_BFA8, -1.0f);
+        cRider_LaunchIntoAir(RIDER_BFA8, -1.0f);
     }
     sTbl_BFA8 tbl = D_00458230;
     if (cRider_getControlState(RIDER_BFA8) == 0xC) {
@@ -566,11 +566,11 @@ extern "C" void cRailSlideMotion_postUpdate(void* self)
     } else {
         *(int*)(*(char**)(RIDER_BFA8 + 0xAA0) + 0x28) = 0x16;
     }
-    func_00105398(RIDER_BFA8, 0);
+    cRider_HandleWallCollision(RIDER_BFA8, 0);
     *(int*)(*(char**)(RIDER_BFA8 + 0xAA0) + 0x28) = 3;
     cRailSlideMotion_collideBody(self);
     *(unsigned int*)(*(char**)(RIDER_BFA8 + 0xAA0) + 0x28) = 0xFFFFFFFF;
-    func_00107888(RIDER_BFA8);
+    cRider_CheckRiderCollisions(RIDER_BFA8);
     if (*(int*)((char*)self + 0x20) != 0 && cRider_getMotionMode(RIDER_BFA8) == 4) {
         cRider_setMotionMode_impl_BFA8(RIDER_BFA8, 1);
         cSSXAudio_PlayTakeoffSound(D_004A3500, RIDER_BFA8);
@@ -1127,12 +1127,12 @@ extern "C" int cGroundMotion_updateContact(void* self, sHit_13D1B8* out, float* 
 INCLUDE_ASM("ai/control/handplantcontrol", cGroundMotion_update);
 
 //100%
-extern "C" void func_00114298(void* rider, float v);
+extern "C" void cRider_LaunchIntoAir(void* rider, float v);
 // PORT: cRider_updateQueryBounds is declared void* in this unit; this caller ignores the result (void call).
 extern "C" void cRider_updateQueryBounds_v13F178(void* rider, int a1) __asm__("cRider_updateQueryBounds");
-extern "C" void func_00105398(void* rider, int a1);
-extern "C" void func_00107888(void* rider);
-extern "C" void func_00116120(void* rider, int a, int b);
+extern "C" void cRider_HandleWallCollision(void* rider, int a1);
+extern "C" void cRider_CheckRiderCollisions(void* rider);
+extern "C" void cRider_CheckResetPath(void* rider, int a, int b);
 extern "C" void cGroundMotion_collideBody(void* self);
 extern "C" void cSSXAudio_PlayTakeoffSound(void* snd, void* rider);
 int cRider_getMotionMode(void* rider);
@@ -1252,7 +1252,7 @@ static inline float absf_13F178(float x)
 extern "C" void cGroundMotion_postUpdate(void* self)
 {
     if (*(int*)((char*)self + 0xC) != 0) {
-        func_00114298(RIDER_13F178, -1.0f);
+        cRider_LaunchIntoAir(RIDER_13F178, -1.0f);
     } else {
         char* r = RIDER_13F178;
         int idx = *(int*)(r + 0x438);
@@ -1266,15 +1266,15 @@ extern "C" void cGroundMotion_postUpdate(void* self)
             info.f30 = 0;
             cRider_enterCrash(RIDER_13F178, 0x168, 0, *(int*)(RIDER_13F178 + 0x438), &info);
         } else if (*(int*)(e + 0x44) != 0 || (fl = *(short*)(r + 0x2D4), (fl & 2) != 0)) {
-            func_00116120(r, 0, 1);
+            cRider_CheckResetPath(r, 0, 1);
         }
     }
     cRider_updateQueryBounds_v13F178(RIDER_13F178, 0);
     *(int*)(*(char**)(RIDER_13F178 + 0xAA0) + 0x28) = D_004A115C;
     cGroundMotion_collideBody(self);
     *(unsigned int*)(*(char**)(RIDER_13F178 + 0xAA0) + 0x28) = 0xFFFFFFFF;
-    func_00105398(RIDER_13F178, 0);
-    func_00107888(RIDER_13F178);
+    cRider_HandleWallCollision(RIDER_13F178, 0);
+    cRider_CheckRiderCollisions(RIDER_13F178);
     if (*(int*)((char*)self + 0xC) != 0 && cRider_getMotionMode(RIDER_13F178) == 0) {
         cRider_setMotionMode_impl_13F178(RIDER_13F178, 1);
         cSSXAudio_PlayTakeoffSound(D_004A3500, RIDER_13F178);
@@ -1327,7 +1327,7 @@ int cRider_getControlState(void* rider);
 extern "C" float cOverlapList_queryNearest(void* world, void* seg, void* hit, int flags);
 extern "C" void func_00106538(void* rider, void* v);
 extern "C" void func_001065B0(void* rider, void* hit);
-extern "C" void func_00105D98(void* rider, void* info, int id);
+extern "C" void cRider_HandleImpact(void* rider, void* info, int id);
 extern "C" void* func_0028B180();
 extern "C" void cSSXAudio_PlayGroundWallHitSound(void* snd, void* rider);
 extern "C" void* cWorldRider_cWorldRider(void* self, void* tree, int flag);
@@ -1522,7 +1522,7 @@ extern "C" void cGroundMotion_collideBody(void* self)
         info.dir = n;
         info.normal = hit.normal;
         info.depth = dot2;
-        func_00105D98(RIDER, &info, hit.m4C);
+        cRider_HandleImpact(RIDER, &info, hit.m4C);
         cSSXAudio_PlayGroundWallHitSound(func_0028B180(), RIDER);
     }
     cWorldRider_destroy(&sph, 2);
@@ -1569,7 +1569,7 @@ struct sSortObj_F8F8 {
 };
 
 // Merge sort of an object-pointer array by key, using buf as scratch; the sorted result ends up in buf.
-extern "C" void func_0013F8F8(sSortObj_F8F8** first, sSortObj_F8F8** last, sSortObj_F8F8** buf, void* cmp)
+extern "C" void ObjPtrArray_MergeSort(sSortObj_F8F8** first, sSortObj_F8F8** last, sSortObj_F8F8** buf, void* cmp)
 {
     int n = last - first;
     if (n == 2) {
@@ -1588,11 +1588,11 @@ extern "C" void func_0013F8F8(sSortObj_F8F8** first, sSortObj_F8F8** last, sSort
     if (n < 3)
         *bmid = *first;
     else
-        func_0013F8F8(first, mid, bmid, cmp);
+        ObjPtrArray_MergeSort(first, mid, bmid, cmp);
     if (n < 4)
         *first = *mid;
     else
-        func_0013F8F8(mid, last, first, cmp);
+        ObjPtrArray_MergeSort(mid, last, first, cmp);
     sSortObj_F8F8** b = bmid;
     sSortObj_F8F8** bend2 = bmid + (n + 1) / 2;
     sSortObj_F8F8** a = first;
@@ -1611,14 +1611,14 @@ extern "C" void func_0013F8F8(sSortObj_F8F8** first, sSortObj_F8F8** last, sSort
 }
 
 struct sSortObj_F8F8;
-extern "C" void func_0013F8F8(sSortObj_F8F8** first, sSortObj_F8F8** last, sSortObj_F8F8** buf, void* cmp);
+extern "C" void ObjPtrArray_MergeSort(sSortObj_F8F8** first, sSortObj_F8F8** last, sSortObj_F8F8** buf, void* cmp);
 
 // Sorts [first, last) into buf (merge sort for 2+ entries, plain copy for one).
-extern "C" void func_0013FAD8(sSortObj_F8F8** first, sSortObj_F8F8** last, sSortObj_F8F8** buf, void* cmp)
+extern "C" void ObjPtrArray_Sort(sSortObj_F8F8** first, sSortObj_F8F8** last, sSortObj_F8F8** buf, void* cmp)
 {
     int n = last - first;
     if (n >= 2)
-        func_0013F8F8(first, last, buf, cmp);
+        ObjPtrArray_MergeSort(first, last, buf, cmp);
     else if (n == 1)
         *buf = *first;
 }
@@ -1641,24 +1641,24 @@ extern "C" void func_00140680(int* self, int flags)
 extern void* D_004FF120[];
 
 //100%
-void* func_001406B0(void* self)
+void* RiderIface_GetVelocity(void* self)
 {
     return (void*)D_004FF120;
 }
 
 //100%
-int func_001406C0(void* self)
+int RiderIface_HasVisited(void* self)
 {
     return 0;
 }
 
 //100%
-void func_001406C8(void* self)
+void RiderIface_AddVelocity(void* self)
 {
 }
 
 //100%
-void* func_001406D0(void* self)
+void* RiderIface_GetPosition(void* self)
 {
     return (void*)D_004FF120;
 }
@@ -1672,50 +1672,50 @@ void* func_001406E0(void* self)
 }
 
 //100%
-int func_001406F0(void* self)
+int RiderIface_GetIndex(void* self)
 {
     return 0;
 }
 
 //100%
-int func_001406F8(void* self)
+int RiderIface_IsHuman(void* self)
 {
     return 0;
 }
 
 //100%
-int func_00140700(void* self)
+int RiderIface_IsComputer(void* self)
 {
     return 0;
 }
 
 //100%
-void func_00140708(void* self)
+void RiderIface_teleportToMatrix(void* self)
 {
 }
 
 //100%
-void func_00140710(void* self)
+void cRider_v11_Empty(void* self)
 {
 }
 
 //100%
-void func_00140718(void* self)
+void RiderIface_placeAtInstance(void* self)
 {
 }
 
 //100%
-void func_00140720(void* self)
+void RiderIface_awardSpeedBoost(void* self)
 {
 }
 
 //100%
-void func_00140728(void* self)
+void RiderIface_awardTrickBoost(void* self)
 {
 }
 
 //100%
-void func_00140730(void* self)
+void RiderIface_collectMultiplier(void* self)
 {
 }
 
@@ -1729,7 +1729,7 @@ struct sHPC140738 {
     unsigned int arr[64];   // 0x5B8
 };
 
-extern "C" sHPC140738* func_00140738(sHPC140738* self)
+extern "C" sHPC140738* cRider_InitData(sHPC140738* self)
 {
     self->v[0][2] = 0;
     self->v[0][0] = 0;
@@ -2221,22 +2221,22 @@ extern "C" void func_00140C60(void* self, int value)
 }
 
 //100%
-void func_00140C68(void* self)
+void cRider_clearRumble(void* self)
 {
 }
 
 //100%
-void func_00140C70(void* self)
+void cRider_addRumbleImpact(void* self)
 {
 }
 
 //100%
-void func_00140C78(void* self)
+void cRider_setRumbleSlide(void* self)
 {
 }
 
 //100%
-void func_00140C80(void* self)
+void cRider_updateRumble(void* self)
 {
 }
 
@@ -2706,7 +2706,7 @@ extern "C" int func_00144198(void* self)
 }
 
 //100%
-int func_001441A0(void* self, void* a1)
+int DangerMan_ReleaseDanger(void* self, void* a1)
 {
     int t0 = 2;
     *(int*)((char*)a1 + 0x8) = t0;
@@ -2763,7 +2763,7 @@ extern "C" void func_002DA1C0(sHpGround_41B8* out, sHpVec3_41B8* pos);
 
 // Handplant difficulty level for player pl: at least the height band's level, and only above 1 when the rider is
 // inside one of the enabled zones.
-extern "C" int func_001441B8(sHpCtl_41B8* self, int pl)
+extern "C" int DangerMan_GetRiderDangerLevel(sHpCtl_41B8* self, int pl)
 {
     int lvl = self->levels[pl].level;
     char* rider = self->game->riders[pl];
@@ -2846,9 +2846,9 @@ struct sNode_144368 {
     sNode_144368* child[8];
 };
 
-extern "C" void func_00101A28(void* a, sNode_144368* node, int leaf);
+extern "C" void FocusMan_CollectNodeObjects(void* a, sNode_144368* node, int leaf);
 
-extern "C" void func_00144368(sTree_144368* self, sNode_144368* node, sKey_144368* key)
+extern "C" void FocusMan_CollectOctreeNode(sTree_144368* self, sNode_144368* node, sKey_144368* key)
 {
     int n = self->count;
     int i = 0;
@@ -2870,7 +2870,7 @@ extern "C" void func_00144368(sTree_144368* self, sNode_144368* node, sKey_14436
         i++;
     } while (!ok);
     int leaf = key->level < 14;
-    func_00101A28(self->f0, node, leaf);
+    FocusMan_CollectNodeObjects(self->f0, node, leaf);
     if (leaf) {
         return;
     }
@@ -2882,21 +2882,21 @@ extern "C" void func_00144368(sTree_144368* self, sNode_144368* node, sKey_14436
     k.x = key->x * 2;
     k.y = key->y * 2;
     k.z = key->z * 2;
-    if (node->child[0]) func_00144368(self, node->child[0], &k);
+    if (node->child[0]) FocusMan_CollectOctreeNode(self, node->child[0], &k);
     k.x++;
-    if (node->child[4]) func_00144368(self, node->child[4], &k);
+    if (node->child[4]) FocusMan_CollectOctreeNode(self, node->child[4], &k);
     k.y++;
-    if (node->child[6]) func_00144368(self, node->child[6], &k);
+    if (node->child[6]) FocusMan_CollectOctreeNode(self, node->child[6], &k);
     k.x--;
-    if (node->child[2]) func_00144368(self, node->child[2], &k);
+    if (node->child[2]) FocusMan_CollectOctreeNode(self, node->child[2], &k);
     k.z++;
-    if (node->child[3]) func_00144368(self, node->child[3], &k);
+    if (node->child[3]) FocusMan_CollectOctreeNode(self, node->child[3], &k);
     k.x++;
-    if (node->child[7]) func_00144368(self, node->child[7], &k);
+    if (node->child[7]) FocusMan_CollectOctreeNode(self, node->child[7], &k);
     k.y--;
-    if (node->child[5]) func_00144368(self, node->child[5], &k);
+    if (node->child[5]) FocusMan_CollectOctreeNode(self, node->child[5], &k);
     k.x--;
-    if (node->child[1]) func_00144368(self, node->child[1], &k);
+    if (node->child[1]) FocusMan_CollectOctreeNode(self, node->child[1], &k);
 }
 
 extern "C" void* cRiderAnimBase__cRiderAnimBase(void* self);
@@ -2939,7 +2939,7 @@ extern "C" bool testFlagBit(void* self, int bit)
 }
 
 //100%
-extern "C" bool func_001446B8(void* self, int bit)
+extern "C" bool Flags64_TestSecond(void* self, int bit)
 {
     ulong mask = (ulong)1 << bit;
     return (*(ulong*)((char*)self + 0x8) & mask) != 0;
@@ -2957,7 +2957,7 @@ extern "C" int func_001446E0(void* self)
 }
 
 //100%
-float func_001446E8(void* self)
+float cPlayer_scoreRoute(void* self)
 {
     return 0.0f;
 }

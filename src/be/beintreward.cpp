@@ -155,7 +155,7 @@ static inline int Match_6C70(sBEEntry_6C70* e, int type)
     return (type == 0 && (e->flags & 0x100)) || (type == 1 && (e->flags & 0x200)) || (type == 2 && (e->flags & 0x400));
 }
 
-extern "C" int func_00156C70(void* self, int a1, int a2, int type)
+extern "C" int cBERewardInterface_PickRandomBolt(void* self, int a1, int a2, int type)
 {
     char* p = (char*)D_004A6CA8 + a1 * 0x9b50 + a2 * 0xf88;
     int n = 0;
@@ -267,7 +267,7 @@ static inline sBEFlagEntry_6EE0* Flag_6EE0(char* p, sBEEntry_6EE0* e)
     return 0;
 }
 
-extern "C" int func_00156EE0(void* self, int a1, int a2)
+extern "C" int cBERewardInterface_PickRandomBoltFlag800(void* self, int a1, int a2)
 {
     char* p = (char*)D_004A6CA8 + a1 * 0x9b50 + a2 * 0xf88;
     int n = 0;
@@ -316,7 +316,7 @@ extern "C" int func_00157518(void* self, int a1, int a2, int kind);
 
 struct sRw7080 { char s[0xF88]; };
 
-extern "C" int func_00157080(void* self, int a1, int a2, int kind)
+extern "C" int cBERewardInterface_PickRandomLockedReward(void* self, int a1, int a2, int kind)
 {
     int total = func_00157210(self, kind);
     int result = -1;
@@ -593,13 +593,13 @@ extern "C" int func_001577E0(void* self, int a, int b)
 }
 
 //100%
-extern "C" int func_00157A78(void* self, int a, int b, int i);
+extern "C" int cBERewardInterface_IsPeakComplete(void* self, int a, int b, int i);
 
-extern "C" int func_001578A0(void* self, int a, int b)
+extern "C" int cBERewardInterface_AreAllPeaksComplete(void* self, int a, int b)
 {
     for (int i = 0; i < 3; i++)
     {
-        if (func_00157A78(self, a, b, i) == 0)
+        if (cBERewardInterface_IsPeakComplete(self, a, b, i) == 0)
             return 0;
     }
     return 1;
@@ -609,8 +609,8 @@ extern "C" int func_001578A0(void* self, int a, int b)
 // PORT: PS2-only inline asm; needs a C fallback off-PS2.
 signed char cBERewardInterface_getTrackMedal(void* self, int a, int b, int track, int kind);
 int cBERewardInterface_isBetterMedal(void* self, int a, int b);
-extern "C" int func_001589B0(void* self, int a, int b, int kind);
-extern "C" int func_00158A50(void* self, int a, int b, int kind);
+extern "C" int cBERewardInterface_GetCollectibleTier(void* self, int a, int b, int kind);
+extern "C" int cBERewardInterface_GetMissionTier(void* self, int a, int b, int kind);
 
 struct sRewardReq_157920
 {
@@ -633,9 +633,9 @@ extern "C" int func_00157920(void* self, int a, int b, int k)
                 continue;
             if (i == 2)
             {
-                if (func_001589B0(self, a, b, k))
+                if (cBERewardInterface_GetCollectibleTier(self, a, b, k))
                     return 0;
-                if (func_00158A50(self, a, b, k))
+                if (cBERewardInterface_GetMissionTier(self, a, b, k))
                     return 0;
             }
             else
@@ -657,7 +657,7 @@ extern "C" int func_00157920(void* self, int a, int b, int k)
 //100%
 extern "C" int func_00157BF0(void* self, int a, int b, int c, int i);
 
-extern "C" int func_00157A78(void* self, int a, int b, int c)
+extern "C" int cBERewardInterface_IsPeakComplete(void* self, int a, int b, int c)
 {
     for (int i = 0; i < 4; i++)
     {
@@ -670,19 +670,19 @@ extern "C" int func_00157A78(void* self, int a, int b, int c)
 //100%
 int cBELibrary_getProfileIndex(int);
 int cBELibrary_getCharacterID(int);
-extern "C" int func_00157B70(void* self, int a, int b, int peak);
+extern "C" int cBERewardInterface_IsPeakLocked(void* self, int a, int b, int peak);
 
 extern "C" int func_00157B08(void* self, int rider, int peak)
 {
     int profile = cBELibrary_getProfileIndex(rider);
-    return func_00157B70(self, profile, cBELibrary_getCharacterID(rider), peak);
+    return cBERewardInterface_IsPeakLocked(self, profile, cBELibrary_getCharacterID(rider), peak);
 }
 
 //100%
 extern int D_004A6CA8[];
 
 // PORT: 64-bit ulong flag word (bit 12 = peak 1 locked, bit 13 = peak 2).
-extern "C" int func_00157B70(void* self, int a, int b, int peak)
+extern "C" int cBERewardInterface_IsPeakLocked(void* self, int a, int b, int peak)
 {
     if (peak == 1)
     {
@@ -708,8 +708,8 @@ extern "C" int func_00157B70(void* self, int a, int b, int peak)
 signed char cBERewardInterface_getTrackMedal(void* self, int b, int c, int d, int e);
 int cBERewardInterface_isBetterMedal(void* self, int a, int b);
 extern "C" int cBERewardInterface_getEarningsMedal(void* self, int a, int b, int medal);
-extern "C" int func_001589B0(void* self, int a, int b, int kind);
-extern "C" int func_00158A50(void* self, int a, int b, int kind);
+extern "C" int cBERewardInterface_GetCollectibleTier(void* self, int a, int b, int kind);
+extern "C" int cBERewardInterface_GetMissionTier(void* self, int a, int b, int kind);
 
 struct sRewardReq_157BF0
 {
@@ -737,8 +737,8 @@ extern "C" int func_00157BF0(void* self, int a, int b, int k, int i)
     case 2:
     {
         int r = 0;
-        if (cBERewardInterface_isBetterMedal(self, -1, func_001589B0(self, a, b, k)))
-            r = cBERewardInterface_isBetterMedal(self, -1, func_00158A50(self, a, b, k)) != 0;
+        if (cBERewardInterface_isBetterMedal(self, -1, cBERewardInterface_GetCollectibleTier(self, a, b, k)))
+            r = cBERewardInterface_isBetterMedal(self, -1, cBERewardInterface_GetMissionTier(self, a, b, k)) != 0;
         return r;
     }
     case 3:
@@ -814,22 +814,22 @@ extern "C" int func_00157EE0(void* self, int a1, int a2, int bit)
 }
 
 //100%
-int func_00157FD0_jt(void*, int, int, int, int) __asm__("func_00157FD0");
-int func_001580F8_jt(void*, int, int, int, int) __asm__("func_001580F8");
-int func_00158220_jt(void*, int, int, int, int) __asm__("func_00158220");
-int func_00158348_jt(void*, int, int, int, int) __asm__("func_00158348");
-int func_00158470_jt(void*, int, int, int, int) __asm__("func_00158470");
-int func_00158618_jt(void*, int, int, int, int) __asm__("func_00158618");
+int cBERewardInterface_UnlockPoster_jt(void*, int, int, int, int) __asm__("cBERewardInterface_UnlockPoster");
+int cBERewardInterface_UnlockTradingCard_jt(void*, int, int, int, int) __asm__("cBERewardInterface_UnlockTradingCard");
+int cBERewardInterface_UnlockConceptArt_jt(void*, int, int, int, int) __asm__("cBERewardInterface_UnlockConceptArt");
+int cBERewardInterface_UnlockToy_jt(void*, int, int, int, int) __asm__("cBERewardInterface_UnlockToy");
+int cBERewardInterface_UnlockVideo_jt(void*, int, int, int, int) __asm__("cBERewardInterface_UnlockVideo");
+int cBERewardInterface_UnlockRiderItem_jt(void*, int, int, int, int) __asm__("cBERewardInterface_UnlockRiderItem");
 
 extern "C" int func_00157F20(void* self, int a1, int a2, int kind, int bit, int give)
 {
     switch (kind) {
-    case 3: return func_00157FD0_jt(self, a1, a2, bit, give);
-    case 4: return func_001580F8_jt(self, a1, a2, bit, give);
-    case 5: return func_00158220_jt(self, a1, a2, bit, give);
-    case 6: return func_00158470_jt(self, a1, a2, bit, give);
-    case 7: return func_00158348_jt(self, a1, a2, bit, give);
-    case 8: return func_00158618_jt(self, a1, a2, bit + 10, give);
+    case 3: return cBERewardInterface_UnlockPoster_jt(self, a1, a2, bit, give);
+    case 4: return cBERewardInterface_UnlockTradingCard_jt(self, a1, a2, bit, give);
+    case 5: return cBERewardInterface_UnlockConceptArt_jt(self, a1, a2, bit, give);
+    case 6: return cBERewardInterface_UnlockVideo_jt(self, a1, a2, bit, give);
+    case 7: return cBERewardInterface_UnlockToy_jt(self, a1, a2, bit, give);
+    case 8: return cBERewardInterface_UnlockRiderItem_jt(self, a1, a2, bit + 10, give);
     }
     return 0;
 }
@@ -843,7 +843,7 @@ extern "C" int func_00150928(void* self, int a, int b);
 extern "C" int func_00150B48(void* self, int a, int b, int amount);
 extern "C" int func_001575C0(void* self, int a1, int a2);
 int func_001572B0(void* self);
-extern "C" void func_00158618(void* self, int a1, int a2, int a3, int a4);
+extern "C" void cBERewardInterface_UnlockRiderItem(void* self, int a1, int a2, int a3, int a4);
 extern int D_004A6CA8[];
 // PORT: the unit declares func_0015A478(void*), but it takes no args (returns &D_004C3E98).
 void* func_0015A478_noargs() __asm__("func_0015A478");
@@ -855,7 +855,7 @@ struct sRewardDef_157FD0
     short padE;
 };
 
-extern "C" void func_00157FD0(void* self, int a1, int a2, int bit, int give)
+extern "C" void cBERewardInterface_UnlockPoster(void* self, int a1, int a2, int bit, int give)
 {
     void* econ = cBE_getInterface_Fv(cBE_getBE(), 0xB);
     char* p = (char*)D_004A6CA8 + a1 * 0x9b50 + a2 * 0xf88;
@@ -869,7 +869,7 @@ extern "C" void func_00157FD0(void* self, int a1, int a2, int bit, int give)
     }
     if (func_001575C0(self, a1, a2) == func_001572B0(self))
     {
-        func_00158618(self, a1, a2, 0x14, 0);
+        cBERewardInterface_UnlockRiderItem(self, a1, a2, 0x14, 0);
     }
     func_00150928(econ, a1, a2);
 }
@@ -883,7 +883,7 @@ extern "C" int func_00150928(void* self, int a, int b);
 extern "C" int func_00150B48(void* self, int a, int b, int amount);
 extern "C" int func_00157620(void* self, int a1, int a2);
 int func_001572D0(void* self);
-extern "C" void func_00158618(void* self, int a1, int a2, int a3, int a4);
+extern "C" void cBERewardInterface_UnlockRiderItem(void* self, int a1, int a2, int a3, int a4);
 extern int D_004A6CA8[];
 // PORT: the unit declares func_0015A478(void*), but it takes no args (returns &D_004C3E98).
 void* func_0015A478_noargs() __asm__("func_0015A478");
@@ -895,7 +895,7 @@ struct sRewardDef_1580F8
     short padE;
 };
 
-extern "C" void func_001580F8(void* self, int a1, int a2, int bit, int give)
+extern "C" void cBERewardInterface_UnlockTradingCard(void* self, int a1, int a2, int bit, int give)
 {
     void* econ = cBE_getInterface_Fv(cBE_getBE(), 0xB);
     char* p = (char*)D_004A6CA8 + a1 * 0x9b50 + a2 * 0xf88;
@@ -909,7 +909,7 @@ extern "C" void func_001580F8(void* self, int a1, int a2, int bit, int give)
     }
     if (func_00157620(self, a1, a2) == func_001572D0(self))
     {
-        func_00158618(self, a1, a2, 0x11, 0);
+        cBERewardInterface_UnlockRiderItem(self, a1, a2, 0x11, 0);
     }
     func_00150928(econ, a1, a2);
 }
@@ -923,7 +923,7 @@ extern "C" int func_00150928(void* self, int a, int b);
 extern "C" int func_00150B48(void* self, int a, int b, int amount);
 extern "C" int func_00157680(void* self, int a1, int a2);
 int func_001572F0(void* self);
-extern "C" void func_00158618(void* self, int a1, int a2, int a3, int a4);
+extern "C" void cBERewardInterface_UnlockRiderItem(void* self, int a1, int a2, int a3, int a4);
 extern int D_004A6CA8[];
 // PORT: the unit declares func_0015A478(void*), but it takes no args (returns &D_004C3E98).
 void* func_0015A478_noargs() __asm__("func_0015A478");
@@ -935,7 +935,7 @@ struct sRewardDef_158220
     short padE;
 };
 
-extern "C" void func_00158220(void* self, int a1, int a2, int bit, int give)
+extern "C" void cBERewardInterface_UnlockConceptArt(void* self, int a1, int a2, int bit, int give)
 {
     void* econ = cBE_getInterface_Fv(cBE_getBE(), 0xB);
     char* p = (char*)D_004A6CA8 + a1 * 0x9b50 + a2 * 0xf88;
@@ -949,7 +949,7 @@ extern "C" void func_00158220(void* self, int a1, int a2, int bit, int give)
     }
     if (func_00157680(self, a1, a2) == func_001572F0(self))
     {
-        func_00158618(self, a1, a2, 0x16, 0);
+        cBERewardInterface_UnlockRiderItem(self, a1, a2, 0x16, 0);
     }
     func_00150928(econ, a1, a2);
 }
@@ -963,7 +963,7 @@ extern "C" int func_00150928(void* self, int a, int b);
 extern "C" int func_00150B48(void* self, int a, int b, int amount);
 extern "C" int func_001576E0(void* self, int a1, int a2);
 int func_00157310(void* self);
-extern "C" void func_00158618(void* self, int a1, int a2, int a3, int a4);
+extern "C" void cBERewardInterface_UnlockRiderItem(void* self, int a1, int a2, int a3, int a4);
 extern int D_004A6CA8[];
 // PORT: the unit declares func_0015A478(void*), but it takes no args (returns &D_004C3E98).
 void* func_0015A478_noargs() __asm__("func_0015A478");
@@ -975,7 +975,7 @@ struct sRewardDef_158348
     short padE;
 };
 
-extern "C" void func_00158348(void* self, int a1, int a2, int bit, int give)
+extern "C" void cBERewardInterface_UnlockToy(void* self, int a1, int a2, int bit, int give)
 {
     void* econ = cBE_getInterface_Fv(cBE_getBE(), 0xB);
     char* p = (char*)D_004A6CA8 + a1 * 0x9b50 + a2 * 0xf88;
@@ -989,7 +989,7 @@ extern "C" void func_00158348(void* self, int a1, int a2, int bit, int give)
     }
     if (func_001576E0(self, a1, a2) == func_00157310(self))
     {
-        func_00158618(self, a1, a2, 0x13, 0);
+        cBERewardInterface_UnlockRiderItem(self, a1, a2, 0x13, 0);
     }
     func_00150928(econ, a1, a2);
 }
@@ -1005,7 +1005,7 @@ extern "C" void func_001573F0(void* self, int bit, char* bits);
 extern "C" int func_00150928(void* self, int a, int b);
 extern "C" int func_00150B48(void* self, int a, int b, int amount);
 
-extern "C" void func_00158470(void* self, int profile, int c, int idx, int award)
+extern "C" void cBERewardInterface_UnlockVideo(void* self, int profile, int c, int idx, int award)
 {
     void* econ = cBE_getInterface_Fv(cBE_getBE(), 0xB);
     char* p = (char*)D_004A6CA8 + profile * 0x9b50 + c * 0xf88;
@@ -1052,7 +1052,7 @@ extern "C" void func_001573F0(void* self, int bit, char* bits);
 extern "C" int func_00150928(void* self, int a, int b);
 extern "C" int func_00150B48(void* self, int a, int b, int amount);
 
-extern "C" void func_00158618(void* self, int profile, int c, int idx, int award)
+extern "C" void cBERewardInterface_UnlockRiderItem(void* self, int profile, int c, int idx, int award)
 {
     idx -= 10;
     void* econ = cBE_getInterface_Fv(cBE_getBE(), 0xB);
@@ -1213,7 +1213,7 @@ extern "C" void* cBE_getBE();
 void* cBE_getInterface_Fv(void* be, int kind) __asm__("cBE_getInterface__Fv");
 extern "C" int func_00153708(void* iface, int a, int b, int c);
 
-extern "C" int func_001589B0(void* self, int a, int b, int kind)
+extern "C" int cBERewardInterface_GetCollectibleTier(void* self, int a, int b, int kind)
 {
     int v = func_00153708(cBE_getInterface_Fv(cBE_getBE(), 0xA), a, b, kind);
     int* t = D_0045AFE8 + kind * 4;
@@ -1231,7 +1231,7 @@ extern "C" void* cBE_getBE();
 void* cBE_getInterface_Fv(void* be, int kind) __asm__("cBE_getInterface__Fv");
 extern "C" int func_001544D0(void* iface, int a, int b, int c);
 
-extern "C" int func_00158A50(void* self, int a, int b, int kind)
+extern "C" int cBERewardInterface_GetMissionTier(void* self, int a, int b, int kind)
 {
     int v = func_001544D0(cBE_getInterface_Fv(cBE_getBE(), 0xA), a, b, kind);
     int* t = D_0045B018 + kind * 4;
@@ -1280,7 +1280,7 @@ extern "C" int func_00158BB8(void* self, int medal, unsigned int value)
 //100%
 int cBERewardInterface_isBetterMedal(void* self, int a, int b);
 
-extern "C" void* func_00158BE0(void* self, int a, int b)
+extern "C" void* cBERewardInterface_GetNextPointsThreshold(void* self, int a, int b)
 {
     for (int i = 0; i < 3; i++)
     {
@@ -1292,12 +1292,12 @@ extern "C" void* func_00158BE0(void* self, int a, int b)
 
 //100%
 // PORT: PS2-only inline asm; needs a C fallback off-PS2.
-extern "C" int func_001589B0(void* self, int a, int b, int kind);
+extern "C" int cBERewardInterface_GetCollectibleTier(void* self, int a, int b, int kind);
 extern int D_0045AFE8_2d[][4] __asm__("D_0045AFE8");
 
-extern "C" int func_00158C80(void* self, int a, int b, int kind)
+extern "C" int cBERewardInterface_GetNextCollectibleThreshold(void* self, int a, int b, int kind)
 {
-    int medal = func_001589B0(self, a, b, kind);
+    int medal = cBERewardInterface_GetCollectibleTier(self, a, b, kind);
     int best = 0;
     for (int i = 0; i < 4; i++)
     {
@@ -1312,12 +1312,12 @@ extern "C" int func_00158C80(void* self, int a, int b, int kind)
 
 //100%
 // PORT: PS2-only inline asm; needs a C fallback off-PS2.
-extern "C" int func_00158A50(void* self, int a, int b, int kind);
+extern "C" int cBERewardInterface_GetMissionTier(void* self, int a, int b, int kind);
 extern int D_0045B018_2d[][4] __asm__("D_0045B018");
 
-extern "C" int func_00158D58(void* self, int a, int b, int kind)
+extern "C" int cBERewardInterface_GetNextMissionThreshold(void* self, int a, int b, int kind)
 {
-    int medal = func_00158A50(self, a, b, kind);
+    int medal = cBERewardInterface_GetMissionTier(self, a, b, kind);
     int best = 0;
     for (int i = 0; i < 4; i++)
     {
@@ -1336,17 +1336,17 @@ extern void* D_004A1260;
 extern int D_00440F48[];
 extern int D_00440F58[];
 extern void* D_004C3EF0[];
-extern "C" void func_0015A510(void* self);
+extern "C" void cBERewardInterface_ClearNewRewards(void* self);
 
 extern "C" void func_00158E30(void* self)
 {
-    func_0015A510(D_004C3EF0);
+    cBERewardInterface_ClearNewRewards(D_004C3EF0);
     int charID = cBELibrary_getCharacterID(cBELibrary_getRiderIndex(0));
-    D_004A1260 = func_00158BE0(self, 0, charID);
+    D_004A1260 = cBERewardInterface_GetNextPointsThreshold(self, 0, charID);
     for (int i = 0; i < 3; i++)
-        D_00440F48[i] = func_00158C80(self, 0, charID, i);
+        D_00440F48[i] = cBERewardInterface_GetNextCollectibleThreshold(self, 0, charID, i);
     for (int i = 0; i < 3; i++)
-        D_00440F58[i] = func_00158D58(self, 0, charID, i);
+        D_00440F58[i] = cBERewardInterface_GetNextMissionThreshold(self, 0, charID, i);
     char* p = (char*)D_004A1264;
     *(int*)(p + 0x10) = 0;
     *(int*)(p + 0x14) = -1;
@@ -1377,7 +1377,7 @@ extern "C" void* func_00158F50()
 
 //100%
 struct sReward_0015A628;
-extern "C" void func_0015A628(sReward_0015A628* self, int row, int col, int value);
+extern "C" void cBERewardInterface_AddNewReward(sReward_0015A628* self, int row, int col, int value);
 extern void* D_004C3EF0[];
 extern int D_004A6CA8[];
 
@@ -1388,7 +1388,7 @@ struct sCharRec_158F60 {
     char pad280[0xF88 - 0x280];
 };
 
-extern "C" void func_00158F60(void* self, int profile, int c, int row, int mode)
+extern "C" void cBERewardInterface_GrantPeakUnlocks(void* self, int profile, int c, int row, int mode)
 {
     sReward_0015A628* q = (sReward_0015A628*)D_004C3EF0;
     switch (mode)
@@ -1399,13 +1399,13 @@ extern "C" void func_00158F60(void* self, int profile, int c, int row, int mode)
         if ((int)((*(sCharRec_158F60*)((char*)D_004A6CA8 + (profile * 0x9B50 + c * 0xF88))).flags >> 13) & 1)
         {
             (*(sCharRec_158F60*)((char*)D_004A6CA8 + (profile * 0x9B50 + c * 0xF88))).flags &= ~0x2000L;
-            func_0015A628(q, row, 2, c * 3 + 2);
+            cBERewardInterface_AddNewReward(q, row, 2, c * 3 + 2);
         }
     case 1:
         if ((int)((*(sCharRec_158F60*)((char*)D_004A6CA8 + (profile * 0x9B50 + c * 0xF88))).flags >> 12) & 1)
         {
             (*(sCharRec_158F60*)((char*)D_004A6CA8 + (profile * 0x9B50 + c * 0xF88))).flags &= ~0x1000L;
-            func_0015A628(q, row, 2, c * 3 + 1);
+            cBERewardInterface_AddNewReward(q, row, 2, c * 3 + 1);
         }
         break;
     }
@@ -1457,7 +1457,7 @@ extern "C" int func_00159080(void* self, int a1, int a2, int kind, int tier)
 extern "C" int func_0015A2E0(void* self, int a1, int a2, int bit);
 extern "C" void func_00159CD0(void* self, int a1, int a2, int bit);
 
-extern "C" void func_00159170(void* self, int a1, int a2, int kind, int tier)
+extern "C" void cBERewardInterface_GrantMedalReward(void* self, int a1, int a2, int kind, int tier)
 {
     int bit = func_00159080(self, a1, a2, kind, tier);
     if (func_0015A2E0(self, a1, a2, bit) == 0)
@@ -1471,12 +1471,12 @@ INCLUDE_ASM("be/beintreward", func_001591E8);
 //100%
 int cBELibrary_getProfileIndex(int);
 int cBELibrary_getCharacterID(int);
-extern "C" void func_00159818(void* self, int a, int b, int c);
+extern "C" void cBERewardInterface_AddPoints(void* self, int a, int b, int c);
 
-extern "C" void func_001597B0(void* self, int rider, int c)
+extern "C" void cBERewardInterface_AddPointsForRider(void* self, int rider, int c)
 {
     int profile = cBELibrary_getProfileIndex(rider);
-    func_00159818(self, profile, cBELibrary_getCharacterID(rider), c);
+    cBERewardInterface_AddPoints(self, profile, cBELibrary_getCharacterID(rider), c);
 }
 
 //100%
@@ -1486,12 +1486,12 @@ void* cBE_getInterface_Fv(void* be, int kind) __asm__("cBE_getInterface__Fv");
 int cBEEconInterface_getTotalMoneyEarned(void* self, int a, int b);
 extern "C" int func_00157BF0(void* self, int a, int b, int c, int i);
 extern "C" void func_00150A90(void* econ, int a, int b, int amount);
-extern "C" void* func_00158BE0(void* self, int a, int b);
-extern "C" void func_00159170(void* self, int a1, int a2, int kind, int tier);
+extern "C" void* cBERewardInterface_GetNextPointsThreshold(void* self, int a, int b);
+extern "C" void cBERewardInterface_GrantMedalReward(void* self, int a1, int a2, int kind, int tier);
 extern void* D_004A1260;
 extern void* D_004C3EF0[];
 
-extern "C" void func_00159818(void* self, int a, int b, int amount)
+extern "C" void cBERewardInterface_AddPoints(void* self, int a, int b, int amount)
 {
     void* econ = cBE_getInterface_Fv(cBE_getBE(), 0xB);
     *(int*)D_004C3EF0 += amount;
@@ -1502,11 +1502,11 @@ extern "C" void func_00159818(void* self, int a, int b, int amount)
         for (i = 0; i < 3; i++)
             before[i] = func_00157BF0(self, a, b, i, 3);
         func_00150A90(econ, a, b, amount);
-        D_004A1260 = func_00158BE0(self, a, b);
+        D_004A1260 = cBERewardInterface_GetNextPointsThreshold(self, a, b);
         for (i = 0; i < 3; i++)
         {
             if (before[i] == 0 && func_00157BF0(self, a, b, i, 3))
-                func_00159170(self, a, b, i, 3);
+                cBERewardInterface_GrantMedalReward(self, a, b, i, 3);
         }
     }
     else
@@ -1524,8 +1524,8 @@ int cBELibrary_getProfileIndex(int);
 int cBELibrary_getCharacterID(int);
 extern "C" int func_001577E0(void* self, int a, int b);
 extern "C" int func_00157BF0(void* self, int a, int b, int c, int i);
-extern "C" int func_00158C80(void* self, int a, int b, int kind);
-extern "C" void func_00159170(void* self, int a1, int a2, int kind, int tier);
+extern "C" int cBERewardInterface_GetNextCollectibleThreshold(void* self, int a, int b, int kind);
+extern "C" void cBERewardInterface_GrantMedalReward(void* self, int a1, int a2, int kind, int tier);
 extern "C" int func_0015A2E0(void* self, int a1, int a2, int bit);
 extern "C" void func_00159CD0(void* self, int a1, int a2, int bit);
 extern int D_00440F48[];
@@ -1542,9 +1542,9 @@ extern "C" void cBERewardInterface_OnCollectibleCollected(void* self, int rider,
     int prof = cBELibrary_getProfileIndex(rider);
     int ch = cBELibrary_getCharacterID(rider);
     int was = func_00157BF0(self, prof, ch, k, 2);
-    *p = func_00158C80(self, prof, ch, k);
+    *p = cBERewardInterface_GetNextCollectibleThreshold(self, prof, ch, k);
     if (was && cur == D_0045AFE8_2d[k][3])
-        func_00159170(self, prof, ch, k, 2);
+        cBERewardInterface_GrantMedalReward(self, prof, ch, k, 2);
     if (func_001577E0(self, prof, ch))
     {
         if (func_0015A2E0(self, prof, ch, 0) == 0)
@@ -1561,8 +1561,8 @@ int cBELibrary_getProfileIndex(int);
 int cBELibrary_getCharacterID(int);
 extern "C" int func_001577E0(void* self, int a, int b);
 extern "C" int func_00157BF0(void* self, int a, int b, int c, int i);
-extern "C" int func_00158D58(void* self, int a, int b, int kind);
-extern "C" void func_00159170(void* self, int a1, int a2, int kind, int tier);
+extern "C" int cBERewardInterface_GetNextMissionThreshold(void* self, int a, int b, int kind);
+extern "C" void cBERewardInterface_GrantMedalReward(void* self, int a1, int a2, int kind, int tier);
 extern "C" int func_0015A2E0(void* self, int a1, int a2, int bit);
 extern "C" void func_00159CD0(void* self, int a1, int a2, int bit);
 extern int D_00440F58[];
@@ -1579,9 +1579,9 @@ extern "C" void cBERewardInterface_OnMissionCompleted(void* self, int rider, int
     int prof = cBELibrary_getProfileIndex(rider);
     int ch = cBELibrary_getCharacterID(rider);
     int was = func_00157BF0(self, prof, ch, k, 2);
-    *p = func_00158D58(self, prof, ch, k);
+    *p = cBERewardInterface_GetNextMissionThreshold(self, prof, ch, k);
     if (was && cur == D_0045B018_2d[k][3])
-        func_00159170(self, prof, ch, k, 2);
+        cBERewardInterface_GrantMedalReward(self, prof, ch, k, 2);
     if (func_001577E0(self, prof, ch))
     {
         if (func_0015A2E0(self, prof, ch, 0) == 0)
@@ -1591,7 +1591,7 @@ extern "C" void cBERewardInterface_OnMissionCompleted(void* self, int rider, int
 
 extern "C" void func_00159CD0(void* self, int a1, int a2, int bit);
 
-extern "C" void func_00159C68(void* self, int rider, int bit)
+extern "C" void cBERewardInterface_GrantRewardForRider(void* self, int rider, int bit)
 {
     int profile = cBELibrary_getProfileIndex(rider);
     func_00159CD0(self, profile, cBELibrary_getCharacterID(rider), bit);
@@ -1651,48 +1651,48 @@ extern "C" void func_00159CD0(void* self, int a, int b, int bit)
     case 11:
     case 14:
         for (i = 0; i < 4; i++) {
-            t1.v[i] = func_00157080(self, a, b, 4);
+            t1.v[i] = cBERewardInterface_PickRandomLockedReward(self, a, b, 4);
             if (t1.v[i] < 0) {
                 break;
             }
-            func_001580F8_jt(self, a, b, t1.v[i], 0);
-            func_0015A628(q, bit, 4, t1.v[i]);
+            cBERewardInterface_UnlockTradingCard_jt(self, a, b, t1.v[i], 0);
+            cBERewardInterface_AddNewReward(q, bit, 4, t1.v[i]);
         }
         {
-            int r = func_00157080(self, a, b, 3);
+            int r = cBERewardInterface_PickRandomLockedReward(self, a, b, 3);
             if (r >= 0) {
-                func_00157FD0_jt(self, a, b, r, 0);
-                func_0015A628(q, bit, 3, r);
+                cBERewardInterface_UnlockPoster_jt(self, a, b, r, 0);
+                cBERewardInterface_AddNewReward(q, bit, 3, r);
             }
         }
         if (bit == 0xB) {
             func_001E38B8(a);
         }
-        func_00158F60(self, a, b, bit, 1);
+        cBERewardInterface_GrantPeakUnlocks(self, a, b, bit, 1);
         break;
     case 6:
     case 9:
     case 12:
     case 15:
         {
-            int r = func_00157080(self, a, b, 7);
+            int r = cBERewardInterface_PickRandomLockedReward(self, a, b, 7);
             if (r >= 0) {
-                func_00158348_jt(self, a, b, r, 0);
-                func_0015A628(q, bit, 7, r);
+                cBERewardInterface_UnlockToy_jt(self, a, b, r, 0);
+                cBERewardInterface_AddNewReward(q, bit, 7, r);
             }
         }
         for (i = 0; i < 2; i++) {
-            t2.v[i] = func_00157080(self, a, b, 5);
+            t2.v[i] = cBERewardInterface_PickRandomLockedReward(self, a, b, 5);
             if (t2.v[i] < 0) {
                 break;
             }
-            func_00158220_jt(self, a, b, t2.v[i], 0);
-            func_0015A628(q, bit, 5, t2.v[i]);
+            cBERewardInterface_UnlockConceptArt_jt(self, a, b, t2.v[i], 0);
+            cBERewardInterface_AddNewReward(q, bit, 5, t2.v[i]);
         }
         if (bit == 0xC) {
             func_001E38B8(a);
         }
-        func_00158F60(self, a, b, bit, 2);
+        cBERewardInterface_GrantPeakUnlocks(self, a, b, bit, 2);
         break;
     case 7:
         code = 0x1B;
@@ -1707,28 +1707,28 @@ extern "C" void func_00159CD0(void* self, int a, int b, int bit)
         code = 0x15;
         break;
     case 17:
-        x = func_00156C70(self, a, b, 0);
+        x = cBERewardInterface_PickRandomBolt(self, a, b, 0);
         break;
     case 18:
-        x = func_00156C70(self, a, b, 1);
+        x = cBERewardInterface_PickRandomBolt(self, a, b, 1);
         break;
     case 19:
-        x = func_00156C70(self, a, b, 2);
+        x = cBERewardInterface_PickRandomBolt(self, a, b, 2);
         break;
     case 20: case 21: case 22: case 23: case 24: case 25:
     case 26: case 27: case 28: case 29: case 30: case 31:
-        x = func_00156EE0(self, a, b);
+        x = cBERewardInterface_PickRandomBoltFlag800(self, a, b);
         break;
     }
 
     func_0015A358(self, bit, (unsigned char*)(p + 0xF28));
     if (code) {
-        func_0015A628(q, bit, 8, code);
-        func_00158618_jt(self, a, b, code, 0);
+        cBERewardInterface_AddNewReward(q, bit, 8, code);
+        cBERewardInterface_UnlockRiderItem_jt(self, a, b, code, 0);
     }
     if (x != -1) {
         void* iface = cBE_getInterface_Fv(cBE_getBE(), 9);
-        func_0015A628(q, bit, 9, x);
+        cBERewardInterface_AddNewReward(q, bit, 9, x);
         func_0014B560(iface, a, b, x, 0);
     }
     if (func_001577E0(self, a, b)) {
@@ -1736,13 +1736,13 @@ extern "C" void func_00159CD0(void* self, int a, int b, int bit)
             func_00159CD0(self, a, b, 0);
         }
     }
-    if (func_001578A0(self, a, b)) {
+    if (cBERewardInterface_AreAllPeaksComplete(self, a, b)) {
         if (func_0015A2E0(self, a, b, 1) == 0) {
             func_00159CD0(self, a, b, 1);
         }
     }
     for (j = 0; j < 3; j++) {
-        if (func_00157A78(self, a, b, j)) {
+        if (cBERewardInterface_IsPeakComplete(self, a, b, j)) {
             if (func_0015A2E0(self, a, b, j + 2) == 0) {
                 func_00159CD0(self, a, b, j + 2);
             }
@@ -1753,7 +1753,7 @@ extern "C" void func_00159CD0(void* self, int a, int b, int bit)
             int bb = func_00159080(self, a, b, i, j);
             if (func_00157BF0(self, a, b, i, j)) {
                 if (func_0015A2E0(self, a, b, bb) == 0) {
-                    func_00159170(self, a, b, i, j);
+                    cBERewardInterface_GrantMedalReward(self, a, b, i, j);
                 }
             }
         }
@@ -1835,14 +1835,14 @@ void* func_0015A478(void* self)
 }
 
 //100%
-extern "C" void func_0015A510(void* self);
+extern "C" void cBERewardInterface_ClearNewRewards(void* self);
 
 struct sRewardStrings_0015A488 {
     char pad_0x000[0x174];
     char* mStrings[10]; // 0x174
 };
 
-extern "C" void* func_0015A488(sRewardStrings_0015A488* self)
+extern "C" void* cBERewardInterface_NewRewardsCtor(sRewardStrings_0015A488* self)
 {
     for (int i = 0; i < 10; i++)
         self->mStrings[i] = 0;
@@ -1854,14 +1854,14 @@ extern "C" void* func_0015A488(sRewardStrings_0015A488* self)
     self->mStrings[5] = base + 0x15C;
     self->mStrings[7] = base + 0x169;
     self->mStrings[8] = base + 0x16D;
-    func_0015A510(self);
+    cBERewardInterface_ClearNewRewards(self);
     return self;
 }
 
 //100%
 extern "C" void func_003E6448(void* dst, int c, int n);
 
-extern "C" void func_0015A510(void* self)
+extern "C" void cBERewardInterface_ClearNewRewards(void* self)
 {
     func_003E6448(self, 0, 0x174);
     *(short*)((char*)self + 0x4) = -1;
@@ -1886,14 +1886,14 @@ extern "C" int func_0015A548(void* self, int count, unsigned char* bits)
 }
 
 //100%
-extern "C" void func_0015A5B0(void* self, int bit, unsigned char* bits)
+extern "C" void cBERewardInterface_NewRewardsSetBit(void* self, int bit, unsigned char* bits)
 {
     int shift = bit % 8;
     bits[(unsigned int)bit / 8] |= 1 << shift;
 }
 
 //100%
-extern "C" int func_0015A5F0(void* self, int bit, unsigned char* bits)
+extern "C" int cBERewardInterface_NewRewardsTestBit(void* self, int bit, unsigned char* bits)
 {
     int shift = bit % 8;
     return (bits[(unsigned int)bit / 8] >> shift) & 1;
@@ -1916,7 +1916,7 @@ struct sReward_0015A628
     unsigned char* mBits[10];        // 0x174
 };
 
-extern "C" void func_0015A628(sReward_0015A628* self, int row, int col, int value)
+extern "C" void cBERewardInterface_AddNewReward(sReward_0015A628* self, int row, int col, int value)
 {
     switch (col)
     {
@@ -1928,7 +1928,7 @@ extern "C" void func_0015A628(sReward_0015A628* self, int row, int col, int valu
     case 5:
     case 6:
     case 7:
-        func_0015A5B0(self, value, self->mBits[col]);
+        cBERewardInterface_NewRewardsSetBit(self, value, self->mBits[col]);
         self->mRows[row].counts[col]++;
         break;
     case 8:

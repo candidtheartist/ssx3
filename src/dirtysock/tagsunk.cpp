@@ -168,7 +168,7 @@ extern "C" void* LobbyMan_ctor(void* self_)
 
 //100%
 extern "C" void cBXString__cBXString(void* self, int flags);
-extern "C" void func_001DB718(void* self);
+extern "C" void StdList_Clear(void* self);
 extern "C" void func_0025B800(void* self);
 void operator_delete(int*);
 
@@ -198,7 +198,7 @@ static inline void dtor4_9628(char* p)
 
 static inline void dtorList_9628(char* lst)
 {
-    func_001DB718(lst);
+    StdList_Clear(lst);
     operator_delete(*(int**)(lst + 4));
 }
 
@@ -5833,7 +5833,7 @@ void* func_00232720(void* self);
 void* cBE_getInterface_Fv(void* be, int kind) __asm__("cBE_getInterface__Fv");
 extern "C" void cBENewPlayerInterface_setRiderCharID(void* iface, int rider, int ch);
 extern "C" void cGameComm_construct(int a, int b);
-extern "C" void func_0014EBF8(void* self, int a);
+extern "C" void BE_BackupPlayerSetup(void* self, int a);
 extern "C" int cCommSystem_IsChannelConnected(void* comm, int chan);
 extern "C" int func_00255E40(void* comm, int chan);
 extern "C" void func_00256C50(void);
@@ -5943,7 +5943,7 @@ extern "C" void func_00263CF0(int* self)
             cBENewPlayerInterface_setRiderCharID(bi1, 0, D_00534E58[0]);
             sVEntry_263CF0* vt = *(sVEntry_263CF0**)(bi1 + 0xC);
             vt[1].fn(bi1 + vt[1].delta);
-            func_0014EBF8(bi7, 0);
+            BE_BackupPlayerSetup(bi7, 0);
             if (D_004A2EEC != 0)
                 func_00256C50();
             cGameComm_construct(self[1], self[2]);

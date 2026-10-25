@@ -86,7 +86,7 @@ extern "C" void* cUIScreen_getObjectByHashName(void* self, int hash);
 extern "C" void cUIMenu_setSelectedByIndex(void* menu, unsigned char idx);
 extern "C" void func_001A0508(void* self, int idx, int a2, int a3);
 extern "C" void* func_001A0548(void* self, int a1);
-extern "C" void func_00181EF0(void* self);
+extern "C" void cFEStateCharSelect_UpdateRiderPreview(void* self);
 extern "C" void func_0039E4C0(void* self, int a1);
 extern void* D_004A28A8;
 extern signed char D_00440F68[];
@@ -107,7 +107,7 @@ extern "C" void func_00181308(void* self, int a1)
     func_001A0508(*(char**)((char*)D_004A28A8 + 0x7C) + 0xB0, *(signed char*)((char*)self + 0x44), D_00440F68[0], 0);
     char* r = (char*)func_001A0548(*(char**)((char*)D_004A28A8 + 0x7C) + 0xB0, *(signed char*)((char*)self + 0x44));
     *(int*)(r + 0xCCC) = 0;
-    func_00181EF0(self);
+    cFEStateCharSelect_UpdateRiderPreview(self);
     func_0039E4C0(self, a1);
 }
 
@@ -120,12 +120,12 @@ void* func_00181400(void* self)
 }
 
 //100%
-extern "C" void func_00181EF0(void* self);
+extern "C" void cFEStateCharSelect_UpdateRiderPreview(void* self);
 extern "C" void* func_0039E510(void* self);
 
 extern "C" void func_00181420(void* self)
 {
-    func_00181EF0(self);
+    cFEStateCharSelect_UpdateRiderPreview(self);
     func_0039E510(self);
 }
 
@@ -498,7 +498,7 @@ extern "C" void func_00181BD0_impl(void* self, signed char rider, signed char ch
     func_001A0508(*(char**)((char*)D_004A28A8 + 0x7C) + 0xB0, rider, charID, 0);
 }
 
-INCLUDE_ASM("fe/festatecharselect", func_00181EF0);
+INCLUDE_ASM("fe/festatecharselect", cFEStateCharSelect_UpdateRiderPreview);
 
 //100%
 int GetHashValue32(char* str);
@@ -741,7 +741,7 @@ extern "C" void func_00182690(void* self, void* menu, unsigned int msg)
 }
 
 //100%
-extern "C" void func_00182870(void* self);
+extern "C" void cFEStateCheatCharSelect_ApplyOutfit(void* self);
 
 extern "C" int func_00182808(void* self, int a1, unsigned int msg, int value)
 {
@@ -753,14 +753,14 @@ extern "C" int func_00182808(void* self, int a1, unsigned int msg, int value)
     case 1:
         return value < *(int*)((char*)self + 0x78);
     case 5:
-        func_00182870(self);
+        cFEStateCheatCharSelect_ApplyOutfit(self);
         break;
     }
     return 0x101;
 }
 
 //100%
-extern "C" void func_00182870(void* self)
+extern "C" void cFEStateCheatCharSelect_ApplyOutfit(void* self)
 {
     int i;
     int idx = *(unsigned char*)(*(char**)((char*)self + 0x6c) + 0x98);

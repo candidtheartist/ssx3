@@ -158,7 +158,7 @@ struct sVEntryV001D69E0 {
     void (*fn)(void*, ...);
 };
 
-extern "C" void func_001D69E0(void)
+extern "C" void cFEMemCard_ShowCreateEditMsg(void)
 {
     void* buf = operator_new_tag(0x7D0, D_0045E2A0, 0x100, 0);
     char* o = *(char**)((char*)D_004A28A8 + 0x8C);
@@ -1032,7 +1032,7 @@ public:
 };
 
 // Shows the memory-card popup: updates the existing one, or creates and registers a new one.
-extern "C" void func_001D8530(void* self_, int a1, int a2, int a3, int a4, int a5, int a6)
+extern "C" void cFEMemCard_ShowMessage(void* self_, int a1, int a2, int a3, int a4, int a5, int a6)
 {
     char* self = (char*)self_;
     if (*(int*)((char*)D_004A2028 + 0x19C) != 0x16) {
@@ -1279,7 +1279,7 @@ extern "C" void func_001D8700(char* self, void* a1, int button)
 //100%
 extern "C" void func_001D9308(void*, int);
 
-extern "C" void func_001D8BE0(void* self)
+extern "C" void cFEMemCard_ResetState(void* self)
 {
     *(int*)((char*)self + 0x1A8) = 0;
     *(int*)((char*)self + 0x1F0) = 0;
@@ -1355,7 +1355,7 @@ extern void* D_004A28A8;
 extern "C" void* func_00227F80(void* app);
 extern "C" void func_00241E18(void*, unsigned short*, int);
 
-extern "C" void func_001D8D68(void* self)
+extern "C" void cFEMemCard_ShowStatus(void* self)
 {
     unsigned short buf[0x320];
     void* obj = func_00227F80(D_004A28A8);
@@ -1485,7 +1485,7 @@ extern char D_004A1600[];
 extern "C" unsigned char func_0039B7B0(void* menu, unsigned char start);
 extern "C" void cUIMenu_setSelectedByIndex(void* menu, unsigned char idx);
 
-extern "C" void func_001D9258(void* self)
+extern "C" void cFEMemCard_SyncMenuSelection(void* self)
 {
     void* menu = cUIScreen_getObjectByHashName(*(void**)((char*)self + 0x40), GetHashValue32(D_004A1600));
     if (menu != 0) {
@@ -1534,7 +1534,7 @@ struct sVEntry001D9368 {
     void (*fn)(void*, int);
 };
 
-extern "C" void func_001D9368(void* self)
+extern "C" void cFEMemCard_SetModeMenu(void* self)
 {
     if (*(int*)((char*)self + 0x214) != 1) {
         *(int*)((char*)self + 0x214) = 1;
@@ -1581,7 +1581,7 @@ extern "C" void* cUIScreen_getObjectByHashName(void* self, int hash);
 extern "C" void* cUIAnimationBank_getAnimationByHashName(void* self, int hash);
 extern "C" void func_0039FCC8(void* obj, void* anim, int a, int b, int c);
 
-extern "C" void func_001D93E8(void* self, char* objName, char* animName)
+extern "C" void cFEMemCard_PlayWidgetAnim(void* self, char* objName, char* animName)
 {
     void* obj = cUIScreen_getObjectByHashName(*(void**)((char*)self + 0x40), GetHashValue32(objName));
     if (obj != 0) {
@@ -1735,7 +1735,7 @@ int GetHashValue32(char* str);
 extern "C" void* cUIScreen_getObjectByHashName(void* self, int hash);
 extern char D_004678B0[];
 
-extern "C" void func_001D9818(void* self)
+extern "C" void cFEMemCard_OnActivate(void* self)
 {
     func_0039E4C0(self);
     void* obj = cUIScreen_getObjectByHashName(*(void**)((char*)self + 0x40), GetHashValue32(D_004678B0));
@@ -1746,7 +1746,7 @@ extern "C" void func_001D9818(void* self)
 }
 
 //100%
-void func_001D9878(void* self)
+void cFEMemCard_OnDeactivate(void* self)
 {
 }
 

@@ -690,11 +690,11 @@ extern V4_F338 D_004C8588;
 extern V4_F338 D_004C85A8;
 extern V4_F338 D_004C85C8;
 extern V4_F338 D_004C85E8;
-extern "C" void func_001E91F8(void*, void*);
+extern "C" void HUD_GetElemPos(void*, void*);
 extern "C" void func_001E9220(void*, void*, int);
-void func_001E9290(void*, void*);
-extern "C" void func_001F10F8(void*, void*, void*, void*, void*, int, int, int);
-extern "C" void func_001F1190(void*, int, void*, void*, void*, void*);
+void HUD_GetElemScale(void*, void*);
+extern "C" void HUD_AlignElemPos(void*, void*, void*, void*, void*, int, int, int);
+extern "C" void HUD_DrawSprite(void*, int, void*, void*, void*, void*);
 
 extern "C" void func_0021F338(char* self, char* obj, int n, int x, V2_F338* pos, V2_F338* scale, float alpha) {
     if (n > 0) {
@@ -712,9 +712,9 @@ extern "C" void func_0021F338(char* self, char* obj, int n, int x, V2_F338* pos,
         cols[2] = D_004C85A8;
         cols[3] = D_004C85C8;
         cols[4] = D_004C85E8;
-        func_001E91F8(obj + 0x240, &a);
+        HUD_GetElemPos(obj + 0x240, &a);
         func_001E9220(obj + 0x240, &size, *(int*)(self + 0x4A0));
-        func_001E9290(obj + 0x240, &sc);
+        HUD_GetElemScale(obj + 0x240, &sc);
         if (scale) {
             sc.x *= scale->x;
             sc.y *= scale->y;
@@ -722,7 +722,7 @@ extern "C" void func_0021F338(char* self, char* obj, int n, int x, V2_F338* pos,
         if (pos == 0) {
             dim.x = size.x * n + (n - 1) * 2.0f;
             dim.y = size.y;
-            func_001F10F8(self, &p, &a, &dim, &sc, obj[0x260], obj[0x261], x);
+            HUD_AlignElemPos(self, &p, &a, &dim, &sc, obj[0x260], obj[0x261], x);
         } else {
             p = *pos;
             p.x -= (size.x * n + (n - 1) * 2.0f) * sc.x * 0.5f;
@@ -734,7 +734,7 @@ extern "C" void func_0021F338(char* self, char* obj, int n, int x, V2_F338* pos,
         col = cols[n - 1];
         col.x *= alpha;
         for (i = 0; i < n; i++) {
-            func_001F1190(self, *(int*)(self + 0x4A0), &p, &size, &sc, &col);
+            HUD_DrawSprite(self, *(int*)(self + 0x4A0), &p, &size, &sc, &col);
             p.x += step;
         }
     }
@@ -760,12 +760,12 @@ extern char D_004A2138[];
 extern V4_F660 D_004C8808;
 extern "C" void* cBE_getBE();
 void* cBE_getInterface_Fv(void* be, int kind) __asm__("cBE_getInterface__Fv");
-extern "C" void func_001E91F8(void*, void*);
+extern "C" void HUD_GetElemPos(void*, void*);
 extern "C" void func_001E9220(void*, void*, int);
-void func_001E9290(void*, void*);
-void func_001E91A8(void*, void*);
-extern "C" void func_001F10F8(void*, void*, void*, void*, void*, int, int, int);
-extern "C" void func_001F1190(void*, int, void*, void*, void*, void*);
+void HUD_GetElemScale(void*, void*);
+void HUD_GetElemColor(void*, void*);
+extern "C" void HUD_AlignElemPos(void*, void*, void*, void*, void*, int, int, int);
+extern "C" void HUD_DrawSprite(void*, int, void*, void*, void*, void*);
 extern "C" int sprintf(char*, const char*, ...);
 extern "C" void func_00392908(void*, float, float, char*);
 
@@ -788,16 +788,16 @@ extern "C" void func_0021F660(char* self, int elems, int* rider, int x, int flag
     char* e = (char*)(idx * 0x24 + elems); // PORT: pointer passed as int
     scale.x = 1.0f;
     scale.y = 1.0f;
-    func_001E91F8(e, &a);
+    HUD_GetElemPos(e, &a);
     func_001E9220(e, &size, sz);
-    func_001E9290(e, &sc);
+    HUD_GetElemScale(e, &sc);
     size.x *= sc.x;
     size.y *= sc.y;
-    func_001F10F8(self, &p, &a, &size, &scale, e[0x20], e[0x21], x);
-    func_001E91A8(e, &c);
+    HUD_AlignElemPos(self, &p, &a, &size, &scale, e[0x20], e[0x21], x);
+    HUD_GetElemColor(e, &c);
     int* w = (int*)(D_004A289C->e84 + 8);
     *w = (*w & ~0x3E0) | ((e[0x22] << 5) & 0x3E0);
-    func_001F1190(self, sz, &p, &size, &scale, &c);
+    HUD_DrawSprite(self, sz, &p, &size, &scale, &c);
     if (flag == 0) {
         cBE_getInterface_Fv(cBE_getBE(), 0);
         signed char mode = D_00535C10[0];
@@ -846,12 +846,12 @@ extern V4_F9B0 D_004C8648;
 extern char D_004A2300[];
 extern "C" void* cBE_getBE();
 void* cBE_getInterface_Fv(void* be, int kind) __asm__("cBE_getInterface__Fv");
-extern "C" void func_001E91F8(void*, void*);
+extern "C" void HUD_GetElemPos(void*, void*);
 extern "C" void func_001E9220(void*, void*, int);
-void func_001E9290(void*, void*);
-void func_001E91A8(void*, void*);
-extern "C" void func_001F10F8(void*, void*, void*, void*, void*, int, int, int);
-extern "C" void func_001F1190(void*, int, void*, void*, void*, void*);
+void HUD_GetElemScale(void*, void*);
+void HUD_GetElemColor(void*, void*);
+extern "C" void HUD_AlignElemPos(void*, void*, void*, void*, void*, int, int, int);
+extern "C" void HUD_DrawSprite(void*, int, void*, void*, void*, void*);
 extern "C" int sprintf(char*, const char*, ...);
 extern "C" int SectionMan_IsEventReady(void*, int);
 extern "C" int func_00153520(void*, int, int);
@@ -877,26 +877,26 @@ extern "C" void cOVStateHUD1P_DrawCollectedCount(char* self, char* obj, char* ri
             float u = t * 2.272963523864746f;
             s = D_00504FB8[(int)(u * 12.566370964050293f * 81.4873275756836f) & 0x1FF] * 0.19996199011802673f * (1.0f - u * u) + 1.0f;
         }
-        func_001E91F8(obj + 0x804, &a);
+        HUD_GetElemPos(obj + 0x804, &a);
         func_001E9220(obj + 0x804, &size, *(int*)(self + 0x4A8));
-        func_001E9290(obj + 0x804, &sc);
+        HUD_GetElemScale(obj + 0x804, &sc);
         size.x *= s;
         size.y *= s;
         sc.x *= s;
         sc.y *= s;
-        func_001F10F8(self, &p, &a, &size, &scale, obj[0x824], obj[0x825], x);
+        HUD_AlignElemPos(self, &p, &a, &size, &scale, obj[0x824], obj[0x825], x);
         int* w = (int*)(D_004A289C->e84 + 8);
         *w = (*w & ~0x3E0) | ((obj[0x826] << 5) & 0x3E0);
         col.x = 1.0f;
         col.y = 1.0f;
         col.z = 1.0f;
         col.w = 1.0f;
-        func_001F1190(self, *(int*)(self + 0x4A8), &p, &size, &scale, &col);
+        HUD_DrawSprite(self, *(int*)(self + 0x4A8), &p, &size, &scale, &col);
         char* tx = *(char**)(self + 0x42C);
         p.x += size.x;
         p.y += (size.y - (float)*(int*)(tx + 0x14) * *(float*)(tx + 0x34) * sc.y) * 0.5f;
         if (t > 0.4399542808532715f) {
-            func_001E91A8(obj + 0x804, &col);
+            HUD_GetElemColor(obj + 0x804, &col);
         } else {
             col = D_004C8648;
         }
@@ -930,10 +930,10 @@ extern Big_0AD0 D_00535610;
 extern Glob_0AD0* D_004A28A4;
 extern "C" void* cBE_getBE();
 void* cBE_getInterface_Fv(void* be, int kind) __asm__("cBE_getInterface__Fv");
-extern "C" void func_001E91F8(void*, void*);
-void func_001E9290(void*, void*);
-void func_001E91A8(void*, void*);
-extern "C" void func_001E95A0(void*, void*, void*, void*, int, int);
+extern "C" void HUD_GetElemPos(void*, void*);
+void HUD_GetElemScale(void*, void*);
+void HUD_GetElemColor(void*, void*);
+extern "C" void HUD_DrawIconText(void*, void*, void*, void*, int, int);
 
 extern "C" void func_00220AD0(char* self, char* obj, float t) {
     V2_0AD0 a;
@@ -943,15 +943,15 @@ extern "C" void func_00220AD0(char* self, char* obj, float t) {
     V2_0AD0 d;
     V2_0AD0 e;
     void* p = obj + 0xAD4;
-    func_001E91F8(p, &a);
-    func_001E9290(p, &b);
+    HUD_GetElemPos(p, &a);
+    HUD_GetElemScale(p, &b);
     cBE_getInterface_Fv(cBE_getBE(), 4);
     big = D_00535610;
     if (D_004A28A4->f504 != 0 && big.mode != 2) {
         b.y *= 0.75f;
         a.y -= 60.0f;
     }
-    func_001E91A8(obj + 0xAD4, &c);
+    HUD_GetElemColor(obj + 0xAD4, &c);
     if (t <= 0.5f) {
         c.x *= t * 2.0f;
     } else {
@@ -963,7 +963,7 @@ extern "C" void func_00220AD0(char* self, char* obj, float t) {
     int* w = (int*)(D_004A289C->e84 + 8);
     *w = (*w & ~0x3E0) | ((obj[0xAF6] << 5) & 0x3E0);
     e = a;
-    func_001E95A0(self + 0xB48, &e, &b, &c, obj[0xAF4], obj[0xAF5]);
+    HUD_DrawIconText(self + 0xB48, &e, &b, &c, obj[0xAF4], obj[0xAF5]);
 }
 
 //100%

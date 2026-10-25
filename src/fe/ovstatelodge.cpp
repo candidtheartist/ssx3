@@ -351,7 +351,7 @@ extern "C" int func_001D2F40(void* self, int a1, unsigned int key)
 int GetHashValue32(char* str);
 struct cUIText;
 void cUIText_setUnicodeStringByID(cUIText* t, int id);
-extern "C" void func_001D32E0_MR(void* self) __asm__("func_001D32E0");
+extern "C" void cFEStateMountainRoom_ShowImage_MR(void* self) __asm__("cFEStateMountainRoom_ShowImage");
 extern "C" void func_0039F400_MR(void* list, void* item) __asm__("func_0039F400");
 extern char D_00467450[];
 extern char D_00467460[];
@@ -390,7 +390,7 @@ extern "C" void cFEStateMountainRoom_onWidgetEvent(char* self, char* w, unsigned
     case 5: {
         int idx = *(int*)(w + 0x18);
         if (idx == 0) {
-            func_001D32E0_MR(self);
+            cFEStateMountainRoom_ShowImage_MR(self);
             break;
         }
         sFactory_MR* f = **(sFactory_MR***)(self + 0x10);
@@ -443,13 +443,13 @@ extern "C" void cFEStateMountainRoom_onWidgetEvent(char* self, char* w, unsigned
 }
 
 //100%
-extern "C" void func_001D31C0(void* self);
+extern "C" void cFEStateMountainRoom_PollImageLoad(void* self);
 extern "C" void* func_0039E510(void* self);
 
 extern "C" void func_001D3120(void* self)
 {
     if (~*(int*)((char*)self + 0xBC) != 0) {
-        func_001D31C0(self);
+        cFEStateMountainRoom_PollImageLoad(self);
     }
     func_0039E510(self);
 }
@@ -471,7 +471,7 @@ extern "C" void func_001D3160(void* self)
 //100%
 extern "C" int func_0019E238(void* self, int bank, int handle);
 extern "C" char* func_0019E2B0(void* self, int bank, int handle);
-extern "C" void func_001D32E0(void* self);
+extern "C" void cFEStateMountainRoom_ShowImage(void* self);
 extern char D_004A1F40[];
 struct sVE_1D31C0 {
     short delta;
@@ -500,7 +500,7 @@ static inline int both_1D31C0(char* s)
     }
     return r;
 }
-extern "C" void func_001D31C0(void* self)
+extern "C" void cFEStateMountainRoom_PollImageLoad(void* self)
 {
     char* s = (char*)self;
     char* bank = *(char**)((char*)D_004A28A8 + 0x7C) + 0x1A70;
@@ -516,7 +516,7 @@ extern "C" void func_001D31C0(void* self)
     *(int*)(o + 0x7C) = 0;
     if (vis_1D31C0(*(sObj_1D31C0**)(s + 0x48))) {
         if (!both_1D31C0(s)) {
-            func_001D32E0(self);
+            cFEStateMountainRoom_ShowImage(self);
         }
     }
     func_0019DC20(bank, *(int*)(s + 0xB0), *(int*)(s + 0xBC));
@@ -530,7 +530,7 @@ struct sVEntry_func_001D32E0 {
     void (*fn)(void*, int);
 };
 
-extern "C" void func_001D32E0(void* self)
+extern "C" void cFEStateMountainRoom_ShowImage(void* self)
 {
     {
         void* obj = *(void**)((char*)self + 0x48);
@@ -768,7 +768,7 @@ extern "C" void* cBE_getBE();
 void* cBE_getInterface_Fv(void* be, int kind) __asm__("cBE_getInterface__Fv");
 extern "C" int func_00157BF0(void* self, int rider, int a, int b, int c);
 extern "C" void cFEStatePeakRoom_updateHelpText(void* self, int id);
-extern "C" void func_001D3F80(void* self, int id);
+extern "C" void cFEStatePeakRoom_RefreshGoalList(void* self, int id);
 extern "C" void func_0039F400(void* list, void* item);
 
 struct sVEntA_001D3C80 { short delta; short index; void* (*fn)(void*, void*, int); };
@@ -808,7 +808,7 @@ extern "C" void func_001D3C80(void* self, void* item, unsigned int key)
     }
     case 1:
         cFEStatePeakRoom_updateHelpText(self, *(int*)((char*)item + 0x18));
-        func_001D3F80(self, *(int*)((char*)item + 0x18));
+        cFEStatePeakRoom_RefreshGoalList(self, *(int*)((char*)item + 0x18));
         break;
     }
 }
@@ -921,7 +921,7 @@ struct sRoom_3F80 {
     int mountain;                   // 0xE0
 };
 
-extern "C" void func_001D3F80(void* vself, int peak)
+extern "C" void cFEStatePeakRoom_RefreshGoalList(void* vself, int peak)
 {
     sRoom_3F80* self = (sRoom_3F80*)vself;
     int n;

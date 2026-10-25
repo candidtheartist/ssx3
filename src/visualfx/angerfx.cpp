@@ -14,7 +14,7 @@ extern "C" void func_002D4BE0(void* self)
 
 //100%
 void* cBEAggressionInterface_getThis();
-extern "C" int func_00155B50(void* self, int a, int b);
+extern "C" int cBEAggressionInterface_GetRivalLevel(void* self, int a, int b);
 extern char* D_004A28A8;
 extern float D_00488EA0[];
 extern float D_00488F48[];
@@ -106,7 +106,7 @@ extern "C" void func_002D4C08(sAnger_2D4C08* self)
         }
         void* aggr = cBEAggressionInterface_getThis();
         int a = riderV_2D4C08(self->rider, 7);
-        int lvl = func_00155B50(aggr, a, riderV_2D4C08(other, 7));
+        int lvl = cBEAggressionInterface_GetRivalLevel(aggr, a, riderV_2D4C08(other, 7));
         int old = st->anger;
         st->anger = lvl;
         if (lvl >= 4) {

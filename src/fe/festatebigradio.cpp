@@ -349,7 +349,7 @@ extern "C" void func_001A8918(void* self, int a1, int msg);
 extern "C" int func_00192918(void* self, int val);
 extern "C" void func_00192740(void* self, int a1);
 extern "C" void func_001927B0(void* p);
-extern "C" void func_00194080(void* self);
+extern "C" void cFEStateBraggingRights_StartWaitAnim(void* self);
 extern "C" void func_00193DE0(void* self, int player, int opt, int value);
 extern "C" void func_00265688(void* snd);
 extern "C" void func_00265568(void* self, int a, int b);
@@ -390,7 +390,7 @@ extern "C" void func_001938F8(char* self, char* item, int id)
                     if (isOn001938F8() && i == 0)
                         func_00265688(D_004A33CC);
                     func_00192740(self + 0x6D0 + i * 0x34, 1);
-                    func_00194080(self);
+                    cFEStateBraggingRights_StartWaitAnim(self);
                     break;
                 }
                 i++;
@@ -621,7 +621,7 @@ extern char D_004A1790[];
 extern char D_004A1798[];
 
 static inline int get6F8_4080(void* p) { return *(int*)((char*)p + 0x6F8); }
-extern "C" void func_00194080(void* self)
+extern "C" void cFEStateBraggingRights_StartWaitAnim(void* self)
 {
     if (*(int*)((char*)self + 0x6F8) != 0 && *(int*)((char*)self + 0x72C) == 0) {
         int frame = cUIScreen_getFrameByLabel(*(cUIScreen**)((char*)self + 0x40), GetHashValue32(D_004A1790));
@@ -655,7 +655,7 @@ extern "C" void* cFEStateBraggingRights_v24(void* self, int a1, int a2)
 
 //100%
 extern int D_004A1A70;
-extern "C" void func_00194440(void* self, void* a1, int a2);
+extern "C" void cFEStateBraggingRights_OnChildEventQuit(void* self, void* a1, int a2);
 extern "C" int func_001A97B8(void* self, void* a1, int a2);
 
 static inline int isOn00194168()
@@ -667,7 +667,7 @@ extern "C" void func_00194168(void* self, void* a1, int a2)
 {
     if (isOn00194168()) {
         if (*(int*)((char*)a1 + 0x18) == 0x838) {
-            func_00194440(self, a1, a2);
+            cFEStateBraggingRights_OnChildEventQuit(self, a1, a2);
         } else {
             func_001A97B8(self, a1, a2);
         }
@@ -732,7 +732,7 @@ extern "C" int cFEStateBraggingRights_v31(sBigRadio_41B0* self, int msg, sMsg_41
     }
     case 0xFD:
         func_00192740(&self->groups[data->group], 1);
-        func_00194080(self);
+        cFEStateBraggingRights_StartWaitAnim(self);
         break;
     case 0xEE:
     case 0xF1:
@@ -777,7 +777,7 @@ extern "C" void func_00265768(void* snd, int id);
 void func_001A94D8(void* self);
 extern "C" int func_001A97B8(void* self, void* a1, int a2);
 
-extern "C" void func_00194440(void* self, void* a1, int a2)
+extern "C" void cFEStateBraggingRights_OnChildEventQuit(void* self, void* a1, int a2)
 {
     if (a2 == 0xF) {
         if (D_004A33CC != 0) {

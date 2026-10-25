@@ -21,7 +21,7 @@ extern "C" void func_00283228(void* p, int flags);
 extern "C" void func_0030D540(void* p, int flags);
 extern "C" void cRiderSphereTree_destroy(void* p, int flags);
 extern "C" void cAirPredictor_destroy(void* p, int flags);
-extern "C" void func_001033F8(void* a, void* p);
+extern "C" void FocusMan_RemoveFocusBox(void* a, void* p);
 extern "C" void func_00117290(void* p, int flags);
 extern "C" void BoaderShadow_dtor(void* p, int flags);
 void operator_delete(int* p);
@@ -62,7 +62,7 @@ extern "C" void cRider_destroy(char* self, int flags)
         cAirPredictor_destroy(p, 3);
     void* box = *(void**)(self + 0x78C);
     if (box != 0)
-        func_001033F8(*(void**)(*(char**)(*(char**)((char*)D_004A28A8 + 0x84) + 0xC) + 0xA4), box);
+        FocusMan_RemoveFocusBox(*(void**)(*(char**)(*(char**)((char*)D_004A28A8 + 0x84) + 0xC) + 0xA4), box);
     operator_delete(*(int**)(self + 0x78C));
     p = *(void**)(self + 0x790);
     if (p != 0)
@@ -191,7 +191,7 @@ extern "C" int cRider_collectEquippedItems(void* selfp, char** listp)
 //100%
 extern "C" int func_004165A8(const void* a, const void* b);
 extern "C" char* strcpy(char* dst, const char* src);
-void* func_0011B678(void* self);
+void* cRider_LoadListCompare(void* self);
 extern "C" void func_00418EF8(void* base, int n, int size, void* (*cmp)(void*));
 
 struct sAnimName_11BD60
@@ -207,7 +207,7 @@ struct sAnimNameTable_11BD60
     int count;      // 0x2940
 };
 
-extern "C" void func_0011BD60(void* self, void** list, int n)
+extern "C" void cRider_AddBoltNamesToLoadList(void* self, void** list, int n)
 {
     for (int i = 0; i < n; i++, list++)
     {
@@ -230,7 +230,7 @@ extern "C" void func_0011BD60(void* self, void** list, int n)
     next:;
     }
     sAnimNameTable_11BD60* t2 = *(sAnimNameTable_11BD60**)((char*)self + 0x894);
-    func_00418EF8(t2, t2->count, 0x108, func_0011B678);
+    func_00418EF8(t2, t2->count, 0x108, cRider_LoadListCompare);
 }
 
 //100%
@@ -239,7 +239,7 @@ extern "C" void* cBE_getBE();
 void* cBE_getInterface(void* be, int kind) __asm__("cBE_getInterface__Fv");
 extern "C" int func_004165A8(const void* a, const void* b);
 extern "C" char* strcpy(char* dst, const char* src);
-void* func_0011B678(void* self);
+void* cRider_LoadListCompare(void* self);
 extern "C" void func_00418EF8(void* base, int n, int size, void* (*cmp)(void*));
 extern "C" int func_0014AC30(int c);
 extern "C" int func_0014A0B0(int c);
@@ -260,7 +260,7 @@ struct sAnimNameTable_11BE88
     int count;      // 0x2944
 };
 
-extern "C" void func_0011BE88(void* self, void** list, int n)
+extern "C" void cRider_AddBoltFilesToLoadList(void* self, void** list, int n)
 {
     void* iface = cBE_getInterface(cBE_getBE(), 9);
     int a = func_0014AC30(*(int*)((char*)self + 0x86C));
@@ -308,7 +308,7 @@ extern "C" void func_0011BE88(void* self, void** list, int n)
         }
     }
     sAnimNameTable_11BE88* t2 = *(sAnimNameTable_11BE88**)((char*)self + 0x894);
-    func_00418EF8(&t2->e[t2->start], t2->count, 0x108, func_0011B678);
+    func_00418EF8(&t2->e[t2->start], t2->count, 0x108, cRider_LoadListCompare);
 }
 
 //100%
@@ -320,7 +320,7 @@ struct sRiderVE_0011C0E0
 };
 extern void* D_004A289C;
 
-extern "C" int func_0011C0E0(void* self)
+extern "C" int cRider_HasRenderSlot(void* self)
 {
     if (*(int*)((char*)self + 0x888) != -1)
     {
@@ -688,7 +688,7 @@ extern "C" float func_00149690(void* iface, int character, int stat);
 
 // Grab playback speed: 1 + grab stat * 0.2998.
 //100%
-extern "C" float func_00120038(void* self)
+extern "C" float cRider_GetGrabStatFactor(void* self)
 {
     void* iface = cBE_getInterface(cBE_getBE(), 3);
     return func_00149690(iface, *(int*)((char*)self + 0x86c), *(int*)((char*)self + 0xb34)) * 0.29988324642181396f + 1.0f;
@@ -835,7 +835,7 @@ extern "C" void cRider_updateFX(void* self)
 
 extern "C" void cMotionOwner_updateFX(void* p);
 
-extern "C" void func_00120EB8(void* self)
+extern "C" void cRider_UpdateFX(void* self)
 {
     cMotionOwner_updateFX(*(void**)((char*)self + 0x77C));
 }
@@ -859,7 +859,7 @@ extern "C" int getGameTick();
 extern "C" int func_001448A8(void* obj);
 extern "C" void cOverlapList_build(void*, void*);
 extern "C" void cRider_selectLocalLights(void*);
-extern "C" void func_001242B0(void* self, void* p);
+extern "C" void cRider_ProbeGround(void* self, void* p);
 extern "C" void updateRiderSpeedLimit(void* self);
 extern void* D_004A28A8;
 
@@ -875,7 +875,7 @@ static inline int IsState1_120F20(void* obj)
     return *(int*)((char*)obj + 0x70) == 1;
 }
 
-extern "C" void func_00120F20(char* self)
+extern "C" void cRider_BeginFrame(char* self)
 {
     *(int*)(self + 0x3FC) = 0;
     *(int*)(self + 0xAA4) = 0;
@@ -901,7 +901,7 @@ skip:
         char* p = self + 0x110;
         if (*(int*)(self + 0xAFC))
             p = *(char**)(*(char**)(self + 0x780) + 0x2C) + (*(int*)(self + 0x8A0) << 5);
-        func_001242B0(self, p);
+        cRider_ProbeGround(self, p);
     }
     *(sQuad_120F20*)(self + 0x9D0) = D_004FF120_q120F20;
     *(int*)(self + 0xA30) = 0;
@@ -931,7 +931,7 @@ extern "C" void cRider_updateController(void* self)
 }
 
 //100% - objdiff report; single-function view differs only in a relocation name
-extern "C" void func_00116120(void* rider, int a, int b);
+extern "C" void cRider_CheckResetPath(void* rider, int a, int b);
 extern "C" void cRider_updateBoostTimers(void* self);
 extern "C" void cRider_updateLegIKWeight(void* self);
 
@@ -961,7 +961,7 @@ extern "C" void cRider_updateTimers(char* self)
     *(float*)(self + 0x3F4) *= 0.9783333539962769f;
     if (*(float*)(self + 0x3F0) > 4.5f)
     {
-        func_00116120(self, 0, 2);
+        cRider_CheckResetPath(self, 0, 2);
     }
     else if (cRider_getMotionMode(self) == 1 ||
              (cRider_getMotionMode(self) == 2 && *(int*)(*(char**)(self + 0x77C) + 0x30) == 1))
@@ -972,7 +972,7 @@ extern "C" void cRider_updateTimers(char* self)
             ok = 1;
         obj = *(char**)(self + 0x788);
         if ((ok && *(float*)(obj + 0x98) - *(float*)(obj + 0xA0) > 45.0f) || *(float*)(self + 0x3F4) > 5.0f)
-            func_00116120(self, 0, 2);
+            cRider_CheckResetPath(self, 0, 2);
     }
     cRider_updateBoostTimers(self);
     cRider_updateLegIKWeight(self);
@@ -1038,7 +1038,7 @@ extern "C" void cRider_updatePostMotion(char* self)
 extern "C" void* cAnimModel_buildBoneMatrices(int);
 
 //100%
-void* func_001217F8(void* self)
+void* cRider_BuildBoneMatrices(void* self)
 {
     return cAnimModel_buildBoneMatrices(*(int*)((char*)self + 0x780));
 }
@@ -1046,7 +1046,7 @@ void* func_001217F8(void* self)
 //100%
 extern void* D_004A3DD8;
 extern "C" void func_0030A060(void* mgr, void* a, void* b, void* c);
-void func_00125AD0(void* self);
+void cRider_EmptyProgressHook(void* self);
 extern "C" void cRider_updateCourseProgress(void* self);
 extern "C" void cRider_updateRouteProgress(void* self);
 extern "C" int cRider_checkTimeLimit(void* self);
@@ -1071,7 +1071,7 @@ extern "C" void cRider_updateProgress(void* self)
             func_0030A060(D_004A3DD8, s + 0xA60, s + 0x9E0, s + 0x6C0);
         }
     }
-    func_00125AD0(self);
+    cRider_EmptyProgressHook(self);
     if (*(int*)(s + 0xAC4) == 0)
     {
         cRider_updateCourseProgress(self);
@@ -1115,7 +1115,7 @@ extern "C" int cRider_isGrounded(void* self);
 extern "C" void* func_0028B180();
 extern "C" void cSSXAudio_updateRiderZones(void* mgr, void* rider);
 extern "C" float func_0031C228(float x);
-extern "C" void func_00122CF0(void* self);
+extern "C" void cRider_UpdateDangerState(void* self);
 
 struct sVec2_121950
 {
@@ -1158,7 +1158,7 @@ static inline float Atan2_121950(float y, float x)
     return a;
 }
 
-extern "C" void func_00121950(char* self)
+extern "C" void cRider_UpdateHeadingAndAudio(char* self)
 {
     cSSXAudio_updateRiderZones(func_0028B180(), self);
     if (cRider_isGrounded(self))
@@ -1173,7 +1173,7 @@ extern "C" void func_00121950(char* self)
             d += 6.2831854820251465f;
         *(float*)(self + 0x5B4) += d * 0.15000000596046448f;
     }
-    func_00122CF0(self);
+    cRider_UpdateDangerState(self);
 }
 
 INCLUDE_ASM("ai/rider", cRider_approachOrientation);
@@ -1563,13 +1563,13 @@ extern "C" void* func_002F2088(int);
 
 extern "C" void cMotionOwner_drawFX(void* p);
 
-extern "C" void func_00122618(void* self)
+extern "C" void cRider_DrawFX(void* self)
 {
     cMotionOwner_drawFX(*(void**)((char*)self + 0x77C));
 }
 
 //100%
-void* func_00122638(void* self)
+void* cRider_RenderAttachedFX(void* self)
 {
     return func_002F2088(*(int*)((char*)self + 0x88c));
 }
@@ -1819,7 +1819,7 @@ extern "C" int cRider_isOnSteepSlope(void* self)
 extern "C" int cRider_isGrounded(void* self);
 
 //100%
-void* func_00122CD0(void* self)
+void* cRider_isGrounded_Wrapper(void* self)
 {
     return (void*)cRider_isGrounded(self);
 }
@@ -1827,19 +1827,19 @@ void* func_00122CD0(void* self)
 //100%
 // PORT: PS2-only inline asm; needs a C fallback off-PS2.
 extern void* D_004A28A8;
-extern "C" int func_00101A10(void* self, int character);
+extern "C" int DangerMan_GetRiderDanger(void* self, int character);
 extern "C" int cRider_isOnSteepSlope(void* self);
-float func_0011A0C0_2(void* self, int state) __asm__("func_0011A0C0__FPv");
+float cRiderMetrix_ReturnZero_a0c0_2(void* self, int state) __asm__("cRiderMetrix_ReturnZero_a0c0__FPv");
 
-extern "C" void func_00122CF0(void* self)
+extern "C" void cRider_UpdateDangerState(void* self)
 {
     char* s = (char*)self;
     int old = *(int*)(s + 0x5B0);
-    int r = func_00101A10(*(void**)(*(char**)(*(char**)((char*)D_004A28A8 + 0x84) + 0xC) + 0xA8), *(int*)(s + 0x86C));
+    int r = DangerMan_GetRiderDanger(*(void**)(*(char**)(*(char**)((char*)D_004A28A8 + 0x84) + 0xC) + 0xA8), *(int*)(s + 0x86C));
     *(int*)(s + 0x5B0) = r;
     if (r == 0)
     {
-        if (func_00122CD0(self) != 0)
+        if (cRider_isGrounded_Wrapper(self) != 0)
         {
             if (cRider_isOnSteepSlope(self))
                 *(int*)(s + 0x5B0) = 1;
@@ -1847,7 +1847,7 @@ extern "C" void func_00122CF0(void* self)
     }
     int cur = *(int*)(s + 0x5B0);
     if (old != cur)
-        func_0011A0C0_2(*(void**)(s + 0x790), cur);
+        cRiderMetrix_ReturnZero_a0c0_2(*(void**)(s + 0x790), cur);
 }
 
 //100%
@@ -2235,7 +2235,7 @@ extern "C" void cRider_eulerToQuat(void* self, sQuat_001241C0* out, float rx, fl
     *out = q;
 }
 
-INCLUDE_ASM("ai/rider", func_001242B0);
+INCLUDE_ASM("ai/rider", cRider_ProbeGround);
 
 INCLUDE_ASM("ai/rider", cRider_updateNISClip);
 
@@ -2640,12 +2640,12 @@ extern "C" void cRider_applyWindPush(char* self)
 }
 
 //100%
-void func_00125AD0(void* self)
+void cRider_EmptyProgressHook(void* self)
 {
 }
 
 //100%
-extern "C" int func_00125AD8(void* self)
+extern "C" int cRider_GetSyncChecksum(void* self)
 {
     union { float f; int i; } u;
     u.f = *(float*)((char*)self + 0x110) + *(float*)((char*)self + 0x114) + *(float*)((char*)self + 0x118)

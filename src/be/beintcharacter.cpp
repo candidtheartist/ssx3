@@ -46,7 +46,7 @@ struct sCharStatEntry_EFA8 {
 };
 extern sCharStatEntry_EFA8 D_00530970_EFA8[] __asm__("D_00530970");
 
-extern "C" float func_0014EFA8(void* self, int rider)
+extern "C" float cBECharacterInterface_GetRiderSizeScale(void* self, int rider)
 {
     int charID = cBELibrary_getCharacterID(rider);
     int board = func_0014A0B0(rider);

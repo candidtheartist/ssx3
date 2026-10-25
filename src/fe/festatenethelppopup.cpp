@@ -169,7 +169,7 @@ static inline unsigned short* getText_A110(int id)
     return vt[4].fn(tm + vt[4].delta, id);
 }
 
-extern "C" void func_001DA110(void* self)
+extern "C" void cFEStateNetHelpPopup_BuildBodyText(void* self)
 {
     unsigned short* strs[3];
     int n = 0;
@@ -204,7 +204,7 @@ extern "C" void func_001DA110(void* self)
 struct cUIText;
 void cUIText_setAsciiString(cUIText* text, const char* str);
 void cUIText_setUnicodeStringByID(cUIText* text, int id);
-extern "C" void func_001DA110(void* self);
+extern "C" void cFEStateNetHelpPopup_BuildBodyText(void* self);
 extern char D_004A1408[];
 
 struct sVEnt_1DA238 { short delta; short index; void (*fn)(void*, int); };
@@ -248,7 +248,7 @@ extern "C" int func_001DA238(sNetHelp_1DA238* self, int a1)
             cUIText_setAsciiString((cUIText*)self->wA8, D_004A1408);
         }
         if (self->c[0]) {
-            func_001DA110(self);
+            cFEStateNetHelpPopup_BuildBodyText(self);
         } else {
             cUIText_setAsciiString((cUIText*)self->wAC, D_004A1408);
         }
@@ -397,7 +397,7 @@ static inline void copyName_1DA648(char* dst, const char* src)
     func_00416958(dst, src, 0xF);
 }
 
-extern "C" void* func_001DA648(void* self, void* vinfo, void* a2)
+extern "C" void* LobbyMenu_InitCreateAccountPage(void* self, void* vinfo, void* a2)
 {
     func_002CAA58(self);
     *(void***)((char*)self + 0x12C) = D_0046D690;
@@ -444,7 +444,7 @@ static inline void copyName_1DA7E8(char* dst, const char* src)
     func_00416958(dst, src, 0xF);
 }
 
-extern "C" void* func_001DA7E8(void* self, void* vinfo, void* a2)
+extern "C" void* LobbyMenu_InitLoginPage(void* self, void* vinfo, void* a2)
 {
     func_002CAA58(self);
     *(void***)((char*)self + 0x12C) = D_0046D6E8;
@@ -473,20 +473,20 @@ void* func_002CAA58(void* self);
 cNullMenuItem* cNullMenuItem_cNullMenuItem(cNullMenuItem* self, void* text);
 cSpaceMenuItem* cSpaceMenuItem_cSpaceMenuItem(cSpaceMenuItem* self, void* text);
 extern "C" void* cSubMenuItem_cSubMenuItem(void* self, void* a1, void* a2);
-extern "C" void* func_001DA648(void* self, void* a1, void* a2);
-extern "C" void* func_001DA7E8(void* self, void* a1, void* a2);
+extern "C" void* LobbyMenu_InitCreateAccountPage(void* self, void* a1, void* a2);
+extern "C" void* LobbyMenu_InitLoginPage(void* self, void* a1, void* a2);
 extern "C" void cMenu_addItem(void* menu, void* item, int index);
 extern void* D_0046D638[];
 extern char D_00467A20[];
 extern char D_00467A58[];
 extern char D_00467A60[];
 
-extern "C" void* func_001DA988(void* self, void* a1, void* a2)
+extern "C" void* LobbyMenu_InitLoginMethodPage(void* self, void* a1, void* a2)
 {
     func_002CAA58(self);
     *(void***)((char*)self + 0x12C) = D_0046D638;
-    func_001DA648((char*)self + 0x130, a1, D_00467A20);
-    func_001DA7E8((char*)self + 0x32C, a2, D_00467A58);
+    LobbyMenu_InitCreateAccountPage((char*)self + 0x130, a1, D_00467A20);
+    LobbyMenu_InitLoginPage((char*)self + 0x32C, a2, D_00467A58);
     cNullMenuItem_cNullMenuItem((cNullMenuItem*)((char*)self + 0x528), D_00467A60);
     cSpaceMenuItem_cSpaceMenuItem((cSpaceMenuItem*)((char*)self + 0x544), (void*)0xA);
     cSubMenuItem_cSubMenuItem((char*)self + 0x55C, (char*)self + 0x130, D_00467A20);
@@ -513,7 +513,7 @@ extern char D_00467A80[];
 extern char D_004A1408[];
 extern char D_00467A90[];
 
-extern "C" void* func_001DAAC8(void* self, int* info)
+extern "C" void* LobbyMenu_InitCreatePersonaPage(void* self, int* info)
 {
     func_002CAA58(self);
     *(void***)((char*)self + 0x12C) = D_0046D588;
@@ -540,7 +540,7 @@ extern "C" void cMenu_addItem(void* menu, void* item, int index);
 extern void* D_0046D5E0[];
 extern char D_00467A98[];
 
-extern "C" void* func_001DABD0(void* self, int* info)
+extern "C" void* LobbyMenu_InitDeletePersonaPage(void* self, int* info)
 {
     char* p = (char*)self + 0x168;
     int i = 3;
@@ -570,8 +570,8 @@ cNullMenuItem* cNullMenuItem_cNullMenuItem(cNullMenuItem* self, void* text);
 cSpaceMenuItem* cSpaceMenuItem_cSpaceMenuItem(cSpaceMenuItem* self, void* text);
 extern "C" void* cSubMenuItem_cSubMenuItem(void* self, void* a1, void* a2);
 // PORT: the member ctors return self, but this caller treats them as void
-void func_001DAAC8_v(void* self, int* info) __asm__("func_001DAAC8");
-void func_001DABD0_v(void* self, int* info) __asm__("func_001DABD0");
+void LobbyMenu_InitCreatePersonaPage_v(void* self, int* info) __asm__("LobbyMenu_InitCreatePersonaPage");
+void LobbyMenu_InitDeletePersonaPage_v(void* self, int* info) __asm__("LobbyMenu_InitDeletePersonaPage");
 extern "C" void* func_002CCF08(void* self);
 extern "C" void cMenu_addItem(void* menu, void* item, int index);
 extern void* D_0046D530[];
@@ -580,12 +580,12 @@ extern char D_00467A70[];
 extern char D_00467A98[];
 
 
-extern "C" void* func_001DACB8(void* self, int* info, int* a2, int* a3)
+extern "C" void* LobbyMenu_InitSelectPersonaPage(void* self, int* info, int* a2, int* a3)
 {
     func_002CAA58(self);
     *(void***)((char*)self + 0x12C) = D_0046D530;
-    func_001DAAC8_v((char*)self + 0x130, a2);
-    func_001DABD0_v((char*)self + 0x2E8, a3);
+    LobbyMenu_InitCreatePersonaPage_v((char*)self + 0x130, a2);
+    LobbyMenu_InitDeletePersonaPage_v((char*)self + 0x2E8, a3);
     *(int*)((char*)self + 0x4E0) = *info;
     cNullMenuItem_cNullMenuItem((cNullMenuItem*)((char*)self + 0x4E4), D_00467AA8);
     cSpaceMenuItem_cSpaceMenuItem((cSpaceMenuItem*)((char*)self + 0x500), (void*)0xE);
@@ -618,7 +618,7 @@ extern "C" void cMenu_addItem(void* menu, void* item, int index);
 extern void* D_0046D4D8[];
 extern char D_00467AB8[];
 
-extern "C" void* func_001DAE20(void* self, int* info)
+extern "C" void* LobbyMenu_InitSelectRoomPage(void* self, int* info)
 {
     char* p = (char*)self + 0x168;
     int i = 11;
@@ -653,7 +653,7 @@ extern void* D_0046D480[];
 extern char D_00467AC8[];
 extern char D_00467AD8[];
 
-extern "C" void* func_001DAF08(void* self, int* a, int* b)
+extern "C" void* LobbyMenu_InitRoomOccupantsPage(void* self, int* a, int* b)
 {
     char* p = (char*)self + 0x16C;
     int i = 0x17;
@@ -693,7 +693,7 @@ extern char D_00467AF0[];
 extern char D_004A1408[];
 extern int D_00467D70[];
 
-extern "C" void* func_001DB028(void* self, int* info)
+extern "C" void* LobbyMenu_InitChatPage(void* self, int* info)
 {
     char* p = (char*)self + 0x194;
     int i = 0xD;

@@ -188,8 +188,8 @@ extern "C" void func_0027BF90(void* self);
 void* func_00320C48(void* self, int a1);
 int GetHashValue32(char*);
 extern "C" void* func_0039F9D8(void* list, int hash);
-extern "C" void func_001F36C0(void*, int);
-extern "C" void func_001F36D8(void*, int);
+extern "C" void LoadIndicator_SetBusy(void*, int);
+extern "C" void LoadIndicator_ClearBusy(void*, int);
 
 struct sSseObj8720 {
     char data[0xCC];
@@ -249,9 +249,9 @@ extern "C" void func_00278720(sSse8720* self)
         if (func_0039F9D8(*(char**)(*(char**)(D_004A28A8 + 0x84) + 0x48) + 0x18, GetHashValue32(D_004A34A0)))
         {
             if (func_00277298(r))
-                func_001F36C0(*(void**)(*(char**)(D_004A28A8 + 0x84) + 0x94), 1);
+                LoadIndicator_SetBusy(*(void**)(*(char**)(D_004A28A8 + 0x84) + 0x94), 1);
             else
-                func_001F36D8(*(void**)(*(char**)(D_004A28A8 + 0x84) + 0x94), 1);
+                LoadIndicator_ClearBusy(*(void**)(*(char**)(D_004A28A8 + 0x84) + 0x94), 1);
         }
     }
     if (self->delay > 0)
@@ -1657,8 +1657,8 @@ extern "C" void ScriptEngine_QueueIntroScripts(void* self, int state)
 
 //100%
 extern "C" int* func_00144BC0(void* iface);
-extern "C" int func_00146150(void* self, int index, int kind, int flag);
-extern "C" void func_00146320(void* self, int index, int kind, int flag, int value);
+extern "C" int cBENewPlayerInterface_GetPeakFlag(void* self, int index, int kind, int flag);
+extern "C" void cBENewPlayerInterface_SetPeakFlag(void* self, int index, int kind, int flag, int value);
 extern "C" int func_001464D0(void* self, int index, int rc, int kind, int flag);
 extern "C" int func_00146E98(void* iface, int idx);
 extern "C" signed char func_0014A0B0(int index);
@@ -1784,7 +1784,7 @@ done:
     sScBlk_AC60 blk = *(sScBlk_AC60*)func_00144BC0(econ);
     int first = mode == 0;
     int idx = func_00146E98(players, 0);
-    int r = func_00146150(players, idx, blk.kind, first);
+    int r = cBENewPlayerInterface_GetPeakFlag(players, idx, blk.kind, first);
     if ((unsigned)(func_0014A0B0(idx) - 10) < 11) {
         return;
     }
@@ -1803,7 +1803,7 @@ done:
     }
     ScriptEngine_ListAddChoice(D_004A28A4, 0, 0x18, 1, 0, v, -1, -1);
     ScriptEngine_ListAddChoice(D_004A28A4, 0, 0x19, 3, 0, v, -1, -1);
-    func_00146320(players, idx, blk.kind, first, 1);
+    cBENewPlayerInterface_SetPeakFlag(players, idx, blk.kind, first, 1);
 }
 
 //100%
@@ -3968,7 +3968,7 @@ extern "C" void* func_0027D2E8(void);
 extern "C" void ScriptEngine_ClearObjBindingFilter(void* mgr, int id);
 extern "C" void ScriptObjCam_SetBinding(char* self, void* anim);
 extern "C" void ScriptViewObj_Reset(void* self);
-extern "C" void func_001033F8(void* a, void* b, void* c);
+extern "C" void FocusMan_RemoveFocusBox(void* a, void* b, void* c);
 // PORT: func_00282DB0's mangled signature is (void*, int, int); it also takes four floats (same alias as ScriptViewObj_SetTransition).
 void* func_00282DB0_f(void* self, int a1, int a2, float f0, float f1, float f2, float f3)
     __asm__("func_00282DB0__FPvii");
@@ -4002,7 +4002,7 @@ extern "C" void ScriptViewObj_Deactivate(sSeEng1400* self, int a1)
     }
     if (self->pending != 0) {
         char* lvl = *(char**)(*(char**)(D_004A28A8 + 0x84) + 0xC);
-        func_001033F8(*(void**)(lvl + 0xA4), self->area, lvl);
+        FocusMan_RemoveFocusBox(*(void**)(lvl + 0xA4), self->area, lvl);
         self->pending = 0;
     }
     ScriptViewObj_Reset(self);

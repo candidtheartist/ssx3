@@ -6074,7 +6074,7 @@ extern "C" R12_6300 func_00306300(int n, Ent_6300* e) {
 extern char *D_004A3DD8_6438 __asm__("D_004A3DD8");
 extern char **D_004A47B8_6438 __asm__("D_004A47B8");
 extern char *D_004A28A8_6438 __asm__("D_004A28A8");
-extern "C" void func_00101728_6438(void*, void*, float, float) __asm__("func_00101728");
+extern "C" void DangerMan_AddDanger_6438(void*, void*, float, float) __asm__("DangerMan_AddDanger");
 struct V3_6438 { float x, y, z; };
 extern V3_6438 D_004C9098_6438 __asm__("D_004C9098");
 struct Tag_6438 { char c; Tag_6438() {} Tag_6438(const Tag_6438 &o) : c(o.c) {} };
@@ -6122,7 +6122,7 @@ extern "C" V3_6438 WScriptFn_AddDanger(int n, Ent_6438 *e) {
         float f2 = *(float*)&buf[2];
         int tmp[1];
         tmp[0] = *(int*)(obj + 0x78);
-        func_00101728_6438(*(void**)(*(char**)(*(char**)(D_004A28A8_6438 + 0x84) + 0xC) + 0xA8), tmp, f1, f2);
+        DangerMan_AddDanger_6438(*(void**)(*(char**)(*(char**)(D_004A28A8_6438 + 0x84) + 0xC) + 0xA8), tmp, f1, f2);
     }
     return D_004C9098_6438;
 }
@@ -6142,7 +6142,7 @@ static inline char *look_65E8(unsigned id) {
     return (char*)(i << 2);
 }
 
-extern "C" void func_00101888_65E8(void*, void*) __asm__("func_00101888");
+extern "C" void DangerMan_RemoveDanger_65E8(void*, void*) __asm__("DangerMan_RemoveDanger");
 struct V3_65E8 { float x, y, z; };
 extern V3_65E8 D_004C9098_65E8 __asm__("D_004C9098");
 struct Tag_65E8 { char c; Tag_65E8() {} Tag_65E8(const Tag_65E8 &o) : c(o.c) {} };
@@ -6175,7 +6175,7 @@ extern "C" V3_65E8 WScriptFn_RemoveDanger(int n, Ent_65E8 *e) {
     char *obj = look_65E8(buf[0]);
     if (obj) {
         int tmp[1]; tmp[0] = *(int*)(obj + 0x78);
-        func_00101888_65E8(*(void**)(*(char**)(*(char**)(D_004A28A8_65E8 + 0x84) + 0xC) + 0xA8), tmp);
+        DangerMan_RemoveDanger_65E8(*(void**)(*(char**)(*(char**)(D_004A28A8_65E8 + 0x84) + 0xC) + 0xA8), tmp);
     }
     return D_004C9098_65E8;
 }
@@ -6195,7 +6195,7 @@ static inline char *look_6770(unsigned id) {
     return (char*)(i << 2);
 }
 
-extern "C" void func_00101900_6770(void*, void*, int) __asm__("func_00101900");
+extern "C" void DangerMan_AcquireZone_6770(void*, void*, int) __asm__("DangerMan_AcquireZone");
 struct V3_6770 { float x, y, z; };
 extern V3_6770 D_004C9098_6770 __asm__("D_004C9098");
 struct Tag_6770 { char c; Tag_6770() {} Tag_6770(const Tag_6770 &o) : c(o.c) {} };
@@ -6242,7 +6242,7 @@ extern "C" V3_6770 WScriptFn_AcquireDangerZone(int n, Ent_6770 *e) {
 
     if (obj) {
         int b1 = buf[1];
-        func_00101900_6770(*(void**)(*(char**)(*(char**)(D_004A28A8_6770 + 0x84) + 0xC) + 0xA8), obj + 0x78, b1);
+        DangerMan_AcquireZone_6770(*(void**)(*(char**)(*(char**)(D_004A28A8_6770 + 0x84) + 0xC) + 0xA8), obj + 0x78, b1);
     }
     return D_004C9098_6770;
 }
@@ -6252,7 +6252,7 @@ extern "C" V3_6770 WScriptFn_AcquireDangerZone(int n, Ent_6770 *e) {
 extern char *D_004A3DD8_6908 __asm__("D_004A3DD8");
 extern char **D_004A47B8_6908 __asm__("D_004A47B8");
 extern char *D_004A28A8_6908 __asm__("D_004A28A8");
-extern "C" void func_00101970_6908(void*, void*) __asm__("func_00101970");
+extern "C" void DangerMan_ReleaseZone_6908(void*, void*) __asm__("DangerMan_ReleaseZone");
 struct V3_6908 { float x, y, z; };
 extern V3_6908 D_004C9098_6908 __asm__("D_004C9098");
 struct Tag_6908 { char c; Tag_6908() {} Tag_6908(const Tag_6908 &o) : c(o.c) {} };
@@ -6297,7 +6297,7 @@ extern "C" V3_6908 WScriptFn_ReleaseDangerZone(int n, Ent_6908 *e) {
         obj = r;
     }
     if (obj)
-        func_00101970_6908(*(void**)(*(char**)(*(char**)(D_004A28A8_6908 + 0x84) + 0xC) + 0xA8), obj + 0x78);
+        DangerMan_ReleaseZone_6908(*(void**)(*(char**)(*(char**)(D_004A28A8_6908 + 0x84) + 0xC) + 0xA8), obj + 0x78);
     return D_004C9098_6908;
 }
 

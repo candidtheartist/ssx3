@@ -6,8 +6,8 @@ extern "C" void* cUIScreen_getObjectByHashName(void* self, int hash);
 struct cUIText;
 void cUIText_setAsciiString(cUIText* self, const char* s);
 extern "C" void func_001805D8(void* self, char* s);
-extern "C" void func_001809B0(void* self, int id, char* buf);
-extern "C" void func_00180A90(void* self, int id, char* buf);
+extern "C" void cScreenKeyboard_GetKeyObjectName(void* self, int id, char* buf);
+extern "C" void cScreenKeyboard_GetCursorObjectName(void* self, int id, char* buf);
 extern char D_0045D570[];
 extern char D_0045D588[];
 extern char D_0045D5A0[];
@@ -71,11 +71,11 @@ extern "C" void cScreenKeyboard_initScreenKeyboard(char* self, void* screen)
     ch[0] = 'A';
     for (int i = 0; i < 26; i++)
     {
-        func_001809B0(self, i + 10, name);
+        cScreenKeyboard_GetKeyObjectName(self, i + 10, name);
         t = (cUIObjK180B60*)cUIScreen_getObjectByHashName(screen, GetHashValue32(name));
         if (t != 0)
             cUIText_setAsciiString((cUIText*)t, ch);
-        func_00180A90(self, i + 10, name);
+        cScreenKeyboard_GetCursorObjectName(self, i + 10, name);
         t = (cUIObjK180B60*)cUIScreen_getObjectByHashName(screen, GetHashValue32(name));
         if (t != 0)
             t->setVisible(0);
@@ -84,11 +84,11 @@ extern "C" void cScreenKeyboard_initScreenKeyboard(char* self, void* screen)
     ch[0] = '0';
     for (int j = 0; j < 10; j++)
     {
-        func_001809B0(self, j, name);
+        cScreenKeyboard_GetKeyObjectName(self, j, name);
         t = (cUIObjK180B60*)cUIScreen_getObjectByHashName(screen, GetHashValue32(name));
         if (t != 0)
             cUIText_setAsciiString((cUIText*)t, ch);
-        func_00180A90(self, j, name);
+        cScreenKeyboard_GetCursorObjectName(self, j, name);
         t = (cUIObjK180B60*)cUIScreen_getObjectByHashName(screen, GetHashValue32(name));
         if (t != 0)
             t->setVisible(0);
@@ -106,7 +106,7 @@ extern "C" void cScreenKeyboard_initScreenKeyboard(char* self, void* screen)
 //100%
 int GetHashValue32(char* str);
 extern "C" void* cUIScreen_getObjectByHashName(void* self, int hash);
-extern "C" void func_00180A90(void* self, int id, char* buf);
+extern "C" void cScreenKeyboard_GetCursorObjectName(void* self, int id, char* buf);
 extern "C" void func_00180618(void* self);
 extern "C" void func_00180678(void* self);
 extern "C" void func_001806D8(void* self);
@@ -163,7 +163,7 @@ struct sDbgState_180EF0 {
 extern "C" int func_00180EF0(sDbgState_180EF0* self, sDbgInput_180EF0* in)
 {
     char buf[0x20];
-    func_00180A90(self, self->sel, buf);
+    cScreenKeyboard_GetCursorObjectName(self, self->sel, buf);
     sDbgObj_180EF0* o = (sDbgObj_180EF0*)cUIScreen_getObjectByHashName(self, GetHashValue32(buf));
     if (o) {
         o->v09(0);
@@ -181,7 +181,7 @@ extern "C" int func_00180EF0(sDbgState_180EF0* self, sDbgInput_180EF0* in)
     } else if (in->v26()) {
         func_001807C8(self);
     }
-    func_00180A90(self, self->sel, buf);
+    cScreenKeyboard_GetCursorObjectName(self, self->sel, buf);
     o = (sDbgObj_180EF0*)cUIScreen_getObjectByHashName(self, GetHashValue32(buf));
     if (o) {
         o->v09(1);

@@ -50,16 +50,16 @@ extern "C" void func_0014F360(void)
 
 //100%
 extern "C" void func_0014F648(void* self);
-extern "C" void func_0014F600(void* self);
-extern "C" void func_0014F4F8(void* self);
-extern "C" void func_0014F458(void* self);
+extern "C" void cBEOptionInterface_SetHUDDefaults(void* self);
+extern "C" void cBEOptionInterface_SetGameDefaults(void* self);
+extern "C" void cBEOptionInterface_SetSoundDefaults(void* self);
 
 extern "C" void cBEOptionInterface_Init(void* self)
 {
     func_0014F648(self);
-    func_0014F600(self);
-    func_0014F4F8(self);
-    func_0014F458(self);
+    cBEOptionInterface_SetHUDDefaults(self);
+    cBEOptionInterface_SetGameDefaults(self);
+    cBEOptionInterface_SetSoundDefaults(self);
 }
 
 //100%
@@ -87,7 +87,7 @@ public:
     virtual void apply();
 };
 
-extern "C" void func_0014F458(void* self)
+extern "C" void cBEOptionInterface_SetSoundDefaults(void* self)
 {
     sOptBits_0014F458* o = D_00535610_v0014F458;
     o->a = 0xA;
@@ -129,7 +129,7 @@ public:
     virtual void apply();
 };
 
-extern "C" void func_0014F4F8(void* self)
+extern "C" void cBEOptionInterface_SetGameDefaults(void* self)
 {
     switch (*(int*)(*(char**)((char*)D_004A28A8 + 0x9C) + 0x24))
     {
@@ -169,7 +169,7 @@ public:
     virtual void apply();
 };
 
-extern "C" void func_0014F600(void* self)
+extern "C" void cBEOptionInterface_SetHUDDefaults(void* self)
 {
     D_00535610_v0014F600[0].top = 0;
     ((cBEOptionInterfaceV_0014F600*)D_004A120C)->apply();

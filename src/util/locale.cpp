@@ -45,7 +45,7 @@ struct s195A50Arr {
     void* items[4];
 };
 
-extern "C" void func_00195A50(void* self, signed char i)
+extern "C" void FELocale_UnloadTable(void* self, signed char i)
 {
     s195A50Arr* arr = (s195A50Arr*)((char*)self + 8);
     if (arr->items[i] != 0) {
@@ -61,7 +61,7 @@ extern "C" void func_00195A98()
 //100%
 extern "C" void func_00195948(void* self);
 extern "C" void func_00195BE0(void* self);
-extern "C" void func_00195DE0(void* self);
+extern "C" void FELocale_LoadGameTables(void* self);
 extern "C" void cFELocale_addFile(void* self, int lang);
 
 extern "C" void FELocale_v03(void* self, signed char lang)
@@ -90,7 +90,7 @@ extern "C" void FELocale_v03(void* self, signed char lang)
             if (*(signed char*)((char*)self + 0x58) == 1) {
                 func_00195BE0(self);
             } else {
-                func_00195DE0(self);
+                FELocale_LoadGameTables(self);
             }
         }
     }
@@ -99,7 +99,7 @@ extern "C" void FELocale_v03(void* self, signed char lang)
 //100% - objdiff report; single-function view differs only in a relocation name
 extern "C" void cFELocale_addFile(void* self, int lang);
 
-extern "C" void func_00195B70(void* self)
+extern "C" void FELocale_LoadCommonTable(void* self)
 {
     int lang = -1;
     switch (*(signed char*)((char*)self + 0x1)) {
@@ -176,27 +176,27 @@ extern "C" void func_00195BE0(void* p)
 }
 
 //100% - objdiff report; single-function view differs only in a relocation name
-extern "C" void func_00195A50(void* self, signed char i);
+extern "C" void FELocale_UnloadTable(void* self, signed char i);
 
-extern "C" void func_00195D50(void* self)
+extern "C" void FELocale_UnloadFETables(void* self)
 {
     int flags = *(signed char*)((char*)self + 0x3);
     if ((flags & 1) == 0) {
-        func_00195A50(self, 4);
-        func_00195A50(self, 5);
-        func_00195A50(self, 6);
-        func_00195A50(self, 7);
-        func_00195A50(self, 0x10);
-        func_00195A50(self, 0x11);
-        func_00195A50(self, 0x12);
-        func_00195A50(self, 0x13);
+        FELocale_UnloadTable(self, 4);
+        FELocale_UnloadTable(self, 5);
+        FELocale_UnloadTable(self, 6);
+        FELocale_UnloadTable(self, 7);
+        FELocale_UnloadTable(self, 0x10);
+        FELocale_UnloadTable(self, 0x11);
+        FELocale_UnloadTable(self, 0x12);
+        FELocale_UnloadTable(self, 0x13);
     }
 }
 
 //100% - objdiff report; single-function view differs only in a relocation name
 extern "C" void cFELocale_addFile(void* self, int lang);
 
-extern "C" void func_00195DE0(void* self)
+extern "C" void FELocale_LoadGameTables(void* self)
 {
     int file = -1;
     *(signed char*)((char*)self + 0x58) = 2;
@@ -218,16 +218,16 @@ extern "C" void func_00195DE0(void* self)
 }
 
 //100% - objdiff report; single-function view differs only in a relocation name
-extern "C" void func_00195A50(void* self, signed char i);
+extern "C" void FELocale_UnloadTable(void* self, signed char i);
 
 extern "C" void func_00195E58(void* self)
 {
     int flags = *(signed char*)((char*)self + 3);
     if ((flags & 1) == 0) {
-        func_00195A50(self, 0xC);
-        func_00195A50(self, 0xD);
-        func_00195A50(self, 0xE);
-        func_00195A50(self, 0xF);
+        FELocale_UnloadTable(self, 0xC);
+        FELocale_UnloadTable(self, 0xD);
+        FELocale_UnloadTable(self, 0xE);
+        FELocale_UnloadTable(self, 0xF);
     }
 }
 

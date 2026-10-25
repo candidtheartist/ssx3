@@ -188,8 +188,8 @@ extern "C" void* cBE_getBE();
 void* cBE_getInterface_ED90(void* be, int kind) __asm__("cBE_getInterface__Fv");
 signed char cBERewardInterface_getTrackMedal(void* self, int a, int b, int track, int kind);
 extern "C" int cBERewardInterface_getEarningsMedal(void* self, int a, int b, int kind);
-extern "C" int func_001589B0(void* self, int a, int b, int kind);
-extern "C" int func_00158A50(void* self, int a, int b, int kind);
+extern "C" int cBERewardInterface_GetCollectibleTier(void* self, int a, int b, int kind);
+extern "C" int cBERewardInterface_GetMissionTier(void* self, int a, int b, int kind);
 struct sReq_ED90
 {
     signed char track;
@@ -204,10 +204,10 @@ extern "C" void func_001CED90(int arg0, int arg1, int arg2, int arg3, int arg4)
     {
         if (arg4 == 0)
         {
-            func_001589B0(r, arg0, arg1, arg2);
+            cBERewardInterface_GetCollectibleTier(r, arg0, arg1, arg2);
             return;
         }
-        func_00158A50(r, arg0, arg1, arg2);
+        cBERewardInterface_GetMissionTier(r, arg0, arg1, arg2);
         return;
     }
     if (arg3 != 3)

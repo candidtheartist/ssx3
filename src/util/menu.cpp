@@ -4444,12 +4444,12 @@ extern "C" void* World_GetNash()
 }
 
 //100%
-extern "C" int func_001032C0(void* self, int a);
+extern "C" int FocusMan_AddObject(void* self, int a);
 extern char* D_004A28A8;
 
 extern "C" int World_AddFocusObject(int a)
 {
-    return func_001032C0(*(void**)(*(char**)(*(char**)(D_004A28A8 + 0x84) + 0xC) + 0xA4), a);
+    return FocusMan_AddObject(*(void**)(*(char**)(*(char**)(D_004A28A8 + 0x84) + 0xC) + 0xA4), a);
 }
 
 //100%

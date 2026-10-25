@@ -26,7 +26,7 @@ INCLUDE_ASM("fe/festaterewards3", cFEStateBuyAttrib_updateTotalCost);
 
 INCLUDE_ASM("fe/festaterewards3", cFEStateBuyAttrib_updateBank);
 
-INCLUDE_ASM("fe/festaterewards3", func_001F5300);
+INCLUDE_ASM("fe/festaterewards3", cFEStateBuyAttrib_CommitPurchase);
 
 INCLUDE_ASM("fe/festaterewards3", func_001F54B0);
 
@@ -52,7 +52,7 @@ INCLUDE_ASM("fe/festaterewards3", cFEStateCareerStats_ShowRacePage);
 
 INCLUDE_ASM("fe/festaterewards3", cFEStateCareerStats_ShowFreestylePage);
 
-INCLUDE_ASM("fe/festaterewards3", func_001F6840);
+INCLUDE_ASM("fe/festaterewards3", cFEStateCareerStats_SetText);
 
 INCLUDE_ASM("fe/festaterewards3", cFEStateCareerStats_setupRidersBest);
 

@@ -87,7 +87,7 @@ extern sCharTbl_2758 D_00535B20[];
 struct sSaveBits_2758 { unsigned a : 1; unsigned b : 8; unsigned rest : 23; };
 struct sSaveBits6_2758 { sSaveBits_2758 e[6]; };
 
-extern "C" void* func_00152758(void* self)
+extern "C" void* cBESaveInterface_BuildSystemSave(void* self)
 {
     int size = func_00152948(self);
     func_00152700_s(self);
@@ -137,7 +137,7 @@ extern "C" void cSSXApp_initLocale(void* app);
 extern "C" void func_00228C08(void* app);
 extern void* D_004A28A8;
 
-// Restores the save block written by func_00152758 after checking its CRC; returns 0 when the CRC is wrong.
+// Restores the save block written by cBESaveInterface_BuildSystemSave after checking its CRC; returns 0 when the CRC is wrong.
 extern "C" int func_00152BB0(void* self, char* buf)
 {
     int size = func_00152948(self) - 4;

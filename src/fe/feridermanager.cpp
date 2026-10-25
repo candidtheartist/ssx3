@@ -77,7 +77,7 @@ static inline sItemE7F0* getItemK19E7F0(sItemListE7F0* list, int i)
     return 0;
 }
 
-extern "C" void func_0019E7F0(int* self)
+extern "C" void cFERider_RequestExtraTextures(int* self)
 {
     char* mgr = *(char**)((char*)D_004A28A8 + 0x7C) + 0x1A70;
     void* iface = cBE_getInterface_Fv(cBE_getBE(), 9);
@@ -102,16 +102,16 @@ extern "C" void func_0019E7F0(int* self)
 }
 
 //100%
-extern "C" void func_0019EBA0(void* self);
+extern "C" void cFERider_Unload(void* self);
 extern "C" void* func_002F1890(void* mem, void* owner);
 extern "C" void* func_002ECA68(void* mem, void* owner, void* a2);
 extern "C" void* func_0030D4B8(void* mem);
 extern "C" void func_0030D840(void* self, int a1, int a2);
 extern "C" void func_002F19F0(void* self, void* a1);
-void func_0019FF00_i(void* self, void* list, void* prev, int force, int a4) __asm__("func_0019FF00");
-void func_0019FBE0_i(void* self, void* list, int a2, int a3) __asm__("func_0019FBE0");
-void func_0019F138_i(void* self) __asm__("func_0019F138");
-void func_0019E7F0_i(void* self) __asm__("func_0019E7F0");
+void cFERider_RequestBoltModels_i(void* self, void* list, void* prev, int force, int a4) __asm__("cFERider_RequestBoltModels");
+void cFERider_RequestBoltTextures_i(void* self, void* list, int a2, int a3) __asm__("cFERider_RequestBoltTextures");
+void cFERider_Update_i(void* self) __asm__("cFERider_Update");
+void cFERider_RequestExtraTextures_i(void* self) __asm__("cFERider_RequestExtraTextures");
 extern "C" void* cMemMan_alloc_init(int size, const char* tag, unsigned int flags, int d) __asm__("cMemMan_alloc");
 extern char D_00460AC0[];
 extern char D_00460AD8[];
@@ -125,7 +125,7 @@ extern "C" int cFERider_init(void* self_, int a1, int a2, int a3)
         return 1;
     }
     if (self[0] >= 0) {
-        func_0019EBA0(self);
+        cFERider_Unload(self);
     }
     int busy = (self[0xCC4 / 4] != 0) | (self[0xCC8 / 4] != 0);
     self[0x10 / 4] = a3;
@@ -146,12 +146,12 @@ extern "C" int cFERider_init(void* self_, int a1, int a2, int a3)
     func_0030D840(*(void**)(self + 0x8 / 4), 100, 0xF);
     func_002F19F0(*(void**)(self + 0xC70 / 4), *(void**)(self + 0x8 / 4));
     void* list = func_0014AD28(iface, a1, a2);
-    func_0019FF00_i(self, list, 0, self[0x10 / 4], 1);
+    cFERider_RequestBoltModels_i(self, list, 0, self[0x10 / 4], 1);
     if (self[0x10 / 4] != 0) {
-        func_0019E7F0_i(self);
+        cFERider_RequestExtraTextures_i(self);
     }
-    func_0019FBE0_i(self, list, 0, 1);
-    func_0019F138_i(self);
+    cFERider_RequestBoltTextures_i(self, list, 0, 1);
+    cFERider_Update_i(self);
     switch (self[0]) {
     case 0:
         self[0xCD8 / 4] = 1;
@@ -194,9 +194,9 @@ struct sVE_EBA0 {
     void (*fn)(void*, int);
 };
 extern "C" void func_0030D540(void* p, int flags);
-extern "C" void func_0019EC68(void* self);
+extern "C" void cFERider_ReleaseBoltFiles(void* self);
 
-extern "C" void func_0019EBA0(void* self)
+extern "C" void cFERider_Unload(void* self)
 {
     void* p = *(void**)((char*)self + 0x8);
     if (p != 0) {
@@ -221,7 +221,7 @@ extern "C" void func_0019EBA0(void* self)
     *(void**)((char*)self + 0xC) = 0;
     *(void**)((char*)self + 0xC70) = 0;
     *(void**)((char*)self + 0xC74) = 0;
-    func_0019EC68(self);
+    cFERider_ReleaseBoltFiles(self);
     *(int*)((char*)self + 0x0) = -1;
     *(int*)((char*)self + 0x4) = -1;
     *(int*)((char*)self + 0xCC8) = 0;
@@ -252,7 +252,7 @@ struct sItemListEC68 {
     sItemEC68 items[1];     // 0x290
 };
 
-extern "C" void func_0019EC68(void* p)
+extern "C" void cFERider_ReleaseBoltFiles(void* p)
 {
     int* self = (int*)p;
     if (self[1] < 0)
@@ -287,7 +287,7 @@ extern "C" void cAnimModel_compile(void* self, int a1);
 void* operator new(unsigned int size, const char* tag, unsigned int flags, int d) __asm__("cMemMan_alloc");
 struct sAnimMemED80 { char d[0x70]; };
 extern "C" void* cRiderAnimBase_cRiderAnimBase(void* self);
-extern "C" void func_00104D50(void* anim, void* rider);
+extern "C" void RiderAnim_SetActor(void* anim, void* rider);
 extern "C" void cRiderAnimBase_play(void* self, int anim, int flags, float blend);
 extern "C" void cRiderAnimBase_samplePose(void* self, int a1);
 extern "C" void cFERider_initBoneMap(void* self);
@@ -366,7 +366,7 @@ struct sVEEE88 {
     void (*fn)(void*, void*, int);
 };
 
-extern "C" void func_0019EE88(sFERiderEE88* self)
+extern "C" void cFERider_Render(sFERiderEE88* self)
 {
     sQuadED80 m[10];
     sQuadED80 q;
@@ -446,9 +446,9 @@ extern "C" void func_0019EE88(sFERiderEE88* self)
 extern void* D_004A289C;
 extern "C" int cFERider_init(void* self, int a1, int a2, int a3);
 extern "C" int func_001A0100(int* self);
-extern "C" int func_0019FD58(int* self);
-extern "C" void func_0019F780(int* self);
-extern "C" void func_0019F2D0(void* self);
+extern "C" int cFERider_PollTextures(int* self);
+extern "C" void cFERider_ApplyBoltMaterials(int* self);
+extern "C" void cFERider_ApplyTransform(void* self);
 extern "C" void cRiderAnimBase_update(void* anim, int a1, float blend);
 extern "C" void cRiderAnimBase_dispatchCompletions(void* anim);
 extern "C" void func_002F1A08(void* p);
@@ -482,7 +482,7 @@ struct sVEF138 {
     int (*fn)(void*);
 };
 
-extern "C" void func_0019F138(void* selfp)
+extern "C" void cFERider_Update(void* selfp)
 {
     sFERiderF138* self = (sFERiderF138*)selfp;
     if (self->pending >= 0) {
@@ -499,13 +499,13 @@ extern "C" void func_0019F138(void* selfp)
         if (self->fCBC == 0 && func_001A0100((int*)self)) {
             self->fCBC = 1;
         } else if (self->fCBC != 0) {
-            if (self->fCB8 == 0 && func_0019FD58((int*)self)) {
+            if (self->fCB8 == 0 && cFERider_PollTextures((int*)self)) {
                 self->fCB8 = 1;
                 if (self->fCB4 == 0) {
                     func_0019ED80((sFERiderED80*)self);
                 }
             } else if (self->fCBC != 0 && self->fCB8 != 0 && self->fCB4 != 0 && self->fCC0 == 0) {
-                func_0019F780((int*)self);
+                cFERider_ApplyBoltMaterials((int*)self);
                 self->fCC0 = 1;
                 int* pv = &self->fCC8;
                 *pv = self->fCC4 != 0 || *pv != 0;
@@ -518,7 +518,7 @@ extern "C" void func_0019F138(void* selfp)
             cRiderAnimBase_update(self->anim, 0, 1.0f);
             cRiderAnimBase_dispatchCompletions(self->anim);
         }
-        func_0019F2D0(self);
+        cFERider_ApplyTransform(self);
         func_002F1A08(self->fC70);
         func_002ECF78(self->fC74);
     }
@@ -532,7 +532,7 @@ extern sQuadF2D0 D_004FF220;
 extern "C" void cAnimModel_buildWorldPose(void* model, void* pose);
 extern "C" void cAnimModel_buildBoneMatrices(void* model);
 
-extern "C" void func_0019F2D0(void* self)
+extern "C" void cFERider_ApplyTransform(void* self)
 {
     sHalfF2D0 p[2];
     if (*(int*)((char*)self + 0xCCC) != 0) {
@@ -555,30 +555,30 @@ extern "C" void func_0019F2D0(void* self)
 
 //100%
 struct sQuadRM { int x[4]; } __attribute__((aligned(16)));
-extern "C" void func_0019F2D0(void* self);
+extern "C" void cFERider_ApplyTransform(void* self);
 
-extern "C" void func_0019F3E8(void* self, sQuadRM* src)
+extern "C" void cFERider_SetTransform(void* self, sQuadRM* src)
 {
     *(sQuadRM*)((char*)self + 0xC30) = src[0];
     *(sQuadRM*)((char*)self + 0xC40) = src[1];
-    func_0019F2D0(self);
+    cFERider_ApplyTransform(self);
 }
 
-INCLUDE_ASM("fe/feridermanager", func_0019F418);
+INCLUDE_ASM("fe/feridermanager", cFERider_MoveLocal);
 
 INCLUDE_ASM("fe/feridermanager", func_0019F488);
 
 //100%
-extern "C" void func_0019F2D0(void* self);
+extern "C" void cFERider_ApplyTransform(void* self);
 
-extern "C" void func_0019F548(void* self, sQuadRM* src)
+extern "C" void cFERider_SetTransform2(void* self, sQuadRM* src)
 {
     *(sQuadRM*)((char*)self + 0xC50) = src[0];
     *(sQuadRM*)((char*)self + 0xC60) = src[1];
-    func_0019F2D0(self);
+    cFERider_ApplyTransform(self);
 }
 
-INCLUDE_ASM("fe/feridermanager", func_0019F578);
+INCLUDE_ASM("fe/feridermanager", cFERider_MoveLocal2);
 
 INCLUDE_ASM("fe/feridermanager", func_0019F5E8);
 
@@ -614,14 +614,14 @@ extern "C" void func_0019F718(char* self, int i, sFrmQuad* v)
 void cRiderAnimBase_getChannelAnim(void* p, int a);
 
 //100%
-extern "C" void func_0019F740(void* self)
+extern "C" void cFERider_GetChannelAnim(void* self)
 {
     cRiderAnimBase_getChannelAnim(*(void**)((char*)self + 0xC), 2);
 }
 
 extern "C" void cRiderAnimBase_getChannelProgress(void* p, int a);
 
-extern "C" void func_0019F760(char* self)
+extern "C" void cFERider_GetChannelProgress(char* self)
 {
     cRiderAnimBase_getChannelProgress(*(void**)(self + 0xC), 2);
 }
@@ -665,7 +665,7 @@ static inline sBoneEntF780* getEntK19F780(sBoneDbF780* db, int i)
     return &db->entries[i];
 }
 
-extern "C" void func_0019F780(int* self)
+extern "C" void cFERider_ApplyBoltMaterials(int* self)
 {
     void* iface = cBE_getInterface_Fv(cBE_getBE(), 9);
     sBoneDbF780* db = (sBoneDbF780*)func_0014BDB8_noarg();
@@ -741,7 +741,7 @@ struct sVE_F908b {
     void (*fn)(void*, int, char*, int);
 };
 
-extern "C" void func_0019F908(sRiderTable_F878* self, sPkg_F908* pkg, int replace)
+extern "C" void cFERider_LoadShapeTextures(sRiderTable_F878* self, sPkg_F908* pkg, int replace)
 {
     int n = pkg->count;
     int i;
@@ -810,7 +810,7 @@ static inline sItemFA78* getItemK19FA78(sItemListFA78* list, int i)
     return 0;
 }
 
-extern "C" void func_0019FA78(int* self, sItemListFA78* list)
+extern "C" void cFERider_ReleaseBoltTextures(int* self, sItemListFA78* list)
 {
     void* iface = cBE_getInterface_Fv(cBE_getBE(), 9);
     void* db = func_0014BDB8_noarg();
@@ -854,7 +854,7 @@ extern "C" int func_0019CCE8(void* self, int a1, int a2);
 extern "C" void func_0019CD38(void* self, int bit, int a2, int val);
 extern "C" void func_0019E070(void* mgr, int bank);
 struct sItemListFA78;
-extern "C" void func_0019FA78(int* self, sItemListFA78* list);
+extern "C" void cFERider_ReleaseBoltTextures(int* self, sItemListFA78* list);
 extern void* D_004A28A8;
 extern void* D_004A1968;
 
@@ -884,12 +884,12 @@ static inline sItemFBE0* getItemK19FBE0(sItemListFBE0* list, int i)
     return 0;
 }
 
-extern "C" void func_0019FBE0(int* self, sItemListFBE0* list, int a2, int a3)
+extern "C" void cFERider_RequestBoltTextures(int* self, sItemListFBE0* list, int a2, int a3)
 {
     void* iface = cBE_getInterface_Fv(cBE_getBE(), 9);
     void* db = func_0014BDB8_noarg();
     char* mgr = *(char**)((char*)D_004A28A8 + 0x7C) + 0x1A70;
-    func_0019FA78(self, (sItemListFA78*)list);
+    cFERider_ReleaseBoltTextures(self, (sItemListFA78*)list);
     *(int*)((char*)self + 0xCB8) = 0;
     *(int*)((char*)self + 0xCC0) = 0;
     int n = func_0014D988(db, self[0]);
@@ -935,7 +935,7 @@ struct sItemListFD58 {
     sItemFD58 items[1];     // 0x290
 };
 
-extern "C" int func_0019FD58(int* self)
+extern "C" int cFERider_PollTextures(int* self)
 {
     if (*(int*)((char*)self + 0xCB8) != 0) {
         return 1;
@@ -964,7 +964,7 @@ extern "C" int func_0019FD58(int* self)
                 if (func_0019E2B0(mgr, self[0], r) && used[r] == 0) {
                     sPkg_F908* pkg = (sPkg_F908*)func_0019E2B0(mgr, self[0], r);
                     int fl = it->flags & 0x10;
-                    func_0019F908((sRiderTable_F878*)self, pkg, fl != 0);
+                    cFERider_LoadShapeTextures((sRiderTable_F878*)self, pkg, fl != 0);
                 }
                 used[r] = 1;
                 func_0019DC20(mgr, self[0], r);
@@ -1013,7 +1013,7 @@ static inline sBoneEntFF00* getEntK19FF00(sBoneDbFF00* db, int i)
     return &db->entries[i];
 }
 
-extern "C" void func_0019FF00(int* self, sItemListFF00* list, sItemFF00* prev, int force, int a4)
+extern "C" void cFERider_RequestBoltModels(int* self, sItemListFF00* list, sItemFF00* prev, int force, int a4)
 {
     int n = list->count;
     sBoneDbFF00* db = (sBoneDbFF00*)func_0014BDB8_noarg();
@@ -1162,7 +1162,7 @@ extern "C" void func_001A0358(void* self)
 //100%
 extern "C" void* func_0019E3D0(void* self);
 
-extern "C" void* func_001A03C0(void* self)
+extern "C" void* cFE_InitRiderPreviews(void* self)
 {
     char* p = (char*)self;
     int i;
@@ -1177,7 +1177,7 @@ extern "C" void func_001A04C8(void* self);
 extern "C" void func_0019E498(void* self, int flags);
 void operator_delete(int* p);
 
-extern "C" void func_001A0420(void* self, int flags)
+extern "C" void cFE_DestroyRiderPreviews(void* self, int flags)
 {
     func_001A04C8(self);
     char* base = (char*)self;
@@ -1211,13 +1211,13 @@ extern "C" void func_001A0498(sRiderSlot_001A0498* self)
 }
 
 //100%
-extern "C" void func_0019EBA0(void* slot);
+extern "C" void cFERider_Unload(void* slot);
 
 extern "C" void func_001A04C8(void* self)
 {
     int i;
     for (i = 0; i < 2; i++) {
-        func_0019EBA0((char*)self + i * 0xce0);
+        cFERider_Unload((char*)self + i * 0xce0);
     }
 }
 
@@ -1255,10 +1255,10 @@ extern "C" void func_001A0570(void* self, int i, int v)
 }
 
 //100%
-extern "C" void func_0019EE88_p3(void* rider) __asm__("func_0019EE88");
+extern "C" void cFERider_Render_p3(void* rider) __asm__("cFERider_Render");
 
 // Resets the world's rider camera indices and updates both active riders.
-extern "C" void func_001A0598(char* self)
+extern "C" void cFE_RenderRiderPreviews(char* self)
 {
     char* p = (char*)D_004A289C;
     *(int*)(p + 0x24) = 0x2E;
@@ -1267,18 +1267,18 @@ extern "C" void func_001A0598(char* self)
     for (int i = 0; i < 2; i++) {
         p = self + i * 0xCE0;
         if (*(int*)(p + 0xCC8) != 0)
-            func_0019EE88_p3(p);
+            cFERider_Render_p3(p);
     }
 }
 
 //100%
-extern "C" void func_0019F138(void* slot);
+extern "C" void cFERider_Update(void* slot);
 
 extern "C" void func_001A0608(void* self)
 {
     int i;
     for (i = 0; i < 2; i++) {
-        func_0019F138((char*)self + i * 0xce0);
+        cFERider_Update((char*)self + i * 0xce0);
     }
 }
 
