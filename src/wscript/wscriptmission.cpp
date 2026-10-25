@@ -84,13 +84,13 @@ extern "C" sEnt_CG *func_0014FF90_CG(void *iface, int player, int slot, int *out
 extern "C" int func_0014FEA8_CG(void *iface, int player, int slot, int second) __asm__("func_0014FEA8");
 extern "C" int func_00150048_CG(void *iface, int player, int slot, int i) __asm__("func_00150048");
 extern "C" int func_0014FFB8_CG(void *iface, int player, int slot, int i) __asm__("func_0014FFB8");
-extern "C" const char *func_00116938_CG(int id) __asm__("func_00116938");
+extern "C" const char *Trick_GetGrabName_CG(int id) __asm__("Trick_GetGrabName");
 extern "C" void *func_00398380_CG(void *self, int id) __asm__("func_00398380");
-extern "C" void func_00183D08_CG(cUIThing_CG *self, void *rect, float scale) __asm__("func_00183D08");
+extern "C" void UI_SetWidgetSizeFromTexRect_CG(cUIThing_CG *self, void *rect, float scale) __asm__("UI_SetWidgetSizeFromTexRect");
 extern "C" void func_003A1030_CG(cUIThing_CG *self, sVec3_CG *out) __asm__("func_003A1030");
 extern "C" void func_003A0290_CG(cUIThing_CG *self, sVec3_CG *out) __asm__("func_003A0290");
 
-static inline void setRect_CG(cUIThing_CG *o, void *r) { func_00183D08_CG(o, r, 0.8f); }
+static inline void setRect_CG(cUIThing_CG *o, void *r) { UI_SetWidgetSizeFromTexRect_CG(o, r, 0.8f); }
 extern "C" void cWScriptMan_checkGate(void *self)
 {
     sMan_CG *s = (sMan_CG *)self;
@@ -134,7 +134,7 @@ extern "C" void cWScriptMan_checkGate(void *self)
         if (func_00150048_CG(iface, s->player, lvl, j)) {
             cUIThing_CG *o = a[k];
             if (o != 0) {
-                cUIText_setAsciiString_CG(o, func_00116938_CG(tbl[j].id));
+                cUIText_setAsciiString_CG(o, Trick_GetGrabName_CG(tbl[j].id));
                 o->v09(1);
                 o->v08(0);
                 T_(o)->x18 = j;

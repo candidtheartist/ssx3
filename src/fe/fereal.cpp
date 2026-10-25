@@ -900,7 +900,7 @@ struct sVEntry001A2190 {
 extern void* D_004A289C;
 extern void* D_004A28A8;
 extern char D_005047F8[];
-extern "C" void func_001A2BC0(void* self);
+extern "C" void cFE_UnloadAnimData(void* self);
 extern "C" void func_001A04C8(void* p);
 extern "C" void func_0019CF40(void* p);
 extern "C" void func_0038ADB0(void* p);
@@ -912,7 +912,7 @@ extern "C" void func_001A2190(void* self)
     char* g = (char*)D_004A289C;
     sVEntry001A2190* vt = *(sVEntry001A2190**)(g + 0x10D8);
     vt[19].fn(g + vt[19].delta);
-    func_001A2BC0(self);
+    cFE_UnloadAnimData(self);
     func_001A04C8((char*)self + 0xB0);
     func_0019CF40((char*)self + 0x1A70);
     func_0038ADB0(D_005047F8);
@@ -926,7 +926,7 @@ extern "C" void func_001A2190(void* self)
 extern "C" int func_00231D60(void* self);
 extern "C" void func_00253890(void* h, int a1);
 extern "C" void func_00398018(void* ui);
-extern "C" void func_001A0598(void* p);
+extern "C" void cFE_RenderRiderPreviews(void* p);
 extern "C" void func_00397DF8(void* ui);
 extern "C" void cSSXAudio_update(void* snd, int a1, float t);
 extern "C" void* func_0028B180();
@@ -1184,7 +1184,7 @@ extern "C" void cGameAnimMap_removeBank(void* a, void* b);
 extern "C" void cAnimDataBase_freeChanCaches(void* a);
 extern "C" void cAdfDataSource__cAdfDataSource(void* a, int b);
 
-extern "C" void func_001A2BC0(void* self)
+extern "C" void cFE_UnloadAnimData(void* self)
 {
     int i;
     for (i = 0; i < 1; i++) {

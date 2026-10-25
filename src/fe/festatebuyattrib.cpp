@@ -107,13 +107,13 @@ extern "C" int func_001F4A38(void* self, int a1, unsigned int key)
 }
 
 //100%
-extern "C" void func_001F5300(void* self);
+extern "C" void cFEStateBuyAttrib_CommitPurchase(void* self);
 
 extern "C" void func_001F4A60(void* self, void* sender, int msg)
 {
     if (msg == 0x16) {
         if (*(int*)((char*)sender + 0x6C) != 0) {
-            func_001F5300(self);
+            cFEStateBuyAttrib_CommitPurchase(self);
         }
     }
 }
@@ -493,7 +493,7 @@ struct sBuyAttrib_5300 {
 };
 
 // Commits the purchased attribute points: pays, records each point with the economy and resets the counters.
-extern "C" void func_001F5300(void* p)
+extern "C" void cFEStateBuyAttrib_CommitPurchase(void* p)
 {
     sBuyAttrib_5300* self = (sBuyAttrib_5300*)p;
     self->bank -= self->cost;
@@ -1227,7 +1227,7 @@ int GetHashValue32(char* str);
 extern "C" void* cUIScreen_getObjectByHashName(void* self, int hash);
 void cUIText_setAsciiString(cUIText* text, const char* str);
 
-extern "C" void func_001F6840(void* self, char* name, const char* str)
+extern "C" void cFEStateCareerStats_SetText(void* self, char* name, const char* str)
 {
     cUIText* text = (cUIText*)cUIScreen_getObjectByHashName(*(void**)((char*)self + 0x40), GetHashValue32(name));
     if (text != 0) {

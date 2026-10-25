@@ -5,8 +5,8 @@
 void* operator new(unsigned int size, const char* tag, unsigned int flags, int d) __asm__("cMemMan_alloc");
 extern "C" void* func_00231CD0(void* self);
 extern "C" void* func_0015D698(void* self);
-extern "C" void* func_001A03C0(void* self);
-extern "C" void* func_0019CDF0(void* self);
+extern "C" void* cFE_InitRiderPreviews(void* self);
+extern "C" void* BoltFile_CacheCtor(void* self);
 // PORT: called with an extra int in $a1 here; func_0015D700's body is (self, x, y, z). Bound by asm label.
 void func_0015D700_i(void* self, int a1, float x, float y, float z) __asm__("func_0015D700");
 extern void* D_0046D878[];
@@ -31,8 +31,8 @@ extern "C" void* cFE_cFE(void* self)
     *(void***)((char*)self + 0x0) = D_0046D878;
     func_0015D698((char*)self + 0x10);
     *(void***)((char*)self + 0xA0) = D_0046D8D8;
-    func_001A03C0((char*)self + 0xB0);
-    func_0019CDF0((char*)self + 0x1A70);
+    cFE_InitRiderPreviews((char*)self + 0xB0);
+    BoltFile_CacheCtor((char*)self + 0x1A70);
     *(cFEObjK1956F8_70**)((char*)self + 0xC) = new (D_004601F0, 0, 0) cFEObjK1956F8_70;
     func_0015D700_i((char*)self + 0x10, 0, 0.7853981852531433f, 5.0f, 5000.0f);
     *(cFEObjK1956F8_1**)((char*)self + 0xB5AA0) = new (D_00460200, 0, 0) cFEObjK1956F8_1(1);
@@ -44,8 +44,8 @@ void operator_delete(int* p);
 extern "C" void func_00397B70(void* p, int flags);
 extern "C" void func_0036A020(void* p);
 extern "C" void func_002DBEE0(void* p, int flags);
-extern "C" void func_0019CE20(void* p, int flags);
-extern "C" void func_001A0420(void* p, int flags);
+extern "C" void BoltFile_CacheDtor(void* p, int flags);
+extern "C" void cFE_DestroyRiderPreviews(void* p, int flags);
 extern void* D_004A289C;
 extern void* D_0046D878[];
 extern void* D_0046D970[];
@@ -61,8 +61,8 @@ extern "C" void func_001957D0(void* self, int flags)
     if (*(void**)((char*)self + 0xB5AA0) != 0) {
         func_002DBEE0(*(void**)((char*)self + 0xB5AA0), 3);
     }
-    func_0019CE20((char*)self + 0x1A70, 2);
-    func_001A0420((char*)self + 0xB0, 2);
+    BoltFile_CacheDtor((char*)self + 0x1A70, 2);
+    cFE_DestroyRiderPreviews((char*)self + 0xB0, 2);
     *(void***)((char*)self + 0xA0) = D_0045B8B0;
     *(void***)((char*)self + 0x0) = D_0046D970;
     if (flags & 1) {
@@ -107,13 +107,13 @@ extern "C" void FELocale_v01(void* self, int flags)
 }
 
 //100%
-extern "C" void func_00195A50(void* self, int i);
+extern "C" void FELocale_UnloadTable(void* self, int i);
 
 extern "C" void func_00195948(void* self)
 {
     signed char i;
     for (i = 0; i < 20; i++) {
-        func_00195A50(self, i);
+        FELocale_UnloadTable(self, i);
     }
 }
 

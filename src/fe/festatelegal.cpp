@@ -38,7 +38,7 @@ extern "C" void func_00187CB8(void* self)
     }
 }
 
-INCLUDE_ASM("fe/festatelegal", func_00187D38);
+INCLUDE_ASM("fe/festatelegal", cFEStateOptions_ApplyCheatCode);
 
 //100%
 struct sFlowState_887A0 {

@@ -126,7 +126,7 @@ extern "C" float func_00149208(void* self, int rider, int value)
 
 //100%
 // Same as func_00149208, kept as its own copy like the rest of the unit.
-extern "C" float func_001492F0(void* self, int rider, int value)
+extern "C" float cBEStatInterface_GetAttrib6Factor_3(void* self, int rider, int value)
 {
     int profile = cBELibrary_getProfileIndex(rider);
     int c = cBELibrary_getCharacterID(rider);

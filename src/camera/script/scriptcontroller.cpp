@@ -181,7 +181,7 @@ extern void* D_004A28A8;
 struct sVec4K9418 { float x, y, z, w; } __attribute__((aligned(16)));
 // Same object as the unit's later `extern ManualScriptCameraAlgo_ctor_sVec4 D_004FF130;` (that type is defined below this point).
 extern sVec4K9418 D_004FF130_K9418 __asm__("D_004FF130");
-extern "C" float func_00167E30(void* self);
+extern "C" float CameraAlgorithm_DefaultFov(void* self);
 
 struct sCamCtlK9418 {
     float fov;      // 0x0
@@ -199,7 +199,7 @@ extern "C" void* func_00169418(void* p)
 {
     sCamCtlK9418* self = (sCamCtlK9418*)p;
     self->vtbl = D_0045BDE0;
-    float fov = func_00167E30(self);
+    float fov = CameraAlgorithm_DefaultFov(self);
     self->type = 0x55;
     self->vtbl = D_0045C8B8;
     self->fov = fov;
@@ -1923,25 +1923,25 @@ extern "C" void func_0016BCB8(float* p)
 
 INCLUDE_ASM("camera/script/scriptcontroller", func_0016BCE0);
 
-INCLUDE_ASM("camera/script/scriptcontroller", func_0016BD30);
+INCLUDE_ASM("camera/script/scriptcontroller", Math_WrapAngleClampHalfPi);
 
 extern "C" void func_0016BCE0(float* p);
 
 // The same in degrees
-extern "C" void func_0016BDA0(float* p)
+extern "C" void Math_WrapAngleDeg(float* p)
 {
     float r = *p * 0.017453294f;
     func_0016BCE0(&r);
     *p = r * 57.295776f;
 }
 
-extern "C" void func_0016BD30(float* p);
+extern "C" void Math_WrapAngleClampHalfPi(float* p);
 
 // The same in degrees
-extern "C" void func_0016BDE8(float* p)
+extern "C" void Math_WrapAngleClampDeg(float* p)
 {
     float r = *p * 0.017453294f;
-    func_0016BD30(&r);
+    Math_WrapAngleClampHalfPi(&r);
     *p = r * 57.295776f;
 }
 

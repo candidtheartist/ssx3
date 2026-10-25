@@ -168,7 +168,7 @@ extern "C" void cRiderMetrix_resetCombo(void* self)
 }
 
 //100%
-extern "C" void func_001171A8(void* self, int type, int value, int arg, float f);
+extern "C" void cHUDFX_ShowNumberDelayed(void* self, int type, int value, int arg, float f);
 
 // PORT: g++ <? (min) operator, removed in GCC 4.3.
 static inline float rmClamp_117638(float v, float lo, float hi)
@@ -202,7 +202,7 @@ extern "C" void cRiderMetrix_addComboTrick(void* self, int points)
             char* p = r + 0x1D4;
             if (!rmIsState_117638(p, 0x34))
                 v = *(int*)(r + 0x1E8);
-            func_001171A8(p, 3, v, n, 0.0f);
+            cHUDFX_ShowNumberDelayed(p, 3, v, n, 0.0f);
         }
     }
 }
@@ -825,7 +825,7 @@ extern "C" float cRiderMetrix_onKnockout(char* self)
 }
 
 //100%
-extern "C" void func_001171A8(void* self, int type, int value, int arg, float f);
+extern "C" void cHUDFX_ShowNumberDelayed(void* self, int type, int value, int arg, float f);
 
 extern "C" float cRiderMetrix_onMultiplierPickup(char* self, float value)
 {
@@ -836,7 +836,7 @@ extern "C" float cRiderMetrix_onMultiplierPickup(char* self, float value)
     {
         if (metrix->mMultiplier < value)
         {
-            func_001171A8(p + 0x270, 4, (int)value, 0, 0.0f);
+            cHUDFX_ShowNumberDelayed(p + 0x270, 4, (int)value, 0, 0.0f);
             metrix->mMultiplier = value;
         }
     }
@@ -1275,8 +1275,8 @@ extern "C" float cRiderMetrix_onTakeoff(void* self, int a, int b)
 }
 
 //100%
-extern "C" void func_001E3760(int rider, int amt);
-extern "C" void func_001597B0(void* self, int rider, int c);
+extern "C" void MessageCenter_CheckCashMessages(int rider, int amt);
+extern "C" void cBERewardInterface_AddPointsForRider(void* self, int rider, int c);
 
 class cRiderPart_9EF8 {
 public:
@@ -1307,8 +1307,8 @@ extern "C" float cRiderMetrix_awardCash_def(char* self, int kind, int amount)
         return 0.0f;
     }
     void* iface = cBE_getInterface(cBE_getBE(), 0xD);
-    func_001E3760(((cRiderPart_9EF8*)(metrix->mRider + 0x6C0))->v07(), amount);
-    func_001597B0(iface, ((cRiderPart_9EF8*)(metrix->mRider + 0x6C0))->v07(), amount);
+    MessageCenter_CheckCashMessages(((cRiderPart_9EF8*)(metrix->mRider + 0x6C0))->v07(), amount);
+    cBERewardInterface_AddPointsForRider(iface, ((cRiderPart_9EF8*)(metrix->mRider + 0x6C0))->v07(), amount);
     cRiderMetrix_postPointsMsg_9EF8(self, 0x18, amount, 0, 0.699999988079071f);
     switch (kind) {
     case 3:
@@ -1340,7 +1340,7 @@ float cRiderMetrix_evAutoResetSurface(void* self)
 }
 
 //100%
-float func_0011A0C0(void* self)
+float cRiderMetrix_ReturnZero_a0c0(void* self)
 {
     return 0.0f;
 }
@@ -1353,7 +1353,7 @@ extern "C" float func_0011A0D0()
 //100%
 extern "C" void cRiderMetrix_postPointsMsg(void* self, int type, int value, int arg, float duration);
 
-extern "C" float func_0011A0E0(void* self)
+extern "C" float cRiderMetrix_PostPointsMsg1A(void* self)
 {
     cRiderMetrix_postPointsMsg(self, 0x1A, 0, 0, 1.0f);
     return 0.0f;
@@ -1783,7 +1783,7 @@ extern "C" void updateRiderSpeedLimit(void *rider)
 extern "C" void* func_0041AA88(void* self);
 
 //100%
-void* func_0011B678(void* self)
+void* cRider_LoadListCompare(void* self)
 {
     return func_0041AA88(self);
 }

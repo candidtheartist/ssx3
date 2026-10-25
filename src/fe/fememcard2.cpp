@@ -6,7 +6,7 @@ INCLUDE_ASM("fe/fememcard2", cFEMemCard_callbackReadSuccess);
 
 INCLUDE_ASM("fe/fememcard2", func_001D68E8);
 
-INCLUDE_ASM("fe/fememcard2", func_001D69E0);
+INCLUDE_ASM("fe/fememcard2", cFEMemCard_ShowCreateEditMsg);
 
 INCLUDE_ASM("fe/fememcard2", func_001D6AD0);
 
@@ -50,7 +50,7 @@ INCLUDE_ASM("fe/fememcard2", func_001D8358);
 
 INCLUDE_ASM("fe/fememcard2", func_001D83A8);
 
-INCLUDE_ASM("fe/fememcard2", func_001D8530);
+INCLUDE_ASM("fe/fememcard2", cFEMemCard_ShowMessage);
 
 INCLUDE_ASM("fe/fememcard2", func_001D8670);
 
@@ -60,21 +60,21 @@ INCLUDE_ASM("fe/fememcard2", func_001D86B0);
 
 INCLUDE_ASM("fe/fememcard2", func_001D8700);
 
-INCLUDE_ASM("fe/fememcard2", func_001D8BE0);
+INCLUDE_ASM("fe/fememcard2", cFEMemCard_ResetState);
 
 INCLUDE_ASM("fe/fememcard2", func_001D8C38);
 
 INCLUDE_ASM("fe/fememcard2", cFEMemCard_onInputBegin);
 
-INCLUDE_ASM("fe/fememcard2", func_001D8D68);
+INCLUDE_ASM("fe/fememcard2", cFEMemCard_ShowStatus);
 
 INCLUDE_ASM("fe/fememcard2", func_001D8DE0);
 
-INCLUDE_ASM("fe/fememcard2", func_001D9258);
+INCLUDE_ASM("fe/fememcard2", cFEMemCard_SyncMenuSelection);
 
 INCLUDE_ASM("fe/fememcard2", func_001D9308);
 
-INCLUDE_ASM("fe/fememcard2", func_001D9368);
+INCLUDE_ASM("fe/fememcard2", cFEMemCard_SetModeMenu);
 
 INCLUDE_ASM("fe/fememcard2", func_001D93A8);
 
@@ -88,15 +88,15 @@ INCLUDE_ASM("fe/fememcard2", func_001D93D0);
 
 INCLUDE_ASM("fe/fememcard2", func_001D93D8);
 
-INCLUDE_ASM("fe/fememcard2", func_001D93E8);
+INCLUDE_ASM("fe/fememcard2", cFEMemCard_PlayWidgetAnim);
 
 INCLUDE_ASM("fe/fememcard2", cFEMemCard_triggerDisplayState);
 
 INCLUDE_ASM("fe/fememcard2", func_001D97E0);
 
-INCLUDE_ASM("fe/fememcard2", func_001D9818);
+INCLUDE_ASM("fe/fememcard2", cFEMemCard_OnActivate);
 
-INCLUDE_ASM("fe/fememcard2", func_001D9878);
+INCLUDE_ASM("fe/fememcard2", cFEMemCard_OnDeactivate);
 
 INCLUDE_ASM("fe/fememcard2", func_001D9880);
 

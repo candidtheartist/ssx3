@@ -445,7 +445,7 @@ extern "C" void* RiderCameraTarget_GetUp(void* self, void* a1)
 }
 
 //100%
-float func_0015F640(void* self)
+float RiderCameraTarget_GetSteer(void* self)
 {
     return *(float*)((char*)*(void**)((char*)self + 0x4) + 0x1f0);
 }
@@ -467,13 +467,13 @@ extern "C" void* RiderCameraTarget_GetPrevGroundNormal(void* self, void* a1)
 }
 
 //100%
-void* func_0015F680(void* self)
+void* RiderCameraTarget_GetHandplantData0(void* self)
 {
     return (char*)*(void**)((char*)*(void**)((char*)self + 0x4) + 0x77c) + 0x130;
 }
 
 //100%
-void* func_0015F690(void* self)
+void* RiderCameraTarget_GetHandplantData1(void* self)
 {
     return (char*)*(void**)((char*)*(void**)((char*)self + 0x4) + 0x77c) + 0x140;
 }
@@ -507,7 +507,7 @@ void* RiderCameraTarget_GetJumpOrigin(void* self)
 }
 
 //100%
-void* func_0015F6F0(void* self)
+void* RiderCameraTarget_GetJumpDir(void* self)
 {
     return (char*)*(void**)((char*)self + 0x4) + 0x3c0;
 }
@@ -519,7 +519,7 @@ float RiderCameraTarget_GetBoost(void* self)
 }
 
 //100%
-float func_0015F710(void* self)
+float RiderCameraTarget_GetSlopeTerm(void* self)
 {
     return *(float*)((char*)*(void**)((char*)self + 0x4) + 0x220);
 }
@@ -544,13 +544,13 @@ int RiderCameraTarget_GetSurfaceType(void* self)
 }
 
 //100%
-float func_0015F760(void* self)
+float RiderCameraTarget_GetTakeoffPop(void* self)
 {
     return *(float*)((char*)*(void**)((char*)self + 0x4) + 0x5a4);
 }
 
 //100%
-int func_0015F770(void* self)
+int RiderCameraTarget_IsOllie(void* self)
 {
     return *(int*)((char*)*(void**)((char*)self + 0x4) + 0x5a8);
 }
@@ -558,7 +558,7 @@ int func_0015F770(void* self)
 INCLUDE_ASM("camera/camera", RiderCameraTarget_v23);
 
 //100%
-int func_0015F908(void* self)
+int RiderCameraTarget_GetRailFlag(void* self)
 {
     return *(int*)((char*)*(void**)((char*)self + 0x4) + 0x5ac);
 }
@@ -570,7 +570,7 @@ void* RiderCameraTarget_GetLandingNormal(void* self)
 }
 
 //100%
-void* func_0015F928(void* self)
+void* RiderCameraTarget_GetLandingVelocity(void* self)
 {
     return (char*)*(void**)((char*)*(void**)((char*)self + 0x4) + 0x788) + 0x10;
 }
@@ -580,12 +580,12 @@ extern void* D_0045BDE0[];
 extern void* D_0045BD78[];
 // PORT: cQuad128 (the unit's 128-bit TImode typedef) is a 16-byte register copy.
 extern cQuad128 D_004FF130;
-extern "C" float func_00167E30(void* self);
+extern "C" float CameraAlgorithm_DefaultFov(void* self);
 
 extern "C" void* func_0015F938(void* self)
 {
     *(void***)((char*)self + 0x10) = D_0045BDE0;
-    *(float*)self = func_00167E30(self);
+    *(float*)self = CameraAlgorithm_DefaultFov(self);
     *(int*)((char*)self + 0xC) = 0x4E;
     *(float*)((char*)self + 0x4) = 10.0f;
     *(float*)((char*)self + 0x8) = 30000.0f;
@@ -1118,7 +1118,7 @@ void* func_00160478(void* self)
 }
 
 //100%
-float func_001604A0(void* self)
+float ManualChaseCameraAlgorithm_v13(void* self)
 {
     return 0.0f;
 }
@@ -1134,7 +1134,7 @@ extern void* D_004A28A8;
 extern "C" float func_00320BF0(int pad, int axis);
 extern "C" void func_00162568(void* self, struct sCamInfo_001607E0* out, float a, float b, float c, float d,
                               float e, float f, float g, float h);
-extern "C" void func_001668B8(void* self, void* out);
+extern "C" void ChaseCameraAlgorithm_GetForwardFromAngles(void* self, void* out);
 extern float D_004A127C;
 extern float D_004A1280;
 extern float D_004A1284;
@@ -1276,7 +1276,7 @@ extern "C" void func_001604B8(char* self)
     ((sCamYP_1604B8*)self)->pitch = D_004A1280;
     ((sCamYP_1604B8*)self)->yaw = D_004A127C;
     sVec_1604B8 dir;
-    func_001668B8(self, &dir);
+    ChaseCameraAlgorithm_GetForwardFromAngles(self, &dir);
     DivEq_1604B8(dir, Length_1604B8(dir));
     D_004A1284 = Clamp_1604B8(D_004A1284 * (az * k + 1.0f), 150.0f, 850.0f);
     *(sVec_1604B8*)(self + 0x20) = info.pos;
@@ -1335,7 +1335,7 @@ void* func_001607A0(void* self)
 }
 
 //100%
-float func_001607C8(void* self)
+float MatrixChaseCameraAlgorithm_v13(void* self)
 {
     return 0.0f;
 }
@@ -1554,7 +1554,7 @@ void* func_00160BB8(void* self)
 }
 
 //100%
-float func_00160BE0(void* self)
+float RelativeChaseCameraAlgorithm_v13(void* self)
 {
     return 0.0f;
 }
@@ -1753,7 +1753,7 @@ extern "C" void func_00161370(void* self, int flags)
 }
 
 //100%
-float func_001613D8(void* self)
+float SplineCameraAlgorithm_v13(void* self)
 {
     return 0.0f;
 }
@@ -1815,7 +1815,7 @@ void* func_001616E8(void* self)
 }
 
 //100%
-float func_00161710(void* self)
+float IdleChaseCameraAlgorithm_v13(void* self)
 {
     return 0.0f;
 }
@@ -2276,12 +2276,12 @@ void* func_00162290(void* self)
 //100%
 extern void* D_0045BDE0[];
 extern void* D_0045BC38[];
-extern "C" float func_00167E30(void* self);
+extern "C" float CameraAlgorithm_DefaultFov(void* self);
 
 extern "C" void* func_001622B0(void* self)
 {
     *(void***)((char*)self + 0x10) = D_0045BDE0;
-    *(float*)self = func_00167E30(self);
+    *(float*)self = CameraAlgorithm_DefaultFov(self);
     *(int*)((char*)self + 0xC) = 0x4E;
     *(float*)((char*)self + 0x4) = 10.0f;
     *(float*)((char*)self + 0x8) = 30000.0f;
@@ -2572,7 +2572,7 @@ extern "C" void func_00162568_impl(char* self, char* out, float a, float b, floa
 }
 
 //100%
-extern "C" void func_00162998(void* self, void* obj)
+extern "C" void ChaseCameraAlgorithm_UpdateHandplantFade(void* self, void* obj)
 {
     float v;
     if (*(int*)((char*)obj + 0x5C) == 0) {
@@ -2644,7 +2644,7 @@ static inline void Normalize_162A20(sVec4_162A20& v)
     DivEq_162A20(v, Length_162A20(v));
 }
 
-extern "C" void func_00162A20(char* self, char* trig)
+extern "C" void ChaseCameraAlgorithm_UpdateAirTransitions(char* self, char* trig)
 {
     if (*(int*)(trig + 0x60))
     {
@@ -2982,7 +2982,7 @@ static inline sVec4_163450 Scale_163450(const sVec4_163450& v, float s)
     return r;
 }
 
-extern "C" void func_00163450(char* self, char* trig, float a, float b, float c, float d, float e, float f, float g)
+extern "C" void ChaseCameraAlgorithm_ApplyHandplantHold(char* self, char* trig, float a, float b, float c, float d, float e, float f, float g)
 {
     if (*(int*)(trig + 0x5C))
     {
@@ -3143,7 +3143,7 @@ static inline float Length_1643A8(const sVec_1643A8& v)
 
 #define S_1643A8 ((char*)self)
 #define I_1643A8 ((char*)info)
-extern "C" void func_001643A8(void* self, void* info, float a, float b, float c)
+extern "C" void ChaseCameraAlgorithm_ApplyLowSpeedHold(void* self, void* info, float a, float b, float c)
 {
     int trig = *(float*)(I_1643A8 + 0x44) * 0.035999998450279236f < a && *(int*)(I_1643A8 + 0x60) == 0 &&
                *(int*)(I_1643A8 + 0x5C) == 0;
@@ -3188,7 +3188,7 @@ extern "C" void func_001643A8(void* self, void* info, float a, float b, float c)
 #undef S_1643A8
 #undef I_1643A8
 
-INCLUDE_ASM("camera/camera", func_001646A0);
+INCLUDE_ASM("camera/camera", ChaseCameraAlgorithm_ApplyRailAlign);
 
 extern "C" int func_00164868()
 {
@@ -3301,7 +3301,7 @@ static inline sVec4_165540 AxisAngle_165540(const sVec4_165540& axis, float ang)
     return r;
 }
 
-extern "C" void func_00165540(char* self, float ang)
+extern "C" void ChaseCameraAlgorithm_ApplyFixedDirection(char* self, float ang)
 {
     sVec4_165540 off = Sub_165540(*(sVec4_165540*)(self + 0x20), *(sVec4_165540*)(self + 0x40));
     sVec4_165540 dir = D_004FF140_v165540;
@@ -3386,21 +3386,21 @@ struct sCamVE166228 {
     void (*fn)(void*, sCamTarget166228*);
 };
 
-extern "C" void func_00166640(void* self, int a1);
-extern "C" void func_001662A0(void* self, float x, float y, float z, float w);
+extern "C" void ChaseCameraAlgorithm_ComputeAngles(void* self, int a1);
+extern "C" void ChaseCameraAlgorithm_SmoothPitch(void* self, float x, float y, float z, float w);
 void* func_00166530(void* self);
-extern "C" void func_00166F90(void* self);
+extern "C" void ChaseCameraAlgorithm_BuildOutputView(void* self);
 
 extern "C" void func_00166228(void* self)
 {
     sCamTarget166228 t;
     sCamVE166228* vt = *(sCamVE166228**)((char*)self + 0x10);
     vt[7].fn((char*)self + vt[7].delta, &t);
-    func_00166640(self, 0);
+    ChaseCameraAlgorithm_ComputeAngles(self, 0);
     if (t.valid != 0)
-        func_001662A0(self, t.x, t.y, t.z, t.w);
+        ChaseCameraAlgorithm_SmoothPitch(self, t.x, t.y, t.z, t.w);
     func_00166530(self);
-    func_00166F90(self);
+    ChaseCameraAlgorithm_BuildOutputView(self);
 }
 
 //100%
@@ -3514,7 +3514,7 @@ static inline sVec_1662A0 Get_1662A0(char* self, int slot)
 }
 
 #define S_1662A0 ((char*)self)
-extern "C" void func_001662A0(void* self, float x, float y, float z, float w)
+extern "C" void ChaseCameraAlgorithm_SmoothPitch(void* self, float x, float y, float z, float w)
 {
     float k, ang;
     int up = *(float*)(S_1662A0 + 0x1D8) < *(float*)(S_1662A0 + 0x54);
@@ -3529,7 +3529,7 @@ extern "C" void func_001662A0(void* self, float x, float y, float z, float w)
     *(float*)(S_1662A0 + 0x54) = k * *(float*)(S_1662A0 + 0x1D8) + (1.0f - k) * old;
     sVec_1662A0 d = Sub_1662A0(*(sVec_1662A0*)(S_1662A0 + 0x20), *(sVec_1662A0*)(S_1662A0 + 0x40));
     sVec_1662A0 v;
-    func_001668B8(self, &v);
+    ChaseCameraAlgorithm_GetForwardFromAngles(self, &v);
     float a = Angle_1662A0(d, v);
     float lim = ang * 0.01745329424738884f;
     float k2;
@@ -3539,7 +3539,7 @@ extern "C" void func_001662A0(void* self, float x, float y, float z, float w)
         k2 = k;
     *(float*)(S_1662A0 + 0x1D8) = *(float*)(S_1662A0 + 0x54) = k2 * *(float*)(S_1662A0 + 0x1D8) + (1.0f - k2) * old;
     sVec_1662A0 v2;
-    func_001668B8(self, &v2);
+    ChaseCameraAlgorithm_GetForwardFromAngles(self, &v2);
     sVec_1662A0 off = Sub_1662A0(Get_1662A0(S_1662A0, 1), *(sVec_1662A0*)(S_1662A0 + 0x40));
     float t = Dot_1662A0(off, v2) / Dot_1662A0(v2, v2);
     sVec_1662A0 sc = Scale_1662A0(v2, t);
@@ -3558,7 +3558,7 @@ void* func_00166530(void* self)
 
 INCLUDE_ASM("camera/camera", func_00166550);
 
-INCLUDE_ASM("camera/camera", func_00166640);
+INCLUDE_ASM("camera/camera", ChaseCameraAlgorithm_ComputeAngles);
 
 //100%
 struct sV_1668B8 {
@@ -3744,8 +3744,8 @@ static inline sV_1668B8 Row_1668B8(const sM_1668B8& m, int i)
     return *(const sV_1668B8*)m.m[i];
 }
 
-extern "C" void func_001668B8_impl(char* self, sV_1668B8* out) __asm__("func_001668B8");
-extern "C" void func_001668B8_impl(char* self, sV_1668B8* out)
+extern "C" void ChaseCameraAlgorithm_GetForwardFromAngles_impl(char* self, sV_1668B8* out) __asm__("ChaseCameraAlgorithm_GetForwardFromAngles");
+extern "C" void ChaseCameraAlgorithm_GetForwardFromAngles_impl(char* self, sV_1668B8* out)
 {
     sM_1668B8 m;
     vu0CopyMtx_1668B8(&m, &D_004FF1A0_1668B8);
@@ -3777,7 +3777,7 @@ extern "C" void* func_00166F28(void* self)
     return vt[3].fn((char*)self + vt[3].delta, vt2[7].fn(o + vt2[7].delta));
 }
 
-INCLUDE_ASM("camera/camera", func_00166F90);
+INCLUDE_ASM("camera/camera", ChaseCameraAlgorithm_BuildOutputView);
 
 //100%
 extern "C" void* func_001673A0(void* self, void* a1)
@@ -3860,7 +3860,7 @@ void CameraAlgorithm_Update(void* self)
 }
 
 //100%
-extern "C" float func_00167E30(void* self)
+extern "C" float CameraAlgorithm_DefaultFov(void* self)
 {
     return 0.7853981852531433f;
 }
@@ -4246,7 +4246,7 @@ void* func_001682F8(void* self)
 }
 
 //100%
-float func_00168320(void* self)
+float LazyChaseCameraAlgorithm_v13(void* self)
 {
     return 0.0f;
 }
@@ -4284,7 +4284,7 @@ void* func_00168690(void* self)
 }
 
 //100%
-float func_001686B8(void* self)
+float LookBackChaseCameraAlgorithm_v13(void* self)
 {
     return 0.0f;
 }
@@ -4300,7 +4300,7 @@ extern "C" void ChaseCameraAlgorithm_UpdateChaseHeading(void* self, void* info);
 extern "C" void func_00163010(void* self, void* info, float a, float b, float c, float d, float e, float f, float g);
 extern "C" void func_00163270(void* self, void* info, float a, float b, float c, float d, float e);
 extern "C" void func_00162B90(void* self, void* info, float a, float b, float c, float d, float e);
-extern "C" void func_001643A8(void* self, void* info, float a, float b, float c);
+extern "C" void ChaseCameraAlgorithm_ApplyLowSpeedHold(void* self, void* info, float a, float b, float c);
 extern "C" void func_00163158(void* self, void* info, float a, float b);
 
 struct sVec_1686D0 {
@@ -4429,7 +4429,7 @@ extern "C" void func_001686D0(char* self)
     func_00162568(self, &info, 0.2713613510131836f, 0.8999999761581421f, 0.29420721530914307f, 0.8513929843902588f,
                   0.8500000238418579f, 0.9700000286102295f, 0.10000000149011612f, 0.6000000238418579f);
     float zero = 0.0f;
-    func_00162A20(self, (char*)&info);
+    ChaseCameraAlgorithm_UpdateAirTransitions(self, (char*)&info);
     func_00162B80(self, &info);
     ChaseCameraAlgorithm_UpdateChaseHeading(self, &info);
     func_00163010(self, &info, 193.1998291015625f, zero, 76.68663024902344f, zero, 1.7668397426605225f,
@@ -4438,7 +4438,7 @@ extern "C" void func_001686D0(char* self)
     func_001633B0(self, &info, zero, 0.9927757978439331f, 1.0f, 0.949999988079071f);
     func_00162B90(self, &info, 0.721226155757904f, 0.01082259975373745f, 0.22186216711997986f, 0.5425665378570557f,
                   0.9241908192634583f);
-    func_001643A8(self, &info, 15.0f, 1.5f, 1.5f);
+    ChaseCameraAlgorithm_ApplyLowSpeedHold(self, &info, 15.0f, 1.5f, 1.5f);
     func_00163158(self, &info, 0.13458502292633057f, 1.7663990259170532f);
 
     sVec_1686D0 d = Sub_1686D0(*(sVec_1686D0*)(self + 0x20), *(sVec_1686D0*)(self + 0x40));
@@ -4506,7 +4506,7 @@ void* func_00168A08(void* self)
 }
 
 //100%
-extern "C" float func_00168A30(void* self)
+extern "C" float MidRightChaseCameraAlgorithm_v13(void* self)
 {
     return 61.68796157836914f;
 }
@@ -4528,13 +4528,13 @@ extern "C" void func_00163270(void* self, void* info, float a, float b, float c,
 extern "C" void func_00162B90(void* self, void* info, float a, float b, float c, float d, float e);
 extern "C" void ChaseCameraAlgorithm_ApplyJumpCurves(void* self, void* info, float a, float b, float c, float d);
 extern "C" void ChaseCameraAlgorithm_ApplyAirSwing(void* self, void* info, float a);
-extern "C" void func_001646A0(char* self, char* p, float k, float t);
+extern "C" void ChaseCameraAlgorithm_ApplyRailAlign(char* self, char* p, float k, float t);
 extern "C" void func_001641C0(char* self, char* p, float a, float b, float c, float d);
-extern "C" void func_001643A8(void* self, void* info, float a, float b, float c);
+extern "C" void ChaseCameraAlgorithm_ApplyLowSpeedHold(void* self, void* info, float a, float b, float c);
 extern "C" void func_00163158(void* self, void* info, float a, float b);
-// PORT: func_00163450 is defined with 7 float parameters; this caller passes 8.
-void func_00163450_8(char* self, char* trig, float a, float b, float c, float d, float e, float f, float g,
-                     float h) __asm__("func_00163450");
+// PORT: ChaseCameraAlgorithm_ApplyHandplantHold is defined with 7 float parameters; this caller passes 8.
+void ChaseCameraAlgorithm_ApplyHandplantHold_8(char* self, char* trig, float a, float b, float c, float d, float e, float f, float g,
+                     float h) __asm__("ChaseCameraAlgorithm_ApplyHandplantHold");
 
 extern "C" void func_00168A70(char* self)
 {
@@ -4543,8 +4543,8 @@ extern "C" void func_00168A70(char* self)
                   0.8500000238418579f, 0.9700000286102295f, 0.10000000149011612f, 0.6000000238418579f);
     float zero = 0.0f;
     float k = 0.9800000190734863f;
-    func_00162998(self, &info);
-    func_00162A20(self, (char*)&info);
+    ChaseCameraAlgorithm_UpdateHandplantFade(self, &info);
+    ChaseCameraAlgorithm_UpdateAirTransitions(self, (char*)&info);
     func_00162B80(self, &info);
     ChaseCameraAlgorithm_UpdateChaseHeading(self, &info);
     func_00163010(self, &info, 555.0844116210938f, 11.549837112426758f, 76.68663024902344f, 307.0549621582031f,
@@ -4552,15 +4552,15 @@ extern "C" void func_00168A70(char* self)
     func_00163270(self, &info, 12.331472396850586f, 84.0909652709961f, 38.64322280883789f, 93.62934875488281f,
                   0.9783917665481567f);
     func_001633B0(self, &info, zero, 0.8567028641700745f, 1.0f, 0.949999988079071f);
-    func_00163450_8(self, (char*)&info, 348.64111328125f, 66.33821868896484f, 162.2997283935547f, 2.00368070602417f,
+    ChaseCameraAlgorithm_ApplyHandplantHold_8(self, (char*)&info, 348.64111328125f, 66.33821868896484f, 162.2997283935547f, 2.00368070602417f,
                     zero, k, 0.9599999785423279f, 0.4552607834339142f);
     func_00162B90(self, &info, -8.730510711669922f, 64.15198516845703f, 58.114906311035156f, 5.931424617767334f,
                   0.9241908192634583f);
     ChaseCameraAlgorithm_ApplyJumpCurves(self, &info, 1.878627061843872f, 2.494720935821533f, 0.34134337306022644f, 0.8672914505004883f);
     ChaseCameraAlgorithm_ApplyAirSwing(self, &info, 1.5269116163253784f);
-    func_001646A0(self, (char*)&info, 200.33114624023438f, 0.9706981778144836f);
+    ChaseCameraAlgorithm_ApplyRailAlign(self, (char*)&info, 200.33114624023438f, 0.9706981778144836f);
     func_001641C0(self, (char*)&info, 600.0f, 300.0f, 100.0f, k);
-    func_001643A8(self, &info, 15.0f, 1.5f, 1.5f);
+    ChaseCameraAlgorithm_ApplyLowSpeedHold(self, &info, 15.0f, 1.5f, 1.5f);
     func_00163158(self, &info, -0.2944446802139282f, 0.6521888375282288f);
 }
 
@@ -4598,7 +4598,7 @@ void* func_00168D18(void* self)
 }
 
 //100%
-extern "C" float func_00168D40(void* self)
+extern "C" float MidLeftChaseCameraAlgorithm_v13(void* self)
 {
     return 61.68796157836914f;
 }
@@ -4620,13 +4620,13 @@ extern "C" void func_00163270(void* self, void* info, float a, float b, float c,
 extern "C" void func_00162B90(void* self, void* info, float a, float b, float c, float d, float e);
 extern "C" void ChaseCameraAlgorithm_ApplyJumpCurves(void* self, void* info, float a, float b, float c, float d);
 extern "C" void ChaseCameraAlgorithm_ApplyAirSwing(void* self, void* info, float a);
-extern "C" void func_001646A0(char* self, char* p, float k, float t);
+extern "C" void ChaseCameraAlgorithm_ApplyRailAlign(char* self, char* p, float k, float t);
 extern "C" void func_001641C0(char* self, char* p, float a, float b, float c, float d);
-extern "C" void func_001643A8(void* self, void* info, float a, float b, float c);
+extern "C" void ChaseCameraAlgorithm_ApplyLowSpeedHold(void* self, void* info, float a, float b, float c);
 extern "C" void func_00163158(void* self, void* info, float a, float b);
-// PORT: func_00163450 is defined with 7 float parameters; this caller passes 8.
-void func_00163450_8(char* self, char* trig, float a, float b, float c, float d, float e, float f, float g,
-                     float h) __asm__("func_00163450");
+// PORT: ChaseCameraAlgorithm_ApplyHandplantHold is defined with 7 float parameters; this caller passes 8.
+void ChaseCameraAlgorithm_ApplyHandplantHold_8(char* self, char* trig, float a, float b, float c, float d, float e, float f, float g,
+                     float h) __asm__("ChaseCameraAlgorithm_ApplyHandplantHold");
 
 extern "C" void func_00168D80(char* self)
 {
@@ -4635,8 +4635,8 @@ extern "C" void func_00168D80(char* self)
                   0.8500000238418579f, 0.9700000286102295f, 0.10000000149011612f, 0.6000000238418579f);
     float zero = 0.0f;
     float k = 0.9800000190734863f;
-    func_00162998(self, &info);
-    func_00162A20(self, (char*)&info);
+    ChaseCameraAlgorithm_UpdateHandplantFade(self, &info);
+    ChaseCameraAlgorithm_UpdateAirTransitions(self, (char*)&info);
     func_00162B80(self, &info);
     ChaseCameraAlgorithm_UpdateChaseHeading(self, &info);
     func_00163010(self, &info, 555.0844116210938f, 11.549837112426758f, 76.68663024902344f, 307.0549621582031f,
@@ -4644,15 +4644,15 @@ extern "C" void func_00168D80(char* self)
     func_00163270(self, &info, 12.331472396850586f, 84.0909652709961f, 38.64322280883789f, 93.62934875488281f,
                   0.9783917665481567f);
     func_001633B0(self, &info, zero, 0.8567028641700745f, 1.0f, 0.949999988079071f);
-    func_00163450_8(self, (char*)&info, 348.64111328125f, 66.33821868896484f, 162.2997283935547f, 2.00368070602417f,
+    ChaseCameraAlgorithm_ApplyHandplantHold_8(self, (char*)&info, 348.64111328125f, 66.33821868896484f, 162.2997283935547f, 2.00368070602417f,
                     zero, k, 0.9599999785423279f, 0.4552607834339142f);
     func_00162B90(self, &info, -8.730510711669922f, 64.15198516845703f, 58.114906311035156f, 5.931424617767334f,
                   0.9241908192634583f);
     ChaseCameraAlgorithm_ApplyJumpCurves(self, &info, 1.878627061843872f, 2.494720935821533f, 0.34134337306022644f, 0.8672914505004883f);
     ChaseCameraAlgorithm_ApplyAirSwing(self, &info, 1.5269116163253784f);
-    func_001646A0(self, (char*)&info, 200.33114624023438f, 0.9706981778144836f);
+    ChaseCameraAlgorithm_ApplyRailAlign(self, (char*)&info, 200.33114624023438f, 0.9706981778144836f);
     func_001641C0(self, (char*)&info, 600.0f, 300.0f, 100.0f, k);
-    func_001643A8(self, &info, 15.0f, 1.5f, 1.5f);
+    ChaseCameraAlgorithm_ApplyLowSpeedHold(self, &info, 15.0f, 1.5f, 1.5f);
     func_00163158(self, &info, 0.2944446802139282f, 0.6521888375282288f);
 }
 

@@ -5,8 +5,8 @@ int GetHashValue32(char* str);
 extern char D_00466D88[];
 extern "C" void* cUIEngine_addScreenByHashName(void* engine, void* owner, int hash, int a3);
 extern "C" void* cUIScreen_playFrame(void* self, unsigned short frame, int flag);
-extern "C" void func_001D0180(void* self);
-extern "C" void func_001CFE60(void* self);
+extern "C" void cFEStateRewardGalleryBase_InitPages(void* self);
+extern "C" void cFEStateRewardGalleryBase_RequestShapeLoad(void* self);
 struct sRewardEntry_F0B0 {
     char name[8];
     int id;
@@ -30,9 +30,9 @@ extern "C" void cFEStateRewardGalleryBase_onCreateScreen(void* self)
         ((sRewardGallery_F0B0*)self)->entries[i].id = -1;
     }
     *(int*)((char*)self + 0x78) = 0;
-    func_001D0180(self);
+    cFEStateRewardGalleryBase_InitPages(self);
     if (((*(int*)((char*)self + 0x48) >> 3) & 1) == 0) {
-        func_001CFE60(self);
+        cFEStateRewardGalleryBase_RequestShapeLoad(self);
     }
 }
 
@@ -78,14 +78,14 @@ extern "C" void func_001CF168(void* self)
 }
 
 //100%
-extern "C" void func_001D0238(void* self);
-extern "C" void func_001CFF10(void* self);
+extern "C" void cFEStateRewardGalleryBase_CheckRewardsReady(void* self);
+extern "C" void cFEStateRewardGalleryBase_PollShapeLoad(void* self);
 extern "C" void* func_0039E510(void* self);
 
 extern "C" void func_001CF238(void* self)
 {
-    func_001D0238(self);
-    func_001CFF10(self);
+    cFEStateRewardGalleryBase_CheckRewardsReady(self);
+    cFEStateRewardGalleryBase_PollShapeLoad(self);
     func_0039E510(self);
 }
 
@@ -312,10 +312,10 @@ struct sRewardTable_FDD0 {
     sRewardName_FDD0 entries[1];
 };
 
-// PORT: the unit declares func_001CFDD0 as `void (void*, char*)`, but the body returns the id.
-int func_001CFDD0_find(sRewardTable_FDD0* self, char* name) __asm__("func_001CFDD0");
+// PORT: the unit declares cFEStateRewardGalleryBase_FindTextureByName as `void (void*, char*)`, but the body returns the id.
+int cFEStateRewardGalleryBase_FindTextureByName_find(sRewardTable_FDD0* self, char* name) __asm__("cFEStateRewardGalleryBase_FindTextureByName");
 
-int func_001CFDD0_find(sRewardTable_FDD0* self, char* name)
+int cFEStateRewardGalleryBase_FindTextureByName_find(sRewardTable_FDD0* self, char* name)
 {
     int i;
     for (i = 0; i < self->count; i++) {
@@ -335,7 +335,7 @@ struct sVE_FE60 {
     int (*fn)(void*);
 };
 
-extern "C" void func_001CFE60(void* self)
+extern "C" void cFEStateRewardGalleryBase_RequestShapeLoad(void* self)
 {
     char* mgr = *(char**)((char*)D_004A28A8 + 0x7C) + 0x1A70;
     sVE_FE60* vt = *(sVE_FE60**)((char*)self + 8);
@@ -355,7 +355,7 @@ extern "C" int func_0019E238(void* self, int bank, int i);
 struct sSelf001CFFF8;
 struct sData001CFFF8;
 extern "C" sData001CFFF8* func_0019E2B0(void* self, int bank, int i);
-extern "C" void func_001CFFF8(sSelf001CFFF8* self, sData001CFFF8* data);
+extern "C" void cFEStateRewardGalleryBase_RegisterTextures(sSelf001CFFF8* self, sData001CFFF8* data);
 struct sVE_FF10 {
     short delta;
     short index;
@@ -367,12 +367,12 @@ struct sVE_FF10i {
     void (*fn)(void*, int);
 };
 
-extern "C" void func_001CFF10(void* self)
+extern "C" void cFEStateRewardGalleryBase_PollShapeLoad(void* self)
 {
     if (((*(int*)((char*)self + 0x48) >> 3) & 1) == 0) {
         char* mgr = *(char**)((char*)D_004A28A8 + 0x7C) + 0x1A70;
         if (func_0019E238(mgr, *(int*)((char*)self + 0x50), *(int*)((char*)self + 0x8EC)) != 0) {
-            func_001CFFF8((sSelf001CFFF8*)self, func_0019E2B0(mgr, *(int*)((char*)self + 0x50), *(int*)((char*)self + 0x8EC)));
+            cFEStateRewardGalleryBase_RegisterTextures((sSelf001CFFF8*)self, func_0019E2B0(mgr, *(int*)((char*)self + 0x50), *(int*)((char*)self + 0x8EC)));
             func_0019DC20(mgr, *(int*)((char*)self + 0x50), *(int*)((char*)self + 0x8EC));
             *(int*)((char*)self + 0x8EC) = -1;
             *(int*)((char*)self + 0x48) = (*(int*)((char*)self + 0x48) & ~4) | 8;
@@ -462,7 +462,7 @@ struct sSelf001CFFF8 {
     sEntry001CFFF8 entries[1];
 };
 
-extern "C" void func_001CFFF8(sSelf001CFFF8* self, sData001CFFF8* data)
+extern "C" void cFEStateRewardGalleryBase_RegisterTextures(sSelf001CFFF8* self, sData001CFFF8* data)
 {
     if (data == 0) {
         self->count = 0;
@@ -545,7 +545,7 @@ struct sSelf001D00C0 {
     sEntry001D00C0 entries[1];
 };
 
-extern "C" void func_001D00C0(sSelf001D00C0* self)
+extern "C" void cFEStateRewardGalleryBase_ReleaseTextures(sSelf001D00C0* self)
 {
     int i;
     for (i = 0; i < self->count; i++) {
@@ -575,7 +575,7 @@ struct sVE_0180 {
     int (*fn)(void*);
 };
 
-extern "C" void func_001D0180(void* self)
+extern "C" void cFEStateRewardGalleryBase_InitPages(void* self)
 {
     void* iface = cBE_getInterface_Fv(cBE_getBE(), 0xD);
     if (func_00156A38(iface) == 0) {
@@ -610,7 +610,7 @@ struct sVE_0238c {
     void (*fn)(void*, int);
 };
 
-extern "C" void func_001D0238(void* self)
+extern "C" void cFEStateRewardGalleryBase_CheckRewardsReady(void* self)
 {
     if (((*(int*)((char*)self + 0x48) >> 1) & 1) == 0) {
         if (func_00156A38(cBE_getInterface_Fv(cBE_getBE(), 0xD)) != 0) {
@@ -646,7 +646,7 @@ struct sVE_0320b {
     void (*fn)(void*, int);
 };
 
-extern "C" void func_001D0320(void* self, int a1)
+extern "C" void cFEStateRewardGalleryBase_PurchaseItem(void* self, int a1)
 {
     func_00157F20(cBE_getInterface_Fv(cBE_getBE(), 0xD), *(signed char*)((char*)self + 0x44),
                   *(int*)((char*)self + 0x50), *(int*)((char*)self + 0x4C), a1, 1);
@@ -665,7 +665,7 @@ extern "C" void func_001D0320(void* self, int a1)
 //100%
 extern "C" void* cMemMan_alloc(int size, const char* tag, unsigned int flags, int d);
 extern "C" void* cFEStatePreviewReward_ctor(void* self, void* engine, void* owner, int player);
-extern "C" void func_001D20D8(void* self, int kind, void* data);
+extern "C" void cFEStatePreviewReward_SetItem(void* self, int kind, void* data);
 extern "C" void* func_001D22F0(void* self, void* engine, void* owner, signed char idx);
 extern "C" void func_001D2598(void* self, const char* a, const char* b);
 extern "C" void func_0039F290(void* stack, void* state);
@@ -690,7 +690,7 @@ extern "C" void cFEStateRewardGalleryBase_showReward(void* self)
     case 7:
         p = cFEStatePreviewReward_ctor(cMemMan_alloc(0x78, D_00466F78, 0, 0), *(void**)((char*)self + 0x10), self,
                           *(signed char*)((char*)self + 0x44));
-        func_001D20D8(p, *(int*)((char*)self + 0x4C), data);
+        cFEStatePreviewReward_SetItem(p, *(int*)((char*)self + 0x4C), data);
         break;
     case 6:
         p = func_001D22F0(cMemMan_alloc(0x280, D_004601D8, 0, 0), *(void**)((char*)self + 0x10), self,
@@ -968,7 +968,7 @@ struct sVE_0B00b {
     void (*fn)(void*, int);
 };
 
-extern "C" void func_001D0B00(void* self)
+extern "C" void cFEStateRewardGalleryBase_RefreshPage(void* self)
 {
     int i;
     for (i = 0; i < *(int*)((char*)self + 0x58); i++) {
@@ -1070,7 +1070,7 @@ struct sVEK1D0D30d {
     int (*fn)(void*, int);
 };
 
-extern "C" void func_001D0D30(void* self)
+extern "C" void cFEStateRewardGalleryBase_UpdateItemInfo(void* self)
 {
     char* grid = *(char**)((char*)self + 0x8FC);
     if (grid == 0) {
@@ -1106,7 +1106,7 @@ struct cUIText;
 void cUIText_setAsciiString(cUIText* self, const char* str);
 extern "C" const char* func_00198AF0(void* a0);
 
-extern "C" void func_001D0E78(void* self)
+extern "C" void cFEStateRewardGalleryBase_UpdateCashText(void* self)
 {
     if (*(cUIText**)((char*)self + 0x910) != 0) {
         cUIText_setAsciiString(*(cUIText**)((char*)self + 0x910), func_00198AF0(*(void**)((char*)self + 0x54)));
@@ -1119,7 +1119,7 @@ void cUIText_setAsciiString(cUIText* self, const char* str);
 extern "C" int sprintf(char* buf, const char* fmt, ...);
 extern char D_004A12C0[];
 
-extern "C" void func_001D0EB8(void* self)
+extern "C" void cFEStateRewardGalleryBase_UpdateCountText(void* self)
 {
     char buf[32];
     if (*(cUIText**)((char*)self + 0x918) != 0) {
@@ -1151,7 +1151,7 @@ struct sVEK1D0F30c {
     void (*fn)(void*, void*);
 };
 
-extern "C" void func_001D0F30(void* self)
+extern "C" void cFEStateRewardGalleryBase_UpdateSelection(void* self)
 {
     char* icon = *(char**)((char*)self + 0x8F8);
     if (icon != 0) {
@@ -1203,7 +1203,7 @@ struct sVEntry001D10A8 {
     void (*fn)(void*, int);
 };
 
-extern "C" void func_001D10A8(void* self)
+extern "C" void cFEStateRewardGalleryBase_UpdateScrollArrows(void* self)
 {
     void* obj = *(void**)((char*)self + 0x91C);
     if (obj != 0) {
@@ -1244,7 +1244,7 @@ void* func_001D1198(void* self)
 
 //100% - objdiff report; single-function view differs only in a relocation name
 extern "C" char* strncpy(char* dst, const char* src, unsigned int n);
-extern "C" void func_001CFDD0(void* self, char* name);
+extern "C" void cFEStateRewardGalleryBase_FindTextureByName(void* self, char* name);
 
 extern "C" void cFEStateRewardGalleryPosters_v26(void* self, int i)
 {
@@ -1252,7 +1252,7 @@ extern "C" void cFEStateRewardGalleryPosters_v26(void* self, int i)
     void* e = *(void**)((char*)self + (i << 2) + 0xA28);
     strncpy(buf, *(const char**)((char*)e + 8), 4);
     buf[4] = 0;
-    func_001CFDD0(self, buf);
+    cFEStateRewardGalleryBase_FindTextureByName(self, buf);
 }
 
 //100%
@@ -1316,7 +1316,7 @@ void* func_001D1330(void* self)
 
 //100% - objdiff report; single-function view differs only in a relocation name
 extern "C" char* strncpy(char* dst, const char* src, unsigned int n);
-extern "C" void func_001CFDD0(void* self, char* name);
+extern "C" void cFEStateRewardGalleryBase_FindTextureByName(void* self, char* name);
 
 extern "C" void cFEStateRewardGalleryTradingCards_v26(void* self, int i)
 {
@@ -1324,7 +1324,7 @@ extern "C" void cFEStateRewardGalleryTradingCards_v26(void* self, int i)
     void* e = *(void**)((char*)self + (i << 2) + 0xA28);
     strncpy(buf, *(const char**)((char*)e + 8), 4);
     buf[4] = 0;
-    func_001CFDD0(self, buf);
+    cFEStateRewardGalleryBase_FindTextureByName(self, buf);
 }
 
 //100%
@@ -1388,7 +1388,7 @@ void* func_001D14C8(void* self)
 
 //100% - objdiff report; single-function view differs only in a relocation name
 extern "C" char* strncpy(char* dst, const char* src, unsigned int n);
-extern "C" void func_001CFDD0(void* self, char* name);
+extern "C" void cFEStateRewardGalleryBase_FindTextureByName(void* self, char* name);
 
 extern "C" void cFEStateRewardGalleryConceptArts_v26(void* self, int i)
 {
@@ -1396,7 +1396,7 @@ extern "C" void cFEStateRewardGalleryConceptArts_v26(void* self, int i)
     void* e = *(void**)((char*)self + (i << 2) + 0xA28);
     strncpy(buf, *(const char**)((char*)e + 8), 4);
     buf[4] = 0;
-    func_001CFDD0(self, buf);
+    cFEStateRewardGalleryBase_FindTextureByName(self, buf);
 }
 
 //100%
@@ -1460,7 +1460,7 @@ void* func_001D1660(void* self)
 
 //100% - objdiff report; single-function view differs only in a relocation name
 extern "C" char* strncpy(char* dst, const char* src, unsigned int n);
-extern "C" void func_001CFDD0(void* self, char* name);
+extern "C" void cFEStateRewardGalleryBase_FindTextureByName(void* self, char* name);
 
 extern "C" void cFEStateRewardGalleryVideos_v26(void* self, int i)
 {
@@ -1468,7 +1468,7 @@ extern "C" void cFEStateRewardGalleryVideos_v26(void* self, int i)
     void* e = *(void**)((char*)self + (i << 2) + 0xA28);
     strncpy(buf, *(const char**)((char*)e + 8), 4);
     buf[4] = 0;
-    func_001CFDD0(self, buf);
+    cFEStateRewardGalleryBase_FindTextureByName(self, buf);
 }
 
 //100%
@@ -1532,7 +1532,7 @@ void* func_001D17F8(void* self)
 
 //100% - objdiff report; single-function view differs only in a relocation name
 extern "C" char* strncpy(char* dst, const char* src, unsigned int n);
-extern "C" void func_001CFDD0(void* self, char* name);
+extern "C" void cFEStateRewardGalleryBase_FindTextureByName(void* self, char* name);
 
 extern "C" void cFEStateRewardGalleryToys_v26(void* self, int i)
 {
@@ -1540,7 +1540,7 @@ extern "C" void cFEStateRewardGalleryToys_v26(void* self, int i)
     void* e = *(void**)((char*)self + (i << 2) + 0xA28);
     strncpy(buf, *(const char**)((char*)e + 8), 4);
     buf[4] = 0;
-    func_001CFDD0(self, buf);
+    cFEStateRewardGalleryBase_FindTextureByName(self, buf);
 }
 
 //100%
@@ -1620,7 +1620,7 @@ extern "C" void cFEStateRewardGalleryCheatChars_InitButtons(sRewardList_1990* se
 }
 
 //100%
-extern "C" void func_001D1A28(void* self)
+extern "C" void cFEStateRewardGalleryCheatChars_v29(void* self)
 {
     int i;
     *(int*)((char*)self + 0x68) = 0;
@@ -1886,13 +1886,13 @@ extern "C" int func_001D1F78(void* self, int a1, unsigned int a2)
 }
 
 //100%
-extern "C" void func_001D2198(void* self);
+extern "C" void cFEStatePreviewReward_PollImageLoad(void* self);
 extern "C" void* func_0039E510(void* self);
 
 extern "C" void func_001D1FB0(void* self)
 {
     if (*(int*)((char*)self + 0x6C) >= 0) {
-        func_001D2198(self);
+        cFEStatePreviewReward_PollImageLoad(self);
     }
     func_0039E510(self);
 }
@@ -1949,7 +1949,7 @@ extern "C" int func_001D1FF0(void* self, void* obj)
 //100%
 extern "C" void func_001D2150(void* self, int a1);
 
-extern "C" void func_001D20D8(void* self, int kind, void* data)
+extern "C" void cFEStatePreviewReward_SetItem(void* self, int kind, void* data)
 {
     *(int*)((char*)self + 0x68) = kind;
     *(void**)((char*)self + 0x60) = data;
@@ -2000,7 +2000,7 @@ struct sVEK1D2198 {
     void (*fn)(void*, int);
 };
 
-extern "C" void func_001D2198(void* self)
+extern "C" void cFEStatePreviewReward_PollImageLoad(void* self)
 {
     char* mgr = *(char**)((char*)D_004A28A8 + 0x7C) + 0x1A70;
     if (func_0019E238(mgr, *(int*)((char*)self + 0x64), *(int*)((char*)self + 0x6C)) == 0)
@@ -2077,13 +2077,13 @@ extern "C" void cFEStateVideoPlayer_dtor(void* self, int flags)
 //100%
 extern "C" void* cMemMan_alloc(int size, const char* tag, unsigned int flags, int d);
 extern "C" void* func_002533C8(void* mem);
-extern "C" void func_001D25E8(void* self);
+extern "C" void cFEStateVideoPlayer_StartPlayback(void* self);
 extern char D_00461320[];
 
 extern "C" void func_001D23E0(void* self)
 {
     *(void**)((char*)self + 0x248) = func_002533C8(cMemMan_alloc(0x44, D_00461320, 0, 0));
-    func_001D25E8(self);
+    cFEStateVideoPlayer_StartPlayback(self);
 }
 
 //100%
@@ -2114,7 +2114,7 @@ extern "C" void func_001D2468(void* self)
 
 //100%
 extern "C" void func_00253938(void* p);
-extern "C" void func_001D2638(void* self);
+extern "C" void cFEStateVideoPlayer_Finish(void* self);
 extern "C" void* func_0039E510(void* self);
 
 extern "C" void func_001D24A8(void* self)
@@ -2125,7 +2125,7 @@ extern "C" void func_001D24A8(void* self)
         func_00253938(p);
         if ((*(int*)((char*)self + 0x27C) != 0 && *(int*)((char*)self + 0x278) != 0)
             || **(int**)((char*)self + 0x248) != 0) {
-            func_001D2638(self);
+            cFEStateVideoPlayer_Finish(self);
         }
     }
     func_0039E510(self);
@@ -2174,7 +2174,7 @@ extern "C" void func_002B3A70(void* p);
 extern "C" int func_002534A8(void* p, void* q);
 extern "C" void func_00253860(void* p);
 
-extern "C" void func_001D25E8(void* self)
+extern "C" void cFEStateVideoPlayer_StartPlayback(void* self)
 {
     func_002B3A70((char*)func_0028B180() + 0x118);
     *(int*)((char*)self + 0x254) = 1;
@@ -2189,7 +2189,7 @@ extern "C" void* func_0028B180();
 extern "C" void func_002B3A98(void* self);
 extern "C" void func_0039F190(void* self, int a1);
 
-extern "C" void func_001D2638(void* self)
+extern "C" void cFEStateVideoPlayer_Finish(void* self)
 {
     func_002B3A98((char*)func_0028B180() + 0x118);
     *(int*)((char*)self + 0x27C) = 0;

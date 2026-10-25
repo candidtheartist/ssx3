@@ -2819,7 +2819,7 @@ extern "C" void func_00241240(void* self)
 extern "C" void* cBE_getBE();
 // PORT: cBE_getInterface__Fv is called with (be, kind) here; bind the 2-arg form to that symbol.
 void* cBE_getInterface_Fv(void* be, int kind) __asm__("cBE_getInterface__Fv");
-extern "C" int func_00152758(void* iface);
+extern "C" int cBESaveInterface_BuildSystemSave(void* iface);
 // PORT: func_00152948__FPv ignores its argument; this caller passes none.
 int func_00152948_r() __asm__("func_00152948__FPv");
 extern "C" void func_002C2540(void*, void*);
@@ -2838,7 +2838,7 @@ extern "C" void func_002412A0(void* self)
     char desc[0x200];
     char fmt[0x200];
     D_004A2C78 = 1;
-    int a = func_00152758(cBE_getInterface_Fv(cBE_getBE(), 5));
+    int a = cBESaveInterface_BuildSystemSave(cBE_getInterface_Fv(cBE_getBE(), 5));
     int b = func_00152948_r();
     func_002C2540(fmt, D_0047C178);
     func_00241D40_r(self, 2, name, 0x82);

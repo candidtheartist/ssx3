@@ -165,7 +165,7 @@ extern "C" int func_0014AC70(void* self, int slot, int* character)
 extern int D_004A6CA8[];
 extern "C" void* func_003E6574(void* dst, void* src, int n);
 
-extern "C" void func_0014ACB0(void* self, int a1, int a2, void* src)
+extern "C" void BEBoltInt_SetBoltStates(void* self, int a1, int a2, void* src)
 {
     char* p = (char*)D_004A6CA8 + a1 * 0x9b50 + a2 * 0xf88;
     func_003E6574(p + 0x290, src, 0x834);
@@ -226,7 +226,7 @@ extern "C" sBEBoltOn* func_0014ADD8(void* self, int slot, int index)
 INCLUDE_ASM("be/belibrary", func_0014AE28);
 
 extern "C" sBEBoltOn* func_0014AE28(void* self, int profile, int character, int* count);
-extern "C" sBEBoltOn* func_0014AE60(void* self, int slot, int* count)
+extern "C" sBEBoltOn* BEBoltInt_GetRiderBoltStates(void* self, int slot, int* count)
 {
     int character;
     int profile = func_0014AC70(self, slot, &character);
@@ -309,7 +309,7 @@ static inline sFlagEntry_14AFB0* getEntry_14AFB0(sProfile_14AFB0* p, int idx)
     return 0;
 }
 
-extern "C" int func_0014AFB0(void* self, int a, int b, int idx, int on)
+extern "C" int BEBoltInt_SetBoltEquipped(void* self, int a, int b, int idx, int on)
 {
     sProfile_14AFB0* p = (sProfile_14AFB0*)((char*)D_004A6CA8 + a * 0x9b50 + b * 0xf88);
     sFlagEntry_14AFB0 save[0x20D];
@@ -333,14 +333,14 @@ extern "C" int func_0014AFB0(void* self, int a, int b, int idx, int on)
     return 0;
 }
 
-extern "C" int func_0014AFB0(void* self, int a, int b, int idx, int on);
+extern "C" int BEBoltInt_SetBoltEquipped(void* self, int a, int b, int idx, int on);
 extern "C" int func_0014B0F0(void* self, int profile, int character, int slot)
 {
     sBEBoltCharacter* c = (sBEBoltCharacter*)((char*)D_004A6CA8 + profile * 0x9B50 + character * 0xF88);
     int i = c->slots[slot];
     sBEBoltOn* item = i >= 0 ? &c->items[i] : 0;
     unsigned int on = item->flags & 0x10;
-    return func_0014AFB0(self, profile, character, slot, on == 0);
+    return BEBoltInt_SetBoltEquipped(self, profile, character, slot, on == 0);
 }
 
 extern "C" void func_0014B170(void* self, int profile, int character, int a, int b)
@@ -423,7 +423,7 @@ struct sBEEntry38B {
     char pad_0x0E[0x2A];
 };
 
-extern "C" int func_0014B478(void* self, int a1, int a2)
+extern "C" int BEBoltInt_SumEquippedBoltValue(void* self, int a1, int a2)
 {
     char* p = (char*)D_004A6CA8 + a1 * 0x9b50 + a2 * 0xf88;
     int sum = 0;
@@ -627,7 +627,7 @@ extern "C" int func_0014B988(void* self, int a, int b, sBEEntry38_14B988* e0, ch
 extern void* D_004A6750[];
 extern "C" void* func_0014C6A0(void*);
 
-extern "C" int func_0014BBA0(void* self, int slot, sBEEntry38_14B988* a, char* b)
+extern "C" int BEBoltInt_GetRiderBoltTextureName(void* self, int slot, sBEEntry38_14B988* a, char* b)
 {
     int profile = func_0014AC50(slot);
     return func_0014B988(self, profile, func_0014AC30(slot), a, b);
@@ -836,7 +836,7 @@ struct sBEKeyTableG {
     int groupFirst[30]; // 0x284
 };
 
-extern "C" void func_0014C320(sBEKeyTableG* self)
+extern "C" void Bolts_IndexTable2ByChar(sBEKeyTableG* self)
 {
     int last = 30;
     int i;
@@ -869,7 +869,7 @@ struct sBEKeyTableG1 {
     int groupFirst[30]; // 0x374
 };
 
-extern "C" void func_0014C3C8(sBEKeyTableG1* self)
+extern "C" void Bolts_IndexTable3ByChar(sBEKeyTableG1* self)
 {
     int last = -1;
     int i;
@@ -903,7 +903,7 @@ struct sBEKeyTableG2 {
     int groupFirst[30]; // 0x464
 };
 
-extern "C" void func_0014C488(sBEKeyTableG2* self)
+extern "C" void Bolts_IndexTable4ByChar(sBEKeyTableG2* self)
 {
     int last = -1;
     int i;
@@ -959,7 +959,7 @@ extern "C" void* func_0014C620(void* self)
 void operator_delete(int* ptr);
 extern "C" void func_0014D240(void* self);
 
-extern "C" void func_0014C658(int* self, int flags)
+extern "C" void Bolts_DestroyDB(int* self, int flags)
 {
     func_0014D240(self);
     if (flags & 1)
@@ -978,9 +978,9 @@ extern "C" void* func_0014C6A0(void* self)
         func_0014D240(self);
         func_0014BE70(self);
         func_0014C2B0((sBEGroupTable*)self);
-        func_0014C320((sBEKeyTableG*)self);
-        func_0014C3C8((sBEKeyTableG1*)self);
-        func_0014C488((sBEKeyTableG2*)self);
+        Bolts_IndexTable2ByChar((sBEKeyTableG*)self);
+        Bolts_IndexTable3ByChar((sBEKeyTableG1*)self);
+        Bolts_IndexTable4ByChar((sBEKeyTableG2*)self);
         if (!none) {
             int a;
             int b;
@@ -1049,9 +1049,9 @@ extern "C" void func_0014D068_impl(void* self)
     }
     func_0014C7A0(self);
     func_0014C2B0((sBEGroupTable*)self);
-    func_0014C320((sBEKeyTableG*)self);
-    func_0014C3C8((sBEKeyTableG1*)self);
-    func_0014C488((sBEKeyTableG2*)self);
+    Bolts_IndexTable2ByChar((sBEKeyTableG*)self);
+    Bolts_IndexTable3ByChar((sBEKeyTableG1*)self);
+    Bolts_IndexTable4ByChar((sBEKeyTableG2*)self);
 }
 
 //100%
@@ -1347,7 +1347,7 @@ extern "C" void* func_0014D998(sBELibTables* self, int i)
 }
 
 //100%
-extern "C" void* func_0014D9D0(sBELibTables* self, int i)
+extern "C" void* Bolts_GetCharBolts_2(sBELibTables* self, int i)
 {
     if (self->count0[i] <= 0) {
         return 0;

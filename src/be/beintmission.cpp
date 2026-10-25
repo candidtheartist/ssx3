@@ -276,7 +276,7 @@ extern "C" int func_001538E8(void* self, int rider, int bit, int idx)
     return (*(unsigned int*)(p + 4) & mask) != 0;
 }
 
-INCLUDE_ASM("be/beintmission", func_001539A8);
+INCLUDE_ASM("be/beintmission", cBEMissionInterface_SetCollectedMask);
 
 INCLUDE_ASM("be/beintmission", func_00153B00);
 
@@ -319,7 +319,7 @@ struct sMissionDefView_00153CD8
 };
 extern sMissionDefView_00153CD8 D_0043EE10_v00153CD8[] __asm__("D_0043EE10");
 
-extern "C" void func_00153CD8(void* self, int id)
+extern "C" void cBEMissionInterface_GetMissionText2(void* self, int id)
 {
     int i = func_00154240(self, id);
     ((cMissionObj_00153C88*)*(void**)((char*)D_004A28A8 + 0x8C))->v4(D_0043EE10_v00153CD8[i].f8);

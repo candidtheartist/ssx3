@@ -468,7 +468,7 @@ extern void* D_004A2EEC;
 extern "C" void Replay_StopRecording(void* self);
 extern "C" void func_0039F840(void* list);
 extern "C" void ScriptEngine_ListStop(void* self, int i);
-extern "C" void func_001F36C0(void* self, int bit);
+extern "C" void LoadIndicator_SetBusy(void* self, int bit);
 void func_00244880(void* self);
 
 extern "C" void GameStateFinish_Enter(void* self)
@@ -478,7 +478,7 @@ extern "C" void GameStateFinish_Enter(void* self)
     ScriptEngine_ListStop(D_004A28A4, 0);
     *(int*)((char*)self + 0x10) = 0;
     *(int*)((char*)self + 0x14) = 0xB4;
-    func_001F36C0(*(void**)(*(char**)((char*)D_004A28A8 + 0x84) + 0x94), 4);
+    LoadIndicator_SetBusy(*(void**)(*(char**)((char*)D_004A28A8 + 0x84) + 0x94), 4);
     void* p = D_004A2EEC;
     if (p != 0) {
         func_00244880(p);
@@ -491,8 +491,8 @@ int GetHashValue32(char* str);
 extern "C" void* cBE_getBE();
 void* cBE_getInterface_Fv(void* be, int kind) __asm__("cBE_getInterface__Fv");
 void* cBEAggressionInterface_getThis();
-extern "C" void func_00155E58(void* p);
-extern "C" void func_001F36D8(void* hud, int a);
+extern "C" void cBEAggressionInterface_DecayAll(void* p);
+extern "C" void LoadIndicator_ClearBusy(void* hud, int a);
 extern "C" void GameUI_OpenFinishScreen();
 extern "C" void GameState_GotoNext(void* self);
 extern "C" int ScriptEngine_ListPrepare(void* self, int i);
@@ -641,7 +641,7 @@ extern "C" void GameStateFinish_Update(void* self)
         }
         sRace_233CD8* rc2 = &D_00535BC8_r233CD8;
         if (rc2->mode48 == 0) {
-            func_00155E58(cBEAggressionInterface_getThis());
+            cBEAggressionInterface_DecayAll(cBEAggressionInterface_getThis());
         }
         *(int*)(s + 0x10) = 1;
         break;
@@ -654,7 +654,7 @@ extern "C" void GameStateFinish_Update(void* self)
         if (o != 0) {
             o->v24(1, 0);
         }
-        func_001F36D8(*(void**)(*(char**)((char*)D_004A28A8 + 0x84) + 0x94), 4);
+        LoadIndicator_ClearBusy(*(void**)(*(char**)((char*)D_004A28A8 + 0x84) + 0x94), 4);
         *(int*)(s + 0x10) = 2;
         break;
     }
@@ -754,7 +754,7 @@ void* cBE_getInterface_41D0(void* be, int kind) __asm__("cBE_getInterface__Fv");
 extern "C" void* cBE_getBE();
 extern "C" void cBE_setState(int state);
 extern "C" void cAI_setAIState(void*, int);
-extern "C" void func_001F36D8(void* hud, int a);
+extern "C" void LoadIndicator_ClearBusy(void* hud, int a);
 extern "C" void func_0026F228(void* p);
 extern "C" int cBENewRaceInterface_setNumberAI(void* self, int count);
 extern "C" void cBENewPlayerInterface_setRiderCharID(void* player, int i, int id);
@@ -793,7 +793,7 @@ extern "C" void GameStatePreRaceLoad_Enter(void* self, int mode)
     char* race = (char*)cBE_getInterface_41D0(cBE_getBE(), 0);
     char* player = (char*)cBE_getInterface_41D0(cBE_getBE(), 1);
     cAI_setAIState(*(void**)((char*)D_004A2C68 + 0xC), 3);
-    func_001F36D8(*(void**)(*(char**)((char*)D_004A28A8 + 0x84) + 0x94), 0);
+    LoadIndicator_ClearBusy(*(void**)(*(char**)((char*)D_004A28A8 + 0x84) + 0x94), 0);
     cBE_setState(0);
     sGM_2341D0* gm = *(sGM_2341D0**)((char*)D_004A28A8 + 0xC0);
     func_0026F228(*(void**)((char*)D_004A2C68 + 0x28));
@@ -837,14 +837,14 @@ extern void* D_004A28A4;
 extern void* D_004A2C68;
 extern "C" void* cBE_getBE();
 void* cBE_getInterface_43B0(void* be, int kind) __asm__("cBE_getInterface__Fv");
-extern "C" void func_001F36C0(void* self, int bit);
-extern "C" void func_001F36D8(void* hud, int a);
+extern "C" void LoadIndicator_SetBusy(void* self, int bit);
+extern "C" void LoadIndicator_ClearBusy(void* hud, int a);
 extern "C" int ScriptEngine_ListGetPlayStatus(void* a, int b);
 extern "C" void ScriptEngine_ListSetPaused(void* self, int i, int a);
 extern "C" int func_00279298(void* p);
 extern "C" void func_00234910(void* self);
-extern "C" void func_0012AB20(void* self);
-extern "C" void func_0012AC48(void* self);
+extern "C" void cAI_ResetComputerRenderSlots(void* self);
+extern "C" void cAI_ResetActorRenderSlots(void* self);
 extern "C" void cAI_spawnComputerRiders(void* p);
 extern "C" void cAI_spawnComputerActors(void* self, int n);
 extern "C" void cAI_setPlaceMode(void* p, int a);
@@ -853,9 +853,9 @@ extern "C" void cAI_stepRiderInit(void* p);
 extern "C" int ScriptEngine_ListGetState(void* self, int i);
 extern "C" int ScriptEngine_ListStart(void* self, int i, int a, int b);
 extern "C" int ScriptEngine_ListGetEntryType(void* self, int i, int a);
-void func_001289F0(void* p);
-extern "C" int func_0012ABD0(void* p);
-extern "C" int func_0012ACF8(void* p);
+void cAI_placeRidersDefault(void* p);
+extern "C" int cAI_ComputerRidersHaveRenderSlots(void* p);
+extern "C" int cAI_ActorRidersHaveRenderSlots(void* p);
 extern "C" void func_0012B030(void* p);
 extern "C" void func_0012B000(void* p);
 extern "C" void GameState_GotoNext(void* self);
@@ -876,13 +876,13 @@ static inline char* Ai_2343B0()
 extern "C" void GameStatePreRaceLoad_Update(char* self)
 {
     if (*(int*)(self + 0x1C) < 3) {
-        func_001F36C0(*(void**)(*(char**)((char*)D_004A28A8 + 0x84) + 0x94), 2);
+        LoadIndicator_SetBusy(*(void**)(*(char**)((char*)D_004A28A8 + 0x84) + 0x94), 2);
         if (ScriptEngine_ListGetPlayStatus(D_004A28A4, 0) == 4)
             ScriptEngine_ListSetPaused(D_004A28A4, 0, 1);
     } else {
         if (ScriptEngine_ListGetPlayStatus(D_004A28A4, 0) == 3)
             ScriptEngine_ListSetPaused(D_004A28A4, 0, 0);
-        func_001F36D8(*(void**)(*(char**)((char*)D_004A28A8 + 0x84) + 0x94), 2);
+        LoadIndicator_ClearBusy(*(void**)(*(char**)((char*)D_004A28A8 + 0x84) + 0x94), 2);
     }
     switch (*(unsigned int*)(self + 0x1C)) {
     case 0:
@@ -897,8 +897,8 @@ extern "C" void GameStatePreRaceLoad_Update(char* self)
         int flag = rc->flag49;
         int sub = rc->sub4A;
         if (mode == 4 || (mode == 5 && sub != 4) || (mode == 6 && sub != 5)) {
-            func_0012AB20(Ai_2343B0());
-            func_0012AC48(Ai_2343B0());
+            cAI_ResetComputerRenderSlots(Ai_2343B0());
+            cAI_ResetActorRenderSlots(Ai_2343B0());
             *(int*)(self + 0x10) = 1;
         } else if (flag == 0) {
             cAI_spawnComputerRiders(Ai_2343B0());
@@ -943,14 +943,14 @@ extern "C" void GameStatePreRaceLoad_Update(char* self)
             return;
         cBE_getInterface_43B0(cBE_getBE(), 0);
         if (D_00535BC8_r2343B0.mode48 != 4) {
-            func_001289F0(Ai_2343B0());
+            cAI_placeRidersDefault(Ai_2343B0());
             if (*(int*)(Ai_2343B0() + 0x80) > 0)
                 *(int*)(Ai_2343B0() + 0x14) = 1;
         }
         if (*(int*)(self + 0x10) != 0) {
-            if (func_0012ABD0(Ai_2343B0()) == 0)
+            if (cAI_ComputerRidersHaveRenderSlots(Ai_2343B0()) == 0)
                 break;
-            if (func_0012ACF8(Ai_2343B0()) == 0)
+            if (cAI_ActorRidersHaveRenderSlots(Ai_2343B0()) == 0)
                 break;
             func_0012B030(Ai_2343B0());
             func_0012B000(Ai_2343B0());
@@ -975,14 +975,14 @@ extern "C" void cAI_setAIState(void*, int);
 void* cBEAggressionInterface_getThis();
 extern "C" void ScriptEngine_ListStop(void* self, int i);
 extern "C" void cAI_spawnComputerRiders(void* p);
-void func_001289F0(void* p);
+void cAI_placeRidersDefault(void* p);
 extern "C" void func_00128A10(void* p);
 extern "C" void func_0026F7B8(void* p);
 extern "C" void cAI_setPlaceMode(void* p, int a);
 extern "C" void func_00308F38(void* a);
 extern "C" void func_00308C60(void* a);
 extern "C" void cAI_updateRiderPoses(void* p);
-extern "C" void func_00155E58(void* p);
+extern "C" void cBEAggressionInterface_DecayAll(void* p);
 extern void* D_004A2C68;
 extern void* D_004A28A4;
 extern void* D_004A28A8;
@@ -1024,7 +1024,7 @@ extern "C" void GameStatePreRaceLoad_Exit(void* self)
     int mode = r->mode48;
     if (mode == 0) {
         cAI_spawnComputerRiders(*(void**)((char*)D_004A2C68 + 0xC));
-        func_001289F0(*(void**)((char*)D_004A2C68 + 0xC));
+        cAI_placeRidersDefault(*(void**)((char*)D_004A2C68 + 0xC));
     } else {
         func_00128A10(*(void**)((char*)D_004A2C68 + 0xC));
         func_0026F7B8(*(void**)((char*)D_004A2C68 + 0x28));
@@ -1048,7 +1048,7 @@ extern "C" void GameStatePreRaceLoad_Exit(void* self)
     cAI_updateRiderPoses(*(void**)((char*)D_004A2C68 + 0xC));
     sRace_234750* r2 = &D_00535BC8_r234750;
     if (r2->flag49 != 0)
-        func_00155E58(cBEAggressionInterface_getThis());
+        cBEAggressionInterface_DecayAll(cBEAggressionInterface_getThis());
     *(int*)((char*)self + 0x14) = 0;
     char* g = *(char**)((char*)D_004A28A8 + 0x84);
     char* x = *(char**)(g + 0x84);

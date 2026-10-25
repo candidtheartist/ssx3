@@ -127,7 +127,7 @@ static inline void insert_CF48(char* w, void* item, const sCtBox_CF48* box)
 extern "C" void func_0016BF40(void* self);
 void cCameraTriggerStack_init(cCameraTriggerStack* self);
 
-extern "C" void func_0016CA18(void* vself)
+extern "C" void cCameraTriggerMan_RemoveTriggerRegions(void* vself)
 {
     sCtMan_CF48* self = (sCtMan_CF48*)vself;
     for (int i = 0; i < self->count; i++) {
@@ -205,32 +205,32 @@ extern "C" void cCameraTriggerMan_streamIn(void* self, void* stream)
 }
 
 extern void* D_004C5830[];
-extern "C" void* func_0016CEF0(void*, void*, int);
+extern "C" void* cCameraTriggerMan_streamInIf(void*, void*, int);
 
 //100%
-// Forwards to func_0016CA18.
-extern "C" void func_0016CA18(void* self);
+// Forwards to cCameraTriggerMan_RemoveTriggerRegions.
+extern "C" void cCameraTriggerMan_RemoveTriggerRegions(void* self);
 
 extern "C" void func_0016CEA8(void* self)
 {
-    func_0016CA18(self);
+    cCameraTriggerMan_RemoveTriggerRegions(self);
 }
 
 //80.0%
 //100%
-// PORT: the unit declares func_0016CEF0 as returning void*; this caller treats it as void.
-void func_0016CEF0_CEC8(void*, void*, int) __asm__("func_0016CEF0");
+// PORT: the unit declares cCameraTriggerMan_streamInIf as returning void*; this caller treats it as void.
+void cCameraTriggerMan_streamInIf_CEC8(void*, void*, int) __asm__("cCameraTriggerMan_streamInIf");
 void func_0016CEC8(void* self, int a1)
 {
-    func_0016CEF0_CEC8((void*)D_004C5830, self, a1);
+    cCameraTriggerMan_streamInIf_CEC8((void*)D_004C5830, self, a1);
 }
 
 //100% - objdiff report; single-function view differs only in a relocation name
 extern "C" void cCameraTriggerMan_streamIn(void* self, void* stream);
 
-// PORT: the unit declares func_0016CEF0 as returning void*, but the body returns nothing.
-void func_0016CEF0_impl(void* self, void* unused, void* stream) __asm__("func_0016CEF0");
-void func_0016CEF0_impl(void* self, void* unused, void* stream)
+// PORT: the unit declares cCameraTriggerMan_streamInIf as returning void*, but the body returns nothing.
+void cCameraTriggerMan_streamInIf_impl(void* self, void* unused, void* stream) __asm__("cCameraTriggerMan_streamInIf");
+void cCameraTriggerMan_streamInIf_impl(void* self, void* unused, void* stream)
 {
     if (stream != 0) {
         cCameraTriggerMan_streamIn(self, stream);
@@ -485,15 +485,15 @@ extern "C" void func_0016E1D8(sCamEvt_E1D8* evt, char* rider)
 }
 
 
-INCLUDE_ASM("camera/trigger/cameratriggerman", func_0016E560);
+INCLUDE_ASM("camera/trigger/cameratriggerman", cCTBoundObjEllipse_ClampPoint);
 
-INCLUDE_ASM("camera/trigger/cameratriggerman", func_0016F068);
+INCLUDE_ASM("camera/trigger/cameratriggerman", cCTBoundObjBox_ClampPoint);
 
-INCLUDE_ASM("camera/trigger/cameratriggerman", func_0016FBB8);
+INCLUDE_ASM("camera/trigger/cameratriggerman", cCTBoundObjLine_ClampPoint);
 
-INCLUDE_ASM("camera/trigger/cameratriggerman", func_00170240);
+INCLUDE_ASM("camera/trigger/cameratriggerman", cCTBoundObjLine_GetWorldStart);
 
-INCLUDE_ASM("camera/trigger/cameratriggerman", func_001707B0);
+INCLUDE_ASM("camera/trigger/cameratriggerman", cCTBoundObjLine_GetWorldEnd);
 
-INCLUDE_ASM("camera/trigger/cameratriggerman", func_00170D20);
+INCLUDE_ASM("camera/trigger/cameratriggerman", cCTBoundObj_GetWorldPoint);
 

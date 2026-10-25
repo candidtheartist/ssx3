@@ -310,7 +310,7 @@ extern "C" void cFEPopupScreenPos_onUpdate(sPopup_F050* self)
 }
 
 //100%
-int func_001DF378(void* self)
+int cFEPopupScreenPos_TransitionOut(void* self)
 {
     return 0x1;
 }
@@ -321,7 +321,7 @@ extern "C" void* func_0039E390(void*);
 extern "C" void* func_0039E2A0(void* self, void* engine);
 extern void* D_0046B160[];
 
-extern "C" void* func_001DF380(void* self)
+extern "C" void* cFEStateRiderBio_ctor_2(void* self)
 {
     func_0039E2A0(self, 0);
     *(void***)((char*)self + 0x8) = D_0046B160;
@@ -340,7 +340,7 @@ extern "C" void* func_0039E390(void*);
 extern "C" void* func_0039E2A0(void* self, void* engine);
 extern void* D_0046B090[];
 
-extern "C" void* func_001DF3E0(void* self)
+extern "C" void* cFEStateRuleSelect_ctor_2(void* self)
 {
     func_0039E2A0(self, 0);
     *(void***)((char*)self + 0x8) = D_0046B090;
@@ -370,7 +370,7 @@ extern "C" void* func_001A8500(void* self, int a1, int a2);
 extern "C" void* func_001926F0(void* self);
 extern void* D_0046AF68[];
 
-extern "C" void* func_001DF470(void* self)
+extern "C" void* cFEStateBraggingRights_ctor_2(void* self)
 {
     char* p;
     int i;
@@ -416,7 +416,7 @@ void func_001DF578(void* self)
 extern "C" void* func_001A8500(void* self, int a1, int a2);
 extern void* D_0046AE58[];
 
-extern "C" void* func_001DF580(void* self)
+extern "C" void* cFEStateChatRoom_ctor_2(void* self)
 {
     func_001A8500(self, 0, 0);
     *(void***)((char*)self + 0x8) = D_0046AE58;
@@ -435,7 +435,7 @@ extern "C" void* func_001A85D0(void*);
 extern "C" void* func_001A8500(void* self, int a1, int a2);
 extern void* D_0046AD48[];
 
-extern "C" void* func_001DF5C8(void* self)
+extern "C" void* cFEStateOnlineMainMenu_ctor_2(void* self)
 {
     func_001A8500(self, 0, 0);
     *(void***)((char*)self + 0x8) = D_0046AD48;
@@ -450,7 +450,7 @@ void* func_001DF608(void* self)
 }
 
 //100%
-int func_001DF630(void* self)
+int cFEStateOnlineAgreement_TransitionOut(void* self)
 {
     return 0x1;
 }
@@ -461,7 +461,7 @@ extern "C" void* func_001A85D0(void*);
 extern "C" void* func_001A8500(void* self, int a1, int a2);
 extern void* D_0046AB28[];
 
-extern "C" void* func_001DF638(void* self)
+extern "C" void* cFEStateNetQuickPlayPopup_ctor_2(void* self)
 {
     func_001A8500(self, 0, 0);
     *(void***)((char*)self + 0x8) = D_0046AB28;
@@ -477,7 +477,7 @@ void* func_001DF678(void* self)
 }
 
 //100%
-int func_001DF6A0(void* self)
+int cFEStateNetQuickPlayPopup_TransitionOut(void* self)
 {
     return 0x1;
 }
@@ -488,7 +488,7 @@ extern "C" void* func_001A85D0(void*);
 extern "C" void* func_001A8500(void* self, int a1, int a2);
 extern void* D_0046AA18[];
 
-extern "C" void* func_001DF6A8(void* self)
+extern "C" void* cFEStateNetSSXWorld_ctor_2(void* self)
 {
     func_001A8500(self, 0, 0);
     *(void***)((char*)self + 0x8) = D_0046AA18;
@@ -508,7 +508,7 @@ extern "C" void* func_001A85D0(void*);
 extern "C" void* func_001A8500(void* self, int a1, int a2);
 extern void* D_0046A908[];
 
-extern "C" void* func_001DF710(void* self)
+extern "C" void* cFEStateNetQuickMessages_ctor_2(void* self)
 {
     func_001A8500(self, 0, 0);
     *(void***)((char*)self + 0x8) = D_0046A908;
@@ -531,7 +531,7 @@ extern "C" void* func_001A8500(void* self, int a1, int a2);
 extern void* D_0046A7F8[];
 extern int D_004A3E90;
 
-extern "C" void* func_001DF780(void* self)
+extern "C" void* cFEStateLobbyMenu_ctor_2(void* self)
 {
     func_001A8500(self, 0, 0);
     int d = D_004A3E90;
@@ -559,7 +559,7 @@ extern "C" void* func_001A8500(void* self, int a1, int a2);
 extern void* D_0046A6E8[];
 extern int D_004A3E90;
 
-extern "C" void* func_001DF828(void* self)
+extern "C" void* cFEStateNetCreateRoomPopup_ctor_2(void* self)
 {
     func_001A8500(self, 0, 0);
     int d = D_004A3E90;
@@ -586,7 +586,7 @@ extern "C" void cFEStateNetCreateRoomPopup_dtor(void* self, int flags)
 }
 
 //100%
-int func_001DF8E0(void* self)
+int cFEStateNetCreateRoomPopup_TransitionOut(void* self)
 {
     return 0x1;
 }
@@ -609,7 +609,7 @@ extern "C" int func_001DF8F8(void* self)
     return *(int*)((char*)self + 0x6E4);
 }
 
-INCLUDE_ASM("fe/fepopupmisc", func_001DF900);
+INCLUDE_ASM("fe/fepopupmisc", cFEStateNetHelpPopup_ctor_2);
 
 //100%
 void* func_001DF960(void* self)
@@ -619,7 +619,7 @@ void* func_001DF960(void* self)
 }
 
 //100%
-int func_001DF988(void* self)
+int cFEStateNetHelpPopup_TransitionOut(void* self)
 {
     return 0x1;
 }
@@ -667,7 +667,7 @@ extern "C" int func_001DF9D0(void* self)
 extern "C" void* func_0039E2A0(void* self, void* engine);
 extern void* D_0046A3C8[];
 
-extern "C" void* func_001DF9D8(void* self)
+extern "C" void* cFEStateRewardGalleryBase_ctor_2(void* self)
 {
     func_0039E2A0(self, 0);
     *(void***)((char*)self + 0x8) = D_0046A3C8;
@@ -678,7 +678,7 @@ extern "C" void* func_001DF9D8(void* self)
 extern void* D_0046A3C8[];
 extern void* D_0046D0D0[];
 void cFEStateRewardGalleryBase_v29(void* self);
-extern "C" void func_001D00C0(void* self);
+extern "C" void cFEStateRewardGalleryBase_ReleaseTextures(void* self);
 // PORT: unit declares func_0039E390 with one arg; the body takes (self, flags)
 extern "C" void func_0039E390_dtor(void* self, int flags) __asm__("func_0039E390");
 
@@ -686,7 +686,7 @@ extern "C" void func_001DFA10(void* self, int flags)
 {
     *(void***)((char*)self + 0x8) = D_0046A3C8;
     cFEStateRewardGalleryBase_v29(self);
-    func_001D00C0(self);
+    cFEStateRewardGalleryBase_ReleaseTextures(self);
     *(void***)((char*)self + 0x8) = D_0046D0D0;
     func_0039E390_dtor(self, flags);
 }
@@ -702,7 +702,7 @@ extern "C" int func_001DFA78(void* self)
 }
 
 //100%
-int func_001DFA88(void* self)
+int cFEStateRewardGalleryBase_GetIconPath(void* self)
 {
     return 0;
 }
@@ -730,7 +730,7 @@ extern "C" int func_001DFAB0(void* self)
 }
 
 //100%
-void func_001DFAC0(void* self)
+void cFEStateRewardGalleryBase_InitButtons(void* self)
 {
 }
 
@@ -740,13 +740,13 @@ void cFEStateRewardGalleryBase_v29(void* self)
 }
 
 //100%
-int func_001DFAD0(void* self)
+int cFEStateRewardGalleryBase_GetItemRecord(void* self)
 {
     return 0;
 }
 
 //100%
-int func_001DFAD8(void* self)
+int cFEStateRewardGalleryBase_GetItemPrice(void* self)
 {
     return 0;
 }
@@ -758,7 +758,7 @@ int func_001DFAE0(void* self)
 }
 
 //100%
-int func_001DFAE8(void* self)
+int cFEStateRewardGalleryBase_GetItemName(void* self)
 {
     return 0;
 }
@@ -766,7 +766,7 @@ int func_001DFAE8(void* self)
 extern "C" void* func_0039E2A0(void* self, void* engine);
 extern void* D_0046A248[];
 
-extern "C" void* func_001DFAF0(void* self)
+extern "C" void* cFEStateRewardGalleryPosters_ctor_2(void* self)
 {
     func_0039E2A0(self, 0);
     *(void***)((char*)self + 0x8) = D_0046A248;
@@ -777,7 +777,7 @@ extern "C" void* func_001DFAF0(void* self)
 extern void* D_0046A3C8[];
 extern void* D_0046D0D0[];
 void cFEStateRewardGalleryBase_v29(void* self);
-extern "C" void func_001D00C0(void* self);
+extern "C" void cFEStateRewardGalleryBase_ReleaseTextures(void* self);
 // PORT: unit declares func_0039E390 with one arg; the body takes (self, flags)
 extern "C" void func_0039E390_dtor(void* self, int flags) __asm__("func_0039E390");
 
@@ -785,19 +785,19 @@ extern "C" void func_001DFB28(void* self, int flags)
 {
     *(void***)((char*)self + 0x8) = D_0046A3C8;
     cFEStateRewardGalleryBase_v29(self);
-    func_001D00C0(self);
+    cFEStateRewardGalleryBase_ReleaseTextures(self);
     *(void***)((char*)self + 0x8) = D_0046D0D0;
     func_0039E390_dtor(self, flags);
 }
 
 //100%
-int func_001DFB88(void* self, int i)
+int cFEStateRewardGalleryPosters_GetItemRecord(void* self, int i)
 {
     return *(int*)((char*)self + (i << 2) + 0xA28);
 }
 
 //100%
-extern "C" int func_001DFB98(void* self, void* a1)
+extern "C" int cFEStateRewardGalleryPosters_GetItemPrice(void* self, void* a1)
 {
     int v = *(short*)((char*)a1 + 0xc);
     if (v > 0) v = v * 10;
@@ -811,7 +811,7 @@ signed char func_001DFBB0(void* self, void* other)
 }
 
 //100%
-int func_001DFBB8(void* self, void* other)
+int cFEStateRewardGalleryPosters_GetItemName(void* self, void* other)
 {
     return *(int*)((char*)other + 0x0);
 }
@@ -819,7 +819,7 @@ int func_001DFBB8(void* self, void* other)
 extern "C" void* func_0039E2A0(void* self, void* engine);
 extern void* D_0046A0C8[];
 
-extern "C" void* func_001DFBC0(void* self)
+extern "C" void* cFEStateRewardGalleryTradingCards_ctor_2(void* self)
 {
     func_0039E2A0(self, 0);
     *(void***)((char*)self + 0x8) = D_0046A0C8;
@@ -830,7 +830,7 @@ extern "C" void* func_001DFBC0(void* self)
 extern void* D_0046A3C8[];
 extern void* D_0046D0D0[];
 void cFEStateRewardGalleryBase_v29(void* self);
-extern "C" void func_001D00C0(void* self);
+extern "C" void cFEStateRewardGalleryBase_ReleaseTextures(void* self);
 // PORT: unit declares func_0039E390 with one arg; the body takes (self, flags)
 extern "C" void func_0039E390_dtor(void* self, int flags) __asm__("func_0039E390");
 
@@ -838,19 +838,19 @@ extern "C" void func_001DFBF8(void* self, int flags)
 {
     *(void***)((char*)self + 0x8) = D_0046A3C8;
     cFEStateRewardGalleryBase_v29(self);
-    func_001D00C0(self);
+    cFEStateRewardGalleryBase_ReleaseTextures(self);
     *(void***)((char*)self + 0x8) = D_0046D0D0;
     func_0039E390_dtor(self, flags);
 }
 
 //100%
-int func_001DFC58(void* self, int i)
+int cFEStateRewardGalleryTradingCards_GetItemRecord(void* self, int i)
 {
     return *(int*)((char*)self + (i << 2) + 0xA28);
 }
 
 //100%
-extern "C" int func_001DFC68(void* self, void* a1)
+extern "C" int cFEStateRewardGalleryTradingCards_GetItemPrice(void* self, void* a1)
 {
     int v = *(short*)((char*)a1 + 0xc);
     if (v > 0) v = v * 10;
@@ -864,7 +864,7 @@ signed char func_001DFC80(void* self, void* other)
 }
 
 //100%
-int func_001DFC88(void* self, void* other)
+int cFEStateRewardGalleryTradingCards_GetItemName(void* self, void* other)
 {
     return *(int*)((char*)other + 0x0);
 }
@@ -872,7 +872,7 @@ int func_001DFC88(void* self, void* other)
 extern "C" void* func_0039E2A0(void* self, void* engine);
 extern void* D_00469F48[];
 
-extern "C" void* func_001DFC90(void* self)
+extern "C" void* cFEStateRewardGalleryConceptArts_ctor_2(void* self)
 {
     func_0039E2A0(self, 0);
     *(void***)((char*)self + 0x8) = D_00469F48;
@@ -883,7 +883,7 @@ extern "C" void* func_001DFC90(void* self)
 extern void* D_0046A3C8[];
 extern void* D_0046D0D0[];
 void cFEStateRewardGalleryBase_v29(void* self);
-extern "C" void func_001D00C0(void* self);
+extern "C" void cFEStateRewardGalleryBase_ReleaseTextures(void* self);
 // PORT: unit declares func_0039E390 with one arg; the body takes (self, flags)
 extern "C" void func_0039E390_dtor(void* self, int flags) __asm__("func_0039E390");
 
@@ -891,19 +891,19 @@ extern "C" void func_001DFCC8(void* self, int flags)
 {
     *(void***)((char*)self + 0x8) = D_0046A3C8;
     cFEStateRewardGalleryBase_v29(self);
-    func_001D00C0(self);
+    cFEStateRewardGalleryBase_ReleaseTextures(self);
     *(void***)((char*)self + 0x8) = D_0046D0D0;
     func_0039E390_dtor(self, flags);
 }
 
 //100%
-int func_001DFD28(void* self, int i)
+int cFEStateRewardGalleryConceptArts_GetItemRecord(void* self, int i)
 {
     return *(int*)((char*)self + (i << 2) + 0xA28);
 }
 
 //100%
-extern "C" int func_001DFD38(void* self, void* a1)
+extern "C" int cFEStateRewardGalleryConceptArts_GetItemPrice(void* self, void* a1)
 {
     int v = *(short*)((char*)a1 + 0xc);
     if (v > 0) v = v * 10;
@@ -917,7 +917,7 @@ signed char func_001DFD50(void* self, void* other)
 }
 
 //100%
-int func_001DFD58(void* self, void* other)
+int cFEStateRewardGalleryConceptArts_GetItemName(void* self, void* other)
 {
     return *(int*)((char*)other + 0x0);
 }
@@ -925,7 +925,7 @@ int func_001DFD58(void* self, void* other)
 extern "C" void* func_0039E2A0(void* self, void* engine);
 extern void* D_00469DC8[];
 
-extern "C" void* func_001DFD60(void* self)
+extern "C" void* cFEStateRewardGalleryVideos_ctor_2(void* self)
 {
     func_0039E2A0(self, 0);
     *(void***)((char*)self + 0x8) = D_00469DC8;
@@ -936,7 +936,7 @@ extern "C" void* func_001DFD60(void* self)
 extern void* D_0046A3C8[];
 extern void* D_0046D0D0[];
 void cFEStateRewardGalleryBase_v29(void* self);
-extern "C" void func_001D00C0(void* self);
+extern "C" void cFEStateRewardGalleryBase_ReleaseTextures(void* self);
 // PORT: unit declares func_0039E390 with one arg; the body takes (self, flags)
 extern "C" void func_0039E390_dtor(void* self, int flags) __asm__("func_0039E390");
 
@@ -944,19 +944,19 @@ extern "C" void func_001DFD98(void* self, int flags)
 {
     *(void***)((char*)self + 0x8) = D_0046A3C8;
     cFEStateRewardGalleryBase_v29(self);
-    func_001D00C0(self);
+    cFEStateRewardGalleryBase_ReleaseTextures(self);
     *(void***)((char*)self + 0x8) = D_0046D0D0;
     func_0039E390_dtor(self, flags);
 }
 
 //100%
-int func_001DFDF8(void* self, int i)
+int cFEStateRewardGalleryVideos_GetItemRecord(void* self, int i)
 {
     return *(int*)((char*)self + (i << 2) + 0xA28);
 }
 
 //100%
-extern "C" int func_001DFE08(void* self, void* a1)
+extern "C" int cFEStateRewardGalleryVideos_GetItemPrice(void* self, void* a1)
 {
     int v = *(short*)((char*)a1 + 0xc);
     if (v > 0) v = v * 10;
@@ -970,7 +970,7 @@ signed char func_001DFE20(void* self, void* other)
 }
 
 //100%
-int func_001DFE28(void* self, void* other)
+int cFEStateRewardGalleryVideos_GetItemName(void* self, void* other)
 {
     return *(int*)((char*)other + 0x0);
 }
@@ -978,7 +978,7 @@ int func_001DFE28(void* self, void* other)
 extern "C" void* func_0039E2A0(void* self, void* engine);
 extern void* D_00469C48[];
 
-extern "C" void* func_001DFE30(void* self)
+extern "C" void* cFEStateRewardGalleryToys_ctor_2(void* self)
 {
     func_0039E2A0(self, 0);
     *(void***)((char*)self + 0x8) = D_00469C48;
@@ -989,7 +989,7 @@ extern "C" void* func_001DFE30(void* self)
 extern void* D_0046A3C8[];
 extern void* D_0046D0D0[];
 void cFEStateRewardGalleryBase_v29(void* self);
-extern "C" void func_001D00C0(void* self);
+extern "C" void cFEStateRewardGalleryBase_ReleaseTextures(void* self);
 // PORT: unit declares func_0039E390 with one arg; the body takes (self, flags)
 extern "C" void func_0039E390_dtor(void* self, int flags) __asm__("func_0039E390");
 
@@ -997,19 +997,19 @@ extern "C" void func_001DFE68(void* self, int flags)
 {
     *(void***)((char*)self + 0x8) = D_0046A3C8;
     cFEStateRewardGalleryBase_v29(self);
-    func_001D00C0(self);
+    cFEStateRewardGalleryBase_ReleaseTextures(self);
     *(void***)((char*)self + 0x8) = D_0046D0D0;
     func_0039E390_dtor(self, flags);
 }
 
 //100%
-int func_001DFEC8(void* self, int i)
+int cFEStateRewardGalleryToys_GetItemRecord(void* self, int i)
 {
     return *(int*)((char*)self + (i << 2) + 0xA28);
 }
 
 //100%
-extern "C" int func_001DFED8(void* self, void* a1)
+extern "C" int cFEStateRewardGalleryToys_GetItemPrice(void* self, void* a1)
 {
     int v = *(short*)((char*)a1 + 0xc);
     if (v > 0) v = v * 10;
@@ -1023,7 +1023,7 @@ signed char func_001DFEF0(void* self, void* other)
 }
 
 //100%
-int func_001DFEF8(void* self, void* other)
+int cFEStateRewardGalleryToys_GetItemName(void* self, void* other)
 {
     return *(int*)((char*)other + 0x0);
 }
@@ -1031,7 +1031,7 @@ int func_001DFEF8(void* self, void* other)
 extern "C" void* func_0039E2A0(void* self, void* engine);
 extern void* D_00469AC8[];
 
-extern "C" void* func_001DFF00(void* self)
+extern "C" void* cFEStateRewardGalleryCheatChars_ctor_2(void* self)
 {
     func_0039E2A0(self, 0);
     *(void***)((char*)self + 0x8) = D_00469AC8;
@@ -1042,7 +1042,7 @@ extern "C" void* func_001DFF00(void* self)
 extern void* D_0046A3C8[];
 extern void* D_0046D0D0[];
 void cFEStateRewardGalleryBase_v29(void* self);
-extern "C" void func_001D00C0(void* self);
+extern "C" void cFEStateRewardGalleryBase_ReleaseTextures(void* self);
 // PORT: unit declares func_0039E390 with one arg; the body takes (self, flags)
 extern "C" void func_0039E390_dtor(void* self, int flags) __asm__("func_0039E390");
 
@@ -1050,19 +1050,19 @@ extern "C" void func_001DFF38(void* self, int flags)
 {
     *(void***)((char*)self + 0x8) = D_0046A3C8;
     cFEStateRewardGalleryBase_v29(self);
-    func_001D00C0(self);
+    cFEStateRewardGalleryBase_ReleaseTextures(self);
     *(void***)((char*)self + 0x8) = D_0046D0D0;
     func_0039E390_dtor(self, flags);
 }
 
 //100%
-int func_001DFF98(void* self, int i)
+int cFEStateRewardGalleryCheatChars_GetItemRecord(void* self, int i)
 {
     return *(int*)((char*)self + (i << 2) + 0xA28);
 }
 
 //100%
-extern "C" int func_001DFFA8(void* self, void* a1)
+extern "C" int cFEStateRewardGalleryCheatChars_GetItemPrice(void* self, void* a1)
 {
     int v = *(short*)((char*)a1 + 0xc);
     if (v > 0) v = v * 10;
@@ -1076,7 +1076,7 @@ signed char func_001DFFC0(void* self, void* other)
 }
 
 //100%
-int func_001DFFC8(void* self, void* other)
+int cFEStateRewardGalleryCheatChars_GetItemName(void* self, void* other)
 {
     return *(int*)((char*)other + 0x0);
 }
@@ -1084,7 +1084,7 @@ int func_001DFFC8(void* self, void* other)
 extern "C" void* func_0039E2A0(void* self, void* engine);
 extern void* D_004699F8[];
 
-extern "C" void* func_001DFFD0(void* self)
+extern "C" void* cFEStatePreviewReward_ctor_2(void* self)
 {
     func_0039E2A0(self, 0);
     *(void***)((char*)self + 0x8) = D_004699F8;
@@ -1107,13 +1107,13 @@ extern "C" int func_001E0018()
 }
 
 //100%
-int func_001E0020(void* self)
+int cFEStateVideoPlayer_TransitionIn(void* self)
 {
     return 0x1;
 }
 
 //100%
-int func_001E0028(void* self)
+int cFEStateVideoPlayer_TransitionOut(void* self)
 {
     return 0x1;
 }
@@ -1145,7 +1145,7 @@ extern "C" void func_001E0048(void* self, sBlock24_E0048* src)
 extern "C" void* func_0039E2A0(void* self, void* engine);
 extern void* D_00469858[];
 
-extern "C" void* func_001E0098(void* self)
+extern "C" void* cFEStateMountainRoom_ctor_2(void* self)
 {
     func_0039E2A0(self, 0);
     *(void***)((char*)self + 0x8) = D_00469858;
@@ -1193,7 +1193,7 @@ extern "C" int func_001E0130(void* self)
 extern "C" void* func_0039E2A0(void* self, void* engine);
 extern void* D_00469788[];
 
-extern "C" void* func_001E0178(void* self)
+extern "C" void* cFEStatePeakRoom_ctor_2(void* self)
 {
     func_0039E2A0(self, 0);
     *(void***)((char*)self + 0x8) = D_00469788;
@@ -1210,7 +1210,7 @@ void* func_001E01B0(void* self)
 extern "C" void* func_0039E2A0(void* self, void* engine);
 extern void* D_004696B8[];
 
-extern "C" void* func_001E01D8(void* self)
+extern "C" void* cFEStateTrophyRoom_ctor_2(void* self)
 {
     func_0039E2A0(self, 0);
     *(void***)((char*)self + 0x8) = D_004696B8;
@@ -1220,14 +1220,14 @@ extern "C" void* func_001E01D8(void* self)
 //100%
 extern void* D_004696B8[];
 extern void* D_0046D0D0[];
-extern "C" void func_001D4B20(void* self);
+extern "C" void cFEStateTrophyRoom_ReleaseTrophyImages(void* self);
 // PORT: unit declares func_0039E390 with one arg; the body takes (self, flags)
 extern "C" void func_0039E390_dtor(void* self, int flags) __asm__("func_0039E390");
 
 extern "C" void func_001E0210(void* self, int flags)
 {
     *(void***)((char*)self + 0x8) = D_004696B8;
-    func_001D4B20(self);
+    cFEStateTrophyRoom_ReleaseTrophyImages(self);
     *(void***)((char*)self + 0x8) = D_0046D0D0;
     func_0039E390_dtor(self, flags);
 }
@@ -1235,7 +1235,7 @@ extern "C" void func_001E0210(void* self, int flags)
 extern "C" void* func_0039E2A0(void* self, void* engine);
 extern void* D_004695E8[];
 
-extern "C" void* func_001E0268(void* self)
+extern "C" void* cFEStateRewardsRoom_ctor_2(void* self)
 {
     func_0039E2A0(self, 0);
     *(void***)((char*)self + 0x8) = D_004695E8;
@@ -1363,13 +1363,13 @@ signed char func_001E04F8(void* self)
 }
 
 //100%
-int func_001E0500(void* self)
+int cFEPopupSelectMultiplayerMode_TransitionIn(void* self)
 {
     return 0x1;
 }
 
 //100%
-int func_001E0508(void* self)
+int cFEPopupSelectMultiplayerMode_TransitionOut(void* self)
 {
     return 0x1;
 }
@@ -1648,7 +1648,7 @@ extern "C" void cFEStateChallengePopup_dtor(void* self, int flags)
 }
 
 //100%
-int func_001E0A00(void* self)
+int cFEStateChallengePopup_TransitionOut(void* self)
 {
     return 0x1;
 }
@@ -1688,7 +1688,7 @@ extern "C" void func_001E0A50(void* self, int flags)
 }
 
 //100%
-int func_001E0AB8(void* self)
+int cFEStateChallengeReceivedPopup_TransitionOut(void* self)
 {
     return 0x1;
 }
@@ -1767,13 +1767,13 @@ extern "C" void* NetConfigAuthPopup_ctor_2(void* self)
 }
 
 //100%
-int func_001E0C10(void* self)
+int NetConfigAuthPopup_TransitionIn(void* self)
 {
     return 0x1;
 }
 
 //100%
-int func_001E0C18(void* self)
+int NetConfigAuthPopup_TransitionOut(void* self)
 {
     return 0x1;
 }
@@ -1803,7 +1803,7 @@ extern "C" void* cFEStateAuthDNASError_ctor_2(void* self)
 }
 
 //100%
-int func_001E0C78(void* self)
+int cFEStateAuthDNASError_TransitionOut(void* self)
 {
     return 0x1;
 }
@@ -1820,13 +1820,13 @@ int func_001E0C88(void* self)
 }
 
 //100%
-int func_001E0C90(void* self)
+int cFEStateNetAccountMem_TransitionIn(void* self)
 {
     return 0x1;
 }
 
 //100%
-int func_001E0C98(void* self)
+int cFEStateNetAccountMem_TransitionOut(void* self)
 {
     return 0x1;
 }
@@ -2120,7 +2120,7 @@ int cFEStateReadMessagePopup_TransitionOut(void* self)
 void operator_delete(int* ptr);
 extern void* D_0046DD60[];
 
-extern "C" void func_001E1048(void* self, int flags)
+extern "C" void UISoundBase_dtor(void* self, int flags)
 {
     *(void***)self = D_0046DD60;
     if (flags & 1) {
@@ -2129,7 +2129,7 @@ extern "C" void func_001E1048(void* self, int flags)
 }
 
 //100%
-void func_001E1078(void* self)
+void UISoundBase_PlaySound(void* self)
 {
 }
 
@@ -2149,7 +2149,7 @@ struct sFlags_001E1090 {
     unsigned int flag : 1;
 };
 
-extern "C" void func_001E1090(void* self, int e)
+extern "C" void FELocale_SetFlag27(void* self, int e)
 {
     ((sFlags_001E1090*)self)->flag = (e != 0);
 }
@@ -2158,7 +2158,7 @@ extern "C" void func_001E1090(void* self, int e)
 void operator_delete(int* ptr);
 extern void* D_0046DD28[];
 
-extern "C" void func_001E10B8(void* self, int flags)
+extern "C" void UICustomBase_dtor(void* self, int flags)
 {
     *(void***)((char*)self + 0x4) = D_0046DD28;
     if (flags & 1) {
@@ -2178,7 +2178,7 @@ int UICustomBase_v03(void* self)
 }
 
 //100%
-int func_001E10F8(void* self)
+int UICustomBase_CreateState(void* self)
 {
     return 0;
 }
@@ -2193,7 +2193,7 @@ int UICustomBase_v05(void* self)
 void operator_delete(int* ptr);
 extern void* D_0046DBA8[];
 
-extern "C" void func_001E1108(void* self, int flags)
+extern "C" void UIInputBase_dtor(void* self, int flags)
 {
     *(void***)((char*)self + 0x8) = D_0046DBA8;
     if (flags & 1) {
@@ -2448,7 +2448,7 @@ int UIInputBase_v43(void* self)
 }
 
 //100%
-void func_001E1298(void* self, int val)
+void UIInputBase_SetPort(void* self, int val)
 {
     *(char*)((char*)self + 0x4) = (char)val;
 }
@@ -2464,23 +2464,23 @@ void UIInputBase_PollUsbKeyboard(void* self)
 {
 }
 
-extern "C" void* func_001DBC98(int, int);
+extern "C" void* FrontEnd_StaticInitDestroy(int, int);
 
 //100%
-void* func_001E12B0(void* self)
+void* FrontEnd_GlobalCtors(void* self)
 {
-    return func_001DBC98(1, 0xffff);
+    return FrontEnd_StaticInitDestroy(1, 0xffff);
 }
 
-extern "C" void* func_001DBC98(int, int);
+extern "C" void* FrontEnd_StaticInitDestroy(int, int);
 
 //100%
-void* func_001E12D0(void* self)
+void* FrontEnd_GlobalDtors(void* self)
 {
-    return func_001DBC98(0, 0xffff);
+    return FrontEnd_StaticInitDestroy(0, 0xffff);
 }
 
-INCLUDE_ASM("fe/fepopupmisc", func_001E12F0);
+INCLUDE_ASM("fe/fepopupmisc", MessageCenter_InitGroupTable);
 
 extern "C" void func_001E1450()
 {
@@ -2491,19 +2491,19 @@ extern int D_004A20C0;
 extern int D_004A20C8;
 extern int D_004A20BC;
 extern void* D_004A5B64;
-extern "C" void func_001E12F0(void);
-extern "C" void func_001E14C0(int type);
+extern "C" void MessageCenter_InitGroupTable(void);
+extern "C" void MessageCenter_TriggerGroups(int type);
 
-extern "C" void func_001E1458(void)
+extern "C" void MessageCenter_Update(void)
 {
     if (D_004A20C0 == 0) {
         if (D_004A20C8 == 0) {
             D_004A20C8 = 1;
-            func_001E12F0();
+            MessageCenter_InitGroupTable();
         }
         int t = *(int*)((char*)D_004A5B64 + 0x1C);
         if (t - D_004A20BC > 0x258) {
-            func_001E14C0(1);
+            MessageCenter_TriggerGroups(1);
             D_004A20BC = t;
         }
     }
@@ -2511,7 +2511,7 @@ extern "C" void func_001E1458(void)
 
 //100%
 // PORT: PS2-only inline asm; needs a C fallback off-PS2.
-extern "C" int func_001E3A30(void* self);
+extern "C" int MessageCenter_IsFlagSet(void* self);
 void func_001E1548(void* self);
 
 struct sEntry14_14C0 {
@@ -2520,11 +2520,11 @@ struct sEntry14_14C0 {
 };
 extern sEntry14_14C0 D_00441630_14C0[] __asm__("D_00441630");
 
-extern "C" void func_001E14C0(int type)
+extern "C" void MessageCenter_TriggerGroups(int type)
 {
     int i;
     for (i = 0; i < 0x3D; i++) {
-        if (func_001E3A30((void*)i) == 0) {
+        if (MessageCenter_IsFlagSet((void*)i) == 0) {
             int t = D_00441630_14C0[i].type;
             if (t == type || t == 5) {
                 func_001E1548((void*)i);
@@ -2545,9 +2545,9 @@ extern "C" void* cBE_getBE();
 void* cBE_getInterface_Fv(void* be, int kind) __asm__("cBE_getInterface__Fv");
 extern "C" int func_00146E98(void* iface, int a1);
 int cBENewPlayerInterface_getRiderCharID(void* self, int player);
-extern "C" int func_001E3A30(void* self);
-extern "C" void func_001E2FE0(int a, unsigned char b);
-extern "C" void func_001E3A78(int a, int b);
+extern "C" int MessageCenter_IsFlagSet(void* self);
+extern "C" void MessageCenter_PostMessage(int a, unsigned char b);
+extern "C" void MessageCenter_SetFlag(int a, int b);
 extern "C" int func_001464D0(void* iface, int a, int ch, int b, int c);
 extern "C" int func_00145EF0(void* iface, int a, int b, int c);
 unsigned int BXrand();
@@ -2559,59 +2559,59 @@ extern "C" void func_001E1550(void)
     if (busy == 0) {
         void* iface = cBE_getInterface_Fv(cBE_getBE(), 1);
         int ch = cBENewPlayerInterface_getRiderCharID(iface, func_00146E98(iface, 0));
-        if (func_001E3A30((void*)1) == 0) {
+        if (MessageCenter_IsFlagSet((void*)1) == 0) {
             if (func_001464D0(iface, 0, ch, 0, 1) == 0 && func_00145EF0(iface, 0, 0xE, 4) == 0) {
-                func_001E3A78(1, 1);
+                MessageCenter_SetFlag(1, 1);
                 if (ch != 3) {
-                    func_001E2FE0(BXrand() % 3, 0);
+                    MessageCenter_PostMessage(BXrand() % 3, 0);
                 } else {
-                    func_001E2FE0(BXrand() % 3 + 3, 0);
+                    MessageCenter_PostMessage(BXrand() % 3 + 3, 0);
                 }
             }
-        } else if (func_001E3A30((void*)2) == 0) {
+        } else if (MessageCenter_IsFlagSet((void*)2) == 0) {
             if (func_001464D0(iface, 0, ch, 1, 1) == 0 && func_00145EF0(iface, 0, 0xF, 4) == 0) {
-                func_001E3A78(2, 1);
+                MessageCenter_SetFlag(2, 1);
                 if (ch != 7) {
-                    func_001E2FE0(BXrand() % 3 + 6, 0);
+                    MessageCenter_PostMessage(BXrand() % 3 + 6, 0);
                 } else {
-                    func_001E2FE0(BXrand() % 3 + 9, 0);
+                    MessageCenter_PostMessage(BXrand() % 3 + 9, 0);
                 }
             }
-        } else if (func_001E3A30((void*)3) == 0) {
+        } else if (MessageCenter_IsFlagSet((void*)3) == 0) {
             if (func_001464D0(iface, 0, ch, 2, 1) == 0 && func_00145EF0(iface, 0, 0x10, 4) == 0) {
-                func_001E3A78(3, 1);
+                MessageCenter_SetFlag(3, 1);
                 if (ch != 8) {
-                    func_001E2FE0(BXrand() % 3 + 0xC, 0);
+                    MessageCenter_PostMessage(BXrand() % 3 + 0xC, 0);
                 } else {
-                    func_001E2FE0(BXrand() % 3 + 0xF, 0);
+                    MessageCenter_PostMessage(BXrand() % 3 + 0xF, 0);
                 }
             }
         }
-        if (func_001E3A30((void*)4) == 0) {
+        if (MessageCenter_IsFlagSet((void*)4) == 0) {
             if (func_001464D0(iface, 0, ch, 0, 0) == 0 && func_00145EF0(iface, 0, 0xE, 5) == 0) {
-                func_001E3A78(4, 1);
+                MessageCenter_SetFlag(4, 1);
                 if (ch != 3) {
-                    func_001E2FE0(BXrand() % 3 + 0x12, 0);
+                    MessageCenter_PostMessage(BXrand() % 3 + 0x12, 0);
                 } else {
-                    func_001E2FE0(BXrand() % 3 + 0x15, 0);
+                    MessageCenter_PostMessage(BXrand() % 3 + 0x15, 0);
                 }
             }
-        } else if (func_001E3A30((void*)5) == 0) {
+        } else if (MessageCenter_IsFlagSet((void*)5) == 0) {
             if (func_001464D0(iface, 0, ch, 1, 0) == 0 && func_00145EF0(iface, 0, 0xF, 5) == 0) {
-                func_001E3A78(5, 1);
+                MessageCenter_SetFlag(5, 1);
                 if (ch != 7) {
-                    func_001E2FE0(BXrand() % 3 + 0x18, 0);
+                    MessageCenter_PostMessage(BXrand() % 3 + 0x18, 0);
                 } else {
-                    func_001E2FE0(BXrand() % 3 + 0x1B, 0);
+                    MessageCenter_PostMessage(BXrand() % 3 + 0x1B, 0);
                 }
             }
-        } else if (func_001E3A30((void*)6) == 0) {
+        } else if (MessageCenter_IsFlagSet((void*)6) == 0) {
             if (func_001464D0(iface, 0, ch, 2, 0) == 0 && func_00145EF0(iface, 0, 0x10, 5) == 0) {
-                func_001E3A78(6, 1);
+                MessageCenter_SetFlag(6, 1);
                 if (ch != 8) {
-                    func_001E2FE0(BXrand() % 3 + 0x1E, 0);
+                    MessageCenter_PostMessage(BXrand() % 3 + 0x1E, 0);
                 } else {
-                    func_001E2FE0(BXrand() % 3 + 0x21, 0);
+                    MessageCenter_PostMessage(BXrand() % 3 + 0x21, 0);
                 }
             }
         }
@@ -2619,7 +2619,7 @@ extern "C" void func_001E1550(void)
 }
 
 //100%
-extern "C" int func_001E1A30(int a, int b)
+extern "C" int MessageCenter_MatchCharacter(int a, int b)
 {
     switch (a) {
     case 0: return b == 0;
@@ -2641,8 +2641,8 @@ extern "C" int func_001E1A30(int a, int b)
 void* operator_new_tag(unsigned int size, const char* tag, int flags, int d) __asm__("operator_new__FUi");
 void cMemMan_free(void* p);
 unsigned int BXrand();
-extern "C" int func_001E1A30(int kind, int arg);
-extern "C" int func_001E3388(int id);
+extern "C" int MessageCenter_MatchCharacter(int kind, int arg);
+extern "C" int MessageCenter_FindMessage(int id);
 extern char D_0046DDF8[];
 
 struct sPopupEntry18_1AD0 {
@@ -2667,7 +2667,7 @@ extern "C" int MessageCenter_PickForeshadowMessage(sRangeK1E1AD0* r, int arg)
     int n = 0;
     int i;
     for (i = r->start; i < r->count + r->start; i++) {
-        if (func_001E1A30(D_004C6C08_1AD0[i].fC, arg) == 0 && func_001E3388(i) == -1) {
+        if (MessageCenter_MatchCharacter(D_004C6C08_1AD0[i].fC, arg) == 0 && MessageCenter_FindMessage(i) == -1) {
             list[n++] = i;
         }
     }
@@ -2686,8 +2686,8 @@ extern "C" void* cBE_getBE();
 void* cBE_getInterface_Fv(void* be, int kind) __asm__("cBE_getInterface__Fv");
 extern "C" int func_00146E98(void* iface, int a1);
 int cBENewPlayerInterface_getRiderCharID(void* self, int player);
-extern "C" int func_001E3A30(void* self);
-extern "C" void func_001E2FE0(int a, unsigned char b);
+extern "C" int MessageCenter_IsFlagSet(void* self);
+extern "C" void MessageCenter_PostMessage(int a, unsigned char b);
 
 struct sEntry14_1C10 {
     int type;
@@ -2698,7 +2698,7 @@ extern sEntry14_1C10 D_00441630_1C10[] __asm__("D_00441630");
 
 
 
-extern "C" void func_001E1C10(int which)
+extern "C" void MessageCenter_PostForeshadow(int which)
 {
     int n = **(int**)(*(char**)((char*)D_004A28A8 + 0x84) + 0x28);
     int busy = n != 0 && n < 10;
@@ -2708,10 +2708,10 @@ extern "C" void func_001E1C10(int which)
         int id;
         switch (which) {
         case 0: {
-            if (func_001E3A30((void*)0x1C) != 0) {
+            if (MessageCenter_IsFlagSet((void*)0x1C) != 0) {
                 break;
             }
-            if (func_001E3A30((void*)0x1D) != 0) {
+            if (MessageCenter_IsFlagSet((void*)0x1D) != 0) {
                 break;
             }
             sEntry14_1C10* r;
@@ -2724,15 +2724,15 @@ extern "C" void func_001E1C10(int which)
             }
             id = MessageCenter_PickForeshadowMessage((sRangeK1E1AD0*)r, ch);
             if (id != 0x100) {
-                func_001E2FE0(id, 0);
+                MessageCenter_PostMessage(id, 0);
             }
             break;
         }
         case 1: {
-            if (func_001E3A30((void*)0x1E) != 0) {
+            if (MessageCenter_IsFlagSet((void*)0x1E) != 0) {
                 break;
             }
-            if (func_001E3A30((void*)0x1F) != 0) {
+            if (MessageCenter_IsFlagSet((void*)0x1F) != 0) {
                 break;
             }
             sEntry14_1C10* r;
@@ -2745,15 +2745,15 @@ extern "C" void func_001E1C10(int which)
             }
             id = MessageCenter_PickForeshadowMessage((sRangeK1E1AD0*)r, ch);
             if (id != 0x100) {
-                func_001E2FE0(id, 0);
+                MessageCenter_PostMessage(id, 0);
             }
             break;
         }
         case 2: {
-            if (func_001E3A30((void*)0x20) != 0) {
+            if (MessageCenter_IsFlagSet((void*)0x20) != 0) {
                 break;
             }
-            if (func_001E3A30((void*)0x21) != 0) {
+            if (MessageCenter_IsFlagSet((void*)0x21) != 0) {
                 break;
             }
             sEntry14_1C10* r;
@@ -2766,7 +2766,7 @@ extern "C" void func_001E1C10(int which)
             }
             id = MessageCenter_PickForeshadowMessage((sRangeK1E1AD0*)r, ch);
             if (id != 0x100) {
-                func_001E2FE0(id, 0);
+                MessageCenter_PostMessage(id, 0);
             }
             break;
         }
@@ -2776,10 +2776,10 @@ extern "C" void func_001E1C10(int which)
 
 //100%
 extern void* D_004A28A8;
-extern "C" int func_001E3A30(void* self);
-extern "C" void func_001E3A78(int a, int b);
+extern "C" int MessageCenter_IsFlagSet(void* self);
+extern "C" void MessageCenter_SetFlag(int a, int b);
 
-extern "C" void func_001E1DD0(void* self, int id, int alt)
+extern "C" void MessageCenter_SetEventFlag(void* self, int id, int alt)
 {
     int state = **(int**)(*(char**)((char*)D_004A28A8 + 0x84) + 0x28);
     int snd;
@@ -2790,22 +2790,22 @@ extern "C" void func_001E1DD0(void* self, int id, int alt)
     snd = 0;
     switch (id) {
     case 6:
-        snd = func_001E3A30((void*)0x22) ? 0 : 0x28;
+        snd = MessageCenter_IsFlagSet((void*)0x22) ? 0 : 0x28;
         break;
     case 7:
-        snd = func_001E3A30((void*)0x24) ? 0 : 0x2C;
+        snd = MessageCenter_IsFlagSet((void*)0x24) ? 0 : 0x2C;
         break;
     case 8:
-        snd = func_001E3A30((void*)0x26) ? 0 : 0x30;
+        snd = MessageCenter_IsFlagSet((void*)0x26) ? 0 : 0x30;
         break;
     case 9:
-        snd = func_001E3A30((void*)0x23) ? 0 : 0x2A;
+        snd = MessageCenter_IsFlagSet((void*)0x23) ? 0 : 0x2A;
         break;
     case 10:
-        snd = func_001E3A30((void*)0x25) ? 0 : 0x2E;
+        snd = MessageCenter_IsFlagSet((void*)0x25) ? 0 : 0x2E;
         break;
     case 11:
-        snd = func_001E3A30((void*)0x27) ? 0 : 0x32;
+        snd = MessageCenter_IsFlagSet((void*)0x27) ? 0 : 0x32;
         break;
     }
     if (snd != 0)
@@ -2813,63 +2813,63 @@ extern "C" void func_001E1DD0(void* self, int id, int alt)
         int n = snd + 1;
         if (alt == 0)
             n = snd;
-        func_001E3A78(n, 1);
+        MessageCenter_SetFlag(n, 1);
     }
 }
 
 //100%
 extern void* D_004A28A8;
-extern "C" int func_001E3A30(void* self);
-extern "C" void func_001E3A78(int a, int b);
-extern "C" void func_001E20D0(int which, int flag);
-extern "C" void func_001E2220(int which, int flag);
+extern "C" int MessageCenter_IsFlagSet(void* self);
+extern "C" void MessageCenter_SetFlag(int a, int b);
+extern "C" void MessageCenter_PostPendingMessageB(int which, int flag);
+extern "C" void MessageCenter_PostPendingMessageA(int which, int flag);
 
 extern "C" void func_001E1EB8(void)
 {
     int n = **(int**)(*(char**)((char*)D_004A28A8 + 0x84) + 0x28);
     int busy = n != 0 && n < 10;
     if (busy == 0) {
-        if (func_001E3A30((void*)0x28) != 0) {
-            func_001E2220(0, 0);
-            func_001E3A78(0x28, 0);
-        } else if (func_001E3A30((void*)0x29) != 0) {
-            func_001E2220(0, 1);
-            func_001E3A78(0x29, 0);
+        if (MessageCenter_IsFlagSet((void*)0x28) != 0) {
+            MessageCenter_PostPendingMessageA(0, 0);
+            MessageCenter_SetFlag(0x28, 0);
+        } else if (MessageCenter_IsFlagSet((void*)0x29) != 0) {
+            MessageCenter_PostPendingMessageA(0, 1);
+            MessageCenter_SetFlag(0x29, 0);
         }
-        if (func_001E3A30((void*)0x2C) != 0) {
-            func_001E2220(1, 0);
-            func_001E3A78(0x2C, 0);
-        } else if (func_001E3A30((void*)0x2D) != 0) {
-            func_001E2220(1, 1);
-            func_001E3A78(0x2D, 0);
+        if (MessageCenter_IsFlagSet((void*)0x2C) != 0) {
+            MessageCenter_PostPendingMessageA(1, 0);
+            MessageCenter_SetFlag(0x2C, 0);
+        } else if (MessageCenter_IsFlagSet((void*)0x2D) != 0) {
+            MessageCenter_PostPendingMessageA(1, 1);
+            MessageCenter_SetFlag(0x2D, 0);
         }
-        if (func_001E3A30((void*)0x30) != 0) {
-            func_001E2220(2, 0);
-            func_001E3A78(0x30, 0);
-        } else if (func_001E3A30((void*)0x31) != 0) {
-            func_001E2220(2, 1);
-            func_001E3A78(0x31, 0);
+        if (MessageCenter_IsFlagSet((void*)0x30) != 0) {
+            MessageCenter_PostPendingMessageA(2, 0);
+            MessageCenter_SetFlag(0x30, 0);
+        } else if (MessageCenter_IsFlagSet((void*)0x31) != 0) {
+            MessageCenter_PostPendingMessageA(2, 1);
+            MessageCenter_SetFlag(0x31, 0);
         }
-        if (func_001E3A30((void*)0x2A) != 0) {
-            func_001E20D0(0, 0);
-            func_001E3A78(0x2A, 0);
-        } else if (func_001E3A30((void*)0x2B) != 0) {
-            func_001E20D0(0, 1);
-            func_001E3A78(0x2B, 0);
+        if (MessageCenter_IsFlagSet((void*)0x2A) != 0) {
+            MessageCenter_PostPendingMessageB(0, 0);
+            MessageCenter_SetFlag(0x2A, 0);
+        } else if (MessageCenter_IsFlagSet((void*)0x2B) != 0) {
+            MessageCenter_PostPendingMessageB(0, 1);
+            MessageCenter_SetFlag(0x2B, 0);
         }
-        if (func_001E3A30((void*)0x2E) != 0) {
-            func_001E20D0(1, 0);
-            func_001E3A78(0x2E, 0);
-        } else if (func_001E3A30((void*)0x2F) != 0) {
-            func_001E20D0(1, 1);
-            func_001E3A78(0x2F, 0);
+        if (MessageCenter_IsFlagSet((void*)0x2E) != 0) {
+            MessageCenter_PostPendingMessageB(1, 0);
+            MessageCenter_SetFlag(0x2E, 0);
+        } else if (MessageCenter_IsFlagSet((void*)0x2F) != 0) {
+            MessageCenter_PostPendingMessageB(1, 1);
+            MessageCenter_SetFlag(0x2F, 0);
         }
-        if (func_001E3A30((void*)0x32) != 0) {
-            func_001E20D0(2, 0);
-            func_001E3A78(0x32, 0);
-        } else if (func_001E3A30((void*)0x33) != 0) {
-            func_001E20D0(2, 1);
-            func_001E3A78(0x33, 0);
+        if (MessageCenter_IsFlagSet((void*)0x32) != 0) {
+            MessageCenter_PostPendingMessageB(2, 0);
+            MessageCenter_SetFlag(0x32, 0);
+        } else if (MessageCenter_IsFlagSet((void*)0x33) != 0) {
+            MessageCenter_PostPendingMessageB(2, 1);
+            MessageCenter_SetFlag(0x33, 0);
         }
     }
 }
@@ -2877,9 +2877,9 @@ extern "C" void func_001E1EB8(void)
 //100%
 // PORT: PS2-only inline asm; needs a C fallback off-PS2.
 extern void* D_004A28A8;
-extern "C" int func_001E3A30(void* self);
-extern "C" void func_001E3A78(int a, int b);
-extern "C" void func_001E2FE0(int a, unsigned char b);
+extern "C" int MessageCenter_IsFlagSet(void* self);
+extern "C" void MessageCenter_SetFlag(int a, int b);
+extern "C" void MessageCenter_PostMessage(int a, unsigned char b);
 
 struct sEntry14_20D0 {
     int type;
@@ -2888,42 +2888,42 @@ struct sEntry14_20D0 {
 };
 extern sEntry14_20D0 D_00441630_20D0[] __asm__("D_00441630");
 
-extern "C" void func_001E20D0(int which, int flag)
+extern "C" void MessageCenter_PostPendingMessageB(int which, int flag)
 {
     int n = **(int**)(*(char**)((char*)D_004A28A8 + 0x84) + 0x28);
     int busy = n != 0 && n < 10;
     if (busy == 0) {
         switch (which) {
         case 0:
-            if (func_001E3A30((void*)0x23) == 0) {
+            if (MessageCenter_IsFlagSet((void*)0x23) == 0) {
                 sEntry14_20D0* tbl = D_00441630_20D0;
                 if (flag) {
-                    func_001E3A78(0x23, 1);
-                    func_001E2FE0(tbl[0x23].f4 + 1, 0);
+                    MessageCenter_SetFlag(0x23, 1);
+                    MessageCenter_PostMessage(tbl[0x23].f4 + 1, 0);
                 } else {
-                    func_001E2FE0(tbl[0x23].f4, 0);
+                    MessageCenter_PostMessage(tbl[0x23].f4, 0);
                 }
             }
             break;
         case 1:
-            if (func_001E3A30((void*)0x25) == 0) {
+            if (MessageCenter_IsFlagSet((void*)0x25) == 0) {
                 sEntry14_20D0* tbl = D_00441630_20D0;
                 if (flag) {
-                    func_001E3A78(0x25, 1);
-                    func_001E2FE0(tbl[0x25].f4 + 1, 0);
+                    MessageCenter_SetFlag(0x25, 1);
+                    MessageCenter_PostMessage(tbl[0x25].f4 + 1, 0);
                 } else {
-                    func_001E2FE0(tbl[0x25].f4, 0);
+                    MessageCenter_PostMessage(tbl[0x25].f4, 0);
                 }
             }
             break;
         case 2:
-            if (func_001E3A30((void*)0x27) == 0) {
+            if (MessageCenter_IsFlagSet((void*)0x27) == 0) {
                 sEntry14_20D0* tbl = D_00441630_20D0;
                 if (flag) {
-                    func_001E3A78(0x27, 1);
-                    func_001E2FE0(tbl[0x27].f4 + 1, 0);
+                    MessageCenter_SetFlag(0x27, 1);
+                    MessageCenter_PostMessage(tbl[0x27].f4 + 1, 0);
                 } else {
-                    func_001E2FE0(tbl[0x27].f4, 0);
+                    MessageCenter_PostMessage(tbl[0x27].f4, 0);
                 }
             }
             break;
@@ -2934,9 +2934,9 @@ extern "C" void func_001E20D0(int which, int flag)
 //100%
 // PORT: PS2-only inline asm; needs a C fallback off-PS2.
 extern void* D_004A28A8;
-extern "C" int func_001E3A30(void* self);
-extern "C" void func_001E3A78(int a, int b);
-extern "C" void func_001E2FE0(int a, unsigned char b);
+extern "C" int MessageCenter_IsFlagSet(void* self);
+extern "C" void MessageCenter_SetFlag(int a, int b);
+extern "C" void MessageCenter_PostMessage(int a, unsigned char b);
 
 struct sEntry14_2220 {
     int type;
@@ -2945,42 +2945,42 @@ struct sEntry14_2220 {
 };
 extern sEntry14_2220 D_00441630_2220[] __asm__("D_00441630");
 
-extern "C" void func_001E2220(int which, int flag)
+extern "C" void MessageCenter_PostPendingMessageA(int which, int flag)
 {
     int n = **(int**)(*(char**)((char*)D_004A28A8 + 0x84) + 0x28);
     int busy = n != 0 && n < 10;
     if (busy == 0) {
         switch (which) {
         case 0:
-            if (func_001E3A30((void*)0x22) == 0) {
+            if (MessageCenter_IsFlagSet((void*)0x22) == 0) {
                 sEntry14_2220* tbl = D_00441630_2220;
                 if (flag) {
-                    func_001E3A78(0x22, 1);
-                    func_001E2FE0(tbl[0x22].f4 + 1, 0);
+                    MessageCenter_SetFlag(0x22, 1);
+                    MessageCenter_PostMessage(tbl[0x22].f4 + 1, 0);
                 } else {
-                    func_001E2FE0(tbl[0x22].f4, 0);
+                    MessageCenter_PostMessage(tbl[0x22].f4, 0);
                 }
             }
             break;
         case 1:
-            if (func_001E3A30((void*)0x24) == 0) {
+            if (MessageCenter_IsFlagSet((void*)0x24) == 0) {
                 sEntry14_2220* tbl = D_00441630_2220;
                 if (flag) {
-                    func_001E3A78(0x24, 1);
-                    func_001E2FE0(tbl[0x24].f4 + 1, 0);
+                    MessageCenter_SetFlag(0x24, 1);
+                    MessageCenter_PostMessage(tbl[0x24].f4 + 1, 0);
                 } else {
-                    func_001E2FE0(tbl[0x24].f4, 0);
+                    MessageCenter_PostMessage(tbl[0x24].f4, 0);
                 }
             }
             break;
         case 2:
-            if (func_001E3A30((void*)0x26) == 0) {
+            if (MessageCenter_IsFlagSet((void*)0x26) == 0) {
                 sEntry14_2220* tbl = D_00441630_2220;
                 if (flag) {
-                    func_001E3A78(0x26, 1);
-                    func_001E2FE0(tbl[0x26].f4 + 1, 0);
+                    MessageCenter_SetFlag(0x26, 1);
+                    MessageCenter_PostMessage(tbl[0x26].f4 + 1, 0);
                 } else {
-                    func_001E2FE0(tbl[0x26].f4, 0);
+                    MessageCenter_PostMessage(tbl[0x26].f4, 0);
                 }
             }
             break;
@@ -2990,25 +2990,25 @@ extern "C" void func_001E2220(int which, int flag)
 
 //100%
 extern void* D_004A28A8;
-extern "C" void func_001E3A78(int a, int b);
+extern "C" void MessageCenter_SetFlag(int a, int b);
 
-extern "C" void func_001E2370(int which)
+extern "C" void MessageCenter_SetForeshadowDone(int which)
 {
     int n = **(int**)(*(char**)((char*)D_004A28A8 + 0x84) + 0x28);
     int busy = n != 0 && n < 10;
     if (busy == 0) {
         switch (which) {
         case 0:
-            func_001E3A78(0x1C, 1);
-            func_001E3A78(0x1D, 1);
+            MessageCenter_SetFlag(0x1C, 1);
+            MessageCenter_SetFlag(0x1D, 1);
             break;
         case 1:
-            func_001E3A78(0x1E, 1);
-            func_001E3A78(0x1F, 1);
+            MessageCenter_SetFlag(0x1E, 1);
+            MessageCenter_SetFlag(0x1F, 1);
             break;
         case 2:
-            func_001E3A78(0x20, 1);
-            func_001E3A78(0x21, 1);
+            MessageCenter_SetFlag(0x20, 1);
+            MessageCenter_SetFlag(0x21, 1);
             break;
         }
     }
@@ -3016,9 +3016,9 @@ extern "C" void func_001E2370(int which)
 
 //100%
 extern void* D_004A28A8;
-extern "C" int func_001E3A30(void* self);
-extern "C" void func_001E3A78(int a, int b);
-extern "C" void func_001E2FE0(int a, unsigned char b);
+extern "C" int MessageCenter_IsFlagSet(void* self);
+extern "C" void MessageCenter_SetFlag(int a, int b);
+extern "C" void MessageCenter_PostMessage(int a, unsigned char b);
 
 extern "C" void func_001E2428(int which)
 {
@@ -3027,21 +3027,21 @@ extern "C" void func_001E2428(int which)
     if (busy == 0) {
         switch (which) {
         case 0:
-            if (func_001E3A30((void*)0x39) == 0) {
-                func_001E3A78(0x39, 1);
-                func_001E2FE0(0xFC, 0);
+            if (MessageCenter_IsFlagSet((void*)0x39) == 0) {
+                MessageCenter_SetFlag(0x39, 1);
+                MessageCenter_PostMessage(0xFC, 0);
             }
             break;
         case 1:
-            if (func_001E3A30((void*)0x3A) == 0) {
-                func_001E3A78(0x39, 1);
-                func_001E2FE0(0xFD, 0);
+            if (MessageCenter_IsFlagSet((void*)0x3A) == 0) {
+                MessageCenter_SetFlag(0x39, 1);
+                MessageCenter_PostMessage(0xFD, 0);
             }
             break;
         case 2:
-            if (func_001E3A30((void*)0x3B) == 0) {
-                func_001E3A78(0x3B, 1);
-                func_001E2FE0(0xFE, 0);
+            if (MessageCenter_IsFlagSet((void*)0x3B) == 0) {
+                MessageCenter_SetFlag(0x3B, 1);
+                MessageCenter_PostMessage(0xFE, 0);
             }
             break;
         }
@@ -3050,40 +3050,40 @@ extern "C" void func_001E2428(int which)
 
 //100%
 extern void* D_004A28A8;
-extern "C" int func_001E3A30(void* self);
-extern "C" void func_001E3A78(int a, int b);
-extern "C" void func_001E2FE0(int a, unsigned char b);
+extern "C" int MessageCenter_IsFlagSet(void* self);
+extern "C" void MessageCenter_SetFlag(int a, int b);
+extern "C" void MessageCenter_PostMessage(int a, unsigned char b);
 
 extern "C" void func_001E2518(void)
 {
     int n = **(int**)(*(char**)((char*)D_004A28A8 + 0x84) + 0x28);
     int busy = n != 0 && n < 10;
-    if (busy == 0 && func_001E3A30((void*)0x3C) == 0) {
-        func_001E3A78(0x3C, 1);
-        func_001E2FE0(0xFF, 0);
+    if (busy == 0 && MessageCenter_IsFlagSet((void*)0x3C) == 0) {
+        MessageCenter_SetFlag(0x3C, 1);
+        MessageCenter_PostMessage(0xFF, 0);
     }
 }
 
 //100%
 extern void* D_004A28A8;
-extern "C" int func_001E3A30(void* self);
-extern "C" void func_001E3A78(int a, int b);
-extern "C" void func_001E2FE0(int a, unsigned char b);
+extern "C" int MessageCenter_IsFlagSet(void* self);
+extern "C" void MessageCenter_SetFlag(int a, int b);
+extern "C" void MessageCenter_PostMessage(int a, unsigned char b);
 
 extern "C" void func_001E2578(void)
 {
     int n = **(int**)(*(char**)((char*)D_004A28A8 + 0x84) + 0x28);
     int busy = n != 0 && n < 10;
-    if (busy == 0 && func_001E3A30((void*)0x38) == 0) {
-        func_001E3A78(0x38, 1);
-        func_001E2FE0(0xFB, 0);
+    if (busy == 0 && MessageCenter_IsFlagSet((void*)0x38) == 0) {
+        MessageCenter_SetFlag(0x38, 1);
+        MessageCenter_PostMessage(0xFB, 0);
     }
 }
 
 //100%
 extern void* D_004A28A8;
-extern "C" void func_001E2648(void* a, int b);
-extern "C" void func_001E2828(void* a, int b);
+extern "C" void MessageCenter_PostCourseFinishMessageA(void* a, int b);
+extern "C" void MessageCenter_PostCourseFinishMessageB(void* a, int b);
 
 extern "C" void func_001E25D8(int key, void* a1, int a2)
 {
@@ -3092,10 +3092,10 @@ extern "C" void func_001E25D8(int key, void* a1, int a2)
     if (busy == 0) {
         switch (key) {
         case 4:
-            func_001E2648(a1, a2);
+            MessageCenter_PostCourseFinishMessageA(a1, a2);
             break;
         case 5:
-            func_001E2828(a1, a2);
+            MessageCenter_PostCourseFinishMessageB(a1, a2);
             break;
         }
     }
@@ -3107,14 +3107,14 @@ extern "C" void* cBE_getBE();
 void* cBE_getInterface_Fv(void* be, int kind) __asm__("cBE_getInterface__Fv");
 extern "C" int func_00146E98(void* iface, int a1);
 int cBENewPlayerInterface_getRiderCharID(void* self, int player);
-extern "C" int func_001E3A30(void* self);
-extern "C" void func_001E3A78(int a, int b);
-extern "C" void func_001E2FE0(int a, unsigned char b);
-extern "C" void func_001E32C8(int type);
+extern "C" int MessageCenter_IsFlagSet(void* self);
+extern "C" void MessageCenter_SetFlag(int a, int b);
+extern "C" void MessageCenter_PostMessage(int a, unsigned char b);
+extern "C" void MessageCenter_RemoveMessagesOfGroup(int type);
 
-// PORT: the unit declares func_001E2648(void*, int); the first arg is really an int id.
-extern "C" void func_001E2648_impl(int which, int flag) __asm__("func_001E2648");
-extern "C" void func_001E2648_impl(int which, int flag)
+// PORT: the unit declares MessageCenter_PostCourseFinishMessageA(void*, int); the first arg is really an int id.
+extern "C" void MessageCenter_PostCourseFinishMessageA_impl(int which, int flag) __asm__("MessageCenter_PostCourseFinishMessageA");
+extern "C" void MessageCenter_PostCourseFinishMessageA_impl(int which, int flag)
 {
     int n = **(int**)(*(char**)((char*)D_004A28A8 + 0x84) + 0x28);
     int busy = n != 0 && n < 10;
@@ -3123,65 +3123,65 @@ extern "C" void func_001E2648_impl(int which, int flag)
         int ch = cBENewPlayerInterface_getRiderCharID(iface, func_00146E98(iface, 0));
         switch (which) {
         case 0xE:
-            if (func_001E3A30((void*)0x16) != 0) {
+            if (MessageCenter_IsFlagSet((void*)0x16) != 0) {
                 break;
             }
-            func_001E32C8(1);
-            func_001E32C8(0x16);
+            MessageCenter_RemoveMessagesOfGroup(1);
+            MessageCenter_RemoveMessagesOfGroup(0x16);
             if (flag == 0) {
-                func_001E3A78(0x16, 1);
+                MessageCenter_SetFlag(0x16, 1);
                 if (ch != 3) {
-                    func_001E2FE0(0x74, 0);
+                    MessageCenter_PostMessage(0x74, 0);
                 } else {
-                    func_001E2FE0(0x76, 0);
+                    MessageCenter_PostMessage(0x76, 0);
                 }
             } else {
                 if (ch != 3) {
-                    func_001E2FE0(0x73, 0);
+                    MessageCenter_PostMessage(0x73, 0);
                 } else {
-                    func_001E2FE0(0x75, 0);
+                    MessageCenter_PostMessage(0x75, 0);
                 }
             }
             break;
         case 0xF:
-            if (func_001E3A30((void*)0x17) != 0) {
+            if (MessageCenter_IsFlagSet((void*)0x17) != 0) {
                 break;
             }
-            func_001E32C8(2);
-            func_001E32C8(0x17);
+            MessageCenter_RemoveMessagesOfGroup(2);
+            MessageCenter_RemoveMessagesOfGroup(0x17);
             if (flag == 0) {
-                func_001E3A78(0x17, 1);
+                MessageCenter_SetFlag(0x17, 1);
                 if (ch != 7) {
-                    func_001E2FE0(0x78, 0);
+                    MessageCenter_PostMessage(0x78, 0);
                 } else {
-                    func_001E2FE0(0x7A, 0);
+                    MessageCenter_PostMessage(0x7A, 0);
                 }
             } else {
                 if (ch != 7) {
-                    func_001E2FE0(0x77, 0);
+                    MessageCenter_PostMessage(0x77, 0);
                 } else {
-                    func_001E2FE0(0x79, 0);
+                    MessageCenter_PostMessage(0x79, 0);
                 }
             }
             break;
         case 0x10:
-            if (func_001E3A30((void*)0x18) != 0) {
+            if (MessageCenter_IsFlagSet((void*)0x18) != 0) {
                 break;
             }
-            func_001E32C8(3);
-            func_001E32C8(0x18);
+            MessageCenter_RemoveMessagesOfGroup(3);
+            MessageCenter_RemoveMessagesOfGroup(0x18);
             if (flag == 0) {
-                func_001E3A78(0x18, 1);
+                MessageCenter_SetFlag(0x18, 1);
                 if (ch != 8) {
-                    func_001E2FE0(0x7C, 0);
+                    MessageCenter_PostMessage(0x7C, 0);
                 } else {
-                    func_001E2FE0(0x7E, 0);
+                    MessageCenter_PostMessage(0x7E, 0);
                 }
             } else {
                 if (ch != 8) {
-                    func_001E2FE0(0x7B, 0);
+                    MessageCenter_PostMessage(0x7B, 0);
                 } else {
-                    func_001E2FE0(0x7D, 0);
+                    MessageCenter_PostMessage(0x7D, 0);
                 }
             }
             break;
@@ -3195,14 +3195,14 @@ extern "C" void* cBE_getBE();
 void* cBE_getInterface_Fv(void* be, int kind) __asm__("cBE_getInterface__Fv");
 extern "C" int func_00146E98(void* iface, int a1);
 int cBENewPlayerInterface_getRiderCharID(void* self, int player);
-extern "C" int func_001E3A30(void* self);
-extern "C" void func_001E3A78(int a, int b);
-extern "C" void func_001E2FE0(int a, unsigned char b);
-extern "C" void func_001E32C8(int type);
+extern "C" int MessageCenter_IsFlagSet(void* self);
+extern "C" void MessageCenter_SetFlag(int a, int b);
+extern "C" void MessageCenter_PostMessage(int a, unsigned char b);
+extern "C" void MessageCenter_RemoveMessagesOfGroup(int type);
 
-// PORT: the unit declares func_001E2828(void*, int); the first arg is really an int id.
-extern "C" void func_001E2828_impl(int which, int flag) __asm__("func_001E2828");
-extern "C" void func_001E2828_impl(int which, int flag)
+// PORT: the unit declares MessageCenter_PostCourseFinishMessageB(void*, int); the first arg is really an int id.
+extern "C" void MessageCenter_PostCourseFinishMessageB_impl(int which, int flag) __asm__("MessageCenter_PostCourseFinishMessageB");
+extern "C" void MessageCenter_PostCourseFinishMessageB_impl(int which, int flag)
 {
     int n = **(int**)(*(char**)((char*)D_004A28A8 + 0x84) + 0x28);
     int busy = n != 0 && n < 10;
@@ -3211,65 +3211,65 @@ extern "C" void func_001E2828_impl(int which, int flag)
         int ch = cBENewPlayerInterface_getRiderCharID(iface, func_00146E98(iface, 0));
         switch (which) {
         case 0xE:
-            if (func_001E3A30((void*)0x19) != 0) {
+            if (MessageCenter_IsFlagSet((void*)0x19) != 0) {
                 break;
             }
-            func_001E32C8(4);
-            func_001E32C8(0x19);
+            MessageCenter_RemoveMessagesOfGroup(4);
+            MessageCenter_RemoveMessagesOfGroup(0x19);
             if (flag == 0) {
-                func_001E3A78(0x19, 1);
+                MessageCenter_SetFlag(0x19, 1);
                 if (ch != 3) {
-                    func_001E2FE0(0x80, 0);
+                    MessageCenter_PostMessage(0x80, 0);
                 } else {
-                    func_001E2FE0(0x82, 0);
+                    MessageCenter_PostMessage(0x82, 0);
                 }
             } else {
                 if (ch != 3) {
-                    func_001E2FE0(0x7F, 0);
+                    MessageCenter_PostMessage(0x7F, 0);
                 } else {
-                    func_001E2FE0(0x81, 0);
+                    MessageCenter_PostMessage(0x81, 0);
                 }
             }
             break;
         case 0xF:
-            if (func_001E3A30((void*)0x1A) != 0) {
+            if (MessageCenter_IsFlagSet((void*)0x1A) != 0) {
                 break;
             }
-            func_001E32C8(5);
-            func_001E32C8(0x1A);
+            MessageCenter_RemoveMessagesOfGroup(5);
+            MessageCenter_RemoveMessagesOfGroup(0x1A);
             if (flag == 0) {
-                func_001E3A78(0x1A, 1);
+                MessageCenter_SetFlag(0x1A, 1);
                 if (ch != 7) {
-                    func_001E2FE0(0x84, 0);
+                    MessageCenter_PostMessage(0x84, 0);
                 } else {
-                    func_001E2FE0(0x86, 0);
+                    MessageCenter_PostMessage(0x86, 0);
                 }
             } else {
                 if (ch != 7) {
-                    func_001E2FE0(0x83, 0);
+                    MessageCenter_PostMessage(0x83, 0);
                 } else {
-                    func_001E2FE0(0x85, 0);
+                    MessageCenter_PostMessage(0x85, 0);
                 }
             }
             break;
         case 0x10:
-            if (func_001E3A30((void*)0x1B) != 0) {
+            if (MessageCenter_IsFlagSet((void*)0x1B) != 0) {
                 break;
             }
-            func_001E32C8(6);
-            func_001E32C8(0x1B);
+            MessageCenter_RemoveMessagesOfGroup(6);
+            MessageCenter_RemoveMessagesOfGroup(0x1B);
             if (flag == 0) {
-                func_001E3A78(0x1B, 1);
+                MessageCenter_SetFlag(0x1B, 1);
                 if (ch != 8) {
-                    func_001E2FE0(0x88, 0);
+                    MessageCenter_PostMessage(0x88, 0);
                 } else {
-                    func_001E2FE0(0x8A, 0);
+                    MessageCenter_PostMessage(0x8A, 0);
                 }
             } else {
                 if (ch != 8) {
-                    func_001E2FE0(0x87, 0);
+                    MessageCenter_PostMessage(0x87, 0);
                 } else {
-                    func_001E2FE0(0x89, 0);
+                    MessageCenter_PostMessage(0x89, 0);
                 }
             }
             break;
@@ -3285,9 +3285,9 @@ void* cBE_getInterface_Fv(void* be, int kind) __asm__("cBE_getInterface__Fv");
 extern "C" int func_00146E98(void* iface, int a1);
 int cBENewPlayerInterface_getRiderCharID(void* self, int player);
 extern "C" int func_001E2B38(int charID);
-extern "C" int func_001E3A30(void* self);
-extern "C" void func_001E3A78(int a, int b);
-extern "C" void func_001E2FE0(int a, unsigned char b);
+extern "C" int MessageCenter_IsFlagSet(void* self);
+extern "C" void MessageCenter_SetFlag(int a, int b);
+extern "C" void MessageCenter_PostMessage(int a, unsigned char b);
 unsigned int BXrand();
 
 struct sEntry14_2A08 {
@@ -3309,12 +3309,12 @@ extern "C" void func_001E2A08(int charID, int level)
         return;
     int id = func_001E2B38(charID);
     sEntry14_2A08* e = &D_00441630_2A08[id];
-    if (func_001E3A30((void*)id)) {
+    if (MessageCenter_IsFlagSet((void*)id)) {
         if (level < 5)
-            func_001E3A78(id, 0);
+            MessageCenter_SetFlag(id, 0);
     } else if ((int)((BXrand() & 7) + 0xF) < level) {
-        func_001E2FE0(e->start + BXrand() % e->count, 0);
-        func_001E3A78(id, 1);
+        MessageCenter_PostMessage(e->start + BXrand() % e->count, 0);
+        MessageCenter_SetFlag(id, 1);
     }
 }
 
@@ -3340,7 +3340,7 @@ extern "C" int func_001E2B38(int charID)
 
 //100%
 // PORT: PS2-only inline asm; needs a C fallback off-PS2.
-extern "C" int func_001E3A30(void* self);
+extern "C" int MessageCenter_IsFlagSet(void* self);
 
 struct sEntry14_2BB8 {
     int type;
@@ -3351,14 +3351,14 @@ struct sEntry14_2BB8 {
 };
 extern sEntry14_2BB8 D_00441630_2BB8[] __asm__("D_00441630");
 
-extern "C" int func_001E2BB8(int type, int all)
+extern "C" int MessageCenter_CountGroupMessages(int type, int all)
 {
     int total = 0;
     int i;
     for (i = 0; i < 0x3D; i++) {
         sEntry14_2BB8* e = &D_00441630_2BB8[i];
         if (e->type == type) {
-            if (all != 0 || (e->f10 != 0 && func_001E3A30((void*)i) != 0)) {
+            if (all != 0 || (e->f10 != 0 && MessageCenter_IsFlagSet((void*)i) != 0)) {
                 total += e->count;
             } else {
                 total += 1;
@@ -3375,7 +3375,7 @@ extern "C" int func_001E2C60(int id)
 
 //100%
 // PORT: PS2-only inline asm; needs a C fallback off-PS2.
-extern "C" int func_001E3A30(void* self);
+extern "C" int MessageCenter_IsFlagSet(void* self);
 
 struct sEntry14_2C80 {
     int type;
@@ -3386,7 +3386,7 @@ struct sEntry14_2C80 {
 };
 extern sEntry14_2C80 D_00441630_2C80[] __asm__("D_00441630");
 
-extern "C" int func_001E2C80(int type, int idx, int mode)
+extern "C" int MessageCenter_GetGroupMessageId(int type, int idx, int mode)
 {
     int base = 0;
     int result = -1;
@@ -3395,7 +3395,7 @@ extern "C" int func_001E2C80(int type, int idx, int mode)
         sEntry14_2C80* e = &D_00441630_2C80[i];
         if (e->type == type) {
             int n;
-            if (mode == 0 || e->f10 == 0 || func_001E3A30((void*)i) != 0) {
+            if (mode == 0 || e->f10 == 0 || MessageCenter_IsFlagSet((void*)i) != 0) {
                 n = e->count;
             } else {
                 n = 1;
@@ -3427,7 +3427,7 @@ struct sPopupEntry14 {
 };
 extern sPopupEntry14 D_00441630[];
 
-extern "C" int func_001E2D58(int v, int i)
+extern "C" int MessageCenter_IsMessageOfType(int v, int i)
 {
     sPopupEntry18* a = &D_004C6C08[i];
     sPopupEntry14* b = &D_00441630[a->field_0x4];
@@ -3441,7 +3441,7 @@ extern "C" int func_001E2D98(int v, int id)
 }
 
 //100%
-extern "C" int func_001E2DC0(int idx)
+extern "C" int MessageCenter_GetIndexInType(int idx)
 {
     sPopupEntry18* ta = &D_004C6C08[idx];
     sPopupEntry14* target = &D_00441630[ta->field_0x4];
@@ -3520,8 +3520,8 @@ extern "C" int MessageCenter_GetSenderNameHash(int id)
 int GetHashValue32(char* str);
 extern void* D_004A28A8;
 extern char D_004A20D0[];
-extern "C" void func_001E31B8(int idx);
-extern "C" unsigned char func_001E3100(int i);
+extern "C" void MessageCenter_RemoveMessage(int idx);
+extern "C" unsigned char MessageCenter_PickVariant(int i);
 extern "C" void* func_0039F9D8(void* list, int hash);
 
 struct sPopupListEntry_2FE0 {
@@ -3534,8 +3534,8 @@ struct sPopupList_2FE0 {
     int mask;
     unsigned char count;
 };
-// PORT: unit declares func_001E39F8(void*), but its body takes no arguments
-extern "C" sPopupList_2FE0* func_001E39F8_list2FE0() __asm__("func_001E39F8");
+// PORT: unit declares MessageCenter_GetInbox(void*), but its body takes no arguments
+extern "C" sPopupList_2FE0* MessageCenter_GetInbox_list2FE0() __asm__("MessageCenter_GetInbox");
 
 struct sPopupEntry18_2FE0 {
     int field_0x0;
@@ -3551,13 +3551,13 @@ struct sVEntryK1E2FE0 {
     int (*fn)(void*, int, int);
 };
 
-extern "C" void func_001E2FE0(int id, unsigned char flag)
+extern "C" void MessageCenter_PostMessage(int id, unsigned char flag)
 {
-    sPopupList_2FE0* t = func_001E39F8_list2FE0();
+    sPopupList_2FE0* t = MessageCenter_GetInbox_list2FE0();
     if (t->count == 0x19)
-        func_001E31B8(0);
+        MessageCenter_RemoveMessage(0);
     if (D_004C6C08_2FE0[id].field_0x8 == 1)
-        flag = func_001E3100(id);
+        flag = MessageCenter_PickVariant(id);
     t->entries[t->count].id = id;
     t->entries[t->count].flag = flag;
     t->mask &= ~(1 << t->count);
@@ -3573,19 +3573,19 @@ extern "C" void func_001E2FE0(int id, unsigned char flag)
 }
 
 //100% - objdiff report; single-function view differs only in a relocation name
-extern "C" int func_001E2D58(int v, int i);
+extern "C" int MessageCenter_IsMessageOfType(int v, int i);
 unsigned int BXrand();
 
-extern "C" unsigned char func_001E3100(int i)
+extern "C" unsigned char MessageCenter_PickVariant(int i)
 {
     unsigned char r = 0xFF;
-    if (func_001E2D58(3, i)) {
+    if (MessageCenter_IsMessageOfType(3, i)) {
         r = BXrand() % 10;
-    } else if (func_001E2D58(5, i)) {
+    } else if (MessageCenter_IsMessageOfType(5, i)) {
         r = BXrand() % 11;
-    } else if (func_001E2D58(8, i)) {
+    } else if (MessageCenter_IsMessageOfType(8, i)) {
         r = BXrand() % 4;
-    } else if (func_001E2D58(4, i)) {
+    } else if (MessageCenter_IsMessageOfType(4, i)) {
         r = BXrand() % 10;
     }
     return r;
@@ -3602,12 +3602,12 @@ struct sPopupList_31B8 {
     int mask;
     unsigned char count;
 };
-// PORT: unit declares func_001E39F8(void*), but its body takes no arguments
-extern "C" sPopupList_31B8* func_001E39F8_list31B8() __asm__("func_001E39F8");
+// PORT: unit declares MessageCenter_GetInbox(void*), but its body takes no arguments
+extern "C" sPopupList_31B8* MessageCenter_GetInbox_list31B8() __asm__("MessageCenter_GetInbox");
 
-extern "C" void func_001E31B8(int idx)
+extern "C" void MessageCenter_RemoveMessage(int idx)
 {
-    sPopupList_31B8* t = func_001E39F8_list31B8();
+    sPopupList_31B8* t = MessageCenter_GetInbox_list31B8();
     int i;
     for (i = idx; i < t->count - 1; i++) {
         t->entries[i] = t->entries[i + 1];
@@ -3632,17 +3632,17 @@ struct sPopupList {
     int mask;
     unsigned char count;
 };
-// PORT: unit declares func_001E39F8(void*), but its body takes no arguments
-extern "C" sPopupList* func_001E39F8_list() __asm__("func_001E39F8");
-extern "C" void func_001E31B8(int idx);
+// PORT: unit declares MessageCenter_GetInbox(void*), but its body takes no arguments
+extern "C" sPopupList* MessageCenter_GetInbox_list() __asm__("MessageCenter_GetInbox");
+extern "C" void MessageCenter_RemoveMessage(int idx);
 
-extern "C" void func_001E3268(int id)
+extern "C" void MessageCenter_RemoveMessageById(int id)
 {
-    sPopupList* t = func_001E39F8_list();
+    sPopupList* t = MessageCenter_GetInbox_list();
     int i;
     for (i = 0; i < t->count; i++) {
         if (id == t->entries[i].id) {
-            func_001E31B8(i);
+            MessageCenter_RemoveMessage(i);
             break;
         }
     }
@@ -3665,19 +3665,19 @@ struct sPopupList_32C8 {
     int mask;
     unsigned char count;
 };
-// PORT: unit declares func_001E39F8(void*), but its body takes no arguments
-extern "C" sPopupList_32C8* func_001E39F8_list32C8() __asm__("func_001E39F8");
-extern "C" void func_001E31B8(int idx);
+// PORT: unit declares MessageCenter_GetInbox(void*), but its body takes no arguments
+extern "C" sPopupList_32C8* MessageCenter_GetInbox_list32C8() __asm__("MessageCenter_GetInbox");
+extern "C" void MessageCenter_RemoveMessage(int idx);
 
-extern "C" void func_001E32C8(int type)
+extern "C" void MessageCenter_RemoveMessagesOfGroup(int type)
 {
     int n = 0;
     int j = 0;
-    sPopupList_32C8* t = func_001E39F8_list32C8();
+    sPopupList_32C8* t = MessageCenter_GetInbox_list32C8();
     for (; n < t->count; n++) {
         sPopupEntry18_32C8* a = &D_004C6C08_32C8[t->entries[j].id];
         if (type == a->field_0x4) {
-            func_001E31B8(j);
+            MessageCenter_RemoveMessage(j);
         } else {
             j++;
         }
@@ -3685,12 +3685,12 @@ extern "C" void func_001E32C8(int type)
 }
 
 //100%
-// PORT: unit declares func_001E39F8(void*), but its body takes no arguments
-extern "C" sPopupList* func_001E39F8_list() __asm__("func_001E39F8");
+// PORT: unit declares MessageCenter_GetInbox(void*), but its body takes no arguments
+extern "C" sPopupList* MessageCenter_GetInbox_list() __asm__("MessageCenter_GetInbox");
 
-extern "C" int func_001E3388(int id)
+extern "C" int MessageCenter_FindMessage(int id)
 {
-    sPopupList* t = func_001E39F8_list();
+    sPopupList* t = MessageCenter_GetInbox_list();
     int i;
     for (i = 0; i < t->count; i++) {
         if (id == t->entries[i].id) {
@@ -3700,21 +3700,21 @@ extern "C" int func_001E3388(int id)
     return -1;
 }
 
-extern "C" void* func_001E39F8(void* self);
+extern "C" void* MessageCenter_GetInbox(void* self);
 
 //100%
-unsigned char func_001E33E8(void* self)
+unsigned char MessageCenter_GetMessageCount(void* self)
 {
-    return *(unsigned char*)((char*)func_001E39F8(self) + 0xcc);
+    return *(unsigned char*)((char*)MessageCenter_GetInbox(self) + 0xcc);
 }
 
 //100%
-// PORT: unit declares func_001E39F8(void*), but its body takes no arguments
-extern "C" sPopupList* func_001E39F8_list() __asm__("func_001E39F8");
+// PORT: unit declares MessageCenter_GetInbox(void*), but its body takes no arguments
+extern "C" sPopupList* MessageCenter_GetInbox_list() __asm__("MessageCenter_GetInbox");
 
 extern "C" int func_001E3408()
 {
-    sPopupList* t = func_001E39F8_list();
+    sPopupList* t = MessageCenter_GetInbox_list();
     int n = 0;
     int i;
     for (i = 0; i < t->count; i++) {
@@ -3726,25 +3726,25 @@ extern "C" int func_001E3408()
     return n;
 }
 
-extern "C" int func_001E3620(int idx);
+extern "C" int MessageCenter_GetMessageId(int idx);
 
 // Finds the first list entry whose mask bit is clear; stores its index in *out.
-extern "C" int func_001E3460(int* out)
+extern "C" int MessageCenter_GetFirstUnread(int* out)
 {
-    sPopupList_2FE0* t = func_001E39F8_list2FE0();
+    sPopupList_2FE0* t = MessageCenter_GetInbox_list2FE0();
     int i;
     for (i = 0; i < t->count; i++) {
         int bit = 1 << i;
         if (t->mask & bit)
             continue;
         *out = i;
-        return func_001E3620(i);
+        return MessageCenter_GetMessageId(i);
     }
     return -1;
 }
 
 //100%
-extern "C" int func_001E34D8(int i)
+extern "C" int MessageCenter_GetNextInGroup(int i)
 {
     sPopupEntry18* a = &D_004C6C08[i];
     int n = i + 1;
@@ -3790,9 +3790,9 @@ extern "C" int func_001E3570(void)
     return func_00147580(cBE_getInterface_Fv(cBE_getBE(), 1), 0) == 0;
 }
 
-extern "C" sPopupListEntry_2FE0* func_001E35F0(int i)
+extern "C" sPopupListEntry_2FE0* MessageCenter_GetEntry(int i)
 {
-    return &func_001E39F8_list2FE0()->entries[i];
+    return &MessageCenter_GetInbox_list2FE0()->entries[i];
 }
 
 //100%
@@ -3804,45 +3804,45 @@ struct sPopupEntry8 {
 struct sPopupTable8 {
     sPopupEntry8 entries[1];
 };
-// PORT: unit declares func_001E39F8(void*), but its body takes no arguments
-extern "C" sPopupTable8* func_001E39F8_get() __asm__("func_001E39F8");
+// PORT: unit declares MessageCenter_GetInbox(void*), but its body takes no arguments
+extern "C" sPopupTable8* MessageCenter_GetInbox_get() __asm__("MessageCenter_GetInbox");
 
-extern "C" int func_001E3620(int idx)
+extern "C" int MessageCenter_GetMessageId(int idx)
 {
-    return func_001E39F8_get()->entries[idx].field_0x0;
+    return MessageCenter_GetInbox_get()->entries[idx].field_0x0;
 }
 
 //100%
-// PORT: unit declares func_001E39F8(void*), but its body takes no arguments
-extern "C" sPopupTable8* func_001E39F8_get() __asm__("func_001E39F8");
+// PORT: unit declares MessageCenter_GetInbox(void*), but its body takes no arguments
+extern "C" sPopupTable8* MessageCenter_GetInbox_get() __asm__("MessageCenter_GetInbox");
 
-extern "C" unsigned char func_001E3650(int idx)
+extern "C" unsigned char MessageCenter_GetMessageVariant(int idx)
 {
-    return func_001E39F8_get()->entries[idx].field_0x4;
+    return MessageCenter_GetInbox_get()->entries[idx].field_0x4;
 }
 
 //100%
-// PORT: func_001E33E8 is declared (void*) but never reads its argument; called here with none
-unsigned char func_001E33E8_noarg() __asm__("func_001E33E8__FPv");
+// PORT: MessageCenter_GetMessageCount is declared (void*) but never reads its argument; called here with none
+unsigned char MessageCenter_GetMessageCount_noarg() __asm__("MessageCenter_GetMessageCount__FPv");
 extern int D_004A20C4;
 
-extern "C" unsigned char func_001E3680(int id)
+extern "C" unsigned char MessageCenter_GetListIndex(int id)
 {
     if (D_004A20C4 != 0) {
         return id;
     }
-    int n1 = func_001E2BB8(4, 0);
-    int n2 = func_001E33E8_noarg();
+    int n1 = MessageCenter_CountGroupMessages(4, 0);
+    int n2 = MessageCenter_GetMessageCount_noarg();
     int i;
     for (i = 0; i < n1 + n2; i++) {
         int k = i + 1;
         int idx = n2 - k;
         if (idx >= 0) {
-            if (func_001E3620(idx) == id) {
+            if (MessageCenter_GetMessageId(idx) == id) {
                 return i;
             }
         } else if (idx + n1 >= 0) {
-            if (func_001E2C80(4, ~idx, 1) == id) {
+            if (MessageCenter_GetGroupMessageId(4, ~idx, 1) == id) {
                 return i;
             }
         }
@@ -3857,26 +3857,26 @@ void* cBE_getInterface_Fv(void* be, int kind) __asm__("cBE_getInterface__Fv");
 extern "C" int cBENewPlayerInterface_isPeakLocked1(void* self, int rider, int peak);
 extern "C" int func_001509F8(void* self, int rider);
 int func_001588B0(void* self, int a1);
-extern "C" int func_001E3A30(void* self);
-extern "C" void func_001E3A78(int a, int b);
-extern "C" void func_001E2FE0(int a, unsigned char b);
+extern "C" int MessageCenter_IsFlagSet(void* self);
+extern "C" void MessageCenter_SetFlag(int a, int b);
+extern "C" void MessageCenter_PostMessage(int a, unsigned char b);
 
-extern "C" void func_001E3760(int rider, int amt)
+extern "C" void MessageCenter_CheckCashMessages(int rider, int amt)
 {
     if (rider == 0) {
         void* econ = cBE_getInterface_Fv(cBE_getBE(), 0xB);
         void* rew = cBE_getInterface_Fv(cBE_getBE(), 0xD);
         void* pl = cBE_getInterface_Fv(cBE_getBE(), 1);
         if (cBENewPlayerInterface_isPeakLocked1(pl, 0, 1)) {
-            if ((unsigned)(func_001509F8(econ, 0) + amt) >= (unsigned)func_001588B0(rew, 0) && func_001E3A30((void*)0x34) == 0) {
-                func_001E3A78(0x34, 1);
-                func_001E2FE0(0xF7, 0);
+            if ((unsigned)(func_001509F8(econ, 0) + amt) >= (unsigned)func_001588B0(rew, 0) && MessageCenter_IsFlagSet((void*)0x34) == 0) {
+                MessageCenter_SetFlag(0x34, 1);
+                MessageCenter_PostMessage(0xF7, 0);
             }
         }
         if (cBENewPlayerInterface_isPeakLocked1(pl, rider, 2)) {
-            if ((unsigned)(func_001509F8(econ, rider) + amt) >= (unsigned)func_001588B0(rew, 1) && func_001E3A30((void*)0x35) == 0) {
-                func_001E3A78(0x35, 1);
-                func_001E2FE0(0xF8, 0);
+            if ((unsigned)(func_001509F8(econ, rider) + amt) >= (unsigned)func_001588B0(rew, 1) && MessageCenter_IsFlagSet((void*)0x35) == 0) {
+                MessageCenter_SetFlag(0x35, 1);
+                MessageCenter_PostMessage(0xF8, 0);
             }
         }
     }
@@ -3890,9 +3890,9 @@ extern "C" int func_00146E98(void* iface, int a1);
 int cBENewPlayerInterface_getRiderCharID(void* self, int player);
 extern "C" int cBENewPlayerInterface_isPeakLocked1(void* self, int rider, int peak);
 extern "C" int func_00157BF0(void* self, int rider, int a, int b, int c);
-extern "C" int func_001E3A30(void* self);
-extern "C" void func_001E3A78(int a, int b);
-extern "C" void func_001E2FE0(int a, unsigned char b);
+extern "C" int MessageCenter_IsFlagSet(void* self);
+extern "C" void MessageCenter_SetFlag(int a, int b);
+extern "C" void MessageCenter_PostMessage(int a, unsigned char b);
 
 extern "C" void func_001E38B8(int player)
 {
@@ -3901,15 +3901,15 @@ extern "C" void func_001E38B8(int player)
         void* np = cBE_getInterface_Fv(cBE_getBE(), 1);
         int charID = cBENewPlayerInterface_getRiderCharID(np, func_00146E98(np, 0));
         if (cBENewPlayerInterface_isPeakLocked1(np, player, 1)) {
-            if (func_00157BF0(stats, player, charID, 0, 2) && func_001E3A30((void*)0x36) == 0) {
-                func_001E3A78(0x36, 1);
-                func_001E2FE0(0xF9, 0);
+            if (func_00157BF0(stats, player, charID, 0, 2) && MessageCenter_IsFlagSet((void*)0x36) == 0) {
+                MessageCenter_SetFlag(0x36, 1);
+                MessageCenter_PostMessage(0xF9, 0);
             }
         }
         if (cBENewPlayerInterface_isPeakLocked1(np, player, 2)) {
-            if (func_00157BF0(stats, player, charID, 1, 2) && func_001E3A30((void*)0x37) == 0) {
-                func_001E3A78(0x37, 1);
-                func_001E2FE0(0xFA, 0);
+            if (func_00157BF0(stats, player, charID, 1, 2) && MessageCenter_IsFlagSet((void*)0x37) == 0) {
+                MessageCenter_SetFlag(0x37, 1);
+                MessageCenter_PostMessage(0xFA, 0);
             }
         }
     }
@@ -3921,7 +3921,7 @@ extern "C" void* cBE_getBE();
 void* cBE_getInterface_Fv(void* be, int kind) __asm__("cBE_getInterface__Fv");
 extern "C" void* func_00147908(void* iface, int a1);
 
-extern "C" void* func_001E39F8(void* self)
+extern "C" void* MessageCenter_GetInbox(void* self)
 {
     return func_00147908(cBE_getInterface_Fv(cBE_getBE(), 1), 0);
 }
@@ -3931,7 +3931,7 @@ extern "C" int func_00147980(void* iface, int a1, void* a2);
 // PORT: cBE_getInterface__Fv is called with (be, kind) here; bind the 2-arg form to that symbol.
 void* cBE_getInterface_Fv(void* be, int kind) __asm__("cBE_getInterface__Fv");
 
-extern "C" int func_001E3A30(void* self)
+extern "C" int MessageCenter_IsFlagSet(void* self)
 {
     return func_00147980(cBE_getInterface_Fv(cBE_getBE(), 1), 0, self) != 0;
 }
@@ -3942,7 +3942,7 @@ extern "C" void* cBE_getBE();
 void* cBE_getInterface_Fv(void* be, int kind) __asm__("cBE_getInterface__Fv");
 extern "C" void func_00147A30(void* iface, int a1, int a2, int a3);
 
-extern "C" void func_001E3A78(int a, int b)
+extern "C" void MessageCenter_SetFlag(int a, int b)
 {
     func_00147A30(cBE_getInterface_Fv(cBE_getBE(), 1), 0, a, b);
 }
@@ -3985,8 +3985,8 @@ extern "C" void func_001E3AC8(signed char port, float x, float y)
 //100%
 extern "C" void* func_0039E2A0(void* self, void* engine);
 extern "C" int func_00398380(void* self, int hash);
-extern "C" int func_001E3A30(void* self);
-extern "C" void func_001E3A78(int a, int b);
+extern "C" int MessageCenter_IsFlagSet(void* self);
+extern "C" void MessageCenter_SetFlag(int a, int b);
 int GetHashValue32(char* str);
 extern void* D_00474E08[];
 extern void* D_00474318[];
@@ -4053,11 +4053,11 @@ extern "C" void* OVScreenMessageCenter_ctor(void* self, void* engine, int a2)
         o->h16C = func_00398380(eng + 0x58, h);
     }
     if (~D_004A20CC != 0) {
-        if (func_001E3A30((void*)7) != 0)
+        if (MessageCenter_IsFlagSet((void*)7) != 0)
             *(int*)((char*)self + 0x18) = 0;
         else
             *(int*)((char*)self + 0x18) = 1;
-        func_001E3A78(7, 1);
+        MessageCenter_SetFlag(7, 1);
     } else {
         *(int*)((char*)self + 0x18) = 2;
     }
@@ -4065,14 +4065,14 @@ extern "C" void* OVScreenMessageCenter_ctor(void* self, void* engine, int a2)
 }
 
 //100%
-// PORT: func_001E33E8 is declared (void*) but never reads its argument; called here with none
-unsigned char func_001E33E8_noarg() __asm__("func_001E33E8__FPv");
+// PORT: MessageCenter_GetMessageCount is declared (void*) but never reads its argument; called here with none
+unsigned char MessageCenter_GetMessageCount_noarg() __asm__("MessageCenter_GetMessageCount__FPv");
 extern "C" void func_0020A380(void* self);
 extern "C" void cOVStateManager_addPDATemplate();
 extern "C" void OVScreenMessageCenter_RefreshList(void*);
 extern "C" void OVScreenMessageCenter_UpdateCountText(void*);
 extern "C" void func_001E4458(void*);
-extern "C" void func_001E4658(void*);
+extern "C" void OVScreenMessageCenter_UpdateScrollArrows(void*);
 extern char D_0046DF88[];
 
 extern "C" void func_001E3D58(void* self)
@@ -4093,18 +4093,18 @@ extern "C" void func_001E3D58(void* self)
         cOVStateManager_addPDATemplate();
     }
     *(int*)((char*)self + 0x174) = 0;
-    int n = func_001E33E8_noarg();
-    n += func_001E2BB8(4, 1);
+    int n = MessageCenter_GetMessageCount_noarg();
+    n += MessageCenter_CountGroupMessages(4, 1);
     func_0039B760(*(void**)((char*)self + 0x144), (unsigned char)n);
     OVScreenMessageCenter_RefreshList(self);
     OVScreenMessageCenter_UpdateCountText(self);
     func_001E4458(self);
-    func_001E4658(self);
+    OVScreenMessageCenter_UpdateScrollArrows(self);
     D_004A20C0 = 1;
 }
 
 //100%
-extern "C" void func_001E3A78(int a, int b);
+extern "C" void MessageCenter_SetFlag(int a, int b);
 extern "C" void func_0020D190(void);
 extern "C" void func_0020A430(void* self);
 extern int D_004A2A54;
@@ -4116,11 +4116,11 @@ extern "C" void func_001E3E30(void* self)
 {
     int s = *(int*)((char*)self + 0x18);
     if (s == 1) {
-        func_001E3A78(7, 0);
+        MessageCenter_SetFlag(7, 0);
         func_0020D190();
         D_004A2A50 = D_004428F0[D_005366E8[--D_004A2A54]];
     } else if (s == 0) {
-        func_001E3A78(7, 1);
+        MessageCenter_SetFlag(7, 1);
         func_0020D190();
         D_004A2A50 = D_004428F0[D_005366E8[--D_004A2A54]];
     }
@@ -4251,7 +4251,7 @@ extern "C" void func_001E3EC0(sPopup_1E3EC0* self, void* w)
 
 //100% - objdiff report; single-function view differs only in a relocation name
 extern "C" void cUIMenu_setSelectedByIndex(void* menu, unsigned char idx);
-extern "C" unsigned char func_001E3680(int id);
+extern "C" unsigned char MessageCenter_GetListIndex(int id);
 extern "C" void func_001E50C8(void* self, int a1, int a2);
 
 struct sVEntry001E4168 {
@@ -4268,7 +4268,7 @@ extern "C" void func_001E4168(void* self)
     }
     if (state == 1) {
     reset:
-        cUIMenu_setSelectedByIndex(*(void**)((char*)self + 0x144), func_001E3680(0x25));
+        cUIMenu_setSelectedByIndex(*(void**)((char*)self + 0x144), MessageCenter_GetListIndex(0x25));
         void* menu = *(void**)((char*)self + 0x144);
         sVEntry001E4168* vt = *(sVEntry001E4168**)((char*)menu + 8);
         vt[7].fn((char*)menu + vt[7].delta, 1);
@@ -4308,33 +4308,33 @@ int cUIScreen_getFrameByLabel(cUIScreen* screen, int hash);
 extern char D_0046E050[];
 extern int D_004A20C0;
 
-// PORT: func_001E33E8 is declared (void*) but never reads its argument; called here with none
-unsigned char func_001E33E8_noarg() __asm__("func_001E33E8__FPv");
-// PORT: func_001E3A30 is declared int; its result is used as a bool here
-extern "C" bool func_001E3A30_b(int id) __asm__("func_001E3A30");
-extern "C" int func_001E3620(int idx);
-extern "C" void func_001E3A78(int a, int b);
+// PORT: MessageCenter_GetMessageCount is declared (void*) but never reads its argument; called here with none
+unsigned char MessageCenter_GetMessageCount_noarg() __asm__("MessageCenter_GetMessageCount__FPv");
+// PORT: MessageCenter_IsFlagSet is declared int; its result is used as a bool here
+extern "C" bool MessageCenter_IsFlagSet_b(int id) __asm__("MessageCenter_IsFlagSet");
+extern "C" int MessageCenter_GetMessageId(int idx);
+extern "C" void MessageCenter_SetFlag(int a, int b);
 extern "C" void OVScreenMessageCenter_RefreshList(void*);
 extern "C" void func_001E4458(void*);
-extern "C" void func_001E4658(void*);
+extern "C" void OVScreenMessageCenter_UpdateScrollArrows(void*);
 extern "C" void func_001E50C8(void* self, int a1, int a2);
-extern "C" void func_001E5148(void* self, int idx);
+extern "C" void OVScreenMessageCenter_DeleteMessage(void* self, int idx);
 
 extern "C" void func_001E4200(void* self, void* widget, unsigned int event)
 {
     if (widget == 0) {
         return;
     }
-    sPopupList* list = func_001E39F8_list();
-    int n1 = func_001E2BB8(4, 1);
-    int n2 = func_001E33E8_noarg();
+    sPopupList* list = MessageCenter_GetInbox_list();
+    int n1 = MessageCenter_CountGroupMessages(4, 1);
+    int n2 = MessageCenter_GetMessageCount_noarg();
     switch (event) {
     case 5:
         if (n1 + n2 > 0) {
             int k = *(unsigned char*)(*(char**)((char*)self + 0x144) + 0x95);
             int idx = n2 - k - 1;
             if (idx >= 0) {
-                int id = func_001E3620(idx);
+                int id = MessageCenter_GetMessageId(idx);
                 list->mask |= 1 << idx;
                 func_001E50C8(self, id, k + 1);
             } else if (idx + n1 >= 0) {
@@ -4342,9 +4342,9 @@ extern "C" void func_001E4200(void* self, void* widget, unsigned int event)
                 sPopupEntry18_4200* a = &D_004C6C08_4200[w];
                 sPopupEntry14_4200* e = &D_00441630_4200[a->id];
                 if (e->enabled != 0 && w == e->start) {
-                    func_001E3A78(a->id, !func_001E3A30_b(a->id));
+                    MessageCenter_SetFlag(a->id, !MessageCenter_IsFlagSet_b(a->id));
                     OVScreenMessageCenter_RefreshList(self);
-                    func_001E4658(self);
+                    OVScreenMessageCenter_UpdateScrollArrows(self);
                     func_001E4458(self);
                 } else {
                     func_001E50C8(self, w, k + 1);
@@ -4357,7 +4357,7 @@ extern "C" void func_001E4200(void* self, void* widget, unsigned int event)
         if (n2 > 0) {
             int idx = n2 - *(unsigned char*)(*(char**)((char*)self + 0x144) + 0x95) - 1;
             if (idx >= 0) {
-                func_001E5148(self, idx);
+                OVScreenMessageCenter_DeleteMessage(self, idx);
                 *(int*)((char*)self + 0x170) = 1;
             }
             func_001E4458(self);
@@ -4388,12 +4388,12 @@ extern "C" void func_001E4200(void* self, void* widget, unsigned int event)
 struct cUIText;
 int GetHashValue32(char* str);
 void cUIText_setUnicodeStringByID(cUIText* text, int id);
-// PORT: func_001E33E8 is declared (void*) but never reads its argument; called here with none
-unsigned char func_001E33E8_noarg() __asm__("func_001E33E8__FPv");
-extern "C" int func_001E2C80(int type, int idx, int mode);
-extern "C" int func_001E3A30(void* self);
-extern "C" void func_001E4840(void* self, void* obj);
-extern "C" void func_001E4878(void* self, void* obj);
+// PORT: MessageCenter_GetMessageCount is declared (void*) but never reads its argument; called here with none
+unsigned char MessageCenter_GetMessageCount_noarg() __asm__("MessageCenter_GetMessageCount__FPv");
+extern "C" int MessageCenter_GetGroupMessageId(int type, int idx, int mode);
+extern "C" int MessageCenter_IsFlagSet(void* self);
+extern "C" void OVScreenMessageCenter_HideWidget(void* self, void* obj);
+extern "C" void OVScreenMessageCenter_ShowWidget(void* self, void* obj);
 extern char D_0046E060[];
 extern char D_0046E070[];
 extern char D_0046E080[];
@@ -4414,22 +4414,22 @@ extern sEntry14_4458 D_00441630_4458[] __asm__("D_00441630");
 extern "C" void func_001E4458(void* self)
 {
     int base = *(unsigned char*)(*(char**)((char*)self + 0x144) + 0x95);
-    int diff = func_001E33E8_noarg() - base;
+    int diff = MessageCenter_GetMessageCount_noarg() - base;
     if (diff - 1 >= 0) {
-        func_001E4878(self, *(void**)((char*)self + 0x14C));
-        func_001E4878(self, *(void**)((char*)self + 0x150));
+        OVScreenMessageCenter_ShowWidget(self, *(void**)((char*)self + 0x14C));
+        OVScreenMessageCenter_ShowWidget(self, *(void**)((char*)self + 0x150));
         if (*(cUIText**)((char*)self + 0x158) != 0)
             cUIText_setUnicodeStringByID(*(cUIText**)((char*)self + 0x158), GetHashValue32(D_0046E060));
     } else {
-        func_001E4840(self, *(void**)((char*)self + 0x14C));
-        func_001E4840(self, *(void**)((char*)self + 0x150));
+        OVScreenMessageCenter_HideWidget(self, *(void**)((char*)self + 0x14C));
+        OVScreenMessageCenter_HideWidget(self, *(void**)((char*)self + 0x150));
         if (*(cUIText**)((char*)self + 0x158) != 0) {
-            int id = func_001E2C80(4, -diff, 1);
+            int id = MessageCenter_GetGroupMessageId(4, -diff, 1);
             sEntry18_4458* a = &D_004C6C08_4458[id];
             int t = a->field_0x4;
             sEntry14_4458* b = &D_00441630_4458[t];
             if (id == b->field_0x4) {
-                if (func_001E3A30((void*)t))
+                if (MessageCenter_IsFlagSet((void*)t))
                     cUIText_setUnicodeStringByID(*(cUIText**)((char*)self + 0x158), GetHashValue32(D_0046E070));
                 else
                     cUIText_setUnicodeStringByID(*(cUIText**)((char*)self + 0x158), GetHashValue32(D_0046E080));
@@ -4441,7 +4441,7 @@ extern "C" void func_001E4458(void* self)
 }
 
 //100%
-extern "C" void func_001E4658(void* self);
+extern "C" void OVScreenMessageCenter_UpdateScrollArrows(void* self);
 extern "C" void OVScreenMessageCenter_RefreshList(void* self);
 extern "C" void func_001E4458(void* self);
 
@@ -4450,7 +4450,7 @@ extern "C" int func_001E4578(char* self, void* widget, int event, int value)
     switch (event) {
     case 4:
         *(int*)(self + 0x174) = value;
-        func_001E4658(self);
+        OVScreenMessageCenter_UpdateScrollArrows(self);
         OVScreenMessageCenter_RefreshList(self);
         break;
     case 5:
@@ -4482,9 +4482,9 @@ extern "C" void func_001E4610(void* self, int a1, int a2)
 }
 
 //100%
-// PORT: func_001E33E8 is declared (void*) but never reads its argument; called here with none
-unsigned char func_001E33E8_noarg() __asm__("func_001E33E8__FPv");
-extern "C" int func_001E2BB8(int type, int all);
+// PORT: MessageCenter_GetMessageCount is declared (void*) but never reads its argument; called here with none
+unsigned char MessageCenter_GetMessageCount_noarg() __asm__("MessageCenter_GetMessageCount__FPv");
+extern "C" int MessageCenter_CountGroupMessages(int type, int all);
 extern int D_004A20C4;
 
 struct sVEntryK1E4658 {
@@ -4493,7 +4493,7 @@ struct sVEntryK1E4658 {
     void (*fn)(void*, int);
 };
 
-extern "C" void func_001E4658(void* self)
+extern "C" void OVScreenMessageCenter_UpdateScrollArrows(void* self)
 {
     if (*(int*)((char*)self + 0x174) == 0) {
         char* o = *(char**)((char*)self + 0x15C);
@@ -4506,11 +4506,11 @@ extern "C" void func_001E4658(void* self)
     }
     int n;
     if (D_004A20C4 != 0) {
-        n = func_001E33E8_noarg();
-        n += func_001E2BB8(4, 1);
+        n = MessageCenter_GetMessageCount_noarg();
+        n += MessageCenter_CountGroupMessages(4, 1);
     } else {
-        n = func_001E33E8_noarg();
-        n += func_001E2BB8(4, 0);
+        n = MessageCenter_GetMessageCount_noarg();
+        n += MessageCenter_CountGroupMessages(4, 0);
     }
     if (*(int*)((char*)self + 0x174) + 8 >= n) {
         char* o = *(char**)((char*)self + 0x160);
@@ -4524,8 +4524,8 @@ extern "C" void func_001E4658(void* self)
 }
 
 //100%
-// PORT: func_001E33E8 is declared (void*) but never reads its argument; called here with none
-unsigned char func_001E33E8_noarg() __asm__("func_001E33E8__FPv");
+// PORT: MessageCenter_GetMessageCount is declared (void*) but never reads its argument; called here with none
+unsigned char MessageCenter_GetMessageCount_noarg() __asm__("MessageCenter_GetMessageCount__FPv");
 extern "C" void func_002C26D0(unsigned short* dst, const unsigned short* fmt, ...);
 extern "C" void func_003A0E90(void* text, void* p);
 extern void* D_004A28A8;
@@ -4545,7 +4545,7 @@ extern "C" void OVScreenMessageCenter_UpdateCountText(void* self)
         char* o = *(char**)((char*)D_004A28A8 + 0x8C);
         sVEntry001E4758* vt = *(sVEntry001E4758**)(o + 4);
         unsigned short* fmt = vt[4].fn(o + vt[4].delta, GetHashValue32(D_0046E0A8));
-        func_002C26D0(buf, fmt, func_001E33E8_noarg());
+        func_002C26D0(buf, fmt, MessageCenter_GetMessageCount_noarg());
         func_003A0E90(*(void**)((char*)self + 0x13C), buf);
     }
     if (*(void**)((char*)self + 0x140) != 0) {
@@ -4564,7 +4564,7 @@ struct sVEntry_func_001E4840 {
     void (*fn)(void*, int);
 };
 
-extern "C" void func_001E4840(void* self, void* obj)
+extern "C" void OVScreenMessageCenter_HideWidget(void* self, void* obj)
 {
     if (obj != 0) {
         sVEntry_func_001E4840* vt = *(sVEntry_func_001E4840**)((char*)obj + 0x8);
@@ -4579,7 +4579,7 @@ struct sVEntry_func_001E4878 {
     void (*fn)(void*, int);
 };
 
-extern "C" void func_001E4878(void* self, void* obj)
+extern "C" void OVScreenMessageCenter_ShowWidget(void* self, void* obj)
 {
     if (obj != 0) {
         sVEntry_func_001E4878* vt = *(sVEntry_func_001E4878**)((char*)obj + 0x8);
@@ -4590,15 +4590,15 @@ extern "C" void func_001E4878(void* self, void* obj)
 //100%
 extern "C" void cUIState_showObjSafe_48B0(void* self, char* name) __asm__("cUIState_showObjSafe");
 extern "C" void cUIState_hideObjSafe_48B0(void* self, char* name) __asm__("cUIState_hideObjSafe");
-extern "C" int func_001E2BB8_48B0(int kind, int online) __asm__("func_001E2BB8");
-extern "C" int func_001E33E8_48B0() __asm__("func_001E33E8__FPv");
-extern "C" void func_001E4840_48B0(void* self, int obj) __asm__("func_001E4840");
-extern "C" void func_001E4878_48B0(void* self, int obj) __asm__("func_001E4878");
-extern "C" int func_001E3620_48B0(int idx) __asm__("func_001E3620");
-extern "C" int func_001E3650_48B0(int idx) __asm__("func_001E3650");
-extern "C" void func_001E4C78_48B0(void* self, int idx, int row, int a3, int a4) __asm__("func_001E4C78");
-extern "C" int func_001E2C80_48B0(int kind, int idx, int local) __asm__("func_001E2C80");
-extern "C" int func_001E4B80_48B0(void* self, int entry) __asm__("func_001E4B80");
+extern "C" int MessageCenter_CountGroupMessages_48B0(int kind, int online) __asm__("MessageCenter_CountGroupMessages");
+extern "C" int MessageCenter_GetMessageCount_48B0() __asm__("MessageCenter_GetMessageCount__FPv");
+extern "C" void OVScreenMessageCenter_HideWidget_48B0(void* self, int obj) __asm__("OVScreenMessageCenter_HideWidget");
+extern "C" void OVScreenMessageCenter_ShowWidget_48B0(void* self, int obj) __asm__("OVScreenMessageCenter_ShowWidget");
+extern "C" int MessageCenter_GetMessageId_48B0(int idx) __asm__("MessageCenter_GetMessageId");
+extern "C" int MessageCenter_GetMessageVariant_48B0(int idx) __asm__("MessageCenter_GetMessageVariant");
+extern "C" void OVScreenMessageCenter_SetRow_48B0(void* self, int idx, int row, int a3, int a4) __asm__("OVScreenMessageCenter_SetRow");
+extern "C" int MessageCenter_GetGroupMessageId_48B0(int kind, int idx, int local) __asm__("MessageCenter_GetGroupMessageId");
+extern "C" int OVScreenMessageCenter_GetGroupVariant_48B0(void* self, int entry) __asm__("OVScreenMessageCenter_GetGroupVariant");
 extern "C" void func_0039B760_48B0(void* menu, unsigned char n) __asm__("func_0039B760");
 extern int D_004A20C4;
 extern char D_0046E0D0[];
@@ -4632,11 +4632,11 @@ extern "C" void OVScreenMessageCenter_RefreshList(void* selfp)
     sList_48B0* self = (sList_48B0*)selfp;
     int online;
     if (D_004A20C4) {
-        online = func_001E2BB8_48B0(4, 1);
+        online = MessageCenter_CountGroupMessages_48B0(4, 1);
     } else {
-        online = func_001E2BB8_48B0(4, 0);
+        online = MessageCenter_CountGroupMessages_48B0(4, 0);
     }
-    int local = func_001E33E8_48B0();
+    int local = MessageCenter_GetMessageCount_48B0();
     int total = local + online;
     int sel;
     if (total == 0) {
@@ -4647,10 +4647,10 @@ extern "C" void OVScreenMessageCenter_RefreshList(void* selfp)
         cUIState_hideObjSafe_48B0(self, D_0046E100);
         cUIState_hideObjSafe_48B0(self, D_0046E118);
         cUIState_showObjSafe_48B0(self, D_0046E130);
-        func_001E4840_48B0(self, self->f154);
-        func_001E4840_48B0(self, self->f158);
-        func_001E4840_48B0(self, self->f14C);
-        func_001E4840_48B0(self, self->f150);
+        OVScreenMessageCenter_HideWidget_48B0(self, self->f154);
+        OVScreenMessageCenter_HideWidget_48B0(self, self->f158);
+        OVScreenMessageCenter_HideWidget_48B0(self, self->f14C);
+        OVScreenMessageCenter_HideWidget_48B0(self, self->f150);
     } else {
         cUIState_showObjSafe_48B0(self, D_0046E0D0);
         sel = total;
@@ -4658,29 +4658,29 @@ extern "C" void OVScreenMessageCenter_RefreshList(void* selfp)
         cUIState_showObjSafe_48B0(self, D_0046E0F0);
         cUIState_showObjSafe_48B0(self, D_0046E100);
         cUIState_hideObjSafe_48B0(self, D_0046E130);
-        func_001E4878_48B0(self, self->f154);
-        func_001E4878_48B0(self, self->f158);
+        OVScreenMessageCenter_ShowWidget_48B0(self, self->f154);
+        OVScreenMessageCenter_ShowWidget_48B0(self, self->f158);
         for (int i = 0; i < 8; i++) {
             int n = i + 1;
             int k = local - self->scroll - n;
             if (k >= 0) {
-                int r1 = func_001E3620_48B0(k);
-                func_001E4C78_48B0(self, k, i, r1, func_001E3650_48B0(k));
+                int r1 = MessageCenter_GetMessageId_48B0(k);
+                OVScreenMessageCenter_SetRow_48B0(self, k, i, r1, MessageCenter_GetMessageVariant_48B0(k));
             } else if (k + online >= 0) {
                 int nk = ~k;
                 int r;
                 if (D_004A20C4) {
-                    r = func_001E2C80_48B0(4, nk, 0);
+                    r = MessageCenter_GetGroupMessageId_48B0(4, nk, 0);
                 } else {
-                    r = func_001E2C80_48B0(4, nk, 1);
+                    r = MessageCenter_GetGroupMessageId_48B0(4, nk, 1);
                 }
-                func_001E4C78_48B0(self, -1, i, r, (unsigned char)func_001E4B80_48B0(self, r));
+                OVScreenMessageCenter_SetRow_48B0(self, -1, i, r, (unsigned char)OVScreenMessageCenter_GetGroupVariant_48B0(self, r));
             } else {
-                func_001E4840_48B0(self, self->a[i]);
-                func_001E4840_48B0(self, self->b[i]);
-                func_001E4840_48B0(self, self->c[i]);
-                func_001E4840_48B0(self, self->e[i]);
-                func_001E4840_48B0(self, self->d[i]);
+                OVScreenMessageCenter_HideWidget_48B0(self, self->a[i]);
+                OVScreenMessageCenter_HideWidget_48B0(self, self->b[i]);
+                OVScreenMessageCenter_HideWidget_48B0(self, self->c[i]);
+                OVScreenMessageCenter_HideWidget_48B0(self, self->e[i]);
+                OVScreenMessageCenter_HideWidget_48B0(self, self->d[i]);
             }
         }
     }
@@ -4694,7 +4694,7 @@ extern "C" void OVScreenMessageCenter_RefreshList(void* selfp)
 //100%
 // PORT: PS2-only inline asm; needs a C fallback off-PS2.
 extern int D_004A20C4;
-extern "C" int func_001E2DC0(int idx);
+extern "C" int MessageCenter_GetIndexInType(int idx);
 
 struct sPopupEntry18_4B80 {
     int field_0x0;
@@ -4704,7 +4704,7 @@ struct sPopupEntry18_4B80 {
 };
 extern sPopupEntry18_4B80 D_004C6C08_4B80[] __asm__("D_004C6C08");
 
-extern "C" unsigned char func_001E4B80(void* self, int idx)
+extern "C" unsigned char OVScreenMessageCenter_GetGroupVariant(void* self, int idx)
 {
     unsigned char r = 0xFF;
     if (D_004A20C4 == 0) {
@@ -4712,7 +4712,7 @@ extern "C" unsigned char func_001E4B80(void* self, int idx)
     }
     sPopupEntry18_4B80* a = &D_004C6C08_4B80[idx];
     if (a->field_0x8 == 1) {
-        int v = func_001E2DC0(idx);
+        int v = MessageCenter_GetIndexInType(idx);
         int div = 1;
         sPopupEntry14* b = &D_00441630[a->field_0x4];
         switch (b->field_0xC) {
@@ -4809,17 +4809,17 @@ static inline void show_4C78(sObj_4C78* o)
     o->vt[9].fn((char*)o + o->vt[9].delta, 1);
 }
 
-extern "C" void func_001E4C78(void* self_, int idx, int slot, int id, unsigned char sub)
+extern "C" void OVScreenMessageCenter_SetRow(void* self_, int idx, int slot, int id, unsigned char sub)
 {
     sPopup_4C78* self = (sPopup_4C78*)self_;
     char buf[16];
     sEnt18_4C78* a = &D_004C6C08_4C78[id];
     sEnt14_4C78* b = &D_00441630_4C78[a->f4];
-    char* p = (char*)func_001E39F8(self);
+    char* p = (char*)MessageCenter_GetInbox(self);
     if (idx == -1) {
         if (b->f10 != 0) {
             if (id == b->f4) {
-                if (func_001E3A30((void*)a->f4) == 0)
+                if (MessageCenter_IsFlagSet((void*)a->f4) == 0)
                     setTint_4C78(self->aBC[slot], self->f164, idx);
                 else
                     setTint_4C78(self->aBC[slot], self->f168, idx);
@@ -4827,22 +4827,22 @@ extern "C" void func_001E4C78(void* self_, int idx, int slot, int id, unsigned c
                 setTint_4C78(self->aBC[slot], self->f16C, idx);
             }
         }
-        func_001E4840(self, self->a9C[slot]);
-        func_001E4878(self, self->aBC[slot]);
+        OVScreenMessageCenter_HideWidget(self, self->a9C[slot]);
+        OVScreenMessageCenter_ShowWidget(self, self->aBC[slot]);
     } else {
         int mask = 1 << idx;
         if (*(int*)(p + 0xC8) & mask) {
-            func_001E4840(self, self->a9C[slot]);
-            func_001E4840(self, self->aBC[slot]);
+            OVScreenMessageCenter_HideWidget(self, self->a9C[slot]);
+            OVScreenMessageCenter_HideWidget(self, self->aBC[slot]);
         } else {
-            func_001E4878(self, self->a9C[slot]);
-            func_001E4840(self, self->aBC[slot]);
+            OVScreenMessageCenter_ShowWidget(self, self->a9C[slot]);
+            OVScreenMessageCenter_HideWidget(self, self->aBC[slot]);
         }
     }
     if (self->a11C[slot] != 0) {
         if (b->f10 != 0) {
             if (id == b->f4) {
-                if (func_001E3A30((void*)a->f4) == 0)
+                if (MessageCenter_IsFlagSet((void*)a->f4) == 0)
                     sprintf(buf, D_004A2100);
                 else
                     sprintf(buf, D_004A2108);
@@ -4890,7 +4890,7 @@ struct sVEntry001E4F70 {
 extern "C" void OVScreenMessageCenter_SetRowSubject(void* self, int slot, int id, unsigned char n)
 {
     char buf[48];
-    if (func_001E2D58(3, id)) {
+    if (MessageCenter_IsMessageOfType(3, id)) {
         switch (id) {
         case 0x73: case 0x75: case 0x77: case 0x79: case 0x7B: case 0x7D:
         case 0x7F: case 0x81: case 0x83: case 0x85: case 0x87: case 0x89:
@@ -4901,11 +4901,11 @@ extern "C" void OVScreenMessageCenter_SetRowSubject(void* self, int slot, int id
             sprintf(buf, D_0046E160, n);
             break;
         }
-    } else if (func_001E2D58(5, id)) {
+    } else if (MessageCenter_IsMessageOfType(5, id)) {
         sprintf(buf, D_0046E180, n);
-    } else if (func_001E2D58(4, id)) {
+    } else if (MessageCenter_IsMessageOfType(4, id)) {
         sprintf(buf, D_0046E1A0, n);
-    } else if (func_001E2D58(8, id)) {
+    } else if (MessageCenter_IsMessageOfType(8, id)) {
         sprintf(buf, D_0046E1C0, n);
     }
     sPopTexts_001E4F70* o = (sPopTexts_001E4F70*)self;
@@ -4933,27 +4933,27 @@ extern "C" void func_001E50C8(void* self, int a1, int a2)
 }
 
 //100% - objdiff report; single-function view differs only in a relocation name
-extern "C" void func_001E31B8(int idx);
-extern "C" int func_001E2BB8(int a0, int a1);
-// PORT: func_001E33E8 is declared (void*) but never reads its argument; called here with none
-unsigned char func_001E33E8_noarg() __asm__("func_001E33E8__FPv");
+extern "C" void MessageCenter_RemoveMessage(int idx);
+extern "C" int MessageCenter_CountGroupMessages(int a0, int a1);
+// PORT: MessageCenter_GetMessageCount is declared (void*) but never reads its argument; called here with none
+unsigned char MessageCenter_GetMessageCount_noarg() __asm__("MessageCenter_GetMessageCount__FPv");
 extern "C" void OVScreenMessageCenter_RefreshList(void*);
 extern "C" void OVScreenMessageCenter_UpdateCountText(void*);
-extern "C" void func_001E4658(void*);
+extern "C" void OVScreenMessageCenter_UpdateScrollArrows(void*);
 
-extern "C" void func_001E5148(void* self, int idx)
+extern "C" void OVScreenMessageCenter_DeleteMessage(void* self, int idx)
 {
-    func_001E31B8(idx);
+    MessageCenter_RemoveMessage(idx);
     int cur = *(unsigned char*)(*(char**)((char*)self + 0x144) + 0x95);
-    int n = func_001E2BB8(4, 1);
-    n += func_001E33E8_noarg();
+    int n = MessageCenter_CountGroupMessages(4, 1);
+    n += MessageCenter_GetMessageCount_noarg();
     if (cur >= n) {
         cur--;
     }
     *(unsigned char*)(*(char**)((char*)self + 0x144) + 0x95) = cur;
     OVScreenMessageCenter_RefreshList(self);
     OVScreenMessageCenter_UpdateCountText(self);
-    func_001E4658(self);
+    OVScreenMessageCenter_UpdateScrollArrows(self);
 }
 
 //100%
@@ -5092,8 +5092,8 @@ extern char D_004A2138[];
 void cUIText_setAsciiString(cUIText* text, const char* str);
 extern "C" int MessageCenter_GetSenderNameHash(int id);
 extern "C" int sprintf(char* buf, const char* fmt, ...);
-extern "C" void func_001E55D0(void* self, int idx);
-extern "C" void func_001E5780(void* self, int idx);
+extern "C" void cOVState_ViewPopup_SetSubject(void* self, int idx);
+extern "C" void cOVState_ViewPopup_SetBody(void* self, int idx);
 
 extern "C" void cOVState_ViewPopup_ShowMessage(void* self)
 {
@@ -5120,7 +5120,7 @@ extern "C" void cOVState_ViewPopup_ShowMessage(void* self)
             char* mgr = *(char**)((char*)D_004A28A8 + 0x8C);
             sVEntryS1E5428* vt = *(sVEntryS1E5428**)(mgr + 4);
             unsigned short* fmt = vt[4].fn(mgr + vt[4].delta, GetHashValue32(D_0046E2D0));
-            func_002C26D0(buf, fmt, func_001E2DC0(*(int*)((char*)self + 0x68)));
+            func_002C26D0(buf, fmt, MessageCenter_GetIndexInType(*(int*)((char*)self + 0x68)));
             func_003A0E90(*(void**)((char*)self + 0x4C), buf);
         } else {
             char buf[0x30];
@@ -5131,8 +5131,8 @@ extern "C" void cOVState_ViewPopup_ShowMessage(void* self)
     if (*(cUIText**)((char*)self + 0x50) != 0) {
         cUIText_setUnicodeStringByID(*(cUIText**)((char*)self + 0x50), MessageCenter_GetSenderNameHash(a->field_0xC));
     }
-    func_001E55D0(self, *(int*)((char*)self + 0x68));
-    func_001E5780(self, *(int*)((char*)self + 0x68));
+    cOVState_ViewPopup_SetSubject(self, *(int*)((char*)self + 0x68));
+    cOVState_ViewPopup_SetBody(self, *(int*)((char*)self + 0x68));
 }
 
 //100%
@@ -5140,7 +5140,7 @@ struct cUIText;
 void cUIText_setUnicodeStringByID(cUIText* text, int id);
 extern "C" void cOVState_ViewPopup_SetVariantSubject(void* self, int idx);
 
-extern "C" void func_001E55D0(void* self, int idx)
+extern "C" void cOVState_ViewPopup_SetSubject(void* self, int idx)
 {
     char* e = (char*)&D_004C6C08[idx];
     if (*(int*)(e + 0x8) == 1) {
@@ -5156,7 +5156,7 @@ extern "C" void func_001E55D0(void* self, int idx)
 //100%
 int GetHashValue32(char* str);
 extern char D_0046E140[];
-extern "C" unsigned char func_001E5AA0(void* self, int idx);
+extern "C" unsigned char cOVState_ViewPopup_GetGroupVariant(void* self, int idx);
 extern char D_0046E160[];
 extern char D_0046E180[];
 extern char D_0046E1A0[];
@@ -5167,10 +5167,10 @@ extern "C" void cOVState_ViewPopup_SetVariantSubject(void* self, int idx)
     char buf[32];
     int n;
     if (D_004A20C4 != 0)
-        n = func_001E5AA0(self, idx);
+        n = cOVState_ViewPopup_GetGroupVariant(self, idx);
     else
-        n = func_001E3650(func_001E3388(idx));
-    if (func_001E2D58(3, idx)) {
+        n = MessageCenter_GetMessageVariant(MessageCenter_FindMessage(idx));
+    if (MessageCenter_IsMessageOfType(3, idx)) {
         switch (idx) {
         case 0x73:
         case 0x75:
@@ -5201,11 +5201,11 @@ extern "C" void cOVState_ViewPopup_SetVariantSubject(void* self, int idx)
             sprintf(buf, D_0046E160, n);
             break;
         }
-    } else if (func_001E2D58(5, idx)) {
+    } else if (MessageCenter_IsMessageOfType(5, idx)) {
         sprintf(buf, D_0046E180, n);
-    } else if (func_001E2D58(4, idx)) {
+    } else if (MessageCenter_IsMessageOfType(4, idx)) {
         sprintf(buf, D_0046E1A0, n);
-    } else if (func_001E2D58(8, idx)) {
+    } else if (MessageCenter_IsMessageOfType(8, idx)) {
         sprintf(buf, D_0046E1C0, n);
     }
     if (*(cUIText**)((char*)self + 0x54) != 0)
@@ -5219,7 +5219,7 @@ struct sVEntry001E5780 {
     void (*fn)(void*, int);
 };
 
-extern "C" void func_001E5780(void* self, int idx)
+extern "C" void cOVState_ViewPopup_SetBody(void* self, int idx)
 {
     char* e = (char*)&D_004C6C08[idx];
     int kind = *(int*)(e + 0x8);
@@ -5248,7 +5248,7 @@ struct sEntry14_5800 {
     char pad_0x4[0x14 - 0x4];
 };
 extern sEntry14_5800 D_00441630_5800[] __asm__("D_00441630");
-extern "C" void func_001E3268(int id);
+extern "C" void MessageCenter_RemoveMessageById(int id);
 struct sVE5800 {
     short delta;
     short index;
@@ -5265,7 +5265,7 @@ extern "C" void func_001E5800(void* self, void* a1, unsigned int msg)
         if (b->type == 4) {
             return;
         }
-        func_001E3268(id);
+        MessageCenter_RemoveMessageById(id);
     }
     case 5: {
         char* o = *(char**)((char*)self + 0x20);
@@ -5283,20 +5283,20 @@ extern "C" void func_001E5800(void* self, void* a1, unsigned int msg)
 }
 
 //100%
-extern "C" int func_001E34D8(int i);
+extern "C" int MessageCenter_GetNextInGroup(int i);
 extern "C" int func_001E3408();
-extern "C" int func_001E3460(int* out);
+extern "C" int MessageCenter_GetFirstUnread(int* out);
 extern "C" void cOVState_ViewPopup_ShowMessage(void* self);
-// PORT: func_001E33E8 is declared (void*) but called with no argument here
-unsigned char func_001E33E8_noarg() __asm__("func_001E33E8__FPv");
+// PORT: MessageCenter_GetMessageCount is declared (void*) but called with no argument here
+unsigned char MessageCenter_GetMessageCount_noarg() __asm__("MessageCenter_GetMessageCount__FPv");
 
-extern "C" void func_001E58E0(void* self)
+extern "C" void cOVState_ViewPopup_ShowNext(void* self)
 {
     int id = *(int*)((char*)self + 0x68);
     sPopupEntry18_5800* a = &D_004C6C08_5800[id];
     sEntry14_5800* b = &D_00441630_5800[a->field_0x4];
     if (b->type == 4) {
-        int n = func_001E34D8(id);
+        int n = MessageCenter_GetNextInGroup(id);
         if (n == -1) {
             char* o = *(char**)((char*)self + 0x20);
             sVE5800* vt = *(sVE5800**)(o + 8);
@@ -5307,11 +5307,11 @@ extern "C" void func_001E58E0(void* self)
         *(int*)((char*)self + 0x6C) = *(int*)((char*)self + 0x6C) + 1;
         cOVState_ViewPopup_ShowMessage(self);
     } else if (func_001E3408() > 0) {
-        sPopupList* t = func_001E39F8_list();
+        sPopupList* t = MessageCenter_GetInbox_list();
         int idx;
-        *(int*)((char*)self + 0x68) = func_001E3460(&idx);
+        *(int*)((char*)self + 0x68) = MessageCenter_GetFirstUnread(&idx);
         t->mask |= 1 << idx;
-        *(int*)((char*)self + 0x6C) = func_001E33E8_noarg() - idx;
+        *(int*)((char*)self + 0x6C) = MessageCenter_GetMessageCount_noarg() - idx;
         cOVState_ViewPopup_ShowMessage(self);
     } else {
         char* o = *(char**)((char*)self + 0x20);
@@ -5341,12 +5341,12 @@ extern "C" int cOVState_ViewPopup_OnWidgetNotify(void* self, int a1, unsigned in
 //100%
 extern int D_004A20C4;
 
-extern "C" unsigned char func_001E5AA0(void* self, int idx)
+extern "C" unsigned char cOVState_ViewPopup_GetGroupVariant(void* self, int idx)
 {
     if (D_004A20C4 == 0) {
         return 0xFF;
     }
-    int v = func_001E2DC0(idx);
+    int v = MessageCenter_GetIndexInType(idx);
     int div = 1;
     sPopupEntry18* a = &D_004C6C08[idx];
     sPopupEntry14* b = &D_00441630[a->field_0x4];
@@ -5735,7 +5735,7 @@ public:
     virtual void setVisible(int on);
 };
 
-extern "C" void func_001E7BB0(void* self)
+extern "C" void OVScreenFinishOv_Init(void* self)
 {
     char buf[32];
     void* engine = *(void**)((char*)self + 0x10);
@@ -5822,7 +5822,7 @@ extern "C" int func_00146E98(void* iface, int a1);
 extern "C" void func_0039F840(void* list);
 extern "C" void cGame_AdvanceState(void* self);
 
-extern "C" void func_001E8098(void* self)
+extern "C" void OVScreenFinishOv_Update(void* self)
 {
     float limit = 3.0f;
     int idx = func_00146E98(cBE_getInterface_Fv(cBE_getBE(), 1), 0);
@@ -5844,7 +5844,7 @@ extern void* D_004A28A8;
 extern "C" void func_0039F840(void* list);
 extern "C" void cGame_AdvanceState(void* self);
 
-extern "C" void func_001E8160(void* self, void* a1, int a2)
+extern "C" void OVScreenFinishOv_OnWidgetAction(void* self, void* a1, int a2)
 {
     if (a1 != 0) {
         if (a2 == 5 && *(int*)((char*)self + 0xA0) != 0) {
@@ -5861,7 +5861,7 @@ extern "C" void func_001E8160(void* self, void* a1, int a2)
 INCLUDE_ASM("fe/fepopupmisc", OVScreenFinishOv_OnWidgetNotify);
 
 //100%
-extern "C" int func_001E81D0(void* self, int a1)
+extern "C" int OVScreenFinishOv_OnEvent(void* self, int a1)
 {
     switch (a1) {
     case 0:
@@ -5902,7 +5902,7 @@ struct sVEntry8200 {
     unsigned short* (*fn)(void*, int);
 };
 
-extern "C" void func_001E8200(void* self)
+extern "C" void OVScreenFinishOv2_Init(void* self)
 {
     char buf[32];
     unsigned short fmt[0x68];
@@ -6014,7 +6014,7 @@ extern "C" int func_00146E98(void* iface, int a1);
 extern "C" void func_0039F840(void* list);
 extern "C" void cGame_AdvanceState(void* self);
 
-extern "C" void func_001E87B8(void* self)
+extern "C" void OVScreenFinishOv2_Update(void* self)
 {
     float limit = 3.0f;
     int idx = func_00146E98(cBE_getInterface_Fv(cBE_getBE(), 1), 0);
@@ -6036,7 +6036,7 @@ extern void* D_004A28A8;
 extern "C" void func_0039F840(void* list);
 extern "C" void cGame_AdvanceState(void* self);
 
-extern "C" void func_001E8880(void* self, void* a1, int a2)
+extern "C" void OVScreenFinishOv2_OnWidgetAction(void* self, void* a1, int a2)
 {
     if (a1 != 0) {
         if (a2 == 5 && *(int*)((char*)self + 0xA0) != 0) {
@@ -6050,7 +6050,7 @@ extern "C" void func_001E8880(void* self, void* a1, int a2)
 INCLUDE_ASM("fe/fepopupmisc", OVScreenFinishOv2_OnWidgetNotify);
 
 //100%
-extern "C" int func_001E88F0(void* self, int a1)
+extern "C" int OVScreenFinishOv2_OnEvent(void* self, int a1)
 {
     switch (a1) {
     case 0:

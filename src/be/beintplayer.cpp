@@ -190,7 +190,7 @@ struct sProfileSlot_00145DD0 {
     char data[0xF88];
 };
 
-extern "C" void func_00145DD0(void* self, bool flag, int index, int bit)
+extern "C" void cBENewPlayerInterface_SetCharProfileFlag(void* self, bool flag, int index, int bit)
 {
     int profile = cBELibrary_getProfileIndex(index);
     int id = cBENewPlayerInterface_getPlayerID(index);
@@ -282,7 +282,7 @@ struct sCharFlags64_00146070
     unsigned long rest : 50;
 };
 
-extern "C" void func_00146070(void* self, int index, int which, int value)
+extern "C" void cBENewPlayerInterface_SetPeakLockFlag(void* self, int index, int which, int value)
 {
     int profile = cBELibrary_getProfileIndex(index);
     int id = cBENewPlayerInterface_getPlayerID(index);
@@ -304,7 +304,7 @@ int cBENewPlayerInterface_getPlayerID(int index);
 extern int D_004A6CA8[];
 
 // PORT: 64-bit `long` flag word (8 bytes on EE); use int64_t off-PS2.
-extern "C" int func_00146150(void* self, int index, int kind, int flag)
+extern "C" int cBENewPlayerInterface_GetPeakFlag(void* self, int index, int kind, int flag)
 {
     int profile = cBELibrary_getProfileIndex(index);
     int id = cBENewPlayerInterface_getPlayerID(index);
@@ -356,7 +356,7 @@ struct sProfBits6320 {
     unsigned long b5 : 1;
 };
 
-extern "C" void func_00146320(void* self, int index, int kind, int flag, int value)
+extern "C" void cBENewPlayerInterface_SetPeakFlag(void* self, int index, int kind, int flag, int value)
 {
     int profile = cBELibrary_getProfileIndex(index);
     int id = cBENewPlayerInterface_getPlayerID(index);
@@ -449,7 +449,7 @@ struct sMode_0043D950
 extern sMode_0043D950 D_0043D950[];
 
 // PORT: 64-bit `long` flag word (8 bytes on EE); use int64_t off-PS2.
-extern "C" int func_001466A0(void* self, int index)
+extern "C" int cBENewPlayerInterface_GetCurrentPeakFlagB(void* self, int index)
 {
     int profile = cBELibrary_getProfileIndex(index);
     int id = cBENewPlayerInterface_getPlayerID(index);
@@ -514,7 +514,7 @@ struct sProfBits68B0
     unsigned long rest : 52;
 };
 
-extern "C" void func_001468B0(void* self, int index, int c, int kind, int flag, int value)
+extern "C" void cBENewPlayerInterface_SetPeakFlagB(void* self, int index, int c, int kind, int flag, int value)
 {
     int profile = cBELibrary_getProfileIndex(index);
     if (flag) {
@@ -626,7 +626,7 @@ struct sProfBits6C10
     unsigned long rest : 44;
 };
 
-extern "C" void func_00146C10(void* self, int index, int c, int kind, int value)
+extern "C" void cBENewPlayerInterface_SetEventTypeFlag(void* self, int index, int c, int kind, int value)
 {
     int profile = cBELibrary_getProfileIndex(index);
     switch (kind) {
@@ -1449,7 +1449,7 @@ extern "C" sCharStat15 func_001482D0(void* self, int c)
     return D_005308D8_stat15[c];
 }
 
-extern "C" sCharStat15 func_00148328(void* self, int rider)
+extern "C" sCharStat15 cBEStatInterface_GetCharData(void* self, int rider)
 {
     return D_005308D8_stat15[cBELibrary_getCharacterID(rider)];
 }

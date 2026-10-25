@@ -151,7 +151,7 @@ struct sPeakBits_0B88 {
 };
 
 // Sets the locked state of a peak for a profile/character: stores the inverse of `unlocked`.
-extern "C" int func_00150B88(void* self, int a, int b, int peak, int unlocked)
+extern "C" int BE_SetPeakUnlocked(void* self, int a, int b, int peak, int unlocked)
 {
     if (a >= 2) {
         return 0;
@@ -380,7 +380,7 @@ extern "C" int func_001511E8(void* self, int profile, int c, unsigned int kind)
 void cMemMan_free(void*);
 void operator_delete(int*);
 
-extern "C" void func_00151368(void* self, int flags)
+extern "C" void BE_CharProfile_dtor(void* self, int flags)
 {
     void* p = *(void**)((char*)self + 0x288);
     if (p != 0)
@@ -451,7 +451,7 @@ static inline int Price_1513B8(sEconDef_1513B8* d)
     return p;
 }
 
-extern "C" void func_001513B8(void* vself)
+extern "C" void BE_ApplyDefaultCharProfileBolts(void* vself)
 {
     sEconItems_1513B8* self = (sEconItems_1513B8*)vself;
     void* db = D_004A6750;
@@ -573,7 +573,7 @@ extern "C" void func_001519E0(sEcon_001519E0* self, int k)
 //100% - objdiff report; single-function view differs only in a relocation name
 int func_0014D988(void* self, int i);
 extern "C" void* func_0014D998(void* self, int i);
-extern "C" void func_001513B8(void* self);
+extern "C" void BE_ApplyDefaultCharProfileBolts(void* self);
 // PORT: operator_new__FUi really takes (size, tag, flags, d); bound by asm label
 void* operator_new_tag(unsigned int size, const char* tag, int flags, int d) __asm__("operator_new__FUi");
 extern int D_004A11E8;
@@ -629,7 +629,7 @@ extern "C" void func_00151A88(sEconItems_151A88* self, int k)
         q->id = -1;
         q->flags = 0;
     }
-    func_001513B8(self);
+    BE_ApplyDefaultCharProfileBolts(self);
 }
 
 // A character's bolt-on store (0xF88 bytes, see be/belibrary)

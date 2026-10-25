@@ -38,7 +38,7 @@ extern "C" void* cUIScreen_getObjectByHashName(void* self, int hash);
 extern "C" void cUIScreen_playFrame(void* self, unsigned short frame, int flag);
 extern "C" char* func_0039A708(void* self);
 extern "C" void func_0039E4C0(void* self, int a1);
-void func_001A34A8(void* self);
+void cFEStateMPCircuit_EmptyHook(void* self);
 extern char D_004A19E8[];
 
 extern "C" void func_001A3308(void* self, int a1)
@@ -50,7 +50,7 @@ extern "C" void func_001A3308(void* self, int a1)
             cUIScreen_playFrame(*(void**)((char*)self + 0x40), frame, 1);
         }
     }
-    func_001A34A8(self);
+    cFEStateMPCircuit_EmptyHook(self);
     func_0039E4C0(self, a1);
 }
 
@@ -61,7 +61,7 @@ unsigned short cUIScreen_getFrameByLabel(cUIScreen* self, int label);
 extern "C" void cUIScreen_playFrame(void* self, unsigned short frame, int flag);
 extern "C" char* func_0039A708(void* self);
 extern "C" void func_0039F400(void* list, void* item);
-void func_001A34A8(void* self);
+void cFEStateMPCircuit_EmptyHook(void* self);
 
 struct sVEntry_33A0 {
     short delta;
@@ -98,7 +98,7 @@ extern "C" void func_001A33A0(void* self, void* item, unsigned int msg)
         if (frame != 0xFFFF) {
             cUIScreen_playFrame(*(void**)((char*)self + 0x40), frame, 1);
         }
-        func_001A34A8(self);
+        cFEStateMPCircuit_EmptyHook(self);
         break;
     }
     }
@@ -110,7 +110,7 @@ void func_001A34A0(void* self)
 }
 
 //100%
-void func_001A34A8(void* self)
+void cFEStateMPCircuit_EmptyHook(void* self)
 {
 }
 
@@ -162,7 +162,7 @@ extern "C" void func_003DEDC0(void* handle, int arg);
 void operator_delete(int* p);
 extern char D_00461418[];
 
-extern "C" void func_001A35E8(void* self, int flags)
+extern "C" void cFEAsyncManager_dtor(void* self, int flags)
 {
     if (BXFILE_exists(D_00461418) != 0) {
         func_003DEDC0(*(void**)((char*)self + 0x58C), 0x64);
@@ -206,7 +206,7 @@ extern "C" void func_001A3648(sMissionSlot* self)
 //100%
 extern "C" void cFEAsyncManager_UnloadFEAsyncFile(void* self, int i);
 
-extern "C" void func_001A3698(void* self)
+extern "C" void cFEAsyncManager_UnloadAll(void* self)
 {
     for (int i = 0; i < 5; i++) {
         cFEAsyncManager_UnloadFEAsyncFile(self, i);

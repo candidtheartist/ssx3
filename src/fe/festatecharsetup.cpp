@@ -11,7 +11,7 @@ extern "C" void* cBE_getBE();
 // PORT: cBE_getInterface__Fv is called with (be, kind) here; bind the 2-arg form to that symbol.
 void* cBE_getInterface_Fv(void* be, int kind) __asm__("cBE_getInterface__Fv");
 int cBENewPlayerInterface_getPlayerCharID(void* self, int index);
-extern "C" void func_00182DB8(void* self);
+extern "C" void cFEStateCharSetup_InitRiderPreview(void* self);
 extern "C" void func_001A0570(void* self, int i, int v);
 extern "C" void func_001A0508(void* self, int idx, int a2, int a3);
 extern "C" void* func_0028B180();
@@ -73,7 +73,7 @@ extern "C" void cFEStateCharSetup_onCreateScreen(sCharSetup_182928* self)
     if (screen != 0) {
         cUIScreen_playFrame(screen, 0, 0);
     }
-    func_00182DB8(self);
+    cFEStateCharSetup_InitRiderPreview(self);
     char* iface = (char*)cBE_getInterface_Fv(cBE_getBE(), 1);
     int charId = cBENewPlayerInterface_getPlayerCharID(iface, self->player);
     sVEntry_182928* vt = *(sVEntry_182928**)(iface + 0xC);
@@ -107,12 +107,12 @@ extern "C" void cFEStateCharSetup_onCreateScreen(sCharSetup_182928* self)
 }
 
 //100%
-extern "C" void func_001831D0(void* self, int a1);
+extern "C" void cFEStateCharSetup_SetRiderPreviewActive(void* self, int a1);
 void* func_0039E4A0(void* self);
 
 extern "C" void cFEStateCharSetup_Shutdown(void* self)
 {
-    func_001831D0(self, 0);
+    cFEStateCharSetup_SetRiderPreviewActive(self, 0);
     func_0039E4A0(self);
 }
 
@@ -137,7 +137,7 @@ extern "C" void* cMemMan_alloc(int size, const char* tag, unsigned int flags, in
 extern "C" void* func_001887A0(void* self, void* engine, int reset);
 extern "C" void cUIStateStack_pushSpecial(void* stack, void* st, int a2, int a3);
 extern "C" void func_0039F400(void* list, void* item);
-extern "C" void func_001831D0(void* self, int a1);
+extern "C" void cFEStateCharSetup_SetRiderPreviewActive(void* self, int a1);
 extern char D_0045D698[];
 
 struct sVEntryK182C80 {
@@ -164,7 +164,7 @@ extern "C" void func_00182C80(void* self, void* item, unsigned int event)
         void* r = vt[4].fn(o + vt[4].delta, self, *(int*)((char*)item + 0x18));
         if (r != 0)
             func_0039F400(*(char**)((char*)self + 0x10) + 0x18, r);
-        func_001831D0(self, 0);
+        cFEStateCharSetup_SetRiderPreviewActive(self, 0);
         break;
     }
     case 6: {
@@ -173,7 +173,7 @@ extern "C" void func_00182C80(void* self, void* item, unsigned int event)
         void* r = vt[5].fn(o + vt[5].delta, self, *(int*)((char*)item + 0x18));
         if (r != 0) {
             func_0039F400(*(char**)((char*)self + 0x10) + 0x18, r);
-            func_001831D0(self, 0);
+            cFEStateCharSetup_SetRiderPreviewActive(self, 0);
         }
         break;
     }
@@ -200,12 +200,12 @@ extern "C" void* cUIScreen_getObjectByHashName(void* self, int hash);
 void cUIText_setAsciiString(cUIText* self, const char* str);
 extern "C" void* func_0014EEC8(void* self, int player, int index);
 extern "C" void func_0015E050(void* cam, sVec4_182DB8* a, sVec4_182DB8* b);
-extern "C" void func_001831D0(void* self, int a1);
+extern "C" void cFEStateCharSetup_SetRiderPreviewActive(void* self, int a1);
 extern "C" void func_00182EC0(void* self);
 extern void* D_004A28A8;
 extern char D_0045D860[];
 
-extern "C" void func_00182DB8(void* self)
+extern "C" void cFEStateCharSetup_InitRiderPreview(void* self)
 {
     cUIText* text = (cUIText*)cUIScreen_getObjectByHashName(*(void**)((char*)self + 0x40), GetHashValue32(D_0045D860));
     signed char cid = cBENewPlayerInterface_getPlayerCharID(cBE_getInterface_Fv(cBE_getBE(), 1), *(signed char*)((char*)self + 0x44));
@@ -223,7 +223,7 @@ extern "C" void func_00182DB8(void* self)
     at.w = 1.0f;
     func_0015E050((char*)cam + 0x10, &pos, &at);
     cam->fov = 0.4363323450088501f;
-    func_001831D0(self, 1);
+    cFEStateCharSetup_SetRiderPreviewActive(self, 1);
     *(int*)((char*)self + 0x48) = 1;
     func_00182EC0(self);
 }
@@ -235,7 +235,7 @@ extern void* D_004A28A8;
 extern "C" void* func_001A0548(void* self, int a1);
 extern "C" void func_0019E538(void* self, int a1);
 
-extern "C" void func_001831D0(void* self, int on)
+extern "C" void cFEStateCharSetup_SetRiderPreviewActive(void* self, int on)
 {
     char* mgr = *(char**)((char*)D_004A28A8 + 0x7C);
     if (mgr != 0) {

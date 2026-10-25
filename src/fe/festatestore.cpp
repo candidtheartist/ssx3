@@ -281,7 +281,7 @@ struct sXform_184C60
 extern sQuat_184C60 D_004FF140;
 extern sQuat_184C60 D_004FF150;
 extern sQuat_184C60 D_004FF160;
-extern "C" void func_0019F3E8(void* rider, sXform_184C60* xf);
+extern "C" void cFERider_SetTransform(void* rider, sXform_184C60* xf);
 
 // PORT: PS2-only VU0 macro-mode asm (quaternion product a * b).
 static inline sQuat_184C60 QuatMul_184C60(const sQuat_184C60& a, const sQuat_184C60& b)
@@ -347,7 +347,7 @@ extern "C" void func_00184C60(char* self)
             }
             xf.rot = QuatMul_184C60(xf.rot, AxisAngle_184C60(D_004FF150, 0.0f));
             xf.rot = QuatMul_184C60(xf.rot, AxisAngle_184C60(D_004FF160, 1.082104206085205f));
-            func_0019F3E8(rider, &xf);
+            cFERider_SetTransform(rider, &xf);
             func_001A0570(*(char**)((char*)D_004A28A8 + 0x7C) + 0xB0, *(signed char*)(self + 0x44), 1);
         }
     }
@@ -500,7 +500,7 @@ struct sTrick_185268 {
     unsigned short cost;
 };
 extern "C" sTrick_185268* func_0014FF90(void* self, int rider, int a, int* count);
-extern "C" int func_00116938(int id);
+extern "C" int Trick_GetGrabName(int id);
 extern "C" void* func_001CABA8(void* mem, void* engine, void* owner, int rider);
 extern "C" void cUIStateBuyPopup_initBuyTrick(void* popup, int trick, int cost, int points);
 extern "C" void func_0039F290(void* list, void* item);
@@ -623,7 +623,7 @@ extern "C" void func_00185268(char* self, char* w, int ev)
                 int points = func_00150928(cBE_getInterface_Fv(cBE_getBE(), 0xB), *(signed char*)(self + 0x44), charID);
                 int count;
                 sTrick_185268* tbl = func_0014FF90(pi, *(signed char*)(self + 0x44), ia, &count);
-                int trick = func_00116938(tbl[ib].id);
+                int trick = Trick_GetGrabName(tbl[ib].id);
                 sTrick_185268* e = &tbl[ib];
                 if (points >= e->cost) {
                     void* popup = func_001CABA8(cMemMan_alloc(0x70, D_0045DAD8, 0x100, 0), *(void**)(self + 0x10), self, *(signed char*)(self + 0x44));
@@ -728,7 +728,7 @@ extern "C" void func_00185268(char* self, char* w, int ev)
 }
 
 //100%
-extern "C" int func_001859D8(void* self, int a1, unsigned int a2)
+extern "C" int cFEStateUberTrick_v20(void* self, int a1, unsigned int a2)
 {
     if (a1 == *(int*)((char*)self + 0x50)) {
         switch (a2) {

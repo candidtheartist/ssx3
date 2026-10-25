@@ -238,7 +238,7 @@ extern "C" void* cBE_getBE();
 void* cBE_getInterface_Fv(void* be, int kind) __asm__("cBE_getInterface__Fv");
 extern "C" int func_00152BA8();
 struct sFEMemCardK187270;
-extern "C" void func_00187270(sFEMemCardK187270* self);
+extern "C" void cFEStateMemCard_OnScanDone(sFEMemCardK187270* self);
 extern "C" void* func_00227F80(void* p);
 extern "C" int func_0023C8D0(void* mp);
 extern "C" int func_002419D8(void* mp, int card);
@@ -292,7 +292,7 @@ extern "C" void func_00186F90(void)
             return;
         }
     }
-    func_00187270((sFEMemCardK187270*)D_004A14B8_86F90);
+    cFEStateMemCard_OnScanDone((sFEMemCardK187270*)D_004A14B8_86F90);
 }
 
 //100%
@@ -354,12 +354,12 @@ extern "C" void func_00187148(void)
 //100%
 extern void* D_004A14B8;
 extern "C" void func_001D83A8(void);
-extern "C" void func_00187A38(void* self);
+extern "C" void cFEStateMemCard_ScanStep(void* self);
 
 extern "C" void func_00187180(void)
 {
     func_001D83A8();
-    func_00187A38(D_004A14B8);
+    cFEStateMemCard_ScanStep(D_004A14B8);
 }
 
 //100%
@@ -425,9 +425,9 @@ extern "C" void func_00187230(void)
 }
 
 //100%
-extern "C" void func_00187318(void* self);
-extern "C" void func_001877B0(void);
-extern "C" void func_00187920(void);
+extern "C" void cFEStateMemCard_Finish(void* self);
+extern "C" void cFEStateMemCard_StartProfileSearch(void);
+extern "C" void cFEStateMemCard_StartSystemLoad(void);
 
 struct sFEMemCardK187270 {
     char pad_0x000[0x234];
@@ -435,7 +435,7 @@ struct sFEMemCardK187270 {
     int flags;     // 0x238
 };
 
-extern "C" void func_00187270(sFEMemCardK187270* self)
+extern "C" void cFEStateMemCard_OnScanDone(sFEMemCardK187270* self)
 {
     self->f234 = 1;
     void* mp = func_00227F80(D_004A28A8);
@@ -443,13 +443,13 @@ extern "C" void func_00187270(sFEMemCardK187270* self)
     if (!(flags & 2)) {
         func_0023FB18(mp, 0);
         func_0023FAE0(mp);
-        func_00187920();
+        cFEStateMemCard_StartSystemLoad();
     } else if (!(flags & 1)) {
         func_0023FB18(mp, 0);
         func_0023FAE0(mp);
-        func_001877B0();
+        cFEStateMemCard_StartProfileSearch();
     } else {
-        func_00187318(self);
+        cFEStateMemCard_Finish(self);
     }
 }
 
@@ -457,7 +457,7 @@ extern "C" void func_00187270(sFEMemCardK187270* self)
 extern void* D_004A28A8;
 extern "C" void func_00228238(void* p);
 
-extern "C" void func_00187318(void* self)
+extern "C" void cFEStateMemCard_Finish(void* self)
 {
     *(int*)((char*)self + 0x1C0) = 6;
     if (*(int*)((char*)self + 0x1AC) == 0)
@@ -540,8 +540,8 @@ extern void* D_004A28A8;
 extern int D_004A14BC;
 extern "C" void* func_00227F80(void* p);
 extern "C" void func_0023FB58(void* mp);
-extern "C" void func_001877B0(void);
-extern "C" void func_00187318(void* self);
+extern "C" void cFEStateMemCard_StartProfileSearch(void);
+extern "C" void cFEStateMemCard_Finish(void* self);
 
 static inline int moviePlaying_K1874E8(void* mp)
 {
@@ -560,10 +560,10 @@ extern "C" void cFEStateMemCard_v33(void* self)
         return;
     if (D_004A14BC == 4 && ((*(int*)((char*)self + 0x238) ^ 1) & 1)) {
         func_0023FB58(mp);
-        func_001877B0();
+        cFEStateMemCard_StartProfileSearch();
         return;
     }
-    func_00187318(self);
+    cFEStateMemCard_Finish(self);
 }
 
 INCLUDE_ASM("fe/fememcard", func_00187580);
@@ -629,7 +629,7 @@ struct sVtEnt_001877B0 {
     void (*fn)(void*, int);
 };
 
-extern "C" void func_001877B0(void)
+extern "C" void cFEStateMemCard_StartProfileSearch(void)
 {
     unsigned short name[0x14];
     unsigned short desc[0x10];
@@ -683,7 +683,7 @@ struct sVtEntK187920 {
     void (*fn)(void*, int);
 };
 
-extern "C" void func_00187920(void)
+extern "C" void cFEStateMemCard_StartSystemLoad(void)
 {
     int two = 2;
     D_004A14BC = 4;
@@ -743,7 +743,7 @@ static inline void mpNotify_87A38(char* mp, int msg)
     vt[1].fn(mp + vt[1].delta, msg);
 }
 
-extern "C" void func_00187A38(void* p)
+extern "C" void cFEStateMemCard_ScanStep(void* p)
 {
     sMemCard_87A38* self = (sMemCard_87A38*)p;
     char* mp = (char*)func_00227F80(D_004A28A8);

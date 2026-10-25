@@ -90,7 +90,7 @@ extern "C" void func_001E9130(void* self, void* item, int a2)
 }
 
 //100%
-void func_001E91A8(void* self, void* a1)
+void HUD_GetElemColor(void* self, void* a1)
 {
     cOVStateHUDElem* e = (cOVStateHUDElem*)self;
     float* out = (float*)a1;
@@ -101,7 +101,7 @@ void func_001E91A8(void* self, void* a1)
 }
 
 //100%
-void func_001E91D0(void* self, void* a1)
+void HUD_GetElemColorRotated(void* self, void* a1)
 {
     cOVStateHUDElem* e = (cOVStateHUDElem*)self;
     float* out = (float*)a1;
@@ -112,7 +112,7 @@ void func_001E91D0(void* self, void* a1)
 }
 
 //100%
-extern "C" void func_001E91F8(void* self, void* a1)
+extern "C" void HUD_GetElemPos(void* self, void* a1)
 {
     short* in = (short*)self;
     float* out = (float*)a1;
@@ -147,7 +147,7 @@ extern "C" void func_001E9220(void* self, void* a1, void* a2)
 }
 
 //100%
-float func_001E9290(void* self, void* a1)
+float HUD_GetElemScale(void* self, void* a1)
 {
     cOVStateHUDElem* e = (cOVStateHUDElem*)self;
     float t0 = e->rangeMin;
@@ -191,7 +191,7 @@ struct sLine_1E92A8 {
 };
 extern sIcon_1E92A8 D_004C8980[];
 
-extern "C" void func_001E92A8(void* p)
+extern "C" void HUD_LayoutIconText(void* p)
 {
     sLine_1E92A8* self = (sLine_1E92A8*)p;
     unsigned short* s;
@@ -262,29 +262,29 @@ extern "C" void func_001E92A8(void* p)
 
 //100% - objdiff report; single-function view differs only in a relocation name
 extern "C" unsigned short* func_002C2540(unsigned short* dst, char* src);
-extern "C" void func_001E92A8(void* self);
+extern "C" void HUD_LayoutIconText(void* self);
 struct sVec2f { float x, y; };
 
-extern "C" void func_001E94E0(void* self, char* str, int a2, sVec2f* pos)
+extern "C" void HUD_SetIconText(void* self, char* str, int a2, sVec2f* pos)
 {
     func_002C2540((unsigned short*)((char*)self + 0x4C), str);
     *(int*)((char*)self + 0x8) = a2;
     *(sVec2f*)((char*)self + 0x10) = *pos;
-    func_001E92A8(self);
+    HUD_LayoutIconText(self);
 }
 
 //100% - objdiff report; single-function view differs only in a relocation name
 extern "C" unsigned short* func_002C2508(unsigned short* dst, unsigned short* src);
-extern "C" void func_001E92A8(void* self);
-extern "C" void func_001E9540(void* self, unsigned short* str, int a2, sVec2f* pos)
+extern "C" void HUD_LayoutIconText(void* self);
+extern "C" void HUD_SetIconTextW(void* self, unsigned short* str, int a2, sVec2f* pos)
 {
     func_002C2508((unsigned short*)((char*)self + 0x4C), str);
     *(int*)((char*)self + 0x8) = a2;
     *(sVec2f*)((char*)self + 0x10) = *pos;
-    func_001E92A8(self);
+    HUD_LayoutIconText(self);
 }
 
-INCLUDE_ASM("fe/ovstatehud", func_001E95A0);
+INCLUDE_ASM("fe/ovstatehud", HUD_DrawIconText);
 
 //100%
 extern "C" void* func_0039E2A0_9A30(void* self, int a1) __asm__("func_0039E2A0");
@@ -411,7 +411,7 @@ INCLUDE_ASM("fe/ovstatehud", cOVStateHUD1P_onRender2D);
 extern "C" float HUD_AlignX(void* self, int align, int flags, float pos, float size, float scale);
 extern "C" float HUD_AlignY(void* self, int align, float pos, float size, float scale);
 
-extern "C" void func_001F10F8(void* self, float* out, float* pos, float* size, float* scale, int alignX, int alignY, int flags)
+extern "C" void HUD_AlignElemPos(void* self, float* out, float* pos, float* size, float* scale, int alignX, int alignY, int flags)
 {
     out[0] = HUD_AlignX(self, alignX, flags, pos[0], size[0], scale[0]);
     out[1] = HUD_AlignY(self, alignY, pos[1], size[1], scale[1]);
@@ -434,8 +434,8 @@ static inline int texOf_001F1190(cOVStateHUDElem* e) { return e->field_0x0; }
 struct sVEnt_001F1190 { short delta; short index; void (*fn)(void*, int, sHudVert_001F1190*, int); };
 extern char* D_004A289C;
 
-INCLUDE_ASM("fe/ovstatehud", func_001F1190);
-extern "C" void func_001F1190(void* self, cOVStateHUDElem* e, float* pos, float* size, float* scale, float* color);
+INCLUDE_ASM("fe/ovstatehud", HUD_DrawSprite);
+extern "C" void HUD_DrawSprite(void* self, cOVStateHUDElem* e, float* pos, float* size, float* scale, float* color);
 
 //100%
 struct sPos_001F1338 {
@@ -452,8 +452,8 @@ struct sHudVert_001F1338 {
 struct sVEnt_001F1338 { short delta; short index; void (*fn)(void*, int, sHudVert_001F1338*, int); };
 extern char* D_004A289C;
 
-INCLUDE_ASM("fe/ovstatehud", func_001F1338);
-extern "C" void func_001F1338(void* self, float* pos, float* size, float* scale, float* color);
+INCLUDE_ASM("fe/ovstatehud", HUD_DrawRect);
+extern "C" void HUD_DrawRect(void* self, float* pos, float* size, float* scale, float* color);
 
 //100%
 extern "C" int strlen(const char* s);
@@ -506,7 +506,7 @@ struct sVec2_1F14B0 {
     float x, y;
 };
 
-extern "C" void func_001F14B0(void* self, const char* str, sGlyphTable_1F14B0* font, float amp, float x, float y)
+extern "C" void HUD_DrawTextCharOffset(void* self, const char* str, sGlyphTable_1F14B0* font, float amp, float x, float y)
 {
     sVec2_1F14B0 sc;
     sc.x = font->f38 / font->f30;
@@ -553,14 +553,14 @@ struct sHudElemDef_001F16C0 {
 };
 extern "C" void cOVStateHUD1P_renderTime(void* self, int a1, int a2, int a3, int a4, int a5, float* pos, float* scale, sColor_001F16C0* color, int align, int flags, int a11);
 
-extern "C" void func_001F16C0(void* self, int a1, int a2, int a3, int a4, int a5, sHudElemDef_001F16C0* defs, int idx, int a8, float* scaleMul, float* posOff, sColor_001F16C0* color)
+extern "C" void HUD_DrawTimeElem(void* self, int a1, int a2, int a3, int a4, int a5, sHudElemDef_001F16C0* defs, int idx, int a8, float* scaleMul, float* posOff, sColor_001F16C0* color)
 {
     float pos[4];
     float scale[4];
     sColor_001F16C0 col;
     sHudElemDef_001F16C0* e = &defs[idx];
-    func_001E91F8(e, pos);
-    func_001E9290(e, scale);
+    HUD_GetElemPos(e, pos);
+    HUD_GetElemScale(e, scale);
     if (scaleMul != 0) {
         scale[0] *= scaleMul[0];
         scale[1] *= scaleMul[1];
@@ -570,7 +570,7 @@ extern "C" void func_001F16C0(void* self, int a1, int a2, int a3, int a4, int a5
         pos[1] += posOff[1];
     }
     if (color == 0) {
-        func_001E91A8(e, &col);
+        HUD_GetElemColor(e, &col);
     } else {
         col = *color;
     }
@@ -579,7 +579,7 @@ extern "C" void func_001F16C0(void* self, int a1, int a2, int a3, int a4, int a5
 
 //100%
 extern "C" int sprintf(char* buf, const char* fmt, ...);
-extern "C" void func_001DC990(void* font, float x, float y, const char* fmt, ...);
+extern "C" void cFont_DrawTextVarargs(void* font, float x, float y, const char* fmt, ...);
 extern char D_004A2100[];
 extern char D_004A2108[];
 extern char D_004A22F0[];
@@ -625,7 +625,7 @@ extern "C" void cOVStateHUD1P_renderTime(void* self_, int a1, int a2, int a3, in
     if (a5 & 1) n = 4.0f;
     size[1] = (float)self->font->count * self->font->f34;
     size[0] = self->f170 * n + (self->digitW + 2.0f + 2.0f) * (n - 1.0f);
-    func_001F10F8(self, out, pos, size, scale, align, flags, a11);
+    HUD_AlignElemPos(self, out, pos, size, scale, align, flags, a11);
     sFont_001F1840* font = self->font;
     font->f38 = font->f30 * scale[0];
     font->f3C = font->f34 * scale[1];
@@ -653,7 +653,7 @@ extern "C" void cOVStateHUD1P_renderTime(void* self_, int a1, int a2, int a3, in
         out[0] += sepW;
     }
     if (a5 & 1)
-        func_001DC990(self->font, out[0], out[1], D_004A22F8, a4);
+        cFont_DrawTextVarargs(self->font, out[0], out[1], D_004A22F8, a4);
 }
 
 //100%
@@ -680,7 +680,7 @@ struct sRS_001F1B30 {
     int f8;
 };
 
-extern "C" void func_001F1B30(void* ctx, sFont_001F1B30* font, sHudElemDef_001F16C0* defs, int idx, const char* str, int a5, float* scaleMul, float* posOff, sColor_001F16C0* color, float* rect, int align, int flags)
+extern "C" void HUD_DrawTextElem(void* ctx, sFont_001F1B30* font, sHudElemDef_001F16C0* defs, int idx, const char* str, int a5, float* scaleMul, float* posOff, sColor_001F16C0* color, float* rect, int align, int flags)
 {
     float scale[2];
     float pos[4];
@@ -692,8 +692,8 @@ extern "C" void func_001F1B30(void* ctx, sFont_001F1B30* font, sHudElemDef_001F1
     scale[0] = 1.0f;
     scale[1] = 1.0f;
     sHudElemDef_001F16C0* e = &defs[idx];
-    func_001E91F8(e, pos);
-    func_001E9290(e, escale);
+    HUD_GetElemPos(e, pos);
+    HUD_GetElemScale(e, escale);
     if (scaleMul != 0) {
         escale[0] *= scaleMul[0];
         escale[1] *= scaleMul[1];
@@ -705,7 +705,7 @@ extern "C" void func_001F1B30(void* ctx, sFont_001F1B30* font, sHudElemDef_001F1
     int ay = (flags == 0x7F) ? defs[idx].flags : flags;
     size[0] = r[2];
     size[1] = r[3];
-    func_001F10F8(ctx, out, pos, size, scale, ax, ay, a5);
+    HUD_AlignElemPos(ctx, out, pos, size, scale, ax, ay, a5);
     if (posOff != 0) {
         out[0] += posOff[0];
         out[1] += posOff[1];
@@ -717,7 +717,7 @@ extern "C" void func_001F1B30(void* ctx, sFont_001F1B30* font, sHudElemDef_001F1
         rect[3] = r[3];
     }
     if (color == 0) {
-        func_001E91A8(&defs[idx], &col);
+        HUD_GetElemColor(&defs[idx], &col);
     } else {
         col = *color;
     }
@@ -732,7 +732,7 @@ extern "C" void func_001F1B30(void* ctx, sFont_001F1B30* font, sHudElemDef_001F1
     font->f3C = font->f34 * scale[1];
 }
 
-INCLUDE_ASM("fe/ovstatehud", func_001F1E28);
+INCLUDE_ASM("fe/ovstatehud", HUD_DrawTextLerp);
 
 //100%
 extern "C" float func_003921F0(void* self, const unsigned short* str, void* out, int n, float sx, float sy);
@@ -759,7 +759,7 @@ struct sRS_001F22E8 {
     int f8;
 };
 
-extern "C" void func_001F22E8(void* ctx, sFont_001F22E8* font, sHudElemDef_001F16C0* defs, int idx, const unsigned short* str, int a5, float* scaleMul, float* posOff, sColor_001F16C0* color, float* rect, int align, int flags)
+extern "C" void HUD_DrawTextElemW(void* ctx, sFont_001F22E8* font, sHudElemDef_001F16C0* defs, int idx, const unsigned short* str, int a5, float* scaleMul, float* posOff, sColor_001F16C0* color, float* rect, int align, int flags)
 {
     float scale[2];
     float pos[4];
@@ -771,8 +771,8 @@ extern "C" void func_001F22E8(void* ctx, sFont_001F22E8* font, sHudElemDef_001F1
     scale[0] = 1.0f;
     scale[1] = 1.0f;
     sHudElemDef_001F16C0* e = &defs[idx];
-    func_001E91F8(e, pos);
-    func_001E9290(e, escale);
+    HUD_GetElemPos(e, pos);
+    HUD_GetElemScale(e, escale);
     if (scaleMul != 0) {
         escale[0] *= scaleMul[0];
         escale[1] *= scaleMul[1];
@@ -784,7 +784,7 @@ extern "C" void func_001F22E8(void* ctx, sFont_001F22E8* font, sHudElemDef_001F1
     int ay = (flags == 0x7F) ? defs[idx].flags : flags;
     size[0] = r[2];
     size[1] = r[3];
-    func_001F10F8(ctx, out, pos, size, scale, ax, ay, a5);
+    HUD_AlignElemPos(ctx, out, pos, size, scale, ax, ay, a5);
     if (posOff != 0) {
         out[0] += posOff[0];
         out[1] += posOff[1];
@@ -796,7 +796,7 @@ extern "C" void func_001F22E8(void* ctx, sFont_001F22E8* font, sHudElemDef_001F1
         rect[3] = r[3];
     }
     if (color == 0) {
-        func_001E91A8(&defs[idx], &col);
+        HUD_GetElemColor(&defs[idx], &col);
     } else {
         col = *color;
     }
@@ -811,7 +811,7 @@ extern "C" void func_001F22E8(void* ctx, sFont_001F22E8* font, sHudElemDef_001F1
     font->f3C = font->f34 * scale[1];
 }
 
-INCLUDE_ASM("fe/ovstatehud", func_001F25E0);
+INCLUDE_ASM("fe/ovstatehud", HUD_DrawTextLerpW);
 
 //100%
 extern "C" char* func_00392430(void* f, const char* str, char* dst, int max, float sx, float width);
@@ -843,7 +843,7 @@ static inline float alignPos_001F2AA0(float v, int a, float size)
     return v;
 }
 
-extern "C" void func_001F2AA0(void* self, sFont_001F2AA0* font, sHudElemDef_001F16C0* defs, int idx, const char* str, int flags, float* rect)
+extern "C" void HUD_DrawWrappedText(void* self, sFont_001F2AA0* font, sHudElemDef_001F16C0* defs, int idx, const char* str, int flags, float* rect)
 {
     float wrap[2];
     float pos[2];
@@ -854,8 +854,8 @@ extern "C" void func_001F2AA0(void* self, sFont_001F2AA0* font, sHudElemDef_001F
     int n = 0;
     sHudElemDef_001F16C0* e = &defs[idx];
     func_001E9220(e, wrap, 0);
-    func_001E91F8(e, pos);
-    func_001E9290(e, escale);
+    HUD_GetElemPos(e, pos);
+    HUD_GetElemScale(e, escale);
     sFont_001F2AA0* sf = *(sFont_001F2AA0**)((char*)self + 0x428);
     sf->f38 = sf->f30 * escale[0];
     sf->f3C = sf->f34 * escale[1];
@@ -864,7 +864,7 @@ extern "C" void func_001F2AA0(void* self, sFont_001F2AA0* font, sHudElemDef_001F
         p = func_00392430(*(sFont_001F2AA0**)((char*)self + 0x428), p, lines[n], 0x32, (*(sFont_001F2AA0**)((char*)self + 0x428))->f38, wrap[0]);
         n++;
     }
-    func_001E91A8(&defs[idx], &col);
+    HUD_GetElemColor(&defs[idx], &col);
     font->color = col;
     float fn = (float)n;
     sRS_001F2AA0* rs = *(sRS_001F2AA0**)(D_004A289C + 0xE84);
@@ -936,7 +936,7 @@ static inline float alignPos_001F2DB0(float v, int a, float size)
     return v;
 }
 
-extern "C" void func_001F2DB0(void* self, sFont_001F2DB0* font, sHudElemDef_001F16C0* defs, int idx, const unsigned short* str, int flags, float* rect)
+extern "C" void HUD_DrawWrappedTextW(void* self, sFont_001F2DB0* font, sHudElemDef_001F16C0* defs, int idx, const unsigned short* str, int flags, float* rect)
 {
     float wrap[2];
     float pos[2];
@@ -947,8 +947,8 @@ extern "C" void func_001F2DB0(void* self, sFont_001F2DB0* font, sHudElemDef_001F
     int n = 0;
     func_001E9220(&defs[29], wrap, 0);
     sHudElemDef_001F16C0* e = &defs[idx];
-    func_001E91F8(e, pos);
-    func_001E9290(e, escale);
+    HUD_GetElemPos(e, pos);
+    HUD_GetElemScale(e, escale);
     sFont_001F2DB0* sf = *(sFont_001F2DB0**)((char*)self + 0x428);
     sf->f38 = sf->f30 * escale[0];
     sf->f3C = sf->f34 * escale[1];
@@ -957,7 +957,7 @@ extern "C" void func_001F2DB0(void* self, sFont_001F2DB0* font, sHudElemDef_001F
         p = func_00392680(*(sFont_001F2DB0**)((char*)self + 0x428), p, lines[n], 0x32, (*(sFont_001F2DB0**)((char*)self + 0x428))->f38, wrap[0]);
         n++;
     }
-    func_001E91A8(&defs[idx], &col);
+    HUD_GetElemColor(&defs[idx], &col);
     font->color = col;
     float fn = (float)n;
     sRS_001F2DB0* rs = *(sRS_001F2DB0**)(D_004A289C + 0xE84);
@@ -1029,7 +1029,7 @@ extern void* D_004A28A8;
 extern char D_0046ED78[];
 extern char D_004A21F0[];
 
-extern "C" void func_001F30D8(void* p)
+extern "C" void LoadIndicator_Init(void* p)
 {
     sHudIds001F30D8* self = (sHudIds001F30D8*)p;
     char* o = *(char**)((char*)D_004A28A8 + 0x8C);
@@ -1044,7 +1044,7 @@ extern "C" void func_001F30D8(void* p)
 }
 
 //100%
-void func_001F3170(void* self)
+void LoadIndicator_Clear(void* self)
 {
     cOVStateHUDElem* e = (cOVStateHUDElem*)self;
     int t0 = 0;
@@ -1055,7 +1055,7 @@ void func_001F3170(void* self)
 }
 
 //100%
-extern "C" void func_001F3188(void* self)
+extern "C" void LoadIndicator_Update(void* self)
 {
     if (*(int*)((char*)self + 4) != 0) {
         float* t = (float*)((char*)self + 8);
@@ -1067,16 +1067,16 @@ extern "C" void func_001F3188(void* self)
     }
 }
 
-INCLUDE_ASM("fe/ovstatehud", func_001F31E0);
+INCLUDE_ASM("fe/ovstatehud", LoadIndicator_Draw);
 
 //100%
-extern "C" void func_001F36C0(void* self, int bit)
+extern "C" void LoadIndicator_SetBusy(void* self, int bit)
 {
     *(int*)((char*)self + 0x4) |= (1 << bit);
 }
 
 //100%
-extern "C" void func_001F36D8(void* self, int bit)
+extern "C" void LoadIndicator_ClearBusy(void* self, int bit)
 {
     *(int*)((char*)self + 0x4) &= ~(1 << bit);
     if (*(int*)((char*)self + 0x4) == 0) {

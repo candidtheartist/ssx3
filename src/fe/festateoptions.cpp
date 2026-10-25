@@ -62,7 +62,7 @@ extern "C" void* func_001CB030(void* self, void* engine, void* owner, int a3, in
 extern "C" void func_001CB418(void* self, char* s);
 extern "C" void func_001CCF00(void* self, char* s);
 extern "C" void func_001CE3C8(void* self, int a1, int a2, int a3);
-extern "C" int func_00187D38(void* self);
+extern "C" int cFEStateOptions_ApplyCheatCode(void* self);
 extern "C" void cFEStateOptions_OpenResetPopup(void* self);
 extern "C" void func_0039F290(void* list, void* item);
 extern "C" void func_0039F400(void* list, void* item);
@@ -157,7 +157,7 @@ extern "C" void func_00188980(sOpt_188980* self, char* widget, unsigned int even
         break;
     }
     case 13: {
-        int r = func_00187D38((char*)self->popup + 0x74);
+        int r = cFEStateOptions_ApplyCheatCode((char*)self->popup + 0x74);
         char* obj = &D_004A5A58;
         char* l = *(char**)(self->engine + 0x14);
         if (l != 0)
@@ -178,7 +178,7 @@ extern "C" void func_00188980(sOpt_188980* self, char* widget, unsigned int even
 //100%
 extern int D_004A3484;
 
-extern "C" int func_00188C58(void* self, void* a1)
+extern "C" int cFEStateOptions_HandleInput(void* self, void* a1)
 {
     D_004A3484 = *(unsigned char*)((char*)a1 + 4);
     return 0;
@@ -483,8 +483,8 @@ void* func_001895F0(void* self)
 int GetHashValue32(char* str);
 extern "C" void* cBE_getBE();
 void* cBE_getInterface_Fv(void* be, int kind) __asm__("cBE_getInterface__Fv");
-extern "C" void func_0014F4F8(void* iface);
-extern "C" void func_00189D60(void* self);
+extern "C" void cBEOptionInterface_SetGameDefaults(void* iface);
+extern "C" void cFEStateOptionsGame_RefreshListBoxes(void* self);
 extern "C" void* func_0028B180();
 extern "C" void func_0029ED90(void* p, int a);
 extern char D_0045DD20[];
@@ -543,9 +543,9 @@ extern "C" void func_00189610(void* self, char* popup, int event)
     case 0x16:
         if (Is_189610(*(int*)(popup + 0xC), D_0045DD20)) {
             if (GetOpt_189610(popup, 2)) {
-                func_0014F4F8(iface);
+                cBEOptionInterface_SetGameDefaults(iface);
                 D_004A14D0 = 1;
-                func_00189D60(self);
+                cFEStateOptionsGame_RefreshListBoxes(self);
                 func_0029ED90(func_0028B180(), 1);
             }
         } else if (Is_189610(*(int*)(popup + 0xC), D_0045DDD8)) {
@@ -565,9 +565,9 @@ extern "C" void func_00189610(void* self, char* popup, int event)
             }
         } else if (*(int*)(popup + 0xC) == 0x1B) {
             if (GetOpt_189610(popup, 2)) {
-                func_0014F4F8(iface);
+                cBEOptionInterface_SetGameDefaults(iface);
                 D_004A14D0 = 1;
-                func_00189D60(self);
+                cFEStateOptionsGame_RefreshListBoxes(self);
             }
         }
         {
@@ -579,7 +579,7 @@ extern "C" void func_00189610(void* self, char* popup, int event)
 }
 
 //100%
-extern "C" int func_00189958(void* self, int a1, int a2)
+extern "C" int cFEStateOptionsGame_v20(void* self, int a1, int a2)
 {
     return a2 != 9 ? 0x101 : 0x100;
 }
@@ -798,7 +798,7 @@ static inline void* find_189D60(sOptGame_189D60* self, int i)
 }
 
 // Pushes the current game options into the option widgets of the screen.
-extern "C" void func_00189D60(void* self_)
+extern "C" void cFEStateOptionsGame_RefreshListBoxes(void* self_)
 {
     sOptGame_189D60* self = (sOptGame_189D60*)self_;
     sOptionIface_189D60* iface = (sOptionIface_189D60*)cBE_getInterface_Fv(cBE_getBE(), 4);
@@ -902,8 +902,8 @@ extern "C" void cFEStateOptionsSound_onCreateScreen(void* self)
 int GetHashValue32(char* str);
 extern "C" void* cBE_getBE();
 void* cBE_getInterface_Fv(void* be, int kind) __asm__("cBE_getInterface__Fv");
-extern "C" void func_0014F458(void* iface);
-extern "C" void func_0018BEF8(void* self, unsigned int mode);
+extern "C" void cBEOptionInterface_SetSoundDefaults(void* iface);
+extern "C" void cFEStateOptionsSound_SetSpeakerMode(void* self, unsigned int mode);
 extern "C" void* func_0028B180();
 extern "C" void func_00287410(void* snd, int v);
 extern "C" void func_00287488(void* snd, int v);
@@ -959,8 +959,8 @@ extern "C" void func_0018A3D8(void* self, char* popup, int event)
     case 0x16:
         if (Is_18A3D8(*(int*)(popup + 0xC), D_0045DD20)) {
             if (GetOpt_18A3D8(popup, 2)) {
-                func_0014F458(iface);
-                func_0018BEF8(self, D_00535610_18A3D8.output);
+                cBEOptionInterface_SetSoundDefaults(iface);
+                cFEStateOptionsSound_SetSpeakerMode(self, D_00535610_18A3D8.output);
                 func_00287410(func_0028B180(), Cfg_18A3D8().sfxVol);
                 func_00287488(func_0028B180(), Cfg_18A3D8().speechVol);
                 func_00287520(func_0028B180(), Cfg_18A3D8().musicVol);
@@ -981,7 +981,7 @@ void* func_0018A870(void* self)
 }
 
 //100%
-extern "C" int func_0018A890(void* self, int a1, int a2)
+extern "C" int cFEStateOptionsSound_v20(void* self, int a1, int a2)
 {
     switch (a2) {
     case 9:
@@ -1162,7 +1162,7 @@ struct sVE_18BEF8v {
     void (*fn)(void*, int);
 };
 
-extern "C" void func_0018BEF8(void* self, unsigned int mode)
+extern "C" void cFEStateOptionsSound_SetSpeakerMode(void* self, unsigned int mode)
 {
     int m;
     switch (mode) {
@@ -1224,7 +1224,7 @@ int GetHashValue32(char* str);
 extern char D_0045E038[];
 extern "C" void* cUIEngine_addScreenByHashName(void* engine, void* owner, int hash, int a3);
 extern "C" void* cUIScreen_playFrame(void* self, unsigned short frame, int flag);
-extern "C" void func_0018C478(void* self);
+extern "C" void cFEStateOptionsHUD_RefreshSelection(void* self);
 
 extern "C" void func_0018C128(void* self)
 {
@@ -1234,7 +1234,7 @@ extern "C" void func_0018C128(void* self)
     if (screen != 0) {
         cUIScreen_playFrame(screen, 0, 0);
     }
-    func_0018C478(self);
+    cFEStateOptionsHUD_RefreshSelection(self);
 }
 
 //100%
@@ -1255,8 +1255,8 @@ extern int D_004A14D8;
 extern "C" void* cBE_getBE();
 // PORT: cBE_getInterface__Fv is called with (be, kind) here; bind the 2-arg form to that symbol.
 void* cBE_getInterface_Fv(void* be, int kind) __asm__("cBE_getInterface__Fv");
-extern "C" void func_0014F600(void* self);
-extern "C" void func_0018C478(void* self);
+extern "C" void cBEOptionInterface_SetHUDDefaults(void* self);
+extern "C" void cFEStateOptionsHUD_RefreshSelection(void* self);
 
 extern "C" void func_0018C1B8(void* self, void* widget, int msg)
 {
@@ -1269,8 +1269,8 @@ extern "C" void func_0018C1B8(void* self, void* widget, int msg)
         if (h == GetHashValue32(D_0045DD20)) {
             sVE_18C1B8* e = &(*(sVE_18C1B8**)((char*)widget + 8))[23];
             if (e->fn((char*)widget + e->delta, 2) != 0) {
-                func_0014F600(iface);
-                func_0018C478(self);
+                cBEOptionInterface_SetHUDDefaults(iface);
+                cFEStateOptionsHUD_RefreshSelection(self);
                 D_004A14D8 = 1;
             }
         }
@@ -1280,7 +1280,7 @@ extern "C" void func_0018C1B8(void* self, void* widget, int msg)
 }
 
 //100%
-extern "C" int func_0018C270(void* self, int a1, int a2)
+extern "C" int cFEStateOptionsHUD_v20(void* self, int a1, int a2)
 {
     switch (a2) {
     case 9:
@@ -1409,7 +1409,7 @@ struct sVE_18C478v {
     void (*fn)(void*, int);
 };
 
-extern "C" void func_0018C478(void* vself)
+extern "C" void cFEStateOptionsHUD_RefreshSelection(void* vself)
 {
     char* self = (char*)vself;
     cBE_getInterface_Fv(cBE_getBE(), 4);
@@ -1454,7 +1454,7 @@ extern "C" void* func_0018C658(void* self)
 
 //100%
 extern "C" void cUIListBox_addEntryByStringID(void* box, int id, int idx);
-extern "C" void func_0018D108(void* self, int idx, float x, float y);
+extern "C" void cFEStateOptionsController_SetVibration(void* self, int idx, float x, float y);
 extern "C" void func_0018CDC0(void* self);
 extern char D_0045E068[];
 extern char D_004A1568[];
@@ -1497,19 +1497,19 @@ extern "C" void cFEStateOptionsController_onCreateScreen(void* self)
         cUIListBox_addEntryByStringID(o, GetHashValue32(D_0045E090), 1);
     }
     float zero = 0.0f;
-    func_0018D108(self, 0, zero, zero);
-    func_0018D108(self, 1, zero, zero);
+    cFEStateOptionsController_SetVibration(self, 0, zero, zero);
+    cFEStateOptionsController_SetVibration(self, 1, zero, zero);
     func_0018CDC0(self);
 }
 
 //100%
-extern "C" void func_0018D108(void* self, int idx, float x, float y);
+extern "C" void cFEStateOptionsController_SetVibration(void* self, int idx, float x, float y);
 void* func_0039E4A0(void* self);
 
 extern "C" void* func_0018C8B8(void* self)
 {
-    func_0018D108(self, 0, 0.0f, 0.0f);
-    func_0018D108(self, 1, 0.0f, 0.0f);
+    cFEStateOptionsController_SetVibration(self, 0, 0.0f, 0.0f);
+    cFEStateOptionsController_SetVibration(self, 1, 0.0f, 0.0f);
     return func_0039E4A0(self);
 }
 
@@ -1520,7 +1520,7 @@ extern "C" void* cBE_getBE();
 void* cBE_getInterface_Fv(void* be, int kind) __asm__("cBE_getInterface__Fv");
 extern "C" void cBENewPlayerInterface_defaultCtrl(void* self);
 extern "C" void func_0018CDC0(void* self);
-extern "C" void func_0018D108(void* self, int idx, float x, float y);
+extern "C" void cFEStateOptionsController_SetVibration(void* self, int idx, float x, float y);
 extern char D_0045DD20[];
 extern int D_004A14DC;
 
@@ -1560,8 +1560,8 @@ extern "C" void func_0018C910(void* self, cUIObj_18C910* obj, int msg)
     switch (msg) {
     case 0x15: {
         float zero = 0.0f;
-        func_0018D108(self, 0, zero, zero);
-        func_0018D108(self, 1, zero, zero);
+        cFEStateOptionsController_SetVibration(self, 0, zero, zero);
+        cFEStateOptionsController_SetVibration(self, 1, zero, zero);
         break;
     }
     case 0x16:
@@ -1591,7 +1591,7 @@ extern "C" void func_00147528(void* self, int index, int value);
 extern "C" void func_00147658(void* self, int index, int value);
 extern "C" int func_001474E8(void* iface, int a1);
 extern "C" void func_0018CF50(void* self, int on);
-extern "C" void func_0018D108(void* self, int idx, float x, float y);
+extern "C" void cFEStateOptionsController_SetVibration(void* self, int idx, float x, float y);
 extern char D_0045DD68[];
 extern void* D_0046B3D0[];
 extern char D_004A1568[];
@@ -1644,20 +1644,20 @@ extern "C" void func_0018CA10(char* self, char* widget, unsigned int event)
         if (Is_0018CA10(*(int*)(widget + 0x38), D_004A1568)) {
             func_00147528(iface, 0, func_0039A738(widget) != 0);
             if (func_001474E8(iface, 0)) {
-                func_0018D108(self, 0, 10.0f, 10.0f);
+                cFEStateOptionsController_SetVibration(self, 0, 10.0f, 10.0f);
                 *(int*)(self + 0x48) = 0x3C;
                 *(unsigned char*)(self + 0x50) |= 1;
             } else {
-                func_0018D108(self, 0, 0.0f, 0.0f);
+                cFEStateOptionsController_SetVibration(self, 0, 0.0f, 0.0f);
             }
         } else if (Is_0018CA10(*(int*)(widget + 0x38), D_004A1570)) {
             func_00147528(iface, 1, func_0039A738(widget) != 0);
             if (func_001474E8(iface, 1)) {
-                func_0018D108(self, 1, 10.0f, 10.0f);
+                cFEStateOptionsController_SetVibration(self, 1, 10.0f, 10.0f);
                 *(int*)(self + 0x4C) = 0x3C;
                 *(unsigned char*)(self + 0x50) |= 2;
             } else {
-                func_0018D108(self, 1, 0.0f, 0.0f);
+                cFEStateOptionsController_SetVibration(self, 1, 0.0f, 0.0f);
             }
         } else if (Is_0018CA10(*(int*)(widget + 0x38), D_004A15C8)) {
             func_00147658(iface, 0, func_0039A738(widget));
@@ -1795,7 +1795,7 @@ extern "C" void func_0018CF50(void* self, int on)
 
 //100%
 extern "C" void* func_0039E510(void* self);
-extern "C" void func_0018D108(void* self, int idx, float x, float y);
+extern "C" void cFEStateOptionsController_SetVibration(void* self, int idx, float x, float y);
 
 extern "C" void func_0018D058(void* self)
 {
@@ -1806,7 +1806,7 @@ extern "C" void func_0018D058(void* self)
         } else {
             *(int*)((char*)self + 0x48) = 0;
             *(unsigned char*)((char*)self + 0x50) &= ~1;
-            func_0018D108(self, 0, 0.0f, 0.0f);
+            cFEStateOptionsController_SetVibration(self, 0, 0.0f, 0.0f);
         }
     }
     if (*(unsigned char*)((char*)self + 0x50) & 2) {
@@ -1815,7 +1815,7 @@ extern "C" void func_0018D058(void* self)
         } else {
             *(int*)((char*)self + 0x4C) = 0;
             *(unsigned char*)((char*)self + 0x50) &= ~2;
-            func_0018D108(self, 1, 0.0f, 0.0f);
+            cFEStateOptionsController_SetVibration(self, 1, 0.0f, 0.0f);
         }
     }
 }
@@ -1832,7 +1832,7 @@ public:
 };
 
 // PORT: uses g++'s >? (max) operator.
-extern "C" void func_0018D108(void* self, int idx, float x, float y)
+extern "C" void cFEStateOptionsController_SetVibration(void* self, int idx, float x, float y)
 {
     signed char i = idx;
     float t = x * 0.9133333563804626f - 18.518518447875977f;
@@ -1932,7 +1932,7 @@ extern "C" void func_0018D3C0(void* self)
 
 //100%
 // Key filter: keys 8 and 9 return 0x100, every other key 0x101.
-extern "C" int func_0018D438(void* self, int a1, unsigned int key)
+extern "C" int cFEStateOptionsSaveLoad_v20(void* self, int a1, unsigned int key)
 {
     int r = 0x101;
     if (key < 10) {
@@ -1954,7 +1954,7 @@ extern "C" void func_0039F400(void* list, void* item);
 extern "C" void func_00147138(void* self, int a1, const char* name);
 extern "C" void func_0014DE28(void* self, int c);
 extern "C" void* func_001A0548(void* self, int a1);
-extern "C" void func_0019EBA0(void* self);
+extern "C" void cFERider_Unload(void* self);
 extern "C" int cFERider_init(void* self, int a1, int a2, int a3);
 struct cUIScreen;
 int cUIScreen_getFrameByLabel(cUIScreen* self, int label);
@@ -2001,10 +2001,10 @@ extern "C" void func_0018D460(char* self, char* widget, unsigned int event)
         vt[1].fn(iface + vt[1].delta);
         func_0014DE28(cBE_getBE(), sel);
         void* r = func_001A0548(*(char**)((char*)D_004A28A8 + 0x7C) + 0xB0, 0);
-        func_0019EBA0(r);
+        cFERider_Unload(r);
         cFERider_init(r, 0, 4, 0);
         r = func_001A0548(*(char**)((char*)D_004A28A8 + 0x7C) + 0xB0, 1);
-        func_0019EBA0(r);
+        cFERider_Unload(r);
         cFERider_init(r, 1, 0, 0);
         char* obj = **(char***)(self + 0x10);
         sVE_18D460p* vt2 = *(sVE_18D460p**)(obj + 4);
