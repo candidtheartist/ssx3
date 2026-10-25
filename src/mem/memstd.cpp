@@ -238,7 +238,7 @@ typedef char* MEM_printf_va_list;
     (ap = (char*)__builtin_next_arg()                                    \
           - (__builtin_args_info(2) < 8 ? (8 - __builtin_args_info(2)) * 8 : 0))
 
-extern "C" int vsprintf(char* dst, const char* fmt, char* ap);
+extern "C" int func_004186C8(char* dst, const char* fmt, char* ap);
 extern "C" void func_003E5D30(int, char*);
 
 // printf to the debug output; the callback MEM_printclass uses.
@@ -247,7 +247,7 @@ extern "C" void MEM_printf(const char* fmt, ...)
     char buf[0x200];
     MEM_printf_va_list ap;
     MEM_printf_va_start(ap);
-    vsprintf(buf, fmt, ap);
+    func_004186C8(buf, fmt, ap);
     func_003E5D30(2, buf);
 }
 

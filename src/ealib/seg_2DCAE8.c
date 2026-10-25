@@ -4680,7 +4680,7 @@ void func_003E5C78_5C78(int idx, char *fmt, char *ap) {
         func_003E5B60();
     }
     if (D_00450E08_5C78[idx].b0) {
-        vsprintf(buf, fmt, ap);
+        func_004186C8(buf, fmt, ap);
         h = (int)D_00451250_5C78;
         do {
             if (((struct H_5C78 *)h)->b0) {
@@ -4816,7 +4816,7 @@ void func_003E5FF0(int i, int a, int b) {
 #define REAL_abortmessage_va_start(ap)                                   \
     (ap = (char*)__builtin_next_arg()                                    \
           - (__builtin_args_info(2) < 8 ? (8 - __builtin_args_info(2)) * 8 : 0))
-extern int vsprintf(char *dst, const char *fmt, char *ap);
+extern int func_004186C8(char *dst, const char *fmt, char *ap);
 extern void (*D_00450DD8_6070[])(char *, char *) __asm__("D_00450DD8");
 extern char D_00495EE8_6070[] __asm__("D_00495EE8");
 
@@ -4825,7 +4825,7 @@ void REAL_abortmessage(const char *fmt, ...) {
     if (fmt) {
         char *ap;
         REAL_abortmessage_va_start(ap);
-        vsprintf(buf, fmt, ap);
+        func_004186C8(buf, fmt, ap);
     } else {
         buf[0] = 0;
     }
@@ -4835,7 +4835,7 @@ void REAL_abortmessage(const char *fmt, ...) {
 //100%
 extern void func_003E4A10(void);
 extern void func_003E5D30_60E8(int, char *, ...) __asm__("func_003E5D30");
-extern int vsprintf_60E8(char *, char *, char *) __asm__("vsprintf");
+extern int vsprintf_60E8(char *, char *, char *) __asm__("func_004186C8");
 extern char D_00495EF0[];
 extern char D_00495F00[];
 extern char *D_0045100C_100C[] __asm__("D_0045100C");
@@ -5375,7 +5375,7 @@ int ProtoPingResponse_impl(struct S_7500 *self, char *buf, int *a2, int *a3) {
 }
 
 //100%
-extern void vsprintf_76A8(char *, const char *, char *) __asm__("vsprintf");
+extern void vsprintf_76A8(char *, const char *, char *) __asm__("func_004186C8");
 
 // PORT: SN-specific va_start
 void func_003E76A8(char *self, const char *fmt, ...) {

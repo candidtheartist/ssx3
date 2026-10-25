@@ -210,12 +210,12 @@ struct sMat00391C48 {
 } __attribute__((aligned(16)));
 
 extern sMat00391C48 D_00500CA0;
-extern "C" void vsprintf(sMat00391C48* m);
+extern "C" void func_004186C8(sMat00391C48* m);
 extern "C" void func_00391CB0(void* self, float x, float y, sMat00391C48* m);
 
 extern "C" void func_00391C48(void* self, float x, float y)
 {
-    vsprintf(&D_00500CA0);
+    func_004186C8(&D_00500CA0);
     func_00391CB0(self, x, y, &D_00500CA0);
 }
 

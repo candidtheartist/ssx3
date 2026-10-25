@@ -300,7 +300,7 @@ typedef char* func_00321500_va_list;
           - (__builtin_args_info(2) < 8 ? (8 - __builtin_args_info(2)) * 8 : 0))
 
 extern "C" int sprintf(char* dst, const char* fmt, ...);
-extern "C" int vsprintf(char* dst, const char* fmt, char* ap);
+extern "C" int func_004186C8(char* dst, const char* fmt, char* ap);
 extern char D_0048DD40[];
 
 extern "C" void func_00321500(void* self, const char* fmt, ...)
@@ -308,7 +308,7 @@ extern "C" void func_00321500(void* self, const char* fmt, ...)
     char buf[0x400];
     func_00321500_va_list ap;
     func_00321500_va_start(ap);
-    vsprintf(buf + sprintf(buf, D_0048DD40, (char*)self + 0xC, *(int*)((char*)self + 0x8C)), fmt, ap);
+    func_004186C8(buf + sprintf(buf, D_0048DD40, (char*)self + 0xC, *(int*)((char*)self + 0x8C)), fmt, ap);
     *(int*)((char*)self + 0x94) = 1;
 }
 
